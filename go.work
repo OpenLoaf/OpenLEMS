@@ -1,0 +1,12 @@
+go 1.22
+
+use (
+	application
+	common
+	common_cabinet
+	common_group
+	plug_drivers
+	plug_protocol_modbus
+	plug_protocol_canbus
+	plug_protocol_gpio_sysfs
+)
