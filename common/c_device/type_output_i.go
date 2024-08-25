@@ -4,8 +4,8 @@ type EOutputType = string
 
 // 定义基础的输出设备类型
 const (
-	RunningOutput EOutputType = "RunningOutput" // 运行输出
-	WarningOutput EOutputType = "WarningOutput" // 告警输出
+	ERunningOutput EOutputType = "RunningOutput" // 运行输出
+	EWarningOutput EOutputType = "WarningOutput" // 告警输出
 )
 
 type IOutput interface {
