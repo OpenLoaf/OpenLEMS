@@ -4,7 +4,6 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
-	"ems-plan/c_meta"
 )
 
 // sGenerator 发电机
@@ -61,7 +60,7 @@ func (s *sGenerator) GetChildren() []c_device.IGenerator {
 	panic("implement me")
 }
 
-func (s *sGenerator) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
+func (s *sGenerator) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

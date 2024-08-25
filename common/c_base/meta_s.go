@@ -1,4 +1,4 @@
-package c_meta
+package c_base
 
 import (
 	"fmt"
@@ -16,8 +16,8 @@ type Meta struct {
 	Addr       uint16         `json:"addr"`                 // 地址，索引
 	BitLength  uint8          `json:"bitLength,omitempty"`  // 位长度, 可以和ReadType一起使用，表示位读取。 比如 RBit5，BigLength=3 代表读取第5位到第7位。0时忽略该参数！
 	Endianness ECharSequence  `json:"endianness,omitempty"` // 字节顺序，默认为大端
-	ReadType   ReadType       `json:"readType"`             // 数据类型，ECharSequence 字节顺序将会影响读取到的数据结果
-	SystemType SystemType     `json:"systemType"`           // 格式化类型,默认为SUseReadType!自动使用ReadType的类型。
+	ReadType   EReadType      `json:"readType"`             // 数据类型，ECharSequence 字节顺序将会影响读取到的数据结果
+	SystemType ESystemType    `json:"systemType"`           // 格式化类型,默认为SUseReadType!自动使用ReadType的类型。
 	Level      AlarmLevel     `json:"level"`                // 点位级别
 	Factor     float32        `json:"factor,omitempty"`     // 乘以系数，如果是0，自动会改成1。因为0无意义
 	Offset     int            `json:"offset,omitempty"`     // 偏移值

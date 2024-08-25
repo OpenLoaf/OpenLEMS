@@ -4,7 +4,6 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
-	"ems-plan/c_meta"
 )
 
 // sEntrance 场站总入口
@@ -144,7 +143,7 @@ func (e *sEntrance) GetChildren() []c_device.IAmmeter {
 	panic("implement me")
 }
 
-func (e *sEntrance) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
+func (e *sEntrance) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

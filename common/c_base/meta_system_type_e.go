@@ -1,4 +1,4 @@
-package c_meta
+package c_base
 
 import (
 	"ems-plan/util"
@@ -6,10 +6,10 @@ import (
 	"reflect"
 )
 
-type SystemType int // 读取到数据后，转换为到系统类型
+type ESystemType int // 读取到数据后，转换为到系统类型
 
 const (
-	SUseReadType SystemType = iota // 自动使用ReadType的类型。
+	SUseReadType ESystemType = iota // 自动使用ReadType的类型。
 	SBool
 	SInt8
 	SUint8
@@ -24,7 +24,7 @@ const (
 	SString
 )
 
-func (s SystemType) Transform(value any, readType ReadType, bitLength uint8, factor float32, offset int) any {
+func (s ESystemType) Transform(value any, readType EReadType, bitLength uint8, factor float32, offset int) any {
 
 	switch s {
 	case SUseReadType:
@@ -59,7 +59,7 @@ func (s SystemType) Transform(value any, readType ReadType, bitLength uint8, fac
 	}
 }
 
-func (s SystemType) GetReflectKind(readType ReadType, bitLength uint8) reflect.Kind {
+func (s ESystemType) GetReflectKind(readType EReadType, bitLength uint8) reflect.Kind {
 	switch s {
 	case SUseReadType:
 		return readType.GetReflectKind(bitLength)

@@ -1,7 +1,7 @@
-package c_protocol
+package c_base
 
 type IProtocol interface {
-	GetType() EType // 获取协议类型
+	//GetType() EProtocolType // 获取协议类型
 
 	Start() error     // 打开
 	Close() error     // 关闭

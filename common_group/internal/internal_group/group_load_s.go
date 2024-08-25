@@ -4,7 +4,6 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
-	"ems-plan/c_meta"
 )
 
 type sGroupLoad struct {
@@ -124,7 +123,7 @@ func (s *sGroupLoad) GetChildren() []c_device.ILoad {
 	panic("implement me")
 }
 
-func (s *sGroupLoad) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
+func (s *sGroupLoad) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

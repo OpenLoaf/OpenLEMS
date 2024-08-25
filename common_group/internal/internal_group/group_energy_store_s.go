@@ -4,7 +4,6 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
-	"ems-plan/c_meta"
 	"ems-plan/c_telemetry"
 )
 
@@ -227,7 +226,7 @@ func (s *sGroupEnergyStore) GetChildren() []c_device.IEnergyStore {
 	panic("implement me")
 }
 
-func (s *sGroupEnergyStore) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
+func (s *sGroupEnergyStore) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

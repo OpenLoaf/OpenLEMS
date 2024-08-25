@@ -5,7 +5,6 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
-	"ems-plan/c_meta"
 	"ems-plan/c_telemetry"
 	"fmt"
 	"github.com/gogf/gf/v2/os/gcache"
@@ -216,7 +215,7 @@ func (p *PylonCheckwattEss) GetDcStatisticsQuantity() c_telemetry.IStatisticsQua
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
+func (p *PylonCheckwattEss) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

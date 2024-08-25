@@ -1,5 +1,5 @@
 //go:generate stringer -type=AlarmLevel -output=alarm_level_e_string.go
-package c_meta
+package c_base
 
 type AlarmLevel int
 

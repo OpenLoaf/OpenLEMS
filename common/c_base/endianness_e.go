@@ -1,5 +1,5 @@
 //go:generate stringer -type=ECharSequence -output=endianness_e_string.go
-package c_meta
+package c_base
 
 import (
 	"ems-plan/util/util_binary"

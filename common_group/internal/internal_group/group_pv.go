@@ -4,7 +4,6 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
-	"ems-plan/c_meta"
 	"ems-plan/c_telemetry"
 )
 
@@ -159,7 +158,7 @@ func (p *sGroupPv) GetChildren() []c_device.IPv {
 	panic("implement me")
 }
 
-func (p *sGroupPv) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
+func (p *sGroupPv) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

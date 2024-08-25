@@ -1,0 +1,38 @@
+soc = "SOC"
+power = "Power"
+apparentPower = "Apparent Power"
+reactivePower = "Reactive Power"
+todayIncomingQuantity = "Today's Incoming Quantity"
+todayOutgoingQuantity = "Today's Outgoing Quantity"
+historyIncomingQuantity = "Historical Incoming Quantity"
+historyOutgoingQuantity = "Historical Outgoing Quantity"
+
+essTodayCharge = "Today's Charge"
+essTodayDischarge = "Today's Discharge"
+essHistoryCharge = "Historical Charge"
+essHistoryDischarge = "Historical Discharge"
+
+generatorTodayUse = "Today's Use"
+generatorTodayGenerator = "Today's Generator"
+generatorHistoryUse = "Historical Use"
+generatorHistoryGenerator = "历史发电量"
+
+ess = "Energy Storage"
+entrance = "Entrance"
+load = "Load"
+generator = "Generator"
+charge = "Charge"
+pv = "PV"
+
+
+StationEss = "Station Energy Storage"
+StationEntrance = "Station Entrance"
+serverError="Server error!"
+
+
+canbintBmsName = "Canbint#%d Bms"
+canbintCoolingName = "Canbint#%d Cooling"
+canbintFireName = "Canbint#%d Fire"
+canbintHumitureName = "Canbint#%d Humiture"
+canbintPcsName = "Canbint#%d Pcs"
+essName = "Ess #%d"

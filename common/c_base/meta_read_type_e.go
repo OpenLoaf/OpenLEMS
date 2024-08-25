@@ -1,4 +1,4 @@
-package c_meta
+package c_base
 
 import (
 	"bytes"
@@ -9,12 +9,12 @@ import (
 )
 
 type (
-	ReadType int // 读取数据类型
+	EReadType int // 读取数据类型
 )
 
 const (
-	RBit0 ReadType = iota // Bit类型的读取该地址的第x位，比如0x1000读取到数值为 1001 0010，R_Bit_1的值为1
-	RBit1                 // Bit类型的读取到的值，如果BitLength为1，类型就是Bool，否则就是根据长度：Uint8 、Uint16、Uint32、Uint64自动扩展
+	RBit0 EReadType = iota // Bit类型的读取该地址的第x位，比如0x1000读取到数值为 1001 0010，R_Bit_1的值为1
+	RBit1                  // Bit类型的读取到的值，如果BitLength为1，类型就是Bool，否则就是根据长度：Uint8 、Uint16、Uint32、Uint64自动扩展
 	RBit2
 	RBit3
 	RBit4
@@ -42,7 +42,7 @@ const (
 	RFloat64
 )
 
-func (d ReadType) ReadValue(bytes []byte, bitLength uint8, endianness ECharSequence) (any, error) {
+func (d EReadType) ReadValue(bytes []byte, bitLength uint8, endianness ECharSequence) (any, error) {
 	dataLength := len(bytes)
 	switch d {
 	case RBit0, RBit1, RBit2, RBit3, RBit4, RBit5, RBit6, RBit7, RBit8, RBit9, RBit10, RBit11, RBit12, RBit13, RBit14, RBit15:
@@ -134,7 +134,7 @@ func (d ReadType) ReadValue(bytes []byte, bitLength uint8, endianness ECharSeque
 	panic(`unknown data type`)
 }
 
-func (d ReadType) Transform(value any, bitLength uint8, factor float32, offset int) any {
+func (d EReadType) Transform(value any, bitLength uint8, factor float32, offset int) any {
 	switch d {
 	case RBit0, RBit1, RBit2, RBit3, RBit4, RBit5, RBit6, RBit7, RBit8, RBit9, RBit10, RBit11, RBit12, RBit13, RBit14, RBit15:
 		if bitLength == 1 || bitLength == 0 {
@@ -176,7 +176,7 @@ func (d ReadType) Transform(value any, bitLength uint8, factor float32, offset i
 }
 
 // RegisterSize 寄存器大小
-func (d ReadType) RegisterSize() uint16 {
+func (d EReadType) RegisterSize() uint16 {
 	// 一个寄存器是16位，所以一个寄存器是2个字节
 	switch d {
 	case RBit0, RBit1, RBit2, RBit3, RBit4, RBit5, RBit6, RBit7, RBit8, RBit9, RBit10, RBit11, RBit12, RBit13, RBit14, RBit15:
@@ -193,7 +193,7 @@ func (d ReadType) RegisterSize() uint16 {
 	panic(`unknown data type`)
 }
 
-func (d ReadType) Encoder(value int64, factor float32, offset int, endianness ECharSequence) []byte {
+func (d EReadType) Encoder(value int64, factor float32, offset int, endianness ECharSequence) []byte {
 	if factor != 0 {
 		value = int64(float32(value)/factor) - int64(offset)
 	} else {
@@ -227,7 +227,7 @@ func (d ReadType) Encoder(value int64, factor float32, offset int, endianness EC
 	panic(`unknown data type`)
 }
 
-func (d ReadType) GetReflectKind(bitLength uint8) reflect.Kind {
+func (d EReadType) GetReflectKind(bitLength uint8) reflect.Kind {
 	switch d {
 	case RBit0, RBit1, RBit2, RBit3, RBit4, RBit5, RBit6, RBit7, RBit8, RBit9, RBit10, RBit11, RBit12, RBit13, RBit14, RBit15:
 		if bitLength == 1 || bitLength == 0 {
