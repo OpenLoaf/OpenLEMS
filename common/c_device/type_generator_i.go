@@ -13,4 +13,5 @@ type IGeneratorBasic interface {
 type IGenerator interface {
 	IInfo
 	IGeneratorBasic
+	c_telemetry.IAlarmHandler
 }

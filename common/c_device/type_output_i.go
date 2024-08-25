@@ -1,5 +1,7 @@
 package c_device
 
+import "ems-plan/c_telemetry"
+
 type EOutputType = string
 
 // 定义基础的输出设备类型
@@ -10,6 +12,7 @@ const (
 
 type IOutput interface {
 	IInfo
+	c_telemetry.IAlarmHandler
 	SetUp() (bool, error)
 	SetDown() (bool, error)
 }

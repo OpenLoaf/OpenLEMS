@@ -12,5 +12,6 @@ type IAmmeterBasic interface {
 type IAmmeter interface {
 	IInfo
 	IAmmeterBasic
+	c_telemetry.IAlarmHandler
 	GetPtCt() (float32, float32, error) // PT CT
 }

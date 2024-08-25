@@ -12,4 +12,6 @@ type ILoadBasic interface {
 type ILoad interface {
 	IInfo
 	ILoadBasic
+
+	c_telemetry.IAlarmHandler
 }

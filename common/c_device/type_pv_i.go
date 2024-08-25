@@ -1,6 +1,8 @@
 package c_device
 
-import "ems-plan/c_telemetry"
+import (
+	"ems-plan/c_telemetry"
+)
 
 type IPvBase interface {
 	c_telemetry.IAcGrid
@@ -15,4 +17,5 @@ type IPvBase interface {
 type IPv interface {
 	IInfo
 	IPvBase
+	c_telemetry.IAlarmHandler
 }

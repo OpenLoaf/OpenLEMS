@@ -4,7 +4,7 @@ package c_meta
 type AlarmLevel int
 
 const (
-	EInfo  AlarmLevel = iota // 基本信息
+	ENone  AlarmLevel = iota // 默认非告警
 	EWarn                    // 警告，系统正常工作
 	EAlarm                   // 警报，系统降低功率
 	EError                   // 故障，一旦有一个系统全部停机
@@ -12,7 +12,7 @@ const (
 
 func (l AlarmLevel) Name() string {
 	switch l {
-	case EInfo:
+	case ENone:
 		return "正常"
 	case EWarn:
 		return "预警"
@@ -26,7 +26,7 @@ func (l AlarmLevel) Name() string {
 
 func (l AlarmLevel) FullName() string {
 	switch l {
-	case EInfo:
+	case ENone:
 		return "正常"
 	case EWarn:
 		return "预警"

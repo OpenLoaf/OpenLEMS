@@ -4,10 +4,11 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
+	"ems-plan/c_meta"
 )
 
 type sGroupLoad struct {
-	*c_group.SConfig
+	*c_group.SConfigImpl
 	functionList []*c_group.SFunction
 
 	ctx         context.Context
@@ -25,7 +26,7 @@ func NewLoad(ctx context.Context, rootAmmeter c_device.IAmmeter, ammeters []c_de
 		rootLoad:    rootLoad,
 		loads:       loads,
 		ctx:         context.WithValue(ctx, "Group", c_group.EGroupLoad),
-		SConfig:     c_group.NewConfig(c_group.EGroupLoad),
+		SConfigImpl: c_group.NewConfig(c_group.EGroupLoad),
 		functionList: []*c_group.SFunction{
 			{FunctionName: "power", Unit: "kW", Remark: "功率"},
 			{FunctionName: "apparentPower", Unit: "kVA", Remark: "视在功率"},
@@ -119,6 +120,11 @@ func (s *sGroupLoad) GetMaxOutputPower() (float64, error) {
 }
 
 func (s *sGroupLoad) GetChildren() []c_device.ILoad {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sGroupLoad) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

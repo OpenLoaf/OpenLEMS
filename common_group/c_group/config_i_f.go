@@ -8,11 +8,11 @@ type IConfig interface {
 	GetGroupType() EType
 }
 
-func NewConfig(groupType EType) *SConfig {
+func NewConfig(groupType EType) *SConfigImpl {
 	if groupType == EGroupNan {
 		panic("EGroupNan can't be a station")
 	}
-	return &SConfig{
+	return &SConfigImpl{
 		Id:        string(groupType),
 		CabinetId: 0,
 		Group:     groupType,

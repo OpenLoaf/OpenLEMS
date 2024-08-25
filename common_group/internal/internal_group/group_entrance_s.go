@@ -4,11 +4,12 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
+	"ems-plan/c_meta"
 )
 
 // sEntrance 场站总入口
 type sEntrance struct {
-	*c_group.SConfig
+	*c_group.SConfigImpl
 	functionList []*c_group.SFunction
 
 	ctx         context.Context
@@ -24,7 +25,7 @@ func NewEntrance(ctx context.Context, rootAmmeter c_device.IAmmeter, ammeters []
 		rootAmmeter: rootAmmeter,
 		ammeters:    ammeters,
 		ctx:         context.WithValue(ctx, "Group", c_group.EGroupEntrance),
-		SConfig:     c_group.NewConfig(c_group.EGroupEntrance),
+		SConfigImpl: c_group.NewConfig(c_group.EGroupEntrance),
 		functionList: []*c_group.SFunction{
 			{FunctionName: "power", Unit: "kW", Remark: "功率"},
 			{FunctionName: "apparentPower", Unit: "kVA", Remark: "视在功率"},
@@ -139,6 +140,11 @@ func (e *sEntrance) GetPowerFactor() (float32, error) {
 }
 
 func (e *sEntrance) GetChildren() []c_device.IAmmeter {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (e *sEntrance) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

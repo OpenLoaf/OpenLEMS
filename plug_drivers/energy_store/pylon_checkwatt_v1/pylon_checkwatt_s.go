@@ -2,9 +2,10 @@ package pylon_checkwatt_v1
 
 import (
 	"common_cabinet"
+	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
-	"ems-plan/c_group"
+	"ems-plan/c_meta"
 	"ems-plan/c_telemetry"
 	"fmt"
 	"github.com/gogf/gf/v2/os/gcache"
@@ -12,9 +13,9 @@ import (
 )
 
 type PylonCheckwattEss struct {
-	*c_device.SConfig // 配置信息
-	ctx               context.Context
-	unitId            uint8 // modbus转发的id
+	*c_device.SConfigImpl // 配置信息
+	ctx                   context.Context
+	unitId                uint8 // modbus转发的id
 
 	ammeter c_device.IAmmeter
 
@@ -33,15 +34,15 @@ func CreateEss(ctx context.Context, cabinetId uint8, params map[string]string,
 	cooling *common_cabinet.CabinetCooling,
 	humidity *common_cabinet.CabinetHumidity) c_device.IEnergyStore {
 	_ess := &PylonCheckwattEss{
-		ctx:      ctx,
-		unitId:   cabinetId,
-		ammeter:  ammeter,
-		bms:      bms,
-		pcs:      pcs,
-		fire:     fire,
-		cooling:  cooling,
-		humidity: humidity,
-		SConfig:  c_device.NewConfig(cabinetId, c_device.EEnergyStore, c_group.EGroupEnergyStore, false, params),
+		ctx:         ctx,
+		unitId:      cabinetId,
+		ammeter:     ammeter,
+		bms:         bms,
+		pcs:         pcs,
+		fire:        fire,
+		cooling:     cooling,
+		humidity:    humidity,
+		SConfigImpl: c_device.NewConfig(cabinetId, c_device.EEnergyStore, c_group.EGroupEnergyStore, false, params),
 	}
 
 	if _ess.bms == nil || _ess.pcs == nil {
@@ -211,6 +212,11 @@ func (p *PylonCheckwattEss) HasSmoke() (bool, error) {
 }
 
 func (p *PylonCheckwattEss) GetDcStatisticsQuantity() c_telemetry.IStatisticsQuantity {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *PylonCheckwattEss) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

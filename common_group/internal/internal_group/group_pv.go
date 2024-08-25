@@ -4,11 +4,12 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
+	"ems-plan/c_meta"
 	"ems-plan/c_telemetry"
 )
 
-type Pv struct {
-	*c_group.SConfig
+type sGroupPv struct {
+	*c_group.SConfigImpl
 	functionList []*c_group.SFunction
 
 	ctx         context.Context
@@ -22,7 +23,7 @@ func NewPv(ctx context.Context, rootAmmeter c_device.IAmmeter, ammeters []c_devi
 	if (rootAmmeter == nil || len(ammeters) == 0) || (rootPv == nil || len(pvs) == 0) {
 		panic("创建StationLoad失败！缺少必要电表或者负载设备！")
 	}
-	instance := &Pv{
+	instance := &sGroupPv{
 		rootAmmeter: rootAmmeter,
 		ammeters:    ammeters,
 		rootPv:      rootPv,
@@ -39,121 +40,126 @@ func NewPv(ctx context.Context, rootAmmeter c_device.IAmmeter, ammeters []c_devi
 	return instance
 }
 
-func (p *Pv) AllowControl() bool {
+func (p *sGroupPv) AllowControl() bool {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetFunctionList() []*c_group.SFunction {
+func (p *sGroupPv) GetFunctionList() []*c_group.SFunction {
 	return p.functionList
 }
 
-func (p *Pv) GetGridFrequency() (float32, error) {
+func (p *sGroupPv) GetGridFrequency() (float32, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetGridVoltage() (float32, float32, float32, error) {
+func (p *sGroupPv) GetGridVoltage() (float32, float32, float32, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetGridCurrent() (float32, float32, float32, error) {
+func (p *sGroupPv) GetGridCurrent() (float32, float32, float32, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetGridPower() (float32, float32, float32, error) {
+func (p *sGroupPv) GetGridPower() (float32, float32, float32, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) SetPower(power float64) error {
+func (p *sGroupPv) SetPower(power float64) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) SetReactivePower(power float64) error {
+func (p *sGroupPv) SetReactivePower(power float64) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) SetPowerFactor(factor float32) error {
+func (p *sGroupPv) SetPowerFactor(factor float32) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetTargetPower() float64 {
+func (p *sGroupPv) GetTargetPower() float64 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetTargetReactivePower() float64 {
+func (p *sGroupPv) GetTargetReactivePower() float64 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetTargetPowerFactor() float32 {
+func (p *sGroupPv) GetTargetPowerFactor() float32 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetPower() (float64, error) {
+func (p *sGroupPv) GetPower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetApparentPower() (float64, error) {
+func (p *sGroupPv) GetApparentPower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetReactivePower() (float64, error) {
+func (p *sGroupPv) GetReactivePower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetDcPower() (float64, error) {
+func (p *sGroupPv) GetDcPower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetDcVoltage() (float64, error) {
+func (p *sGroupPv) GetDcVoltage() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetDcCurrent() (float64, error) {
+func (p *sGroupPv) GetDcCurrent() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetTodayIncomingQuantity() (float64, error) {
+func (p *sGroupPv) GetTodayIncomingQuantity() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetHistoryIncomingQuantity() (float64, error) {
+func (p *sGroupPv) GetHistoryIncomingQuantity() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetTodayOutgoingQuantity() (float64, error) {
+func (p *sGroupPv) GetTodayOutgoingQuantity() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetHistoryOutgoingQuantity() (float64, error) {
+func (p *sGroupPv) GetHistoryOutgoingQuantity() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetDcStatisticsQuantity() c_telemetry.IStatisticsQuantity {
+func (p *sGroupPv) GetDcStatisticsQuantity() c_telemetry.IStatisticsQuantity {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *Pv) GetChildren() []c_device.IPv {
+func (p *sGroupPv) GetChildren() []c_device.IPv {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *sGroupPv) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

@@ -14,4 +14,5 @@ type IChargeBasic interface {
 type ICharge interface {
 	IInfo
 	ILoadBasic
+	c_telemetry.IAlarmHandler
 }

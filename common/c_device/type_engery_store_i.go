@@ -12,4 +12,5 @@ type IEnergyStoreBasic interface {
 type IEnergyStore interface {
 	IInfo
 	IEnergyStoreBasic
+	c_telemetry.IAlarmHandler
 }

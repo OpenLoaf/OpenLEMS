@@ -7,7 +7,7 @@ import (
 )
 
 type TestConfig struct {
-	c_group.SConfig
+	c_group.SConfigImpl
 }
 
 func main() {

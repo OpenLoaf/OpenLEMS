@@ -4,11 +4,12 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
+	"ems-plan/c_meta"
 )
 
 // sGenerator 发电机
 type sGenerator struct {
-	*c_group.SConfig
+	*c_group.SConfigImpl
 	functionList []*c_group.SFunction
 
 	ctx          context.Context
@@ -31,7 +32,7 @@ func NewGenerator(ctx context.Context, rootAmmeter c_device.IAmmeter, ammeters [
 		rootAmmeter:  rootAmmeter,
 		ammeters:     ammeters,
 		ctx:          context.WithValue(ctx, "Group", c_group.EGroupGenerator),
-		SConfig:      c_group.NewConfig(c_group.EGroupGenerator),
+		SConfigImpl:  c_group.NewConfig(c_group.EGroupGenerator),
 		allowControl: rootGenerator != nil || len(generators) != 0,
 		functionList: []*c_group.SFunction{
 			{FunctionName: "power", Unit: "kW", Remark: "功率"},
@@ -56,6 +57,11 @@ func (s *sGenerator) GetFunctionList() []*c_group.SFunction {
 }
 
 func (s *sGenerator) GetChildren() []c_device.IGenerator {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sGenerator) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }

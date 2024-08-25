@@ -38,4 +38,5 @@ type IPcsBasic interface {
 type IPcs interface {
 	IInfo
 	IPcsBasic
+	c_telemetry.IAlarmHandler
 }

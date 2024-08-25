@@ -16,6 +16,7 @@ const (
 type IBmsBasic interface {
 	c_telemetry.IPowerLimit
 	c_telemetry.IDcStatisticsQuantity
+	c_telemetry.IAlarmHandler
 
 	SetReset() error                      // 复位
 	SetBmsStatus(status EBmsStatus) error // 设置BMS状态

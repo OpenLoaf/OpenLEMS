@@ -4,11 +4,12 @@ import (
 	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
+	"ems-plan/c_meta"
 	"ems-plan/c_telemetry"
 )
 
 type sGroupEnergyStore struct {
-	*c_group.SConfig
+	*c_group.SConfigImpl
 	functionList []*c_group.SFunction
 
 	ctx          context.Context
@@ -31,7 +32,7 @@ func NewGroupEnergyStore(ctx context.Context, rootAmmeter c_device.IAmmeter, amm
 		ammeters:     ammeters,
 		energyStores: energyStores,
 		ctx:          context.WithValue(ctx, "Group", c_group.EGroupEnergyStore),
-		SConfig:      c_group.NewConfig(c_group.EGroupEnergyStore),
+		SConfigImpl:  c_group.NewConfig(c_group.EGroupEnergyStore),
 		functionList: []*c_group.SFunction{
 			{FunctionName: "power", Unit: "kW", Remark: "功率"},
 			{FunctionName: "apparentPower", Unit: "kVA", Remark: "视在功率"},
@@ -222,6 +223,11 @@ func (s *sGroupEnergyStore) GetDcStatisticsQuantity() c_telemetry.IStatisticsQua
 }
 
 func (s *sGroupEnergyStore) GetChildren() []c_device.IEnergyStore {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sGroupEnergyStore) HandleAlarm(self c_meta.SAlarmDetail, global c_meta.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }
