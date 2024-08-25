@@ -1,8 +1,8 @@
 package internal
 
 import (
+	"common_group/c_group"
 	"ems-plan/c_device"
-	"ems-plan/c_group"
 )
 
 var (
@@ -57,7 +57,7 @@ func (s *sStationInstance) RegisterInstance(info c_group.IInfo) {
 	}
 }
 
-func (s *sStationInstance) GetList() []c_group.IInfo {
+func (s *sStationInstance) FindAll() []c_group.IInfo {
 	list := make([]c_group.IInfo, 0, 5)
 
 	if s.entrance != nil {

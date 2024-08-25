@@ -41,15 +41,25 @@ func (d *sDeviceInstance) RegisterInstance(info c_device.IInfo) {
 		panic(fmt.Sprintf("类型：%s的Id不能为空！", reflect.TypeOf(info).String()))
 	}
 	// 不能重复注册
-	if d.GetInstance(info.GetId()) != nil {
+	if d.FindById(info.GetId()) != nil {
 		panic("the id '" + info.GetId() + "' has been registered")
 	}
 
 	d.array.Add(info)
 }
 
+func (d *sDeviceInstance) FindByType(t c_device.EType) []c_device.IInfo {
+	var result []c_device.IInfo
+	for _, instance := range d.array.Slice() {
+		if instance.(c_device.IInfo).GetType() == t {
+			result = append(result, instance.(c_device.IInfo))
+		}
+	}
+	return result
+}
+
 // GetInstance 获取设备实例
-func (d *sDeviceInstance) GetInstance(id string) c_device.IInfo {
+func (d *sDeviceInstance) FindById(id string) c_device.IInfo {
 	for _, instance := range d.array.Slice() {
 		if instance.(c_device.IInfo).GetId() == id {
 			return instance.(c_device.IInfo)
@@ -58,14 +68,14 @@ func (d *sDeviceInstance) GetInstance(id string) c_device.IInfo {
 	return nil
 }
 
-func (d *sDeviceInstance) DelInstance(id string) {
-	instance := d.GetInstance(id)
+func (d *sDeviceInstance) RemoveById(id string) {
+	instance := d.FindById(id)
 	if instance != nil {
 		d.array.RemoveValue(instance)
 	}
 }
 
-func (d *sDeviceInstance) GetList() []c_device.IInfo {
+func (d *sDeviceInstance) FindAll() []c_device.IInfo {
 	var result []c_device.IInfo
 	for _, info := range d.array.Slice() {
 		result = append(result, info.(c_device.IInfo))

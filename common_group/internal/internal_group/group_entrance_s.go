@@ -1,9 +1,9 @@
-package internal
+package internal_group
 
 import (
+	"common_group/c_group"
 	"context"
 	"ems-plan/c_device"
-	"ems-plan/c_group"
 )
 
 // sEntrance 场站总入口

@@ -3,9 +3,11 @@ package c_device
 type IInstances interface {
 	RegisterInstance(info IInfo)
 
-	GetInstance(id string) IInfo
+	FindById(id string) IInfo
 
-	DelInstance(id string)
+	FindAll() []IInfo
 
-	GetList() []IInfo
+	FindByType(t EType) []IInfo
+
+	RemoveById(id string)
 }

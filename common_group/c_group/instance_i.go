@@ -2,7 +2,7 @@ package c_group
 
 type IInstance interface {
 	RegisterInstance(info IInfo)
-	GetList() []IInfo
+	FindAll() []IInfo
 
 	GetStationLoad() IGroupLoad
 	GetEntrance() IGroupEntrance
