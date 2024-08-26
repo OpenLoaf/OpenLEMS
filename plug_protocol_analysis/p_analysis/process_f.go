@@ -9,6 +9,6 @@ import (
 	"time"
 )
 
-func Process(ctx context.Context, value any, cache *gcache.Cache, alarmProvider alarm.IProvider, lifetime time.Duration, meta *c_base.Meta) (*gvar.Var, error) {
+func Process(ctx context.Context, value any, cache *gcache.Cache, alarmProvider any, lifetime time.Duration, meta *c_base.Meta) (*gvar.Var, error) {
 	return internal.Process(ctx, value, cache, alarmProvider, lifetime, meta)
 }

@@ -1,12 +1,12 @@
-package protocol
+package internal_modbus
 
 import (
-	"ems-plan/c_config"
+	"ems-plan/c_base"
 	"plug_protocol_modbus/p_modbus"
 	"time"
 )
 
-func (p *ModbusProvider) Start() error {
+func (p *ModbusProvider) Start() {
 	// 只会执行一次监听
 	p.once.Do(func() {
 
@@ -34,7 +34,7 @@ func (p *ModbusProvider) Start() error {
 		if p.PrintCacheValue {
 			go func() {
 
-				ticker := time.NewTicker(c_config.GetSystemConfig().GetPrintCacheValueCycleDuration())
+				ticker := time.NewTicker(c_base.GetSystemConfig().GetPrintCacheValueCycleDuration())
 				defer ticker.Stop()
 				for {
 					select {

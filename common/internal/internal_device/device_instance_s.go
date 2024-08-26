@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	Instances c_device.IInstances
+	Instances c_base.IDriverInstances
 )
 
 type sDeviceInstance struct {
@@ -21,8 +21,8 @@ func init() {
 	Instances = &sDeviceInstance{
 		mutex: sync.Mutex{},
 		array: garray.NewSortedArray(func(v1, v2 interface{}) int {
-			v1Info := v1.(c_device.IInfo).GetId()
-			v2Info := v2.(c_device.IInfo).GetId()
+			v1Info := v1.(c_base.IDriver).GetId()
+			v2Info := v2.(c_base.IDriver).GetId()
 
 			if v1Info > v2Info {
 				return -1
@@ -34,7 +34,7 @@ func init() {
 }
 
 // RegisterInstance 注册设备实例
-func (d *sDeviceInstance) RegisterInstance(info c_device.IInfo) {
+func (d *sDeviceInstance) RegisterInstance(info c_base.IDriver) {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 	if info.GetId() == "" {
@@ -48,21 +48,21 @@ func (d *sDeviceInstance) RegisterInstance(info c_device.IInfo) {
 	d.array.Add(info)
 }
 
-func (d *sDeviceInstance) FindByType(t c_device.EType) []c_device.IInfo {
-	var result []c_device.IInfo
+func (d *sDeviceInstance) FindByType(t c_base.EDeviceType) []c_base.IDriver {
+	var result []c_base.IDriver
 	for _, instance := range d.array.Slice() {
-		if instance.(c_device.IInfo).GetType() == t {
-			result = append(result, instance.(c_device.IInfo))
+		if instance.(c_base.IDriver).GetType() == t {
+			result = append(result, instance.(c_base.IDriver))
 		}
 	}
 	return result
 }
 
 // GetInstance 获取设备实例
-func (d *sDeviceInstance) FindById(id string) c_device.IInfo {
+func (d *sDeviceInstance) FindById(id string) c_base.IDriver {
 	for _, instance := range d.array.Slice() {
-		if instance.(c_device.IInfo).GetId() == id {
-			return instance.(c_device.IInfo)
+		if instance.(c_base.IDriver).GetId() == id {
+			return instance.(c_base.IDriver)
 		}
 	}
 	return nil
@@ -75,10 +75,10 @@ func (d *sDeviceInstance) RemoveById(id string) {
 	}
 }
 
-func (d *sDeviceInstance) FindAll() []c_device.IInfo {
-	var result []c_device.IInfo
+func (d *sDeviceInstance) FindAll() []c_base.IDriver {
+	var result []c_base.IDriver
 	for _, info := range d.array.Slice() {
-		result = append(result, info.(c_device.IInfo))
+		result = append(result, info.(c_base.IDriver))
 	}
 	return result
 }

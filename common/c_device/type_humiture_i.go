@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_telemetry"
+import "ems-plan/c_base"
 
 type IHumitureBasic interface {
 	GetTemperature() (float64, error) // 获取温度
@@ -8,7 +8,6 @@ type IHumitureBasic interface {
 }
 
 type IHumiture interface {
-	IInfo
+	c_base.IDriver
 	IHumitureBasic
-	c_telemetry.IAlarmHandler
 }

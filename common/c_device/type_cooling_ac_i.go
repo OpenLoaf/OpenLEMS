@@ -1,12 +1,14 @@
 package c_device
 
+import "ems-plan/c_base"
+
 type ICoolingAcBasic interface {
 	ICoolingBasic
 	GetCoolingAcStatus() (ECoolingStatus, error)
 }
 
-// IAcCooling 空调
-type IAcCooling interface {
-	IInfo
+// ICoolingAc 空调
+type ICoolingAc interface {
+	c_base.IDriver
 	ICoolingAcBasic
 }

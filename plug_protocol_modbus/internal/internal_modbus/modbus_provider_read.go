@@ -1,4 +1,4 @@
-package protocol
+package internal_modbus
 
 import (
 	"ems-plan/c_base"
@@ -31,7 +31,7 @@ func (p *ModbusProvider) ReadSingleSync(meta *c_base.Meta, function p_modbus.Mod
 	if result == nil || len(result) == 0 {
 		return nil, fmt.Errorf("读取到的数据为空！")
 	}
-	values, err := common_analysis.AnalysisModbus(p.ctx, p.cache, p.alarmProvider, name, meta.Addr, lifetime, result, meta)
+	values, err := analysisModbus(p.ctx, p.cache, nil, name, meta.Addr, lifetime, result, meta)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (p *ModbusProvider) ReadGroupSync(group *p_modbus.ModbusGroup, readCache bo
 	if err != nil {
 		return nil, err
 	}
-	allGroupVars, err := common_analysis.AnalysisModbus(p.ctx, p.cache, p.alarmProvider, group.Name, group.Addr, group.Lifetime, result, group.Metas...)
+	allGroupVars, err := analysisModbus(p.ctx, p.cache, nil, group.Name, group.Addr, group.Lifetime, result, group.Metas...)
 	if err != nil {
 		return nil, err
 	}
@@ -118,12 +118,6 @@ func (p *ModbusProvider) readValues(name string, addr, quantity uint16, function
 		} else {
 			_ = p.client.Close()
 			p.log.Warningf(p.ctx, "[%v-%v] Modbus任务获取数据失败！失败原因：%+v", p.DeviceId, name, err)
-			if p.notifyChannel != nil {
-				p.notifyChannel <- &protocol.Notify{
-					Type:    protocol.ReadFailed,
-					Message: fmt.Sprintf("[%v-%v] Modbus任务获取数据失败！失败原因：%+v", p.DeviceId, name, err),
-				}
-			}
 		}
 		return nil, err
 	}

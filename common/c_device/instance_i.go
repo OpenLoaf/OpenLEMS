@@ -1,13 +1,15 @@
 package c_device
 
-type IInstances interface {
-	RegisterInstance(info IInfo)
+import "ems-plan/c_base"
 
-	FindById(id string) IInfo
+type IDriverInstances interface {
+	RegisterInstance(info c_base.IDriver)
 
-	FindAll() []IInfo
+	FindById(id string) c_base.IDriver
 
-	FindByType(t EType) []IInfo
+	FindAll() []c_base.IDriver
+
+	FindByType(t c_base.EDeviceType) []c_base.IDriver
 
 	RemoveById(id string)
 }

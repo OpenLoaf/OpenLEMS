@@ -12,8 +12,8 @@ import (
 )
 
 // TODO: 修改参数顺序
-func Process(ctx context.Context, value any, cache *gcache.Cache, alarmProvider alarm.IProvider, lifetime time.Duration, meta *c_base.Meta) (*gvar.Var, error) {
-	var deviceName = alarmProvider.GetDeviceConfig().Name
+func Process(ctx context.Context, value any, cache *gcache.Cache, alarmProvider any, lifetime time.Duration, meta *c_base.Meta) (*gvar.Var, error) {
+	var deviceName = ""
 	if meta == nil {
 		return nil, fmt.Errorf("[%s] Analysis的查询方法获取到point为nil", deviceName)
 	}
@@ -50,11 +50,11 @@ func Process(ctx context.Context, value any, cache *gcache.Cache, alarmProvider 
 	// 判断是否是非信息类型，用于触发告警
 	if meta.Level != 0 && meta.Trigger != nil {
 		if meta.Trigger(value) {
-			alarmProvider.TriggerAlarm(meta, value)
+			//alarmProvider.TriggerAlarm(meta, value)
 			g.Log().Debugf(ctx, "[%s-%s] 触发[%s]", deviceName, meta.Name, meta.Level.Name())
 		} else {
 			// 消除异常
-			alarmProvider.ClearAlarm(meta)
+			//alarmProvider.ClearAlarm(meta)
 		}
 	}
 

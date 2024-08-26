@@ -1,5 +1,7 @@
 package c_device
 
+import "ems-plan/c_base"
+
 type ILiquidCoolingBasic interface {
 	ICoolingBasic
 
@@ -12,6 +14,6 @@ type ILiquidCoolingBasic interface {
 
 // ILiquidCooling 液冷
 type ILiquidCooling interface {
-	IInfo
+	c_base.IDriver
 	ILiquidCoolingBasic
 }

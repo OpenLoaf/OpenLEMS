@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_telemetry"
+import "ems-plan/c_base"
 
 type IFireBasic interface {
 	GetFireEnvTemperature() (float64, error)          // 获取消防环境温度
@@ -9,7 +9,6 @@ type IFireBasic interface {
 }
 
 type IFire interface {
-	IInfo
+	c_base.IDriver
 	IFireBasic
-	c_telemetry.IAlarmHandler
 }

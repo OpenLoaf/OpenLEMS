@@ -1,9 +1,10 @@
 package cmd
 
 import (
+	"application/internal/collect"
 	"application/internal/consts"
 	"context"
-	"ems-plan/c_config"
+	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/i18n/gi18n"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -28,7 +29,7 @@ var (
 			pid := os.Getpid()
 			g.Log().Infof(ctx, "程序启动！PID：%d", pid)
 
-			linkConfigList, configPath, err := c_config.GetConfigList[c_config.SProtocolConfig](ctx, c_config.DevicesKey)
+			linkConfigList, configPath, err := c_base.GetConfigList[c_base.SProtocolConfig](ctx, c_base.DevicesKey)
 			if err != nil {
 				g.Log().Error(ctx, err)
 				cancelFunc()

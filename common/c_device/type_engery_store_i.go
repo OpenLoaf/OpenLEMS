@@ -1,16 +1,14 @@
 package c_device
 
-import "ems-plan/c_telemetry"
+import "ems-plan/c_base"
 
 type IEnergyStoreBasic interface {
 	IBmsBasic
 	IPcsBasic
 	IFireBasic
-	GetDcStatisticsQuantity() c_telemetry.IStatisticsQuantity
 }
 
 type IEnergyStore interface {
-	IInfo
+	c_base.IDriver
 	IEnergyStoreBasic
-	c_telemetry.IAlarmHandler
 }

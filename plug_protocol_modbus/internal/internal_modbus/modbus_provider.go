@@ -1,4 +1,4 @@
-package protocol
+package internal_modbus
 
 import (
 	"context"
@@ -35,7 +35,7 @@ func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig
 	provider := &ModbusProvider{
 		once:     sync.Once{},
 		ctx:      ctx,
-		DeviceId: deviceConfig.GetId(),
+		DeviceId: deviceConfig.Id,
 		unitId:   deviceConfig.UnitId,
 		//PrintCacheValue: deviceConfig.PrintCacheValue,
 		modbusReadChan: make(chan *p_modbus.ModbusGroup),
@@ -43,7 +43,7 @@ func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig
 		cache:          gcache.New(),
 		alarmCache:     make(map[*c_base.Meta]any),
 		//logLevel:         deviceConfig.LogLevel,
-		log: g.Log(deviceConfig.GetId()),
+		log: g.Log(deviceConfig.Id),
 	}
 	if client != nil {
 		provider.client = client.(modbus.Client)
@@ -73,10 +73,6 @@ func (p *ModbusProvider) GetCache() *gcache.Cache {
 
 func (p *ModbusProvider) GetLastUpdateTime() *time.Time {
 	return p.lastUpdateTime
-}
-
-func (p *ModbusProvider) GetAlarmProvider() alarm.IProvider {
-	return p.alarmProvider
 }
 
 func (p *ModbusProvider) IsActivate() bool {

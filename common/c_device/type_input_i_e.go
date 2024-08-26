@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_telemetry"
+import "ems-plan/c_base"
 
 type EInputType = string
 
@@ -12,8 +12,7 @@ const (
 )
 
 type IInput interface {
-	IInfo
-	c_telemetry.IAlarmHandler
+	c_base.IDriver
 
 	IsUp() (bool, error)
 	IsDown() (bool, error)

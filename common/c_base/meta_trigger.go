@@ -1,0 +1,5 @@
+package c_base
+
+var IsNotZero = func(value any) bool {
+	return value.(int) != 0
+}

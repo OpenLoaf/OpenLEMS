@@ -1,4 +1,4 @@
-package protocol
+package internal_modbus
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func analysisModbus(ctx context.Context, cache *gcache.Cache, alarmProvider alarm.IProvider, groupName string, addr uint16, lifetime time.Duration, result []byte, metas ...*c_base.Meta) ([]*gvar.Var, error) {
+func analysisModbus(ctx context.Context, cache *gcache.Cache, alarmProvider any, groupName string, addr uint16, lifetime time.Duration, result []byte, metas ...*c_base.Meta) ([]*gvar.Var, error) {
 	if metas == nil || len(metas) == 0 || result == nil {
 		return nil, fmt.Errorf("[%s] Analysis的查询方法 value或points参数为空！", groupName)
 	}

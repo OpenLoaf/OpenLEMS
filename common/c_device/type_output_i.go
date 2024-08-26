@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_telemetry"
+import "ems-plan/c_base"
 
 type EOutputType = string
 
@@ -11,8 +11,7 @@ const (
 )
 
 type IOutput interface {
-	IInfo
-	c_telemetry.IAlarmHandler
+	c_base.IDriver
 	SetUp() (bool, error)
 	SetDown() (bool, error)
 }

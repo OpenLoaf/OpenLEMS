@@ -1,4 +1,4 @@
-package protocol
+package internal_modbus
 
 import (
 	"ems-plan/c_base"

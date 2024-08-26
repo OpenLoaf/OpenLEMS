@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_telemetry"
+import "ems-plan/c_base"
 
 type ECoolingStatus int
 
@@ -12,8 +12,7 @@ const (
 )
 
 type ICoolingBasic interface {
-	c_telemetry.IAlarmHandler
-
+	c_base.IDriver
 	SetTemperature(temperature float32) error // 设置温度
 
 	GetTemperature() (float32, error)       // 当前温度

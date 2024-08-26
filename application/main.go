@@ -1,6 +1,7 @@
 package main
 
 import (
+	"application/internal/cmd"
 	"context"
 )
 

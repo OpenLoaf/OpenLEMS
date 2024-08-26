@@ -1,13 +1,16 @@
 package c_base
 
-type IProtocol interface {
-	//GetType() EProtocolType // 获取协议类型
+import (
+	"github.com/gogf/gf/v2/os/gcache"
+	"time"
+)
 
-	Start() error     // 打开
+type IProtocol interface {
+	Start()           // 打开
 	Close() error     // 关闭
 	IsActivate() bool // 是否有效，无效一般是连接断了
+	PrintCacheValues()
 
-	//Listen(notifyFunction func(notify *Notify)) // 启动监听
-	//GetAlarmProvider() alarm.IProvider // 获取告警Provider
-
+	GetCache() *gcache.Cache
+	GetLastUpdateTime() *time.Time
 }
