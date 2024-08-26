@@ -1,8 +1,8 @@
 system:
   # 插件存放路径
-  configPath: /Users/zhao/Documents/01.Code/Zhao/ems/application/manifest/config # 所有接口配置文件的路径
-  protocolPath: /Users/zhao/Documents/01.Code/Zhao/ems/application/manifest/protocol
-  driverPath: /Users/zhao/Documents/01.Code/Zhao/ems/application/manifest/driver
+  configPath: /Users/zhao/Documents/01.Code/Hex/ems-plan/application/manifest/config # 所有接口配置文件的路径
+  protocolPath: /Users/zhao/Documents/01.Code/Hex/ems-plan/application/manifest/protocol
+  driverPath: /Users/zhao/Documents/01.Code/Hex/ems-plan/application/manifest/driver
   printCacheValueCycle: 10 # 打印缓存值的周期，单位秒
 
 

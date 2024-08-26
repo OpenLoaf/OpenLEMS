@@ -10,12 +10,13 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 	"plug_protocol_modbus"
 	"plug_protocol_modbus/p_modbus"
+	"pylonTechUs108_v1/pylon_tech_us108"
 	"time"
 )
 
 // NewPlugin 必须的方法，不能取消
 func NewPlugin() (c_device.IBms, error) {
-	return &PylonTechUs108Bms{}, nil
+	return &pylon_tech_us108.PylonTechUs108Bms{}, nil
 }
 
 func main() {
@@ -28,16 +29,18 @@ func main() {
 			Timeout: 1000,
 		}
 		deviceConfig = &p_modbus.SModbusDeviceConfig{
-			Id:              "测试BMS-1",
-			Name:            "测试BMS-1",
-			Driver:          "",
-			UnitId:          2,
-			Group:           c_station.EGroupNan,
-			CabinetId:       1,
-			IsMaster:        false,
-			Enable:          true,
-			LogLevel:        "INFO",
-			PrintCacheValue: false,
+			SDriverConfig: c_base.SDriverConfig{
+				Id:              "测试BMS-1",
+				Name:            "测试BMS-1",
+				Driver:          "",
+				Group:           c_station.EGroupNan,
+				CabinetId:       1,
+				IsMaster:        false,
+				Enable:          true,
+				LogLevel:        "INFO",
+				PrintCacheValue: false,
+			},
+			UnitId: 2,
 		}
 	)
 
@@ -57,7 +60,7 @@ func main() {
 	}
 
 	// 创建一个Device对象，并初始化
-	device := &PylonTechUs108Bms{}
+	device := &pylon_tech_us108.PylonTechUs108Bms{}
 	err = device.Init(ctx, provider, gconv.MapStrStr(deviceConfig))
 	if err != nil {
 		glog.Fatal(ctx, err)

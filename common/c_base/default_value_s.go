@@ -5,4 +5,5 @@ import "time"
 var (
 	DefaultCacheLifeTime = 3 * time.Second
 	DevicesKey           = "devices"
+	CabinetKey           = "cabinets"
 )

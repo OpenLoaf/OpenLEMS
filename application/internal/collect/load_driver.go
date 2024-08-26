@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"plug_protocol_modbus/p_modbus"
+	"pylonTechUs108_v1/pylon_tech_us108"
 	"strings"
 )
 
@@ -41,35 +42,33 @@ func loadDriver(ctx context.Context, deviceConfig *p_modbus.SModbusDeviceConfig)
 
 			_tempInstanceCache.Ammeters[groupType] = append(_tempInstanceCache.Ammeters[groupType], dv.(c_device.IAmmeter))
 		} else {
-			_tempInstanceCache.CabinetEss[deviceConfig.CabinetId].Ammeter = dv.(c_device.IAmmeter)
+			_tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId).Ammeter = dv.(c_device.IAmmeter)
 		}
 
 	case c_base.EDevicePcs:
 		dv = getDriver[c_device.IPcs](ctx, latestDriverPath)
-		ess, ok := _tempInstanceCache.CabinetEss[deviceConfig.CabinetId]
-		if !ok {
-			ess = &tmpCabinet{}
-			_tempInstanceCache.CabinetEss[deviceConfig.CabinetId] = ess
-		}
+		ess := _tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId)
 		ess.Pcs = append(ess.Pcs, dv.(c_device.IPcs))
 	case c_base.EDeviceBms:
-		dv = getDriver[c_device.IBms](ctx, latestDriverPath)
-		_tempInstanceCache.CabinetEss[deviceConfig.CabinetId].Bms = dv.(c_device.IBms)
+
+		dv = &pylon_tech_us108.PylonTechUs108Bms{}
+		//dv = getDriver[c_device.IBms](ctx, latestDriverPath)
+		_tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId).Bms = dv.(c_device.IBms)
 	case c_base.EDeviceFire:
 		dv = getDriver[c_device.IFire](ctx, latestDriverPath)
-		_tempInstanceCache.CabinetEss[deviceConfig.CabinetId].Fire = dv.(c_device.IFire)
+		_tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId).Fire = dv.(c_device.IFire)
 	case c_base.EDeviceEnergyStore:
 		dv = getDriver[c_device.IEnergyStore](ctx, latestDriverPath)
 		_tempInstanceCache.Ess = append(_tempInstanceCache.Ess, dv.(c_device.IEnergyStore))
 	case c_base.EDeviceHumiture:
 		dv = getDriver[c_device.IHumiture](ctx, latestDriverPath)
-		_tempInstanceCache.CabinetEss[deviceConfig.CabinetId].Humiture = dv.(c_device.IHumiture)
+		_tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId).Humiture = dv.(c_device.IHumiture)
 	case c_base.EDevicePv:
 		dv = getDriver[c_device.IPv](ctx, latestDriverPath)
 		_tempInstanceCache.Pv = append(_tempInstanceCache.Pv, dv.(c_device.IPv))
 	case c_base.EDeviceCooling:
 		dv = getDriver[c_device.ICoolingBasic](ctx, latestDriverPath)
-		_tempInstanceCache.CabinetEss[deviceConfig.CabinetId].Cooling = dv.(c_device.ICoolingBasic)
+		_tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId).Cooling = dv.(c_device.ICoolingBasic)
 	case c_base.EDeviceLoad:
 		dv = getDriver[c_device.ILoad](ctx, latestDriverPath)
 		_tempInstanceCache.Load = append(_tempInstanceCache.Load, dv.(c_device.ILoad))

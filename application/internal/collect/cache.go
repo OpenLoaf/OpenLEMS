@@ -13,7 +13,7 @@ type tmpStation struct {
 	Load []c_device.ILoad
 	Ess  []c_device.IEnergyStore
 
-	CabinetEss map[uint8]*tmpCabinet
+	cabinetEss map[uint8]*tmpCabinet
 }
 
 type tmpCabinet struct {
@@ -26,7 +26,17 @@ type tmpCabinet struct {
 }
 
 var _tempInstanceCache = &tmpStation{
-	CabinetEss: make(map[uint8]*tmpCabinet),
+	cabinetEss: make(map[uint8]*tmpCabinet),
+}
+
+func (t *tmpStation) GetCabinetEss(cabinetId uint8) *tmpCabinet {
+	cabinet := t.cabinetEss[cabinetId]
+	if cabinet == nil {
+		cabinet = &tmpCabinet{}
+		t.cabinetEss[cabinetId] = cabinet
+		return cabinet
+	}
+	return cabinet
 }
 
 func (t *tmpStation) Init(ctx context.Context) {

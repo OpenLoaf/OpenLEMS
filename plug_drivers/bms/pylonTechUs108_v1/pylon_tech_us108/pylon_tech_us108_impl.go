@@ -1,4 +1,4 @@
-package main
+package pylon_tech_us108
 
 import (
 	"context"
@@ -8,11 +8,11 @@ import (
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/os/glog"
 	"plug_protocol_modbus/p_modbus"
-	"pylonTechUs108_v1/info"
 	"time"
 )
 
 type PylonTechUs108Bms struct {
+	Id          string
 	ctx         context.Context
 	log         *glog.Logger
 	description c_base.SDescription
@@ -36,11 +36,17 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 	p.client = client.(p_modbus.IModbusProtocol)
 
 	// 注册
-	p.client.RegisterRead(ctx, info.GroupHeart, info.GroupInfo, info.GroupTime, info.GroupStatistics)
+	p.client.RegisterRead(ctx, GroupHeart, GroupInfo, GroupTime, GroupStatistics)
 
-	if config, ok := cfg.(p_modbus.SModbusDeviceConfig); ok {
-		p.log.Noticef(ctx, "配置信息:%+v", config)
+	var (
+		config *p_modbus.SModbusDeviceConfig
+		ok     bool
+	)
+	if config, ok = cfg.(*p_modbus.SModbusDeviceConfig); !ok || config == nil {
+		panic("配置文件转换失败！请检查配置文件！")
 	}
+	p.log.Noticef(ctx, "配置信息:%+v", config)
+	p.Id = config.Id
 
 	/*	if v, ok := configMap["syncTime"]; ok && v == "true" {
 			p.writeTime()
@@ -54,8 +60,7 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 }
 
 func (p *PylonTechUs108Bms) GetId() string {
-	//TODO implement me
-	panic("implement me")
+	return p.Id
 }
 
 func (p *PylonTechUs108Bms) GetRatedPower() (float64, error) {
@@ -106,11 +111,11 @@ func (p *PylonTechUs108Bms) IsActivate() bool {
 }
 
 func (p *PylonTechUs108Bms) GetSoc() (float32, error) {
-	return p.client.GetFloat32Value(info.SOC)
+	return p.client.GetFloat32Value(SOC)
 }
 
 func (p *PylonTechUs108Bms) GetSoh() (float32, error) {
-	return p.client.GetFloat32Value(info.SOH)
+	return p.client.GetFloat32Value(SOH)
 }
 
 func (p *PylonTechUs108Bms) GetDcPower() (float64, error) {
@@ -127,16 +132,16 @@ func (p *PylonTechUs108Bms) GetDcPower() (float64, error) {
 }
 
 func (p *PylonTechUs108Bms) GetDcVoltage() (float64, error) {
-	return p.client.GetFloat64Value(info.DCVoltage)
+	return p.client.GetFloat64Value(DCVoltage)
 }
 
 func (p *PylonTechUs108Bms) GetDcCurrent() (float64, error) {
-	return p.client.GetFloat64Value(info.DCCurrent)
+	return p.client.GetFloat64Value(DCCurrent)
 }
 
 // GetCellTemp 电芯最低温度, 电芯最高温度, 电芯平均温度
 func (p *PylonTechUs108Bms) GetCellTemp() (float32, float32, float32, error) {
-	values, err := p.client.GetFloat32Values(info.BatteryCellMinTemp, info.BatteryCellMaxTemp)
+	values, err := p.client.GetFloat32Values(BatteryCellMinTemp, BatteryCellMaxTemp)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -144,7 +149,7 @@ func (p *PylonTechUs108Bms) GetCellTemp() (float32, float32, float32, error) {
 }
 
 func (p *PylonTechUs108Bms) GetCellVoltage() (float32, float32, float32, error) {
-	values, err := p.client.GetFloat32Values(info.BatteryCellMinVoltage, info.BatteryCellMaxVoltage)
+	values, err := p.client.GetFloat32Values(BatteryCellMinVoltage, BatteryCellMaxVoltage)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -152,27 +157,11 @@ func (p *PylonTechUs108Bms) GetCellVoltage() (float32, float32, float32, error) 
 }
 
 func (p *PylonTechUs108Bms) GetCycleCount() (uint, error) {
-	return p.client.GetUintValue(info.CycleCount)
+	return p.client.GetUintValue(CycleCount)
 }
-
-/*func (p *PylonTechUs108Bms) GetTodayIncomingQuantity() (float64, float64, error) {
-	read, err := p.client.ReadGroupSync(info.GroupStatistics, true, info.TodayCharge, info.TodayDischarge)
-	if err != nil {
-		return 0, 0, err
-	}
-	return read[0].Float64(), read[1].Float64(), nil
-}
-
-func (p *PylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, float64, error) {
-	read, err := p.client.ReadGroupSync(info.GroupStatistics, true, info.HistoryCharge, info.HistoryDischarge)
-	if err != nil {
-		return 0, 0, err
-	}
-	return read[0].Float64(), read[1].Float64(), nil
-}*/
 
 func (p *PylonTechUs108Bms) GetTodayIncomingQuantity() (float64, error) {
-	read, err := p.client.ReadGroupSync(info.GroupStatistics, true, info.TodayCharge)
+	read, err := p.client.ReadGroupSync(GroupStatistics, true, TodayCharge)
 	if err != nil {
 		return 0, err
 	}
@@ -180,7 +169,7 @@ func (p *PylonTechUs108Bms) GetTodayIncomingQuantity() (float64, error) {
 }
 
 func (p *PylonTechUs108Bms) GetTodayOutgoingQuantity() (float64, error) {
-	read, err := p.client.ReadGroupSync(info.GroupStatistics, true, info.TodayDischarge)
+	read, err := p.client.ReadGroupSync(GroupStatistics, true, TodayDischarge)
 	if err != nil {
 		return 0, err
 	}
@@ -188,7 +177,7 @@ func (p *PylonTechUs108Bms) GetTodayOutgoingQuantity() (float64, error) {
 }
 
 func (p *PylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, error) {
-	read, err := p.client.ReadGroupSync(info.GroupStatistics, true, info.HistoryCharge)
+	read, err := p.client.ReadGroupSync(GroupStatistics, true, HistoryCharge)
 	if err != nil {
 		return 0, err
 	}
@@ -196,7 +185,7 @@ func (p *PylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, error) {
 }
 
 func (p *PylonTechUs108Bms) GetHistoryOutgoingQuantity() (float64, error) {
-	read, err := p.client.ReadGroupSync(info.GroupStatistics, true, info.HistoryDischarge)
+	read, err := p.client.ReadGroupSync(GroupStatistics, true, HistoryDischarge)
 	if err != nil {
 		return 0, err
 	}

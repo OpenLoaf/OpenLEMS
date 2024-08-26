@@ -1,20 +1,18 @@
 cabinets:
-  - CabinetId: 1
+  - id: 1
     name: 储能柜1
     modbusEnable: false
-  - CabinetId : 2
+    capacity: 1000
+
+  - id: 2
     name: 储能柜2
     modbusEnable: true
-    driver: ess_pylon_checkwatt
-    params:
-      maxCharge: 30
-      maxDischarge: 30
+    capacity: 232
 devices:
-  - name: 485_1
+  - name: port1
     protocol: modbus_rtu
     enable: false
-    logLevel: INFO
-    address: /dev/tty.usbserial-AQ03KXVV
+    address: /dev/tty.usbserial-2120
     timeout: 30
     config:
       speed: 9600
@@ -22,8 +20,17 @@ devices:
       parity: N
       stopBits: 1
     device-children:
+      - name: pcs_rtu_example
+        enable: true
+        unitId: 1
+        cabinetId: 1
+        driver: pcs_example
+        location: cabinet
+        group: pcs
+        isMaster: false
+        debug: false
       - name: ammeter_rtu_example
-        enable: false
+        enable: true
         unitId: 2
         cabinetId: 1
         driver: ammeter_example
@@ -36,12 +43,11 @@ devices:
     protocol: modbus_tcp
     enable: true
     logLevel: INFO
-    address: 127.0.0.1:1503
+    address: 192.168.0.146:1502
     timeout: 3000
     device-children:
-      - id: star-charge-100E-1
-        name: 阳光电源PCS
-        enable: false
+      - name: star-charge-100E
+        enable: true
         unitId: 1
         cabinetId: 2
         driver: pcs_starCharge100E
@@ -49,12 +55,9 @@ devices:
         group: pcs
         isMaster: false
         logLevel: INFO
-        printCacheValue: false
-        ratedPower: 100
-        syncTime: true   # 同步时间
-      - id: pylon-tech-us108-1
-        name: 派能MBMS
-        enable: true
+        printCacheValue: true
+      - name: pylon-tech-us108
+        enable: false
         unitId: 2
         cabinetId: 2
         driver: bms_pylonTechUs108
@@ -62,15 +65,4 @@ devices:
         group: bms
         isMaster: false
         logLevel: INFO
-        printCacheValue: false
-        syncTime: true # 同步时间
-  - name: gpio
-    protocol: gpio  # sysfs
-    enable: false
-    logLevel: DEBUG
-    device-children:
-      - name: scram-button
-        enable: true
-        driver: basic-switch
-        cabinetId: 2 # 不为0代表是柜子上的设备
-        group: switch
+        printCacheValue: true

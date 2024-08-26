@@ -41,6 +41,9 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				if err != nil {
 					return err
 				}
+				if deviceConfig.Id == "" {
+					panic(fmt.Sprintf("设备Id不能为空！"))
+				}
 
 				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.Group)), deviceConfig.Id))
 				if !deviceConfig.Enable {

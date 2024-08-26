@@ -1,0 +1,21 @@
+system:
+  # 插件存放路径
+  configPath: ./config # 所有接口配置文件的路径
+  protocolPath: ./protocol
+  driverPath: ./driver
+
+  ## 性能分析
+  # go tool pprof http://localhost:6060/debug/pprof/profile?seconds=30
+  # go tool pprof http://localhost:6060/debug/pprof/heap
+  pprof:
+    enable: true
+    address: 0.0.0.0:6060
+
+
+
+# 日志组件配置
+logger:
+  Level:   "all"
+  Stdout:  true
+  CtxKeys: ["Name","DeviceName","Group"]
+  writerColorEnable: true  # 日志文件是否带上颜色。默认false，表示不带颜色
