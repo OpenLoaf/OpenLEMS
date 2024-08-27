@@ -2,7 +2,6 @@ package internal_cooling
 
 import (
 	"context"
-	"ems-plan/c_base"
 	"ems-plan/c_device"
 )
 
@@ -10,10 +9,10 @@ import (
 type sCabinetCooling struct {
 	ctx       context.Context
 	cabinetId uint8
-	cooling   c_base.ICoolingBasic
+	cooling   c_device.ICoolingBasic
 }
 
-func NewCooling(ctx context.Context, cabinetId uint8, cooling c_base.ICoolingBasic) c_base.ICoolingBasic {
+func NewCooling(ctx context.Context, cabinetId uint8, cooling c_device.ICoolingBasic) c_device.ICoolingBasic {
 	instance := &sCabinetCooling{
 		ctx:       context.WithValue(ctx, "DeviceName", "CabinetBms_"+string(cabinetId)),
 		cabinetId: cabinetId,
@@ -23,19 +22,17 @@ func NewCooling(ctx context.Context, cabinetId uint8, cooling c_base.ICoolingBas
 
 }
 
-func (c *sCabinetCooling) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
+func (s *sCabinetCooling) SetTemperature(temperature float32) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (c *sCabinetCooling) SetTemperature(temperature float32) error {
-	return c.cooling.SetTemperature(temperature)
+func (s *sCabinetCooling) GetTemperature() (float32, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (c *sCabinetCooling) GetTemperature() (float32, error) {
-	return c.cooling.GetTemperature()
-}
-
-func (c *sCabinetCooling) GetTargetTemperature() (float32, error) {
-	return c.cooling.GetTargetTemperature()
+func (s *sCabinetCooling) GetTargetTemperature() (float32, error) {
+	//TODO implement me
+	panic("implement me")
 }

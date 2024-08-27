@@ -8,7 +8,7 @@ import (
 // sCabinetFire 实现 c_base.IFireBasic 接口
 type sCabinetFire struct {
 	ctx  context.Context
-	fire c_base.IFire // 消防设备
+	fire c_device.IFire // 消防设备
 }
 
 func (c *sCabinetFire) GetFireEnvTemperature() (float64, error) {

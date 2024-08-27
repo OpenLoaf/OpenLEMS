@@ -82,7 +82,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				//}
 
 				// 开始监听(此处防止device未调用Listen方法而执行)
-				modbusProvider.Start()
+				modbusProvider.Init()
 
 				// 设置告警
 				//protocol.SetupProtocol(modbusProvider)
@@ -100,7 +100,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 
 	g.Log().Infof(ctx, "所有设备加载完成！")
 
-	//modbus.Start(&modbus.BaseModbusHandler{
+	//modbus.Init(&modbus.BaseModbusHandler{
 	//	Cabinets: essHandlerMap,
 	//})
 

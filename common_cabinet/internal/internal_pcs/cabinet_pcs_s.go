@@ -5,16 +5,16 @@ import (
 	"ems-plan/c_device"
 )
 
-// sCabinetPcs 实现了 c_base.IPcsBasic 接口
+// sCabinetPcs 实现了 c_device.IPcsBasic 接口
 type sCabinetPcs struct {
 	//info      *plugin.DriverInfo
 	cabinetId uint8
 	ctx       context.Context
-	rootPcs   c_base.IPcs
-	pcsList   []c_base.IPcs
+	rootPcs   c_device.IPcs
+	pcsList   []c_device.IPcs
 }
 
-func NewPcs(ctx context.Context, cabinetId uint8, master c_base.IPcs, pcsList []c_base.IPcs) c_base.IPcsBasic {
+func NewPcs(ctx context.Context, cabinetId uint8, master c_device.IPcs, pcsList []c_device.IPcs) c_device.IPcsBasic {
 	if len(pcsList) == 0 && master == nil {
 		panic("master and pcsList cannot be empty at the same time")
 	}
@@ -42,77 +42,107 @@ func NewPcs(ctx context.Context, cabinetId uint8, master c_base.IPcs, pcsList []
 	return instance
 }
 
-func (p *sCabinetPcs) GetPower() (float64, error) {
+func (s *sCabinetPcs) SetReset() error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetApparentPower() (float64, error) {
+func (s *sCabinetPcs) SetStatus(status c_device.EEnergyStoreStatus) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetReactivePower() (float64, error) {
+func (s *sCabinetPcs) SetGridMode(mode c_device.EGridMode) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetTodayIncomingQuantity() (float64, error) {
+func (s *sCabinetPcs) GetStatus() (c_device.EEnergyStoreStatus, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetHistoryIncomingQuantity() (float64, error) {
+func (s *sCabinetPcs) GetGridMode() (c_device.EGridMode, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetTodayOutgoingQuantity() (float64, error) {
+func (s *sCabinetPcs) SetPower(power float64) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetHistoryOutgoingQuantity() (float64, error) {
+func (s *sCabinetPcs) SetReactivePower(power float64) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetRatedPower() (float64, error) {
+func (s *sCabinetPcs) SetPowerFactor(factor float32) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetMaxInputPower() (float64, error) {
+func (s *sCabinetPcs) GetTargetPower() float64 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetMaxOutputPower() (float64, error) {
+func (s *sCabinetPcs) GetTargetReactivePower() float64 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) SetReset() error {
+func (s *sCabinetPcs) GetTargetPowerFactor() float32 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) SetStatus(status c_base.EEnergyStoreStatus) error {
+func (s *sCabinetPcs) GetPower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) SetGridMode(mode c_base.EGridMode) error {
+func (s *sCabinetPcs) GetApparentPower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
+func (s *sCabinetPcs) GetReactivePower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sCabinetPcs) GetGridMode() (c_base.EGridMode, error) {
+func (s *sCabinetPcs) GetRatedPower() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetMaxInputPower() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetMaxOutputPower() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetTodayIncomingQuantity() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetHistoryIncomingQuantity() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetTodayOutgoingQuantity() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetHistoryOutgoingQuantity() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }

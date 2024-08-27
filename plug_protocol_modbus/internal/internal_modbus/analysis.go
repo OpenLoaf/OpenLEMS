@@ -2,12 +2,12 @@ package internal_modbus
 
 import (
 	"context"
+	common "ems-plan"
 	"ems-plan/c_base"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/os/gcache"
 	"math"
-	"plug_protocol_analysis/p_analysis"
 	"reflect"
 	"time"
 )
@@ -41,7 +41,7 @@ func analysisModbus(ctx context.Context, cache *gcache.Cache, alarmProvider any,
 		if kind == reflect.Float64 && math.IsNaN(value.(float64)) {
 			panic(fmt.Sprintf("[%s-%s] 读取到的float64位的值为NaN！请检查字段是否配置正确！\n%+v", groupName, meta.Name, meta))
 		}
-		vars, err := p_analysis.Process(ctx, value, cache, alarmProvider, lifetime, meta)
+		vars, err := common.MetaTransformAndCache(ctx, "", meta, value, alarmProvider, cache, lifetime)
 		if err != nil {
 			errMessage += fmt.Sprintf("[%s-%s] %v;", groupName, meta.Name, err)
 			continue

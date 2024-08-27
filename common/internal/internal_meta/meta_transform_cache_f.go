@@ -1,4 +1,4 @@
-package internal
+package internal_meta
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 )
 
 // TODO: 修改参数顺序
-func Process(ctx context.Context, value any, cache *gcache.Cache, alarmProvider any, lifetime time.Duration, meta *c_base.Meta) (*gvar.Var, error) {
+func MetaProcess(ctx context.Context, deviceId string, meta *c_base.Meta, value any, alarm *c_base.SAlarm, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
 	var deviceName = ""
 	if meta == nil {
 		return nil, fmt.Errorf("[%s] Analysis的查询方法获取到point为nil", deviceName)
@@ -40,26 +40,27 @@ func Process(ctx context.Context, value any, cache *gcache.Cache, alarmProvider 
 		return nil, fmt.Errorf("[%s-%s] 数据不在正常范围内!当前值:%v,理论上最小值：%v,最大值：%v", deviceName, meta.Name, value, meta.Min, meta.Max)
 	}
 
-	// 缓存
-
-	err := cache.Set(ctx, meta, value, lifetime)
-	if err != nil {
-		return nil, err
-	}
-
 	// 判断是否是非信息类型，用于触发告警
 	if meta.Level != 0 && meta.Trigger != nil {
 		if meta.Trigger(value) {
 			//alarmProvider.TriggerAlarm(meta, value)
 			g.Log().Debugf(ctx, "[%s-%s] 触发[%s]", deviceName, meta.Name, meta.Level.Name())
+
+			alarm.Add(deviceId, nil, meta, value)
 		} else {
 			// 消除异常
 			//alarmProvider.ClearAlarm(meta)
 		}
 	}
 
+	// 缓存
+	err := cache.Set(ctx, meta, value, lifetime)
+	if err != nil {
+		return nil, err
+	}
+
 	if meta.Debug {
-		g.Log().Infof(ctx, "[%s-%s] 值: %v", deviceName, meta.Cn, value)
+		g.Log().Debugf(ctx, "[%s-%s] 值: %v", deviceName, meta.Cn, value)
 	}
 
 	return gvar.New(value), nil

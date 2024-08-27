@@ -7,7 +7,7 @@ use (
 	common_station
 	plug_drivers/bms/pylonTechUs108_v1
 	plug_drivers/ess/pylonCheckwatt_v1
-	plug_protocol_analysis
+
 	plug_protocol_modbus
 	plug_protocol_canbus
 	plug_protocol_gpio_sysfs

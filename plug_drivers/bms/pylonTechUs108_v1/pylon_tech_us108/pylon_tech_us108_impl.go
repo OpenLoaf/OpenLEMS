@@ -5,7 +5,6 @@ import (
 	"ems-plan/c_base"
 	"ems-plan/c_device"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/os/glog"
 	"plug_protocol_modbus/p_modbus"
 	"time"
@@ -16,7 +15,7 @@ type PylonTechUs108Bms struct {
 	ctx         context.Context
 	log         *glog.Logger
 	description c_base.SDescription
-	client      p_modbus.IModbusProtocol
+	p_modbus.IModbusProtocol
 }
 
 func (p *PylonTechUs108Bms) GetDescription() c_base.SDescription {
@@ -24,7 +23,7 @@ func (p *PylonTechUs108Bms) GetDescription() c_base.SDescription {
 		Brand:  "Plyon",
 		Model:  "TechUs108",
 		Type:   c_base.EDeviceBms,
-		Remark: "",
+		Remark: "派能108kWh风冷电池MBMS",
 	}
 }
 
@@ -33,10 +32,10 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 
 	p.log = log
 	p.ctx = ctx
-	p.client = client.(p_modbus.IModbusProtocol)
+	p.IModbusProtocol = client.(p_modbus.IModbusProtocol)
 
 	// 注册
-	p.client.RegisterRead(ctx, GroupHeart, GroupInfo, GroupTime, GroupStatistics)
+	p.IModbusProtocol.RegisterRead(ctx, GroupHeart, GroupInfo, GroupTime, GroupStatistics)
 
 	var (
 		config *p_modbus.SModbusDeviceConfig
@@ -55,12 +54,13 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 			p.log.Infof(ctx, "syncTime配置为：false！时间不同步！")
 		}
 	*/
-	p.client.Start()
+	p.IModbusProtocol.Init()
 	return nil
 }
 
-func (p *PylonTechUs108Bms) GetId() string {
-	return p.Id
+func (p *PylonTechUs108Bms) HasAlarm() (bool, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (p *PylonTechUs108Bms) GetRatedPower() (float64, error) {
@@ -93,29 +93,12 @@ func (p *PylonTechUs108Bms) GetBmsStatus() (c_device.EBmsStatus, error) {
 	panic("implement me")
 }
 
-func (p *PylonTechUs108Bms) GetLastUpdateTime() *time.Time {
-	return p.client.GetLastUpdateTime()
-}
-
-func (p *PylonTechUs108Bms) HasAlarm() (bool, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (p *PylonTechUs108Bms) GetCache() *gcache.Cache {
-	return p.client.GetCache()
-}
-
-func (p *PylonTechUs108Bms) IsActivate() bool {
-	return p.client.IsActivate()
-}
-
 func (p *PylonTechUs108Bms) GetSoc() (float32, error) {
-	return p.client.GetFloat32Value(SOC)
+	return p.GetFloat32Value(SOC)
 }
 
 func (p *PylonTechUs108Bms) GetSoh() (float32, error) {
-	return p.client.GetFloat32Value(SOH)
+	return p.GetFloat32Value(SOH)
 }
 
 func (p *PylonTechUs108Bms) GetDcPower() (float64, error) {
@@ -132,16 +115,16 @@ func (p *PylonTechUs108Bms) GetDcPower() (float64, error) {
 }
 
 func (p *PylonTechUs108Bms) GetDcVoltage() (float64, error) {
-	return p.client.GetFloat64Value(DCVoltage)
+	return p.GetFloat64Value(DCVoltage)
 }
 
 func (p *PylonTechUs108Bms) GetDcCurrent() (float64, error) {
-	return p.client.GetFloat64Value(DCCurrent)
+	return p.GetFloat64Value(DCCurrent)
 }
 
 // GetCellTemp 电芯最低温度, 电芯最高温度, 电芯平均温度
 func (p *PylonTechUs108Bms) GetCellTemp() (float32, float32, float32, error) {
-	values, err := p.client.GetFloat32Values(BatteryCellMinTemp, BatteryCellMaxTemp)
+	values, err := p.GetFloat32Values(BatteryCellMinTemp, BatteryCellMaxTemp)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -149,7 +132,7 @@ func (p *PylonTechUs108Bms) GetCellTemp() (float32, float32, float32, error) {
 }
 
 func (p *PylonTechUs108Bms) GetCellVoltage() (float32, float32, float32, error) {
-	values, err := p.client.GetFloat32Values(BatteryCellMinVoltage, BatteryCellMaxVoltage)
+	values, err := p.GetFloat32Values(BatteryCellMinVoltage, BatteryCellMaxVoltage)
 	if err != nil {
 		return 0, 0, 0, err
 	}
@@ -157,11 +140,11 @@ func (p *PylonTechUs108Bms) GetCellVoltage() (float32, float32, float32, error) 
 }
 
 func (p *PylonTechUs108Bms) GetCycleCount() (uint, error) {
-	return p.client.GetUintValue(CycleCount)
+	return p.GetUintValue(CycleCount)
 }
 
 func (p *PylonTechUs108Bms) GetTodayIncomingQuantity() (float64, error) {
-	read, err := p.client.ReadGroupSync(GroupStatistics, true, TodayCharge)
+	read, err := p.ReadGroupSync(GroupStatistics, true, TodayCharge)
 	if err != nil {
 		return 0, err
 	}
@@ -169,7 +152,7 @@ func (p *PylonTechUs108Bms) GetTodayIncomingQuantity() (float64, error) {
 }
 
 func (p *PylonTechUs108Bms) GetTodayOutgoingQuantity() (float64, error) {
-	read, err := p.client.ReadGroupSync(GroupStatistics, true, TodayDischarge)
+	read, err := p.ReadGroupSync(GroupStatistics, true, TodayDischarge)
 	if err != nil {
 		return 0, err
 	}
@@ -177,7 +160,7 @@ func (p *PylonTechUs108Bms) GetTodayOutgoingQuantity() (float64, error) {
 }
 
 func (p *PylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, error) {
-	read, err := p.client.ReadGroupSync(GroupStatistics, true, HistoryCharge)
+	read, err := p.ReadGroupSync(GroupStatistics, true, HistoryCharge)
 	if err != nil {
 		return 0, err
 	}
@@ -185,7 +168,7 @@ func (p *PylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, error) {
 }
 
 func (p *PylonTechUs108Bms) GetHistoryOutgoingQuantity() (float64, error) {
-	read, err := p.client.ReadGroupSync(GroupStatistics, true, HistoryDischarge)
+	read, err := p.ReadGroupSync(GroupStatistics, true, HistoryDischarge)
 	if err != nil {
 		return 0, err
 	}
@@ -211,7 +194,7 @@ func (p *PylonTechUs108Bms) writeTime() {
 				case <-p.ctx.Done():
 					p.log.Noticef(p.ctx, "writeTime() 关闭!")
 				case <-ticker.C:
-					if !p.client.IsActivate() {
+					if !p.IsActivate() {
 						continue
 					}
 					err := p._syncTime()
@@ -227,12 +210,12 @@ func (p *PylonTechUs108Bms) writeTime() {
 }
 
 func (p *PylonTechUs108Bms) _syncTime() error {
-	//if !p.client.IsActivate() {
+	//if !p.IsActivate() {
 	//	return fmt.Errorf("modbus client is not activate")
 	//}
 	//now := time.Now()
 	//
-	//err := p.client.WriteMultipleRegisters(info.GroupTime, []int64{int64(now.Year() - 2000), int64(now.Month()),
+	//err := p.WriteMultipleRegisters(info.GroupTime, []int64{int64(now.Year() - 2000), int64(now.Month()),
 	//	int64(now.Day()), int64(now.Hour()), int64(now.Minute()), int64(now.Second())})
 	//if err != nil {
 	//	return err

@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (p *ModbusProvider) Start() {
+func (p *ModbusProvider) Init() {
 	// 只会执行一次监听
 	p.once.Do(func() {
 

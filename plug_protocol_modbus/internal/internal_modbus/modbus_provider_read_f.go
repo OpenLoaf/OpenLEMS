@@ -117,16 +117,16 @@ func (p *ModbusProvider) readValues(name string, addr, quantity uint16, function
 			_ = p.client.Close()
 		} else {
 			_ = p.client.Close()
-			p.log.Warningf(p.ctx, "[%v-%v] Modbus任务获取数据失败！失败原因：%+v", p.DeviceId, name, err)
+			p.log.Warningf(p.ctx, "[%v-%v] Modbus任务获取数据失败！失败原因：%+v", p.deviceId, name, err)
 		}
 		return nil, err
 	}
 	if result == nil || len(result) == 0 {
 		_ = p.client.Close()
-		return nil, fmt.Errorf("[%v-%v] Modbus任务获取数据为空！", p.DeviceId, name)
+		return nil, fmt.Errorf("[%v-%v] Modbus任务获取数据为空！", p.deviceId, name)
 	}
 
-	p.log.Debugf(p.ctx, "[%v-%v] Modbus任务获取到数据：[% x]", p.DeviceId, name, result)
+	p.log.Debugf(p.ctx, "[%v-%v] Modbus任务获取到数据：[% x]", p.deviceId, name, result)
 	// 更新最后更新时间
 	now := time.Now()
 	p.lastUpdateTime = &now

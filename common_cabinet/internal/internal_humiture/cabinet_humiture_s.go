@@ -9,7 +9,7 @@ import (
 type sCabinetHumiture struct {
 	cabinetId uint8
 	ctx       context.Context
-	humiture  c_base.IHumiture
+	humiture  c_device.IHumiture
 }
 
 func (c *sCabinetHumiture) GetTemperature() (float64, error) {

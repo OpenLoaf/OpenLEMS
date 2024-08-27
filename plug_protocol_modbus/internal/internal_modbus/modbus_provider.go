@@ -13,8 +13,8 @@ import (
 )
 
 type ModbusProvider struct {
-	once            sync.Once
-	DeviceId        string                     // 设备名称
+	once            sync.Once                  // 只执行一次Init方法
+	deviceId        string                     // 设备名称
 	unitId          uint8                      // 设备的unitId
 	modbusReadChan  chan *p_modbus.ModbusGroup // 查询用的通道
 	client          modbus.Client              // modbus的通讯
@@ -24,18 +24,16 @@ type ModbusProvider struct {
 	log             *glog.Logger               // 日志
 	ctx             context.Context            // 上下文
 	PrintCacheValue bool                       // 打印缓存值
-	//alarmProvider   alarm.IProvider             // 告警
-	//notifyChannel   chan *protocol.Notify       // 通知
-	//broadcaster     *protocol.NotifyBroadcaster // 通知广播
-	modbusRwMutex  sync.RWMutex // 读写锁
-	lastUpdateTime *time.Time   // 最后更新时间
+	modbusRwMutex   sync.RWMutex               // 读写锁
+	lastUpdateTime  *time.Time                 // 最后更新时间
+	alarm           *c_base.SAlarm             // 告警
 }
 
 func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *p_modbus.SModbusDeviceConfig, client any) (p_modbus.IModbusProtocol, error) {
 	provider := &ModbusProvider{
 		once:     sync.Once{},
 		ctx:      ctx,
-		DeviceId: deviceConfig.Id,
+		deviceId: deviceConfig.Id,
 		unitId:   deviceConfig.UnitId,
 		//PrintCacheValue: deviceConfig.PrintCacheValue,
 		modbusReadChan: make(chan *p_modbus.ModbusGroup),
@@ -65,6 +63,10 @@ func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig
 	}
 
 	return provider, nil
+}
+
+func (p *ModbusProvider) GetId() string {
+	return p.deviceId
 }
 
 func (p *ModbusProvider) GetCache() *gcache.Cache {

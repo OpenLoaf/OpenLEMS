@@ -2,7 +2,6 @@ package internal_bms
 
 import (
 	"context"
-	"ems-plan/c_base"
 	"ems-plan/c_device"
 )
 
@@ -10,21 +9,16 @@ import (
 type sCabinetBms struct {
 	ctx       context.Context
 	cabinetId uint8 // 属于哪个柜子
-	bms       c_base.IBms
+	bms       c_device.IBms
 }
 
-func NewBms(ctx context.Context, cabinetId uint8, bms c_base.IBms) c_base.IBmsBasic {
+func NewBms(ctx context.Context, cabinetId uint8, bms c_device.IBms) c_device.IBmsBasic {
 	instance := &sCabinetBms{
 		ctx:       context.WithValue(ctx, "DeviceName", "CabinetBms_"+string(cabinetId)),
 		cabinetId: cabinetId,
 		bms:       bms,
 	}
 	return instance
-}
-
-func (c *sCabinetBms) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (c *sCabinetBms) GetRatedPower() (float64, error) {
@@ -71,11 +65,11 @@ func (c *sCabinetBms) SetReset() error {
 	return c.bms.SetReset()
 }
 
-func (c *sCabinetBms) SetBmsStatus(status c_base.EBmsStatus) error {
+func (c *sCabinetBms) SetBmsStatus(status c_device.EBmsStatus) error {
 	return c.bms.SetBmsStatus(status)
 }
 
-func (c *sCabinetBms) GetBmsStatus() (c_base.EBmsStatus, error) {
+func (c *sCabinetBms) GetBmsStatus() (c_device.EBmsStatus, error) {
 	return c.bms.GetBmsStatus()
 }
 

@@ -20,7 +20,7 @@ func (p *ModbusProvider) GetIntValue(meta *c_base.Meta) (int, error) {
 		return 0, err
 	}
 	if get == nil {
-		return 0, fmt.Errorf("[%v-%s] 获取的值为空！", p.DeviceId, meta.Name)
+		return 0, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceId, meta.Name)
 	}
 	return get.Int(), err
 }
@@ -31,7 +31,7 @@ func (p *ModbusProvider) GetUintValue(meta *c_base.Meta) (uint, error) {
 		return 0, err
 	}
 	if get == nil {
-		return 0, fmt.Errorf("[%v-%s] 获取的值为空！", p.DeviceId, meta.Name)
+		return 0, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceId, meta.Name)
 	}
 	return get.Uint(), err
 }
@@ -44,7 +44,7 @@ func (p *ModbusProvider) GetFloat32Value(meta *c_base.Meta) (float32, error) {
 		return 0, err
 	}
 	if get == nil {
-		return 0, fmt.Errorf("[%v-%s] 获取的值为空！", p.DeviceId, meta.Name)
+		return 0, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceId, meta.Name)
 	}
 	return get.Float32(), err
 }

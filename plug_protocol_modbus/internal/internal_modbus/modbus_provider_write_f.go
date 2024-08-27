@@ -12,13 +12,13 @@ func (p *ModbusProvider) WriteSingleRegister(meta *c_base.Meta, value int64) err
 	registerLength := len(result) / 2
 	if registerLength == 1 {
 		uint16Value := meta.Endianness.DecodeToUint16(result)
-		p.log.Debugf(p.ctx, "%s 写入点位：%s 地址：0x%x 值：%v", p.DeviceId, meta.Name, meta.Addr, uint16Value)
+		p.log.Debugf(p.ctx, "%s 写入点位：%s 地址：0x%x 值：%v", p.deviceId, meta.Name, meta.Addr, uint16Value)
 		err := p.client.WriteSingleRegister(p.unitId, meta.Addr, uint16Value)
 		if err != nil {
 			return err
 		}
 	} else {
-		p.log.Debugf(p.ctx, "%s 写入点位：%s 地址：0x%x 值：%v", p.DeviceId, meta.Name, meta.Addr, result)
+		p.log.Debugf(p.ctx, "%s 写入点位：%s 地址：0x%x 值：%v", p.deviceId, meta.Name, meta.Addr, result)
 		err := p.client.WriteMultipleRegistersBytes(p.unitId, meta.Addr, uint16(registerLength), result)
 		if err != nil {
 			return err
@@ -47,7 +47,7 @@ func (p *ModbusProvider) WriteMultipleRegisters(group *p_modbus.ModbusGroup, val
 		}
 		valueBytes := meta.ReadType.Encoder(values[i], meta.Factor, meta.Offset, meta.Endianness)
 		copy(bytes[i*2:], valueBytes)
-		p.log.Debugf(p.ctx, "%s 写入点位：%s 地址：0x%x 值：%v", p.DeviceId, meta.Name, meta.Addr, valueBytes)
+		p.log.Debugf(p.ctx, "%s 写入点位：%s 地址：0x%x 值：%v", p.deviceId, meta.Name, meta.Addr, valueBytes)
 	}
 
 	err := p.client.WriteMultipleRegistersBytes(p.unitId, group.Addr, dataLength, bytes)

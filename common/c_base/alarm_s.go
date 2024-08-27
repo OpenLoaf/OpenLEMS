@@ -11,6 +11,15 @@ type SAlarm struct {
 	details       []*SAlarmDetail
 }
 
+type SAlarmDetail struct {
+	DeviceId   string      `json:"deviceId" dc:"设备ID"`
+	DeviceType EDeviceType `json:"deviceType" dc:"设备类型"`
+	Level      AlarmLevel  `json:"level" dc:"告警级别"`
+	Meta       *Meta       `json:"meta" dc:"告警元数据"`
+	HappenTime time.Time   `json:"happenTime" dc:"发生时间"`
+	Value      any         `json:"value" dc:"数值"`
+}
+
 func (s *SAlarm) Clear() {
 	s.rwMutex.Lock()
 	defer s.rwMutex.Unlock()
@@ -18,7 +27,7 @@ func (s *SAlarm) Clear() {
 	s.SAlarmDetail = nil
 }
 
-func (s *SAlarm) Add(deviceId string, meta *Meta, value any) {
+func (s *SAlarm) Add(deviceId string, deviceType EDeviceType, meta *Meta, value any) {
 	if meta.Level == ENone {
 		return
 	}
@@ -26,6 +35,7 @@ func (s *SAlarm) Add(deviceId string, meta *Meta, value any) {
 	defer s.rwMutex.Unlock()
 	alarm := &SAlarmDetail{
 		DeviceId:   deviceId,
+		DeviceType: deviceType,
 		Level:      meta.Level,
 		Meta:       meta,
 		HappenTime: time.Now(),
