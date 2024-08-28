@@ -18,7 +18,7 @@ type Meta struct {
 	Endianness ECharSequence  `json:"endianness,omitempty"` // 字节顺序，默认为大端
 	ReadType   EReadType      `json:"readType"`             // 数据类型，ECharSequence 字节顺序将会影响读取到的数据结果
 	SystemType ESystemType    `json:"systemType"`           // 格式化类型,默认为SUseReadType!自动使用ReadType的类型。
-	Level      AlarmLevel     `json:"level"`                // 点位级别
+	Level      EAlarmLevel    `json:"level"`                // 点位级别
 	Factor     float32        `json:"factor,omitempty"`     // 乘以系数，如果是0，自动会改成1。因为0无意义
 	Offset     int            `json:"offset,omitempty"`     // 偏移值
 	Min        int64          `json:"min,omitempty"`        // 范围最小值

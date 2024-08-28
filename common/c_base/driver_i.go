@@ -8,11 +8,13 @@ import (
 
 type IDriver interface {
 	GetId() string
-	GetLastUpdateTime() *time.Time
+	GetType() EDeviceType
+	// GetName() string
 
 	GetDescription() SDescription
 
 	GetCache() *gcache.Cache // 获取缓存
+	GetLastUpdateTime() *time.Time
 
 	Init(ctx context.Context, client IProtocol, config any) error
 

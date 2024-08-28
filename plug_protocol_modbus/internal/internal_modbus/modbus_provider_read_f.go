@@ -31,7 +31,7 @@ func (p *ModbusProvider) ReadSingleSync(meta *c_base.Meta, function p_modbus.Mod
 	if result == nil || len(result) == 0 {
 		return nil, fmt.Errorf("读取到的数据为空！")
 	}
-	values, err := analysisModbus(p.ctx, p.cache, nil, name, meta.Addr, lifetime, result, meta)
+	values, err := p.analysisModbus(p.ctx, p.cache, name, meta.Addr, lifetime, result, meta)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +61,7 @@ func (p *ModbusProvider) ReadGroupSync(group *p_modbus.ModbusGroup, readCache bo
 	if err != nil {
 		return nil, err
 	}
-	allGroupVars, err := analysisModbus(p.ctx, p.cache, nil, group.Name, group.Addr, group.Lifetime, result, group.Metas...)
+	allGroupVars, err := p.analysisModbus(p.ctx, p.cache, group.Name, group.Addr, group.Lifetime, result, group.Metas...)
 	if err != nil {
 		return nil, err
 	}

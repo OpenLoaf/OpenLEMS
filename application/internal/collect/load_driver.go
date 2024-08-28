@@ -51,6 +51,7 @@ func loadDriver(ctx context.Context, deviceConfig *p_modbus.SModbusDeviceConfig)
 		ess.Pcs = append(ess.Pcs, dv.(c_device.IPcs))
 	case c_base.EDeviceBms:
 
+		// TODO: 改成插件加载
 		dv = &pylon_tech_us108.PylonTechUs108Bms{}
 		//dv = getDriver[c_device.IBms](ctx, latestDriverPath)
 		_tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId).Bms = dv.(c_device.IBms)
@@ -66,12 +67,21 @@ func loadDriver(ctx context.Context, deviceConfig *p_modbus.SModbusDeviceConfig)
 	case c_base.EDevicePv:
 		dv = getDriver[c_device.IPv](ctx, latestDriverPath)
 		_tempInstanceCache.Pv = append(_tempInstanceCache.Pv, dv.(c_device.IPv))
-	case c_base.EDeviceCooling:
-		dv = getDriver[c_device.ICoolingBasic](ctx, latestDriverPath)
+	case c_base.EDeviceCoolingAc:
+		dv = getDriver[c_device.ICoolingAc](ctx, latestDriverPath)
+		_tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId).Cooling = dv.(c_device.ICoolingBasic)
+	case c_base.EDeviceCoolingLiquid:
+		dv = getDriver[c_device.ICoolingLiquid](ctx, latestDriverPath)
 		_tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId).Cooling = dv.(c_device.ICoolingBasic)
 	case c_base.EDeviceLoad:
 		dv = getDriver[c_device.ILoad](ctx, latestDriverPath)
 		_tempInstanceCache.Load = append(_tempInstanceCache.Load, dv.(c_device.ILoad))
+	case c_base.EChargePile:
+		dv = getDriver[c_device.ICharge](ctx, latestDriverPath)
+		_tempInstanceCache.ChargePile = append(_tempInstanceCache.ChargePile, dv.(c_device.ILoad))
+	case c_base.EGenerator:
+		dv = getDriver[c_device.IGenerator](ctx, latestDriverPath)
+		_tempInstanceCache.Generator = append(_tempInstanceCache.Generator, dv.(c_device.IGenerator))
 	}
 
 	if dv == nil {

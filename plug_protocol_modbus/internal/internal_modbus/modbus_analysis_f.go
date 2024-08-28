@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func analysisModbus(ctx context.Context, cache *gcache.Cache, alarmProvider any, groupName string, addr uint16, lifetime time.Duration, result []byte, metas ...*c_base.Meta) ([]*gvar.Var, error) {
+func (p *ModbusProvider) analysisModbus(ctx context.Context, cache *gcache.Cache, groupName string, addr uint16, lifetime time.Duration, result []byte, metas ...*c_base.Meta) ([]*gvar.Var, error) {
 	if metas == nil || len(metas) == 0 || result == nil {
 		return nil, fmt.Errorf("[%s] Analysis的查询方法 value或points参数为空！", groupName)
 	}
@@ -41,7 +41,7 @@ func analysisModbus(ctx context.Context, cache *gcache.Cache, alarmProvider any,
 		if kind == reflect.Float64 && math.IsNaN(value.(float64)) {
 			panic(fmt.Sprintf("[%s-%s] 读取到的float64位的值为NaN！请检查字段是否配置正确！\n%+v", groupName, meta.Name, meta))
 		}
-		vars, err := common.MetaTransformAndCache(ctx, "", meta, value, alarmProvider, cache, lifetime)
+		vars, err := common.MetaTransformAndCache(ctx, p, meta, value, cache, lifetime)
 		if err != nil {
 			errMessage += fmt.Sprintf("[%s-%s] %v;", groupName, meta.Name, err)
 			continue

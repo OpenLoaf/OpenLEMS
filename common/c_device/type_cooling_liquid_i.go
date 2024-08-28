@@ -2,8 +2,8 @@ package c_device
 
 import "ems-plan/c_base"
 
-// ILiquidCooling 液冷
-type ILiquidCooling interface {
+// ICoolingLiquid 液冷
+type ICoolingLiquid interface {
 	c_base.IDriver
 
 	GetLiquidCoolingStatus() (ECoolingStatus, error) // 获取液冷状态

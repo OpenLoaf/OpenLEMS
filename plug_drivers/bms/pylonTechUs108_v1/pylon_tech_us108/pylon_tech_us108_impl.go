@@ -11,11 +11,11 @@ import (
 )
 
 type PylonTechUs108Bms struct {
+	p_modbus.IModbusProtocol
 	Id          string
 	ctx         context.Context
 	log         *glog.Logger
 	description c_base.SDescription
-	p_modbus.IModbusProtocol
 }
 
 func (p *PylonTechUs108Bms) GetDescription() c_base.SDescription {
@@ -54,8 +54,12 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 			p.log.Infof(ctx, "syncTime配置为：false！时间不同步！")
 		}
 	*/
-	p.IModbusProtocol.Init()
+	p.IModbusProtocol.Init(p.GetType())
 	return nil
+}
+
+func (p *PylonTechUs108Bms) GetType() c_base.EDeviceType {
+	return c_base.EDeviceBms
 }
 
 func (p *PylonTechUs108Bms) HasAlarm() (bool, error) {

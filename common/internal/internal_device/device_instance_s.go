@@ -1,6 +1,7 @@
 package internal_device
 
 import (
+	"ems-plan/c_base"
 	"ems-plan/c_device"
 	"fmt"
 	"github.com/gogf/gf/v2/container/garray"
@@ -9,7 +10,7 @@ import (
 )
 
 var (
-	Instances c_base.IDriverInstances
+	Instances c_device.IDriverInstances
 )
 
 type sDeviceInstance struct {

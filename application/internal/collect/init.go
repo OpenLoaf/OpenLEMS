@@ -82,7 +82,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				//}
 
 				// 开始监听(此处防止device未调用Listen方法而执行)
-				modbusProvider.Init()
+				modbusProvider.Init(dv.GetType())
 
 				// 设置告警
 				//protocol.SetupProtocol(modbusProvider)

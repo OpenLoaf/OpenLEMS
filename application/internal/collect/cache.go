@@ -9,10 +9,11 @@ import (
 type tmpStation struct {
 	Ammeters map[c_base.EGroupType][]c_device.IAmmeter
 
-	Pv   []c_device.IPv
-	Load []c_device.ILoad
-	Ess  []c_device.IEnergyStore
-
+	Pv         []c_device.IPv
+	Load       []c_device.ILoad
+	Ess        []c_device.IEnergyStore
+	ChargePile []c_device.ICharge
+	Generator  []c_device.IGenerator
 	cabinetEss map[uint8]*tmpCabinet
 }
 

@@ -20,12 +20,12 @@ func (p *ModbusProvider) PrintCacheValues() {
 	// 创建一个新的 tabwriter，写入 strings.Builder
 	writer := tabwriter.NewWriter(&builder, 0, 0, 2, ' ', 0)
 	// 写入表格头
-	_, _ = writer.Write([]byte("     Addr\tName\t     Value\tDesc\t"))
+	_, _ = writer.Write([]byte("     Addr\tLevel\tName\t     Value\tDesc\t"))
 	//_, _ = writer.Write([]byte("    -\t    \t            -\t            -\t\n"))
 
 	// 写入表格内容
 
-	message := fmt.Sprintf("共有%d个缓存点位", len(keys))
+	message := fmt.Sprintf("共有%d个缓存点位,当前告警等级:%s 共%d条告警", len(keys), p.GetAlarmLevel(), len(p.GetAlarmDetails()))
 	array := garray.NewSortedStrArray()
 	for _, k := range keys {
 		if k == nil {
@@ -49,7 +49,7 @@ func (p *ModbusProvider) PrintCacheValues() {
 		}
 
 		//meta.ValueToString(value)
-		array.Add(fmt.Sprintf("\n%5d[0x%X]\t%s\t%10s\t%s\t", meta.Addr, meta.Addr, meta.Name, meta.ValueToString(value), cn))
+		array.Add(fmt.Sprintf("\n%5d[0x%X]\t%s\t%s\t%10s\t%s\t", meta.Addr, meta.Addr, meta.Level.Name(), meta.Name, meta.ValueToString(value), cn))
 	}
 	for _, i2 := range array.Slice() {
 		_, _ = writer.Write([]byte(i2))

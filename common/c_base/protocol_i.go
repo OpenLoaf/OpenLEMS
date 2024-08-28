@@ -6,8 +6,11 @@ import (
 )
 
 type IProtocol interface {
+	IAlarmHandler
+
 	GetId() string                 // 获取ID
-	Init()                         // 初始化
+	GetType() EDeviceType          // 获取类型
+	Init(deviceType EDeviceType)   // 初始化
 	Close() error                  // 关闭
 	IsActivate() bool              // 是否有效，无效一般是连接断了
 	PrintCacheValues()             // 打印缓存值
