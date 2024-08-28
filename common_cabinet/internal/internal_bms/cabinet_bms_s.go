@@ -2,23 +2,48 @@ package internal_bms
 
 import (
 	"context"
+	"ems-plan/c_base"
 	"ems-plan/c_device"
+	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 // sCabinetBms 实现 c_base.IBmsBasic 接口
 type sCabinetBms struct {
-	ctx       context.Context
-	cabinetId uint8 // 属于哪个柜子
-	bms       c_device.IBms
+	*c_base.SAlarmHandler
+	alarmChannel chan *c_base.SAlarmDetail
+	ctx          context.Context
+	cabinetId    uint8 // 属于哪个柜子
+	bms          c_device.IBms
 }
 
-func NewBms(ctx context.Context, cabinetId uint8, bms c_device.IBms) c_device.IBmsBasic {
+func NewBms(ctx context.Context, cabinetId uint8, bms c_device.IBms) (c_device.IBmsBasic, chan<- *c_base.SAlarmDetail) {
 	instance := &sCabinetBms{
-		ctx:       context.WithValue(ctx, "DeviceName", "CabinetBms_"+string(cabinetId)),
-		cabinetId: cabinetId,
-		bms:       bms,
+		ctx:           context.WithValue(ctx, "DeviceName", "CabinetBms_"+string(cabinetId)),
+		cabinetId:     cabinetId,
+		bms:           bms,
+		SAlarmHandler: &c_base.SAlarmHandler{},
+		alarmChannel:  make(chan *c_base.SAlarmDetail),
 	}
-	return instance
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				close(instance.alarmChannel)
+				return
+			case alarm := <-instance.alarmChannel:
+				g.Log().Infof(ctx, "BMS收到：Alarm: %v", alarm)
+			}
+		}
+	}()
+	fmt.Printf("NewBms: %v\n", instance)
+
+	return instance, instance.alarmChannel
+}
+
+func (c *sCabinetBms) GetAlarmNotifyChannel() chan<- *c_base.SAlarmDetail {
+	return c.alarmChannel
 }
 
 func (c *sCabinetBms) GetRatedPower() (float64, error) {

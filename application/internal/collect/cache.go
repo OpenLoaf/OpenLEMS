@@ -1,6 +1,7 @@
 package collect
 
 import (
+	"common_cabinet"
 	"context"
 	"ems-plan/c_base"
 	"ems-plan/c_device"
@@ -42,11 +43,13 @@ func (t *tmpStation) GetCabinetEss(cabinetId uint8) *tmpCabinet {
 
 func (t *tmpStation) Init(ctx context.Context) {
 	// 先封装cabinet
-	//for cabinetId, value := range t.CabinetEss {
-	// 先把PCS之类的变成 CabinetPcs
-	//master, slaves := getMasterAndList[c_device.IPcs](value.Pcs)
-	//pcs := common_cabinet.NewPcs(ctx, cabinetId, master, slaves)
-	//bms := common_cabinet.NewBms(ctx, cabinetId, value.Bms)
+	for cabinetId, value := range t.cabinetEss {
+		// 先把PCS之类的变成 CabinetPcs
+		//master, slaves := getMasterAndList[c_device.IPcs](value.Pcs)
+		//pcs := common_cabinet.NewPcs(ctx, cabinetId, master, slaves)
+		_, alarmChannel := common_cabinet.NewBms(ctx, cabinetId, value.Bms)
+		value.Bms.RegisterAlarmNotify(alarmChannel)
+	}
 
 	/*	var (
 			fire     *cabinet.Fire
@@ -110,15 +113,14 @@ func (t *tmpStation) Init(ctx context.Context) {
 
 }
 
-//
-//func getMasterAndList[T device.IDriver](list []T) (master T, slaves []T) {
-//	for _, v := range list {
-//		if v.GetInfo().IsMaster {
-//			master = v
-//		} else {
-//			slaves = append(slaves, v)
-//		}
-//	}
-//	return master, slaves
-//
-//}
+func getMasterAndList[T c_base.IDriver](list []T) (master T, slaves []T) {
+	for _, v := range list {
+		if v.GetIsMaster() {
+			master = v
+		} else {
+			slaves = append(slaves, v)
+		}
+	}
+	return master, slaves
+
+}

@@ -9,3 +9,7 @@ type IAlarmHandler interface {
 	GetAlarmDetails() []*SAlarmDetail                            // 获取告警详情列表
 	HandlerAlarmDetail(ctx context.Context, alarm *SAlarmDetail) // 处理告警
 }
+
+type IAlarmMonitor interface {
+	GetAlarmNotifyChannel() chan<- *SAlarmDetail // 获取告警通知通道
+}

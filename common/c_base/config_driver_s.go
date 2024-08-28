@@ -13,3 +13,27 @@ type SDriverConfig struct {
 	PrintCacheValue bool              // 打印缓存值
 	Params          map[string]string // 额外参数
 }
+
+func (s *SDriverConfig) GetId() string {
+	return s.Id
+}
+
+func (s *SDriverConfig) GetName() string {
+	return s.Name
+}
+
+func (s *SDriverConfig) GetIsMaster() bool {
+	return s.IsMaster
+}
+
+func (s *SDriverConfig) GetCabinetId() uint8 {
+	return s.CabinetId
+}
+
+func (s *SDriverConfig) IsEnable() bool {
+	return s.Enable
+}
+
+func (s *SDriverConfig) GetGroup() EGroupType {
+	return s.Group
+}

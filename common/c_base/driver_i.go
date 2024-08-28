@@ -9,7 +9,9 @@ import (
 type IDriver interface {
 	GetId() string
 	GetType() EDeviceType
-	// GetName() string
+
+	GetIsMaster() bool
+	GetName() string
 
 	GetDescription() SDescription
 
@@ -20,4 +22,6 @@ type IDriver interface {
 
 	HasAlarm() (bool, error) // 是否存在故障
 	IsActivate() bool        // 是否有效，无效一般是连接断了
+
+	IAlarmHandler
 }

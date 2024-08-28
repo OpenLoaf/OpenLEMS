@@ -62,7 +62,7 @@ devices:
         group: bms
         isMaster: false
         logLevel: INFO
-        printCacheValue: true
+        printCacheValue: false
         syncTime: true # 同步时间
   - name: gpio
     protocol: gpio  # sysfs

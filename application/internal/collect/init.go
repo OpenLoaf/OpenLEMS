@@ -96,7 +96,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 		}
 	}
 	// 初始化所有的entity
-	//_tempInstanceCache.Init(ctx)
+	_tempInstanceCache.Init(ctx)
 
 	g.Log().Infof(ctx, "所有设备加载完成！")
 

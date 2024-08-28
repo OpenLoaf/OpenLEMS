@@ -11,8 +11,8 @@ import (
 )
 
 type PylonTechUs108Bms struct {
+	c_base.IDriverConfig
 	p_modbus.IModbusProtocol
-	Id          string
 	ctx         context.Context
 	log         *glog.Logger
 	description c_base.SDescription
@@ -44,8 +44,9 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 	if config, ok = cfg.(*p_modbus.SModbusDeviceConfig); !ok || config == nil {
 		panic("配置文件转换失败！请检查配置文件！")
 	}
+	p.IDriverConfig = config
+
 	p.log.Noticef(ctx, "配置信息:%+v", config)
-	p.Id = config.Id
 
 	/*	if v, ok := configMap["syncTime"]; ok && v == "true" {
 			p.writeTime()
@@ -78,11 +79,6 @@ func (p *PylonTechUs108Bms) GetMaxInputPower() (float64, error) {
 }
 
 func (p *PylonTechUs108Bms) GetMaxOutputPower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (p *PylonTechUs108Bms) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
 	//TODO implement me
 	panic("implement me")
 }
