@@ -7,9 +7,14 @@ import (
 )
 
 type SAlarmHandler struct {
-	rwMutex        sync.RWMutex
-	*SAlarmDetail  // 最高等级告警
-	details        []*SAlarmDetail
+	Ctx         context.Context
+	monitorOnce sync.Once          // 只监听一次
+	monitorChan chan *SAlarmDetail // 监听
+
+	rwMutex sync.RWMutex
+	alarm   *SAlarmDetail // 最高等级告警
+	details []*SAlarmDetail
+
 	notifyChanList []chan<- *SAlarmDetail
 }
 
@@ -17,16 +22,16 @@ func (s *SAlarmHandler) ClearAlarm() {
 	s.rwMutex.Lock()
 	defer s.rwMutex.Unlock()
 	s.details = []*SAlarmDetail{}
-	s.SAlarmDetail = nil
+	s.alarm = nil
 }
 
 func (s *SAlarmHandler) GetAlarmLevel() EAlarmLevel {
 	s.rwMutex.RLock()
 	defer s.rwMutex.RUnlock()
-	if s.SAlarmDetail == nil {
+	if s.alarm == nil {
 		return ENone
 	}
-	return s.SAlarmDetail.Level
+	return s.alarm.Level
 }
 
 func (s *SAlarmHandler) RegisterAlarmNotify(details chan<- *SAlarmDetail) {
@@ -39,28 +44,50 @@ func (s *SAlarmHandler) GetAlarmDetails() []*SAlarmDetail {
 	return s.details
 }
 
-func (s *SAlarmHandler) HandlerAlarmDetail(ctx context.Context, alarm *SAlarmDetail) {
+func (s *SAlarmHandler) HandlerAlarmDetail(alarm *SAlarmDetail) {
 	if alarm.Level == ENone {
 		return
 	}
 
 	needNotify := false
 	if alarm.IsTrigger {
-		needNotify = s.addDetail(ctx, alarm)
+		needNotify = s.addDetail(alarm)
 
 	} else {
-		needNotify = s.remove(ctx, alarm.DeviceId, alarm.Meta)
+		needNotify = s.remove(alarm.DeviceId, alarm.Meta)
 	}
 
 	if needNotify {
+		//g.Log().Noticef(s.Ctx, "告警处理：%s", alarm.ToString())
 		for _, notifyChan := range s.notifyChanList {
 			notifyChan <- alarm
 		}
 	}
 }
 
-func (s *SAlarmHandler) addDetail(ctx context.Context, detail *SAlarmDetail) bool {
-	if s.isExist(ctx, detail.DeviceId, detail.Meta, detail.Value) {
+func (s *SAlarmHandler) GetMonitorChan() chan<- *SAlarmDetail {
+	s.monitorOnce.Do(func() {
+		s.monitorChan = make(chan *SAlarmDetail)
+		go func() {
+			for {
+				select {
+				case detail, ok := <-s.monitorChan:
+					if !ok {
+						g.Log().Notice(s.Ctx, "关闭告警监听Goroutine")
+						return
+					}
+
+					s.HandlerAlarmDetail(detail)
+				}
+			}
+		}()
+		g.Log().Infof(s.Ctx, "启动告警监听Goroutine")
+	})
+	return s.monitorChan
+}
+
+func (s *SAlarmHandler) addDetail(detail *SAlarmDetail) bool {
+	if s.isExist(detail.DeviceId, detail.Meta, detail.Value) {
 		return false
 	}
 
@@ -69,21 +96,21 @@ func (s *SAlarmHandler) addDetail(ctx context.Context, detail *SAlarmDetail) boo
 
 	s.details = append(s.details, detail)
 
-	if s.SAlarmDetail == nil {
-		g.Log().Warning(ctx, detail.ToString())
-		s.SAlarmDetail = detail
+	if s.alarm == nil {
+		g.Log().Warning(s.Ctx, detail.ToString())
+		s.alarm = detail
 		return true
 	}
 	// 更新最高等级告警
-	if s.SAlarmDetail.Level < detail.Level {
-		g.Log().Warningf(ctx, "%s 比原来的告警等级[%s]大！", detail.ToString(), s.SAlarmDetail.Level.Name())
+	if s.alarm.Level < detail.Level {
+		g.Log().Warningf(s.Ctx, "%s 比原来的告警等级[%s]大！", detail.ToString(), s.alarm.Level.Name())
 
-		s.SAlarmDetail = detail
+		s.alarm = detail
 	}
 	return true
 }
 
-func (s *SAlarmHandler) isExist(ctx context.Context, deviceId string, meta *Meta, value any) bool {
+func (s *SAlarmHandler) isExist(deviceId string, meta *Meta, value any) bool {
 	s.rwMutex.RLock()
 	defer s.rwMutex.RUnlock()
 	for _, detail := range s.details {
@@ -92,13 +119,13 @@ func (s *SAlarmHandler) isExist(ctx context.Context, deviceId string, meta *Meta
 			if detail.Value != value {
 				for i, _detail := range s.details {
 					if _detail.Meta == meta && _detail.DeviceId == deviceId {
-						g.Log().Noticef(ctx, _detail.ToString())
+						g.Log().Noticef(s.Ctx, _detail.ToString())
 						s.details = append(s.details[:i], s.details[i+1:]...)
 						break
 					}
 				}
 				if len(s.details) == 0 {
-					s.SAlarmDetail = nil
+					s.alarm = nil
 				}
 				return false
 			}
@@ -108,20 +135,20 @@ func (s *SAlarmHandler) isExist(ctx context.Context, deviceId string, meta *Meta
 	return false
 }
 
-func (s *SAlarmHandler) remove(ctx context.Context, deviceId string, meta *Meta) bool {
+func (s *SAlarmHandler) remove(deviceId string, meta *Meta) bool {
 	s.rwMutex.Lock()
 	defer s.rwMutex.Unlock()
 	isRemove := false
 	for i, detail := range s.details {
 		if detail.Meta == meta && detail.DeviceId == deviceId {
-			g.Log().Noticef(ctx, "-- 清除 Id:%s 的告警：%s(%s)告警！数值:%v", detail.DeviceId, detail.Meta.Name, detail.Meta.Cn, detail.Value)
+			g.Log().Noticef(s.Ctx, "-- 清除 Id:%s 的告警：%s(%s)告警！数值:%v", detail.DeviceId, detail.Meta.Name, detail.Meta.Cn, detail.Value)
 			s.details = append(s.details[:i], s.details[i+1:]...)
 			isRemove = true
 			break
 		}
 	}
 	if len(s.details) == 0 {
-		s.SAlarmDetail = nil
+		s.alarm = nil
 	}
 
 	return isRemove

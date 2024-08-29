@@ -39,8 +39,10 @@ func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig
 		modbusReadChan:  make(chan *p_modbus.ModbusGroup),
 		preQuery:        make(map[string]bool),
 		cache:           gcache.New(),
-		SAlarmHandler:   &c_base.SAlarmHandler{},
-		log:             g.Log(deviceConfig.Id),
+		SAlarmHandler: &c_base.SAlarmHandler{
+			Ctx: ctx,
+		},
+		log: g.Log(deviceConfig.Id),
 	}
 	if client != nil {
 		provider.client = client.(modbus.Client)

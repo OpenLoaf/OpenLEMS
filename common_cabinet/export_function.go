@@ -4,7 +4,6 @@ import (
 	"common_cabinet/internal/internal_bms"
 	"common_cabinet/internal/internal_pcs"
 	"context"
-	"ems-plan/c_base"
 	"ems-plan/c_device"
 )
 
@@ -12,6 +11,6 @@ func NewPcs(ctx context.Context, cabinetId uint8, master c_device.IPcs, pcsList 
 	return internal_pcs.NewPcs(ctx, cabinetId, master, pcsList)
 }
 
-func NewBms(ctx context.Context, cabinetId uint8, bms c_device.IBms) (c_device.IBmsBasic, chan<- *c_base.SAlarmDetail) {
+func NewBms(ctx context.Context, cabinetId uint8, bms c_device.IBms) c_device.IBmsBasic {
 	return internal_bms.NewBms(ctx, cabinetId, bms)
 }

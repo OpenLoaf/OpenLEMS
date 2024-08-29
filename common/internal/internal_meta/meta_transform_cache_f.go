@@ -46,14 +46,14 @@ func MetaProcess(ctx context.Context, protocol c_base.IProtocol, meta *c_base.Me
 				//alarmProvider.TriggerAlarm(meta, value)
 				g.Log().Debugf(ctx, "[%s-%s] 触发[%s]", deviceId, meta.Name, meta.Level.Name())
 
-				processAlarm(ctx, protocol, deviceId, meta, true, value)
+				processAlarm(protocol, deviceId, meta, true, value)
 			} else {
-				processAlarm(ctx, protocol, deviceId, meta, false, value)
+				processAlarm(protocol, deviceId, meta, false, value)
 			}
 		} else if gconv.Bool(value) == false {
-			processAlarm(ctx, protocol, deviceId, meta, false, value)
+			processAlarm(protocol, deviceId, meta, false, value)
 		} else {
-			processAlarm(ctx, protocol, deviceId, meta, true, value)
+			processAlarm(protocol, deviceId, meta, true, value)
 		}
 	}
 
@@ -70,8 +70,8 @@ func MetaProcess(ctx context.Context, protocol c_base.IProtocol, meta *c_base.Me
 	return gvar.New(value), nil
 }
 
-func processAlarm(ctx context.Context, protocol c_base.IProtocol, deviceId string, meta *c_base.Meta, IsTrigger bool, value any) {
-	protocol.HandlerAlarmDetail(ctx, &c_base.SAlarmDetail{
+func processAlarm(protocol c_base.IProtocol, deviceId string, meta *c_base.Meta, IsTrigger bool, value any) {
+	protocol.HandlerAlarmDetail(&c_base.SAlarmDetail{
 		DeviceId:   deviceId,
 		DeviceType: protocol.GetType(),
 		Level:      meta.Level,

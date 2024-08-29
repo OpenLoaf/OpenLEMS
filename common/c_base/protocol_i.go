@@ -6,8 +6,6 @@ import (
 )
 
 type IProtocol interface {
-	IAlarmHandler
-
 	GetId() string                 // 获取ID
 	GetType() EDeviceType          // 获取类型
 	Init(deviceType EDeviceType)   // 初始化
@@ -17,4 +15,5 @@ type IProtocol interface {
 	GetCache() *gcache.Cache       // 获取缓存
 	GetLastUpdateTime() *time.Time // 获取最后更新时间
 
+	IAlarmHandler
 }

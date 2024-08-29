@@ -59,6 +59,7 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 	return nil
 }
 
+// /
 func (p *PylonTechUs108Bms) GetType() c_base.EDeviceType {
 	return c_base.EDeviceBms
 }
