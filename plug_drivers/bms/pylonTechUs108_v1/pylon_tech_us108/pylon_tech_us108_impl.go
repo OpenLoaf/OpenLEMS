@@ -5,7 +5,6 @@ import (
 	"ems-plan/c_base"
 	"ems-plan/c_device"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/glog"
 	"plug_protocol_modbus/p_modbus"
 	"time"
 )
@@ -14,7 +13,6 @@ type PylonTechUs108Bms struct {
 	c_base.IDriverConfig
 	p_modbus.IModbusProtocol
 	ctx         context.Context
-	log         *glog.Logger
 	description c_base.SDescription
 }
 
@@ -28,9 +26,6 @@ func (p *PylonTechUs108Bms) GetDescription() c_base.SDescription {
 }
 
 func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, cfg any) error {
-	log := g.Log()
-
-	p.log = log
 	p.ctx = ctx
 	p.IModbusProtocol = client.(p_modbus.IModbusProtocol)
 
@@ -46,7 +41,7 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 	}
 	p.IDriverConfig = config
 
-	p.log.Noticef(ctx, "配置信息:%+v", config)
+	g.Log().Noticef(ctx, "配置信息:%+v", config)
 
 	/*	if v, ok := configMap["syncTime"]; ok && v == "true" {
 			p.writeTime()
@@ -59,7 +54,6 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 	return nil
 }
 
-// /
 func (p *PylonTechUs108Bms) GetType() c_base.EDeviceType {
 	return c_base.EDeviceBms
 }
@@ -69,7 +63,7 @@ func (p *PylonTechUs108Bms) HasAlarm() (bool, error) {
 	panic("implement me")
 }
 
-func (p *PylonTechUs108Bms) GetRatedPower() (float64, error) {
+func (p *PylonTechUs108Bms) GetRatedPower() (int32, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -193,14 +187,14 @@ func (p *PylonTechUs108Bms) writeTime() {
 			for {
 				select {
 				case <-p.ctx.Done():
-					p.log.Noticef(p.ctx, "writeTime() 关闭!")
+					g.Log().Noticef(p.ctx, "writeTime() 关闭!")
 				case <-ticker.C:
 					if !p.IsActivate() {
 						continue
 					}
 					err := p._syncTime()
 					if err == nil {
-						p.log.Infof(p.ctx, "同步时间成功！")
+						g.Log().Infof(p.ctx, "同步时间成功！")
 						//break
 					}
 				}

@@ -41,7 +41,7 @@ devices:
     device-children:
       - id: star-charge-100E-1
         name: 阳光电源PCS
-        enable: false
+        enable: true
         unitId: 1
         cabinetId: 2
         driver: pcs_starCharge100E
@@ -49,12 +49,12 @@ devices:
         group: pcs
         isMaster: false
         logLevel: INFO
-        printCacheValue: false
+        printCacheValue: true
         ratedPower: 100
         syncTime: true   # 同步时间
       - id: pylon-tech-us108-1
         name: 派能MBMS
-        enable: true
+        enable: false
         unitId: 2
         cabinetId: 2
         driver: bms_pylonTechUs108

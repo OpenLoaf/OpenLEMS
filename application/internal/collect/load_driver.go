@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"plug_protocol_modbus/p_modbus"
 	"pylonTechUs108_v1/pylon_tech_us108"
+	"starCharge100E_v1/star_charge_100e"
 	"strings"
 )
 
@@ -46,7 +47,8 @@ func loadDriver(ctx context.Context, deviceConfig *p_modbus.SModbusDeviceConfig)
 		}
 
 	case c_base.EDevicePcs:
-		dv = getDriver[c_device.IPcs](ctx, latestDriverPath)
+		//dv = getDriver[c_device.IPcs](ctx, latestDriverPath)
+		dv = &star_charge_100e.StarCharge100EPcs{}
 		ess := _tempInstanceCache.GetCabinetEss(deviceConfig.CabinetId)
 		ess.Pcs = append(ess.Pcs, dv.(c_device.IPcs))
 	case c_base.EDeviceBms:

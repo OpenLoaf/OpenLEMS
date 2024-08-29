@@ -25,6 +25,6 @@ type IModbusProtocol interface {
 	GetFloat64Value(meta *c_base.Meta) (float64, error)
 	GetFloat64Values(meta ...*c_base.Meta) ([]float64, error)
 
-	WriteSingleRegister(meta *c_base.Meta, value int64) error
+	WriteSingleRegister(meta *c_base.Meta, value int32) error
 	WriteMultipleRegisters(group *ModbusGroup, values []int64) error
 }

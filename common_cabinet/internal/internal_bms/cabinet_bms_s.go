@@ -17,6 +17,9 @@ type sCabinetBms struct {
 }
 
 func NewBms(ctx context.Context, cabinetId uint8, bms c_device.IBms) c_device.IBmsBasic {
+	if bms == nil {
+		return nil
+	}
 	_ctx := context.WithValue(ctx, "DeviceName", fmt.Sprintf("CabinetBms-%d", cabinetId))
 	instance := &sCabinetBms{
 		ctx:       _ctx,
@@ -32,7 +35,7 @@ func NewBms(ctx context.Context, cabinetId uint8, bms c_device.IBms) c_device.IB
 	return instance
 }
 
-func (c *sCabinetBms) GetRatedPower() (float64, error) {
+func (c *sCabinetBms) GetRatedPower() (int32, error) {
 	return c.bms.GetRatedPower()
 }
 

@@ -96,7 +96,7 @@ func getLatestDriver(ctx context.Context, configPath string, prefix string) (str
 // 获取最新版本文件的函数
 func getLatestVersionFile(files []string) (string, int, error) {
 	if len(files) == 0 {
-		return "", 0, fmt.Errorf("no files provided")
+		return "", 0, fmt.Errorf("没有匹配的文件！")
 	}
 
 	// 正则表达式匹配版本号

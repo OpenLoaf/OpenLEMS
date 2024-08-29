@@ -18,7 +18,7 @@ type IDriver interface {
 	GetCache() *gcache.Cache // 获取缓存
 	GetLastUpdateTime() *time.Time
 
-	Init(ctx context.Context, client IProtocol, config any) error
+	Init(ctx context.Context, client IProtocol, cfg any) error
 
 	IsActivate() bool // 是否有效，无效一般是连接断了
 

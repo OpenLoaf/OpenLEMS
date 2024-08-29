@@ -6,8 +6,8 @@ import (
 	"plug_protocol_modbus/p_modbus"
 )
 
-func (p *ModbusProvider) WriteSingleRegister(meta *c_base.Meta, value int64) error {
-	result := meta.ReadType.Encoder(value, meta.Factor, meta.Offset, meta.Endianness)
+func (p *ModbusProvider) WriteSingleRegister(meta *c_base.Meta, value int32) error {
+	result := meta.ReadType.Encoder(int64(value), meta.Factor, meta.Offset, meta.Endianness)
 	// 通关result来计算需要多少个寄存器位置
 	registerLength := len(result) / 2
 	if registerLength == 1 {

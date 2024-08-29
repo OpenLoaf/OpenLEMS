@@ -2,6 +2,7 @@ package internal_pcs
 
 import (
 	"context"
+	"ems-plan/c_base"
 	"ems-plan/c_device"
 )
 
@@ -47,32 +48,32 @@ func (s *sCabinetPcs) SetReset() error {
 	panic("implement me")
 }
 
-func (s *sCabinetPcs) SetStatus(status c_device.EEnergyStoreStatus) error {
+func (s *sCabinetPcs) SetStatus(status c_base.EEnergyStoreStatus) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sCabinetPcs) SetGridMode(mode c_device.EGridMode) error {
+func (s *sCabinetPcs) SetGridMode(mode c_base.EGridMode) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sCabinetPcs) GetStatus() (c_device.EEnergyStoreStatus, error) {
+func (s *sCabinetPcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sCabinetPcs) GetGridMode() (c_device.EGridMode, error) {
+func (s *sCabinetPcs) GetGridMode() (c_base.EGridMode, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sCabinetPcs) SetPower(power float64) error {
+func (s *sCabinetPcs) SetPower(power int32) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sCabinetPcs) SetReactivePower(power float64) error {
+func (s *sCabinetPcs) SetReactivePower(power int32) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -82,12 +83,12 @@ func (s *sCabinetPcs) SetPowerFactor(factor float32) error {
 	panic("implement me")
 }
 
-func (s *sCabinetPcs) GetTargetPower() float64 {
+func (s *sCabinetPcs) GetTargetPower() int32 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sCabinetPcs) GetTargetReactivePower() float64 {
+func (s *sCabinetPcs) GetTargetReactivePower() int32 {
 	//TODO implement me
 	panic("implement me")
 }
@@ -112,7 +113,7 @@ func (s *sCabinetPcs) GetReactivePower() (float64, error) {
 	panic("implement me")
 }
 
-func (s *sCabinetPcs) GetRatedPower() (float64, error) {
+func (s *sCabinetPcs) GetRatedPower() (int32, error) {
 	//TODO implement me
 	panic("implement me")
 }

@@ -9,13 +9,13 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 	"plug_protocol_modbus"
 	"plug_protocol_modbus/p_modbus"
-	"pylonTechUs108_v1/pylon_tech_us108"
+	"starCharge100E_v1/star_charge_100e"
 	"time"
 )
 
 // NewPlugin 必须的方法，不能取消
-func NewPlugin() (c_device.IBms, error) {
-	return &pylon_tech_us108.PylonTechUs108Bms{}, nil
+func NewPlugin() (c_device.IPcs, error) {
+	return &star_charge_100e.StarCharge100EPcs{}, nil
 }
 
 func main() {
@@ -29,8 +29,8 @@ func main() {
 		}
 		deviceConfig = &p_modbus.SModbusDeviceConfig{
 			SDriverConfig: c_base.SDriverConfig{
-				Id:              "测试BMS-1",
-				Name:            "测试BMS-1",
+				Id:              "测试Pcs-1",
+				Name:            "测试Pcs-1",
 				Driver:          "",
 				Group:           c_station.EGroupNan,
 				CabinetId:       1,
@@ -39,7 +39,7 @@ func main() {
 				LogLevel:        "INFO",
 				PrintCacheValue: false,
 			},
-			UnitId: 2,
+			UnitId: 1,
 		}
 	)
 
@@ -59,7 +59,7 @@ func main() {
 	}
 
 	// 创建一个Device对象，并初始化
-	device := &pylon_tech_us108.PylonTechUs108Bms{}
+	device := &star_charge_100e.StarCharge100EPcs{}
 	err = device.Init(ctx, provider, deviceConfig)
 	if err != nil {
 		g.Log().Fatal(ctx, err)

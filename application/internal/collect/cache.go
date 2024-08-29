@@ -48,9 +48,12 @@ func (t *tmpStation) Init(ctx context.Context) {
 		//master, slaves := getMasterAndList[c_device.IPcs](value.Pcs)
 		//pcs := common_cabinet.NewPcs(ctx, cabinetId, master, slaves)
 		ess := common_cabinet.NewBms(ctx, cabinetId, value.Bms)
-		if dv, ok := ess.(c_base.IAlarmHandler); ok {
-			value.Bms.RegisterAlarmNotify(dv.GetMonitorChan())
+		if ess != nil {
+			if dv, ok := ess.(c_base.IAlarmHandler); ok {
+				value.Bms.RegisterAlarmNotify(dv.GetMonitorChan())
+			}
 		}
+
 	}
 
 	/*	var (
