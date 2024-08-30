@@ -33,7 +33,7 @@ type SGpioSysfsProvider struct {
 	lowHandler  func(ctx context.Context)
 }
 
-func NewGpioSysfsProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *p_gpio_sysfs.SGpioSysfsDeviceConfig, client any) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
+func NewGpioSysfsProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *p_gpio_sysfs.SGpioSysfsDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
 	provider := &SGpioSysfsProvider{
 		once:            sync.Once{},
 		deviceId:        deviceConfig.Id,

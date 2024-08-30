@@ -14,5 +14,5 @@ import (
 var DeviceInstance = internal_device.Instances
 
 func MetaTransformAndCache(ctx context.Context, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
-	return internal_meta.MetaProcess(ctx, protocol, meta, value, cache, lifetime)
+	return internal_meta.MetaProcess("", "", ctx, protocol, meta, value, cache, lifetime)
 }

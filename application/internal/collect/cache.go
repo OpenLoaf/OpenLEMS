@@ -35,8 +35,7 @@ func (t *tmpStation) AddCabinetDevice(cabinetId uint8, driver c_base.IDriver) {
 func (t *tmpStation) Init(ctx context.Context) {
 
 	for cabinetId, drivers := range t.cabinetEss {
-
-		ess, err := pylon_checkwatt.NewEss(ctx, cabinetId, drivers)
+		ess, err := pylon_checkwatt.NewEss(ctx, cabinetId, drivers, listToMap[c_device.IGpio](drivers))
 		if err != nil {
 			panic(err)
 		}
@@ -120,6 +119,16 @@ func (t *tmpStation) Init(ctx context.Context) {
 	//	g.Log().Noticef(ctx, "初始化场站发电机成功！加载了%d个主设备，%d个从设备", len(t.Ammeters[config.GeneratorAmmeter]), len(t.Ess))
 	//}
 
+}
+
+func listToMap[T c_base.IDriver](drivers []c_base.IDriver) map[string]T {
+	_map := make(map[string]T)
+	for _, driver := range drivers {
+		if input, ok := driver.(T); ok {
+			_map[input.GetId()] = input
+		}
+	}
+	return _map
 }
 
 func getMasterAndList[T c_base.IDriver](list []T) (master T, slaves []T) {

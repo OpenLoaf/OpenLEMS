@@ -1,18 +1,20 @@
 cabinets:
-  - id: 1
+  - CabinetId: 1
     name: 储能柜1
     modbusEnable: false
-    capacity: 1000
-
-  - id: 2
+  - CabinetId : 2
     name: 储能柜2
     modbusEnable: true
-    capacity: 232
+    driver: ess_pylon_checkwatt
+    params:
+      maxCharge: 30
+      maxDischarge: 30
 devices:
-  - name: port1
+  - name: 485_1
     protocol: modbus_rtu
     enable: false
-    address: /dev/tty.usbserial-2120
+    logLevel: INFO
+    address: /dev/tty.usbserial-AQ03KXVV
     timeout: 30
     config:
       speed: 9600
@@ -20,17 +22,8 @@ devices:
       parity: N
       stopBits: 1
     device-children:
-      - name: pcs_rtu_example
-        enable: true
-        unitId: 1
-        cabinetId: 1
-        driver: pcs_example
-        location: cabinet
-        group: pcs
-        isMaster: false
-        debug: false
       - name: ammeter_rtu_example
-        enable: true
+        enable: false
         unitId: 2
         cabinetId: 1
         driver: ammeter_example
@@ -43,10 +36,11 @@ devices:
     protocol: modbus_tcp
     enable: true
     logLevel: INFO
-    address: 192.168.0.146:1502
+    address: 192.168.0.142:1503
     timeout: 3000
     device-children:
-      - name: star-charge-100E
+      - id: star-charge-100E-1
+        name: 阳光电源PCS
         enable: true
         unitId: 1
         cabinetId: 2
@@ -55,9 +49,12 @@ devices:
         group: pcs
         isMaster: false
         logLevel: INFO
-        printCacheValue: true
-      - name: pylon-tech-us108
-        enable: false
+        printCacheValue: false
+        ratedPower: 100
+        syncTime: true   # 同步时间
+      - id: pylon-tech-us108-1
+        name: 派能MBMS
+        enable: true
         unitId: 2
         cabinetId: 2
         driver: bms_pylonTechUs108
@@ -65,4 +62,35 @@ devices:
         group: bms
         isMaster: false
         logLevel: INFO
-        printCacheValue: true
+        printCacheValue: false
+        syncTime: true # 同步时间
+  - name: gpio
+    protocol: gpio  # sysfs
+    enable: true
+    logLevel: DEBUG
+    device-children:
+      - id: button-scram
+        name: 急停按钮
+        enable: true
+        path: /sys/class/gpio/gpio291
+        cabinetId: 2 # 不为0代表是柜子上的设备
+      - id: button-discharge
+        name: 充电开关
+        enable: true
+        path: /sys/class/gpio/gpio380
+        cabinetId: 2
+      - id: button-discharge
+        name: 放电开关
+        enable: true
+        path: /sys/class/gpio/gpio383
+        cabinetId: 2
+      - id: led-running
+        name: 运行指示灯
+        enable: true
+        path: /sys/class/gpio/gpio436
+        cabinetId: 2
+      - id: led-fault
+        name: 故障指示灯
+        enable: true
+        path: /sys/class/gpio/gpio439
+        cabinetId: 2

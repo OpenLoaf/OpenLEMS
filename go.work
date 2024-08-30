@@ -5,11 +5,6 @@ use (
 	common
 	common_station
 
-	plug_drivers/dido/ledRunning_v1
-	plug_drivers/dido/ledWarning_v1
-	plug_drivers/dido/scramButton_v1
-	plug_drivers/dido/testSwitchButton_v1
-
 	plug_drivers/bms/pylonTechUs108_v1
 	plug_drivers/ess/pylonCheckwatt_v1
 	plug_drivers/pcs/starCharge100E_v1

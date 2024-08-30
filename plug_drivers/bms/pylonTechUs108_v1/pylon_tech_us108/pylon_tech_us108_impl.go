@@ -10,8 +10,8 @@ import (
 )
 
 type PylonTechUs108Bms struct {
+	*p_modbus.SModbusDeviceConfig
 	Ctx context.Context
-	c_base.IDriverConfig
 	p_modbus.IModbusProtocol
 }
 
@@ -26,7 +26,7 @@ func (p *PylonTechUs108Bms) GetDescription() c_base.SDescription {
 
 func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg any) error {
 	p.IModbusProtocol = client.(p_modbus.IModbusProtocol)
-
+	p.SModbusDeviceConfig = c_base.ConvertConfig[*p_modbus.SModbusDeviceConfig](cfg)
 	// 注册
 	p.IModbusProtocol.RegisterRead(p.Ctx, GroupHeart, GroupInfo, GroupTime, GroupStatistics)
 
@@ -37,7 +37,7 @@ func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg any) error {
 	if config, ok = cfg.(*p_modbus.SModbusDeviceConfig); !ok || config == nil {
 		panic("配置文件转换失败！请检查配置文件！")
 	}
-	p.IDriverConfig = config
+	p.SModbusDeviceConfig = config
 
 	g.Log().Noticef(p.Ctx, "配置信息:%+v", config)
 

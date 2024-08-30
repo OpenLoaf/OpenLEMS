@@ -5,8 +5,8 @@ import (
 )
 
 type IProtocol interface {
-	GetId() string               // 获取ID
-	GetType() EDeviceType        // 获取类型
+	//GetId() string               // 获取ID
+	//GetType() EDeviceType        // 获取类型
 	Init(deviceType EDeviceType) // 初始化
 	Close() error                // 关闭
 	IsActivate() bool            // 是否有效，无效一般是连接断了

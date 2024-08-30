@@ -66,11 +66,31 @@ devices:
         syncTime: true # 同步时间
   - name: gpio
     protocol: gpio  # sysfs
-    enable: false
+    enable: true
     logLevel: DEBUG
     device-children:
-      - name: scram-button
+      - id: button-scram
+        name: 急停按钮
         enable: true
-        driver: basic-switch
+        path: /Users/zhao/Downloads/gpio
         cabinetId: 2 # 不为0代表是柜子上的设备
-        group: switch
+      - id: button-discharge
+        name: 充电开关
+        enable: true
+        path: /Users/zhao/Downloads/gpio
+        cabinetId: 2
+      - id: button-discharge
+        name: 放电开关
+        enable: true
+        path: /Users/zhao/Downloads/gpio
+        cabinetId: 2
+      - id: led-running
+        name: 运行指示灯
+        enable: true
+        path: /Users/zhao/Downloads/gpio
+        cabinetId: 2
+      - id: led-fault
+        name: 故障指示灯
+        enable: true
+        path: /Users/zhao/Downloads/gpio
+        cabinetId: 2

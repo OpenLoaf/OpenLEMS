@@ -9,11 +9,10 @@ import (
 )
 
 type StarCharge100EPcs struct {
-	c_base.IDriverConfig
+	*p_modbus.SModbusDeviceConfig
 	p_modbus.IModbusProtocol
 	Ctx                 context.Context
 	log                 *glog.Logger
-	description         c_base.SDescription
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
 }
@@ -29,6 +28,7 @@ func (s *StarCharge100EPcs) GetDescription() c_base.SDescription {
 
 func (s *StarCharge100EPcs) Init(client c_base.IProtocol, cfg any) error {
 	s.IModbusProtocol = client.(p_modbus.IModbusProtocol)
+	s.SModbusDeviceConfig = c_base.ConvertConfig[*p_modbus.SModbusDeviceConfig](cfg)
 
 	// 注册
 	s.RegisterRead(s.Ctx,
@@ -38,16 +38,8 @@ func (s *StarCharge100EPcs) Init(client c_base.IProtocol, cfg any) error {
 		//GroupSerial, GroupGridModeSetting, GroupTemperature,
 		GroupStatus,
 	)
-	var (
-		config *p_modbus.SModbusDeviceConfig
-		ok     bool
-	)
-	if config, ok = cfg.(*p_modbus.SModbusDeviceConfig); !ok || config == nil {
-		panic("配置文件转换失败！请检查配置文件！")
-	}
-	s.IDriverConfig = config
 
-	g.Log().Noticef(s.Ctx, "配置信息:%+v", config)
+	g.Log().Noticef(s.Ctx, "配置信息:%+v", s.SModbusDeviceConfig)
 
 	return nil
 }

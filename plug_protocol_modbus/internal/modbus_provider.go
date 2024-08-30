@@ -66,18 +66,6 @@ func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig
 	return provider, nil
 }
 
-func (p *ModbusProvider) GetId() string {
-	return p.deviceId
-}
-
-func (p *ModbusProvider) GetType() c_base.EDeviceType {
-	return p.deviceType
-}
-
-func (p *ModbusProvider) GetCache() *gcache.Cache {
-	return p.cache
-}
-
 func (p *ModbusProvider) GetLastUpdateTime() *time.Time {
 	return p.lastUpdateTime
 }

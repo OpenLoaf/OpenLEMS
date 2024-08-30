@@ -1,4 +1,4 @@
-package main
+package plug_protocol_gpio_sysfs
 
 import (
 	"context"
@@ -48,7 +48,7 @@ func TestFile(t *testing.T) {
 		Path:          Path,
 		ExportPath:    "",
 		ExportPort:    0,
-	}, nil)
+	})
 	if err != nil {
 		t.Error(err)
 	}

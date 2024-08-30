@@ -11,8 +11,7 @@ import (
 	"time"
 )
 
-func MetaProcess(ctx context.Context, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
-	var deviceId = protocol.GetId()
+func MetaProcess(deviceId string, deviceType c_base.EDeviceType, ctx context.Context, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
 	if meta == nil {
 		return nil, fmt.Errorf("[%s] Analysis的查询方法获取到point为nil", deviceId)
 	}
@@ -46,14 +45,14 @@ func MetaProcess(ctx context.Context, protocol c_base.IProtocol, meta *c_base.Me
 				//alarmProvider.TriggerAlarm(meta, value)
 				g.Log().Debugf(ctx, "[%s-%s] 触发[%s]", deviceId, meta.Name, meta.Level.Name())
 
-				processAlarm(protocol, deviceId, meta, true, value)
+				processAlarm(protocol, deviceId, deviceType, meta, true, value)
 			} else {
-				processAlarm(protocol, deviceId, meta, false, value)
+				processAlarm(protocol, deviceId, deviceType, meta, false, value)
 			}
 		} else if gconv.Bool(value) == false {
-			processAlarm(protocol, deviceId, meta, false, value)
+			processAlarm(protocol, deviceId, deviceType, meta, false, value)
 		} else {
-			processAlarm(protocol, deviceId, meta, true, value)
+			processAlarm(protocol, deviceId, deviceType, meta, true, value)
 		}
 	}
 	now := time.Now()
@@ -74,10 +73,10 @@ func MetaProcess(ctx context.Context, protocol c_base.IProtocol, meta *c_base.Me
 	return gvar.New(value), nil
 }
 
-func processAlarm(protocol c_base.IProtocol, deviceId string, meta *c_base.Meta, IsTrigger bool, value any) {
+func processAlarm(protocol c_base.IProtocol, deviceId string, deviceType c_base.EDeviceType, meta *c_base.Meta, IsTrigger bool, value any) {
 	protocol.ProcessAlarmDetail(&c_base.SAlarmDetail{
 		DeviceId:   deviceId,
-		DeviceType: protocol.GetType(),
+		DeviceType: deviceType,
 		Level:      meta.Level,
 		Meta:       meta,
 		IsTrigger:  IsTrigger,

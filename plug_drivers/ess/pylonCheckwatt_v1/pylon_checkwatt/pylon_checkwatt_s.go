@@ -7,7 +7,13 @@ import (
 	"ems-plan/c_error"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
+	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
 	"time"
+)
+
+const (
+	IdButtonDischarge = "button-discharge" // 放电按钮
+	IdButtonCharge    = "button-charge"    // 充电按钮
 )
 
 type PylonCheckwattEss struct {
@@ -21,9 +27,15 @@ type PylonCheckwattEss struct {
 	ammeter c_device.IAmmeter // 电表
 	bms     c_device.IBms     // 电池
 	pcs     c_device.IPcs     // 逆变器
+
+	buttonScram     c_device.IGpio
+	buttonDischarge c_device.IGpio
+	buttonCharge    c_device.IGpio
+	ledRunning      c_device.IGpio
+	ledFault        c_device.IGpio
 }
 
-func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver) (*PylonCheckwattEss, error) {
+func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver, gpioMap map[string]c_device.IGpio) (*PylonCheckwattEss, error) {
 
 	ess := &PylonCheckwattEss{
 		CabinetId: cabinetId,
@@ -63,6 +75,42 @@ func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver) (*Py
 
 	if pcsCount > 1 || bmsCount > 1 || ammeterCount > 1 {
 		panic(fmt.Sprintf("当前柜子ID：%d加载的设备数量不正确！PCS数量:%d, BMS数量:%d，电表数量:%d, 请检查配置！", cabinetId, pcsCount, bmsCount, ammeterCount))
+	}
+
+	// 注册输入输出
+	if output, exist := gpioMap[p_gpio_sysfs.IdLedRunning]; exist {
+		ess.ledRunning = output
+	}
+	if output, exist := gpioMap[p_gpio_sysfs.IdLedFault]; exist {
+		ess.ledRunning = output
+	}
+
+	if input, exist := gpioMap[p_gpio_sysfs.IdButtonScram]; exist {
+		input.RegisterHighHandler(func(ctx context.Context) {
+			// 紧急停机
+			if ess.ledFault != nil {
+				_ = ess.ledFault.SetHigh()
+			}
+		})
+		ess.buttonScram = input
+	}
+	if input, exist := gpioMap[IdButtonCharge]; exist {
+		ess.buttonCharge = input
+		input.RegisterLowHandler(func(ctx context.Context) {
+			// 充电
+			if ess.ledRunning != nil {
+				_ = ess.ledRunning.SetHigh()
+			}
+		})
+	}
+	if input, exist := gpioMap[IdButtonDischarge]; exist {
+		ess.buttonDischarge = input
+		input.RegisterLowHandler(func(ctx context.Context) {
+			// 充电
+			if ess.ledRunning != nil {
+				_ = ess.ledRunning.SetHigh()
+			}
+		})
 	}
 
 	return ess, nil

@@ -3,6 +3,8 @@ package collect
 import (
 	"context"
 	"ems-plan/c_base"
+	"plug_protocol_gpio_sysfs"
+	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
 	"plug_protocol_modbus"
 	"plug_protocol_modbus/p_modbus"
 
@@ -91,8 +93,44 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				g.Log().Noticef(deviceCtx, "设备%s加载完成！Id为：%s", deviceConfig.Name, dv.GetId())
 			}
 
-		case "canbus":
-		case "canbus_tcp":
+		case c_base.ECanbusTcp:
+		case c_base.ECanbus:
+		case c_base.EGpioSysfs:
+
+			for _, _device := range protocolConfig.DeviceChildren {
+				deviceConfig := &p_gpio_sysfs.SGpioSysfsDeviceConfig{}
+				err := gconv.Scan(_device, deviceConfig)
+				if err != nil {
+					return err
+				}
+				if deviceConfig.Id == "" {
+					panic(fmt.Sprintf("设备Id不能为空！"))
+				}
+
+				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.Group)), deviceConfig.Id))
+				if !deviceConfig.Enable {
+					g.Log().Warningf(deviceCtx, "设备%s Enable为fasle, 设备不启用！", deviceConfig.Name)
+					continue
+				}
+				// 加到cabinetIds中
+				if deviceConfig.CabinetId != 0 {
+					cabinetIdSet.AddIfNotExist(deviceConfig.CabinetId)
+				}
+
+				impl := p_gpio_sysfs.SDriverGpioImpl{
+					Ctx: deviceCtx,
+				}
+
+				gpioSysfsProtocol, err := plug_protocol_gpio_sysfs.NewGpioSysfsProvider(deviceCtx, protocolConfig, deviceConfig)
+				if err != nil {
+					return err
+				}
+				err = impl.Init(gpioSysfsProtocol, deviceConfig)
+				if err != nil {
+					panic(err)
+				}
+			}
+
 		}
 	}
 	// 初始化所有的entity
