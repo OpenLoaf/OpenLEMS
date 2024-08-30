@@ -1,4 +1,4 @@
-package internal_modbus
+package internal
 
 import (
 	"context"

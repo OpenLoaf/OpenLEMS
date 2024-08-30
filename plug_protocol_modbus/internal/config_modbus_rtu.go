@@ -1,4 +1,4 @@
-package internal_modbus
+package internal
 
 // ModbusRtuProtocolConfig rtu的协议配置
 type ModbusRtuProtocolConfig struct {
