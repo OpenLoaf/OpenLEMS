@@ -4,6 +4,7 @@ import (
 	"ems-plan/c_base"
 	"fmt"
 	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/frame/g"
 	"strings"
 	"text/tabwriter"
 )
@@ -48,8 +49,15 @@ func (p *ModbusProvider) PrintCacheValues() {
 			meta.Precise = 2
 		}
 
+		metaValue := &c_base.MetaValue{}
+		err = value.Structs(metaValue)
+		if err != nil {
+			g.Log().Errorf(p.ctx, "解析缓存值失败：%v", err)
+			continue
+		}
+
 		//meta.ValueToString(value)
-		array.Add(fmt.Sprintf("\n%5d[0x%X]\t%s\t%s\t%10s\t%s\t", meta.Addr, meta.Addr, meta.Level.Name(), meta.Name, meta.ValueToString(value), cn))
+		array.Add(fmt.Sprintf("\n%5d[0x%X]\t%s\t%s\t%10s\t%s\t", meta.Addr, meta.Addr, meta.Level.Name(), meta.Name, meta.ValueToString(metaValue.Value), cn))
 	}
 	for _, i2 := range array.Slice() {
 		_, _ = writer.Write([]byte(i2))

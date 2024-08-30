@@ -1,7 +1,6 @@
 package collect
 
 import (
-	"common_cabinet"
 	"context"
 	"ems-plan/c_base"
 	"ems-plan/c_device"
@@ -43,7 +42,7 @@ func (t *tmpStation) GetCabinetEss(cabinetId uint8) *tmpCabinet {
 
 func (t *tmpStation) Init(ctx context.Context) {
 	// 先封装cabinet
-	for cabinetId, value := range t.cabinetEss {
+	/*	for cabinetId, value := range t.cabinetEss {
 		// 先把PCS之类的变成 CabinetPcs
 		//master, slaves := getMasterAndList[c_device.IPcs](value.Pcs)
 		//pcs := common_cabinet.NewPcs(ctx, cabinetId, master, slaves)
@@ -54,7 +53,7 @@ func (t *tmpStation) Init(ctx context.Context) {
 			}
 		}
 
-	}
+	}*/
 
 	/*	var (
 			fire     *cabinet.Fire

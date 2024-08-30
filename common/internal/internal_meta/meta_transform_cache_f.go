@@ -56,9 +56,13 @@ func MetaProcess(ctx context.Context, protocol c_base.IProtocol, meta *c_base.Me
 			processAlarm(protocol, deviceId, meta, true, value)
 		}
 	}
+	now := time.Now()
 
 	// 缓存
-	err := cache.Set(ctx, meta, value, lifetime)
+	err := cache.Set(ctx, meta, &c_base.MetaValue{
+		Value:      gvar.New(value),
+		HappenTime: &now,
+	}, lifetime)
 	if err != nil {
 		return nil, err
 	}

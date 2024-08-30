@@ -12,7 +12,15 @@ func (p *ModbusProvider) GetValue(meta *c_base.Meta) (*gvar.Var, error) {
 	if err != nil {
 		return &gvar.Var{}, err
 	}
-	return get, err
+	metaValue := &c_base.MetaValue{}
+	err = get.Structs(metaValue)
+	if err != nil {
+		return nil, err
+	}
+	if metaValue == nil {
+		return nil, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceId, meta.Name)
+	}
+	return metaValue.Value, err
 }
 func (p *ModbusProvider) GetIntValue(meta *c_base.Meta) (int, error) {
 	get, err := p.GetValue(meta)
@@ -62,7 +70,7 @@ func (p *ModbusProvider) GetFloat32Values(metas ...*c_base.Meta) ([]float32, err
 }
 
 func (p *ModbusProvider) GetFloat64Value(meta *c_base.Meta) (float64, error) {
-	get, err := p.cache.Get(p.ctx, meta)
+	get, err := p.GetValue(meta)
 	if err != nil {
 		return 0, err
 	}

@@ -3,7 +3,6 @@ go 1.22
 use (
 	application
 	common
-	common_cabinet
 	common_station
 	plug_drivers/bms/pylonTechUs108_v1
 	plug_drivers/ess/pylonCheckwatt_v1
