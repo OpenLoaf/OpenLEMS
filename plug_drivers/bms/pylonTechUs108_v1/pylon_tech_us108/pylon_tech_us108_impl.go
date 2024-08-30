@@ -48,7 +48,7 @@ func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg any) error {
 			p.log.Infof(Ctx, "syncTime配置为：false！时间不同步！")
 		}
 	*/
-	p.IModbusProtocol.Init(p.GetType())
+
 	return nil
 }
 

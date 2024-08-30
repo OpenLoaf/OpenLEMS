@@ -80,19 +80,30 @@ func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver, gpio
 	// 注册输入输出
 	if output, exist := gpioMap[p_gpio_sysfs.IdLedRunning]; exist {
 		ess.ledRunning = output
+		g.Log().Infof(ess.Ctx, "注册LED运行灯成功！")
 	}
 	if output, exist := gpioMap[p_gpio_sysfs.IdLedFault]; exist {
-		ess.ledRunning = output
+		ess.ledFault = output
+		g.Log().Infof(ess.Ctx, "注册LED故障灯成功！")
 	}
 
 	if input, exist := gpioMap[p_gpio_sysfs.IdButtonScram]; exist {
 		input.RegisterHighHandler(func(ctx context.Context) {
+			g.Log().Warningf(ess.Ctx, "触发急停！")
 			// 紧急停机
 			if ess.ledFault != nil {
 				_ = ess.ledFault.SetHigh()
+				g.Log().Warningf(ess.Ctx, "触发急停！触发故障灯！")
+			}
+		})
+		input.RegisterLowHandler(func(ctx context.Context) {
+			if ess.ledFault != nil {
+				_ = ess.ledFault.SetLow()
+				g.Log().Infof(ess.Ctx, "解除急停！故障灯熄灭！")
 			}
 		})
 		ess.buttonScram = input
+		g.Log().Infof(ess.Ctx, "注册急停按钮成功！")
 	}
 	if input, exist := gpioMap[IdButtonCharge]; exist {
 		ess.buttonCharge = input
@@ -102,6 +113,12 @@ func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver, gpio
 				_ = ess.ledRunning.SetHigh()
 			}
 		})
+		input.RegisterHighHandler(func(ctx context.Context) {
+			if ess.ledRunning != nil {
+				_ = ess.ledRunning.SetLow()
+			}
+		})
+		g.Log().Infof(ess.Ctx, "注册充电按钮成功！")
 	}
 	if input, exist := gpioMap[IdButtonDischarge]; exist {
 		ess.buttonDischarge = input
@@ -111,6 +128,12 @@ func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver, gpio
 				_ = ess.ledRunning.SetHigh()
 			}
 		})
+		input.RegisterHighHandler(func(ctx context.Context) {
+			if ess.ledRunning != nil {
+				_ = ess.ledRunning.SetLow()
+			}
+		})
+		g.Log().Infof(ess.Ctx, "注册放电按钮成功！")
 	}
 
 	return ess, nil

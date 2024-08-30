@@ -117,7 +117,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 					cabinetIdSet.AddIfNotExist(deviceConfig.CabinetId)
 				}
 
-				impl := p_gpio_sysfs.SDriverGpioImpl{
+				impl := &p_gpio_sysfs.SDriverGpioImpl{
 					Ctx: deviceCtx,
 				}
 
@@ -129,6 +129,10 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				if err != nil {
 					panic(err)
 				}
+
+				gpioSysfsProtocol.Init(c_base.EGpio)
+
+				_tempInstanceCache.AddCabinetDevice(deviceConfig.CabinetId, impl)
 			}
 
 		}

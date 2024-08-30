@@ -32,3 +32,7 @@ func (l *SDriverGpioImpl) Init(client c_base.IProtocol, cfg any) error {
 
 	return nil
 }
+
+func (l *SDriverGpioImpl) GetType() c_base.EDeviceType {
+	return c_base.EGpio
+}

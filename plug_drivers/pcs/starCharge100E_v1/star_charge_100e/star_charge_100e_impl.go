@@ -39,7 +39,7 @@ func (s *StarCharge100EPcs) Init(client c_base.IProtocol, cfg any) error {
 		GroupStatus,
 	)
 
-	g.Log().Noticef(s.Ctx, "配置信息:%+v", s.SModbusDeviceConfig)
+	g.Log().Noticef(s.Ctx, "StarCharge100EPcs 初始化完毕！")
 
 	return nil
 }

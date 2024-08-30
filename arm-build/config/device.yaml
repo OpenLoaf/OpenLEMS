@@ -73,24 +73,29 @@ devices:
         name: 急停按钮
         enable: true
         path: /sys/class/gpio/gpio291
+        direction: in
         cabinetId: 2 # 不为0代表是柜子上的设备
-      - id: button-discharge
+      - id: button-charge
         name: 充电开关
         enable: true
         path: /sys/class/gpio/gpio380
+        direction: in
         cabinetId: 2
       - id: button-discharge
         name: 放电开关
         enable: true
         path: /sys/class/gpio/gpio383
+        direction: in
         cabinetId: 2
       - id: led-running
         name: 运行指示灯
         enable: true
         path: /sys/class/gpio/gpio436
+        direction: out
         cabinetId: 2
       - id: led-fault
         name: 故障指示灯
         enable: true
         path: /sys/class/gpio/gpio439
+        direction: out
         cabinetId: 2

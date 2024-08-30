@@ -88,7 +88,7 @@ func (s *SGpioSysfsProvider) Init(deviceType c_base.EDeviceType) {
 
 		// 如果是In类型的，说明需要时刻监听
 		if s.deviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
-			gtimer.SetInterval(s.Ctx, 300*time.Millisecond, func(ctx context.Context) {
+			gtimer.SetInterval(s.Ctx, 200*time.Millisecond, func(ctx context.Context) {
 				// 读取值
 				s.IsHigh()
 			})
