@@ -75,7 +75,7 @@ func MetaProcess(ctx context.Context, protocol c_base.IProtocol, meta *c_base.Me
 }
 
 func processAlarm(protocol c_base.IProtocol, deviceId string, meta *c_base.Meta, IsTrigger bool, value any) {
-	protocol.HandlerAlarmDetail(&c_base.SAlarmDetail{
+	protocol.ProcessAlarmDetail(&c_base.SAlarmDetail{
 		DeviceId:   deviceId,
 		DeviceType: protocol.GetType(),
 		Level:      meta.Level,

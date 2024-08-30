@@ -63,15 +63,15 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 					fmt.Printf("%T\n", symbol)
 					provider := symbol.(protocol.NewModbusProvider)
 					modbusProvider, err := provider(ctx, protocolConfig, deviceConfig, client)*/
-				modbusProvider, err := plug_protocol_modbus.NewModbusProvider(deviceCtx, protocolConfig, deviceConfig, client) // 进行直接掉用
 
+				dv := loadDriver(deviceCtx, deviceConfig)
+
+				modbusProvider, err := plug_protocol_modbus.NewModbusProvider(deviceCtx, protocolConfig, deviceConfig, client) // 进行直接掉用
 				if err != nil {
 					return err
 				}
 
-				dv := loadDriver(deviceCtx, deviceConfig)
-
-				err = dv.Init(deviceCtx, modbusProvider, deviceConfig)
+				err = dv.Init(modbusProvider, deviceConfig)
 				if err != nil {
 					return err
 				}

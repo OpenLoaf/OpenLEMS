@@ -3,6 +3,7 @@ package main
 
 import (
 	"common_station/c_station"
+	"context"
 	"ems-plan/c_base"
 	"ems-plan/c_device"
 	"github.com/gogf/gf/v2/frame/g"
@@ -14,8 +15,10 @@ import (
 )
 
 // NewPlugin 必须的方法，不能取消
-func NewPlugin() (c_device.IPcs, error) {
-	return &star_charge_100e.StarCharge100EPcs{}, nil
+func NewPlugin(ctx context.Context) (c_device.IPcs, error) {
+	return &star_charge_100e.StarCharge100EPcs{
+		Ctx: ctx,
+	}, nil
 }
 
 func main() {
@@ -59,8 +62,10 @@ func main() {
 	}
 
 	// 创建一个Device对象，并初始化
-	device := &star_charge_100e.StarCharge100EPcs{}
-	err = device.Init(ctx, provider, deviceConfig)
+	device := &star_charge_100e.StarCharge100EPcs{
+		Ctx: context.TODO(),
+	}
+	err = device.Init(provider, deviceConfig)
 	if err != nil {
 		g.Log().Fatal(ctx, err)
 	}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"ems-plan/c_base"
 	"ems-plan/c_device"
+	"pylon_checkwatt_v1/pylon_checkwatt"
 )
 
 type tmpStation struct {
@@ -14,33 +15,37 @@ type tmpStation struct {
 	Ess        []c_device.IEnergyStore
 	ChargePile []c_device.ICharge
 	Generator  []c_device.IGenerator
-	cabinetEss map[uint8]*tmpCabinet
-}
-
-type tmpCabinet struct {
-	Ammeter  c_device.IAmmeter
-	Pcs      []c_device.IPcs // 一个柜子会有一个多个PCS
-	Bms      c_device.IBms
-	Fire     c_device.IFire
-	Humiture c_device.IHumiture
-	Cooling  c_device.ICoolingBasic
+	cabinetEss map[uint8][]c_base.IDriver
 }
 
 var _tempInstanceCache = &tmpStation{
-	cabinetEss: make(map[uint8]*tmpCabinet),
+	cabinetEss: make(map[uint8][]c_base.IDriver),
 }
 
-func (t *tmpStation) GetCabinetEss(cabinetId uint8) *tmpCabinet {
-	cabinet := t.cabinetEss[cabinetId]
-	if cabinet == nil {
-		cabinet = &tmpCabinet{}
-		t.cabinetEss[cabinetId] = cabinet
-		return cabinet
+func (t *tmpStation) AddCabinetDevice(cabinetId uint8, driver c_base.IDriver) {
+	cabinetDrivers := t.cabinetEss[cabinetId]
+	if cabinetDrivers == nil {
+		cabinetDrivers = []c_base.IDriver{driver}
+		t.cabinetEss[cabinetId] = cabinetDrivers
+		return
 	}
-	return cabinet
+	t.cabinetEss[cabinetId] = append(cabinetDrivers, driver)
 }
 
 func (t *tmpStation) Init(ctx context.Context) {
+
+	for cabinetId, drivers := range t.cabinetEss {
+
+		ess, err := pylon_checkwatt.NewEss(ctx, cabinetId, drivers)
+		if err != nil {
+			panic(err)
+		}
+		err = ess.Init(nil, nil)
+		if err != nil {
+			panic(err)
+		}
+	}
+
 	// 先封装cabinet
 	/*	for cabinetId, value := range t.cabinetEss {
 		// 先把PCS之类的变成 CabinetPcs
@@ -48,8 +53,8 @@ func (t *tmpStation) Init(ctx context.Context) {
 		//pcs := common_cabinet.NewPcs(ctx, cabinetId, master, slaves)
 		ess := common_cabinet.NewBms(ctx, cabinetId, value.Bms)
 		if ess != nil {
-			if dv, ok := ess.(c_base.IAlarmHandler); ok {
-				value.Bms.RegisterAlarmNotify(dv.GetMonitorChan())
+			if dv, ok := ess.(c_base.IAlarm); ok {
+				value.Bms.RegisterMonitorChan(dv.GetMonitorChan())
 			}
 		}
 

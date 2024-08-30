@@ -14,5 +14,5 @@ type IProtocol interface {
 
 	GetLastUpdateTime() *time.Time // 获取最后更新时间
 
-	IAlarmHandler
+	IAlarm
 }

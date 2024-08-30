@@ -11,10 +11,10 @@ func (s *StarCharge100EPcs) writeTime() {
 	if err != nil {
 
 		// 创建一个每天凌晨3点执行的定时任务
-		_, err := gcron.AddSingleton(s.ctx, "0 0 3 * * *", func(ctx context.Context) {
+		_, err := gcron.AddSingleton(s.Ctx, "0 0 3 * * *", func(ctx context.Context) {
 			e := s._syncTime()
 			if e == nil {
-				s.log.Infof(s.ctx, "_syncTime() success")
+				s.log.Infof(s.Ctx, "_syncTime() success")
 				//break
 			}
 		})
@@ -31,13 +31,13 @@ func (s *StarCharge100EPcs) writeTime() {
 			for {
 				select {
 
-				case <-s.ctx.Done():
-					s.log.Noticef(s.ctx, "writeTime() exit")
+				case <-s.Ctx.Done():
+					s.log.Noticef(s.Ctx, "writeTime() exit")
 					return
 				case <-ticker.C:
 					err := s._syncTime()
 					if err == nil {
-						s.log.Infof(s.ctx, "_syncTime() success")
+						s.log.Infof(s.Ctx, "_syncTime() success")
 						//break
 					}
 				}

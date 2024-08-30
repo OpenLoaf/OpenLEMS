@@ -49,12 +49,12 @@ devices:
         group: pcs
         isMaster: false
         logLevel: INFO
-        printCacheValue: true
+        printCacheValue: false
         ratedPower: 100
         syncTime: true   # 同步时间
       - id: pylon-tech-us108-1
         name: 派能MBMS
-        enable: false
+        enable: true
         unitId: 2
         cabinetId: 2
         driver: bms_pylonTechUs108

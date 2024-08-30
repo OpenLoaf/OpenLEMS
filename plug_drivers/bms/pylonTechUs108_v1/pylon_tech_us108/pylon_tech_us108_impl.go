@@ -10,9 +10,9 @@ import (
 )
 
 type PylonTechUs108Bms struct {
+	Ctx context.Context
 	c_base.IDriverConfig
 	p_modbus.IModbusProtocol
-	ctx context.Context
 }
 
 func (p *PylonTechUs108Bms) GetDescription() c_base.SDescription {
@@ -24,12 +24,11 @@ func (p *PylonTechUs108Bms) GetDescription() c_base.SDescription {
 	}
 }
 
-func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, cfg any) error {
-	p.ctx = ctx
+func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg any) error {
 	p.IModbusProtocol = client.(p_modbus.IModbusProtocol)
 
 	// 注册
-	p.IModbusProtocol.RegisterRead(ctx, GroupHeart, GroupInfo, GroupTime, GroupStatistics)
+	p.IModbusProtocol.RegisterRead(p.Ctx, GroupHeart, GroupInfo, GroupTime, GroupStatistics)
 
 	var (
 		config *p_modbus.SModbusDeviceConfig
@@ -40,13 +39,13 @@ func (p *PylonTechUs108Bms) Init(ctx context.Context, client c_base.IProtocol, c
 	}
 	p.IDriverConfig = config
 
-	g.Log().Noticef(ctx, "配置信息:%+v", config)
+	g.Log().Noticef(p.Ctx, "配置信息:%+v", config)
 
 	/*	if v, ok := configMap["syncTime"]; ok && v == "true" {
 			p.writeTime()
-			p.log.Infof(ctx, "syncTime配置为：true！同步时间已开启！")
+			p.log.Infof(Ctx, "syncTime配置为：true！同步时间已开启！")
 		} else {
-			p.log.Infof(ctx, "syncTime配置为：false！时间不同步！")
+			p.log.Infof(Ctx, "syncTime配置为：false！时间不同步！")
 		}
 	*/
 	p.IModbusProtocol.Init(p.GetType())
@@ -185,15 +184,15 @@ func (p *PylonTechUs108Bms) writeTime() {
 			defer ticker.Stop()
 			for {
 				select {
-				case <-p.ctx.Done():
-					g.Log().Noticef(p.ctx, "writeTime() 关闭!")
+				case <-p.Ctx.Done():
+					g.Log().Noticef(p.Ctx, "writeTime() 关闭!")
 				case <-ticker.C:
 					if !p.IsActivate() {
 						continue
 					}
 					err := p._syncTime()
 					if err == nil {
-						g.Log().Infof(p.ctx, "同步时间成功！")
+						g.Log().Infof(p.Ctx, "同步时间成功！")
 						//break
 					}
 				}

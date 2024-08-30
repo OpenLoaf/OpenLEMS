@@ -6,10 +6,21 @@ import (
 	"sync"
 )
 
+/*
+SAlarmHandler
+告警实现结构体，使用时只需要 *c_base.SAlarmHandler 嵌套进目标结构体，然后初始化目标结构体时：
+
+	SAlarmHandler: &c_base.SAlarmHandler{
+		Ctx: ctx,
+	},
+*/
 type SAlarmHandler struct {
-	Ctx         context.Context
-	monitorOnce sync.Once          // 只监听一次
-	monitorChan chan *SAlarmDetail // 监听
+	AlarmHappened  func(alarm *SAlarmDetail) // 告警发生
+	AlarmDisappear func(alarm *SAlarmDetail) // 告警消失
+	Fc             func()
+	Ctx            context.Context
+	monitorOnce    sync.Once          // 只监听一次
+	monitorChan    chan *SAlarmDetail // 监听
 
 	rwMutex sync.RWMutex
 	alarm   *SAlarmDetail // 最高等级告警
@@ -34,7 +45,7 @@ func (s *SAlarmHandler) GetAlarmLevel() EAlarmLevel {
 	return s.alarm.Level
 }
 
-func (s *SAlarmHandler) RegisterAlarmNotify(details chan<- *SAlarmDetail) {
+func (s *SAlarmHandler) RegisterMonitorChan(details chan<- *SAlarmDetail) {
 	s.notifyChanList = append(s.notifyChanList, details)
 }
 
@@ -44,7 +55,7 @@ func (s *SAlarmHandler) GetAlarmDetails() []*SAlarmDetail {
 	return s.details
 }
 
-func (s *SAlarmHandler) HandlerAlarmDetail(alarm *SAlarmDetail) {
+func (s *SAlarmHandler) ProcessAlarmDetail(alarm *SAlarmDetail) {
 	if alarm.Level == ENone {
 		return
 	}
@@ -52,7 +63,6 @@ func (s *SAlarmHandler) HandlerAlarmDetail(alarm *SAlarmDetail) {
 	needNotify := false
 	if alarm.IsTrigger {
 		needNotify = s.addDetail(alarm)
-
 	} else {
 		needNotify = s.remove(alarm.DeviceId, alarm.Meta)
 	}
@@ -77,7 +87,7 @@ func (s *SAlarmHandler) GetMonitorChan() chan<- *SAlarmDetail {
 						return
 					}
 
-					s.HandlerAlarmDetail(detail)
+					s.ProcessAlarmDetail(detail)
 				}
 			}
 		}()
@@ -95,6 +105,9 @@ func (s *SAlarmHandler) addDetail(detail *SAlarmDetail) bool {
 	defer s.rwMutex.Unlock()
 
 	s.details = append(s.details, detail)
+	if s.AlarmHappened != nil {
+		s.AlarmHappened(detail)
+	}
 
 	if s.alarm == nil {
 		g.Log().Warning(s.Ctx, detail.ToString())
@@ -144,6 +157,10 @@ func (s *SAlarmHandler) remove(deviceId string, meta *Meta) bool {
 			g.Log().Noticef(s.Ctx, "-- 清除 Id:%s 的告警：%s(%s)告警！数值:%v", detail.DeviceId, detail.Meta.Name, detail.Meta.Cn, detail.Value)
 			s.details = append(s.details[:i], s.details[i+1:]...)
 			isRemove = true
+
+			if s.AlarmDisappear != nil {
+				s.AlarmDisappear(detail)
+			}
 			break
 		}
 	}

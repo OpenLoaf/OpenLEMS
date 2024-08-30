@@ -11,7 +11,7 @@ import (
 type StarCharge100EPcs struct {
 	c_base.IDriverConfig
 	p_modbus.IModbusProtocol
-	ctx                 context.Context
+	Ctx                 context.Context
 	log                 *glog.Logger
 	description         c_base.SDescription
 	targetPower         int32 // 目标有功功率
@@ -27,12 +27,11 @@ func (s *StarCharge100EPcs) GetDescription() c_base.SDescription {
 	}
 }
 
-func (s *StarCharge100EPcs) Init(ctx context.Context, client c_base.IProtocol, cfg any) error {
-	s.ctx = ctx
+func (s *StarCharge100EPcs) Init(client c_base.IProtocol, cfg any) error {
 	s.IModbusProtocol = client.(p_modbus.IModbusProtocol)
 
 	// 注册
-	s.RegisterRead(ctx,
+	s.RegisterRead(s.Ctx,
 		GroupCommand,
 		GroupPowerInfo,
 		//GroupPhase,
@@ -48,13 +47,17 @@ func (s *StarCharge100EPcs) Init(ctx context.Context, client c_base.IProtocol, c
 	}
 	s.IDriverConfig = config
 
-	g.Log().Noticef(ctx, "配置信息:%+v", config)
+	g.Log().Noticef(s.Ctx, "配置信息:%+v", config)
 
 	return nil
 }
 
+func (s *StarCharge100EPcs) GetType() c_base.EDeviceType {
+	return c_base.EDevicePcs
+}
+
 func (s *StarCharge100EPcs) SetReset() error {
-	g.Log().Warningf(s.ctx, "StarCharge100EPcs SetReset() not support!")
+	g.Log().Warningf(s.Ctx, "StarCharge100EPcs SetReset() not support!")
 	return nil
 }
 
@@ -111,7 +114,7 @@ func (s *StarCharge100EPcs) SetReactivePower(power int32) error {
 }
 
 func (s *StarCharge100EPcs) SetPowerFactor(factor float32) error {
-	g.Log().Warningf(s.ctx, "StarCharge100EPcs SetPowerFactor() not support!")
+	g.Log().Warningf(s.Ctx, "StarCharge100EPcs SetPowerFactor() not support!")
 	return nil
 }
 
