@@ -10,10 +10,9 @@ import (
 // sCabinetBms 实现 c_base.IBmsBasic 接口
 type sCabinetBms struct {
 	*c_base.SAlarmHandler
-	alarmChannel chan *c_base.SAlarmDetail
-	ctx          context.Context
-	cabinetId    uint8 // 属于哪个柜子
-	bms          c_device.IBms
+	ctx       context.Context
+	cabinetId uint8 // 属于哪个柜子
+	bms       c_device.IBms
 }
 
 func NewBms(ctx context.Context, cabinetId uint8, bms c_device.IBms) c_device.IBmsBasic {
@@ -28,7 +27,6 @@ func NewBms(ctx context.Context, cabinetId uint8, bms c_device.IBms) c_device.IB
 		SAlarmHandler: &c_base.SAlarmHandler{
 			Ctx: _ctx,
 		},
-		alarmChannel: make(chan *c_base.SAlarmDetail),
 	}
 	fmt.Printf("NewBms: %v\n", instance)
 

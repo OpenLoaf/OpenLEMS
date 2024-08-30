@@ -12,8 +12,7 @@ import (
 type PylonTechUs108Bms struct {
 	c_base.IDriverConfig
 	p_modbus.IModbusProtocol
-	ctx         context.Context
-	description c_base.SDescription
+	ctx context.Context
 }
 
 func (p *PylonTechUs108Bms) GetDescription() c_base.SDescription {

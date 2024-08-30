@@ -4,23 +4,22 @@ import (
 	"context"
 	"ems-plan/c_base"
 	"ems-plan/c_device"
+	"fmt"
+	"github.com/gogf/gf/v2/os/gcache"
+	"time"
 )
 
 type PylonCheckwattEss struct {
+	c_base.IDriverConfig
 	*c_base.SAlarmHandler
-	alarmChan chan *c_base.EAlarmLevel
+	cabinetId uint8 // 属于哪个柜子
 
 	//*c_base.SConfigImpl // 配置信息
-	ctx    context.Context
-	unitId uint8 // modbus转发的id
-
-	ammeter c_device.IAmmeter
-
-	//bms      *common_cabinet.CabinetBms      // 电池
-	//pcs      *common_cabinet.CabinetPcs      // 逆变器
-	//fire     *common_cabinet.CabinetFire     // 消防
-	//cooling  *common_cabinet.CabinetCooling  // 制冷
-	//humidity *common_cabinet.CabinetHumidity // 温湿度
+	ctx     context.Context
+	unitId  uint8             // modbus转发的id
+	ammeter c_device.IAmmeter // 电表
+	bms     c_device.IBms     // 电池
+	pcs     c_device.IPcs     // 逆变器
 }
 
 /*
@@ -49,6 +48,44 @@ func CreateEss(ctx context.Context, cabinetId uint8, params map[string]string,
 	}
 	return _ess
 }*/
+
+func (p *PylonCheckwattEss) Init(ctx context.Context, client c_base.IProtocol, cfg any) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *PylonCheckwattEss) GetId() string {
+	return fmt.Sprintf("pylonCheckwattEss_%d", p.cabinetId)
+}
+
+func (p *PylonCheckwattEss) GetType() c_base.EDeviceType {
+	return c_base.EDeviceEnergyStore
+}
+
+func (p *PylonCheckwattEss) GetDescription() c_base.SDescription {
+	return c_base.SDescription{
+		Brand:  "Plyon",
+		Model:  "Checkwatt",
+		Type:   c_base.EDeviceEnergyStore,
+		Remark: "虚拟派能柜，整合PCS与BMS",
+	}
+}
+
+func (p *PylonCheckwattEss) GetCache() *gcache.Cache {
+	p.bms.GetCache()
+
+	return nil
+}
+
+func (p *PylonCheckwattEss) GetLastUpdateTime() *time.Time {
+
+	return nil
+}
+
+func (p *PylonCheckwattEss) IsActivate() bool {
+	//TODO implement me
+	panic("implement me")
+}
 
 func (p *PylonCheckwattEss) SetReset() error {
 	//TODO implement me
@@ -95,7 +132,7 @@ func (p *PylonCheckwattEss) GetCycleCount() (uint, error) {
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) GetRatedPower() (float64, error) {
+func (p *PylonCheckwattEss) GetRatedPower() (int32, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -145,32 +182,32 @@ func (p *PylonCheckwattEss) GetHistoryOutgoingQuantity() (float64, error) {
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) SetStatus(status c_device.EEnergyStoreStatus) error {
+func (p *PylonCheckwattEss) SetStatus(status c_base.EEnergyStoreStatus) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) SetGridMode(mode c_device.EGridMode) error {
+func (p *PylonCheckwattEss) SetGridMode(mode c_base.EGridMode) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) GetStatus() (c_device.EEnergyStoreStatus, error) {
+func (p *PylonCheckwattEss) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) GetGridMode() (c_device.EGridMode, error) {
+func (p *PylonCheckwattEss) GetGridMode() (c_base.EGridMode, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) SetPower(power float64) error {
+func (p *PylonCheckwattEss) SetPower(power int32) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) SetReactivePower(power float64) error {
+func (p *PylonCheckwattEss) SetReactivePower(power int32) error {
 	//TODO implement me
 	panic("implement me")
 }
@@ -180,12 +217,12 @@ func (p *PylonCheckwattEss) SetPowerFactor(factor float32) error {
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) GetTargetPower() float64 {
+func (p *PylonCheckwattEss) GetTargetPower() int32 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *PylonCheckwattEss) GetTargetReactivePower() float64 {
+func (p *PylonCheckwattEss) GetTargetReactivePower() int32 {
 	//TODO implement me
 	panic("implement me")
 }

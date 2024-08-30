@@ -4,13 +4,15 @@ import (
 	"context"
 	"ems-plan/c_base"
 	"ems-plan/c_device"
+	"github.com/gogf/gf/v2/os/gcache"
+	"time"
 )
 
 // sCabinetPcs 实现了 c_device.IPcsBasic 接口
 type sCabinetPcs struct {
-	//info      *plugin.DriverInfo
-	cabinetId uint8
+	*c_base.SAlarmHandler
 	ctx       context.Context
+	cabinetId uint8
 	rootPcs   c_device.IPcs
 	pcsList   []c_device.IPcs
 }
@@ -41,6 +43,51 @@ func NewPcs(ctx context.Context, cabinetId uint8, master c_device.IPcs, pcsList 
 
 	//device.RegisterInstance(instance)
 	return instance
+}
+
+func (s *sCabinetPcs) GetId() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetType() c_base.EDeviceType {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetIsMaster() bool {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetName() string {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetDescription() c_base.SDescription {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetCache() *gcache.Cache {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) GetLastUpdateTime() *time.Time {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) Init(ctx context.Context, client c_base.IProtocol, cfg any) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sCabinetPcs) IsActivate() bool {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (s *sCabinetPcs) SetReset() error {
