@@ -13,6 +13,7 @@ import (
 )
 
 type ModbusProvider struct {
+	ctx                   context.Context            // 上下文
 	once                  sync.Once                  // 只执行一次Init方法
 	deviceId              string                     // 设备名称
 	deviceType            c_base.EDeviceType         // 设备类型
@@ -22,7 +23,6 @@ type ModbusProvider struct {
 	preQuery              map[string]bool            // 预读
 	cache                 *gcache.Cache              // 点位缓存
 	log                   *glog.Logger               // 日志
-	ctx                   context.Context            // 上下文
 	printCacheValue       bool                       // 打印缓存值
 	modbusRwMutex         sync.RWMutex               // 读写锁
 	lastUpdateTime        *time.Time                 // 最后更新时间

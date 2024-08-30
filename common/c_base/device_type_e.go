@@ -15,5 +15,7 @@ const (
 	EDeviceEnergyStore   EDeviceType = "energy-store"   // 储能柜
 	EChargePile          EDeviceType = "charging-pile"  // 充电桩
 	EGenerator           EDeviceType = "generator"      // 发电机
+	EGpio                EDeviceType = "gpio"           // DIY
+
 	//EEntrance            EDeviceType = "entrance"       // 总站入口
 )
