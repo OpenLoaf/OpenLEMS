@@ -24,13 +24,12 @@ type SGpioSysfsProvider struct {
 	printCacheValue bool         // 打印缓存值
 
 	*c_base.SAlarmHandler            // 告警
-	result                bool       // 结果
+	status                bool       // 结果
 	lastUpdateTime        *time.Time // 最后更新时间
 
 	deviceConfig *p_gpio_sysfs.SGpioSysfsDeviceConfig
 
-	highHandler func(ctx context.Context)
-	lowHandler  func(ctx context.Context)
+	handler func(ctx context.Context, status bool) // 处理函数
 }
 
 func NewGpioSysfsProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *p_gpio_sysfs.SGpioSysfsDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
@@ -100,12 +99,11 @@ func (s *SGpioSysfsProvider) Init(deviceType c_base.EDeviceType) {
 	})
 }
 
-func (s *SGpioSysfsProvider) RegisterHighHandler(fc func(ctx context.Context)) {
-	s.highHandler = fc
-}
-
-func (s *SGpioSysfsProvider) RegisterLowHandler(fc func(ctx context.Context)) {
-	s.lowHandler = fc
+func (s *SGpioSysfsProvider) RegisterHandler(handler func(ctx context.Context, status bool)) {
+	if s.deviceConfig.Direction != p_gpio_sysfs.EGpioDirectionIn {
+		panic(fmt.Errorf("只有输入类型的GPIO才能注册Handler"))
+	}
+	s.handler = handler
 }
 
 func (s *SGpioSysfsProvider) GetId() string {
@@ -147,18 +145,15 @@ func (s *SGpioSysfsProvider) IsHigh() bool {
 func (s *SGpioSysfsProvider) process(status bool) {
 	now := time.Now()
 	s.lastUpdateTime = &now
-	if s.result != status {
-		s.result = status
-		if status {
-			s.log.Debugf(s.Ctx, "GPIO %s is %v", s.deviceId, status)
-			if s.highHandler != nil {
-				s.highHandler(s.Ctx)
-			}
-		} else {
-			s.log.Debugf(s.Ctx, "GPIO %s is %v", s.deviceId, status)
-			if s.lowHandler != nil {
-				s.lowHandler(s.Ctx)
-			}
+	// 如果是反向的，就取反
+	if s.deviceConfig.Reverse {
+		status = !status
+	}
+
+	if s.status != status {
+		s.status = status
+		if s.handler != nil {
+			s.handler(s.Ctx, status)
 		}
 	}
 }

@@ -68,12 +68,15 @@ devices:
     protocol: gpio  # sysfs
     enable: true
     logLevel: DEBUG
+    config:
+      period: 200 # 读取周期
     device-children:
       - id: button-scram
         name: 急停按钮
         enable: true
         path: /sys/class/gpio/gpio291
         direction: in
+        level: Error
         cabinetId: 2 # 不为0代表是柜子上的设备
       - id: button-charge
         name: 充电开关
@@ -86,6 +89,7 @@ devices:
         enable: true
         path: /sys/class/gpio/gpio383
         direction: in
+        reverse: true
         cabinetId: 2
       - id: led-running
         name: 运行指示灯

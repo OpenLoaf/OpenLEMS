@@ -8,8 +8,7 @@ import (
 type IGpioSysfsProtocol interface {
 	c_base.IProtocol
 
-	RegisterHighHandler(fc func(ctx context.Context))
-	RegisterLowHandler(fc func(ctx context.Context))
+	RegisterHandler(handler func(ctx context.Context, status bool)) // 状态变化处理
 
 	IsHigh() bool // 是否是高电平
 	IsLow() bool  // 是否是低电平
