@@ -3,6 +3,7 @@ package internal
 import (
 	"context"
 	"ems-plan/c_base"
+	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/os/glog"
@@ -76,4 +77,45 @@ func (p *ModbusProvider) IsActivate() bool {
 
 func (p *ModbusProvider) Close() error {
 	return p.client.Close()
+}
+
+func (p *ModbusProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
+	// 排序
+	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
+		return int(v1.(*c_base.MetaValueWrapper).Meta.Addr - v2.(*c_base.MetaValueWrapper).Meta.Addr)
+	})
+
+	metas, err := p.cache.Keys(p.Ctx)
+	if err != nil {
+		return nil
+	}
+
+	for _, meta := range metas {
+		_varValue, err := p.cache.Get(p.Ctx, meta) // MetaValue类型
+		if err != nil {
+			continue
+		}
+
+		metaValue := &c_base.MetaValue{}
+		err = _varValue.Structs(metaValue)
+		if err != nil {
+			g.Log().Errorf(p.ctx, "解析缓存值失败：%v", err)
+			continue
+		}
+
+		_sortValues.Add(&c_base.MetaValueWrapper{
+			DeviceId:   p.deviceId,
+			DeviceType: p.deviceType,
+			Meta:       meta.(*c_base.Meta),
+			Value:      metaValue.Value,
+			HappenTime: metaValue.HappenTime,
+		})
+	}
+
+	result := make([]*c_base.MetaValueWrapper, _sortValues.Len())
+	for i, v := range _sortValues.Slice() {
+		result[i] = v.(*c_base.MetaValueWrapper)
+	}
+
+	return result
 }

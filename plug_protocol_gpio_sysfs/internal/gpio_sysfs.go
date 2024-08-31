@@ -4,6 +4,7 @@ import (
 	"context"
 	"ems-plan/c_base"
 	"fmt"
+	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/glog"
@@ -27,21 +28,46 @@ type SGpioSysfsProvider struct {
 	status                bool       // 结果
 	lastUpdateTime        *time.Time // 最后更新时间
 
-	deviceConfig *p_gpio_sysfs.SGpioSysfsDeviceConfig
+	deviceConfig  *p_gpio_sysfs.SGpioSysfsDeviceConfig
+	protocolParam *p_gpio_sysfs.SGpioProtocolConfig
 
 	handler func(ctx context.Context, status bool) // 处理函数
+
+	meta  *c_base.Meta
+	mutex sync.Mutex
 }
 
-func NewGpioSysfsProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *p_gpio_sysfs.SGpioSysfsDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
+func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *p_gpio_sysfs.SGpioSysfsDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
 	provider := &SGpioSysfsProvider{
 		once:            sync.Once{},
 		deviceId:        deviceConfig.Id,
 		printCacheValue: deviceConfig.PrintCacheValue,
 		deviceConfig:    deviceConfig,
+		protocolParam:   &p_gpio_sysfs.SGpioProtocolConfig{},
 		SAlarmHandler: &c_base.SAlarmHandler{
 			Ctx: ctx,
 		},
 		log: g.Log(deviceConfig.Id),
+
+		meta: &c_base.Meta{
+			Debug:      false,
+			Name:       deviceConfig.Id,
+			Cn:         deviceConfig.Name,
+			Addr:       uint16(deviceConfig.ExportPort),
+			BitLength:  1,
+			Endianness: c_base.EBigEndian,
+			ReadType:   c_base.RBit0,
+			SystemType: c_base.SBool,
+			Level:      deviceConfig.Level,
+			Factor:     1,
+			Offset:     0,
+			Min:        0,
+			Max:        1,
+			Precise:    0,
+			Unit:       "",
+			Desc:       fmt.Sprintf("Gpio Id: %s %s", deviceConfig.Id, deviceConfig.Name),
+			Trigger:    nil,
+		},
 	}
 
 	if deviceConfig.LogLevel != "" {
@@ -51,13 +77,28 @@ func NewGpioSysfsProvider(ctx context.Context, clientConfig *c_base.SProtocolCon
 		}
 	} else {
 		// 设置默认的日志等级为上一级接口配置的日志等级
-		err := provider.log.SetLevelStr(clientConfig.GetLogLevel())
+		err := provider.log.SetLevelStr(protocolConfig.GetLogLevel())
 		if err != nil {
 			provider.log.Level(glog.LEVEL_INFO)
 		}
 	}
 
+	err := gconv.Scan(protocolConfig.Config, provider.protocolParam)
+	if err != nil {
+		panic("modbus rtu配置文件解析失败")
+	}
+
 	return provider, nil
+}
+
+func (s *SGpioSysfsProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
+	return []*c_base.MetaValueWrapper{{
+		DeviceId:   s.deviceId,
+		DeviceType: s.deviceType,
+		Meta:       s.meta,
+		Value:      gvar.New(s.status),
+		HappenTime: s.lastUpdateTime,
+	}}
 }
 
 func (s *SGpioSysfsProvider) Init(deviceType c_base.EDeviceType) {
@@ -143,6 +184,9 @@ func (s *SGpioSysfsProvider) IsHigh() bool {
 }
 
 func (s *SGpioSysfsProvider) process(status bool) {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
 	now := time.Now()
 	s.lastUpdateTime = &now
 	// 如果是反向的，就取反
@@ -151,10 +195,25 @@ func (s *SGpioSysfsProvider) process(status bool) {
 	}
 
 	if s.status != status {
+
 		s.status = status
 		if s.handler != nil {
 			s.handler(s.Ctx, status)
 		}
+
+		// 触发告警
+		if s.deviceConfig.Level != c_base.ENone && s.deviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
+			s.SAlarmHandler.ProcessAlarmDetail(&c_base.SAlarmDetail{
+				DeviceId:   s.deviceId,
+				DeviceType: s.deviceType,
+				Level:      s.deviceConfig.Level,
+				Meta:       s.meta,
+				HappenTime: now,
+				IsTrigger:  status,
+				Value:      status,
+			})
+		}
+
 	}
 }
 

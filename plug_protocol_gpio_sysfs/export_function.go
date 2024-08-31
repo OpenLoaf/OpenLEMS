@@ -49,7 +49,7 @@ func (m *sMain) Start(ctx context.Context, config sInput) (*sOutput, error) {
 
 	provider.Init(c_base.EGpio)
 
-	provider.RegisterHighHandler(func(ctx context.Context) {
+	provider.RegisterHandler(func(ctx context.Context, status bool) {
 		g.Log().Infof(ctx, "high")
 	})
 
