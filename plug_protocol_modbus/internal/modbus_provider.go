@@ -82,7 +82,12 @@ func (p *ModbusProvider) Close() error {
 func (p *ModbusProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 	// 排序
 	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
-		return int(v1.(*c_base.MetaValueWrapper).Meta.Addr - v2.(*c_base.MetaValueWrapper).Meta.Addr)
+
+		if v1.(*c_base.MetaValueWrapper).Meta.Addr > v2.(*c_base.MetaValueWrapper).Meta.Addr {
+			return 1
+		} else {
+			return -1
+		}
 	})
 
 	metas, err := p.cache.Keys(p.Ctx)
@@ -111,6 +116,7 @@ func (p *ModbusProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 			HappenTime: metaValue.HappenTime,
 		})
 	}
+	//_sortValues = _sortValues.Sort()
 
 	result := make([]*c_base.MetaValueWrapper, _sortValues.Len())
 	for i, v := range _sortValues.Slice() {
