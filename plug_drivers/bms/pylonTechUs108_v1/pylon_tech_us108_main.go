@@ -35,7 +35,7 @@ func main() {
 				Id:              "测试BMS-1",
 				Name:            "测试BMS-1",
 				Driver:          "",
-				Group:           c_station.EGroupNan,
+				StationType:     c_station.EGroupNan,
 				CabinetId:       1,
 				IsMaster:        false,
 				Enable:          true,

@@ -9,14 +9,12 @@ import (
 	"plug_protocol_modbus/p_modbus"
 
 	"fmt"
-	"github.com/gogf/gf/v2/container/gset"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"strings"
 )
 
 func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error {
-	var cabinetIdSet = &gset.Set{}
 
 	for _, protocolConfig := range clientConfigs {
 
@@ -47,14 +45,10 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 					panic(fmt.Sprintf("设备Id不能为空！"))
 				}
 
-				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.Group)), deviceConfig.Id))
+				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.StationType)), deviceConfig.Id))
 				if !deviceConfig.Enable {
 					g.Log().Warningf(deviceCtx, "设备%s Enable为fasle, 设备不启用！", deviceConfig.Name)
 					continue
-				}
-				// 加到cabinetIds中
-				if deviceConfig.CabinetId != 0 {
-					cabinetIdSet.AddIfNotExist(deviceConfig.CabinetId)
 				}
 
 				/*	// 通过加载插件的方式来调用
@@ -79,7 +73,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				}
 
 				// 柜子的电表，加到缓存中
-				//if deviceConfig.DeviceConfig.Group == config.Ammeter && deviceConfig.Location == config.Cabinet {
+				//if deviceConfig.DeviceConfig.StationType == config.Ammeter && deviceConfig.Location == config.Cabinet {
 				//	cabinetIdAmmeterMap[deviceConfig.CabinetId] = dv.(driver.IAmmeter)
 				//}
 
@@ -107,14 +101,19 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 					panic(fmt.Sprintf("设备Id不能为空！"))
 				}
 
-				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.Group)), deviceConfig.Id))
+				if deviceConfig.GetStationType() != c_base.EStationNan {
+					if deviceConfig.CabinetId != 0 {
+						panic(fmt.Sprintf("设备Id：%s 指定CabinetId后既是柜内设备，staitonType不能设置！", deviceConfig.Id))
+					}
+				}
+				if deviceConfig.CabinetId == 0 && deviceConfig.GetStationType() == c_base.EStationNan {
+					panic(fmt.Sprintf("设备Id：%s staitonType和CabinetId不能同时为空！", deviceConfig.Id))
+				}
+
+				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.StationType)), deviceConfig.Id))
 				if !deviceConfig.Enable {
 					g.Log().Warningf(deviceCtx, "设备%s Enable为fasle, 设备不启用！", deviceConfig.Name)
 					continue
-				}
-				// 加到cabinetIds中
-				if deviceConfig.CabinetId != 0 {
-					cabinetIdSet.AddIfNotExist(deviceConfig.CabinetId)
 				}
 
 				impl := &p_gpio_sysfs.SDriverGpioImpl{
@@ -132,7 +131,12 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 
 				gpioSysfsProtocol.Init(c_base.EGpio)
 
-				_tempInstanceCache.AddCabinetDevice(deviceConfig.CabinetId, impl)
+				// 加到cabinetIds中
+				if deviceConfig.GetStationType() != c_base.EStationNan {
+					_tempInstanceCache.AddCabinetDevice(deviceConfig.CabinetId, impl)
+				} else {
+					_tempInstanceCache.EssGpioList = append(_tempInstanceCache.EssGpioList, impl)
+				}
 			}
 
 		}

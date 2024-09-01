@@ -1,4 +1,4 @@
-package c_station
+package c_base
 
 type SFunction struct {
 	FunctionName              string // 功能名称

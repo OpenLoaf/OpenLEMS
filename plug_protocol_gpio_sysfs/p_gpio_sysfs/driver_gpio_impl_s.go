@@ -36,3 +36,9 @@ func (l *SDriverGpioImpl) Init(client c_base.IProtocol, cfg any) error {
 func (l *SDriverGpioImpl) GetType() c_base.EDeviceType {
 	return c_base.EGpio
 }
+
+func (l *SDriverGpioImpl) GetFunctionList() []*c_base.SFunction {
+	return []*c_base.SFunction{
+		{FunctionName: "status", Unit: "bool", Remark: "开关量"},
+	}
+}

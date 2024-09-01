@@ -1,13 +1,13 @@
 package c_base
 
-type EGroupType string
+type EStationType string
 
 const (
-	EGroupNan         EGroupType = "" // 空
-	EGroupPv          EGroupType = "pv-group"
-	EGroupLoad        EGroupType = "load-group"
-	EGroupGenerator   EGroupType = "generator-group"
-	EGroupEntrance    EGroupType = "entrance-group"
-	EGroupCharge      EGroupType = "charge-group"
-	EGroupEnergyStore EGroupType = "energy-store-group"
+	EStationNan         EStationType = "" // 空
+	EStationPv          EStationType = "pv"
+	EStationLoad        EStationType = "load"
+	EStationGenerator   EStationType = "generator"
+	EStationEntrance    EStationType = "entrance"
+	EStationCharge      EStationType = "charge"
+	EStationEnergyStore EStationType = "energy-store"
 )

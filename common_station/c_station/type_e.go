@@ -4,14 +4,14 @@ import (
 	"ems-plan/c_base"
 )
 
-type EType = c_base.EGroupType
+type EType = c_base.EStationType
 
 const (
-	EGroupNan         = c_base.EGroupNan
-	EGroupPv          = c_base.EGroupPv
-	EGroupLoad        = c_base.EGroupLoad
-	EGroupGenerator   = c_base.EGroupGenerator
-	EGroupEntrance    = c_base.EGroupEntrance
-	EGroupCharge      = c_base.EGroupCharge
-	EGroupEnergyStore = c_base.EGroupEnergyStore
+	EGroupNan         = c_base.EStationNan
+	EGroupPv          = c_base.EStationPv
+	EGroupLoad        = c_base.EStationLoad
+	EGroupGenerator   = c_base.EStationGenerator
+	EGroupEntrance    = c_base.EStationEntrance
+	EGroupCharge      = c_base.EStationCharge
+	EGroupEnergyStore = c_base.EStationEnergyStore
 )

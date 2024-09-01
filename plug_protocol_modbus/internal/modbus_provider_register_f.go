@@ -29,7 +29,7 @@ func (p *ModbusProvider) registerReadOne(ctx context.Context, group *p_modbus.Mo
 		isPermanent = !group.Transitory // 永久的查询
 		name        = group.Name
 	)
-	ctx = context.WithValue(ctx, "Group", group.Name)
+	ctx = context.WithValue(ctx, "StationType", group.Name)
 
 	// 预处理一下数据
 	setDefaultValue(group)

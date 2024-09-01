@@ -39,7 +39,7 @@ func loadDriver(ctx context.Context, deviceConfig *p_modbus.SModbusDeviceConfig)
 		dv = getDriver[c_device.IAmmeter](ctx, latestDriverPath)
 
 		if deviceConfig.CabinetId != 0 {
-			groupType := c_base.EGroupType(_group)
+			groupType := c_base.EStationType(_group)
 
 			_tempInstanceCache.Ammeters[groupType] = append(_tempInstanceCache.Ammeters[groupType], dv.(c_device.IAmmeter))
 		}

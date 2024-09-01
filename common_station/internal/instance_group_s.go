@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"ems-plan/c_device"
+	"common_station/c_station"
 )
 
 var (
@@ -9,43 +9,40 @@ var (
 )
 
 type sStationInstance struct {
-	generator   c_station.IGroupGenerator
-	entrance    c_station.IGroupEntrance
-	load        c_station.IGroupLoad
-	pv          c_station.IGroupPv
-	energyStore c_station.IGroupEnergyStore
-
-	inputMap  map[c_base.EInputType]c_base.IInput   // 输入信号
-	outputMap map[c_base.EOutputType]c_base.IOutput // 输出信号
+	generator   c_station.IStationGenerator
+	entrance    c_station.IStationEntrance
+	load        c_station.IStationLoad
+	pv          c_station.IStationPv
+	energyStore c_station.IStationEnergyStore
 }
 
 func init() {
 	Instance = &sStationInstance{}
 }
 
-func (s *sStationInstance) RegisterInstance(info c_station.IGroup) {
+func (s *sStationInstance) RegisterInstance(info c_station.IStation) {
 	switch info.GetGroupType() {
 	case c_station.EGroupPv:
 		if s.pv != nil {
 			panic("pv instance already registered")
 		}
-		s.pv = info.(c_station.IGroupPv)
+		s.pv = info.(c_station.IStationPv)
 
 	case c_station.EGroupEntrance:
 		if s.entrance != nil {
 			panic("entrance instance already registered")
 		}
-		s.entrance = info.(c_station.IGroupEntrance)
+		s.entrance = info.(c_station.IStationEntrance)
 	case c_station.EGroupGenerator:
 		if s.generator != nil {
 			panic("generator instance already registered")
 		}
-		s.generator = info.(c_station.IGroupGenerator)
+		s.generator = info.(c_station.IStationGenerator)
 	case c_station.EGroupLoad:
 		if s.load != nil {
 			panic("load instance already registered")
 		}
-		s.load = info.(c_station.IGroupLoad)
+		s.load = info.(c_station.IStationLoad)
 	case c_station.EGroupEnergyStore:
 		if s.energyStore != nil {
 			panic("energyStore instance already registered")
@@ -56,8 +53,8 @@ func (s *sStationInstance) RegisterInstance(info c_station.IGroup) {
 	}
 }
 
-func (s *sStationInstance) FindAll() []c_station.IGroup {
-	list := make([]c_station.IGroup, 0, 5)
+func (s *sStationInstance) FindAll() []c_station.IStation {
+	list := make([]c_station.IStation, 0, 5)
 
 	if s.entrance != nil {
 		list = append(list, s.entrance)
@@ -78,34 +75,26 @@ func (s *sStationInstance) FindAll() []c_station.IGroup {
 	return list
 }
 
-func (s *sStationInstance) GetStationLoad() c_station.IGroupLoad {
+func (s *sStationInstance) GetStationLoad() c_station.IStationLoad {
 	return s.load
 }
 
-func (s *sStationInstance) GetEntrance() c_station.IGroupEntrance {
+func (s *sStationInstance) GetEntrance() c_station.IStationEntrance {
 	return s.entrance
 }
 
-func (s *sStationInstance) GetEnergyStore() c_station.IGroupEnergyStore {
+func (s *sStationInstance) GetEnergyStore() c_station.IStationEnergyStore {
 	return s.energyStore
 }
 
-func (s *sStationInstance) GetLoad() c_station.IGroupLoad {
+func (s *sStationInstance) GetLoad() c_station.IStationLoad {
 	return s.load
 }
 
-func (s *sStationInstance) GetPv() c_station.IGroupPv {
+func (s *sStationInstance) GetPv() c_station.IStationPv {
 	return s.pv
 }
 
-func (s *sStationInstance) GetGenerator() c_station.IGroupGenerator {
+func (s *sStationInstance) GetGenerator() c_station.IStationGenerator {
 	return s.generator
-}
-
-func (s *sStationInstance) GetInput(inputType c_base.EInputType) c_base.IInput {
-	return s.inputMap[inputType]
-}
-
-func (s *sStationInstance) GetOutput(outputType c_base.EOutputType) c_base.IOutput {
-	return s.outputMap[outputType]
 }

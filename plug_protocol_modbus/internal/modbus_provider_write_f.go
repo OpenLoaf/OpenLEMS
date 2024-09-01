@@ -52,7 +52,7 @@ func (p *ModbusProvider) WriteMultipleRegisters(group *p_modbus.ModbusGroup, val
 
 	err := p.client.WriteMultipleRegistersBytes(p.unitId, group.Addr, dataLength, bytes)
 	if err != nil {
-		p.log.Warningf(p.ctx, "WriteMultipleRegisters失败！Group: [%s] Error: [%v]", group.Name, err)
+		p.log.Warningf(p.ctx, "WriteMultipleRegisters失败！StationType: [%s] Error: [%v]", group.Name, err)
 		return err
 	}
 	return nil

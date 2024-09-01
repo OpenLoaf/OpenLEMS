@@ -18,4 +18,5 @@ type IDriver interface {
 
 	IsActivate() bool // 是否有效，无效一般是连接断了
 
+	GetFunctionList() []*SFunction
 }

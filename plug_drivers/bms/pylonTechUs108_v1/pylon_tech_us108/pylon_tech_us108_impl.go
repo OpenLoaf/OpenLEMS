@@ -52,6 +52,10 @@ func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg any) error {
 	return nil
 }
 
+func (p *PylonTechUs108Bms) GetFunctionList() []*c_base.SFunction {
+	return nil
+}
+
 func (p *PylonTechUs108Bms) GetType() c_base.EDeviceType {
 	return c_base.EDeviceBms
 }
@@ -168,8 +172,8 @@ func (p *PylonTechUs108Bms) GetHistoryOutgoingQuantity() (float64, error) {
 	return read[0].Float64(), nil
 }
 
-func (p *PylonTechUs108Bms) GetCapacity() (uint16, error) {
-	return uint16(108), nil
+func (p *PylonTechUs108Bms) GetCapacity() (uint32, error) {
+	return uint32(108), nil
 }
 
 func (p *PylonTechUs108Bms) SetReset() error {

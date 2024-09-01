@@ -5,7 +5,7 @@ type IDriverConfig interface {
 	GetIsMaster() bool
 	GetCabinetId() uint8
 	IsEnable() bool
-	GetGroup() EGroupType
+	GetStationType() EStationType
 }
 
 func ConvertConfig[T IDriverConfig](cfg any) T {

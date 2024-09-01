@@ -44,6 +44,10 @@ func (s *StarCharge100EPcs) Init(client c_base.IProtocol, cfg any) error {
 	return nil
 }
 
+func (s *StarCharge100EPcs) GetFunctionList() []*c_base.SFunction {
+	return nil
+}
+
 func (s *StarCharge100EPcs) GetType() c_base.EDeviceType {
 	return c_base.EDevicePcs
 }

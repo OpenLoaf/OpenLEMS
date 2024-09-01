@@ -130,13 +130,13 @@ func (s *SGpioSysfsProvider) Init(deviceType c_base.EDeviceType) {
 		if s.deviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
 			gtimer.SetInterval(s.Ctx, 200*time.Millisecond, func(ctx context.Context) {
 				// 读取值
-				s.IsHigh()
+				s.isHighForce()
 			})
 			if err != nil {
 				panic(fmt.Errorf("监听失败！%v", err))
 			}
 		}
-		s.log.Infof(s.Ctx, "GPIO %s init success,当前状态为: %v, 类型为: %s", s.deviceId, s.IsHigh(), s.deviceConfig.Direction)
+		s.log.Infof(s.Ctx, "GPIO %s init success,当前状态为: %v, 类型为: %s", s.deviceId, s.GetStatus(), s.deviceConfig.Direction)
 	})
 }
 
@@ -171,8 +171,15 @@ func (s *SGpioSysfsProvider) GetLastUpdateTime() *time.Time {
 	return s.lastUpdateTime
 }
 
-func (s *SGpioSysfsProvider) IsHigh() bool {
-	// 是否是高电平
+func (s *SGpioSysfsProvider) GetStatus() bool {
+	// 如果缓存中的数据获取时间大于1秒或者，或者缓存中无值就force获取
+	if s.lastUpdateTime == nil || time.Now().Sub(*s.lastUpdateTime) > time.Second {
+		return s.isHighForce()
+	}
+	return s.status
+}
+
+func (s *SGpioSysfsProvider) isHighForce() bool {
 	value := gfile.GetContents(gfile.Join(s.deviceConfig.Path, GpioPathValue))
 	if gstr.Trim(value) == "1" {
 		s.process(true)
@@ -215,10 +222,6 @@ func (s *SGpioSysfsProvider) process(status bool) {
 		}
 
 	}
-}
-
-func (s *SGpioSysfsProvider) IsLow() bool {
-	return !s.IsHigh()
 }
 
 func (s *SGpioSysfsProvider) SetHigh() error {

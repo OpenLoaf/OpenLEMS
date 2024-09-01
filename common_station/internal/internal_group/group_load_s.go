@@ -1,31 +1,33 @@
 package internal_group
 
 import (
+	"common_station/c_station"
 	"context"
+	"ems-plan/c_base"
 	"ems-plan/c_device"
 )
 
 type sGroupLoad struct {
 	*c_station.SGroupConfigImpl
-	functionList []*c_station.SFunction
+	functionList []*c_base.SFunction
 
 	ctx         context.Context
-	rootLoad    c_base.ILoad
-	loads       []c_base.ILoad
-	rootAmmeter c_base.IAmmeter   // 负载总电表
-	ammeters    []c_base.IAmmeter // 分电表
+	rootLoad    c_device.ILoad
+	loads       []c_device.ILoad
+	rootAmmeter c_device.IAmmeter   // 负载总电表
+	ammeters    []c_device.IAmmeter // 分电表
 }
 
-func NewLoad(ctx context.Context, rootAmmeter c_base.IAmmeter, ammeters []c_base.IAmmeter,
-	rootLoad c_base.ILoad, loads []c_base.ILoad) c_station.IGroupLoad {
+func NewLoad(ctx context.Context, rootAmmeter c_device.IAmmeter, ammeters []c_device.IAmmeter,
+	rootLoad c_device.ILoad, loads []c_device.ILoad) c_station.IStationLoad {
 	instance := &sGroupLoad{
 		rootAmmeter:      rootAmmeter,
 		ammeters:         ammeters,
 		rootLoad:         rootLoad,
 		loads:            loads,
-		ctx:              context.WithValue(ctx, "Group", c_station.EGroupLoad),
+		ctx:              context.WithValue(ctx, "StationType", c_station.EGroupLoad),
 		SGroupConfigImpl: c_station.NewGroupConfig(c_station.EGroupLoad),
-		functionList: []*c_station.SFunction{
+		functionList: []*c_base.SFunction{
 			{FunctionName: "power", Unit: "kW", Remark: "功率"},
 			{FunctionName: "apparentPower", Unit: "kVA", Remark: "视在功率"},
 			{FunctionName: "reactivePower", Unit: "kVar", Remark: "无功功率"},
@@ -42,7 +44,7 @@ func (s *sGroupLoad) AllowControl() bool {
 	panic("implement me")
 }
 
-func (s *sGroupLoad) GetFunctionList() []*c_station.SFunction {
+func (s *sGroupLoad) GetFunctionList() []*c_base.SFunction {
 	//TODO implement me
 	panic("implement me")
 }
@@ -102,6 +104,16 @@ func (s *sGroupLoad) GetHistoryIncomingQuantity() (float64, error) {
 	panic("implement me")
 }
 
+func (s *sGroupLoad) GetTodayOutgoingQuantity() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sGroupLoad) GetHistoryOutgoingQuantity() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (s *sGroupLoad) GetRatedPower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
@@ -117,12 +129,7 @@ func (s *sGroupLoad) GetMaxOutputPower() (float64, error) {
 	panic("implement me")
 }
 
-func (s *sGroupLoad) GetChildren() []c_base.ILoad {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (s *sGroupLoad) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
+func (s *sGroupLoad) GetChildren() []c_device.ILoad {
 	//TODO implement me
 	panic("implement me")
 }

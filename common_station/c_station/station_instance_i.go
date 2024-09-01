@@ -1,13 +1,13 @@
 package c_station
 
 type IGroupInstance interface {
-	RegisterInstance(info IGroup)
-	FindAll() []IGroup
+	RegisterInstance(info IStation)
+	FindAll() []IStation
 
-	GetStationLoad() IGroupLoad
-	GetEntrance() IGroupEntrance
-	GetEnergyStore() IGroupEnergyStore
-	GetLoad() IGroupLoad
-	GetPv() IGroupPv
-	GetGenerator() IGroupGenerator
+	GetStationLoad() IStationLoad
+	GetEntrance() IStationEntrance
+	GetEnergyStore() IStationEnergyStore
+	GetLoad() IStationLoad
+	GetPv() IStationPv
+	GetGenerator() IStationGenerator
 }

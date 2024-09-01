@@ -22,7 +22,7 @@ type IBmsBasic interface {
 	GetSoh() (float32, error)                           // 电池健康 %
 	GetCellTemp() (float32, float32, float32, error)    // 电芯最低温度, 电芯最高温度, 电芯平均温度
 	GetCellVoltage() (float32, float32, float32, error) // 电芯最低电压, 电芯最高电压, 电芯平均电压
-	GetCapacity() (uint16, error)                       // 电池容量kWh
+	GetCapacity() (uint32, error)                       // 电池容量kWh
 	GetCycleCount() (uint, error)                       // 循环次数
 
 	GetRatedPower() (int32, error)       // 额定功率， -1代表未知

@@ -1,6 +1,7 @@
 package collect
 
 import (
+	"common_station"
 	"context"
 	"ems-plan/c_base"
 	"ems-plan/c_device"
@@ -8,13 +9,16 @@ import (
 )
 
 type tmpStation struct {
-	Ammeters map[c_base.EGroupType][]c_device.IAmmeter
+	Ammeters map[c_base.EStationType][]c_device.IAmmeter
 
-	Pv         []c_device.IPv
-	Load       []c_device.ILoad
-	Ess        []c_device.IEnergyStore
+	Pv          []c_device.IPv
+	Load        []c_device.ILoad
+	Ess         []c_device.IEnergyStore
+	EssGpioList []c_device.IGpio
+
 	ChargePile []c_device.ICharge
 	Generator  []c_device.IGenerator
+
 	cabinetEss map[uint8][]c_base.IDriver
 }
 
@@ -43,81 +47,29 @@ func (t *tmpStation) Init(ctx context.Context) {
 		if err != nil {
 			panic(err)
 		}
+		t.Ess = append(t.Ess, ess)
 	}
 
-	// 先封装cabinet
-	/*	for cabinetId, value := range t.cabinetEss {
-		// 先把PCS之类的变成 CabinetPcs
-		//master, slaves := getMasterAndList[c_device.IPcs](value.Pcs)
-		//pcs := common_cabinet.NewPcs(ctx, cabinetId, master, slaves)
-		ess := common_cabinet.NewBms(ctx, cabinetId, value.Bms)
-		if ess != nil {
-			if dv, ok := ess.(c_base.IAlarm); ok {
-				value.Bms.RegisterMonitorChan(dv.GetMonitorChan())
-			}
+	if ammeters, exist := t.Ammeters[c_base.EStationEnergyStore]; exist || len(t.Ess) != 0 {
+		// 场站储能
+		if len(ammeters) == 0 {
+			common_station.RegisterGroupEnergyStore(ctx, nil, t.Ess, t.EssGpioList)
+		} else if len(ammeters) == 1 {
+			common_station.RegisterGroupEnergyStore(ctx, ammeters[0], t.Ess, t.EssGpioList)
+		} else {
+			panic("场站储能只能有一个根电表")
 		}
+	}
 
-	}*/
-
-	/*	var (
-			fire     *cabinet.Fire
-			cooling  *cabinet.Cooling
-			humiture *cabinet.Humiture
-		)
-		if value.Fire != nil {
-			fire = cabinet.NewFire(ctx, cabinetId, value.Fire)
+	if ammeters, exist := t.Ammeters[c_base.EStationEntrance]; exist {
+		// 场站总入口
+		if len(ammeters) == 0 {
+			panic("场站总入口必须有一个根电表")
 		}
-		if value.Cooling != nil {
-			cooling = cabinet.NewCooling(ctx, cabinetId, value.Cooling)
-		}
-		if value.Humiture != nil {
-			humiture = cabinet.NewHumiture(ctx, cabinetId, value.Humiture)
-		}*/
+		root, slaves := getMasterAndList[c_device.IAmmeter](ammeters)
 
-	//_ess := pylon_checkwatt_v1.CreateEss(ctx, cabinetId, value.Ammeter, pcs, bms, fire, cooling, humiture)
-	//
-	//err := _ess.Init(ctx, nil, nil)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//t.Ess = append(t.Ess, _ess)
-	//g.Log().Noticef(ctx, "初始化柜子成功！DeviceId: %v", _ess.GetInfo().Id)
-	//}
-
-	// TODO config没初始化！！
-	//
-	//// 封装station
-	//if len(t.Ammeters[config.PvAmmeter]) != 0 || len(t.Pv) != 0 {
-	//	ammeterMaster, ammeterSlaves := getMasterAndList[c_device.IIAmmeter](t.Ammeters[config.PvAmmeter])
-	//	pvMaster, pvSlaves := getMasterAndList[c_device.IIPv](t.Pv)
-	//	station.NewPv(ctx, ammeterMaster, ammeterSlaves, pvMaster, pvSlaves)
-	//	g.Log().Noticef(ctx, "初始化场站光伏成功！加载了%d个主设备，%d个从设备", len(t.Ammeters[config.PvAmmeter]), len(t.Pv))
-	//}
-	//
-	//if len(t.Ammeters[config.LoadAmmeter]) != 0 || len(t.Load) != 0 {
-	//	ammeterMaster, ammeterSlaves := getMasterAndList[c_device.IIAmmeter](t.Ammeters[config.LoadAmmeter])
-	//	loadMaster, loadSlaves := getMasterAndList[c_device.IILoad](t.Load)
-	//	station.NewLoad(ctx, ammeterMaster, ammeterSlaves, loadMaster, loadSlaves)
-	//	g.Log().Noticef(ctx, "初始化场站负载成功！加载了%d个主设备，%d个从设备", len(t.Ammeters[config.LoadAmmeter]), len(t.Load))
-	//}
-	//
-	//if len(t.Ammeters[config.EssAmmeter]) != 0 || len(t.Ess) != 0 {
-	//	ammeterMaster, ammeterSlaves := getMasterAndList[c_device.IIAmmeter](t.Ammeters[config.EssAmmeter])
-	//	station.NewEss(ctx, ammeterMaster, ammeterSlaves, t.Ess)
-	//	g.Log().Noticef(ctx, "初始化场站储能成功！加载了%d个主设备，%d个从设备", len(t.Ammeters[config.EssAmmeter]), len(t.Ess))
-	//}
-	//
-	//if len(t.Ammeters[config.ChargeAmmeter]) != 0 {
-	//	ammeterMaster, ammeterSlaves := getMasterAndList[c_device.IIAmmeter](t.Ammeters[config.ChargeAmmeter])
-	//	station.NewCharge(ctx, ammeterMaster, ammeterSlaves)
-	//	g.Log().Noticef(ctx, "初始化场站充电成功！加载了%d个主设备，%d个从设备", len(t.Ammeters[config.ChargeAmmeter]), len(t.Ess))
-	//}
-	//
-	//if len(t.Ammeters[config.GeneratorAmmeter]) != 0 {
-	//	ammeterMaster, ammeterSlaves := getMasterAndList[c_device.IIAmmeter](t.Ammeters[config.GeneratorAmmeter])
-	//	station.NewGenerator(ctx, ammeterMaster, ammeterSlaves)
-	//	g.Log().Noticef(ctx, "初始化场站发电机成功！加载了%d个主设备，%d个从设备", len(t.Ammeters[config.GeneratorAmmeter]), len(t.Ess))
-	//}
+		common_station.RegisterEntrance(ctx, root, slaves)
+	}
 
 }
 

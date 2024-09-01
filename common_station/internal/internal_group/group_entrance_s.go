@@ -1,30 +1,33 @@
 package internal_group
 
 import (
+	"common_station/c_station"
 	"context"
+	"ems-plan/c_base"
 	"ems-plan/c_device"
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 // sEntrance 场站总入口
 type sEntrance struct {
 	*c_station.SGroupConfigImpl
-	functionList []*c_station.SFunction
+	functionList []*c_base.SFunction
 
 	ctx         context.Context
-	ammeters    []c_base.IAmmeter // 分电表
-	rootAmmeter c_base.IAmmeter   // 总电表
+	ammeters    []c_device.IAmmeter // 分电表
+	rootAmmeter c_device.IAmmeter   // 总电表
 }
 
-func NewEntrance(ctx context.Context, rootAmmeter c_base.IAmmeter, ammeters []c_base.IAmmeter) c_station.IGroupEntrance {
+func NewEntrance(ctx context.Context, rootAmmeter c_device.IAmmeter, ammeters []c_device.IAmmeter) c_station.IStationEntrance {
 	if rootAmmeter == nil || len(ammeters) == 0 {
 		panic("创建StationEntrance失败！缺少必要电表！")
 	}
 	instance := &sEntrance{
 		rootAmmeter:      rootAmmeter,
 		ammeters:         ammeters,
-		ctx:              context.WithValue(ctx, "Group", c_station.EGroupEntrance),
+		ctx:              context.WithValue(ctx, "StationType", c_station.EGroupEntrance),
 		SGroupConfigImpl: c_station.NewGroupConfig(c_station.EGroupEntrance),
-		functionList: []*c_station.SFunction{
+		functionList: []*c_base.SFunction{
 			{FunctionName: "power", Unit: "kW", Remark: "功率"},
 			{FunctionName: "apparentPower", Unit: "kVA", Remark: "视在功率"},
 			{FunctionName: "reactivePower", Unit: "kVar", Remark: "无功功率"},
@@ -34,6 +37,8 @@ func NewEntrance(ctx context.Context, rootAmmeter c_base.IAmmeter, ammeters []c_
 			{FunctionName: "historyOutgoingQuantity", Unit: "kWh", Remark: "历史下网电量"},
 		},
 	}
+
+	g.Log().Noticef(instance.ctx, "创建场站总入口：%s", instance.GetId())
 	return instance
 }
 
@@ -42,7 +47,7 @@ func (e *sEntrance) AllowControl() bool {
 	panic("implement me")
 }
 
-func (e *sEntrance) GetFunctionList() []*c_station.SFunction {
+func (e *sEntrance) GetFunctionList() []*c_base.SFunction {
 	//TODO implement me
 	panic("implement me")
 }
@@ -132,17 +137,32 @@ func (e *sEntrance) GetHistoryOutgoingQuantity() (float64, error) {
 	panic("implement me")
 }
 
+func (e *sEntrance) GetPtCt() (float32, float32, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (e *sEntrance) GetFrequency() (float32, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (e *sEntrance) GetPowerFactor() (float32, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (e *sEntrance) GetChildren() []c_base.IAmmeter {
+func (e *sEntrance) GetVoltage() (float32, float32, float32, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (e *sEntrance) HandleAlarm(self c_base.SAlarmDetail, global c_base.SAlarmDetail) error {
+func (e *sEntrance) GetCurrent() (float32, float32, float32, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (e *sEntrance) GetChildren() []c_device.IAmmeter {
 	//TODO implement me
 	panic("implement me")
 }

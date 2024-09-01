@@ -2,8 +2,8 @@ package c_station
 
 import "ems-plan/c_device"
 
-type IGroupGenerator interface {
-	IGroup
+type IStationGenerator interface {
+	IStation
 
 	GetChildren() []c_device.IGenerator
 }

@@ -139,6 +139,49 @@ func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver, gpio
 	return ess, nil
 }
 
+func (p *PylonCheckwattEss) GetFunctionList() []*c_base.SFunction {
+	return []*c_base.SFunction{
+		{FunctionName: "soc", Unit: "%", Remark: "SOC"},
+		{FunctionName: "power", Unit: "kW", Remark: "功率"},
+		{FunctionName: "apparentPower", Unit: "kVA", Remark: "视在功率"},
+		{FunctionName: "reactivePower", Unit: "kVar", Remark: "无功功率"},
+		{FunctionName: "todayIncomingQuantity", FunctionNameI18nOverwrite: "essTodayCharge", Unit: "kWh", Remark: "当日充电量"},
+		{FunctionName: "todayOutgoingQuantity", FunctionNameI18nOverwrite: "essTodayDischarge", Unit: "kWh", Remark: "当日放电量"},
+		{FunctionName: "historyIncomingQuantity", FunctionNameI18nOverwrite: "essHistoryCharge", Unit: "kWh", Remark: "历史充电量"},
+		{FunctionName: "historyOutgoingQuantity", FunctionNameI18nOverwrite: "essHistoryDischarge", Unit: "kWh", Remark: "历史放电量"},
+	}
+}
+
+func (p *PylonCheckwattEss) GetMetaValueList() []*c_base.MetaValueWrapper {
+	// 把电表、PCS、BMS、GPIO都所有的值都返回
+	var metaValueList []*c_base.MetaValueWrapper
+	if p.ammeter != nil {
+		metaValueList = append(metaValueList, p.ammeter.GetMetaValueList()...)
+	}
+	if p.pcs != nil {
+		metaValueList = append(metaValueList, p.pcs.GetMetaValueList()...)
+	}
+	if p.bms != nil {
+		metaValueList = append(metaValueList, p.bms.GetMetaValueList()...)
+	}
+	if p.buttonScram != nil {
+		metaValueList = append(metaValueList, p.buttonScram.GetMetaValueList()...)
+	}
+	if p.buttonCharge != nil {
+		metaValueList = append(metaValueList, p.buttonCharge.GetMetaValueList()...)
+	}
+	if p.buttonDischarge != nil {
+		metaValueList = append(metaValueList, p.buttonDischarge.GetMetaValueList()...)
+	}
+	if p.ledRunning != nil {
+		metaValueList = append(metaValueList, p.ledRunning.GetMetaValueList()...)
+	}
+	if p.ledFault != nil {
+		metaValueList = append(metaValueList, p.ledFault.GetMetaValueList()...)
+	}
+	return metaValueList
+}
+
 func (p *PylonCheckwattEss) Init(client c_base.IProtocol, cfg any) error {
 
 	g.Log().Infof(p.Ctx, "PylonCheckwattEss Init!CabinetId:%d, Config: %+v", p.CabinetId, cfg)
@@ -230,7 +273,7 @@ func (p *PylonCheckwattEss) GetCellVoltage() (float32, float32, float32, error) 
 	return p.bms.GetCellVoltage()
 }
 
-func (p *PylonCheckwattEss) GetCapacity() (uint16, error) {
+func (p *PylonCheckwattEss) GetCapacity() (uint32, error) {
 	return p.bms.GetCapacity()
 }
 

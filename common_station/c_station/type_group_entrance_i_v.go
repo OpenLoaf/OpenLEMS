@@ -4,8 +4,8 @@ import (
 	"ems-plan/c_device"
 )
 
-type IGroupEntrance interface {
-	IGroup
+type IStationEntrance interface {
+	IStation
 	GetGridFrequency() (float32, error)                 // 电网频率
 	GetGridVoltage() (float32, float32, float32, error) // 电网电压 A、B、C
 	GetGridCurrent() (float32, float32, float32, error) // 电网电流 A、B、C

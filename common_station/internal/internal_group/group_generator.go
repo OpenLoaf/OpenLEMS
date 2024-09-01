@@ -1,26 +1,28 @@
 package internal_group
 
 import (
+	"common_station/c_station"
 	"context"
+	"ems-plan/c_base"
 	"ems-plan/c_device"
 )
 
 // sGenerator 发电机
 type sGenerator struct {
 	*c_station.SGroupConfigImpl
-	functionList []*c_station.SFunction
+	functionList []*c_base.SFunction
 
 	ctx          context.Context
 	allowControl bool
 
-	rootAmmeter   c_base.IAmmeter // 总电表
-	ammeters      []c_base.IAmmeter
-	rootGenerator c_base.IGenerator
-	generators    []c_base.IGenerator
+	rootAmmeter   c_device.IAmmeter // 总电表
+	ammeters      []c_device.IAmmeter
+	rootGenerator c_device.IGenerator
+	generators    []c_device.IGenerator
 }
 
-func NewGenerator(ctx context.Context, rootAmmeter c_base.IAmmeter, ammeters []c_base.IAmmeter,
-	rootGenerator c_base.IGenerator, generators []c_base.IGenerator) c_station.IGroupGenerator {
+func NewGenerator(ctx context.Context, rootAmmeter c_device.IAmmeter, ammeters []c_device.IAmmeter,
+	rootGenerator c_device.IGenerator, generators []c_device.IGenerator) c_station.IStationGenerator {
 
 	if rootAmmeter == nil || len(ammeters) == 0 {
 		panic("创建StationGenerator失败！缺少必要电表！")
@@ -29,10 +31,10 @@ func NewGenerator(ctx context.Context, rootAmmeter c_base.IAmmeter, ammeters []c
 	instance := &sGenerator{
 		rootAmmeter:      rootAmmeter,
 		ammeters:         ammeters,
-		ctx:              context.WithValue(ctx, "Group", c_station.EGroupGenerator),
+		ctx:              context.WithValue(ctx, "StationType", c_station.EGroupGenerator),
 		SGroupConfigImpl: c_station.NewGroupConfig(c_station.EGroupGenerator),
 		allowControl:     rootGenerator != nil || len(generators) != 0,
-		functionList: []*c_station.SFunction{
+		functionList: []*c_base.SFunction{
 			{FunctionName: "power", Unit: "kW", Remark: "功率"},
 			{FunctionName: "apparentPower", Unit: "kVA", Remark: "视在功率"},
 			{FunctionName: "reactivePower", Unit: "kVar", Remark: "无功功率"},
@@ -49,12 +51,12 @@ func (s *sGenerator) AllowControl() bool {
 	return s.allowControl
 }
 
-func (s *sGenerator) GetFunctionList() []*c_station.SFunction {
+func (s *sGenerator) GetFunctionList() []*c_base.SFunction {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sGenerator) GetChildren() []c_base.IGenerator {
+func (s *sGenerator) GetChildren() []c_device.IGenerator {
 	//TODO implement me
 	panic("implement me")
 }
