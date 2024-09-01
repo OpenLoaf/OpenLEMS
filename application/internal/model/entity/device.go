@@ -7,7 +7,6 @@ type SDevice struct {
 	DeviceType     string             `json:"deviceType" dc:"设备类型"`
 	DeviceName     string             `json:"deviceName" dc:"设备名称"`
 	IsMaster       bool               `json:"isMaster" dc:"是否主设备"`
-	IsActivate     bool               `json:"isActivate" dc:"链接是否活动"`
 	LastUpdateTime string             `json:"lastUpdateTime" dc:"最后更新时间"`
 	AlarmLevel     c_base.EAlarmLevel `json:"alarmLevel" dc:"告警级别"`
 }

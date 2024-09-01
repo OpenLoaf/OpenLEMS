@@ -10,36 +10,29 @@ import (
 )
 
 type PylonTechUs108Bms struct {
-	*p_modbus.SModbusDeviceConfig
 	Ctx context.Context
 	p_modbus.IModbusProtocol
+	description *c_base.SDescription
 }
 
-func (p *PylonTechUs108Bms) GetDescription() c_base.SDescription {
-	return c_base.SDescription{
+func (p *PylonTechUs108Bms) GetDescription() *c_base.SDescription {
+	return p.description
+}
+
+func (p *PylonTechUs108Bms) GetDriverType() c_base.EDeviceType {
+	return c_base.EDeviceBms
+}
+
+func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg *c_base.SDriverConfig) {
+	p.IModbusProtocol = client.(p_modbus.IModbusProtocol)
+	p.description = &c_base.SDescription{
 		Brand:  "Plyon",
 		Model:  "TechUs108",
-		Type:   c_base.EDeviceBms,
 		Remark: "派能108kWh风冷电池MBMS",
 	}
-}
 
-func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg any) error {
-	p.IModbusProtocol = client.(p_modbus.IModbusProtocol)
-	p.SModbusDeviceConfig = c_base.ConvertConfig[*p_modbus.SModbusDeviceConfig](cfg)
 	// 注册
 	p.IModbusProtocol.RegisterRead(p.Ctx, GroupHeart, GroupInfo, GroupTime, GroupStatistics)
-
-	var (
-		config *p_modbus.SModbusDeviceConfig
-		ok     bool
-	)
-	if config, ok = cfg.(*p_modbus.SModbusDeviceConfig); !ok || config == nil {
-		panic("配置文件转换失败！请检查配置文件！")
-	}
-	p.SModbusDeviceConfig = config
-
-	g.Log().Noticef(p.Ctx, "配置信息:%+v", config)
 
 	/*	if v, ok := configMap["syncTime"]; ok && v == "true" {
 			p.writeTime()
@@ -49,7 +42,6 @@ func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg any) error {
 		}
 	*/
 
-	return nil
 }
 
 func (p *PylonTechUs108Bms) GetFunctionList() []*c_base.SFunction {

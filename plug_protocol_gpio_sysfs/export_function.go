@@ -3,17 +3,15 @@ package plug_protocol_gpio_sysfs
 import (
 	"context"
 	"ems-plan/c_base"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gcmd"
 	"plug_protocol_gpio_sysfs/internal"
 	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
-	"time"
 )
 
-func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *p_gpio_sysfs.SGpioSysfsDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
+func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
 	return internal.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfig)
 }
 
+/*
 type sMain struct {
 	g.Meta `name:"main"`
 }
@@ -31,7 +29,7 @@ func (m *sMain) Start(ctx context.Context, config sInput) (*sOutput, error) {
 		Address:        "",
 		Timeout:        0,
 		LogLevel:       "INFO",
-		Config:         nil,
+		Params:         nil,
 		Enable:         true,
 		DeviceChildren: nil,
 	}, &p_gpio_sysfs.SGpioSysfsDeviceConfig{
@@ -72,3 +70,4 @@ func main() {
 	cmd.Run(context.TODO())
 
 }
+*/

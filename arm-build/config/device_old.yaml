@@ -1,39 +1,36 @@
+station:
+  - id: root-ammeter
+    name: 总表
+    type: ammeter
+    enable: true
 
-
-cabinets:
-  - CabinetId: 1
-    name: 储能柜1
-    modbusEnable: false
-  - CabinetId : 2
-    name: 储能柜2
-    modbusEnable: true
-    driver: ess_pylon_checkwatt
+  - id: root-energy-store
+    name: 储能站
+    type: energy-store
+#    driver: energy_store
+    enable: true
+    logLevel: INFO
     params:
       maxCharge: 30
       maxDischarge: 30
-devices:
-  - name: 485_1
-    protocol: modbus_rtu
-    enable: false
-    logLevel: INFO
-    address: /dev/tty.usbserial-AQ03KXVV
-    timeout: 30
-    config:
-      speed: 9600
-      dataBits: 8
-      parity: N
-      stopBits: 1
+      capacity: 100
     device-children:
-      - name: ammeter_rtu_example
-        enable: false
-        unitId: 2
-        cabinetId: 1
-        driver: ammeter_example
-        location: station # 场站级电表
-        group: ess
-        isMaster: false
-        debug: false
+      - refId: button-scram
+      - refId: led-running
+      - refId: led-fault
+      - id: ess-1
+        name: 储能柜1
+        driver: ess_pylon_checkwatt
+        params:
+          maxCharge: 30
+          maxDischarge: 30
+        device-children:
+          - refId: star-charge-100E-1
+          - refId: pylon-tech-us108-1
+          - refId: button-charge
+          - refId: button-discharge
 
+devices:
   - name: Modbus_tcp
     protocol: modbus_tcp
     enable: true
@@ -44,28 +41,26 @@ devices:
       - id: star-charge-100E-1
         name: 阳光电源PCS
         enable: true
-        unitId: 1
-        cabinetId: 2
         driver: pcs_starCharge100E
-        location: cabinet
-        group: pcs
+        type: pcs
         isMaster: false
         logLevel: INFO
         printCacheValue: false
-        ratedPower: 100
-        syncTime: true   # 同步时间
+        params:
+          unitId: 1
+          ratedPower: 100
+          syncTime: true   # 同步时间
       - id: pylon-tech-us108-1
         name: 派能MBMS
         enable: true
-        unitId: 2
-        cabinetId: 2
         driver: bms_pylonTechUs108
-        location: cabinet
-        group: bms
+        type: bms
         isMaster: false
         logLevel: INFO
         printCacheValue: false
-        syncTime: true # 同步时间
+        params:
+          unitId: 2
+          syncTime: true # 同步时间
   - name: gpio
     protocol: gpio  # sysfs
     enable: true

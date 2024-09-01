@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (p *ModbusProvider) RegisterRead(ctx context.Context, group *p_modbus.ModbusGroup, gps ...*p_modbus.ModbusGroup) {
+func (p *ModbusProtocolProvider) RegisterRead(ctx context.Context, group *p_modbus.ModbusGroup, gps ...*p_modbus.ModbusGroup) {
 	if group == nil {
 		return
 	}
@@ -20,9 +20,9 @@ func (p *ModbusProvider) RegisterRead(ctx context.Context, group *p_modbus.Modbu
 	}
 }
 
-func (p *ModbusProvider) registerReadOne(ctx context.Context, group *p_modbus.ModbusGroup) {
+func (p *ModbusProtocolProvider) registerReadOne(ctx context.Context, group *p_modbus.ModbusGroup) {
 	if group.Name == "" {
-		panic(fmt.Sprintf("[%v-%v] 参数错误！modbusQuery的name为空！%+v", p.deviceId, group.Name, group))
+		panic(fmt.Sprintf("[%v-%v] 参数错误！modbusQuery的name为空！%+v", p.deviceConfig.Id, group.Name, group))
 	}
 
 	var (

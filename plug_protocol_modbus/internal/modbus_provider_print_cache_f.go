@@ -9,7 +9,7 @@ import (
 	"text/tabwriter"
 )
 
-func (p *ModbusProvider) PrintCacheValues() {
+func (p *ModbusProtocolProvider) PrintCacheValues() {
 	keys, err := p.cache.Keys(p.ctx)
 	if err != nil || len(keys) == 0 {
 		return

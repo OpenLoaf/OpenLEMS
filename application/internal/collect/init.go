@@ -4,14 +4,12 @@ import (
 	"context"
 	common "ems-plan"
 	"ems-plan/c_base"
-	"plug_protocol_gpio_sysfs"
-	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
-	"plug_protocol_modbus"
-	"plug_protocol_modbus/p_modbus"
-
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"plug_protocol_gpio_sysfs"
+	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
+	"plug_protocol_modbus"
 	"strings"
 )
 
@@ -37,7 +35,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 
 			// 把所有的设备配置文件转换为列表
 			for _, _device := range protocolConfig.DeviceChildren {
-				deviceConfig := &p_modbus.SModbusDeviceConfig{}
+				deviceConfig := &c_base.SDriverConfig{}
 				err := gconv.Scan(_device, deviceConfig)
 				if err != nil {
 					return err
@@ -46,7 +44,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 					panic(fmt.Sprintf("设备Id不能为空！"))
 				}
 
-				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.StationType)), deviceConfig.Id))
+				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.Type)), deviceConfig.Id))
 				if !deviceConfig.Enable {
 					g.Log().Warningf(deviceCtx, "设备%s Enable为fasle, 设备不启用！", deviceConfig.Name)
 					continue
@@ -68,10 +66,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 					return err
 				}
 
-				err = dv.Init(modbusProvider, deviceConfig)
-				if err != nil {
-					return err
-				}
+				dv.Init(modbusProvider, deviceConfig)
 
 				// 柜子的电表，加到缓存中
 				//if deviceConfig.DeviceConfig.StationType == config.Ammeter && deviceConfig.Location == config.Cabinet {
@@ -79,13 +74,13 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				//}
 
 				// 开始监听(此处防止device未调用Listen方法而执行)
-				modbusProvider.Init(dv.GetType())
+				modbusProvider.Init()
 
 				// 设置告警
 				//protocol.SetupProtocol(modbusProvider)
 
 				//device.RegisterInstance(dv)
-				g.Log().Noticef(deviceCtx, "设备%s加载完成！Id为：%s", deviceConfig.Name, dv.GetId())
+				g.Log().Noticef(deviceCtx, "设备%s加载完成！Id为：%s", deviceConfig.Name, dv.GetDeviceConfig().Id)
 
 				common.DeviceInstance.RegisterInstance(dv)
 			}
@@ -95,7 +90,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 		case c_base.EGpioSysfs:
 
 			for _, _device := range protocolConfig.DeviceChildren {
-				deviceConfig := &p_gpio_sysfs.SGpioSysfsDeviceConfig{}
+				deviceConfig := &c_base.SDriverConfig{}
 				err := gconv.Scan(_device, deviceConfig)
 				if err != nil {
 					return err
@@ -104,45 +99,21 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 					panic(fmt.Sprintf("设备Id不能为空！"))
 				}
 
-				if deviceConfig.GetStationType() != c_base.EStationNan {
-					if deviceConfig.CabinetId != 0 {
-						panic(fmt.Sprintf("设备Id：%s 指定CabinetId后既是柜内设备，staitonType不能设置！", deviceConfig.Id))
-					}
-				}
-				if deviceConfig.CabinetId == 0 && deviceConfig.GetStationType() == c_base.EStationNan {
-					panic(fmt.Sprintf("设备Id：%s staitonType和CabinetId不能同时为空！", deviceConfig.Id))
-				}
-
-				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.StationType)), deviceConfig.Id))
+				deviceCtx := context.WithValue(newCtx, "DeviceName", fmt.Sprintf("%s:%s", strings.ToUpper(string(deviceConfig.Type)), deviceConfig.Id))
 				if !deviceConfig.Enable {
 					g.Log().Warningf(deviceCtx, "设备%s Enable为fasle, 设备不启用！", deviceConfig.Name)
 					continue
 				}
 
-				impl := &p_gpio_sysfs.SDriverGpioImpl{
-					Ctx: deviceCtx,
-				}
+				impl := &p_gpio_sysfs.SDriverGpioImpl{}
 
 				gpioSysfsProtocol, err := plug_protocol_gpio_sysfs.NewGpioSysfsProvider(deviceCtx, protocolConfig, deviceConfig)
 				if err != nil {
 					return err
 				}
-				err = impl.Init(gpioSysfsProtocol, deviceConfig)
-				if err != nil {
-					panic(err)
-				}
+				impl.Init(gpioSysfsProtocol, deviceConfig)
 
-				gpioSysfsProtocol.Init(c_base.EGpio)
-
-				// 加到cabinetIds中
-				if deviceConfig.GetStationType() == c_base.EStationNan {
-					if deviceConfig.CabinetId != 0 {
-						_tempInstanceCache.AddCabinetDevice(deviceConfig.CabinetId, impl)
-					}
-
-				} else {
-					_tempInstanceCache.EssGpioList = append(_tempInstanceCache.EssGpioList, impl)
-				}
+				gpioSysfsProtocol.Init()
 
 				common.DeviceInstance.RegisterInstance(impl)
 			}

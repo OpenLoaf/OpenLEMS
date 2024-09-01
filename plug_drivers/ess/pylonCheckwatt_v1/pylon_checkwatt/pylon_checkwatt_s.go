@@ -17,11 +17,10 @@ const (
 )
 
 type PylonCheckwattEss struct {
-	c_base.IDriverConfig
 	*c_base.SAlarmHandler
-
-	Ctx       context.Context
-	CabinetId uint8 // 属于哪个柜子
+	deviceConfig *c_base.SDriverConfig
+	Ctx          context.Context
+	CabinetId    uint8 // 属于哪个柜子
 
 	unitId  uint8             // modbus转发的id
 	ammeter c_device.IAmmeter // 电表
@@ -55,7 +54,7 @@ func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver, gpio
 		ammeterCount int
 	)
 	for _, driver := range drivers {
-		switch driver.GetType() {
+		switch driver.GetDriverType() {
 		case c_base.EDeviceAmmeter:
 			ammeterCount++
 			ess.ammeter = driver.(c_device.IAmmeter)
@@ -105,38 +104,23 @@ func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver, gpio
 		ess.buttonScram = input
 		g.Log().Infof(ess.Ctx, "注册急停按钮成功！")
 	}
-	/*if input, exist := gpioMap[IdButtonCharge]; exist {
-		ess.buttonCharge = input
-		input.RegisterLowHandler(func(ctx context.Context) {
-			// 充电
-			if ess.ledRunning != nil {
-				_ = ess.ledRunning.SetHigh()
-			}
-		})
-		input.RegisterHighHandler(func(ctx context.Context) {
-			if ess.ledRunning != nil {
-				_ = ess.ledRunning.SetLow()
-			}
-		})
-		g.Log().Infof(ess.Ctx, "注册充电按钮成功！")
-	}
-	if input, exist := gpioMap[IdButtonDischarge]; exist {
-		ess.buttonDischarge = input
-		input.RegisterLowHandler(func(ctx context.Context) {
-			// 充电
-			if ess.ledRunning != nil {
-				_ = ess.ledRunning.SetHigh()
-			}
-		})
-		input.RegisterHighHandler(func(ctx context.Context) {
-			if ess.ledRunning != nil {
-				_ = ess.ledRunning.SetLow()
-			}
-		})
-		g.Log().Infof(ess.Ctx, "注册放电按钮成功！")
-	}*/
-
 	return ess, nil
+}
+
+func (p *PylonCheckwattEss) GetDescription() *c_base.SDescription {
+	return &c_base.SDescription{
+		Brand:  "Plyon",
+		Model:  "Checkwatt",
+		Remark: "虚拟派能柜，整合PCS与BMS",
+	}
+}
+
+func (p *PylonCheckwattEss) GetDriverType() c_base.EDeviceType {
+	return c_base.EDeviceEnergyStore
+}
+
+func (p *PylonCheckwattEss) GetDeviceConfig() *c_base.SDriverConfig {
+	return p.deviceConfig
 }
 
 func (p *PylonCheckwattEss) GetFunctionList() []*c_base.SFunction {
@@ -182,10 +166,9 @@ func (p *PylonCheckwattEss) GetMetaValueList() []*c_base.MetaValueWrapper {
 	return metaValueList
 }
 
-func (p *PylonCheckwattEss) Init(client c_base.IProtocol, cfg any) error {
-
-	g.Log().Infof(p.Ctx, "PylonCheckwattEss Init!CabinetId:%d, Config: %+v", p.CabinetId, cfg)
-	return nil
+func (p *PylonCheckwattEss) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+	p.deviceConfig = deviceConfig
+	g.Log().Infof(p.Ctx, "PylonCheckwattEss Init!CabinetId:%d", p.CabinetId)
 }
 
 func (p *PylonCheckwattEss) GetId() string {
@@ -194,15 +177,6 @@ func (p *PylonCheckwattEss) GetId() string {
 
 func (p *PylonCheckwattEss) GetType() c_base.EDeviceType {
 	return c_base.EDeviceEnergyStore
-}
-
-func (p *PylonCheckwattEss) GetDescription() c_base.SDescription {
-	return c_base.SDescription{
-		Brand:  "Plyon",
-		Model:  "Checkwatt",
-		Type:   c_base.EDeviceEnergyStore,
-		Remark: "虚拟派能柜，整合PCS与BMS",
-	}
 }
 
 func (p *PylonCheckwattEss) GetLastUpdateTime() *time.Time {
@@ -229,20 +203,6 @@ func (p *PylonCheckwattEss) GetLastUpdateTime() *time.Time {
 		}
 	}
 	return nil
-}
-
-func (p *PylonCheckwattEss) IsActivate() bool {
-	// 任意设备离线都视为离线
-	if p.ammeter != nil && !p.ammeter.IsActivate() {
-		return false
-	}
-	if p.bms != nil && !p.bms.IsActivate() {
-		return false
-	}
-	if p.pcs != nil && !p.pcs.IsActivate() {
-		return false
-	}
-	return true
 }
 
 func (p *PylonCheckwattEss) SetReset() error {

@@ -9,27 +9,29 @@ import (
 )
 
 type StarCharge100EPcs struct {
-	*p_modbus.SModbusDeviceConfig
 	p_modbus.IModbusProtocol
 	Ctx                 context.Context
 	log                 *glog.Logger
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
+	description         *c_base.SDescription
 }
 
-func (s *StarCharge100EPcs) GetDescription() c_base.SDescription {
-	return c_base.SDescription{
+func (s *StarCharge100EPcs) GetDescription() *c_base.SDescription {
+	return s.description
+}
+
+func (s *StarCharge100EPcs) GetDriverType() c_base.EDeviceType {
+	return c_base.EDevicePcs
+}
+
+func (s *StarCharge100EPcs) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
+	s.description = &c_base.SDescription{
 		Brand:  "Star",
 		Model:  "100E",
-		Type:   c_base.EDevicePcs,
 		Remark: "星星充电100E CS",
 	}
-}
-
-func (s *StarCharge100EPcs) Init(client c_base.IProtocol, cfg any) error {
-	s.IModbusProtocol = client.(p_modbus.IModbusProtocol)
-	s.SModbusDeviceConfig = c_base.ConvertConfig[*p_modbus.SModbusDeviceConfig](cfg)
-
 	// 注册
 	s.RegisterRead(s.Ctx,
 		GroupCommand,
@@ -40,16 +42,10 @@ func (s *StarCharge100EPcs) Init(client c_base.IProtocol, cfg any) error {
 	)
 
 	g.Log().Noticef(s.Ctx, "StarCharge100EPcs 初始化完毕！")
-
-	return nil
 }
 
 func (s *StarCharge100EPcs) GetFunctionList() []*c_base.SFunction {
 	return nil
-}
-
-func (s *StarCharge100EPcs) GetType() c_base.EDeviceType {
-	return c_base.EDevicePcs
 }
 
 func (s *StarCharge100EPcs) SetReset() error {

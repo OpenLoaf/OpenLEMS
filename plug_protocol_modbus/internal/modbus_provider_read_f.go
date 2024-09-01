@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (p *ModbusProvider) ReadSingleSync(meta *c_base.Meta, function p_modbus.ModbusReadFunction, lifetime time.Duration, readCache bool) (*gvar.Var, error) {
+func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function p_modbus.ModbusReadFunction, lifetime time.Duration, readCache bool) (*gvar.Var, error) {
 	var (
 		vr  *gvar.Var
 		err error
@@ -42,7 +42,7 @@ func (p *ModbusProvider) ReadSingleSync(meta *c_base.Meta, function p_modbus.Mod
 }
 
 // ReadGroupSync 同步读取
-func (p *ModbusProvider) ReadGroupSync(group *p_modbus.ModbusGroup, readCache bool, metas ...*c_base.Meta) ([]*gvar.Var, error) {
+func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus.ModbusGroup, readCache bool, metas ...*c_base.Meta) ([]*gvar.Var, error) {
 	returnMetasLength := len(metas)
 	if readCache && metas != nil && returnMetasLength != 0 {
 		vars := make([]*gvar.Var, returnMetasLength)
@@ -89,7 +89,7 @@ func (p *ModbusProvider) ReadGroupSync(group *p_modbus.ModbusGroup, readCache bo
 	return vars, nil
 }
 
-func (p *ModbusProvider) read(addr uint16, quantity uint16, function p_modbus.ModbusReadFunction) ([]byte, error) {
+func (p *ModbusProtocolProvider) read(addr uint16, quantity uint16, function p_modbus.ModbusReadFunction) ([]byte, error) {
 	var (
 		result []byte
 		err    error
@@ -97,18 +97,18 @@ func (p *ModbusProvider) read(addr uint16, quantity uint16, function p_modbus.Mo
 
 	switch function {
 	case p_modbus.MqReadCoils:
-		result, err = p.client.ReadCoils(p.unitId, addr, quantity)
+		result, err = p.client.ReadCoils(p.modbusDeviceConfig.UnitId, addr, quantity)
 	case p_modbus.MqDiscreteInputs:
-		result, err = p.client.ReadDiscreteInputs(p.unitId, addr, quantity)
+		result, err = p.client.ReadDiscreteInputs(p.modbusDeviceConfig.UnitId, addr, quantity)
 	case p_modbus.MqHoldingRegisters:
-		result, err = p.client.ReadHoldingRegistersBytes(p.unitId, addr, quantity)
+		result, err = p.client.ReadHoldingRegistersBytes(p.modbusDeviceConfig.UnitId, addr, quantity)
 	case p_modbus.MqInputRegisters:
-		result, err = p.client.ReadInputRegistersBytes(p.unitId, addr, quantity)
+		result, err = p.client.ReadInputRegistersBytes(p.modbusDeviceConfig.UnitId, addr, quantity)
 	}
 	return result, err
 }
 
-func (p *ModbusProvider) readValues(name string, addr, quantity uint16, function p_modbus.ModbusReadFunction) ([]byte, error) {
+func (p *ModbusProtocolProvider) readValues(name string, addr, quantity uint16, function p_modbus.ModbusReadFunction) ([]byte, error) {
 	p.modbusRwMutex.Lock()
 	defer p.modbusRwMutex.Unlock()
 	result, err := p.read(addr, quantity, function)
@@ -117,16 +117,16 @@ func (p *ModbusProvider) readValues(name string, addr, quantity uint16, function
 			_ = p.client.Close()
 		} else {
 			_ = p.client.Close()
-			p.log.Warningf(p.ctx, "[%v-%v] Modbus任务获取数据失败！失败原因：%+v", p.deviceId, name, err)
+			p.log.Warningf(p.ctx, "[%v-%v] Modbus任务获取数据失败！失败原因：%+v", p.deviceConfig.Id, name, err)
 		}
 		return nil, err
 	}
 	if result == nil || len(result) == 0 {
 		_ = p.client.Close()
-		return nil, fmt.Errorf("[%v-%v] Modbus任务获取数据为空！", p.deviceId, name)
+		return nil, fmt.Errorf("[%v-%v] Modbus任务获取数据为空！", p.deviceConfig.Id, name)
 	}
 
-	p.log.Debugf(p.ctx, "[%v-%v] Modbus任务获取到数据：[% x]", p.deviceId, name, result)
+	p.log.Debugf(p.ctx, "[%v-%v] Modbus任务获取到数据：[% x]", p.deviceConfig.Id, name, result)
 	// 更新最后更新时间
 	now := time.Now()
 	p.lastUpdateTime = &now

@@ -15,11 +15,10 @@ func (c *ControllerV1) GetRealDeviceList(ctx context.Context, req *v1.GetRealDev
 			lastUpdateTime = driver.GetLastUpdateTime().Format("2006-01-02 15:04:05")
 		}
 		devices = append(devices, &entity.SDevice{
-			DeviceId:       driver.GetId(),
-			DeviceType:     string(driver.GetType()),
-			DeviceName:     driver.GetName(),
-			IsMaster:       driver.GetIsMaster(),
-			IsActivate:     driver.IsActivate(),
+			DeviceId:       driver.GetDeviceConfig().Id,
+			DeviceType:     string(driver.GetDriverType()),
+			DeviceName:     driver.GetDeviceConfig().Name,
+			IsMaster:       driver.GetDeviceConfig().IsMaster,
 			LastUpdateTime: lastUpdateTime,
 			AlarmLevel:     driver.GetAlarmLevel(),
 		})

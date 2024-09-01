@@ -2,7 +2,7 @@ package c_base
 
 type EStationType string
 
-const (
+/*const (
 	EStationNan         EStationType = "" // 空
 	EStationPv          EStationType = "pv"
 	EStationLoad        EStationType = "load"
@@ -11,3 +11,4 @@ const (
 	EStationCharge      EStationType = "charge"
 	EStationEnergyStore EStationType = "energy-store"
 )
+*/

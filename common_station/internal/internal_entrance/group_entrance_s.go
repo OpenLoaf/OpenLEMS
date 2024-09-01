@@ -1,4 +1,4 @@
-package internal_group
+package internal_entrance
 
 import (
 	"common_station/c_station"

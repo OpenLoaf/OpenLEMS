@@ -20,9 +20,9 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		lastUpdateTime = device.GetLastUpdateTime().Format("2006-01-02 15:04:05")
 	}
 	res = &v1.GetRealDeviceCacheRes{
-		DeviceId:       device.GetId(),
-		DeviceType:     device.GetType(),
-		DeviceName:     device.GetName(),
+		DeviceId:       device.GetDeviceConfig().Id,
+		DeviceType:     device.GetDriverType(),
+		DeviceName:     device.GetDeviceConfig().Name,
 		LastUpdateTime: lastUpdateTime,
 	}
 	var values = make([]*entity.SSingleDeviceValue, 0)

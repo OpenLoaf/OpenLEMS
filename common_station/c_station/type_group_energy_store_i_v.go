@@ -1,14 +1,14 @@
 package c_station
 
 import (
+	"ems-plan/c_base"
 	"ems-plan/c_device"
-	"time"
 )
 
 type IStationEnergyStore interface {
-	IStation
+	c_base.IDriver
 	c_device.IEnergyStoreBasic
 
-	GetLastUpdateTime() *time.Time
-	GetChildren() []c_device.IEnergyStore
+	GetAllowControl() bool // 是否允许控制
+	GetChildren() []c_base.IDriver
 }

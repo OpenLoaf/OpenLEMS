@@ -7,13 +7,12 @@ import (
 	"ems-plan/util"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
-	"plug_protocol_modbus/p_modbus"
 	"pylonTechUs108_v1/pylon_tech_us108"
 	"starCharge100E_v1/star_charge_100e"
 	"strings"
 )
 
-func loadDriver(ctx context.Context, deviceConfig *p_modbus.SModbusDeviceConfig) c_base.IDriver {
+func loadDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IDriver {
 	// 先加载驱动
 	latestDriverPath, i, err := c_base.GetLatestDriver(ctx, deviceConfig.Driver)
 
@@ -87,6 +86,9 @@ func loadDriver(ctx context.Context, deviceConfig *p_modbus.SModbusDeviceConfig)
 	if deviceConfig.CabinetId != 0 {
 		_tempInstanceCache.AddCabinetDevice(deviceConfig.CabinetId, dv)
 	}
+
+	//deviceConfig.CheckTypeIs(dv.GetDriverType())
+	deviceConfig.Type = dv.GetDriverType()
 
 	return dv
 }

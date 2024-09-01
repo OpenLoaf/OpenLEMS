@@ -14,4 +14,6 @@ type IGpioSysfsProtocol interface {
 
 	SetHigh() error // 设置为高电平
 	SetLow() error  // 设置为低电平
+
+	GetGpioDeviceConfig() *SGpioSysfsDeviceConfig
 }

@@ -30,7 +30,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 	case c_base.EModbusRtu:
 
 		rtuConfig := &ModbusRtuProtocolConfig{}
-		err := gconv.Scan(protocolConfig.Config, rtuConfig)
+		err := gconv.Scan(protocolConfig.Params, rtuConfig)
 		if err != nil {
 			panic("modbus rtu配置文件解析失败")
 		}

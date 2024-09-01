@@ -1,11 +1,11 @@
 package c_station
 
 import (
-	"ems-plan/c_device"
+	"ems-plan/c_base"
 )
 
 type IStationEntrance interface {
-	IStation
+	c_base.IDriver
 	GetGridFrequency() (float32, error)                 // 电网频率
 	GetGridVoltage() (float32, float32, float32, error) // 电网电压 A、B、C
 	GetGridCurrent() (float32, float32, float32, error) // 电网电流 A、B、C
@@ -34,5 +34,6 @@ type IStationEntrance interface {
 	GetVoltage() (float32, float32, float32, error) // 三相电压
 	GetCurrent() (float32, float32, float32, error) // 三相电流
 
-	GetChildren() []c_device.IAmmeter
+	GetAllowControl() bool // 是否允许控制
+	GetChildren() []c_base.IDriver
 }

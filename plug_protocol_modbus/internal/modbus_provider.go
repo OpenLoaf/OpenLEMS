@@ -3,43 +3,58 @@ package internal
 import (
 	"context"
 	"ems-plan/c_base"
+	"fmt"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/os/glog"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/torykit/go-modbus"
 	"plug_protocol_modbus/p_modbus"
 	"sync"
 	"time"
 )
 
-type ModbusProvider struct {
-	ctx                   context.Context            // 上下文
-	once                  sync.Once                  // 只执行一次Init方法
-	deviceId              string                     // 设备名称
-	deviceType            c_base.EDeviceType         // 设备类型
-	unitId                uint8                      // 设备的unitId
-	modbusReadChan        chan *p_modbus.ModbusGroup // 查询用的通道
-	client                modbus.Client              // modbus的通讯
-	preQuery              map[string]bool            // 预读
-	cache                 *gcache.Cache              // 点位缓存
-	log                   *glog.Logger               // 日志
-	printCacheValue       bool                       // 打印缓存值
-	modbusRwMutex         sync.RWMutex               // 读写锁
-	lastUpdateTime        *time.Time                 // 最后更新时间
-	*c_base.SAlarmHandler                            // 告警
+type ModbusProtocolProvider struct {
+	*c_base.SAlarmHandler                 // 告警
+	ctx                   context.Context // 上下文
+	once                  sync.Once       // 只执行一次Init方法
+	//deviceId              string                     // 设备名称
+	//unitId                uint8                      // 设备的unitId
+	modbusReadChan chan *p_modbus.ModbusGroup // 查询用的通道
+	client         modbus.Client              // modbus的通讯
+	preQuery       map[string]bool            // 预读
+	cache          *gcache.Cache              // 点位缓存
+	log            *glog.Logger               // 日志
+	//printCacheValue       bool                       // 打印缓存值
+	modbusRwMutex  sync.RWMutex // 读写锁
+	lastUpdateTime *time.Time   // 最后更新时间
+
+	deviceConfig       *c_base.SDriverConfig
+	modbusDeviceConfig *p_modbus.SModbusDeviceConfig
+	protocolConfig     *c_base.SProtocolConfig
 }
 
-func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *p_modbus.SModbusDeviceConfig, client any) (p_modbus.IModbusProtocol, error) {
-	provider := &ModbusProvider{
-		once:            sync.Once{},
-		ctx:             ctx,
-		deviceId:        deviceConfig.Id,
-		unitId:          deviceConfig.UnitId,
-		printCacheValue: deviceConfig.PrintCacheValue,
-		modbusReadChan:  make(chan *p_modbus.ModbusGroup),
-		preQuery:        make(map[string]bool),
-		cache:           gcache.New(),
+func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, client any) (p_modbus.IModbusProtocol, error) {
+	modbusDeviceConfig := &p_modbus.SModbusDeviceConfig{}
+	err := gconv.Scan(deviceConfig.Params, modbusDeviceConfig)
+	if err != nil {
+		panic(fmt.Errorf("设备[%s]的Param参数配置错误：%v 无法转换为SModbusDeviceConfig", deviceConfig.Id, err))
+	}
+	if modbusDeviceConfig.UnitId == 0 {
+		// unitId默认禁止为0
+		panic(fmt.Errorf("Modbus设备[%s]的UnitId不能为0", deviceConfig.Id))
+	}
+
+	provider := &ModbusProtocolProvider{
+		once:               sync.Once{},
+		ctx:                ctx,
+		deviceConfig:       deviceConfig,
+		protocolConfig:     protocolConfig,
+		modbusDeviceConfig: modbusDeviceConfig,
+		modbusReadChan:     make(chan *p_modbus.ModbusGroup),
+		preQuery:           make(map[string]bool),
+		cache:              gcache.New(),
 		SAlarmHandler: &c_base.SAlarmHandler{
 			Ctx: ctx,
 		},
@@ -58,7 +73,7 @@ func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig
 		}
 	} else {
 		// 设置默认的日志等级为上一级接口配置的日志等级
-		err := provider.log.SetLevelStr(clientConfig.GetLogLevel())
+		err := provider.log.SetLevelStr(protocolConfig.GetLogLevel())
 		if err != nil {
 			provider.log.Level(glog.LEVEL_INFO)
 		}
@@ -67,19 +82,31 @@ func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig
 	return provider, nil
 }
 
-func (p *ModbusProvider) GetLastUpdateTime() *time.Time {
+func (p *ModbusProtocolProvider) GetDeviceConfig() *c_base.SDriverConfig {
+	return p.deviceConfig
+}
+
+func (p *ModbusProtocolProvider) GetProtocolConfig() *c_base.SProtocolConfig {
+	return p.protocolConfig
+}
+
+func (p *ModbusProtocolProvider) GetModbusDeviceConfig() *p_modbus.SModbusDeviceConfig {
+	return p.modbusDeviceConfig
+}
+
+func (p *ModbusProtocolProvider) GetLastUpdateTime() *time.Time {
 	return p.lastUpdateTime
 }
 
-func (p *ModbusProvider) IsActivate() bool {
+func (p *ModbusProtocolProvider) IsActivate() bool {
 	return p.client.IsConnected()
 }
 
-func (p *ModbusProvider) Close() error {
+func (p *ModbusProtocolProvider) Close() error {
 	return p.client.Close()
 }
 
-func (p *ModbusProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
+func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 	// 排序
 	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
 
@@ -109,8 +136,8 @@ func (p *ModbusProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 		}
 
 		_sortValues.Add(&c_base.MetaValueWrapper{
-			DeviceId:   p.deviceId,
-			DeviceType: p.deviceType,
+			DeviceId:   p.deviceConfig.Id,
+			DeviceType: p.deviceConfig.Type,
 			Meta:       meta.(*c_base.Meta),
 			Value:      metaValue.Value,
 			HappenTime: metaValue.HappenTime,

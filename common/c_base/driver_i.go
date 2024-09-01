@@ -6,17 +6,12 @@ import (
 
 type IDriver interface {
 	IAlarm
-	Init(client IProtocol, cfg any) error
+	Init(protocol IProtocol, deviceConfig *SDriverConfig)
 
-	GetId() string
-	GetType() EDeviceType
-	GetName() string
-	GetIsMaster() bool
-	GetDescription() SDescription
-	GetLastUpdateTime() *time.Time
-	GetMetaValueList() []*MetaValueWrapper
-
-	IsActivate() bool // 是否有效，无效一般是连接断了
-
-	GetFunctionList() []*SFunction
+	GetDriverType() EDeviceType            // 获取实现驱动的设备类型
+	GetLastUpdateTime() *time.Time         // 获取最后更新时间
+	GetMetaValueList() []*MetaValueWrapper // 获取元数据列表
+	GetFunctionList() []*SFunction         // 获取功能列表
+	GetDeviceConfig() *SDriverConfig       // 获取设备配置
+	GetDescription() *SDescription         // 获取设备描述
 }

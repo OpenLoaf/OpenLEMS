@@ -6,10 +6,9 @@ import (
 	"time"
 )
 
-func (p *ModbusProvider) Init(deviceType c_base.EDeviceType) {
+func (p *ModbusProtocolProvider) Init() {
 	// 只会执行一次监听
 	p.once.Do(func() {
-		p.deviceType = deviceType
 		go func(c chan *p_modbus.ModbusGroup) {
 			for {
 				select {
@@ -31,7 +30,7 @@ func (p *ModbusProvider) Init(deviceType c_base.EDeviceType) {
 		}(p.modbusReadChan)
 
 		// 打印日志
-		if p.printCacheValue {
+		if p.deviceConfig.PrintCacheValue {
 			go func() {
 
 				ticker := time.NewTicker(c_base.GetSystemConfig().GetPrintCacheValueCycleDuration())

@@ -2,15 +2,14 @@ package c_base
 
 // SProtocolConfig 基础协议配置
 type SProtocolConfig struct {
-	Name     string         //名称
-	Protocol EProtocolType  // 协议
-	Address  string         // 地址
-	Timeout  int64          // 链接
-	LogLevel string         // 日志等级
-	Config   map[string]any // 配置
-	Enable   bool           // 是否启用
-
-	DeviceChildren []map[string]any // 设备列表
+	Name           string            //名称
+	Protocol       EProtocolType     // 协议
+	Address        string            // 地址
+	Timeout        int64             // 链接
+	LogLevel       string            // 日志等级
+	Enable         bool              // 是否启用
+	Params         map[string]string // 配置
+	DeviceChildren []map[string]any  // 设备列表
 }
 
 func (b *SProtocolConfig) GetProtocol() EProtocolType {

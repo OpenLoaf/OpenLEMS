@@ -2,12 +2,9 @@ package plug_protocol_gpio_sysfs
 
 import (
 	"context"
-	"ems-plan/c_base"
 	"fmt"
 	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/gtimer"
-	"plug_protocol_gpio_sysfs/internal"
-	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
 	"testing"
 	"time"
 )
@@ -30,32 +27,6 @@ func TestInit(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-}
-
-func TestFile(t *testing.T) {
-	provider, err := internal.NewGpioSysfsProvider(context.TODO(), &c_base.SProtocolConfig{
-		Name:           "",
-		Protocol:       "",
-		Address:        "",
-		Timeout:        0,
-		LogLevel:       "INFO",
-		Config:         nil,
-		Enable:         true,
-		DeviceChildren: nil,
-	}, &p_gpio_sysfs.SGpioSysfsDeviceConfig{
-		SDriverConfig: c_base.SDriverConfig{},
-		Direction:     p_gpio_sysfs.EGpioDirectionIn,
-		Path:          Path,
-		ExportPath:    "",
-		ExportPort:    0,
-	})
-	if err != nil {
-		t.Error(err)
-	}
-
-	provider.Init(c_base.EGpio)
-
-	time.Sleep(30 * time.Second)
 }
 
 func TestTimmer(t *testing.T) {

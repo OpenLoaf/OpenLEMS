@@ -12,6 +12,6 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 	return internal.NewModbusClient(ctx, protocolConfig)
 }
 
-func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *p_modbus.SModbusDeviceConfig, client any) (p_modbus.IModbusProtocol, error) {
+func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, client any) (p_modbus.IModbusProtocol, error) {
 	return internal.NewModbusProvider(ctx, clientConfig, deviceConfig, client)
 }

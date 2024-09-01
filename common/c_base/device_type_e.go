@@ -18,4 +18,6 @@ const (
 	EGpio                EDeviceType = "gpio"           // DIY
 
 	//EEntrance            EDeviceType = "entrance"       // 总站入口
+
+	EStationEnergyStore EDeviceType = "station-energy-store" // 总站储能柜
 )

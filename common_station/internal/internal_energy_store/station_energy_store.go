@@ -13,7 +13,8 @@ import (
 )
 
 type sStationEnergyStore struct {
-	*c_station.SGroupConfigImpl
+	*c_base.SDriverConfig
+
 	functionList []*c_base.SFunction
 
 	ctx          context.Context
@@ -37,9 +38,18 @@ func NewGroupEnergyStore(ctx context.Context, rootAmmeter c_device.IAmmeter,
 	instance := &sStationEnergyStore{
 		rootAmmeter: rootAmmeter,
 		//ammeters:         ammeters,
-		energyStores:     energyStores,
-		ctx:              context.WithValue(ctx, "StationType", c_station.EGroupEnergyStore),
-		SGroupConfigImpl: c_station.NewGroupConfig(c_station.EGroupEnergyStore),
+		energyStores: energyStores,
+		ctx:          context.WithValue(ctx, "StationType", c_station.EGroupEnergyStore),
+		SDriverConfig: &c_base.SDriverConfig{
+			Id:              string(c_station.EGroupEnergyStore),
+			Name:            "{#ess}",
+			CabinetId:       0,
+			IsMaster:        false,
+			Enable:          false,
+			LogLevel:        "",
+			PrintCacheValue: false,
+			Params:          nil,
+		},
 		functionList: []*c_base.SFunction{
 			{FunctionName: "power", Unit: "kW", Remark: "功率"},
 			{FunctionName: "apparentPower", Unit: "kVA", Remark: "视在功率"},

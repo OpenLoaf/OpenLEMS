@@ -2,7 +2,7 @@ package common_station
 
 import (
 	"common_station/internal/internal_energy_store"
-	"common_station/internal/internal_group"
+	"common_station/internal/internal_entrance"
 	"context"
 	"ems-plan/c_device"
 )
@@ -14,7 +14,7 @@ func RegisterGroupEnergyStore(ctx context.Context, rootAmmeter c_device.IAmmeter
 
 // RegisterEntrance 创建场站总能量使用情况
 func RegisterEntrance(ctx context.Context, rootAmmeter c_device.IAmmeter, ammeters []c_device.IAmmeter) {
-	StationInstance.RegisterInstance(internal_group.NewEntrance(ctx, rootAmmeter, ammeters))
+	StationInstance.RegisterInstance(internal_entrance.NewEntrance(ctx, rootAmmeter, ammeters))
 }
 
 //

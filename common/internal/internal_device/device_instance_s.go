@@ -22,8 +22,8 @@ func init() {
 	Instances = &sDeviceInstance{
 		mutex: sync.Mutex{},
 		array: garray.NewSortedArray(func(v1, v2 interface{}) int {
-			v1Info := v1.(c_base.IDriver).GetId()
-			v2Info := v2.(c_base.IDriver).GetId()
+			v1Info := v1.(c_base.IDriver).GetDeviceConfig().Id
+			v2Info := v2.(c_base.IDriver).GetDeviceConfig().Id
 
 			if v1Info > v2Info {
 				return -1
@@ -38,12 +38,12 @@ func init() {
 func (d *sDeviceInstance) RegisterInstance(info c_base.IDriver) {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
-	if info.GetId() == "" {
+	if info.GetDeviceConfig().Id == "" {
 		panic(fmt.Sprintf("类型：%s的Id不能为空！", reflect.TypeOf(info).String()))
 	}
 	// 不能重复注册
-	if d.FindById(info.GetId()) != nil {
-		panic("the id '" + info.GetId() + "' has been registered")
+	if d.FindById(info.GetDeviceConfig().Id) != nil {
+		panic("the id '" + info.GetDeviceConfig().Id + "' has been registered")
 	}
 
 	d.array.Add(info)
@@ -52,7 +52,7 @@ func (d *sDeviceInstance) RegisterInstance(info c_base.IDriver) {
 func (d *sDeviceInstance) FindByType(t c_base.EDeviceType) []c_base.IDriver {
 	var result []c_base.IDriver
 	for _, instance := range d.array.Slice() {
-		if instance.(c_base.IDriver).GetType() == t {
+		if instance.(c_base.IDriver).GetDriverType() == t {
 			result = append(result, instance.(c_base.IDriver))
 		}
 	}
@@ -62,7 +62,7 @@ func (d *sDeviceInstance) FindByType(t c_base.EDeviceType) []c_base.IDriver {
 // GetInstance 获取设备实例
 func (d *sDeviceInstance) FindById(id string) c_base.IDriver {
 	for _, instance := range d.array.Slice() {
-		if instance.(c_base.IDriver).GetId() == id {
+		if instance.(c_base.IDriver).GetDeviceConfig().Id == id {
 			return instance.(c_base.IDriver)
 		}
 	}
