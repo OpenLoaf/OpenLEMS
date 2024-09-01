@@ -17,8 +17,8 @@ import (
 )
 
 type SGpioSysfsProvider struct {
-	once       sync.Once          // 只执行一次Init方法
-	deviceId   string             // 设备名称
+	once sync.Once // 只执行一次Init方法
+	//deviceId   string             // 设备名称
 	deviceType c_base.EDeviceType // 设备类型
 	//cache                 *gcache.Cache      // 点位缓存
 	log             *glog.Logger // 日志
@@ -40,7 +40,6 @@ type SGpioSysfsProvider struct {
 func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *p_gpio_sysfs.SGpioSysfsDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
 	provider := &SGpioSysfsProvider{
 		once:            sync.Once{},
-		deviceId:        deviceConfig.Id,
 		printCacheValue: deviceConfig.PrintCacheValue,
 		deviceConfig:    deviceConfig,
 		protocolParam:   &p_gpio_sysfs.SGpioProtocolConfig{},
@@ -93,7 +92,7 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 
 func (s *SGpioSysfsProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 	return []*c_base.MetaValueWrapper{{
-		DeviceId:   s.deviceId,
+		DeviceId:   s.deviceConfig.GetId(),
 		DeviceType: s.deviceType,
 		Meta:       s.meta,
 		Value:      gvar.New(s.status),
@@ -136,7 +135,7 @@ func (s *SGpioSysfsProvider) Init(deviceType c_base.EDeviceType) {
 				panic(fmt.Errorf("监听失败！%v", err))
 			}
 		}
-		s.log.Infof(s.Ctx, "GPIO %s init success,当前状态为: %v, 类型为: %s", s.deviceId, s.GetStatus(), s.deviceConfig.Direction)
+		s.log.Infof(s.Ctx, "GPIO %s 初始化完毕,当前状态为: %v, 类型为: %s", s.deviceConfig.GetName(), s.GetStatus(), s.deviceConfig.Direction)
 	})
 }
 
@@ -148,7 +147,7 @@ func (s *SGpioSysfsProvider) RegisterHandler(handler func(ctx context.Context, s
 }
 
 func (s *SGpioSysfsProvider) GetId() string {
-	return s.deviceId
+	return s.deviceConfig.Id
 }
 
 func (s *SGpioSysfsProvider) GetType() c_base.EDeviceType {
@@ -181,6 +180,7 @@ func (s *SGpioSysfsProvider) GetStatus() bool {
 
 func (s *SGpioSysfsProvider) isHighForce() bool {
 	value := gfile.GetContents(gfile.Join(s.deviceConfig.Path, GpioPathValue))
+
 	if gstr.Trim(value) == "1" {
 		s.process(true)
 		return true
@@ -202,16 +202,19 @@ func (s *SGpioSysfsProvider) process(status bool) {
 	}
 
 	if s.status != status {
-
+		if s.GetId() == "button-scram" {
+			g.Log().Debugf(s.Ctx, "GPIO %s value: %v, func:%v", s.deviceConfig.Id, status, s.handler)
+		}
 		s.status = status
 		if s.handler != nil {
 			s.handler(s.Ctx, status)
+			g.Log().Debugf(s.Ctx, "22GPIO %s value: %v, func:%v", s.deviceConfig.Id, status, s.handler)
 		}
 
 		// 触发告警
 		if s.deviceConfig.Level != c_base.ENone && s.deviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
 			s.SAlarmHandler.ProcessAlarmDetail(&c_base.SAlarmDetail{
-				DeviceId:   s.deviceId,
+				DeviceId:   s.GetId(),
 				DeviceType: s.deviceType,
 				Level:      s.deviceConfig.Level,
 				Meta:       s.meta,
@@ -237,7 +240,7 @@ func (s *SGpioSysfsProvider) SetLow() error {
 func (s *SGpioSysfsProvider) setValue(value string) error {
 	// 设置为低电平
 	if s.deviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
-		s.log.Debugf(s.Ctx, "GPIO Direction %s is [in], can't output", s.deviceId)
+		s.log.Debugf(s.Ctx, "GPIO Direction %s is [in], can't output", s.GetId())
 		return nil
 	}
 	return gfile.PutContents(gfile.Join(s.deviceConfig.Path, GpioPathValue), value)

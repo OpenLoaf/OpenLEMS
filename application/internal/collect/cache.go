@@ -27,6 +27,9 @@ var _tempInstanceCache = &tmpStation{
 }
 
 func (t *tmpStation) AddCabinetDevice(cabinetId uint8, driver c_base.IDriver) {
+	if cabinetId == 0 {
+		panic("cabinetId 不能为0")
+	}
 	cabinetDrivers := t.cabinetEss[cabinetId]
 	if cabinetDrivers == nil {
 		cabinetDrivers = []c_base.IDriver{driver}
@@ -39,6 +42,7 @@ func (t *tmpStation) AddCabinetDevice(cabinetId uint8, driver c_base.IDriver) {
 func (t *tmpStation) Init(ctx context.Context) {
 
 	for cabinetId, drivers := range t.cabinetEss {
+
 		ess, err := pylon_checkwatt.NewEss(ctx, cabinetId, drivers, listToMap[c_device.IGpio](drivers))
 		if err != nil {
 			panic(err)

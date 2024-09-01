@@ -132,8 +132,11 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				gpioSysfsProtocol.Init(c_base.EGpio)
 
 				// 加到cabinetIds中
-				if deviceConfig.GetStationType() != c_base.EStationNan {
-					_tempInstanceCache.AddCabinetDevice(deviceConfig.CabinetId, impl)
+				if deviceConfig.GetStationType() == c_base.EStationNan {
+					if deviceConfig.CabinetId != 0 {
+						_tempInstanceCache.AddCabinetDevice(deviceConfig.CabinetId, impl)
+					}
+
 				} else {
 					_tempInstanceCache.EssGpioList = append(_tempInstanceCache.EssGpioList, impl)
 				}

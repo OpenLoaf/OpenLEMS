@@ -76,28 +76,33 @@ devices:
         enable: true
         path: /Users/zhao/Downloads/gpio
         direction: in
-        cabinetId: 2 # 不为0代表是柜子上的设备
-      - id: button-discharge
+        level: Error
+        cabinetId: 0
+        stationType: energy-store
+      - id: button-charge
         name: 充电开关
-        enable: false
+        enable: true
         path: /Users/zhao/Downloads/gpio
         direction: in
         cabinetId: 2
       - id: button-discharge
         name: 放电开关
-        enable: false
+        enable: true
         path: /Users/zhao/Downloads/gpio
         direction: in
+        reverse: true
         cabinetId: 2
       - id: led-running
         name: 运行指示灯
-        enable: false
+        enable: true
         path: /Users/zhao/Downloads/gpio
         direction: out
-        cabinetId: 2
+        cabinetId: 0
+        stationType: energy-store
       - id: led-fault
         name: 故障指示灯
-        enable: false
+        enable: true
         path: /Users/zhao/Downloads/gpio
         direction: out
-        cabinetId: 2
+        cabinetId: 0
+        stationType: energy-store

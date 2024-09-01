@@ -6,7 +6,9 @@ import (
 	"ems-plan/c_base"
 	"ems-plan/c_device"
 	"ems-plan/c_error"
+	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
+	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
 )
 
 type sStationEnergyStore struct {
@@ -22,7 +24,7 @@ type sStationEnergyStore struct {
 	targetPowerFactor   float32 // 目标功率因数
 
 	ledRunning  c_device.IGpio // 运行灯
-	ledFailed   c_device.IGpio // 故障灯
+	ledFault    c_device.IGpio // 故障灯
 	buttonScram c_device.IGpio // 急停按钮
 }
 
@@ -46,6 +48,39 @@ func NewGroupEnergyStore(ctx context.Context, rootAmmeter c_device.IAmmeter,
 			{FunctionName: "historyIncomingQuantity", FunctionNameI18nOverwrite: "essHistoryCharge", Unit: "kWh", Remark: "历史充电量"},
 			{FunctionName: "historyOutgoingQuantity", FunctionNameI18nOverwrite: "essHistoryDischarge", Unit: "kWh", Remark: "历史放电量"},
 		},
+	}
+
+	for _, gpio := range gpios {
+
+		if gpio.GetId() == p_gpio_sysfs.IdLedFault {
+			instance.ledFault = gpio
+			g.Log().Infof(instance.ctx, "注册故障灯成功！")
+		}
+		if gpio.GetId() == p_gpio_sysfs.IdLedRunning {
+			instance.ledRunning = gpio
+			g.Log().Infof(instance.ctx, "注册运行灯成功！")
+		}
+
+		if gpio.GetId() == p_gpio_sysfs.IdButtonScram {
+			gpio.RegisterHandler(func(ctx context.Context, status bool) {
+				fmt.Println("执行急停按钮")
+				if status {
+					g.Log().Warningf(instance.ctx, "储能场站触发急停！")
+					// 紧急停机
+					if instance.ledFault != nil {
+						_ = instance.ledFault.SetHigh()
+						g.Log().Warningf(instance.ctx, "储能场站触发急停！触发储能场站故障灯！")
+					}
+				} else {
+					_ = instance.ledFault.SetLow()
+					g.Log().Infof(instance.ctx, "储能场站解除急停！储能场站故障灯熄灭！")
+				}
+
+			})
+			instance.buttonScram = gpio
+			g.Log().Infof(instance.ctx, "场站注册急停按钮成功！")
+		}
+
 	}
 
 	g.Log().Noticef(instance.ctx, "创建储能组：%s", instance.GetId())
