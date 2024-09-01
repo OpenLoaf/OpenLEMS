@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
+	"time"
 )
 
 type sStationEnergyStore struct {
@@ -85,6 +86,26 @@ func NewGroupEnergyStore(ctx context.Context, rootAmmeter c_device.IAmmeter,
 
 	g.Log().Noticef(instance.ctx, "创建储能组：%s", instance.GetId())
 	return instance
+}
+
+func (s *sStationEnergyStore) GetLastUpdateTime() *time.Time {
+	var lastUpdateTime *time.Time
+	for _, ess := range s.energyStores {
+		essTime := ess.GetLastUpdateTime()
+		if essTime == nil {
+			continue
+		}
+		if lastUpdateTime == nil || essTime.After(*lastUpdateTime) {
+			lastUpdateTime = essTime
+		}
+	}
+	if s.rootAmmeter != nil {
+		ammeterTime := s.rootAmmeter.GetLastUpdateTime()
+		if ammeterTime != nil && (lastUpdateTime == nil || ammeterTime.After(*lastUpdateTime)) {
+			lastUpdateTime = ammeterTime
+		}
+	}
+	return lastUpdateTime
 }
 
 func (s *sStationEnergyStore) AllowControl() bool {
