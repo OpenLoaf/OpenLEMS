@@ -3,8 +3,10 @@ package cmd
 import (
 	"application/internal/collect"
 	"application/internal/consts"
+	"application/internal/controller/device"
 	"context"
 	"ems-plan/c_base"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/i18n/gi18n"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -63,7 +65,7 @@ var (
 				)
 				//group.Bind(telemetry.NewV1())
 				//group.Bind(station_ess.NewV1())
-				//group.Bind(device.NewV1())
+				group.Bind(device.NewV1())
 			})
 
 			//s.BindObject("/test", test.NewWebsocket())
@@ -90,11 +92,21 @@ func MiddlewareErrorHandler(r *ghttp.Request) {
 		g.Log("exception").Error(r.Context(), err)
 		//返回固定的友好信息
 		r.Response.ClearBuffer()
-		r.Response.WriteJson(ghttp.DefaultHandlerResponse{
-			Code:    500,
-			Message: g.I18n().T(r.Context(), "serverError"),
-			Data:    err.Error(),
-		})
+		if gerr, ok := err.(*gerror.Error); ok {
+			r.Response.WriteJson(ghttp.DefaultHandlerResponse{
+				Code:    gerr.Code().Code(),
+				Message: g.I18n().T(r.Context(), gerr.Code().Message()),
+				Data:    err.Error(),
+			})
+			return
+		} else {
+			r.Response.WriteJson(ghttp.DefaultHandlerResponse{
+				Code:    500,
+				Message: g.I18n().T(r.Context(), "serverError"),
+				Data:    err.Error(),
+			})
+		}
+
 	}
 }
 

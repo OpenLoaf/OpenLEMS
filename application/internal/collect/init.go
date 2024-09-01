@@ -2,6 +2,7 @@ package collect
 
 import (
 	"context"
+	common "ems-plan"
 	"ems-plan/c_base"
 	"plug_protocol_gpio_sysfs"
 	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
@@ -85,6 +86,8 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 
 				//device.RegisterInstance(dv)
 				g.Log().Noticef(deviceCtx, "设备%s加载完成！Id为：%s", deviceConfig.Name, dv.GetId())
+
+				common.DeviceInstance.RegisterInstance(dv)
 			}
 
 		case c_base.ECanbusTcp:
@@ -140,6 +143,8 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				} else {
 					_tempInstanceCache.EssGpioList = append(_tempInstanceCache.EssGpioList, impl)
 				}
+
+				common.DeviceInstance.RegisterInstance(impl)
 			}
 
 		}

@@ -134,8 +134,12 @@ func (s *SGpioSysfsProvider) Init(deviceType c_base.EDeviceType) {
 			if err != nil {
 				panic(fmt.Errorf("监听失败！%v", err))
 			}
+		} else {
+			gtimer.SetInterval(s.Ctx, 3000*time.Millisecond, func(ctx context.Context) {
+				// out类型的 3秒读取一次值
+				s.isHighForce()
+			})
 		}
-		s.log.Infof(s.Ctx, "GPIO %s 初始化完毕,当前状态为: %v, 类型为: %s", s.deviceConfig.GetName(), s.GetStatus(), s.deviceConfig.Direction)
 	})
 }
 
