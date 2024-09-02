@@ -195,15 +195,15 @@ func (p *PylonCheckwattEss) GetCycleCount() (uint, error) {
 	return p.bms.GetCycleCount()
 }
 
-func (p *PylonCheckwattEss) GetRatedPower() (int32, error) {
+func (p *PylonCheckwattEss) GetRatedPower() uint32 {
 	return p.pcs.GetRatedPower()
 }
 
-func (p *PylonCheckwattEss) GetMaxInputPower() (float64, error) {
+func (p *PylonCheckwattEss) GetMaxInputPower() (float32, error) {
 	return p.pcs.GetMaxInputPower()
 }
 
-func (p *PylonCheckwattEss) GetMaxOutputPower() (float64, error) {
+func (p *PylonCheckwattEss) GetMaxOutputPower() (float32, error) {
 	return p.pcs.GetMaxOutputPower()
 }
 

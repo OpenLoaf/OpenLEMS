@@ -413,23 +413,19 @@ func (s *sStationEnergyStore) GetReactivePower() (float64, error) {
 	return reactivePower, nil
 }
 
-func (s *sStationEnergyStore) GetRatedPower() (int32, error) {
+func (s *sStationEnergyStore) GetRatedPower() uint32 {
 	// 额定功率累计
-	var ratedPower int32
+	var ratedPower uint32
 	for _, ess := range s.energyStores {
-		value, err := ess.GetRatedPower()
-		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 额定功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
-			continue
-		}
+		value := ess.GetRatedPower()
 		ratedPower += value
 	}
-	return ratedPower, nil
+	return ratedPower
 }
 
-func (s *sStationEnergyStore) GetMaxInputPower() (float64, error) {
+func (s *sStationEnergyStore) GetMaxInputPower() (float32, error) {
 	// 最大输入功率和
-	var maxInputPower float64
+	var maxInputPower float32
 	for _, ess := range s.energyStores {
 		value, err := ess.GetMaxInputPower()
 		if err != nil {
@@ -441,9 +437,9 @@ func (s *sStationEnergyStore) GetMaxInputPower() (float64, error) {
 	return maxInputPower, nil
 }
 
-func (s *sStationEnergyStore) GetMaxOutputPower() (float64, error) {
+func (s *sStationEnergyStore) GetMaxOutputPower() (float32, error) {
 	// 最大输出功率和
-	var maxOutputPower float64
+	var maxOutputPower float32
 	for _, ess := range s.energyStores {
 		value, err := ess.GetMaxOutputPower()
 		if err != nil {

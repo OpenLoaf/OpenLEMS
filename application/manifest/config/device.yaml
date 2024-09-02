@@ -60,6 +60,10 @@ devices:
         params:
           unitId: 2
           syncTime: true # 同步时间
+          ratedPower: 100
+          capacity: 100
+          maxInputPower: 70
+          maxOutputPower: 70
   - name: gpio
     protocol: gpio  # sysfs
     enable: true

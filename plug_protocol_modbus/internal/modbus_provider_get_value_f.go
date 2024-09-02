@@ -32,6 +32,16 @@ func (p *ModbusProtocolProvider) GetIntValue(meta *c_base.Meta) (int, error) {
 	}
 	return get.Int(), err
 }
+func (p *ModbusProtocolProvider) GetBool(meta *c_base.Meta) (bool, error) {
+	get, err := p.GetValue(meta)
+	if err != nil {
+		return false, err
+	}
+	if get == nil {
+		return false, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
+	}
+	return get.Bool(), err
+}
 
 func (p *ModbusProtocolProvider) GetUintValue(meta *c_base.Meta) (uint, error) {
 	get, err := p.GetValue(meta)

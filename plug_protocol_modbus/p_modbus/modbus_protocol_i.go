@@ -16,6 +16,7 @@ type IModbusProtocol interface {
 	ReadGroupSync(group *ModbusGroup, readCache bool, metas ...*c_base.Meta) ([]*gvar.Var, error)                             // 同步读取,第二个参数为幻读,先从缓存中取，如果有值直接返回，无值再去执行查询方法
 
 	GetValue(meta *c_base.Meta) (*gvar.Var, error)
+	GetBool(meta *c_base.Meta) (bool, error)
 	GetIntValue(meta *c_base.Meta) (int, error)
 	GetUintValue(meta *c_base.Meta) (uint, error)
 	GetFloat32Value(meta *c_base.Meta) (float32, error)

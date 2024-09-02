@@ -134,15 +134,15 @@ func (s *StarCharge100EPcs) GetReactivePower() (float64, error) {
 	return s.GetFloat64Value(TotalReactivePowerInverterSide)
 }
 
-func (s *StarCharge100EPcs) GetRatedPower() (int32, error) {
+func (s *StarCharge100EPcs) GetRatedPower() uint32 {
+	return 100
+}
+
+func (s *StarCharge100EPcs) GetMaxInputPower() (float32, error) {
 	return 100, nil
 }
 
-func (s *StarCharge100EPcs) GetMaxInputPower() (float64, error) {
-	return 100, nil
-}
-
-func (s *StarCharge100EPcs) GetMaxOutputPower() (float64, error) {
+func (s *StarCharge100EPcs) GetMaxOutputPower() (float32, error) {
 	return 100, nil
 }
 

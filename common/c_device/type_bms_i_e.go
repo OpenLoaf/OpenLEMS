@@ -25,9 +25,9 @@ type IBmsBasic interface {
 	GetCapacity() (uint32, error)                       // 电池容量kWh
 	GetCycleCount() (uint, error)                       // 循环次数
 
-	GetRatedPower() (int32, error)       // 额定功率， -1代表未知
-	GetMaxInputPower() (float64, error)  // 最大充电功率、最大输入功率限制
-	GetMaxOutputPower() (float64, error) // 最大放电功率、最大输出功率限制
+	GetRatedPower() uint32               // 额定功率， -1代表未知
+	GetMaxInputPower() (float32, error)  // 最大充电功率、最大输入功率限制
+	GetMaxOutputPower() (float32, error) // 最大放电功率、最大输出功率限制
 
 	GetDcPower() (float64, error)   // 直流功率
 	GetDcVoltage() (float64, error) // 直流电压
