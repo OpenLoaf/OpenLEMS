@@ -95,16 +95,16 @@ func MiddlewareErrorHandler(r *ghttp.Request) {
 		r.Response.ClearBuffer()
 		if gerr, ok := err.(*gerror.Error); ok {
 			r.Response.WriteJson(ghttp.DefaultHandlerResponse{
-				Code:    gerr.Code().Code(),
-				Message: g.I18n().T(r.Context(), gerr.Code().Message()),
-				Data:    err.Error(),
+				Code: gerr.Code().Code(),
+				//Message: g.I18n().T(r.Context(), gerr.Code().Message()),
+				Message: err.Error(),
 			})
 			return
 		} else {
 			r.Response.WriteJson(ghttp.DefaultHandlerResponse{
-				Code:    500,
-				Message: g.I18n().T(r.Context(), "serverError"),
-				Data:    err.Error(),
+				Code: 500,
+				//Message: g.I18n().T(r.Context(), "serverError"),
+				Message: err.Error(),
 			})
 		}
 

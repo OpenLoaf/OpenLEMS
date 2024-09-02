@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -12,5 +11,9 @@ type GetTelemetryGetReq struct {
 }
 
 type GetTelemetryGetRes struct {
-	c_base.MetaValueWrapper
+	TestJoinKey      string `json:"testJoinKey" dc:"测试联合Key"`
+	DeviceId         string `json:"deviceId" dc:"设备Key"`
+	TelemetryKey     string `json:"telemetryKey" dc:"遥测Key"`
+	TelemetryKeyName string `json:"telemetryKeyName" dc:"遥测名称"`
+	Value            any    `json:"value" dc:"遥测值"`
 }
