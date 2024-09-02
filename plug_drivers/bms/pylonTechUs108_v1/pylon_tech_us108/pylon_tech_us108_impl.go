@@ -214,29 +214,28 @@ func (p *PylonTechUs108Bms) SetReset() error {
 }
 
 func (p *PylonTechUs108Bms) writeTime() {
-	err := p._syncTime()
-	if err != nil {
-		go func() {
-			ticker := time.NewTicker(5 * time.Second)
-			defer ticker.Stop()
-			for {
-				select {
-				case <-p.ctx.Done():
-					g.Log().Noticef(p.ctx, "writeTime() 关闭!")
-				case <-ticker.C:
-					if !p.IsActivate() {
-						continue
-					}
-					err := p._syncTime()
-					if err == nil {
-						g.Log().Infof(p.ctx, "同步时间成功！")
-						//break
-					}
+	_ = p._syncTime()
+	go func() {
+		ticker := time.NewTicker(5 * time.Minute)
+		defer ticker.Stop()
+		for {
+			select {
+			case <-p.ctx.Done():
+				g.Log().Noticef(p.ctx, "writeTime() 关闭!")
+				return
+			case <-ticker.C:
+				if !p.IsActivate() {
+					continue
 				}
-
+				err := p._syncTime()
+				if err == nil {
+					g.Log().Infof(p.ctx, "同步时间成功！")
+					//break
+				}
 			}
-		}()
-	}
+
+		}
+	}()
 }
 
 func (p *PylonTechUs108Bms) _syncTime() error {
@@ -250,6 +249,6 @@ func (p *PylonTechUs108Bms) _syncTime() error {
 	if err != nil {
 		return err
 	}
-	g.Log().Infof(p.ctx, "同步时间成功！")
+	g.Log().Infof(p.ctx, "同步时间成功！22")
 	return nil
 }

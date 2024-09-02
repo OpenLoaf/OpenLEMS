@@ -1,14 +1,42 @@
 package telemetry
 
 import (
+	"application/internal/model/entity"
 	"context"
-
-	"github.com/gogf/gf/v2/errors/gcode"
-	"github.com/gogf/gf/v2/errors/gerror"
+	common "ems-plan"
+	"ems-plan/c_base"
+	"ems-plan/c_device"
+	"github.com/gogf/gf/v2/frame/g"
 
 	"application/api/telemetry/v1"
 )
 
 func (c *ControllerV1) GetTelemetryDescription(ctx context.Context, req *v1.GetTelemetryDescriptionReq) (res *v1.GetTelemetryDescriptionRes, err error) {
-	return nil, gerror.NewCode(gcode.CodeNotImplemented)
+
+	return &v1.GetTelemetryDescriptionRes{
+		Ess: makeResponse(ctx, string(c_base.EStationEnergyStore)),
+	}, nil
+}
+
+func makeResponse(ctx context.Context, name string) *v1.TelemetryDescriptionObj {
+	stationEnergyStore := common.DeviceInstance.FindById(string(c_base.EStationEnergyStore))
+	var stationTelemetryList []*entity.DeviceTelemetry
+	stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
+		DeviceId:      stationEnergyStore.GetDeviceConfig().Id,
+		I8nName:       stationEnergyStore.GetDeviceConfig().Name,
+		TelemetryKeys: stationEnergyStore.GetDescription().Telemetry,
+	})
+	children := stationEnergyStore.(c_device.IStationEnergyStore).GetChildren()
+	for _, child := range children {
+		stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
+			DeviceId:      child.GetDeviceConfig().Id,
+			I8nName:       child.GetDeviceConfig().Name,
+			TelemetryKeys: child.GetDescription().Telemetry,
+		})
+	}
+
+	return &v1.TelemetryDescriptionObj{
+		Name:     g.I18n().T(ctx, name),
+		Children: stationTelemetryList,
+	}
 }

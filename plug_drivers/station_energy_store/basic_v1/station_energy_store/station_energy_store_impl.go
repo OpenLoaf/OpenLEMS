@@ -7,6 +7,7 @@ import (
 	"ems-plan/c_device"
 	"ems-plan/c_error"
 	"fmt"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
 	"time"
@@ -192,11 +193,14 @@ func (s *sStationEnergyStore) GetSoc() (float32, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetSoc()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s SOC失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			g.Log().Debugf(s.ctx, "获取储能柜:%s SOC失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		soc += value
 		count++
+	}
+	if count == 0 {
+		return 0, gerror.New("设备离线")
 	}
 	return soc / float32(count), nil
 }
@@ -216,12 +220,18 @@ func (s *sStationEnergyStore) GetSoh() (float32, error) {
 		soh += value
 		count++
 	}
+	if count == 0 {
+		return 0, gerror.New("设备离线")
+	}
 	return soh / float32(count), nil
 }
 
 func (s *sStationEnergyStore) GetCapacity() (uint32, error) {
 	// 取累计容量
-	var capacity uint32
+	var (
+		capacity uint32
+		count    uint
+	)
 	for _, ess := range s.energyStores {
 		value, err := ess.GetCapacity()
 		if err != nil {
@@ -229,6 +239,10 @@ func (s *sStationEnergyStore) GetCapacity() (uint32, error) {
 			continue
 		}
 		capacity += value
+		count++
+	}
+	if count == 0 {
+		return 0, gerror.New("设备离线")
 	}
 	return capacity, nil
 }

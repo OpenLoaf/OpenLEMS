@@ -3,8 +3,8 @@ package util
 import (
 	"fmt"
 	"github.com/gogf/gf/v2/encoding/gbinary"
-	"github.com/gogf/gf/v2/os/glog"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/gogf/gf/v2/text/gstr"
 	"math"
 	"math/big"
 	"reflect"
@@ -51,12 +51,7 @@ func Operate[T Number](a, b T) (sum, product T) {
 	return
 }
 
-// IsLogDebug 是否启动调试模式
-func IsLogDebug() bool {
-	return glog.GetLevel()&glog.LEVEL_DEBU == glog.LEVEL_DEBU
-}
-
-// contains 函数检查任意类型的切片中是否包含某个值
+// Contains 函数检查任意类型的切片中是否包含某个值
 func Contains[T comparable](slice []T, value T) bool {
 	for _, item := range slice {
 		if item == value {
@@ -130,4 +125,34 @@ func Float64ToString(value float64, pre int) string {
 
 func Float32ToString(value float32, pre int) string {
 	return big.NewFloat(float64(value)).Text('f', pre)
+}
+
+// ExecuteFunction 执行函数
+func ExecuteFunction(info any, telemetryKey string) (any, error) {
+	if telemetryKey == "" {
+		return 0, fmt.Errorf("遥测点位名称不能为空")
+	}
+	if info == nil {
+		return 0, fmt.Errorf("对象为空！")
+	}
+
+	functionName := fmt.Sprintf("Get%s", gstr.UcFirst(telemetryKey))
+	method := reflect.ValueOf(info).MethodByName(functionName)
+	if !method.IsValid() {
+		return 0, fmt.Errorf("method %s not found", telemetryKey)
+	}
+
+	// 空参数调用
+	value := method.Call(nil)
+	if len(value) == 1 {
+		return value[0].Interface(), nil
+	}
+
+	if len(value) != 2 {
+		return 0, fmt.Errorf("function %s return value length is not 2", telemetryKey)
+	}
+	if value[1].Interface() != nil {
+		return 0, value[1].Interface().(error)
+	}
+	return value[0].Interface(), nil
 }

@@ -4,6 +4,8 @@ import (
 	"application/internal/collect"
 	"application/internal/consts"
 	"application/internal/controller/device"
+	"application/internal/controller/telemetry"
+	"application/internal/ws"
 	"context"
 	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -63,13 +65,12 @@ var (
 						r.Middleware.Next()
 					},
 				)
-				//group.Bind(telemetry.NewV1())
+				group.Bind(telemetry.NewV1())
 				//group.Bind(station_ess.NewV1())
 				group.Bind(device.NewV1())
 			})
 
-			//s.BindObject("/test", test.NewWebsocket())
-			//s.BindObject("/telemetry", telemetry.NewWebsocket())
+			s.BindObject("/telemetry", ws.NewTelemetryWebsocket())
 
 			gproc.AddSigHandlerShutdown(func(sig os.Signal) {
 				exit(ctx, cancelFunc)

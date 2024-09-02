@@ -4,7 +4,7 @@ stations:
 #    type: root-ammeter
 #    enable: true
 
-  - id: root-energy-store
+  - id: station-energy-store
     name: 储能站
     type: station-energy-store
     #    driver: energy_store

@@ -16,7 +16,7 @@ logger:
 
 server:
   # 基本配置
-  address:             ":80"                        # 本地监听地址。默认":80"，多个地址以","号分隔。例如："192.168.2.3:8000,10.0.3.10:8001"
+  address:             ":15880"                        # 本地监听地址。默认":80"，多个地址以","号分隔。例如："192.168.2.3:8000,10.0.3.10:8001"
 #  httpsAddr:           ":443"                       # TLS/HTTPS配置，同时需要配置证书和密钥。默认关闭。配置格式同上。
 #  httpsCertPath:       ""                           # TLS/HTTPS证书文件本地路径，建议使用绝对路径。默认关闭
 #  httpsKeyPath:        ""                           # TLS/HTTPS密钥文件本地路径，建议使用绝对路径。默认关闭
@@ -61,7 +61,7 @@ server:
 
 
   # PProf配置
-  pprofEnabled:        true              # 是否开启PProf性能调试特性。默认为false
+  pprofEnabled:        false              # 是否开启PProf性能调试特性。默认为false
   pprofPattern:        "/debug"                 # 开启PProf时有效，表示PProf特性的页面访问路径，对当前Server绑定的所有域名有效。
 
   # 其他配置
