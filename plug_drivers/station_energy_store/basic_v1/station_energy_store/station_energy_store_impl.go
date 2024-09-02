@@ -41,6 +41,7 @@ func NewGroupEnergyStore(ctx context.Context) c_device.IStationEnergyStore {
 			Model:  "Station Energy Store",
 			Remark: "场站储能组",
 			Telemetry: []*c_base.STelemetry{
+				{Name: "soc", Unit: "%", Remark: "SOC"},
 				{Name: "power", Unit: "kW", Remark: "功率"},
 				{Name: "apparentPower", Unit: "kVA", Remark: "视在功率"},
 				{Name: "reactivePower", Unit: "kVar", Remark: "无功功率"},

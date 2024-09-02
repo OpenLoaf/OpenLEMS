@@ -79,6 +79,16 @@ func (p *PylonCheckwattEss) GetDescription() *c_base.SDescription {
 		Brand:  "Plyon",
 		Model:  "Checkwatt",
 		Remark: "虚拟派能柜，整合PCS与BMS",
+		Telemetry: []*c_base.STelemetry{
+			{Name: "soc", Unit: "%", Remark: "SOC"},
+			{Name: "power", Unit: "kW", Remark: "功率"},
+			{Name: "apparentPower", Unit: "kVA", Remark: "视在功率"},
+			{Name: "reactivePower", Unit: "kVar", Remark: "无功功率"},
+			{Name: "todayIncomingQuantity", I18nKey: "essTodayCharge", Unit: "kWh", Remark: "当日充电量"},
+			{Name: "todayOutgoingQuantity", I18nKey: "essTodayDischarge", Unit: "kWh", Remark: "当日放电量"},
+			{Name: "historyIncomingQuantity", I18nKey: "essHistoryCharge", Unit: "kWh", Remark: "历史充电量"},
+			{Name: "historyOutgoingQuantity", I18nKey: "essHistoryDischarge", Unit: "kWh", Remark: "历史放电量"},
+		},
 	}
 }
 
@@ -156,7 +166,7 @@ func (p *PylonCheckwattEss) GetLastUpdateTime() *time.Time {
 			}
 		}
 	}
-	return nil
+	return lastUpdateTime
 }
 
 func (p *PylonCheckwattEss) SetReset() error {

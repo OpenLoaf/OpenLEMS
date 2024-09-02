@@ -1,6 +1,8 @@
 package main
 
 import (
+	_ "application/internal/logic"
+
 	"application/internal/cmd"
 	"context"
 )

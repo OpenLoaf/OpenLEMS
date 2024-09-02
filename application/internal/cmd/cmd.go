@@ -71,6 +71,7 @@ var (
 				group.Bind(device.NewV1())
 			})
 
+			s.BindObject("/station", ws.NewStationWebsocket())
 			s.BindObject("/telemetry", ws.NewTelemetryWebsocket())
 
 			gproc.AddSigHandlerShutdown(func(sig os.Signal) {
