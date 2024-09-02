@@ -353,6 +353,25 @@ func (s *sStationEnergyStore) GetGridMode() (c_base.EGridMode, error) {
 }
 
 func (s *sStationEnergyStore) SetPower(power int32) error {
+	// 判断一下防止超限
+	if power > 0 {
+		maxOutputPower, err := s.GetMaxOutputPower()
+		if err != nil {
+			return err
+		}
+		if power > int32(maxOutputPower) {
+			return c_error.OverLimitError
+		}
+	} else {
+		maxInputPower, err := s.GetMaxInputPower()
+		if err != nil {
+			return err
+		}
+		if power < int32(-maxInputPower) {
+			return c_error.OverLimitError
+		}
+	}
+
 	// TODO，设置有功功率， 先临时这样写，后面使用算法设置
 	var singlePower = power / int32(len(s.energyStores))
 	for _, store := range s.energyStores {

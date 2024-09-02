@@ -8,4 +8,7 @@ var ()
 
 var (
 	NonSupportError = gerror.New("不支持的操作")
+	ErrorParam      = gerror.New("参数错误")
+
+	OverLimitError = gerror.New("数值超过限制")
 )

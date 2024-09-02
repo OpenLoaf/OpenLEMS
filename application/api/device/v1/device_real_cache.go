@@ -7,8 +7,9 @@ import (
 )
 
 type GetRealDeviceCacheReq struct {
-	g.Meta   `path:"/device/real/cache" method:"get" tags:"设备相关" summary:"获取设备缓存值"`
-	DeviceId string `json:"deviceId,omitempty" v:"required|length:1,32#请输入设备Key|设备Key长度为:min到:max位" dc:"设备Key"`
+	g.Meta           `path:"/device/real/cache" method:"post" tags:"设备相关" summary:"获取设备缓存值"`
+	DeviceId         string   `json:"deviceId" v:"required" dc:"设备Key"`
+	TelemetryKeyList []string `json:"telemetryKeyList"  dc:"遥测列表"`
 }
 
 type GetRealDeviceCacheRes struct {

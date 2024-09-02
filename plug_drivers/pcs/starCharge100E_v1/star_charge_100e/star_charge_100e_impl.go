@@ -54,6 +54,7 @@ func (s *StarCharge100EPcs) SetReset() error {
 }
 
 func (s *StarCharge100EPcs) SetStatus(status c_base.EEnergyStoreStatus) error {
+	g.Log().Warningf(s.Ctx, "StarCharge100EPcs SetStatus() not support!")
 	return nil
 }
 

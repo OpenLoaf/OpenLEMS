@@ -5,6 +5,7 @@ import (
 	"application/internal/model/entity"
 	"context"
 	common "ems-plan"
+	"ems-plan/util"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 )
@@ -28,6 +29,10 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	var values = make([]*entity.SSingleDeviceValue, 0)
 
 	for _, wrapper := range device.GetMetaValueList() {
+		if len(req.TelemetryKeyList) != 0 && util.Contains(req.TelemetryKeyList, wrapper.Meta.Name) == false {
+			continue
+		}
+
 		values = append(values, &entity.SSingleDeviceValue{
 			DeviceId:   wrapper.DeviceId,
 			DeviceType: wrapper.DeviceType,

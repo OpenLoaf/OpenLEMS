@@ -258,6 +258,10 @@ func (p *PylonCheckwattEss) GetHistoryOutgoingQuantity() (float64, error) {
 }
 
 func (p *PylonCheckwattEss) SetStatus(status c_base.EEnergyStoreStatus) error {
+	if status == c_base.EPcsStatusUnknown || status == c_base.EPcsStatusSync || status == c_base.EPcsStatusFault {
+		return c_error.ErrorParam
+	}
+
 	return p.pcs.SetStatus(status)
 }
 
@@ -274,6 +278,25 @@ func (p *PylonCheckwattEss) GetGridMode() (c_base.EGridMode, error) {
 }
 
 func (p *PylonCheckwattEss) SetPower(power int32) error {
+	// 判断一下防止超限
+	if power > 0 {
+		maxOutputPower, err := p.GetMaxOutputPower()
+		if err != nil {
+			return err
+		}
+		if power > int32(maxOutputPower) {
+			return c_error.OverLimitError
+		}
+	} else {
+		maxInputPower, err := p.GetMaxInputPower()
+		if err != nil {
+			return err
+		}
+		if power < int32(-maxInputPower) {
+			return c_error.OverLimitError
+		}
+	}
+
 	return p.pcs.SetPower(power)
 }
 
