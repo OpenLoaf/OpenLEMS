@@ -44,7 +44,7 @@ func (s *StarCharge100EPcs) Init(protocol c_base.IProtocol, deviceConfig *c_base
 	g.Log().Noticef(s.Ctx, "StarCharge100EPcs 初始化完毕！")
 }
 
-func (s *StarCharge100EPcs) GetFunctionList() []*c_base.SFunction {
+func (s *StarCharge100EPcs) GetFunctionList() []*c_base.STelemetry {
 	return nil
 }
 

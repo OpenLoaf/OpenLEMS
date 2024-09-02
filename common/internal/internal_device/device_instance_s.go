@@ -76,10 +76,34 @@ func (d *sDeviceInstance) RemoveById(id string) {
 	}
 }
 
-func (d *sDeviceInstance) FindAll() []c_base.IDriver {
+func (d *sDeviceInstance) FindAll(isVirtual ...bool) []c_base.IDriver {
+
 	var result []c_base.IDriver
 	for _, info := range d.array.Slice() {
-		result = append(result, info.(c_base.IDriver))
+		if isVirtual != nil && len(isVirtual) > 0 {
+			if isVirtual[0] {
+				if info.(c_base.IDriver).GetDeviceConfig().IsVirtual {
+					result = append(result, info.(c_base.IDriver))
+				}
+			} else {
+				if !info.(c_base.IDriver).GetDeviceConfig().IsVirtual {
+					result = append(result, info.(c_base.IDriver))
+				}
+			}
+		} else {
+			// 获取所有
+			result = append(result, info.(c_base.IDriver))
+		}
+
 	}
 	return result
 }
+
+//func (d *sDeviceInstance) FindByConfig(config *c_base.SDriverConfig) c_base.IDriver {
+//	if config.Id == "" || config.RefId == "" {
+//		// Id 或者 refId不能同时为空
+//		panic(fmt.Sprintf("Id: %s, RefId: %s", config.Id, config.RefId))
+//	}
+//
+//
+//}

@@ -37,11 +37,11 @@ func loadDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.
 	case c_base.EDeviceAmmeter:
 		dv = getDriver[c_device.IAmmeter](ctx, latestDriverPath)
 
-		if deviceConfig.CabinetId != 0 {
-			groupType := c_base.EStationType(_group)
-
-			_tempInstanceCache.Ammeters[groupType] = append(_tempInstanceCache.Ammeters[groupType], dv.(c_device.IAmmeter))
-		}
+		//if deviceConfig.CabinetId != 0 {
+		//	groupType := c_base.EStationType(_group)
+		//
+		//	_tempInstanceCache.Ammeters[groupType] = append(_tempInstanceCache.Ammeters[groupType], dv.(c_device.IAmmeter))
+		//}
 
 	case c_base.EDevicePcs:
 		//dv = getDriver[c_device.IPcs](ctx, latestDriverPath)
@@ -51,41 +51,34 @@ func loadDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.
 	case c_base.EDeviceBms:
 
 		// TODO: 改成插件加载
-		dv = &pylon_tech_us108.PylonTechUs108Bms{
-			Ctx: ctx,
-		}
+		dv = pylon_tech_us108.NewPlugin(ctx)
 	case c_base.EDeviceFire:
 		dv = getDriver[c_device.IFire](ctx, latestDriverPath)
 	case c_base.EDeviceEnergyStore:
 		dv = getDriver[c_device.IEnergyStore](ctx, latestDriverPath)
-		_tempInstanceCache.Ess = append(_tempInstanceCache.Ess, dv.(c_device.IEnergyStore))
 	case c_base.EDeviceHumiture:
 		dv = getDriver[c_device.IHumiture](ctx, latestDriverPath)
 	case c_base.EDevicePv:
 		dv = getDriver[c_device.IPv](ctx, latestDriverPath)
-		_tempInstanceCache.Pv = append(_tempInstanceCache.Pv, dv.(c_device.IPv))
 	case c_base.EDeviceCoolingAc:
 		dv = getDriver[c_device.ICoolingAc](ctx, latestDriverPath)
 	case c_base.EDeviceCoolingLiquid:
 		dv = getDriver[c_device.ICoolingLiquid](ctx, latestDriverPath)
 	case c_base.EDeviceLoad:
 		dv = getDriver[c_device.ILoad](ctx, latestDriverPath)
-		_tempInstanceCache.Load = append(_tempInstanceCache.Load, dv.(c_device.ILoad))
-	case c_base.EChargePile:
+	case c_base.EDeviceChargePile:
 		dv = getDriver[c_device.ICharge](ctx, latestDriverPath)
-		_tempInstanceCache.ChargePile = append(_tempInstanceCache.ChargePile, dv.(c_device.ILoad))
-	case c_base.EGenerator:
+	case c_base.EDeviceGenerator:
 		dv = getDriver[c_device.IGenerator](ctx, latestDriverPath)
-		_tempInstanceCache.Generator = append(_tempInstanceCache.Generator, dv.(c_device.IGenerator))
 	}
 
 	if dv == nil {
 		panic(fmt.Sprintf("加载驱动失败！配置为:%+v", deviceConfig))
 	}
 
-	if deviceConfig.CabinetId != 0 {
-		_tempInstanceCache.AddCabinetDevice(deviceConfig.CabinetId, dv)
-	}
+	//if deviceConfig.CabinetId != 0 {
+	//	_tempInstanceCache.AddCabinetDevice(deviceConfig.CabinetId, dv)
+	//}
 
 	//deviceConfig.CheckTypeIs(dv.GetDriverType())
 	deviceConfig.Type = dv.GetDriverType()

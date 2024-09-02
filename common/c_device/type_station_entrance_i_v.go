@@ -1,4 +1,4 @@
-package c_station
+package c_device
 
 import (
 	"ems-plan/c_base"

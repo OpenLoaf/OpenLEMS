@@ -29,6 +29,8 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 
 	for _, wrapper := range device.GetMetaValueList() {
 		values = append(values, &entity.SSingleDeviceValue{
+			DeviceId:   wrapper.DeviceId,
+			DeviceType: wrapper.DeviceType,
 			Meta:       wrapper.Meta,
 			Value:      wrapper.Meta.ValueToString(wrapper.Value),
 			HappenTime: wrapper.HappenTime.Format("2006-01-02 15:04:05"),

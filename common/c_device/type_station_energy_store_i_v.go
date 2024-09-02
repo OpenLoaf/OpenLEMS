@@ -1,13 +1,12 @@
-package c_station
+package c_device
 
 import (
 	"ems-plan/c_base"
-	"ems-plan/c_device"
 )
 
 type IStationEnergyStore interface {
 	c_base.IDriver
-	c_device.IEnergyStoreBasic
+	IEnergyStoreBasic
 
 	GetAllowControl() bool // 是否允许控制
 	GetChildren() []c_base.IDriver

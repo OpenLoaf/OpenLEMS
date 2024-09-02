@@ -58,13 +58,13 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 	if err != nil {
 		if protocolConfig.GetProtocol() == c_base.EModbusRtu {
 			// 如果是RTU协议，无法打开串口，那程序就没必要继续运行了
-			panic(fmt.Errorf("Modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
+			panic(fmt.Errorf("modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
 		}
 
-		g.Log().Warningf(ctx, "first connect failed! watting next connect, %v", err)
+		g.Log().Warningf(ctx, "首次连接到：%s 失败！等待下一次连接！ %v", protocolConfig.GetAddress(), err)
 
 	} else {
-		g.Log().Infof(ctx, "first connect success!")
+		g.Log().Infof(ctx, "首次连接到：%s 成功！", protocolConfig.GetAddress())
 	}
 
 	if protocolConfig.GetProtocol() == c_base.EModbusTcp {

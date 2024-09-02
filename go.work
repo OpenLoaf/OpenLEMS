@@ -3,11 +3,11 @@ go 1.22
 use (
 	application
 	common
-	common_station
 
 	plug_drivers/bms/pylonTechUs108_v1
 	plug_drivers/ess/pylonCheckwatt_v1
 	plug_drivers/pcs/starCharge100E_v1
+	plug_drivers/station_energy_store/basic_v1
 
 	plug_protocol_modbus
 	plug_protocol_canbus

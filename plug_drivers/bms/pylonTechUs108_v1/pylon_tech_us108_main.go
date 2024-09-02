@@ -2,25 +2,17 @@
 package main
 
 import (
-	"common_station/c_station"
 	"context"
-	"ems-plan/c_base"
 	"ems-plan/c_device"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
-	"plug_protocol_modbus"
-	"plug_protocol_modbus/p_modbus"
 	"pylonTechUs108_v1/pylon_tech_us108"
-	"time"
 )
 
 // NewPlugin 必须的方法，不能取消
-func NewPlugin(ctx context.Context) (c_device.IBms, error) {
-	return &pylon_tech_us108.PylonTechUs108Bms{
-		Ctx: ctx,
-	}, nil
+func NewPlugin(ctx context.Context) c_device.IBms {
+	return pylon_tech_us108.NewPlugin(ctx)
 }
 
+/*
 func main() {
 
 	var (
@@ -63,7 +55,7 @@ func main() {
 
 	// 创建一个Device对象，并初始化
 	device := &pylon_tech_us108.PylonTechUs108Bms{
-		Ctx: context.TODO(),
+		ctx: context.TODO(),
 	}
 	err = device.Init(provider, deviceConfig)
 	if err != nil {
@@ -83,3 +75,4 @@ func main() {
 		time.Sleep(time.Hour)
 	}
 }
+*/

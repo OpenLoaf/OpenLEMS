@@ -2,16 +2,9 @@
 package main
 
 import (
-	"common_station/c_station"
 	"context"
-	"ems-plan/c_base"
 	"ems-plan/c_device"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gctx"
-	"plug_protocol_modbus"
-	"plug_protocol_modbus/p_modbus"
 	"starCharge100E_v1/star_charge_100e"
-	"time"
 )
 
 // NewPlugin 必须的方法，不能取消
@@ -21,6 +14,7 @@ func NewPlugin(ctx context.Context) (c_device.IPcs, error) {
 	}, nil
 }
 
+/*
 func main() {
 
 	var (
@@ -35,7 +29,7 @@ func main() {
 				Id:              "测试Pcs-1",
 				Name:            "测试Pcs-1",
 				Driver:          "",
-				StationType:     c_station.EGroupNan,
+				Type:     "",
 				CabinetId:       1,
 				IsMaster:        false,
 				Enable:          true,
@@ -83,3 +77,4 @@ func main() {
 		time.Sleep(time.Hour)
 	}
 }
+*/

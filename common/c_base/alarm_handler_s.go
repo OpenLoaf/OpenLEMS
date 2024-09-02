@@ -11,7 +11,7 @@ SAlarmHandler
 告警实现结构体，使用时只需要 *c_base.SAlarmHandler 嵌套进目标结构体，然后初始化目标结构体时：
 
 	SAlarmHandler: &c_base.SAlarmHandler{
-		Ctx: ctx,
+		ctx: ctx,
 	},
 */
 type SAlarmHandler struct {
@@ -68,7 +68,7 @@ func (s *SAlarmHandler) ProcessAlarmDetail(alarm *SAlarmDetail) {
 	}
 
 	if needNotify {
-		//g.Log().Noticef(s.Ctx, "告警处理：%s", alarm.ToString())
+		//g.Log().Noticef(s.ctx, "告警处理：%s", alarm.ToString())
 		for _, notifyChan := range s.notifyChanList {
 			notifyChan <- alarm
 		}

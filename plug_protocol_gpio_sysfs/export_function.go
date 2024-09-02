@@ -45,7 +45,7 @@ func (m *sMain) Start(ctx context.Context, config sInput) (*sOutput, error) {
 		panic(err)
 	}
 
-	provider.Init(c_base.EGpio)
+	provider.Init(c_base.EDeviceGpio)
 
 	provider.RegisterHandler(func(ctx context.Context, status bool) {
 		g.Log().Infof(ctx, "high")

@@ -3,6 +3,7 @@ package p_gpio_sysfs
 import (
 	"context"
 	"ems-plan/c_base"
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 type SDriverGpioImpl struct {
@@ -20,11 +21,12 @@ func (l *SDriverGpioImpl) Init(client c_base.IProtocol, deviceConfig *c_base.SDr
 		Model:  string(l.IGpioSysfsProtocol.GetGpioDeviceConfig().Direction),
 		Remark: l.IGpioSysfsProtocol.GetDeviceConfig().Name,
 	}
+	g.Log().Infof(l.Ctx, "初始化GPIO驱动[%s]成功！", l.GetDeviceConfig().Name)
 }
 
-func (l *SDriverGpioImpl) GetFunctionList() []*c_base.SFunction {
-	return []*c_base.SFunction{
-		{FunctionName: "status", Unit: "bool", Remark: "开关量"},
+func (l *SDriverGpioImpl) GetFunctionList() []*c_base.STelemetry {
+	return []*c_base.STelemetry{
+		{Name: "status", Unit: "bool", Remark: "开关量"},
 	}
 }
 
@@ -33,5 +35,5 @@ func (l *SDriverGpioImpl) GetDescription() *c_base.SDescription {
 }
 
 func (l *SDriverGpioImpl) GetDriverType() c_base.EDeviceType {
-	return c_base.EGpio
+	return c_base.EDeviceGpio
 }

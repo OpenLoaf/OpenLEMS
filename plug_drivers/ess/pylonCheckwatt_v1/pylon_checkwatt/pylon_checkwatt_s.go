@@ -2,12 +2,12 @@ package pylon_checkwatt
 
 import (
 	"context"
+	common "ems-plan"
 	"ems-plan/c_base"
 	"ems-plan/c_device"
 	"ems-plan/c_error"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
-	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
 	"time"
 )
 
@@ -19,8 +19,7 @@ const (
 type PylonCheckwattEss struct {
 	*c_base.SAlarmHandler
 	deviceConfig *c_base.SDriverConfig
-	Ctx          context.Context
-	CabinetId    uint8 // 属于哪个柜子
+	ctx          context.Context
 
 	unitId  uint8             // modbus转发的id
 	ammeter c_device.IAmmeter // 电表
@@ -34,77 +33,45 @@ type PylonCheckwattEss struct {
 	ledFault        c_device.IGpio
 }
 
-func NewEss(ctx context.Context, cabinetId uint8, drivers []c_base.IDriver, gpioMap map[string]c_device.IGpio) (*PylonCheckwattEss, error) {
+func NewPlugin(ctx context.Context) c_device.IEnergyStore {
+	return &PylonCheckwattEss{ctx: ctx, SAlarmHandler: &c_base.SAlarmHandler{}}
+}
 
-	ess := &PylonCheckwattEss{
-		CabinetId: cabinetId,
-	}
-	ess.Ctx = context.WithValue(ctx, "DeviceName", ess.GetId())
+func (p *PylonCheckwattEss) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+	p.deviceConfig = deviceConfig
+	deviceConfig.IsVirtual = true
 
-	ess.SAlarmHandler = &c_base.SAlarmHandler{
-		Ctx: ess.Ctx,
-		AlarmHappened: func(alarm *c_base.SAlarmDetail) {
-			g.Log().Warningf(ess.Ctx, "柜子：%s,发生告警：%s", ess.GetId(), alarm.Meta.Cn)
-		},
-	}
-
-	var (
-		pcsCount     int
-		bmsCount     int
-		ammeterCount int
-	)
-	for _, driver := range drivers {
-		switch driver.GetDriverType() {
-		case c_base.EDeviceAmmeter:
-			ammeterCount++
-			ess.ammeter = driver.(c_device.IAmmeter)
-		case c_base.EDevicePcs:
-			pcsCount++
-			ess.pcs = driver.(c_device.IPcs)
-			ess.pcs.RegisterMonitorChan(ess.GetMonitorChan())
-		case c_base.EDeviceBms:
-			bmsCount++
-			ess.bms = driver.(c_device.IBms)
-			ess.bms.RegisterMonitorChan(ess.GetMonitorChan())
+	// 从配置中获取电表、PCS、BMS的配置
+	for _, child := range deviceConfig.DeviceChildren {
+		dv := common.DeviceInstance.FindById(child.Id)
+		if dv == nil {
+			panic(fmt.Sprintf("设备Id: %s 不存在！", child.Id))
+		}
+		if dv.GetDriverType() == c_base.EDeviceAmmeter {
+			p.ammeter = dv.(c_device.IAmmeter)
+			g.Log().Infof(p.ctx, "PylonCheckwattEss 电表初始化完毕!")
+		}
+		if dv.GetDriverType() == c_base.EDeviceBms {
+			p.bms = dv.(c_device.IBms)
+			g.Log().Infof(p.ctx, "PylonCheckwattEss 电池初始化完毕!")
+		}
+		if dv.GetDriverType() == c_base.EDevicePcs {
+			p.pcs = dv.(c_device.IPcs)
+			g.Log().Infof(p.ctx, "PylonCheckwattEss 逆变器初始化完毕!")
+		}
+		if dv.GetDriverType() == c_base.EDeviceGpio {
+			if dv.GetDeviceConfig().Id == IdButtonDischarge {
+				p.buttonDischarge = dv.(c_device.IGpio)
+				g.Log().Infof(p.ctx, "PylonCheckwattEss 放电按钮初始化完毕!")
+			}
+			if dv.GetDeviceConfig().Id == IdButtonCharge {
+				p.buttonCharge = dv.(c_device.IGpio)
+				g.Log().Infof(p.ctx, "PylonCheckwattEss 充电按钮初始化完毕!")
+			}
 		}
 	}
-	if ess.pcs == nil || ess.bms == nil {
-		panic(fmt.Sprintf("一个柜子需要电池和PCS组成，但是现在有一项不存在，请检查配置！ PCS数量:%d, BMS数量:%d，电表数量:%d, cabinetId:%d", pcsCount, bmsCount, ammeterCount, cabinetId))
-	}
 
-	if pcsCount > 1 || bmsCount > 1 || ammeterCount > 1 {
-		panic(fmt.Sprintf("当前柜子ID：%d加载的设备数量不正确！PCS数量:%d, BMS数量:%d，电表数量:%d, 请检查配置！", cabinetId, pcsCount, bmsCount, ammeterCount))
-	}
-
-	// 注册输入输出
-	if output, exist := gpioMap[p_gpio_sysfs.IdLedRunning]; exist {
-		ess.ledRunning = output
-		g.Log().Infof(ess.Ctx, "注册LED运行灯成功！")
-	}
-	if output, exist := gpioMap[p_gpio_sysfs.IdLedFault]; exist {
-		ess.ledFault = output
-		g.Log().Infof(ess.Ctx, "注册LED故障灯成功！")
-	}
-
-	if input, exist := gpioMap[p_gpio_sysfs.IdButtonScram]; exist {
-		input.RegisterHandler(func(ctx context.Context, status bool) {
-			if status {
-				g.Log().Warningf(ess.Ctx, "触发急停！")
-				// 紧急停机
-				if ess.ledFault != nil {
-					_ = ess.ledFault.SetHigh()
-					g.Log().Warningf(ess.Ctx, "触发急停！触发故障灯！")
-				}
-			} else {
-				_ = ess.ledFault.SetLow()
-				g.Log().Infof(ess.Ctx, "解除急停！故障灯熄灭！")
-			}
-
-		})
-		ess.buttonScram = input
-		g.Log().Infof(ess.Ctx, "注册急停按钮成功！")
-	}
-	return ess, nil
+	g.Log().Infof(p.ctx, "PylonCheckwattEss 虚拟储能柜初始化完毕!")
 }
 
 func (p *PylonCheckwattEss) GetDescription() *c_base.SDescription {
@@ -123,16 +90,16 @@ func (p *PylonCheckwattEss) GetDeviceConfig() *c_base.SDriverConfig {
 	return p.deviceConfig
 }
 
-func (p *PylonCheckwattEss) GetFunctionList() []*c_base.SFunction {
-	return []*c_base.SFunction{
-		{FunctionName: "soc", Unit: "%", Remark: "SOC"},
-		{FunctionName: "power", Unit: "kW", Remark: "功率"},
-		{FunctionName: "apparentPower", Unit: "kVA", Remark: "视在功率"},
-		{FunctionName: "reactivePower", Unit: "kVar", Remark: "无功功率"},
-		{FunctionName: "todayIncomingQuantity", FunctionNameI18nOverwrite: "essTodayCharge", Unit: "kWh", Remark: "当日充电量"},
-		{FunctionName: "todayOutgoingQuantity", FunctionNameI18nOverwrite: "essTodayDischarge", Unit: "kWh", Remark: "当日放电量"},
-		{FunctionName: "historyIncomingQuantity", FunctionNameI18nOverwrite: "essHistoryCharge", Unit: "kWh", Remark: "历史充电量"},
-		{FunctionName: "historyOutgoingQuantity", FunctionNameI18nOverwrite: "essHistoryDischarge", Unit: "kWh", Remark: "历史放电量"},
+func (p *PylonCheckwattEss) GetFunctionList() []*c_base.STelemetry {
+	return []*c_base.STelemetry{
+		{Name: "soc", Unit: "%", Remark: "SOC"},
+		{Name: "power", Unit: "kW", Remark: "功率"},
+		{Name: "apparentPower", Unit: "kVA", Remark: "视在功率"},
+		{Name: "reactivePower", Unit: "kVar", Remark: "无功功率"},
+		{Name: "todayIncomingQuantity", I18nKey: "essTodayCharge", Unit: "kWh", Remark: "当日充电量"},
+		{Name: "todayOutgoingQuantity", I18nKey: "essTodayDischarge", Unit: "kWh", Remark: "当日放电量"},
+		{Name: "historyIncomingQuantity", I18nKey: "essHistoryCharge", Unit: "kWh", Remark: "历史充电量"},
+		{Name: "historyOutgoingQuantity", I18nKey: "essHistoryDischarge", Unit: "kWh", Remark: "历史放电量"},
 	}
 }
 
@@ -164,19 +131,6 @@ func (p *PylonCheckwattEss) GetMetaValueList() []*c_base.MetaValueWrapper {
 		metaValueList = append(metaValueList, p.ledFault.GetMetaValueList()...)
 	}
 	return metaValueList
-}
-
-func (p *PylonCheckwattEss) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
-	p.deviceConfig = deviceConfig
-	g.Log().Infof(p.Ctx, "PylonCheckwattEss Init!CabinetId:%d", p.CabinetId)
-}
-
-func (p *PylonCheckwattEss) GetId() string {
-	return fmt.Sprintf("pylonCheckwattEss_%d", p.CabinetId)
-}
-
-func (p *PylonCheckwattEss) GetType() c_base.EDeviceType {
-	return c_base.EDeviceEnergyStore
 }
 
 func (p *PylonCheckwattEss) GetLastUpdateTime() *time.Time {

@@ -1,4 +1,4 @@
-station:
+stations:
 #  - id: root-ammeter
 #    name: 总表
 #    type: root-ammeter
@@ -20,6 +20,7 @@ station:
       - refId: led-fault
       - id: ess-1
         name: 储能柜1
+        type: energy-store
         driver: ess_pylon_checkwatt
         params:
           maxCharge: 30
@@ -43,7 +44,6 @@ devices:
         enable: true
         driver: pcs_starCharge100E
         type: pcs
-        isMaster: false
         logLevel: INFO
         printCacheValue: false
         params:
@@ -55,7 +55,6 @@ devices:
         enable: true
         driver: bms_pylonTechUs108
         type: bms
-        isMaster: false
         logLevel: INFO
         printCacheValue: false
         params:
