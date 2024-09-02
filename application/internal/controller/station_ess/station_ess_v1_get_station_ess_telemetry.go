@@ -8,5 +8,5 @@ import (
 
 func (c *ControllerV1) GetStationEssTelemetry(ctx context.Context, req *v1.GetStationEssTelemetryReq) (res *v1.GetStationEssTelemetryRes, err error) {
 
-	return &v1.GetStationEssTelemetryRes{EssStatus: service.Station().GetEssStatus()}, nil
+	return &v1.GetStationEssTelemetryRes{EnergyStoreStatus: service.Station().GetEnergyStoreStatus()}, nil
 }

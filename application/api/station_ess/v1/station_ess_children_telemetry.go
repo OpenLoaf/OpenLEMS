@@ -10,5 +10,5 @@ type GetStationEssChildrenTelemetryReq struct {
 }
 
 type GetStationEssChildrenTelemetryRes struct {
-	EssStatusList []*entity.EssStatus `json:"essStatusList,omitempty" dc:"储能组中的每个设备的状态"`
+	EssStatusList []*entity.EnergyStoreStatus `json:"essStatusList,omitempty" dc:"储能组中的每个设备的状态"`
 }

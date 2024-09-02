@@ -2,7 +2,7 @@ package entity
 
 import "ems-plan/c_base"
 
-type EssStatus struct {
+type EnergyStoreStatus struct {
 	DeviceId       string `json:"key" dc:"设备ID"`
 	I18nName       string `json:"name" dc:"名称"`
 	LastUpdateTime string `json:"lastUpdateTime" dc:"最后更新时间"`

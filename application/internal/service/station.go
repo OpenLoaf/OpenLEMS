@@ -7,11 +7,14 @@ package service
 
 import (
 	"application/internal/model/entity"
+	"ems-plan/c_base"
 )
 
 type (
 	IStation interface {
-		GetEssStatus() *entity.EssStatus
+		GetEnergyStoreStatus() *entity.EnergyStoreStatus
+		SetEnergyStorePower(power int32) error
+		SetEnergyStoreStatus(status c_base.EEnergyStoreStatus) error
 	}
 )
 

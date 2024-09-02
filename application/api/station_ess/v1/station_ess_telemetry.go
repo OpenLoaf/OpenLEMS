@@ -10,5 +10,5 @@ type GetStationEssTelemetryReq struct {
 }
 
 type GetStationEssTelemetryRes struct {
-	*entity.EssStatus
+	*entity.EnergyStoreStatus
 }

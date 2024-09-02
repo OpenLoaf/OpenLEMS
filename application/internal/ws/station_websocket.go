@@ -58,16 +58,11 @@ func (w *StationWebsocket) Ws(r *ghttp.Request) {
 		_ = conn.Close()
 	}(conn)
 	// 上面都一样
+
+	w.sendData(conn)
 	// 每秒发送数据
 	gtimer.SetInterval(ctx, time.Second, func(ctx context.Context) {
-		_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
-			Code:    200,
-			Message: "",
-			Time:    util.GetNow(),
-			Data: map[string]any{
-				string(c_base.EStationEnergyStore): service.Station().GetEssStatus(),
-			},
-		})
+		w.sendData(conn)
 	})
 
 	for {
@@ -80,4 +75,15 @@ func (w *StationWebsocket) Ws(r *ghttp.Request) {
 		}
 	}
 
+}
+
+func (w *StationWebsocket) sendData(conn *websocket.Conn) {
+	_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
+		Code:    200,
+		Message: "",
+		Time:    util.GetNow(),
+		Data: map[string]any{
+			string(c_base.EStationEnergyStore): service.Station().GetEnergyStoreStatus(),
+		},
+	})
 }
