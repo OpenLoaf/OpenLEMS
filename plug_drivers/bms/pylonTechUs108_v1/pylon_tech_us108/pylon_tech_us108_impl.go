@@ -227,11 +227,7 @@ func (p *PylonTechUs108Bms) writeTime() {
 				if !p.IsActivate() {
 					continue
 				}
-				err := p._syncTime()
-				if err == nil {
-					g.Log().Infof(p.ctx, "同步时间成功！")
-					//break
-				}
+				_ = p._syncTime()
 			}
 
 		}

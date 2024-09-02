@@ -4,6 +4,7 @@ import (
 	"application/internal/collect"
 	"application/internal/consts"
 	"application/internal/controller/device"
+	"application/internal/controller/station_ess"
 	"application/internal/controller/telemetry"
 	"application/internal/ws"
 	"context"
@@ -66,7 +67,7 @@ var (
 					},
 				)
 				group.Bind(telemetry.NewV1())
-				//group.Bind(station_ess.NewV1())
+				group.Bind(station_ess.NewV1())
 				group.Bind(device.NewV1())
 			})
 

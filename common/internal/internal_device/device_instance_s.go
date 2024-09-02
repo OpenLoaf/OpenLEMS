@@ -99,6 +99,14 @@ func (d *sDeviceInstance) FindAll(isVirtual ...bool) []c_base.IDriver {
 	return result
 }
 
+func (d *sDeviceInstance) GetStationEnergyStore() c_device.IStationEnergyStore {
+	driver := d.FindById(string(c_base.EStationEnergyStore))
+	if driver == nil {
+		return nil
+	}
+	return driver.(c_device.IStationEnergyStore)
+}
+
 //func (d *sDeviceInstance) FindByConfig(config *c_base.SDriverConfig) c_base.IDriver {
 //	if config.Id == "" || config.RefId == "" {
 //		// Id 或者 refId不能同时为空

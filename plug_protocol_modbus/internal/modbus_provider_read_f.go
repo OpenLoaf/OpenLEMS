@@ -46,15 +46,21 @@ func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus.ModbusGroup, read
 	returnMetasLength := len(metas)
 	if readCache && metas != nil && returnMetasLength != 0 {
 		vars := make([]*gvar.Var, returnMetasLength)
+		var needRead bool
 		for i, meta := range metas {
 			value, err := p.GetValue(meta)
 			if err != nil || value == nil {
 				// 如果有错误或者无数据，就直接退出循环，执行后面的数据读取指令
+				needRead = true
 				break
 			}
 			vars[i] = value
 		}
-		return vars, nil
+		if !needRead {
+			// 如果不需要读，直接返回
+			return vars, nil
+		}
+
 	}
 
 	result, err := p.readValues(group.Name, group.Addr, group.Quantity, group.Function)

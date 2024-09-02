@@ -13,4 +13,6 @@ type IDriverInstances interface {
 	FindByType(t c_base.EDeviceType) []c_base.IDriver
 
 	RemoveById(id string)
+
+	GetStationEnergyStore() IStationEnergyStore
 }
