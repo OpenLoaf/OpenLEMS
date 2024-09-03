@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtimer"
 	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
 	"time"
 )
@@ -45,10 +46,10 @@ func NewGroupEnergyStore(ctx context.Context) c_device.IStationEnergyStore {
 				{Name: "power", Unit: "kW", Remark: "功率"},
 				{Name: "apparentPower", Unit: "kVA", Remark: "视在功率"},
 				{Name: "reactivePower", Unit: "kVar", Remark: "无功功率"},
-				{Name: "todayIncomingQuantity", I18nKey: "essTodayCharge", Unit: "kWh", Remark: "当日充电量"},
-				{Name: "todayOutgoingQuantity", I18nKey: "essTodayDischarge", Unit: "kWh", Remark: "当日放电量"},
-				{Name: "historyIncomingQuantity", I18nKey: "essHistoryCharge", Unit: "kWh", Remark: "历史充电量"},
-				{Name: "historyOutgoingQuantity", I18nKey: "essHistoryDischarge", Unit: "kWh", Remark: "历史放电量"},
+				{Name: "todayIncomingQuantity", I18nKey: "todayIncomingQuantity", Unit: "kWh", Remark: "当日充电量"},
+				{Name: "todayOutgoingQuantity", I18nKey: "todayOutgoingQuantity", Unit: "kWh", Remark: "当日放电量"},
+				{Name: "historyIncomingQuantity", I18nKey: "historyIncomingQuantity", Unit: "kWh", Remark: "历史充电量"},
+				{Name: "historyOutgoingQuantity", I18nKey: "historyOutgoingQuantity", Unit: "kWh", Remark: "历史放电量"},
 			},
 		},
 	}
@@ -83,27 +84,50 @@ func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_ba
 
 		if dv.GetDeviceConfig().Id == p_gpio_sysfs.IdLedFault && dv.GetDriverType() == c_base.EDeviceGpio {
 			s.ledFault = dv.(c_device.IGpio)
+
+			gtimer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
+				status, err := s.GetStatus()
+				level := s.GetAlarmLevel()
+				if err == nil && status == c_base.EPcsStatusFault {
+					_ = s.ledFault.SetHigh()
+				} else {
+					if level != c_base.EError {
+						_ = s.ledFault.SetLow()
+					}
+				}
+			})
 			g.Log().Infof(s.ctx, "注册故障灯成功！")
 		}
 		if dv.GetDeviceConfig().Id == p_gpio_sysfs.IdLedRunning && dv.GetDriverType() == c_base.EDeviceGpio {
 			s.ledRunning = dv.(c_device.IGpio)
+
+			gtimer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
+				// 如果功率大于5，就亮灯
+				power, err := s.GetPower()
+				if err == nil && power > 5 {
+					_ = s.ledRunning.SetHigh()
+				} else {
+					_ = s.ledRunning.SetLow()
+				}
+			})
+
 			g.Log().Infof(s.ctx, "注册运行灯成功！")
 		}
 
 		if dv.GetDeviceConfig().Id == p_gpio_sysfs.IdButtonScram {
 			gpioDv := dv.(c_device.IGpio)
-			gpioDv.RegisterHandler(func(ctx context.Context, status bool) {
+			gpioDv.RegisterHandler(func(ctx context.Context, status bool, isChange bool) {
 				if status {
-					// 紧急停机
-					if s.ledFault != nil {
-						_ = s.ledFault.SetHigh()
-						g.Log().Warningf(s.ctx, "储能场站触发急停！触发储能场站故障灯！")
-					} else {
-						g.Log().Warningf(s.ctx, "储能场站触发急停！")
-					}
-				} else {
-					_ = s.ledFault.SetLow()
-					g.Log().Infof(s.ctx, "储能场站解除急停！储能场站故障灯熄灭！")
+					// 设置pcs状态为停机
+					//_ = s.SetStatus(c_base.EPcsStatusOff)
+
+					//// 紧急停机
+					//if s.ledFault != nil && isChange {
+					//	_ = s.ledFault.SetHigh()
+					//	g.Log().Warningf(s.ctx, "储能场站触发急停！触发储能场站故障灯！")
+					//} else {
+					//	g.Log().Warningf(s.ctx, "储能场站触发急停！")
+					//}
 				}
 
 			})
@@ -278,6 +302,7 @@ func (s *sStationEnergyStore) GetDcPower() (float64, error) {
 }
 
 func (s *sStationEnergyStore) SetReset() error {
+	g.Log().Debugf(s.ctx, "设置储能场站复位")
 	var err error
 	for _, store := range s.energyStores {
 		_err := store.SetReset()
@@ -290,6 +315,7 @@ func (s *sStationEnergyStore) SetReset() error {
 }
 
 func (s *sStationEnergyStore) SetStatus(status c_base.EEnergyStoreStatus) error {
+	g.Log().Debugf(s.ctx, "设置储能场站状态：%s", status)
 	var err error
 	for _, store := range s.energyStores {
 		_err := store.SetStatus(status)
@@ -353,9 +379,11 @@ func (s *sStationEnergyStore) GetGridMode() (c_base.EGridMode, error) {
 }
 
 func (s *sStationEnergyStore) SetPower(power int32) error {
+	g.Log().Debugf(s.ctx, "设置储能场站功率：%d", power)
 	// 判断一下防止超限
 	if power > 0 {
 		maxOutputPower, err := s.GetMaxOutputPower()
+		g.Log().Debugf(s.ctx, "储能场站最大输出功率：%f", maxOutputPower)
 		if err != nil {
 			return err
 		}
@@ -364,6 +392,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 		}
 	} else {
 		maxInputPower, err := s.GetMaxInputPower()
+		g.Log().Debugf(s.ctx, "储能场站最大输入功率：%f", maxInputPower)
 		if err != nil {
 			return err
 		}
@@ -377,6 +406,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 	for _, store := range s.energyStores {
 		_ = store.SetPower(singlePower)
 	}
+
 	return nil
 }
 

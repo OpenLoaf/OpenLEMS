@@ -149,12 +149,14 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 }
 
 func InitStation(ctx context.Context, deviceConfig *c_base.SDriverConfig) {
+
 	if deviceConfig.Id == "" && deviceConfig.RefId == "" {
 		panic(fmt.Sprintf("%s 设备Id和RefId不能为同时为空！", deviceConfig.Name))
 	}
 	if deviceConfig.Id != "" && deviceConfig.RefId != "" && deviceConfig.Id != deviceConfig.RefId {
 		panic(fmt.Sprintf("%s 设备Id和RefId不能同时存在！但允许相同", deviceConfig.Name))
 	}
+
 	if deviceConfig.RefId != "" {
 		// 说明是引用的
 		refDevice := common.DeviceInstance.FindById(deviceConfig.RefId)
@@ -166,6 +168,9 @@ func InitStation(ctx context.Context, deviceConfig *c_base.SDriverConfig) {
 	}
 
 	if deviceConfig.Id != "" {
+		if deviceConfig.Enable == false {
+			return
+		}
 		if deviceConfig.DeviceChildren != nil {
 			for _, _device := range deviceConfig.DeviceChildren {
 				InitStation(ctx, _device)

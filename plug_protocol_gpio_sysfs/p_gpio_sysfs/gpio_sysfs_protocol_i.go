@@ -8,7 +8,7 @@ import (
 type IGpioSysfsProtocol interface {
 	c_base.IProtocol
 
-	RegisterHandler(handler func(ctx context.Context, status bool)) // 状态变化处理
+	RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) // 状态变化处理
 
 	GetStatus() bool // 获取状态
 

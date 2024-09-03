@@ -8,7 +8,7 @@ import (
 type IGpio interface {
 	c_base.IDriver
 
-	RegisterHandler(handler func(ctx context.Context, status bool)) // 状态变化处理
+	RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) // 状态变化处理
 
 	GetStatus() bool // 是否是高电平
 

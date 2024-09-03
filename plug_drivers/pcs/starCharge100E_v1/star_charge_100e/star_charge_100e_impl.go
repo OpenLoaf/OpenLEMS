@@ -3,6 +3,7 @@ package star_charge_100e
 import (
 	"context"
 	"ems-plan/c_base"
+	"ems-plan/c_error"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/glog"
 	"plug_protocol_modbus/p_modbus"
@@ -54,8 +55,16 @@ func (s *StarCharge100EPcs) SetReset() error {
 }
 
 func (s *StarCharge100EPcs) SetStatus(status c_base.EEnergyStoreStatus) error {
-	g.Log().Warningf(s.Ctx, "StarCharge100EPcs SetStatus() not support!")
-	return nil
+	if status == c_base.EPcsStatusOff {
+		_ = s.SetPower(0)
+		return s.WriteSingleRegister(OnOffCommand, 0)
+	}
+	if status == c_base.EPcsStatusStandby {
+		// 这里文档是 On/off command: 0- Shutdown, 1- Startup, 2- Standby
+		return s.WriteSingleRegister(OnOffCommand, 1)
+	}
+
+	return c_error.ErrorParam
 }
 
 func (s *StarCharge100EPcs) SetGridMode(mode c_base.EGridMode) error {
@@ -71,8 +80,8 @@ func (s *StarCharge100EPcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	switch value {
 	// 0 - Waiting for the machine to start, 1 - Power on self check, 2 - Grid connected operation, 3 - Off grid operation, 4 - Reserved, 5 - General error
 	case 0, 1:
-		// 等待设备启动算是同步中状态
-		return c_base.EPcsStatusSync, nil
+		// 等待设备启动算是关机的状态
+		return c_base.EPcsStatusOff, nil
 	case 2, 3:
 		// 离网并网运行中时，说明设备正常。获取功率，如果获取功率失败，说明设备故障，获取成功后正为放电，负为充电
 		power, err := s.GetPower()

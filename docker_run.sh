@@ -7,4 +7,5 @@ echo "Building for ARM"
 #cd ..
 
 ./generate_all_plugin.sh arm || exit 1
-./arm-build/sync.sh zlg 192.168.0.124 /home/zlg/ems
+#./arm-build/sync.sh zlg 192.168.0.124 /home/zlg/ems
+./arm-build/sync.sh zlg 192.168.2.136 /home/zlg/ems

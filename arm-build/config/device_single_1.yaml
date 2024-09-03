@@ -1,13 +1,7 @@
 stations:
-#  - id: root-ammeter
-#    name: 总表
-#    type: root-ammeter
-#    enable: true
-
   - id: station-energy-store
     name: 储能站
     type: station-energy-store
-    #    driver: energy_store
     enable: true
     logLevel: INFO
     params:
@@ -33,26 +27,15 @@ stations:
           - refId: button-discharge
 
 devices:
-  - name: Modbus_tcp
+  - name: Modbus_tcp_5.125
     protocol: modbus_tcp
     enable: true
     logLevel: INFO
-    address: 127.0.0.1:1503
+    address: 192.168.5.125:502
     timeout: 3000
     device-children:
-      - id: star-charge-100E-1
-        name: 本地模拟阳光电源PCS
-        enable: true
-        driver: pcs_starCharge100E
-        type: pcs
-        logLevel: INFO
-        printCacheValue: false
-        params:
-          unitId: 1
-          ratedPower: 100
-          syncTime: true   # 同步时间
       - id: pylon-tech-us108-1
-        name: 本地模拟派能MBMS
+        name: 派能MBMS
         enable: true
         driver: bms_pylonTechUs108
         type: bms
@@ -65,6 +48,30 @@ devices:
           capacity: 100
           maxInputPower: 70
           maxOutputPower: 70
+  - name: Modbus_rtu_1
+    protocol: modbus_rtu
+    enable: true
+    logLevel: INFO
+    address: /dev/ttyRS485-1
+    timeout: 3000
+    config:
+      speed: 9600
+      dataBits: 8
+      parity: N
+      stopBits: 1
+    device-children:
+      - id: star-charge-100E-1
+        name: 阳光电源PCS
+        enable: true
+        driver: pcs_starCharge100E
+        type: pcs
+        isMaster: false
+        logLevel: INFO
+        printCacheValue: false
+        params:
+          unitId: 1
+          ratedPower: 100
+          syncTime: false   # 同步时间
   - name: gpio
     protocol: gpio  # sysfs
     enable: true
@@ -77,30 +84,30 @@ devices:
         enable: true
         level: Error
         params:
-          path: /Users/zhao/Downloads/gpio
+          path: /sys/class/gpio/gpio291
           direction: in
       - id: button-charge
         name: 充电开关
         enable: true
         params:
-          path: /Users/zhao/Downloads/gpio
+          path: /sys/class/gpio/gpio380
           direction: in
       - id: button-discharge
         name: 放电开关
         enable: true
         params:
-          path: /Users/zhao/Downloads/gpio
+          path: /sys/class/gpio/gpio383
           direction: in
           reverse: true
       - id: led-running
         name: 运行指示灯
         enable: true
         params:
-          path: /Users/zhao/Downloads/gpio
+          path: /sys/class/gpio/gpio436
           direction: out
       - id: led-fault
         name: 故障指示灯
         enable: true
         params:
-          path: /Users/zhao/Downloads/gpio
+          path: /sys/class/gpio/gpio439
           direction: out

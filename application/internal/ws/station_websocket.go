@@ -4,7 +4,6 @@ import (
 	"application/internal/service"
 	"context"
 	"ems-plan/c_base"
-	"ems-plan/util"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gtimer"
@@ -81,7 +80,7 @@ func (w *StationWebsocket) sendData(conn *websocket.Conn) {
 	_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 		Code:    200,
 		Message: "",
-		Time:    util.GetNow(),
+		Time:    time.Now().Format("2006-01-02 15:04:05"),
 		Data: map[string]any{
 			string(c_base.EStationEnergyStore): service.Station().GetEnergyStoreStatus(),
 		},

@@ -21,12 +21,15 @@ func (s *sStation) GetEnergyStoreStatus() *entity.EnergyStoreStatus {
 	if lastUpdateTimeObj != nil {
 		lastUpdateTimeStr = lastUpdateTimeObj.Format("2006-01-02 15:04:05.000")
 	}
-
+	status, err := ess.GetStatus()
+	if err != nil {
+		status = c_base.EPcsStatusUnknown
+	}
 	essStatus := &entity.EnergyStoreStatus{
-		DeviceId:       ess.GetDeviceConfig().Id,
-		I18nName:       ess.GetDeviceConfig().Name,
-		LastUpdateTime: lastUpdateTimeStr,
-
+		DeviceId:            ess.GetDeviceConfig().Id,
+		I18nName:            ess.GetDeviceConfig().Name,
+		LastUpdateTime:      lastUpdateTimeStr,
+		Status:              status,
 		TargetPower:         gconv.String(ess.GetTargetPower()),
 		TargetReactivePower: gconv.String(ess.GetTargetReactivePower()),
 		TargetPowerFactor:   util.Float32ToString(ess.GetTargetPowerFactor(), 2),

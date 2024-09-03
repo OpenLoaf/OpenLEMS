@@ -29,7 +29,7 @@ stations:
         name: 储能柜2
         type: energy-store
         driver: ess_pylon_checkwatt
-        enable: true
+        enable: false
         params:
           maxCharge: 30
           maxDischarge: 30
@@ -59,16 +59,16 @@ devices:
           capacity: 100
           maxInputPower: 70
           maxOutputPower: 70
-  - name: Modbus_tcp_1.106
+  - name: Modbus_tcp_0.16
     protocol: modbus_tcp
     enable: true
     logLevel: INFO
-    address: 192.168.1.106:502
+    address: 192.168.0.16:502
     timeout: 3000
     device-children:
       - id: pylon-tech-us108-2
         name: 派能MBMS
-        enable: true
+        enable: false
         driver: bms_pylonTechUs108
         type: bms
         logLevel: INFO
@@ -118,7 +118,7 @@ devices:
     device-children:
       - id: star-charge-100E-2
         name: 阳光电源PCS
-        enable: true
+        enable: false
         driver: pcs_starCharge100E
         type: pcs
         isMaster: false

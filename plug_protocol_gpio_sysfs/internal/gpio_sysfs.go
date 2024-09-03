@@ -17,19 +17,19 @@ import (
 )
 
 type SGpioSysfsProvider struct {
-	*c_base.SAlarmHandler                                        // 告警
-	once                  sync.Once                              // 只执行一次Init方法
-	meta                  *c_base.Meta                           // 元数据
-	mutex                 sync.Mutex                             // 互斥锁，修改数据防止并发
-	log                   *glog.Logger                           // 日志
-	printCacheValue       bool                                   // 打印缓存值
-	status                bool                                   // 结果
-	lastUpdateTime        *time.Time                             // 最后更新时间
-	deviceConfig          *c_base.SDriverConfig                  // 设备基础配置
-	gpioDeviceConfig      *p_gpio_sysfs.SGpioSysfsDeviceConfig   // 设备扩展配置
-	protocolConfig        *c_base.SProtocolConfig                // 协议配置
-	protocolParam         *p_gpio_sysfs.SGpioProtocolConfig      // 协议扩展配置
-	handler               func(ctx context.Context, status bool) // 处理函数
+	*c_base.SAlarmHandler                                                       // 告警
+	once                  sync.Once                                             // 只执行一次Init方法
+	meta                  *c_base.Meta                                          // 元数据
+	mutex                 sync.Mutex                                            // 互斥锁，修改数据防止并发
+	log                   *glog.Logger                                          // 日志
+	printCacheValue       bool                                                  // 打印缓存值
+	status                bool                                                  // 结果
+	lastUpdateTime        *time.Time                                            // 最后更新时间
+	deviceConfig          *c_base.SDriverConfig                                 // 设备基础配置
+	gpioDeviceConfig      *p_gpio_sysfs.SGpioSysfsDeviceConfig                  // 设备扩展配置
+	protocolConfig        *c_base.SProtocolConfig                               // 协议配置
+	protocolParam         *p_gpio_sysfs.SGpioProtocolConfig                     // 协议扩展配置
+	handler               func(ctx context.Context, status bool, isChange bool) // 处理函数
 }
 
 func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
@@ -153,7 +153,7 @@ func (s *SGpioSysfsProvider) Init() {
 	})
 }
 
-func (s *SGpioSysfsProvider) RegisterHandler(handler func(ctx context.Context, status bool)) {
+func (s *SGpioSysfsProvider) RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) {
 	if s.gpioDeviceConfig.Direction != p_gpio_sysfs.EGpioDirectionIn {
 		panic(fmt.Errorf("只有输入类型的GPIO才能注册Handler"))
 	}
@@ -211,15 +211,13 @@ func (s *SGpioSysfsProvider) process(status bool) {
 		status = !status
 	}
 
+	if s.handler != nil {
+		s.handler(s.Ctx, status, s.status != status)
+		//g.Log().Debugf(s.Ctx, "GPIO %s value: %v, func:%v", s.deviceConfig.Id, status, s.handler)
+	}
+
 	if s.status != status {
-		if s.GetId() == "button-scram" {
-			g.Log().Debugf(s.Ctx, "GPIO %s value: %v, func:%v", s.deviceConfig.Id, status, s.handler)
-		}
 		s.status = status
-		if s.handler != nil {
-			s.handler(s.Ctx, status)
-			g.Log().Debugf(s.Ctx, "22GPIO %s value: %v, func:%v", s.deviceConfig.Id, status, s.handler)
-		}
 
 		// 触发告警
 		if s.gpioDeviceConfig.Level != c_base.ENone && s.gpioDeviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {

@@ -45,7 +45,7 @@ func (p *PylonCheckwattEss) Init(protocol c_base.IProtocol, deviceConfig *c_base
 	for _, child := range deviceConfig.DeviceChildren {
 		dv := common.DeviceInstance.FindById(child.Id)
 		if dv == nil {
-			panic(fmt.Sprintf("设备Id: %s 不存在！", child.Id))
+			panic(fmt.Sprintf("PylonCheckwattEss 设备Id: %s 不存在！", child.Id))
 		}
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
 			p.ammeter = dv.(c_device.IAmmeter)
@@ -84,10 +84,10 @@ func (p *PylonCheckwattEss) GetDescription() *c_base.SDescription {
 			{Name: "power", Unit: "kW", Remark: "功率"},
 			{Name: "apparentPower", Unit: "kVA", Remark: "视在功率"},
 			{Name: "reactivePower", Unit: "kVar", Remark: "无功功率"},
-			{Name: "todayIncomingQuantity", I18nKey: "essTodayCharge", Unit: "kWh", Remark: "当日充电量"},
-			{Name: "todayOutgoingQuantity", I18nKey: "essTodayDischarge", Unit: "kWh", Remark: "当日放电量"},
-			{Name: "historyIncomingQuantity", I18nKey: "essHistoryCharge", Unit: "kWh", Remark: "历史充电量"},
-			{Name: "historyOutgoingQuantity", I18nKey: "essHistoryDischarge", Unit: "kWh", Remark: "历史放电量"},
+			{Name: "todayIncomingQuantity", I18nKey: "todayIncomingQuantity", Unit: "kWh", Remark: "当日充电量"},
+			{Name: "todayOutgoingQuantity", I18nKey: "todayOutgoingQuantity", Unit: "kWh", Remark: "当日放电量"},
+			{Name: "historyIncomingQuantity", I18nKey: "historyIncomingQuantity", Unit: "kWh", Remark: "历史充电量"},
+			{Name: "historyOutgoingQuantity", I18nKey: "historyOutgoingQuantity", Unit: "kWh", Remark: "历史放电量"},
 		},
 	}
 }
