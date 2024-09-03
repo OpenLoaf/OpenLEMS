@@ -82,6 +82,7 @@ func (p *PylonCheckwattEss) GetDescription() *c_base.SDescription {
 		Telemetry: []*c_base.STelemetry{
 			{Name: "soc", Unit: "%", Remark: "SOC"},
 			{Name: "power", Unit: "kW", Remark: "功率"},
+			{Name: "targetPower", Unit: "kW", Remark: "目标功率"},
 			{Name: "apparentPower", Unit: "kVA", Remark: "视在功率"},
 			{Name: "reactivePower", Unit: "kVar", Remark: "无功功率"},
 			{Name: "todayIncomingQuantity", I18nKey: "todayIncomingQuantity", Unit: "kWh", Remark: "当日充电量"},
