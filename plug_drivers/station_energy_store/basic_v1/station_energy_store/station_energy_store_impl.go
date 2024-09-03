@@ -44,12 +44,13 @@ func NewGroupEnergyStore(ctx context.Context) c_device.IStationEnergyStore {
 			Telemetry: []*c_base.STelemetry{
 				{Name: "soc", Unit: "%", Remark: "SOC"},
 				{Name: "power", Unit: "kW", Remark: "功率"},
+				{Name: "targetPower", Unit: "kW", Remark: "目标功率"},
 				{Name: "apparentPower", Unit: "kVA", Remark: "视在功率"},
 				{Name: "reactivePower", Unit: "kVar", Remark: "无功功率"},
-				{Name: "todayIncomingQuantity", I18nKey: "todayIncomingQuantity", Unit: "kWh", Remark: "当日充电量"},
-				{Name: "todayOutgoingQuantity", I18nKey: "todayOutgoingQuantity", Unit: "kWh", Remark: "当日放电量"},
-				{Name: "historyIncomingQuantity", I18nKey: "historyIncomingQuantity", Unit: "kWh", Remark: "历史充电量"},
-				{Name: "historyOutgoingQuantity", I18nKey: "historyOutgoingQuantity", Unit: "kWh", Remark: "历史放电量"},
+				{Name: "todayIncomingQuantity", I18nKey: "essTodayCharge", Unit: "kWh", Remark: "当日充电量"},
+				{Name: "todayOutgoingQuantity", I18nKey: "essTodayDischarge", Unit: "kWh", Remark: "当日放电量"},
+				{Name: "historyIncomingQuantity", I18nKey: "essHistoryCharge", Unit: "kWh", Remark: "历史充电量"},
+				{Name: "historyOutgoingQuantity", I18nKey: "essHistoryDischarge", Unit: "kWh", Remark: "历史放电量"},
 			},
 		},
 	}
@@ -401,6 +402,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 		}
 	}
 
+	s.targetPower = power
 	// TODO，设置有功功率， 先临时这样写，后面使用算法设置
 	var singlePower = power / int32(len(s.energyStores))
 	for _, store := range s.energyStores {

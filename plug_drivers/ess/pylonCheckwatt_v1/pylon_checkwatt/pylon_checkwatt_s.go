@@ -104,6 +104,7 @@ func (p *PylonCheckwattEss) GetFunctionList() []*c_base.STelemetry {
 	return []*c_base.STelemetry{
 		{Name: "soc", Unit: "%", Remark: "SOC"},
 		{Name: "power", Unit: "kW", Remark: "功率"},
+		{Name: "targetPower", Unit: "kW", Remark: "目标功率"},
 		{Name: "apparentPower", Unit: "kVA", Remark: "视在功率"},
 		{Name: "reactivePower", Unit: "kVar", Remark: "无功功率"},
 		{Name: "todayIncomingQuantity", I18nKey: "essTodayCharge", Unit: "kWh", Remark: "当日充电量"},
@@ -296,7 +297,6 @@ func (p *PylonCheckwattEss) SetPower(power int32) error {
 			return c_error.OverLimitError
 		}
 	}
-
 	return p.pcs.SetPower(power)
 }
 
