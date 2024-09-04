@@ -42,7 +42,7 @@ func NewGroupEnergyStore(ctx context.Context) c_device.IStationEnergyStore {
 			Model:  "Station Energy Store",
 			Remark: "场站储能组",
 			Telemetry: []*c_base.STelemetry{
-				{Name: "soc", Unit: "%", Remark: "SOC"},
+				{Name: "Soc", Unit: "%", Remark: "SOC"},
 				{Name: "power", Unit: "kW", Remark: "功率"},
 				{Name: "targetPower", Unit: "kW", Remark: "目标功率"},
 				{Name: "apparentPower", Unit: "kVA", Remark: "视在功率"},
@@ -403,10 +403,89 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 	}
 
 	s.targetPower = power
-	// TODO，设置有功功率， 先临时这样写，后面使用算法设置
-	var singlePower = power / int32(len(s.energyStores))
+	// TODO选择算法
+
+	essList := make([]*Ess, 0)
 	for _, store := range s.energyStores {
-		_ = store.SetPower(singlePower)
+		var err error
+		soc, err := store.GetSoc()
+		if err != nil {
+			g.Log().Warningf(s.ctx, "储能柜:%s SOC失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
+			continue
+		}
+		ratedPower := store.GetRatedPower()
+		if ratedPower < 0 {
+			g.Log().Errorf(s.ctx, "储能柜:%s 额定功率小于0！", store.GetDeviceConfig().Name)
+			continue
+		}
+		inputPower, err := store.GetMaxInputPower()
+		if err != nil {
+			g.Log().Warningf(s.ctx, "储能柜:%s 最大输入功率失败！", store.GetDeviceConfig().Name)
+			continue
+		}
+
+		outputPower, err := store.GetMaxOutputPower()
+		if err != nil {
+			g.Log().Warningf(s.ctx, "储能柜:%s 最大输出功率失败！", store.GetDeviceConfig().Name)
+			continue
+		}
+
+		count, err := store.GetCycleCount()
+		if err != nil {
+			g.Log().Warningf(s.ctx, "获取储能柜:%s 循环次数失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
+			continue
+		}
+
+		getPower, err := store.GetPower()
+		if err != nil {
+			g.Log().Warningf(s.ctx, "获取储能柜:%s 有功功率失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
+			continue
+		}
+		ess := &Ess{
+			Id:                store.GetDeviceConfig().Id,
+			Name:              store.GetDeviceConfig().Name,
+			CurrentPower:      getPower,
+			Soc:               int(soc),
+			RatedPower:        int(ratedPower),
+			MaxDischargePower: float64(outputPower),
+			MaxChargePower:    float64(inputPower),
+			CycleCount:        int(count),
+			EfficiencyCurve:   []float64{1},
+		}
+		g.Log().Noticef(s.ctx, "储能柜:%s SOC:%d 额定功率:%d 最小功率:%f 最大功率:%f 循环次数:%d", ess.Name, ess.Soc, ess.RatedPower, ess.MaxDischargePower, ess.MaxChargePower, ess.CycleCount)
+		essList = append(essList, ess)
+	}
+
+	// 计算功率，先不执行
+	allocatePower, err := AllocatePower(float64(power), 200, 0, true, essList)
+	if err != nil {
+		g.Log().Errorf(s.ctx, "储能柜功率分配失败！使用平均功率分配算法！err:%v", err)
+		var singlePower = power / int32(len(s.energyStores))
+		for _, store := range s.energyStores {
+			_ = store.SetPower(singlePower)
+		}
+	} else {
+		for i, f := range allocatePower {
+			for _, store := range s.energyStores {
+				if store.GetDeviceConfig().Id == essList[i].Id {
+					value := int32(0)
+					if power < 0 {
+						// 功率小于0的时候，设置功率也是小于0的
+						value = -int32(f)
+					} else {
+						value = int32(f)
+					}
+					err := store.SetPower(value)
+					if err != nil {
+						g.Log().Errorf(s.ctx, "储能柜:%s 设置功率失败！err:%v", store.GetDeviceConfig().Name, err)
+					} else {
+						g.Log().Noticef(s.ctx, "储能柜:%s 分配功率：%f", essList[i].Name, f)
+					}
+					break
+				}
+			}
+
+		}
 	}
 
 	return nil
