@@ -43,7 +43,7 @@ func (p *PylonCheckwattEss) Init(protocol c_base.IProtocol, deviceConfig *c_base
 
 	// 从配置中获取电表、PCS、BMS的配置
 	for _, child := range deviceConfig.DeviceChildren {
-		dv := common.DeviceInstance.FindById(child.Id)
+		dv := common.GetDeviceById(child.Id)
 		if dv == nil {
 			panic(fmt.Sprintf("PylonCheckwattEss 设备Id: %s 不存在！", child.Id))
 		}

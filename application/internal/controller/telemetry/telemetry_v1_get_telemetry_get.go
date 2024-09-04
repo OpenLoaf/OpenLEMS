@@ -12,7 +12,7 @@ import (
 )
 
 func (c *ControllerV1) GetTelemetryGet(ctx context.Context, req *v1.GetTelemetryGetReq) (res *v1.GetTelemetryGetRes, err error) {
-	instance := common.DeviceInstance.FindById(req.DeviceId)
+	instance := common.GetDeviceById(req.DeviceId)
 	if instance == nil {
 		return nil, gerror.NewCode(gcode.CodeNotFound)
 	}

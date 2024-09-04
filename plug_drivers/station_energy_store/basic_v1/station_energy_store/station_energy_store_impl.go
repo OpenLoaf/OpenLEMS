@@ -70,7 +70,7 @@ func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_ba
 		}
 	}
 	for _, child := range deviceConfig.DeviceChildren {
-		dv := common.DeviceInstance.FindById(child.Id)
+		dv := common.GetDeviceById(child.Id)
 		if dv == nil {
 			panic(fmt.Sprintf("设备Id: %s 不存在！", child.Id))
 		}

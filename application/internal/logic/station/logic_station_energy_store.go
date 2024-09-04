@@ -10,7 +10,7 @@ import (
 )
 
 func (s *sStation) GetEnergyStoreStatus() *entity.EnergyStoreStatus {
-	ess := common.DeviceInstance.GetStationEnergyStore()
+	ess := common.GetStationEnergyStore()
 
 	if ess == nil {
 		return nil
@@ -67,7 +67,7 @@ func (s *sStation) GetEnergyStoreStatus() *entity.EnergyStoreStatus {
 }
 
 func (s *sStation) SetEnergyStorePower(power int32) error {
-	ess := common.DeviceInstance.GetStationEnergyStore()
+	ess := common.GetStationEnergyStore()
 	if ess == nil {
 		return gerror.New("设备不存在")
 	}
@@ -75,7 +75,7 @@ func (s *sStation) SetEnergyStorePower(power int32) error {
 }
 
 func (s *sStation) SetEnergyStoreStatus(status c_base.EEnergyStoreStatus) error {
-	ess := common.DeviceInstance.GetStationEnergyStore()
+	ess := common.GetStationEnergyStore()
 	if ess == nil {
 		return gerror.New("设备不存在")
 	}

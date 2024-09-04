@@ -12,7 +12,7 @@ import (
 
 func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error) {
 
-	device := common.DeviceInstance.FindById(req.DeviceId)
+	device := common.GetDeviceById(req.DeviceId)
 	if device == nil {
 		return nil, gerror.NewCode(gcode.CodeInvalidParameter, req.DeviceId, "设备不存在")
 	}

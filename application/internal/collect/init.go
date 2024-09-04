@@ -88,7 +88,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 				//device.RegisterInstance(dv)
 				g.Log().Noticef(deviceCtx, "设备%s加载完成！", deviceConfig.Name)
 
-				common.DeviceInstance.RegisterInstance(dv)
+				common.RegisterDevice(dv)
 			}
 
 		case c_base.ECanbusTcp:
@@ -123,7 +123,7 @@ func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error 
 
 				gpioSysfsProtocol.Init()
 
-				common.DeviceInstance.RegisterInstance(dv)
+				common.RegisterDevice(dv)
 			}
 
 		}
@@ -159,7 +159,7 @@ func InitStation(ctx context.Context, deviceConfig *c_base.SDriverConfig) {
 
 	if deviceConfig.RefId != "" {
 		// 说明是引用的
-		refDevice := common.DeviceInstance.FindById(deviceConfig.RefId)
+		refDevice := common.GetDeviceById(deviceConfig.RefId)
 		if refDevice == nil {
 			panic(fmt.Sprintf("引用的设备Id: %s 不存在！", deviceConfig.RefId))
 		}
@@ -187,13 +187,13 @@ func InitStation(ctx context.Context, deviceConfig *c_base.SDriverConfig) {
 
 			ess := pylon_checkwatt.NewPlugin(ctx)
 			ess.Init(nil, deviceConfig)
-			common.DeviceInstance.RegisterInstance(ess)
+			common.RegisterDevice(ess)
 			return
 		}
 		if deviceConfig.Type == c_base.EStationEnergyStore {
 			store := station_energy_store.NewGroupEnergyStore(ctx)
 			store.Init(nil, deviceConfig)
-			common.DeviceInstance.RegisterInstance(store)
+			common.RegisterDevice(store)
 			return
 		}
 	}

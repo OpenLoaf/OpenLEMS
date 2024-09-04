@@ -106,12 +106,3 @@ func (d *sDeviceInstance) GetStationEnergyStore() c_device.IStationEnergyStore {
 	}
 	return driver.(c_device.IStationEnergyStore)
 }
-
-//func (d *sDeviceInstance) FindByConfig(config *c_base.SDriverConfig) c_base.IDriver {
-//	if config.Id == "" || config.RefId == "" {
-//		// Id 或者 refId不能同时为空
-//		panic(fmt.Sprintf("Id: %s, RefId: %s", config.Id, config.RefId))
-//	}
-//
-//
-//}

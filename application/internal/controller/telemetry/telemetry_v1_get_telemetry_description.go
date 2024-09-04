@@ -18,7 +18,7 @@ func (c *ControllerV1) GetTelemetryDescription(ctx context.Context, req *v1.GetT
 }
 
 func makeResponse(ctx context.Context, name string) *v1.TelemetryDescriptionObj {
-	stationEnergyStore := common.DeviceInstance.FindById(string(c_base.EStationEnergyStore))
+	stationEnergyStore := common.GetDeviceById(string(c_base.EStationEnergyStore))
 	var stationTelemetryList []*entity.DeviceTelemetry
 	stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
 		DeviceId:      stationEnergyStore.GetDeviceConfig().Id,
