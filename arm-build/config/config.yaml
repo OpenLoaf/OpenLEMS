@@ -3,7 +3,6 @@ system:
   configPath: /home/zlg/ems/config # 所有接口配置文件的路径
   protocolPath: /home/zlg/ems/protocol
   driverPath: /home/zlg/ems/driver
-  printCacheValueCycle: 10 # 打印缓存值的周期，单位秒
 
 
 # 日志组件配置

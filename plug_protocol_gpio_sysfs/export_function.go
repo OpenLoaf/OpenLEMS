@@ -24,7 +24,7 @@ func (m *sMain) Start(ctx context.Context, config sInput) (*sOutput, error) {
 	g.Log().Infof(ctx, "gpio path: %s", config.Path)
 
 	provider, err := internal.NewGpioSysfsProvider(context.TODO(), &c_base.SProtocolConfig{
-		Name:           "",
+		Id:           "",
 		Protocol:       "",
 		Address:        "",
 		Timeout:        0,

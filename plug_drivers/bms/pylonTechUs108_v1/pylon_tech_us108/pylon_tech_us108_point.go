@@ -6,11 +6,11 @@ import (
 
 // 设备信息
 var (
-// Pylon            = &c_base.Meta{Name: "Pylon", Addr: 0x1000, BitSize: 16 * 5, SystemType: c_base.SString, Desc: "设备信息"}
-// MBms             = &c_base.Meta{Name: "MBms", Addr: 0x1005, BitSize: 16 * 5, SystemType: c_base.SString, Desc: "电池信息"}
-// Version          = &c_base.Meta{Name: "Version", Addr: 0x100A,  ReadType: c_base.RInt16, Desc: "版本信息"}
-// InternalVersion  = &c_base.Meta{Name: "InternalVersion", Addr: 0x100B,  ReadType: c_base.RInt16, Desc: "内部版本信息"}
-// ParallelPilesQty = &c_base.Meta{Name: "ParallelPilesQty", Addr: 0x100C,  ReadType: c_base.RInt16, Desc: "并联电池数量"}
+// Pylon            = &c_base.Meta{Id: "Pylon", Addr: 0x1000, BitSize: 16 * 5, SystemType: c_base.SString, Desc: "设备信息"}
+// MBms             = &c_base.Meta{Id: "MBms", Addr: 0x1005, BitSize: 16 * 5, SystemType: c_base.SString, Desc: "电池信息"}
+// Version          = &c_base.Meta{Id: "Version", Addr: 0x100A,  ReadType: c_base.RInt16, Desc: "版本信息"}
+// InternalVersion  = &c_base.Meta{Id: "InternalVersion", Addr: 0x100B,  ReadType: c_base.RInt16, Desc: "内部版本信息"}
+// ParallelPilesQty = &c_base.Meta{Id: "ParallelPilesQty", Addr: 0x100C,  ReadType: c_base.RInt16, Desc: "并联电池数量"}
 )
 
 // 控制信息
@@ -33,7 +33,7 @@ var (
 )
 
 var (
-	//BasicStatus   = &c_base.Meta{Name: "BasicStatus", Cn: "基本状态", Addr: 0x1100, ReadType: c_base.RInt16, Desc: "基本状态"}
+	//BasicStatus   = &c_base.Meta{Id: "BasicStatus", Cn: "基本状态", Addr: 0x1100, ReadType: c_base.RInt16, Desc: "基本状态"}
 	BasicStatus               = &c_base.Meta{Name: "BasicStatus", Cn: "基本状态", Addr: 0x1100, ReadType: c_base.RBit0, BitLength: 2, Desc: "基本状态:00：休眠 01：充电 02：放电 03：搁置"}
 	SystemErrorProtection     = &c_base.Meta{Name: "SystemErrorProtection", Cn: "系统故障保护", Addr: 0x1100, ReadType: c_base.RBit3, Level: c_base.EError, Desc: "0-正常；1-保护"}
 	CurrentProtection         = &c_base.Meta{Name: "CurrentProtection", Cn: "电流保护", Addr: 0x1100, ReadType: c_base.RBit4, Level: c_base.EError, Desc: "0-正常；1-保护"}

@@ -1,9 +1,7 @@
 package internal
 
 import (
-	"ems-plan/c_base"
 	"plug_protocol_modbus/p_modbus"
-	"time"
 )
 
 func (p *ModbusProtocolProvider) Init() {
@@ -28,24 +26,6 @@ func (p *ModbusProtocolProvider) Init() {
 				}
 			}
 		}(p.modbusReadChan)
-
-		// 打印日志
-		if p.deviceConfig.PrintCacheValue {
-			go func() {
-
-				ticker := time.NewTicker(c_base.GetSystemConfig().GetPrintCacheValueCycleDuration())
-				defer ticker.Stop()
-				for {
-					select {
-					case <-p.ctx.Done():
-						p.log.Noticef(p.ctx, "关闭打印缓存值的Goroutine")
-						return
-					case <-ticker.C:
-						p.PrintCacheValues()
-					}
-				}
-			}()
-		}
 
 	})
 }

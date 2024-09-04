@@ -55,7 +55,7 @@ func (s *SAlarmHandler) GetAlarmDetails() []*SAlarmDetail {
 	return s.details
 }
 
-func (s *SAlarmHandler) ProcessAlarmDetail(alarm *SAlarmDetail) {
+func (s *SAlarmHandler) TriggerAlarm(alarm *SAlarmDetail) {
 	if alarm.Level == ENone {
 		return
 	}
@@ -87,7 +87,7 @@ func (s *SAlarmHandler) GetMonitorChan() chan<- *SAlarmDetail {
 						return
 					}
 
-					s.ProcessAlarmDetail(detail)
+					s.TriggerAlarm(detail)
 				}
 			}
 		}()

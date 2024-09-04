@@ -51,7 +51,7 @@ devices:
         driver: bms_pylonTechUs108
         type: bms
         logLevel: INFO
-        printCacheValue: false
+        
         params:
           unitId: 2
           syncTime: true # 同步时间
@@ -72,7 +72,7 @@ devices:
         driver: bms_pylonTechUs108
         type: bms
         logLevel: INFO
-        printCacheValue: false
+        
         params:
           unitId: 2
           syncTime: true # 同步时间
@@ -99,7 +99,7 @@ devices:
         type: pcs
         isMaster: false
         logLevel: INFO
-        printCacheValue: false
+        
         params:
           unitId: 1
           ratedPower: 100
@@ -123,7 +123,7 @@ devices:
         type: pcs
         isMaster: false
         logLevel: INFO
-        printCacheValue: false
+        
         params:
           unitId: 1
           ratedPower: 100

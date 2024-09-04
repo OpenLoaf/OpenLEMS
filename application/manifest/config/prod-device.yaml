@@ -25,7 +25,7 @@ devices:
         group: pcs
         isMaster: false
         logLevel: INFO
-        printCacheValue: false
+        
         ratedPower: 100
       - name: pylon-tech-us108
         enable: true
@@ -36,4 +36,4 @@ devices:
         group: bms
         isMaster: false
         logLevel: INFO
-        printCacheValue: false
+        

@@ -23,9 +23,9 @@ func MetaProcess(deviceId string, deviceType c_base.EDeviceType, ctx context.Con
 	value = meta.SystemType.Transform(value, meta.ReadType, meta.BitLength, meta.Factor, meta.Offset)
 	/*	if g.Log().GetLevel()&glog.LEVEL_DEBU > 0 {
 		if meta.SystemType == point.SBool {
-			g.Log().Debugf(ctx, "[%s-%s] 值: %v", deviceId, meta.Name, value)
+			g.Log().Debugf(ctx, "[%s-%s] 值: %v", deviceId, meta.Id, value)
 		} else {
-			g.Log().Debugf(ctx, "[%s-%s] 原始值:%5v, 乘以：%v, 再偏移：%v, 后的值:%v", meta.Cn, meta.Name, originValue, meta.Factor, meta.Offset, value)
+			g.Log().Debugf(ctx, "[%s-%s] 原始值:%5v, 乘以：%v, 再偏移：%v, 后的值:%v", meta.Cn, meta.Id, originValue, meta.Factor, meta.Offset, value)
 		}
 	}*/
 
@@ -33,7 +33,7 @@ func MetaProcess(deviceId string, deviceType c_base.EDeviceType, ctx context.Con
 
 	// 范围验证
 	if meta.SystemType != c_base.SBool && meta.Min != meta.Max && (valueInt64 < meta.Min || valueInt64 > meta.Max) {
-		//log.Errorf(ctx, "[%s-%s] 数据不在正常范围内!当前值:%v,理论上最小值：%v,最大值：%v", deviceId, meta.Name, value, meta.Min, meta.Max)
+		//log.Errorf(ctx, "[%s-%s] 数据不在正常范围内!当前值:%v,理论上最小值：%v,最大值：%v", deviceId, meta.Id, value, meta.Min, meta.Max)
 		// TODO 此处触发Error级别的告警
 		return nil, fmt.Errorf("[%s-%s] 数据不在正常范围内!当前值:%v,理论上最小值：%v,最大值：%v", deviceId, meta.Name, value, meta.Min, meta.Max)
 	}
@@ -74,7 +74,7 @@ func MetaProcess(deviceId string, deviceType c_base.EDeviceType, ctx context.Con
 }
 
 func processAlarm(protocol c_base.IProtocol, deviceId string, deviceType c_base.EDeviceType, meta *c_base.Meta, IsTrigger bool, value any) {
-	protocol.ProcessAlarmDetail(&c_base.SAlarmDetail{
+	protocol.TriggerAlarm(&c_base.SAlarmDetail{
 		DeviceId:   deviceId,
 		DeviceType: deviceType,
 		Level:      meta.Level,

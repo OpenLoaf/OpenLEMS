@@ -26,9 +26,8 @@ type ModbusProtocolProvider struct {
 	preQuery       map[string]bool            // 预读
 	cache          *gcache.Cache              // 点位缓存
 	log            *glog.Logger               // 日志
-	//printCacheValue       bool                       // 打印缓存值
-	modbusRwMutex  sync.RWMutex // 读写锁
-	lastUpdateTime *time.Time   // 最后更新时间
+	modbusRwMutex  sync.RWMutex               // 读写锁
+	lastUpdateTime *time.Time                 // 最后更新时间
 
 	deviceConfig       *c_base.SDriverConfig
 	modbusDeviceConfig *p_modbus.SModbusDeviceConfig
@@ -36,6 +35,12 @@ type ModbusProtocolProvider struct {
 }
 
 func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, client any) (p_modbus.IModbusProtocol, error) {
+	if protocolConfig == nil {
+		panic(fmt.Errorf("GPIO设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
+	}
+	if deviceConfig == nil {
+		panic(fmt.Errorf("modbus协议：%s 的设备配置不能为空！", protocolConfig.Id))
+	}
 	modbusDeviceConfig := &p_modbus.SModbusDeviceConfig{}
 	err := gconv.Scan(deviceConfig.Params, modbusDeviceConfig)
 	if err != nil {

@@ -2,7 +2,7 @@ package c_base
 
 // SProtocolConfig 基础协议配置
 type SProtocolConfig struct {
-	Name           string            //名称
+	Id             string            // 协议Id
 	Protocol       EProtocolType     // 协议
 	Address        string            // 地址
 	Timeout        int64             // 链接

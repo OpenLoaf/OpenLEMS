@@ -18,12 +18,12 @@ import (
 func Create(ctx context.Context, clientConfigs []*c_base.SProtocolConfig) error {
 
 	for _, protocolConfig := range clientConfigs {
-		protocolName := protocolConfig.Name
+		protocolName := protocolConfig.Id
 		if protocolConfig.Address != "" {
 			protocolName = fmt.Sprintf("%s:%s", protocolConfig.GetProtocol(), protocolConfig.GetAddress())
 		}
 
-		newCtx := context.WithValue(ctx, "Name", protocolName)
+		newCtx := context.WithValue(ctx, "Id", protocolName)
 
 		//newCtx.Value()
 
@@ -180,7 +180,7 @@ func InitStation(ctx context.Context, deviceConfig *c_base.SDriverConfig) {
 			panic(fmt.Sprintf("Id为：%s的[%s]设备类型type不能为空！", deviceConfig.Id, deviceConfig.Name))
 		}
 
-		ctx = context.WithValue(ctx, "Name", "Virtual")
+		ctx = context.WithValue(ctx, "Id", "Virtual")
 		ctx = context.WithValue(ctx, "DeviceName", fmt.Sprintf("%s:%s", string(deviceConfig.Type), deviceConfig.Id))
 		// 说明有详细的配置之类的，那就创建一个设备
 		if deviceConfig.Type == c_base.EDeviceEnergyStore {

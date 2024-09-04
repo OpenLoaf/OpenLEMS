@@ -18,7 +18,7 @@ func TestAllocatePower(t *testing.T) {
 	}
 	for i, p := range power {
 		ess := essList[i]
-		fmt.Printf("Name: %s, Power: %f\n", ess.Name, p)
+		fmt.Printf("Id: %s, Power: %f\n", ess.Name, p)
 	}
 
 }

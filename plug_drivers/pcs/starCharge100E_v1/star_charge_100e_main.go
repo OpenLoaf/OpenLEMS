@@ -27,14 +27,14 @@ func main() {
 		deviceConfig = &p_modbus.SModbusDeviceConfig{
 			SDriverConfig: c_base.SDriverConfig{
 				Id:              "测试Pcs-1",
-				Name:            "测试Pcs-1",
+				Id:            "测试Pcs-1",
 				Driver:          "",
 				Type:     "",
 				CabinetId:       1,
 				IsMaster:        false,
 				Enable:          true,
 				LogLevel:        "INFO",
-				PrintCacheValue: false,
+				,
 			},
 			UnitId: 1,
 		}

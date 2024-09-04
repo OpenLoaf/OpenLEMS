@@ -22,7 +22,6 @@ type SGpioSysfsProvider struct {
 	meta                  *c_base.Meta                                          // 元数据
 	mutex                 sync.Mutex                                            // 互斥锁，修改数据防止并发
 	log                   *glog.Logger                                          // 日志
-	printCacheValue       bool                                                  // 打印缓存值
 	status                bool                                                  // 结果
 	lastUpdateTime        *time.Time                                            // 最后更新时间
 	deviceConfig          *c_base.SDriverConfig                                 // 设备基础配置
@@ -33,6 +32,12 @@ type SGpioSysfsProvider struct {
 }
 
 func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
+	if protocolConfig == nil {
+		panic(fmt.Errorf("GPIO设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
+	}
+	if deviceConfig == nil {
+		panic(fmt.Errorf("GPIO协议：%s 的设备配置不能为空！", protocolConfig.Id))
+	}
 	var gpioDeviceConfig = &p_gpio_sysfs.SGpioSysfsDeviceConfig{}
 	err := gconv.Scan(deviceConfig.Params, gpioDeviceConfig)
 	if err != nil {
@@ -41,7 +46,6 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 
 	provider := &SGpioSysfsProvider{
 		once:             sync.Once{},
-		printCacheValue:  deviceConfig.PrintCacheValue,
 		deviceConfig:     deviceConfig,
 		gpioDeviceConfig: gpioDeviceConfig,
 		protocolConfig:   protocolConfig,
@@ -87,7 +91,7 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 	provider.protocolParam = &p_gpio_sysfs.SGpioProtocolConfig{}
 	err = gconv.Scan(protocolConfig.Params, provider.protocolParam)
 	if err != nil {
-		panic(fmt.Sprintf("协议[%s]的Param参数配置错误：%v 无法转换为SGpioProtocolConfig", protocolConfig.Name, err))
+		panic(fmt.Sprintf("协议[%s]的Param参数配置错误：%v 无法转换为SGpioProtocolConfig", protocolConfig.Id, err))
 	}
 
 	return provider, nil
@@ -172,10 +176,6 @@ func (s *SGpioSysfsProvider) IsActivate() bool {
 	return true
 }
 
-func (s *SGpioSysfsProvider) PrintCacheValues() {
-
-}
-
 func (s *SGpioSysfsProvider) GetLastUpdateTime() *time.Time {
 	return s.lastUpdateTime
 }
@@ -221,7 +221,7 @@ func (s *SGpioSysfsProvider) process(status bool) {
 
 		// 触发告警
 		if s.gpioDeviceConfig.Level != c_base.ENone && s.gpioDeviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
-			s.SAlarmHandler.ProcessAlarmDetail(&c_base.SAlarmDetail{
+			s.SAlarmHandler.TriggerAlarm(&c_base.SAlarmDetail{
 				DeviceId:   s.GetId(),
 				DeviceType: s.deviceConfig.Type,
 				Level:      s.gpioDeviceConfig.Level,
