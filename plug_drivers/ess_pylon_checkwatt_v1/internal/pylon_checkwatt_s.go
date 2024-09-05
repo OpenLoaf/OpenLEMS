@@ -73,6 +73,10 @@ func (p *PylonCheckwattEss) Init(protocol c_base.IProtocol, deviceConfig *c_base
 	g.Log().Infof(p.ctx, "PylonCheckwattEss 虚拟储能柜初始化完毕!")
 }
 
+func (p *PylonCheckwattEss) Destroy() {
+
+}
+
 func (p *PylonCheckwattEss) GetDescription() *c_base.SDescription {
 	return &c_base.SDescription{
 		Brand:  "Plyon",

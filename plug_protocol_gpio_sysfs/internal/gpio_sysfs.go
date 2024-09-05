@@ -171,8 +171,8 @@ func (s *SGpioSysfsProvider) GetId() string {
 	return s.deviceConfig.Id
 }
 
-func (s *SGpioSysfsProvider) Close() error {
-	return nil
+func (s *SGpioSysfsProvider) Close() {
+
 }
 
 func (s *SGpioSysfsProvider) IsActivate() bool {

@@ -68,6 +68,10 @@ func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg *c_base.SDriverCon
 	}
 }
 
+func (p *PylonTechUs108Bms) Destroy() {
+
+}
+
 func (p *PylonTechUs108Bms) GetRatedPower() uint32 {
 	return p.bmsConfig.RatedPower
 }

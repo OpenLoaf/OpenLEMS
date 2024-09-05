@@ -7,6 +7,7 @@ import (
 type IDriver interface {
 	IAlarm
 	Init(protocol IProtocol, deviceConfig *SDriverConfig)
+	Destroy() // 销毁
 
 	GetDriverType() EDeviceType            // 获取实现驱动的设备类型
 	GetLastUpdateTime() *time.Time         // 获取最后更新时间

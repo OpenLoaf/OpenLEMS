@@ -15,6 +15,7 @@ type StarCharge100EPcs struct {
 	log                 *glog.Logger
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
+	deviceConfig        *c_base.SDriverConfig
 	description         *c_base.SDescription
 }
 
@@ -34,6 +35,7 @@ func (s *StarCharge100EPcs) GetDriverType() c_base.EDeviceType {
 
 func (s *StarCharge100EPcs) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
 	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
+	s.deviceConfig = deviceConfig
 	s.description = &c_base.SDescription{
 		Brand:  "Star",
 		Model:  "100E",
@@ -49,6 +51,12 @@ func (s *StarCharge100EPcs) Init(protocol c_base.IProtocol, deviceConfig *c_base
 	)
 
 	g.Log().Noticef(s.ctx, "StarCharge100EPcs 初始化完毕！")
+}
+
+func (s *StarCharge100EPcs) Destroy() {
+	_ = s.SetPower(0)
+	_ = s.SetStatus(c_base.EPcsStatusOff)
+	g.Log().Noticef(s.ctx, "[%s]%s销毁成功！", s.deviceConfig.Id, s.deviceConfig.Name)
 }
 
 func (s *StarCharge100EPcs) GetFunctionList() []*c_base.STelemetry {

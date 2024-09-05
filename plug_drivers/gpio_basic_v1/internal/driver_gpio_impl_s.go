@@ -35,6 +35,10 @@ func (l *SDriverGpioImpl) Init(protocol c_base.IProtocol, deviceConfig *c_base.S
 	g.Log().Infof(l.ctx, "初始化GPIO驱动[%s]成功！", l.GetDeviceConfig().Name)
 }
 
+func (l *SDriverGpioImpl) Destroy() {
+
+}
+
 func (l *SDriverGpioImpl) GetFunctionList() []*c_base.STelemetry {
 	return []*c_base.STelemetry{
 		{Name: "status", Unit: "bool", Remark: "开关量"},

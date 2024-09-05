@@ -7,7 +7,7 @@ import (
 type IProtocol interface {
 	IAlarm
 	Init()            // 初始化
-	Close() error     // 关闭
+	Close()           //关闭
 	IsActivate() bool // 是否有效，无效一般是连接断了
 
 	GetMetaValueList() []*MetaValueWrapper // 获取所有缓存的数据列表

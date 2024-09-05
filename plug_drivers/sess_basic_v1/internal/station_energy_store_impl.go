@@ -57,6 +57,10 @@ func NewGroupEnergyStore(ctx context.Context) c_device.IStationEnergyStore {
 	return instance
 }
 
+func (s *sStationEnergyStore) Destroy() {
+
+}
+
 func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
 	s.deviceConfig = deviceConfig
 
@@ -379,6 +383,14 @@ func (s *sStationEnergyStore) GetGridMode() (c_base.EGridMode, error) {
 
 func (s *sStationEnergyStore) SetPower(power int32) error {
 	g.Log().Debugf(s.ctx, "设置储能场站功率：%d", power)
+	if power == 0 {
+		// 功率为0直接下发
+		for _, store := range s.energyStores {
+			_ = store.SetPower(0)
+		}
+		return nil
+	}
+
 	// 判断一下防止超限
 	if power > 0 {
 		maxOutputPower, err := s.GetMaxOutputPower()

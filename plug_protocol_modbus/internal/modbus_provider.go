@@ -107,8 +107,8 @@ func (p *ModbusProtocolProvider) IsActivate() bool {
 	return p.client.IsConnected()
 }
 
-func (p *ModbusProtocolProvider) Close() error {
-	return p.client.Close()
+func (p *ModbusProtocolProvider) Close() {
+	_ = p.client.Close()
 }
 
 func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
