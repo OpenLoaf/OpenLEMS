@@ -2,6 +2,7 @@ package c_base
 
 import (
 	"ems-plan/util"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
 	"reflect"
 )
@@ -88,7 +89,7 @@ func (s ESystemType) GetReflectKind(readType EReadType, bitLength uint8) reflect
 	case SString:
 		return reflect.String
 	}
-	panic("未知的SystemType类型！")
+	panic(gerror.New("未知的SystemType类型！"))
 }
 
 func calc[T util.Number](result T, factor float32, offset int) T {

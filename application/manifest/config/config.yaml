@@ -1,15 +1,8 @@
-system:
-  # 插件存放路径
-  configPath: /Users/zhao/Documents/01.Code/Hex/ems-plan/application/manifest/config # 所有接口配置文件的路径
-  protocolPath: /Users/zhao/Documents/01.Code/Hex/ems-plan/application/manifest/protocol
-  driverPath: /Users/zhao/Documents/01.Code/Hex/ems-plan/application/manifest/driver
-
-
 # 日志组件配置
 logger:
   Level:   "all"
   Stdout:  true
-  CtxKeys: ["Name","DeviceName","Group"]
+  CtxKeys: ["GroupName","ProtocolId","DeviceId","DeviceDetail"]
   writerColorEnable: true  # 日志文件是否带上颜色。默认false，表示不带颜色
 
 

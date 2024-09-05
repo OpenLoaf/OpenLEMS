@@ -3,8 +3,8 @@ package internal_device
 import (
 	"ems-plan/c_base"
 	"ems-plan/c_device"
-	"fmt"
 	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"reflect"
 	"sync"
 )
@@ -39,11 +39,11 @@ func (d *sDeviceInstance) RegisterInstance(info c_base.IDriver) {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 	if info.GetDeviceConfig().Id == "" {
-		panic(fmt.Sprintf("类型：%s的Id不能为空！", reflect.TypeOf(info).String()))
+		panic(gerror.Newf("类型：%s的Id不能为空！", reflect.TypeOf(info).String()))
 	}
 	// 不能重复注册
 	if d.FindById(info.GetDeviceConfig().Id) != nil {
-		panic("the id '" + info.GetDeviceConfig().Id + "' has been registered")
+		panic(gerror.Newf("id[%s]已经注册到DeviceInstance中！", info.GetDeviceConfig().Id))
 	}
 
 	d.array.Add(info)

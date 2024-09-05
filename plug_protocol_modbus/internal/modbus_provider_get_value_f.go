@@ -2,8 +2,8 @@ package internal
 
 import (
 	"ems-plan/c_base"
-	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
@@ -18,7 +18,7 @@ func (p *ModbusProtocolProvider) GetValue(meta *c_base.Meta) (*gvar.Var, error) 
 		return nil, err
 	}
 	if metaValue == nil {
-		return nil, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
+		return nil, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
 	return metaValue.Value, err
 }
@@ -28,7 +28,7 @@ func (p *ModbusProtocolProvider) GetIntValue(meta *c_base.Meta) (int, error) {
 		return 0, err
 	}
 	if get == nil {
-		return 0, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
+		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
 	return get.Int(), err
 }
@@ -38,7 +38,7 @@ func (p *ModbusProtocolProvider) GetBool(meta *c_base.Meta) (bool, error) {
 		return false, err
 	}
 	if get == nil {
-		return false, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
+		return false, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
 	return get.Bool(), err
 }
@@ -49,7 +49,7 @@ func (p *ModbusProtocolProvider) GetUintValue(meta *c_base.Meta) (uint, error) {
 		return 0, err
 	}
 	if get == nil {
-		return 0, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
+		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
 	return get.Uint(), err
 }
@@ -62,7 +62,7 @@ func (p *ModbusProtocolProvider) GetFloat32Value(meta *c_base.Meta) (float32, er
 		return 0, err
 	}
 	if get == nil {
-		return 0, fmt.Errorf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
+		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
 	return get.Float32(), err
 }

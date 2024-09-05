@@ -6,6 +6,7 @@ import (
 	"ems-plan/c_base"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/os/gcache"
 	"math"
 	"reflect"
@@ -14,7 +15,7 @@ import (
 
 func (p *ModbusProtocolProvider) analysisModbus(ctx context.Context, cache *gcache.Cache, groupName string, addr uint16, lifetime time.Duration, result []byte, metas ...*c_base.Meta) ([]*gvar.Var, error) {
 	if metas == nil || len(metas) == 0 || result == nil {
-		return nil, fmt.Errorf("[%s] Analysis的查询方法 value或points参数为空！", groupName)
+		return nil, gerror.Newf("[%s] Analysis的查询方法 value或points参数为空！", groupName)
 	}
 
 	var (
@@ -39,7 +40,7 @@ func (p *ModbusProtocolProvider) analysisModbus(ctx context.Context, cache *gcac
 		}
 		kind := meta.ReadType.GetReflectKind(meta.BitLength)
 		if kind == reflect.Float64 && math.IsNaN(value.(float64)) {
-			panic(fmt.Sprintf("[%s-%s] 读取到的float64位的值为NaN！请检查字段是否配置正确！\n%+v", groupName, meta.Name, meta))
+			panic(gerror.Newf("[%s-%s] 读取到的float64位的值为NaN！请检查字段是否配置正确！\n%+v", groupName, meta.Name, meta))
 		}
 		vars, err := common.MetaTransformAndCache(ctx, p, meta, value, cache, lifetime)
 		if err != nil {
@@ -49,7 +50,7 @@ func (p *ModbusProtocolProvider) analysisModbus(ctx context.Context, cache *gcac
 		results[i] = vars
 	}
 	if errMessage != "" {
-		err = fmt.Errorf(errMessage)
+		err = gerror.Newf(errMessage)
 	}
 
 	return results, err

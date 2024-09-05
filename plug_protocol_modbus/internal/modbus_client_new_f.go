@@ -3,8 +3,8 @@ package internal
 import (
 	"context"
 	"ems-plan/c_base"
-	"fmt"
 	"github.com/goburrow/serial"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/torykit/go-modbus"
@@ -32,7 +32,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		rtuConfig := &ModbusRtuProtocolConfig{}
 		err := gconv.Scan(protocolConfig.Params, rtuConfig)
 		if err != nil {
-			panic("modbus rtu配置文件解析失败")
+			panic(gerror.New("modbus rtu配置文件解析失败"))
 		}
 
 		var option []modbus.ClientProviderOption
@@ -51,14 +51,14 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		p := modbus.NewRTUClientProvider(option...)
 		client = modbus.NewClient(p)
 	default:
-		panic("不支持的modbus协议！")
+		panic(gerror.New("不支持的modbus协议！"))
 	}
 
 	err := client.Connect()
 	if err != nil {
 		if protocolConfig.GetProtocol() == c_base.EModbusRtu {
 			// 如果是RTU协议，无法打开串口，那程序就没必要继续运行了
-			panic(fmt.Errorf("modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
+			panic(gerror.Newf("modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
 		}
 
 		g.Log().Warningf(ctx, "首次连接到：%s 失败！等待下一次连接！ %v", protocolConfig.GetAddress(), err)

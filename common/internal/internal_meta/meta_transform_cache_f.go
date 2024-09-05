@@ -3,8 +3,8 @@ package internal_meta
 import (
 	"context"
 	"ems-plan/c_base"
-	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -13,7 +13,7 @@ import (
 
 func MetaProcess(deviceId string, deviceType c_base.EDeviceType, ctx context.Context, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
 	if meta == nil {
-		return nil, fmt.Errorf("[%s] Analysis的查询方法获取到point为nil", deviceId)
+		return nil, gerror.Newf("[%s] Analysis的查询方法获取到point为nil", deviceId)
 	}
 	/*	if lifetime == 0 {
 		lifetime = common.DefaultCacheLifeTime
@@ -35,7 +35,7 @@ func MetaProcess(deviceId string, deviceType c_base.EDeviceType, ctx context.Con
 	if meta.SystemType != c_base.SBool && meta.Min != meta.Max && (valueInt64 < meta.Min || valueInt64 > meta.Max) {
 		//log.Errorf(ctx, "[%s-%s] 数据不在正常范围内!当前值:%v,理论上最小值：%v,最大值：%v", deviceId, meta.Id, value, meta.Min, meta.Max)
 		// TODO 此处触发Error级别的告警
-		return nil, fmt.Errorf("[%s-%s] 数据不在正常范围内!当前值:%v,理论上最小值：%v,最大值：%v", deviceId, meta.Name, value, meta.Min, meta.Max)
+		return nil, gerror.Newf("[%s-%s] 数据不在正常范围内!当前值:%v,理论上最小值：%v,最大值：%v", deviceId, meta.Name, value, meta.Min, meta.Max)
 	}
 
 	// 判断是否是非信息类型，用于触发告警

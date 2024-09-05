@@ -3,8 +3,8 @@ package internal
 import (
 	"context"
 	"ems-plan/c_base"
-	"fmt"
 	"github.com/gogf/gf/v2/container/garray"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/os/glog"
@@ -36,19 +36,19 @@ type ModbusProtocolProvider struct {
 
 func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, client any) (p_modbus.IModbusProtocol, error) {
 	if protocolConfig == nil {
-		panic(fmt.Errorf("GPIO设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
+		panic(gerror.Newf("GPIO设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
 	}
 	if deviceConfig == nil {
-		panic(fmt.Errorf("modbus协议：%s 的设备配置不能为空！", protocolConfig.Id))
+		panic(gerror.Newf("modbus协议：%s 的设备配置不能为空！", protocolConfig.Id))
 	}
 	modbusDeviceConfig := &p_modbus.SModbusDeviceConfig{}
 	err := gconv.Scan(deviceConfig.Params, modbusDeviceConfig)
 	if err != nil {
-		panic(fmt.Errorf("设备[%s]的Param参数配置错误：%v 无法转换为SModbusDeviceConfig", deviceConfig.Id, err))
+		panic(gerror.Newf("设备[%s]的Param参数配置错误：%v 无法转换为SModbusDeviceConfig", deviceConfig.Id, err))
 	}
 	if modbusDeviceConfig.UnitId == 0 {
 		// unitId默认禁止为0
-		panic(fmt.Errorf("Modbus设备[%s]的UnitId不能为0", deviceConfig.Id))
+		panic(gerror.Newf("Modbus设备[%s]的UnitId不能为0", deviceConfig.Id))
 	}
 
 	provider := &ModbusProtocolProvider{
@@ -68,7 +68,7 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 	if client != nil {
 		provider.client = client.(modbus.Client)
 	} else {
-		panic("modbus client is nil, please init the modbus client")
+		panic(gerror.New("modbus client is nil, please init the modbus client"))
 	}
 
 	if deviceConfig.LogLevel != "" {

@@ -4,6 +4,7 @@ import (
 	"ems-plan/c_base"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"plug_protocol_modbus/p_modbus"
 	"time"
 )
@@ -29,14 +30,14 @@ func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function p_mo
 		return nil, err
 	}
 	if result == nil || len(result) == 0 {
-		return nil, fmt.Errorf("读取到的数据为空！")
+		return nil, gerror.Newf("读取到的数据为空！")
 	}
 	values, err := p.analysisModbus(p.ctx, p.cache, name, meta.Addr, lifetime, result, meta)
 	if err != nil {
 		return nil, err
 	}
 	if len(values) == 0 {
-		return nil, fmt.Errorf("获取的值为空！")
+		return nil, gerror.Newf("获取的值为空！")
 	}
 	return values[0], nil
 }
@@ -89,7 +90,7 @@ func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus.ModbusGroup, read
 	}
 
 	if len(vars) != returnMetasLength {
-		return nil, fmt.Errorf("metas数量和结果数量不一样！")
+		return nil, gerror.Newf("metas数量和结果数量不一样！")
 	}
 
 	return vars, nil
@@ -129,7 +130,7 @@ func (p *ModbusProtocolProvider) readValues(name string, addr, quantity uint16, 
 	}
 	if result == nil || len(result) == 0 {
 		_ = p.client.Close()
-		return nil, fmt.Errorf("[%v-%v] Modbus任务获取数据为空！", p.deviceConfig.Id, name)
+		return nil, gerror.Newf("[%v-%v] Modbus任务获取数据为空！", p.deviceConfig.Id, name)
 	}
 
 	p.log.Debugf(p.ctx, "[%v-%v] Modbus任务获取到数据：[% x]", p.deviceConfig.Id, name, result)

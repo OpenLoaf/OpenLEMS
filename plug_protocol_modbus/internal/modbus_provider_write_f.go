@@ -2,7 +2,7 @@ package internal
 
 import (
 	"ems-plan/c_base"
-	"fmt"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"plug_protocol_modbus/p_modbus"
 )
 
@@ -30,7 +30,7 @@ func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value in
 func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *p_modbus.ModbusGroup, values []int64) error {
 	dataLength := group.Quantity
 	if len(group.Metas) != len(values) {
-		panic(fmt.Sprintf("点位数量与值数量不一致！点位数量：%d, 值数量：%d", len(group.Metas), dataLength))
+		panic(gerror.Newf("点位数量与值数量不一致！点位数量：%d, 值数量：%d", len(group.Metas), dataLength))
 	}
 	bytes := make([]byte, dataLength*2)
 
@@ -41,7 +41,7 @@ func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *p_modbus.ModbusGr
 			metaIndex = meta.Addr
 		} else {
 			if meta.Addr != (metaIndex + meta.ReadType.RegisterSize()) {
-				panic(fmt.Sprintf("点位的顺序不正确！点位：%s, 地址：%d，实际地址应该为: %d", meta.Name, meta.Addr, metaIndex+meta.ReadType.RegisterSize()))
+				panic(gerror.Newf("点位的顺序不正确！点位：%s, 地址：%d，实际地址应该为: %d", meta.Name, meta.Addr, metaIndex+meta.ReadType.RegisterSize()))
 			}
 			metaIndex = meta.Addr
 		}

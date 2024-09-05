@@ -26,7 +26,6 @@ func (c *ControllerV1) GetRealDeviceList(ctx context.Context, req *v1.GetRealDev
 			DeviceId:       driver.GetDeviceConfig().Id,
 			DeviceType:     string(driver.GetDriverType()),
 			DeviceName:     driver.GetDeviceConfig().Name,
-			IsMaster:       driver.GetDeviceConfig().IsMaster,
 			LastUpdateTime: lastUpdateTime,
 			IsVirtual:      driver.GetDeviceConfig().IsVirtual,
 			AlarmLevel:     driver.GetAlarmLevel(),

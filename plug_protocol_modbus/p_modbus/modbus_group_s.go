@@ -2,8 +2,8 @@ package p_modbus
 
 import (
 	"ems-plan/c_base"
-	"fmt"
 	"github.com/gogf/gf/v2/container/gset"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"time"
 )
 
@@ -26,7 +26,7 @@ func (m *ModbusGroup) Check() {
 
 	for _, p := range m.Metas {
 		if !pointNameSet.AddIfNotExist(p.Name) {
-			panic(fmt.Sprintf("ModbusGroup[%s] has duplicate point name: %s", m.Name, p.Name))
+			panic(gerror.Newf("ModbusGroup[%s] has duplicate point name: %s", m.Name, p.Name))
 		}
 	}
 }

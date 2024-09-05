@@ -2,7 +2,8 @@ package internal
 
 import (
 	"context"
-	"fmt"
+	"ems-plan/c_base"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"plug_protocol_modbus/p_modbus"
 	"time"
 )
@@ -22,14 +23,14 @@ func (p *ModbusProtocolProvider) RegisterRead(ctx context.Context, group *p_modb
 
 func (p *ModbusProtocolProvider) registerReadOne(ctx context.Context, group *p_modbus.ModbusGroup) {
 	if group.Name == "" {
-		panic(fmt.Sprintf("[%v-%v] 参数错误！modbusQuery的name为空！%+v", p.deviceConfig.Id, group.Name, group))
+		panic(gerror.Newf("[%v-%v] 参数错误！modbusQuery的name为空！%+v", p.deviceConfig.Id, group.Name, group))
 	}
 
 	var (
 		isPermanent = !group.Transitory // 永久的查询
 		name        = group.Name
 	)
-	ctx = context.WithValue(ctx, "StationType", group.Name)
+	ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceDetail, group.Name)
 
 	// 预处理一下数据
 	setDefaultValue(group)

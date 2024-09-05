@@ -27,6 +27,8 @@ elif [ "$1" == "debug" ]; then
   export IS_DEBUG=true
 #else
   export pluginPath=${SOURCE_DIR}/application/manifest
+else
+  export pluginPath=${SOURCE_DIR}/application/manifest
 fi
 
 #export pluginPath=/app/

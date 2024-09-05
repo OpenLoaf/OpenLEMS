@@ -4,6 +4,7 @@ package c_base
 import (
 	"ems-plan/util/util_binary"
 	"github.com/gogf/gf/v2/encoding/gbinary"
+	"github.com/gogf/gf/v2/errors/gerror"
 )
 
 type ECharSequence uint8
@@ -26,7 +27,7 @@ func (e ECharSequence) FillUpSize(b []byte, l int) []byte {
 	case EReverseMiddleEndian:
 		return util_binary.RmeFillUpSize(b, l)
 	default:
-		panic("不支持的Endianness类型！")
+		panic(gerror.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -37,6 +38,6 @@ func (e ECharSequence) FillUpSizeBit(b []gbinary.Bit, l int) []gbinary.Bit {
 	case ELittleEndian, EMiddleEndian:
 		return util_binary.FillUpBitSizeRight(b, l)
 	default:
-		panic("不支持的Endianness类型！")
+		panic(gerror.New("不支持的Endianness类型！"))
 	}
 }
