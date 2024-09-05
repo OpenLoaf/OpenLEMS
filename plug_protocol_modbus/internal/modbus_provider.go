@@ -21,14 +21,14 @@ type ModbusProtocolProvider struct {
 	once                  sync.Once       // 只执行一次Init方法
 	//deviceId              string                     // 设备名称
 	//unitId                uint8                      // 设备的unitId
-	modbusReadChan chan *p_modbus.ModbusGroup // 查询用的通道
-	client         modbus.Client              // modbus的通讯
-	preQuery       map[string]bool            // 预读
-	cache          *gcache.Cache              // 点位缓存
-	log            *glog.Logger               // 日志
-	modbusRwMutex  sync.RWMutex               // 读写锁
-	lastUpdateTime *time.Time                 // 最后更新时间
-
+	modbusReadChan     chan *p_modbus.ModbusGroup // 查询用的通道
+	client             modbus.Client              // modbus的通讯
+	preQuery           map[string]bool            // 预读
+	cache              *gcache.Cache              // 点位缓存
+	log                *glog.Logger               // 日志
+	modbusRwMutex      sync.RWMutex               // 读写锁
+	lastUpdateTime     *time.Time                 // 最后更新时间
+	deviceType         c_base.EDeviceType
 	deviceConfig       *c_base.SDriverConfig
 	modbusDeviceConfig *p_modbus.SModbusDeviceConfig
 	protocolConfig     *c_base.SProtocolConfig
@@ -142,7 +142,7 @@ func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 
 		_sortValues.Add(&c_base.MetaValueWrapper{
 			DeviceId:   p.deviceConfig.Id,
-			DeviceType: p.deviceConfig.Type,
+			DeviceType: p.deviceType,
 			Meta:       meta.(*c_base.Meta),
 			Value:      metaValue.Value,
 			HappenTime: metaValue.HappenTime,

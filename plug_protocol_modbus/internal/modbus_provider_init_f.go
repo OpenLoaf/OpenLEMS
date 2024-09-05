@@ -1,12 +1,18 @@
 package internal
 
 import (
+	common "ems-plan"
 	"plug_protocol_modbus/p_modbus"
 )
 
 func (p *ModbusProtocolProvider) Init() {
 	// 只会执行一次监听
 	p.once.Do(func() {
+		device := common.GetDeviceById(p.deviceConfig.Id)
+		if device != nil {
+			p.deviceType = device.GetDriverType()
+		}
+
 		go func(c chan *p_modbus.ModbusGroup) {
 			for {
 				select {

@@ -110,7 +110,7 @@ func (s *SGpioSysfsProvider) GetProtocolConfig() *c_base.SProtocolConfig {
 func (s *SGpioSysfsProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 	return []*c_base.MetaValueWrapper{{
 		DeviceId:   s.deviceConfig.Id,
-		DeviceType: s.deviceConfig.Type,
+		DeviceType: c_base.EDeviceGpio,
 		Meta:       s.meta,
 		Value:      gvar.New(s.status),
 		HappenTime: s.lastUpdateTime,
@@ -226,7 +226,7 @@ func (s *SGpioSysfsProvider) process(status bool) {
 		if s.gpioDeviceConfig.Level != c_base.ENone && s.gpioDeviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
 			s.SAlarmHandler.TriggerAlarm(&c_base.SAlarmDetail{
 				DeviceId:   s.GetId(),
-				DeviceType: s.deviceConfig.Type,
+				DeviceType: c_base.EDeviceGpio,
 				Level:      s.gpioDeviceConfig.Level,
 				Meta:       s.meta,
 				HappenTime: now,
