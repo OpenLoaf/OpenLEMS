@@ -43,9 +43,8 @@ func (d *DeviceCmd) Start() {
 
 func (d *DeviceCmd) Stop() {
 	// 关闭所有client
-	for _, client := range d.modbusClientCache {
-	_:
-		client.Close()
+	for _, driver := range common.GetDeviceAll() {
+		driver.Destroy()
 	}
 	d.modbusClientCache = make(map[string]modbus.Client)
 	d.cancelFunc()

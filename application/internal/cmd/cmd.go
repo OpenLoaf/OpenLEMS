@@ -75,13 +75,6 @@ var (
 			} else {
 				g.Log().Infof(ctx, "未启动web服务！")
 				gproc.Listen()
-				//for {
-				//	if !stopSignal {
-				//		// TODO 每秒发送一次心跳之类的，web开启后也需要
-				//		time.Sleep(1 * time.Second)
-				//	}
-				//
-				//}
 			}
 
 			return nil

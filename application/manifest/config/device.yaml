@@ -9,7 +9,6 @@ protocols:
     logLevel: DEBUG
     address: /Users/zhao/Downloads/gpio
     params:
-      exportCommand: "echo %d | %s/export"
       period: 200 # 读取周期
 
 device:
@@ -35,7 +34,6 @@ device:
           params:
             io: 280
             level: Error
-            path: /Users/zhao/Downloads/gpio
             direction: in
         - id: led-running
           name: 运行指示灯
@@ -43,9 +41,8 @@ device:
           protocolId: gpio
           enable: true
           params:
-            io: 290
+            io: 280
             level: Error
-            path: /Users/zhao/Downloads/gpio
             direction: out
         - id: led-fault
           name: 故障指示灯
@@ -53,7 +50,7 @@ device:
           protocolId: gpio
           enable: true
           params:
-            path: /Users/zhao/Downloads/gpio
+            io: 280
             direction: out
         - id: ess-1
           name: 储能柜1
@@ -92,7 +89,7 @@ device:
               protocolId: gpio
               enable: true
               params:
-                path: /Users/zhao/Downloads/gpio
+                io: 280
                 direction: in
             - id: button-discharge
               name: 放电开关
@@ -100,7 +97,7 @@ device:
               protocolId: gpio
               enable: true
               params:
-                path: /Users/zhao/Downloads/gpio
+                io: 280
                 direction: in
                 reverse: true
 

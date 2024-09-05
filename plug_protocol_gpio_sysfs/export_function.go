@@ -15,7 +15,7 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 type sMain struct {
 	g.Meta `name:"main"`
 }
-type sInput p_gpio_sysfs.SGpioSysfsDeviceConfig
+type sInput p_gpio_sysfs.SDeviceGpioConfig
 
 type sOutput struct {
 }
@@ -32,7 +32,7 @@ func (m *sMain) Start(ctx context.Context, config sInput) (*sOutput, error) {
 		Params:         nil,
 		Enable:         true,
 		DeviceChildren: nil,
-	}, &p_gpio_sysfs.SGpioSysfsDeviceConfig{
+	}, &p_gpio_sysfs.SDeviceGpioConfig{
 		SDriverConfig: c_base.SDriverConfig{
 			Id: "GpioTest",
 		},

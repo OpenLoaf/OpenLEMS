@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/glog"
+	"github.com/gogf/gf/v2/os/gproc"
 	"github.com/gogf/gf/v2/os/gtimer"
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -26,9 +27,11 @@ type SGpioSysfsProvider struct {
 	status                bool                                                  // 结果
 	lastUpdateTime        *time.Time                                            // 最后更新时间
 	deviceConfig          *c_base.SDriverConfig                                 // 设备基础配置
-	gpioDeviceConfig      *p_gpio_sysfs.SGpioSysfsDeviceConfig                  // 设备扩展配置
+	deviceGpioConfig      *p_gpio_sysfs.SDeviceGpioConfig                       // 设备扩展配置
 	protocolConfig        *c_base.SProtocolConfig                               // 协议配置
-	protocolParam         *p_gpio_sysfs.SGpioProtocolConfig                     // 协议扩展配置
+	protocolGpioConfig    *p_gpio_sysfs.SProtocolGpioConfig                     // 协议扩展配置
+	gpioDirPath           string                                                // gpio路径
+	gpioValuePath         string                                                // gpio值路径
 	handler               func(ctx context.Context, status bool, isChange bool) // 处理函数
 }
 
@@ -37,20 +40,28 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 	if protocolConfig == nil {
 		panic(gerror.Newf("GPIO设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
 	}
+	if protocolConfig.Address == "" {
+		panic(gerror.Newf("GPIO设备：[%s]%s 的协议配置地址不能为空！", deviceConfig.Id, deviceConfig.Name))
+	}
 	if deviceConfig == nil {
 		panic(gerror.Newf("GPIO协议：%s 的设备配置不能为空！", protocolConfig.Id))
 	}
-	var gpioDeviceConfig = &p_gpio_sysfs.SGpioSysfsDeviceConfig{}
-	err := gconv.Scan(deviceConfig.Params, gpioDeviceConfig)
+	var deviceGpioConfig = &p_gpio_sysfs.SDeviceGpioConfig{}
+	err := gconv.Scan(deviceConfig.Params, deviceGpioConfig)
 	if err != nil {
 		panic(gerror.Newf("设备[%s]的Param参数配置错误：%v 无法转换为SGpioSysfsDeviceConfig", deviceConfig.Id, err))
+	}
+	if deviceGpioConfig.Io == 0 {
+		// io默认禁止为0
+		panic(gerror.Newf("GPIO设备[%s]的IO不能为空或者0", deviceConfig.Id))
 	}
 
 	provider := &SGpioSysfsProvider{
 		once:             sync.Once{},
 		deviceConfig:     deviceConfig,
-		gpioDeviceConfig: gpioDeviceConfig,
+		deviceGpioConfig: deviceGpioConfig,
 		protocolConfig:   protocolConfig,
+		gpioDirPath:      gfile.Join(protocolConfig.Address, fmt.Sprintf("gpio%d", deviceGpioConfig.Io)),
 		SAlarmHandler: &c_base.SAlarmHandler{
 			Ctx: ctx,
 		},
@@ -60,12 +71,12 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 			Debug:      false,
 			Name:       deviceConfig.Id,
 			Cn:         deviceConfig.Name,
-			Addr:       uint16(gpioDeviceConfig.ExportPort),
+			Addr:       uint16(deviceGpioConfig.Io),
 			BitLength:  1,
 			Endianness: c_base.EBigEndian,
 			ReadType:   c_base.RBit0,
 			SystemType: c_base.SBool,
-			Level:      gpioDeviceConfig.Level,
+			Level:      deviceGpioConfig.Level,
 			Factor:     1,
 			Offset:     0,
 			Min:        0,
@@ -76,7 +87,7 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 			Trigger:    nil,
 		},
 	}
-
+	provider.gpioValuePath = gfile.Join(provider.gpioDirPath, GpioPathValue)
 	if deviceConfig.LogLevel != "" {
 		err := provider.log.SetLevelStr(deviceConfig.LogLevel)
 		if err != nil {
@@ -90,8 +101,8 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 		}
 	}
 
-	provider.protocolParam = &p_gpio_sysfs.SGpioProtocolConfig{}
-	err = gconv.Scan(protocolConfig.Params, provider.protocolParam)
+	provider.protocolGpioConfig = &p_gpio_sysfs.SProtocolGpioConfig{}
+	err = gconv.Scan(protocolConfig.Params, provider.protocolGpioConfig)
 	if err != nil {
 		panic(gerror.Newf("协议[%s]的Param参数配置错误：%v 无法转换为SGpioProtocolConfig", protocolConfig.Id, err))
 	}
@@ -118,32 +129,38 @@ func (s *SGpioSysfsProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 }
 
 func (s *SGpioSysfsProvider) Init() {
-	if s.gpioDeviceConfig.Direction == p_gpio_sysfs.EGpioDirectionNone {
+	if s.deviceGpioConfig.Direction == p_gpio_sysfs.EGpioDirectionNone {
 		panic(gerror.Newf("direction方向未设置！"))
 	}
 	s.once.Do(func() {
 
 		// 先判断Path是否存在
-		if !gfile.Exists(s.gpioDeviceConfig.Path) {
+		if !gfile.Exists(s.gpioDirPath) {
 			// 判断一下export是否存在，如果存在，就export导出一下端口
-			if gfile.Exists(s.gpioDeviceConfig.ExportPath) && s.gpioDeviceConfig.ExportPort != 0 {
-				// 导出端口
-				err := gfile.PutContents(s.gpioDeviceConfig.ExportPath, gconv.String(s.gpioDeviceConfig.ExportPort))
-				if err != nil {
-					panic(gerror.Newf("导出端口失败！%v", err))
-				}
+			exportFilePath := gfile.Join(s.protocolConfig.Address, "export")
+			if gfile.Exists(exportFilePath) {
+				// 执行导出方法
+				gproc.MustShellExec(s.Ctx, fmt.Sprintf("echo %d > %s", s.deviceGpioConfig.Io, exportFilePath))
 			} else {
-				panic(gerror.Newf("path不存在！%s", s.gpioDeviceConfig.Path))
+				panic(gerror.Newf("导出的方法不存在！%s", exportFilePath))
+			}
+			// 再次判断是否成功
+			if !gfile.Exists(s.gpioDirPath) {
+				panic(gerror.Newf("export导出后%s还是不存在！", s.gpioDirPath))
 			}
 		}
+		if !gfile.Exists(s.gpioValuePath) {
+			panic(gerror.Newf("gpio值路径不存在！%s", s.gpioValuePath))
+		}
+
 		// 设置方向
-		err := gfile.PutContents(gfile.Join(s.gpioDeviceConfig.Path, GpioPathDirection), string(s.gpioDeviceConfig.Direction))
+		err := gfile.PutContents(gfile.Join(s.gpioDirPath, GpioPathDirection), string(s.deviceGpioConfig.Direction))
 		if err != nil {
 			panic(gerror.Newf("设置方向失败！%v", err))
 		}
 
 		// 如果是In类型的，说明需要时刻监听
-		if s.gpioDeviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
+		if s.deviceGpioConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
 			gtimer.SetInterval(s.Ctx, 200*time.Millisecond, func(ctx context.Context) {
 				// 读取值
 				s.isHighForce()
@@ -161,7 +178,7 @@ func (s *SGpioSysfsProvider) Init() {
 }
 
 func (s *SGpioSysfsProvider) RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) {
-	if s.gpioDeviceConfig.Direction != p_gpio_sysfs.EGpioDirectionIn {
+	if s.deviceGpioConfig.Direction != p_gpio_sysfs.EGpioDirectionIn {
 		panic(gerror.Newf("只有输入类型的GPIO才能注册Handler"))
 	}
 	s.handler = handler
@@ -192,7 +209,7 @@ func (s *SGpioSysfsProvider) GetStatus() bool {
 }
 
 func (s *SGpioSysfsProvider) isHighForce() bool {
-	value := gfile.GetContents(gfile.Join(s.gpioDeviceConfig.Path, GpioPathValue))
+	value := gfile.GetContents(s.gpioValuePath)
 
 	if gstr.Trim(value) == "1" {
 		s.process(true)
@@ -210,7 +227,7 @@ func (s *SGpioSysfsProvider) process(status bool) {
 	now := time.Now()
 	s.lastUpdateTime = &now
 	// 如果是反向的，就取反
-	if s.gpioDeviceConfig.Reverse {
+	if s.deviceGpioConfig.Reverse {
 		status = !status
 	}
 
@@ -223,11 +240,11 @@ func (s *SGpioSysfsProvider) process(status bool) {
 		s.status = status
 
 		// 触发告警
-		if s.gpioDeviceConfig.Level != c_base.ENone && s.gpioDeviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
+		if s.deviceGpioConfig.Level != c_base.ENone && s.deviceGpioConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
 			s.SAlarmHandler.TriggerAlarm(&c_base.SAlarmDetail{
 				DeviceId:   s.GetId(),
 				DeviceType: c_base.EDeviceGpio,
-				Level:      s.gpioDeviceConfig.Level,
+				Level:      s.deviceGpioConfig.Level,
 				Meta:       s.meta,
 				HappenTime: now,
 				IsTrigger:  status,
@@ -250,13 +267,13 @@ func (s *SGpioSysfsProvider) SetLow() error {
 
 func (s *SGpioSysfsProvider) setValue(value string) error {
 	// 设置为低电平
-	if s.gpioDeviceConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
+	if s.deviceGpioConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
 		s.log.Debugf(s.Ctx, "GPIO Direction %s is [in], can't output", s.GetId())
 		return nil
 	}
-	return gfile.PutContents(gfile.Join(s.gpioDeviceConfig.Path, GpioPathValue), value)
+	return gfile.PutContents(s.gpioValuePath, value)
 }
 
-func (s *SGpioSysfsProvider) GetGpioDeviceConfig() *p_gpio_sysfs.SGpioSysfsDeviceConfig {
-	return s.gpioDeviceConfig
+func (s *SGpioSysfsProvider) GetGpioDeviceConfig() *p_gpio_sysfs.SDeviceGpioConfig {
+	return s.deviceGpioConfig
 }

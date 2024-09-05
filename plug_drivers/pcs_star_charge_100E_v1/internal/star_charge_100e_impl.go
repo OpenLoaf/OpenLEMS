@@ -56,7 +56,7 @@ func (s *StarCharge100EPcs) Init(protocol c_base.IProtocol, deviceConfig *c_base
 func (s *StarCharge100EPcs) Destroy() {
 	_ = s.SetPower(0)
 	_ = s.SetStatus(c_base.EPcsStatusOff)
-	g.Log().Noticef(s.ctx, "[%s]%s销毁成功！", s.deviceConfig.Id, s.deviceConfig.Name)
+	g.Log().Noticef(s.ctx, "[%s]%s销毁成功,设置PCS状态为Off!", s.deviceConfig.Id, s.deviceConfig.Name)
 }
 
 func (s *StarCharge100EPcs) GetFunctionList() []*c_base.STelemetry {
