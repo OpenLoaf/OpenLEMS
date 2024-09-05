@@ -82,11 +82,11 @@ func (d *sDeviceInstance) FindAll(isVirtual ...bool) []c_base.IDriver {
 	for _, info := range d.array.Slice() {
 		if isVirtual != nil && len(isVirtual) > 0 {
 			if isVirtual[0] {
-				if info.(c_base.IDriver).GetDeviceConfig().IsVirtual {
+				if info.(c_base.IDriver).GetDeviceConfig().ProtocolId == "" {
 					result = append(result, info.(c_base.IDriver))
 				}
 			} else {
-				if !info.(c_base.IDriver).GetDeviceConfig().IsVirtual {
+				if info.(c_base.IDriver).GetDeviceConfig().ProtocolId != "" {
 					result = append(result, info.(c_base.IDriver))
 				}
 			}

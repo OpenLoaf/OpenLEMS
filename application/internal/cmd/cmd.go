@@ -50,7 +50,8 @@ var (
 			g.Log().Infof(ctx, "加载驱动文件路径：%s", driverConfigName)
 
 			// 启动设备
-			driver.NewDeviceCmd(ctx).Start()
+			deviceCmd := driver.NewDeviceCmd(ctx)
+			deviceCmd.Start()
 
 			var web *ghttp.Server
 
@@ -59,6 +60,9 @@ var (
 				stopSignal = true
 				if web != nil {
 					_ = web.Shutdown()
+				}
+				if deviceCmd != nil {
+					deviceCmd.Stop()
 				}
 				cancelFunc()
 				time.Sleep(1 * time.Second)
@@ -69,14 +73,14 @@ var (
 				g.Log().Infof(ctx, "启动web服务！")
 				web = startWeb(ctx)
 			} else {
-				//g.Log().Infof(ctx, "未启动web服务！")
-				//for {
-				//	if !stopSignal {
-				//		// TODO 每秒发送一次心跳之类的，web开启后也需要
-				//		time.Sleep(1 * time.Second)
-				//	}
-				//
-				//}
+				g.Log().Infof(ctx, "未启动web服务！")
+				for {
+					if !stopSignal {
+						// TODO 每秒发送一次心跳之类的，web开启后也需要
+						time.Sleep(1 * time.Second)
+					}
+
+				}
 			}
 
 			return nil

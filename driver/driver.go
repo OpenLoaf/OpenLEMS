@@ -38,10 +38,7 @@ func (d *DeviceCmd) Start() {
 			d.Stop()
 		}
 	}()
-	driver := d.InitDriver(d.ctx, common.GetDriverConfig(d.ctx))
-	if driver == nil {
-		g.Log().Warningf(d.ctx, "没有可用的驱动被加载！")
-	}
+	d.InitDriver(d.ctx, common.GetDriverConfig(d.ctx))
 }
 
 func (d *DeviceCmd) Stop() {
@@ -71,15 +68,25 @@ func (d *DeviceCmd) InitDriver(ctx context.Context, config *c_base.SDriverConfig
 		}
 	}
 
+	if config.Id == "root" {
+		return nil
+	}
+
 	var protocolProvider c_base.IProtocol
 	// 设备初始化
 	if config.ProtocolId != "" {
+		ctx = context.WithValue(ctx, c_base.ConstCtxKeyProtocolId, config.ProtocolId)
 		protocolProvider = d.getProtocolProvider(ctx, config)
 	} else {
 		ctx = context.WithValue(ctx, c_base.ConstCtxKeyProtocolId, "Virtual")
 	}
 
 	driver := d.getDriver(ctx, config)
+	if driver == nil {
+		g.Log().Errorf(ctx, "设备[%s]驱动加载失败！", config.Name)
+		return nil
+	}
+
 	driver.Init(protocolProvider, config)
 
 	if protocolProvider != nil {
@@ -91,7 +98,6 @@ func (d *DeviceCmd) InitDriver(ctx context.Context, config *c_base.SDriverConfig
 }
 
 func (d *DeviceCmd) getProtocolProvider(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IProtocol {
-	ctx = context.WithValue(ctx, c_base.ConstCtxKeyProtocolId, deviceConfig.ProtocolId)
 
 	protocolId := deviceConfig.ProtocolId
 

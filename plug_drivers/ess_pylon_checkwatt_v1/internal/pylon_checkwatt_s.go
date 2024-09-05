@@ -39,7 +39,6 @@ func NewPlugin(ctx context.Context) c_device.IEnergyStore {
 
 func (p *PylonCheckwattEss) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
 	p.deviceConfig = deviceConfig
-	deviceConfig.IsVirtual = true
 
 	// 从配置中获取电表、PCS、BMS的配置
 	for _, child := range deviceConfig.DeviceChildren {

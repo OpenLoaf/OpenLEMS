@@ -59,7 +59,6 @@ func NewGroupEnergyStore(ctx context.Context) c_device.IStationEnergyStore {
 
 func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
 	s.deviceConfig = deviceConfig
-	deviceConfig.IsVirtual = true
 
 	for _, deviceChild := range deviceConfig.DeviceChildren {
 		// 从缓存中获取

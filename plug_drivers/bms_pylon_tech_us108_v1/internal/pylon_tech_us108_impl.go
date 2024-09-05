@@ -216,7 +216,7 @@ func (p *PylonTechUs108Bms) SetReset() error {
 func (p *PylonTechUs108Bms) writeTime() {
 	_ = p._syncTime()
 	go func() {
-		ticker := time.NewTicker(5 * time.Minute)
+		ticker := time.NewTicker(12 * time.Hour)
 		defer ticker.Stop()
 		for {
 			select {
@@ -245,6 +245,6 @@ func (p *PylonTechUs108Bms) _syncTime() error {
 	if err != nil {
 		return err
 	}
-	g.Log().Infof(p.ctx, "同步时间成功！22")
+	g.Log().Infof(p.ctx, "同步时间成功！")
 	return nil
 }

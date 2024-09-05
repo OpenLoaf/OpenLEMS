@@ -32,8 +32,9 @@ device:
           driver: gpio_basic_v1
           protocolId: gpio
           enable: true
-          level: Error
           params:
+            io: 280
+            level: Error
             path: /Users/zhao/Downloads/gpio
             direction: in
         - id: led-running
@@ -43,6 +44,7 @@ device:
           enable: true
           params:
             io: 290
+            level: Error
             path: /Users/zhao/Downloads/gpio
             direction: out
         - id: led-fault

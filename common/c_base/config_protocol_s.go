@@ -7,7 +7,7 @@ type SProtocolConfig struct {
 	Id       string            // 协议Id
 	Protocol EProtocolType     // 协议
 	Address  string            // 地址
-	Timeout  int64             // 链接
+	Timeout  int64             // 超时时间
 	LogLevel string            // 日志等级
 	Params   map[string]string // 配置
 }

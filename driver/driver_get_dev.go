@@ -7,7 +7,6 @@ import (
 	gpio_basic_v1 "basic_v1"
 	"context"
 	"ems-plan/c_base"
-	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	bms_pylon_tech_us108_v1 "pylonTechUs108_v1"
@@ -34,6 +33,7 @@ func (d *DeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverC
 	if deviceConfig.Driver == "" {
 		panic(gerror.Newf("设备[%s]%s驱动名称为空！", deviceConfig.Id, deviceConfig.Name))
 	}
+
 	ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
 
 	// 获取驱动的类型
@@ -41,8 +41,6 @@ func (d *DeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverC
 	if driverGroups == nil || len(driverGroups) == 0 {
 		panic(gerror.Newf("驱动名称错误！%s", deviceConfig.Driver))
 	}
-
-	ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceId, fmt.Sprintf("%s:%s", driverGroups[0], deviceConfig.Id))
 
 	pluginNewMethod := pluginNewMethodCache[deviceConfig.Driver]
 	if pluginNewMethod == nil {

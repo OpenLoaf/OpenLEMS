@@ -22,7 +22,6 @@ func (d *DeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverC
 	if deviceConfig.Driver == "" {
 		panic(gerror.Newf("设备[%s]%s驱动名称为空！", deviceConfig.Id, deviceConfig.Name))
 	}
-	ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
 
 	// 获取最新的驱动文件路径
 	latestDriverPath := fmt.Sprintf("%s.driver", deviceConfig.Driver)
@@ -33,7 +32,7 @@ func (d *DeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverC
 		panic(gerror.Newf("驱动名称错误！%s", deviceConfig.Driver))
 	}
 
-	ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceId, fmt.Sprintf("%s:%s", driverGroups[0], deviceConfig.Id))
+	ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
 
 	pluginSymbol, err := common.OpenPlugin(ctx, latestDriverPath)
 	if err != nil {
