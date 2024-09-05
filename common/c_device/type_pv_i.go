@@ -3,10 +3,16 @@ package c_device
 import "ems-plan/c_base"
 
 type IPvBase interface {
-	GetGridFrequency() (float32, error)                 // 电网频率
-	GetGridVoltage() (float32, float32, float32, error) // 电网电压 A、B、C
-	GetGridCurrent() (float32, float32, float32, error) // 电网电流 A、B、C
-	GetGridPower() (float32, float32, float32, error)   // 电网功率 A、B、C
+	GetGridFrequency() (float32, error) // 电网频率
+	GetVa() (float32, error)            // A相电压
+	GetVb() (float32, error)            // B相电压
+	GetVc() (float32, error)            // C相电压
+	GetIa() (float32, error)            // A相电流
+	GetIb() (float32, error)            // B相电流
+	GetIc() (float32, error)            // C相电流
+	GetPa() (float32, error)            // A相有功功率
+	GetPb() (float32, error)            // B相有功功率
+	GetPc() (float32, error)            // C相有功功率
 
 	SetPower(power float64) error         // 设置有功功率
 	SetReactivePower(power float64) error // 设置无功功率

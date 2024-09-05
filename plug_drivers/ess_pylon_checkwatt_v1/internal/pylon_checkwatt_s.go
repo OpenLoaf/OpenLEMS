@@ -194,14 +194,6 @@ func (p *PylonCheckwattEss) GetSoh() (float32, error) {
 	return p.bms.GetSoh()
 }
 
-func (p *PylonCheckwattEss) GetCellTemp() (float32, float32, float32, error) {
-	return p.bms.GetCellTemp()
-}
-
-func (p *PylonCheckwattEss) GetCellVoltage() (float32, float32, float32, error) {
-	return p.bms.GetCellVoltage()
-}
-
 func (p *PylonCheckwattEss) GetCapacity() (uint32, error) {
 	return p.bms.GetCapacity()
 }
@@ -232,6 +224,30 @@ func (p *PylonCheckwattEss) GetDcVoltage() (float64, error) {
 
 func (p *PylonCheckwattEss) GetDcCurrent() (float64, error) {
 	return p.bms.GetDcCurrent()
+}
+
+func (p *PylonCheckwattEss) GetCellMinTemp() (float32, error) {
+	return p.bms.GetCellMinTemp()
+}
+
+func (p *PylonCheckwattEss) GetCellMaxTemp() (float32, error) {
+	return p.bms.GetCellMaxTemp()
+}
+
+func (p *PylonCheckwattEss) GetCellAvgTemp() (float32, error) {
+	return p.bms.GetCellAvgTemp()
+}
+
+func (p *PylonCheckwattEss) GetCellMinVoltage() (float32, error) {
+	return p.bms.GetCellMinVoltage()
+}
+
+func (p *PylonCheckwattEss) GetCellMaxVoltage() (float32, error) {
+	return p.bms.GetCellMaxVoltage()
+}
+
+func (p *PylonCheckwattEss) GetCellAvgVoltage() (float32, error) {
+	return p.bms.GetCellAvgVoltage()
 }
 
 func (p *PylonCheckwattEss) GetTodayIncomingQuantity() (float64, error) {

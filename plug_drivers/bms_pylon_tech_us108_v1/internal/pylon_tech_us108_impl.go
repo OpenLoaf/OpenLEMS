@@ -156,21 +156,44 @@ func (p *PylonTechUs108Bms) GetDcCurrent() (float64, error) {
 	return p.GetFloat64Value(DCCurrent)
 }
 
-// GetCellTemp 电芯最低温度, 电芯最高温度, 电芯平均温度
-func (p *PylonTechUs108Bms) GetCellTemp() (float32, float32, float32, error) {
-	values, err := p.GetFloat32Values(BatteryCellMinTemp, BatteryCellMaxTemp)
-	if err != nil {
-		return 0, 0, 0, err
-	}
-	return values[0], values[1], (values[0] + values[1]) / 2, err
+func (p *PylonTechUs108Bms) GetCellMinTemp() (float32, error) {
+	return p.GetFloat32Value(BatteryCellMinTemp)
 }
 
-func (p *PylonTechUs108Bms) GetCellVoltage() (float32, float32, float32, error) {
-	values, err := p.GetFloat32Values(BatteryCellMinVoltage, BatteryCellMaxVoltage)
+func (p *PylonTechUs108Bms) GetCellMaxTemp() (float32, error) {
+	return p.GetFloat32Value(BatteryCellMaxTemp)
+}
+
+func (p *PylonTechUs108Bms) GetCellAvgTemp() (float32, error) {
+	minTemp, err := p.GetCellMinTemp()
 	if err != nil {
-		return 0, 0, 0, err
+		return 0, err
 	}
-	return values[0], values[1], (values[0] + values[1]) / 2, err
+	maxTemp, err := p.GetCellMaxTemp()
+	if err != nil {
+		return 0, err
+	}
+	return (minTemp + maxTemp) / 2.0, nil
+}
+
+func (p *PylonTechUs108Bms) GetCellMinVoltage() (float32, error) {
+	return p.GetFloat32Value(BatteryCellMinVoltage)
+}
+
+func (p *PylonTechUs108Bms) GetCellMaxVoltage() (float32, error) {
+	return p.GetFloat32Value(BatteryCellMaxVoltage)
+}
+
+func (p *PylonTechUs108Bms) GetCellAvgVoltage() (float32, error) {
+	minVoltage, err := p.GetCellMinVoltage()
+	if err != nil {
+		return 0, err
+	}
+	maxVoltage, err := p.GetCellMaxVoltage()
+	if err != nil {
+		return 0, err
+	}
+	return (minVoltage + maxVoltage) / 2.0, nil
 }
 
 func (p *PylonTechUs108Bms) GetCycleCount() (uint, error) {

@@ -145,6 +145,93 @@ func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_ba
 	g.Log().Noticef(s.ctx, "场站储能初始化成功！")
 }
 
+func (s *sStationEnergyStore) getValue(getValueFunc func(store c_device.IEnergyStore) (float32, error), needUpdate func(value, temp float32) bool) (float32, error) {
+	var minTemp float32
+	for _, ess := range s.energyStores {
+		value, err := getValueFunc(ess)
+		if err != nil {
+			g.Log().Warningf(s.ctx, "获取储能柜:%s 获取数据失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			continue
+		}
+		if minTemp == 0 || value < minTemp {
+			minTemp = value
+		}
+	}
+	return minTemp, nil
+}
+
+func (s *sStationEnergyStore) GetCellMinTemp() (float32, error) {
+	return s.getValue(func(store c_device.IEnergyStore) (float32, error) {
+		return store.GetCellMinTemp()
+	}, func(value, temp float32) bool {
+		return value < temp
+	})
+}
+
+func (s *sStationEnergyStore) GetCellMaxTemp() (float32, error) {
+	return s.getValue(func(store c_device.IEnergyStore) (float32, error) {
+		return store.GetCellMaxTemp()
+	}, func(value, temp float32) bool {
+		return value > temp
+	})
+}
+
+func (s *sStationEnergyStore) GetCellAvgTemp() (float32, error) {
+	// 把所有的温度加起来，然后除以个数
+	var temp float32
+	var count int
+	for _, ess := range s.energyStores {
+		value, err := ess.GetCellAvgTemp()
+		if err != nil {
+			g.Log().Warningf(s.ctx, "获取储能柜:%s 平均温度失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			continue
+		}
+
+		temp += value
+		count++
+	}
+	if count == 0 {
+		return 0, gerror.New("统计平均温度失败！")
+	}
+	return temp / float32(count), nil
+}
+
+func (s *sStationEnergyStore) GetCellMinVoltage() (float32, error) {
+	return s.getValue(func(store c_device.IEnergyStore) (float32, error) {
+		return store.GetCellMinVoltage()
+	}, func(value, temp float32) bool {
+		return value < temp
+	})
+}
+
+func (s *sStationEnergyStore) GetCellMaxVoltage() (float32, error) {
+	return s.getValue(func(store c_device.IEnergyStore) (float32, error) {
+		return store.GetCellMinVoltage()
+	}, func(value, temp float32) bool {
+		return value > temp
+	})
+}
+
+func (s *sStationEnergyStore) GetCellAvgVoltage() (float32, error) {
+	// 把所有的电压加起来，然后除以个数
+	var voltage float32
+	var count int
+	for _, ess := range s.energyStores {
+		value, err := ess.GetCellAvgVoltage()
+		if err != nil {
+			g.Log().Warningf(s.ctx, "获取储能柜:%s 平均电压失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			continue
+		}
+
+		voltage += value
+		count++
+	}
+	if count == 0 {
+		return 0, gerror.New("统计平均电压失败！")
+	}
+	return voltage / float32(count), nil
+}
+
 func (s *sStationEnergyStore) GetDriverType() c_base.EDeviceType {
 	return c_base.EStationEnergyStore
 }

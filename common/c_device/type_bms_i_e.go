@@ -17,13 +17,18 @@ type IBmsBasic interface {
 	SetReset() error                      // 复位
 	SetBmsStatus(status EBmsStatus) error // 设置BMS状态
 
-	GetBmsStatus() (EBmsStatus, error)                  // BMS状态
-	GetSoc() (float32, error)                           // 电池当前容量 %
-	GetSoh() (float32, error)                           // 电池健康 %
-	GetCellTemp() (float32, float32, float32, error)    // 电芯最低温度, 电芯最高温度, 电芯平均温度
-	GetCellVoltage() (float32, float32, float32, error) // 电芯最低电压, 电芯最高电压, 电芯平均电压
-	GetCapacity() (uint32, error)                       // 电池容量kWh
-	GetCycleCount() (uint, error)                       // 循环次数
+	GetCellMinTemp() (float32, error)    // 电芯最低温度
+	GetCellMaxTemp() (float32, error)    // 电芯最高温度
+	GetCellAvgTemp() (float32, error)    // 电芯平均温度
+	GetCellMinVoltage() (float32, error) // 电芯最低电压
+	GetCellMaxVoltage() (float32, error) // 电芯最高电压
+	GetCellAvgVoltage() (float32, error) // 电芯平均电压
+
+	GetBmsStatus() (EBmsStatus, error) // BMS状态
+	GetSoc() (float32, error)          // 电池当前容量 %
+	GetSoh() (float32, error)          // 电池健康 %
+	GetCapacity() (uint32, error)      // 电池容量kWh
+	GetCycleCount() (uint, error)      // 循环次数
 
 	GetRatedPower() uint32               // 额定功率， -1代表未知
 	GetMaxInputPower() (float32, error)  // 最大充电功率、最大输入功率限制
