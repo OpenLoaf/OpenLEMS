@@ -8,3 +8,7 @@ const (
 
 	ConstNewPluginFunctionName = "NewPlugin"
 )
+
+const (
+	ConstStationEnergyStoreId = "station-energy-store"
+)

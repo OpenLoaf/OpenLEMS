@@ -7,18 +7,22 @@ import (
 	common "ems-plan"
 	"ems-plan/c_base"
 	"ems-plan/c_device"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
 func (c *ControllerV1) GetTelemetryDescription(ctx context.Context, req *v1.GetTelemetryDescriptionReq) (res *v1.GetTelemetryDescriptionRes, err error) {
-
+	stationEnergyStore := common.GetStationEnergyStore()
+	if stationEnergyStore == nil {
+		return nil, gerror.New("场站储能不存在！")
+	}
 	return &v1.GetTelemetryDescriptionRes{
-		Ess: makeResponse(ctx, string(c_base.EStationEnergyStore)),
+		Ess: makeResponse(ctx, stationEnergyStore),
 	}, nil
 }
 
-func makeResponse(ctx context.Context, name string) *v1.TelemetryDescriptionObj {
-	stationEnergyStore := common.GetDeviceById(string(c_base.EStationEnergyStore))
+func makeResponse(ctx context.Context, stationEnergyStore c_device.IStationEnergyStore) *v1.TelemetryDescriptionObj {
+
 	var stationTelemetryList []*entity.DeviceTelemetry
 	stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
 		DeviceId:      stationEnergyStore.GetDeviceConfig().Id,

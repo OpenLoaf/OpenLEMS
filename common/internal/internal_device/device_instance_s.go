@@ -100,7 +100,7 @@ func (d *sDeviceInstance) FindAll(isVirtual ...bool) []c_base.IDriver {
 }
 
 func (d *sDeviceInstance) GetStationEnergyStore() c_device.IStationEnergyStore {
-	driver := d.FindById(string(c_base.EStationEnergyStore))
+	driver := d.FindById(c_base.ConstStationEnergyStoreId)
 	if driver == nil {
 		return nil
 	}

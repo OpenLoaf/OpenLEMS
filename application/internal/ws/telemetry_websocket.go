@@ -46,7 +46,7 @@ func NewTelemetryWebsocket() *TelemetryWebsocket {
 	}
 }
 
-func (w *TelemetryWebsocket) Ws(r *ghttp.Request) {
+func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 	ctx, cancelFunc := context.WithCancel(r.Context())
 
 	conn, err := w.upGrader.Upgrade(r.Response.Writer, r.Request, nil)
@@ -56,98 +56,104 @@ func (w *TelemetryWebsocket) Ws(r *ghttp.Request) {
 		return
 	}
 
-	conn.SetCloseHandler(func(code int, text string) error {
-		g.Log().Noticef(ctx, "Connection closed: %v, %s", code, text)
-		return nil
-	})
-
-	g.Log().Infof(ctx, "遥测连接成功")
-	defer func(conn *websocket.Conn) {
-		g.Log().Noticef(ctx, "遥测关闭连接")
-		cancelFunc()
-		_ = conn.Close()
-	}(conn)
 	var (
 		cancel context.CancelFunc
 	)
 
+	conn.SetCloseHandler(func(code int, text string) error {
+		//if cancel != nil {
+		//	cancel()
+		//}
+		cancelFunc()
+		_ = conn.Close()
+		return nil
+	})
+
+	g.Log().Infof(ctx, "遥测连接成功")
+
 	for {
-		var query RegisterTelemetryQuery
-		err := conn.ReadJSON(&query)
-		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				g.Log().Noticef(ctx, "Unexpected close error: %v", err)
-			} else {
+
+		select {
+		case <-ctx.Done():
+			if cancel != nil {
+				cancel()
+			}
+			g.Log().Debugf(ctx, "通道关闭！")
+			return
+		default:
+
+			var query RegisterTelemetryQuery
+			err := conn.ReadJSON(&query)
+			if err != nil {
+				if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					g.Log().Noticef(ctx, "Unexpected close error: %v", err)
+				} else {
+					_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
+						Code:    500,
+						Message: err.Error(),
+						Time:    util.GetNow(),
+					})
+					continue
+				}
+				if cancel != nil {
+					cancel()
+				}
+				return
+			}
+
+			g.Log().Debugf(ctx, "-------recv: %+v", query)
+			if query.Millisecond == 0 {
+				if cancel != nil {
+					cancel()
+				}
+				continue
+			}
+
+			// 验证一下数据是否正确
+			if query.Millisecond < 200 || query.Millisecond > 1000*60*60*24 {
 				_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 					Code:    500,
-					Message: err.Error(),
+					Message: "时间间隔范围为200到86400000",
 					Time:    util.GetNow(),
 				})
 				continue
 			}
-			if cancel != nil {
-				cancel()
+
+			if query.Keys == nil || len(query.Keys) == 0 {
+				_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
+					Code:    500,
+					Message: "遥测列表不能为空",
+					Time:    util.GetNow(),
+				})
+				continue
 			}
-			return
-		}
 
-		g.Log().Debugf(ctx, "-------recv: %+v", query)
-		if query.Millisecond == 0 {
 			if cancel != nil {
+				// 取消之前的定时器，根据新的规则重新生成
 				cancel()
+				cancel = nil
 			}
-			continue
-		}
 
-		// 验证一下数据是否正确
-		if query.Millisecond < 200 || query.Millisecond > 1000*60*60*24 {
-			_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
-				Code:    500,
-				Message: "时间间隔范围为200到86400000",
-				Time:    util.GetNow(),
-			})
-			continue
-		}
+			var newCtx context.Context
+			newCtx, cancel = context.WithCancel(ctx)
 
-		if query.Keys == nil || len(query.Keys) == 0 {
-			_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
-				Code:    500,
-				Message: "遥测列表不能为空",
-				Time:    util.GetNow(),
-			})
-			continue
-		}
+			go func(ctx context.Context, conn *websocket.Conn, query RegisterTelemetryQuery) {
+				// 先执行了，再等待定时器的
+				_ = writeValue(ctx, conn, query)
 
-		if cancel != nil {
-			g.Log().Debugf(ctx, "遥测取消发送数据")
-			cancel()
-			cancel = nil
-		}
-
-		var newCtx context.Context
-		newCtx, cancel = context.WithCancel(ctx)
-
-		go func(ctx context.Context, conn *websocket.Conn, query RegisterTelemetryQuery) {
-			// 先执行了，再等待定时器的
-			_ = writeValue(ctx, conn, query)
-
-			ticker := time.NewTicker(time.Duration(query.Millisecond) * time.Millisecond)
-			defer ticker.Stop()
-			for {
-				select {
-				case <-ctx.Done():
-					return
-				case <-ticker.C:
-					_ = writeValue(ctx, conn, query)
-
-					/*if e != nil {
-						log.Println("-------write:", e)
+				ticker := time.NewTicker(time.Duration(query.Millisecond) * time.Millisecond)
+				defer ticker.Stop()
+				for {
+					select {
+					case <-ctx.Done():
+						g.Log().Debugf(ctx, "遥测取消发送数据的Goroutine")
 						return
-					}*/
+					case <-ticker.C:
+						_ = writeValue(ctx, conn, query)
+					}
 				}
-			}
-		}(newCtx, conn, query)
-
+			}(newCtx, conn, query)
+		}
 	}
 
 }

@@ -35,7 +35,7 @@ func NewStationWebsocket() *StationWebsocket {
 	}
 }
 
-func (w *StationWebsocket) Ws(r *ghttp.Request) {
+func (w *StationWebsocket) StationInfoWebsocket(r *ghttp.Request) {
 	ctx, cancelFunc := context.WithCancel(r.Context())
 
 	conn, err := w.upGrader.Upgrade(r.Response.Writer, r.Request, nil)
@@ -50,9 +50,8 @@ func (w *StationWebsocket) Ws(r *ghttp.Request) {
 		return nil
 	})
 
-	g.Log().Infof(ctx, "遥测连接成功")
 	defer func(conn *websocket.Conn) {
-		g.Log().Noticef(ctx, "遥测关闭连接")
+		g.Log().Debugf(ctx, "关闭Station Websocket连接")
 		cancelFunc()
 		_ = conn.Close()
 	}(conn)
