@@ -46,7 +46,7 @@ func (w *StationWebsocket) StationInfoWebsocket(r *ghttp.Request) {
 	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
-		g.Log().Noticef(ctx, "Connection closed: %v, %s", code, text)
+		g.Log().Debugf(ctx, "Connection closed: %v, %s", code, text)
 		return nil
 	})
 

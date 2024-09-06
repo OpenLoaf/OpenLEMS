@@ -61,15 +61,12 @@ func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 	)
 
 	conn.SetCloseHandler(func(code int, text string) error {
-		//if cancel != nil {
-		//	cancel()
-		//}
 		cancelFunc()
 		_ = conn.Close()
 		return nil
 	})
 
-	g.Log().Infof(ctx, "遥测连接成功")
+	g.Log().Debugf(ctx, "遥测连接成功")
 
 	for {
 
