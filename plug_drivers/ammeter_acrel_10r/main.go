@@ -3,7 +3,9 @@ package main
 import (
 	"ammeter_acrel_10r_v1/ammeter_acrel_10r_v1"
 	"context"
+	"driver"
 	"ems-plan/c_base"
+	"github.com/gogf/gf/v2/os/gcmd"
 )
 
 // 通过构建脚本自动注入
@@ -26,6 +28,31 @@ func main() {
 	})
 
 	// 此处可添加自定义命令
-	//command.AddCommand()
+	_ = command.AddCommand(&gcmd.Command{
+		Name:  "test",
+		Usage: "test",
+		Brief: "测试启动",
+		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+			cmd := driver.NewDeviceCmd(ctx)
+
+			cmd.InitDriver(&c_base.SDriverConfig{
+				Id:         "TestAmmeterAcrel10r",
+				Name:       "安科瑞10R电表",
+				ProtocolId: "192.168.0.100:5000",
+				Driver:     "ammeter_acrel_10r_v1",
+				Enable:     true,
+				LogLevel:   "",
+				Params: map[string]string{
+					"unitId": "1",
+				},
+				DeviceChildren: nil,
+			}, []*c_base.SProtocolConfig{
+				{Id: "192.168.0.100:5000", Protocol: c_base.EModbusTcp, Address: "192.168.0.100:5000", Timeout: 30, LogLevel: "DEBUG", Params: nil},
+			})
+
+			cmd.Block()
+			return err
+		},
+	})
 	command.Run(context.Background())
 }

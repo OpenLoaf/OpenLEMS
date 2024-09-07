@@ -24,7 +24,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 			option = append(option, modbus.WithEnableLogger())
 		}
 
-		option = append(option, modbus.WithTCPTimeout(time.Duration(protocolConfig.GetTimeout())*time.Millisecond))
+		option = append(option, modbus.WithTCPTimeout(time.Duration(protocolConfig.GetTimeout())*time.Second))
 		tcpProvider := modbus.NewTCPClientProvider(protocolConfig.GetAddress(), option...)
 		client = modbus.NewClient(tcpProvider)
 	case c_base.EModbusRtu:

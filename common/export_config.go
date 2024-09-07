@@ -17,9 +17,19 @@ func GetDriverConfig(ctx context.Context) *c_base.SDriverConfig {
 	return internal_config.ConfigInstance.GetDriverConfig(ctx)
 }
 
-// GetProtocolsConfig 获取协议配置，失败将直接系统退出
-func GetProtocolsConfig(ctx context.Context) []*c_base.SProtocolConfig {
+// GetProtocolsConfigList 获取协议配置，失败将直接系统退出
+func GetProtocolsConfigList(ctx context.Context) []*c_base.SProtocolConfig {
 	return internal_config.ConfigInstance.GetProtocolsConfig(ctx)
+}
+
+// GetProtocolsConfigMap 获取协议配置，失败将直接系统退出
+func GetProtocolsConfigMap(ctx context.Context) map[string]*c_base.SProtocolConfig {
+	list := internal_config.ConfigInstance.GetProtocolsConfig(ctx)
+	m := make(map[string]*c_base.SProtocolConfig)
+	for _, protocol := range list {
+		m[protocol.Id] = protocol
+	}
+	return m
 }
 
 // GetProtocolById 根据协议ID获取协议配置,可能为空

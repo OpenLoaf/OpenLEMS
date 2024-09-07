@@ -6,7 +6,9 @@ import (
 	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gproc"
 	"github.com/torykit/go-modbus"
+	"os"
 	"plug_protocol_gpio_sysfs"
 	"plug_protocol_modbus"
 	"reflect"
@@ -38,7 +40,7 @@ func (d *DeviceCmd) Start() {
 			d.Stop()
 		}
 	}()
-	d.InitDriver(d.ctx, common.GetDriverConfig(d.ctx))
+	d.InitDriver(common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))
 }
 
 func (d *DeviceCmd) Stop() {
@@ -50,20 +52,20 @@ func (d *DeviceCmd) Stop() {
 	d.cancelFunc()
 }
 
-func (d *DeviceCmd) InitDriver(ctx context.Context, config *c_base.SDriverConfig) c_base.IDriver {
+func (d *DeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver {
 	if err := config.Check(); err != nil {
 		panic(err)
 	}
 
 	if config.Enable == false {
-		g.Log().Noticef(ctx, "设备[%s]未启用！", config.Name)
+		g.Log().Noticef(d.ctx, "设备[%s]未启用！", config.Name)
 		return nil
 	}
 
 	// 先递归初始化子设备
 	if config.DeviceChildren != nil {
 		for _, _device := range config.DeviceChildren {
-			d.InitDriver(ctx, _device)
+			d.InitDriver(_device, protocolConfigList)
 		}
 	}
 
@@ -74,21 +76,28 @@ func (d *DeviceCmd) InitDriver(ctx context.Context, config *c_base.SDriverConfig
 	var protocolProvider c_base.IProtocol
 	// 设备初始化
 	if config.ProtocolId != "" {
-		ctx = context.WithValue(ctx, c_base.ConstCtxKeyProtocolId, config.ProtocolId)
-		protocolProvider = d.getProtocolProvider(ctx, config)
+		d.ctx = context.WithValue(d.ctx, c_base.ConstCtxKeyProtocolId, config.ProtocolId)
+		var protocolConfig *c_base.SProtocolConfig
+		for _, _protocolConfig := range protocolConfigList {
+			if _protocolConfig.Id == config.ProtocolId {
+				protocolConfig = _protocolConfig
+				break
+			}
+		}
+		protocolProvider = d.getProtocolProvider(d.ctx, config, protocolConfig)
 	} else {
-		ctx = context.WithValue(ctx, c_base.ConstCtxKeyProtocolId, "Virtual")
+		d.ctx = context.WithValue(d.ctx, c_base.ConstCtxKeyProtocolId, "Virtual")
 	}
 
-	driver := d.getDriver(ctx, config)
+	driver := d.getDriver(d.ctx, config)
 	if driver == nil {
-		g.Log().Errorf(ctx, "设备[%s]驱动加载失败！", config.Name)
+		g.Log().Errorf(d.ctx, "设备[%s]驱动加载失败！", config.Name)
 		return nil
 	}
 
 	driver.Init(protocolProvider, config)
 
-	g.Log().Noticef(ctx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", config.Name, driver.GetDescription())
+	g.Log().Noticef(d.ctx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", config.Name, driver.GetDescription())
 
 	if protocolProvider != nil {
 		protocolProvider.Init()
@@ -98,14 +107,21 @@ func (d *DeviceCmd) InitDriver(ctx context.Context, config *c_base.SDriverConfig
 	return driver
 }
 
-func (d *DeviceCmd) getProtocolProvider(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IProtocol {
+// Block 阻塞进程
+func (d *DeviceCmd) Block() {
+	gproc.AddSigHandlerShutdown(func(sig os.Signal) {
+		g.Log().Noticef(d.ctx, "接收到信号：%s", sig.String())
+		d.Stop()
+	})
 
-	protocolId := deviceConfig.ProtocolId
+	gproc.Listen()
+}
 
+func (d *DeviceCmd) getProtocolProvider(ctx context.Context, deviceConfig *c_base.SDriverConfig, protocolConfig *c_base.SProtocolConfig) c_base.IProtocol {
 	// 从配置中获取协议
-	protocolConfig := common.GetProtocolById(ctx, protocolId)
+	//protocolConfig := common.GetProtocolById(ctx, protocolId)
 	if protocolConfig == nil {
-		panic(gerror.Newf("协议Id: %s 配置信息不存在！", protocolId))
+		panic(gerror.Newf("协议Id: %s 配置信息不存在！", deviceConfig.ProtocolId))
 	}
 	if err := protocolConfig.Check(); err != nil {
 		panic(err)

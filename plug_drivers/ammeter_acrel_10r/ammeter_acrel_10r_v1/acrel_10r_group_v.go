@@ -45,7 +45,7 @@ var (
 		Desc:      "开关量输入",
 		Addr:      SwitchIn1.Addr,
 		Quantity:  SwitchOut4.Addr - SwitchIn1.Addr + 1,
-		Function:  p_modbus.MqDiscreteInputs,
+		Function:  p_modbus.MqHoldingRegisters,
 		CycleMill: 1000,
 		Lifetime:  c_base.DefaultCacheLifeTime,
 		Metas:     []*c_base.Meta{SwitchIn1, SwitchIn2, SwitchIn3, SwitchIn4, SwitchIn5, SwitchIn6, SwitchIn7, SwitchIn8, SwitchOut1, SwitchOut2, SwitchOut3, SwitchOut4},

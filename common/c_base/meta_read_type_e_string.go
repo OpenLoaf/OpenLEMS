@@ -24,21 +24,22 @@ func _() {
 	_ = x[RBit13-13]
 	_ = x[RBit14-14]
 	_ = x[RBit15-15]
-	_ = x[RInt8-16]
-	_ = x[RUint8-17]
-	_ = x[RInt16-18]
-	_ = x[RUint16-19]
-	_ = x[RInt32-20]
-	_ = x[RUint32-21]
-	_ = x[RInt64-22]
-	_ = x[RUint64-23]
-	_ = x[RFloat32-24]
-	_ = x[RFloat64-25]
+	_ = x[RBcd16-16]
+	_ = x[RInt8-17]
+	_ = x[RUint8-18]
+	_ = x[RInt16-19]
+	_ = x[RUint16-20]
+	_ = x[RInt32-21]
+	_ = x[RUint32-22]
+	_ = x[RInt64-23]
+	_ = x[RUint64-24]
+	_ = x[RFloat32-25]
+	_ = x[RFloat64-26]
 }
 
-const _EReadType_name = "RBit0RBit1RBit2RBit3RBit4RBit5RBit6RBit7RBit8RBit9RBit10RBit11RBit12RBit13RBit14RBit15RInt8RUint8RInt16RUint16RInt32RUint32RInt64RUint64RFloat32RFloat64"
+const _EReadType_name = "RBit0RBit1RBit2RBit3RBit4RBit5RBit6RBit7RBit8RBit9RBit10RBit11RBit12RBit13RBit14RBit15RBcd16RInt8RUint8RInt16RUint16RInt32RUint32RInt64RUint64RFloat32RFloat64"
 
-var _EReadType_index = [...]uint8{0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 56, 62, 68, 74, 80, 86, 91, 97, 103, 110, 116, 123, 129, 136, 144, 152}
+var _EReadType_index = [...]uint8{0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 56, 62, 68, 74, 80, 86, 92, 97, 103, 109, 116, 122, 129, 135, 142, 150, 158}
 
 func (i EReadType) String() string {
 	if i < 0 || i >= EReadType(len(_EReadType_index)-1) {

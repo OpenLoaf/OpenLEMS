@@ -22,7 +22,7 @@ func (b *SProtocolConfig) GetAddress() string {
 
 func (b *SProtocolConfig) GetTimeout() int64 {
 	if b.Timeout == 0 {
-		b.Timeout = 3000
+		b.Timeout = 30
 	}
 	return b.Timeout
 }

@@ -4,6 +4,7 @@
 package driver
 
 import (
+	"ammeter_acrel_10r_v1/ammeter_acrel_10r_v1"
 	"basic_v1/gpio_basic_v1"
 	"context"
 	"ems-plan/c_base"
@@ -27,6 +28,7 @@ var pluginNewMethodCache = map[string]any{
 	"gpio_basic_v1":           gpio_basic_v1.NewPlugin,
 	"pcs_star_charge_100E_v1": pcs_star_charge_100E_v1.NewPlugin,
 	"sess_basic_v1":           sess_basic_v1.NewPlugin,
+	"ammeter_acrel_10r_v1":    ammeter_acrel_10r_v1.NewPlugin,
 }
 
 func (d *DeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IDriver {
