@@ -26,9 +26,9 @@ elif [ "$1" == "debug" ]; then
   echo "Building in debug mode"
   export IS_DEBUG=true
 #else
-  export pluginPath=${SOURCE_DIR}/application/manifest
+  export pluginPath=${SOURCE_DIR}/application/resources
 else
-  export pluginPath=${SOURCE_DIR}/application/manifest
+  export pluginPath=${SOURCE_DIR}/application/resources
 fi
 
 #export pluginPath=/app/

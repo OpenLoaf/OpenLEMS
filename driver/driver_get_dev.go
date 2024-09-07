@@ -4,16 +4,16 @@
 package driver
 
 import (
-	gpio_basic_v1 "basic_v1"
+	"basic_v1/gpio_basic_v1"
 	"context"
 	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	bms_pylon_tech_us108_v1 "pylonTechUs108_v1"
-	ess_pylon_checkwatt_v1 "pylon_checkwatt_v1"
+	"pylonTechUs108_v1/bms_pylon_tech_us108_v1"
+	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
-	pcs_star_charge_100E_v1 "starCharge100E_v1"
-	sess_basic_v1 "station_energy_store"
+	"starCharge100E_v1/pcs_star_charge_100E_v1"
+	"station_energy_store/sess_basic_v1"
 	"strings"
 )
 

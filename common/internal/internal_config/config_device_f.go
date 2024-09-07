@@ -37,7 +37,10 @@ func (c *SConfig) GetProtocolById(ctx context.Context, id string) *c_base.SProto
 }
 
 func getConfig[T any](ctx context.Context, cfgName string, key string) (*T, string, error) {
-	data := g.Cfg(cfgName).MustData(ctx)[key]
+	cfg := g.Cfg(cfgName)
+	// 添加搜索的路径
+	_ = cfg.GetAdapter().(*gcfg.AdapterFile).AddPath("resources")
+	data := cfg.MustData(ctx)[key]
 	if data == nil {
 		return nil, cfgName, gerror.Newf("配置文件:%s中没有devices字段", cfgName)
 	}
@@ -48,7 +51,7 @@ func getConfig[T any](ctx context.Context, cfgName string, key string) (*T, stri
 		return nil, cfgName, err
 	}
 
-	adapter := g.Cfg(cfgName).GetAdapter().(*gcfg.AdapterFile)
+	adapter := cfg.GetAdapter().(*gcfg.AdapterFile)
 	path, err := adapter.GetFilePath()
 	if err != nil {
 		return nil, "", err

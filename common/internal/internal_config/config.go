@@ -3,6 +3,7 @@ package internal_config
 import (
 	"context"
 	"ems-plan/c_base"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"
 	"plugin"
@@ -45,12 +46,14 @@ func (c *SConfig) OpenPlugin(ctx context.Context, path string, symName ...string
 }
 
 func openPlugin(ctx context.Context, path string, symName string) (plugin.Symbol, error) {
+	if !gfile.Exists(path) {
+		panic(gerror.Newf("插件%s不存在", path))
+	}
 	g.Log().Infof(ctx, "加载插件：%s", path)
 	// 打开插件
 	p, err := plugin.Open(path)
 	if err != nil {
-		g.Log().Errorf(ctx, "打开插件失败：%v", err)
-		panic(err)
+		panic(gerror.Newf("打开插件%s失败原因：%v", path, err))
 	}
 
 	// 查找并使用结构体和函数

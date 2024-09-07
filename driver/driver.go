@@ -88,6 +88,8 @@ func (d *DeviceCmd) InitDriver(ctx context.Context, config *c_base.SDriverConfig
 
 	driver.Init(protocolProvider, config)
 
+	g.Log().Noticef(ctx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", config.Name, driver.GetDescription())
+
 	if protocolProvider != nil {
 		protocolProvider.Init()
 	}

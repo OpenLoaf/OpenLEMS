@@ -1,0 +1,38 @@
+brand: Basic
+model: "Station Energy Store"
+version: v1.0.0
+author: "dynamicoct@qq.com"
+create: "2024-09-07"
+remark: "场站级驱动:储能组"
+telemetry:
+    - name: Soc
+      unit: "%"
+      remark: "SOC"
+    - name: power
+      unit: "kW"
+      remark: "功率"
+    - name: targetPower
+      unit: "kW"
+      remark: "目标功率"
+    - name: apparentPower
+      unit: "kVA"
+      remark: "视在功率"
+    - name: reactivePower
+      unit: "kVar"
+      remark: "无功功率"
+    - name: todayIncomingQuantity
+      nationalizationName: "essTodayCharge"
+      unit: "kWh"
+      remark: "当日充电量"
+    - name: todayOutgoingQuantity
+      nationalizationName: "essTodayDischarge"
+      unit: "kWh"
+      remark: "当日放电量"
+    - name: historyIncomingQuantity
+      nationalizationName: "essHistoryCharge"
+      unit: "kWh"
+      remark: "历史充电量"
+    - name: historyOutgoingQuantity
+      nationalizationName: "essHistoryDischarge"
+      unit: "kWh"
+      remark: "历史放电量"

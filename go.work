@@ -5,11 +5,11 @@ use (
 	common
 	driver
 
-	./plug_drivers/bms_pylon_tech_us108_v1
-	./plug_drivers/ess_pylon_checkwatt_v1
-	plug_drivers/gpio_basic_v1
-	./plug_drivers/pcs_star_charge_100E_v1
-	plug_drivers/sess_basic_v1
+	./plug_drivers/bms_pylon_tech_us108
+	./plug_drivers/ess_pylon_checkwatt
+	./plug_drivers/gpio_basic
+	./plug_drivers/pcs_star_charge_100E
+	./plug_drivers/sess_basic
 
 	plug_protocol_modbus
 	plug_protocol_canbus

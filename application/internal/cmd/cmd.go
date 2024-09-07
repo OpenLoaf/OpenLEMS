@@ -5,11 +5,11 @@ import (
 	"driver"
 	common "ems-plan"
 	"ems-plan/c_base"
-	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/i18n/gi18n"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/gproc"
 	"os"
 	"runtime"
@@ -38,10 +38,15 @@ var (
 			{Name: argTimeZone, Short: "t", Brief: "Default: zh-CN 设置语言 ", IsArg: false, Orphan: false},
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+			pwd, err := os.Getwd()
+			if err != nil {
+				return err
+			}
+
 			// 设置默认语言为中文(简体)
 			gi18n.SetLanguage("zh-CN")
 			deviceConfigName := parser.GetOpt(argDeviceConfigName, "device").String()
-			driverConfigName := parser.GetOpt(argDriverConfigName, "driver").String()
+			driverConfigName := parser.GetOpt(argDriverConfigName, gfile.Join(pwd, "driver")).String()
 			common.SystemInitConfigInstance(deviceConfigName, driverConfigName)
 
 			// 初始化context
@@ -71,8 +76,6 @@ var (
 				g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())
 			})
 
-			s := parser.GetOpt(argEnableWeb)
-			fmt.Println(s)
 			if parser.GetOpt(argEnableWeb).Bool() {
 				g.Log().Infof(ctx, "启动web服务！")
 				web = startWeb(ctx)

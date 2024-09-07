@@ -10,12 +10,12 @@ RUN apt install rsync ssh -y
 
 ADD https://golang.google.cn/dl/go1.23.0.linux-arm64.tar.gz /
 RUN tar -zxvf go1.23.0.linux-arm64.tar.gz
+
 # 设置环境变量
 ENV GO_VERSION 1.23
 ENV GOROOT /go
-ENV PATH /go/bin:/usr/local/go/bin:$PATH
-
-
+ENV PATH /root/go/bin:/go/bin:/usr/local/go/bin:$PATH
+RUN go install github.com/gogf/gf/cmd/gf/v2@latest
 
 #RUN go mod download github.com/gogf/gf/v2@v2.7.2 && \
 #    go mod download github.com/torykit/go-modbus@v1.0.0 && \

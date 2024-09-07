@@ -1,0 +1,38 @@
+brand: Pylon
+model: Checkwatt
+version: v1.0.0
+author: "dynamicoct@qq.com"
+create: "2024-09-07"
+remark: "虚拟派能柜，整合PCS与BMS"
+telemetry:
+  - name: soc
+    unit: "%"
+    remark: "SOC"
+  - name: power
+    unit: "kW"
+    remark: "功率"
+  - name: targetPower
+    unit: "kW"
+    remark: "目标功率"
+  - name: apparentPower
+    unit: "kVA"
+    remark: "视在功率"
+  - name: reactivePower
+    unit: "kVar"
+    remark: "无功功率"
+  - name: todayIncomingQuantity
+    nationalizationName: todayIncomingQuantity
+    unit: "kWh"
+    remark: "当日充电量"
+  - name: todayOutgoingQuantity
+    nationalizationName: todayOutgoingQuantity
+    unit: "kWh"
+    remark: "当日放电量"
+#  - name: historyIncomingQuantity
+#    nationalizationName: historyIncomingQuantity
+#    unit: "kWh"
+#    remark: "历史充电量"
+#  - name: historyOutgoingQuantity
+#    nationalizationName: historyOutgoingQuantity
+#    unit: "kWh"
+#    remark: "历史放电量"

@@ -5,6 +5,21 @@ logger:
   CtxKeys: ["GroupName","ProtocolId","DeviceId","DeviceDetail"]
   writerColorEnable: true  # 日志文件是否带上颜色。默认false，表示不带颜色
 
+gfcli:
+  build:
+    name:     "ems"
+    path:     "./bin"
+    arch:     "amd64,arm"
+    system:   "linux,darwin"
+    mod:      "none"
+    packSrc:  "manifest"
+    version:  "v1.0.0"
+#    output:   "./bin"
+    extra:    ""
+    exitWhenError: true
+    varMap:
+      name: application
+
 
 server:
   # 基本配置
