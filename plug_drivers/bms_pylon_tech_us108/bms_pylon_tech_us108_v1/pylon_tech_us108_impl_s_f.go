@@ -23,8 +23,8 @@ func (p *sPylonTechUs108Bms) GetDriverType() c_base.EDeviceType {
 	return c_base.EDeviceBms
 }
 
-func (p *sPylonTechUs108Bms) Init(client c_base.IProtocol, cfg *c_base.SDriverConfig) {
-	p.IModbusProtocol = client.(p_modbus.IModbusProtocol)
+func (p *sPylonTechUs108Bms) Init(protocol c_base.IProtocol, cfg *c_base.SDriverConfig) {
+	p.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
 
 	bmsConfig := &PylonTechUs108BmsConfig{}
 	err := gconv.Scan(cfg.Params, bmsConfig)
