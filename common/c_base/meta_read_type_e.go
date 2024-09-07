@@ -1,7 +1,9 @@
+//go:generate stringer -type=EReadType -output=meta_read_type_e_string.go
 package c_base
 
 import (
 	"bytes"
+	"ems-plan/util"
 	"fmt"
 	"github.com/gogf/gf/v2/encoding/gbinary"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -30,6 +32,8 @@ const (
 	RBit13
 	RBit14
 	RBit15
+
+	RBcd16 // 16位BCD码
 
 	RInt8
 	RUint8
@@ -130,7 +134,8 @@ func (d EReadType) ReadValue(bytes []byte, bitLength uint8, endianness ECharSequ
 			return nil, gerror.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		return endianness.DecodeToFloat64(bytes[:8]), nil
-
+	case RBcd16:
+		return util.BcdToDecimalMulti(bytes[:2]), nil
 	}
 	panic(`unknown data type`)
 }
@@ -157,6 +162,8 @@ func (d EReadType) Transform(value any, bitLength uint8, factor float32, offset 
 	case RInt16:
 		return calc[int16](gconv.Int16(value), factor, offset)
 	case RUint16:
+		return calc[uint16](gconv.Uint16(value), factor, offset)
+	case RBcd16:
 		return calc[uint16](gconv.Uint16(value), factor, offset)
 	case RInt32:
 		return calc[int32](gconv.Int32(value), factor, offset)
@@ -190,6 +197,8 @@ func (d EReadType) RegisterSize() uint16 {
 		return 2
 	case RInt64, RUint64, RFloat64:
 		return 4
+	case RBcd16:
+		return 2
 	}
 	panic(`unknown data type`)
 }
@@ -224,6 +233,8 @@ func (d EReadType) Encoder(value int64, factor float32, offset int, endianness E
 		return endianness.EncodeFloat32(float32(value))
 	case RFloat64:
 		return endianness.EncodeFloat64(float64(value))
+	case RBcd16:
+		return util.DecimalToBCD16Bytes(int(value))
 	}
 	panic(`unknown data type`)
 }
@@ -262,6 +273,8 @@ func (d EReadType) GetReflectKind(bitLength uint8) reflect.Kind {
 		return reflect.Float32
 	case RFloat64:
 		return reflect.Float64
+	case RBcd16:
+		return reflect.Int16
 	}
 	panic(`unknown data type`)
 }
