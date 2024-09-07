@@ -7,18 +7,14 @@ logger:
 
 gfcli:
   build:
-    name:     "ems"
-    path:     "./bin"
-    arch:     "amd64,arm"
-    system:   "linux,darwin"
+#    path:     "./bin"
+#    arch:     "amd64,arm"
+#    system:   "linux,darwin"
+    output: "./bin/ems"
     mod:      "none"
     packSrc:  "manifest"
     version:  "v1.0.0"
-#    output:   "./bin"
     extra:    ""
-    exitWhenError: true
-    varMap:
-      name: application
 
 
 server:

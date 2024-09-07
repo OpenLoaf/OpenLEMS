@@ -5,6 +5,7 @@ use (
 	common
 	driver
 
+	./plug_drivers/ammeter_acrel_10r
 	./plug_drivers/bms_pylon_tech_us108
 	./plug_drivers/ess_pylon_checkwatt
 	./plug_drivers/gpio_basic

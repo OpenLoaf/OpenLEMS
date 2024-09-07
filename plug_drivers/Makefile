@@ -1,4 +1,4 @@
-OutDir?=/Users/zhao/Documents/01.Code/Hex/ems-plan/application/resources/driver
+OutDir?=/Users/zhao/Documents/01.Code/Hex/ems-plan/application/resources/drivers
 
 # 检查 TARGET 是否为空
 ifeq ($(Project),)
@@ -6,7 +6,7 @@ ifeq ($(Project),)
 endif
 
 RunDir?=$(Project)/bin
-
+BuildBin?=1# 编译可执行文件
 Main?=$(Project)/main.go
 VERSION?=$(shell go run $(Main) version)
 FileName?=$(Project)_$(VERSION)
@@ -20,14 +20,23 @@ build:
 	@echo "Commit hash: $(COMMIT)"
 	go build -buildmode=plugin \
 		-ldflags "-s -w -X 'main.buildTime=\"$(BUILD_TIME)\"' -X 'main.commitHash=$(COMMIT_HASH)'" \
-		-o ${OutDir}/${FileName}.driver \
+		-o ${RunDir}/${FileName}.driver \
 		$(Main)
-	@echo "Build driver done"
+ifneq ($(strip $(RunDir)), $(strip $(OutDir)))
+	cp ${RunDir}/${FileName}.driver ${OutDir}/
+endif
+
+	@echo "===> Build driver done"
+
+ifeq ($(strip $(BuildBin)), 1)
+	@echo "Building exe..."
 	go build \
-		-ldflags "-s -w -X 'main.buildTime=\"$(BUILD_TIME)\"' -X 'main.commitHash=$(COMMIT_HASH)'" \
-		-o ${RunDir}/${FileName} \
-		$(Main)
+			-ldflags "-s -w -X 'main.buildTime=\"$(BUILD_TIME)\"' -X 'main.commitHash=$(COMMIT_HASH)'" \
+			-o ${RunDir}/${FileName} \
+			$(Main)
 	@echo "Build exe done"
+endif
+
 
 
 clean:
