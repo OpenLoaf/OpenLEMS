@@ -3,9 +3,9 @@ package c_device
 import "ems-plan/c_base"
 
 type IAmmeterBasic interface {
-	GetVa() (float32, error) // A相电压
-	GetVb() (float32, error) // B相电压
-	GetVc() (float32, error) // C相电压
+	GetUa() (float32, error) // A相电压
+	GetUb() (float32, error) // B相电压
+	GetUc() (float32, error) // C相电压
 	GetIa() (float32, error) // A相电流
 	GetIb() (float32, error) // B相电流
 	GetIc() (float32, error) // C相电流
