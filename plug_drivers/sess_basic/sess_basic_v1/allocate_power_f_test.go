@@ -7,7 +7,7 @@ import (
 
 func TestAllocatePower(t *testing.T) {
 	//EfficiencyCurve := []float64{100, 100, 100, 100, 100, 100, 100, 100, 100, 100}
-	essList := []*Ess{
+	essList := []*sSessBasic{
 		{Name: "1", Soc: 55, RatedPower: 100, MaxDischargePower: 100, MaxChargePower: 100, CycleCount: 15, EfficiencyCurve: nil},
 		{Name: "2", Soc: 80, RatedPower: 100, MaxDischargePower: 100, MaxChargePower: 100, CycleCount: 100, EfficiencyCurve: nil},
 	}

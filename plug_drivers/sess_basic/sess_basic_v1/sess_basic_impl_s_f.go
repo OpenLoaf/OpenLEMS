@@ -465,7 +465,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 	s.targetPower = power
 	// TODO选择算法
 
-	essList := make([]*Ess, 0)
+	essList := make([]*sSessBasic, 0)
 	for _, store := range s.energyStores {
 		var err error
 		soc, err := store.GetSoc()
@@ -501,7 +501,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 			g.Log().Warningf(s.ctx, "获取储能柜:%s 有功功率失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
 			continue
 		}
-		ess := &Ess{
+		ess := &sSessBasic{
 			Id:                store.GetDeviceConfig().Id,
 			Name:              store.GetDeviceConfig().Name,
 			CurrentPower:      getPower,

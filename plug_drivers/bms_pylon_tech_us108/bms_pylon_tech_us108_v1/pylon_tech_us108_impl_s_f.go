@@ -12,18 +12,18 @@ import (
 	"time"
 )
 
-type PylonTechUs108Bms struct {
+type sPylonTechUs108Bms struct {
 	ctx context.Context
 	p_modbus.IModbusProtocol
 	*c_base.SDescription
 	bmsConfig *PylonTechUs108BmsConfig
 }
 
-func (p *PylonTechUs108Bms) GetDriverType() c_base.EDeviceType {
+func (p *sPylonTechUs108Bms) GetDriverType() c_base.EDeviceType {
 	return c_base.EDeviceBms
 }
 
-func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg *c_base.SDriverConfig) {
+func (p *sPylonTechUs108Bms) Init(client c_base.IProtocol, cfg *c_base.SDriverConfig) {
 	p.IModbusProtocol = client.(p_modbus.IModbusProtocol)
 
 	bmsConfig := &PylonTechUs108BmsConfig{}
@@ -43,15 +43,15 @@ func (p *PylonTechUs108Bms) Init(client c_base.IProtocol, cfg *c_base.SDriverCon
 	}
 }
 
-func (p *PylonTechUs108Bms) Destroy() {
+func (p *sPylonTechUs108Bms) Destroy() {
 
 }
 
-func (p *PylonTechUs108Bms) GetRatedPower() uint32 {
+func (p *sPylonTechUs108Bms) GetRatedPower() uint32 {
 	return p.bmsConfig.RatedPower
 }
 
-func (p *PylonTechUs108Bms) GetMaxInputPower() (float32, error) {
+func (p *sPylonTechUs108Bms) GetMaxInputPower() (float32, error) {
 	chargeForbiddenMark, err := p.GetBool(ChargeForbiddenMark)
 	if err != nil && chargeForbiddenMark {
 		// 禁止充电
@@ -71,7 +71,7 @@ func (p *PylonTechUs108Bms) GetMaxInputPower() (float32, error) {
 	return power, nil
 }
 
-func (p *PylonTechUs108Bms) GetMaxOutputPower() (float32, error) {
+func (p *sPylonTechUs108Bms) GetMaxOutputPower() (float32, error) {
 	dischargeForbiddenMark, err := p.GetBool(DischargeForbiddenMark)
 	if err != nil && dischargeForbiddenMark {
 		// 禁止放电
@@ -92,25 +92,25 @@ func (p *PylonTechUs108Bms) GetMaxOutputPower() (float32, error) {
 	return power, nil
 }
 
-func (p *PylonTechUs108Bms) SetBmsStatus(status c_device.EBmsStatus) error {
+func (p *sPylonTechUs108Bms) SetBmsStatus(status c_device.EBmsStatus) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *PylonTechUs108Bms) GetBmsStatus() (c_device.EBmsStatus, error) {
+func (p *sPylonTechUs108Bms) GetBmsStatus() (c_device.EBmsStatus, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *PylonTechUs108Bms) GetSoc() (float32, error) {
+func (p *sPylonTechUs108Bms) GetSoc() (float32, error) {
 	return p.GetFloat32Value(SOC)
 }
 
-func (p *PylonTechUs108Bms) GetSoh() (float32, error) {
+func (p *sPylonTechUs108Bms) GetSoh() (float32, error) {
 	return p.GetFloat32Value(SOH)
 }
 
-func (p *PylonTechUs108Bms) GetDcPower() (float64, error) {
+func (p *sPylonTechUs108Bms) GetDcPower() (float64, error) {
 	current, err := p.GetDcCurrent()
 	if err != nil {
 		return 0, err
@@ -123,23 +123,23 @@ func (p *PylonTechUs108Bms) GetDcPower() (float64, error) {
 	return current * voltage / 1000, nil
 }
 
-func (p *PylonTechUs108Bms) GetDcVoltage() (float64, error) {
+func (p *sPylonTechUs108Bms) GetDcVoltage() (float64, error) {
 	return p.GetFloat64Value(DCVoltage)
 }
 
-func (p *PylonTechUs108Bms) GetDcCurrent() (float64, error) {
+func (p *sPylonTechUs108Bms) GetDcCurrent() (float64, error) {
 	return p.GetFloat64Value(DCCurrent)
 }
 
-func (p *PylonTechUs108Bms) GetCellMinTemp() (float32, error) {
+func (p *sPylonTechUs108Bms) GetCellMinTemp() (float32, error) {
 	return p.GetFloat32Value(BatteryCellMinTemp)
 }
 
-func (p *PylonTechUs108Bms) GetCellMaxTemp() (float32, error) {
+func (p *sPylonTechUs108Bms) GetCellMaxTemp() (float32, error) {
 	return p.GetFloat32Value(BatteryCellMaxTemp)
 }
 
-func (p *PylonTechUs108Bms) GetCellAvgTemp() (float32, error) {
+func (p *sPylonTechUs108Bms) GetCellAvgTemp() (float32, error) {
 	minTemp, err := p.GetCellMinTemp()
 	if err != nil {
 		return 0, err
@@ -151,15 +151,15 @@ func (p *PylonTechUs108Bms) GetCellAvgTemp() (float32, error) {
 	return (minTemp + maxTemp) / 2.0, nil
 }
 
-func (p *PylonTechUs108Bms) GetCellMinVoltage() (float32, error) {
+func (p *sPylonTechUs108Bms) GetCellMinVoltage() (float32, error) {
 	return p.GetFloat32Value(BatteryCellMinVoltage)
 }
 
-func (p *PylonTechUs108Bms) GetCellMaxVoltage() (float32, error) {
+func (p *sPylonTechUs108Bms) GetCellMaxVoltage() (float32, error) {
 	return p.GetFloat32Value(BatteryCellMaxVoltage)
 }
 
-func (p *PylonTechUs108Bms) GetCellAvgVoltage() (float32, error) {
+func (p *sPylonTechUs108Bms) GetCellAvgVoltage() (float32, error) {
 	minVoltage, err := p.GetCellMinVoltage()
 	if err != nil {
 		return 0, err
@@ -171,11 +171,11 @@ func (p *PylonTechUs108Bms) GetCellAvgVoltage() (float32, error) {
 	return (minVoltage + maxVoltage) / 2.0, nil
 }
 
-func (p *PylonTechUs108Bms) GetCycleCount() (uint, error) {
+func (p *sPylonTechUs108Bms) GetCycleCount() (uint, error) {
 	return p.GetUintValue(CycleCount)
 }
 
-func (p *PylonTechUs108Bms) GetTodayIncomingQuantity() (float64, error) {
+func (p *sPylonTechUs108Bms) GetTodayIncomingQuantity() (float64, error) {
 	read, err := p.ReadGroupSync(GroupStatistics, true, TodayCharge)
 	if err != nil {
 		return 0, err
@@ -183,7 +183,7 @@ func (p *PylonTechUs108Bms) GetTodayIncomingQuantity() (float64, error) {
 	return read[0].Float64(), nil
 }
 
-func (p *PylonTechUs108Bms) GetTodayOutgoingQuantity() (float64, error) {
+func (p *sPylonTechUs108Bms) GetTodayOutgoingQuantity() (float64, error) {
 	read, err := p.ReadGroupSync(GroupStatistics, true, TodayDischarge)
 	if err != nil {
 		return 0, err
@@ -191,7 +191,7 @@ func (p *PylonTechUs108Bms) GetTodayOutgoingQuantity() (float64, error) {
 	return read[0].Float64(), nil
 }
 
-func (p *PylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, error) {
+func (p *sPylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, error) {
 	read, err := p.ReadGroupSync(GroupStatistics, true, HistoryCharge)
 	if err != nil {
 		return 0, err
@@ -199,7 +199,7 @@ func (p *PylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, error) {
 	return read[0].Float64(), nil
 }
 
-func (p *PylonTechUs108Bms) GetHistoryOutgoingQuantity() (float64, error) {
+func (p *sPylonTechUs108Bms) GetHistoryOutgoingQuantity() (float64, error) {
 	read, err := p.ReadGroupSync(GroupStatistics, true, HistoryDischarge)
 	if err != nil {
 		return 0, err
@@ -207,15 +207,15 @@ func (p *PylonTechUs108Bms) GetHistoryOutgoingQuantity() (float64, error) {
 	return read[0].Float64(), nil
 }
 
-func (p *PylonTechUs108Bms) GetCapacity() (uint32, error) {
+func (p *sPylonTechUs108Bms) GetCapacity() (uint32, error) {
 	return p.bmsConfig.Capacity, nil
 }
 
-func (p *PylonTechUs108Bms) SetReset() error {
+func (p *sPylonTechUs108Bms) SetReset() error {
 	return nil
 }
 
-func (p *PylonTechUs108Bms) writeTime() {
+func (p *sPylonTechUs108Bms) writeTime() {
 	_ = p._syncTime()
 	go func() {
 		ticker := time.NewTicker(12 * time.Hour)
@@ -236,7 +236,7 @@ func (p *PylonTechUs108Bms) writeTime() {
 	}()
 }
 
-func (p *PylonTechUs108Bms) _syncTime() error {
+func (p *sPylonTechUs108Bms) _syncTime() error {
 	if !p.IsActivate() {
 		return gerror.Newf("modbus client is not activate")
 	}
