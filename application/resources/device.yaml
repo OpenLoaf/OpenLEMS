@@ -3,7 +3,12 @@ protocols:
     protocol: modbus_tcp
     logLevel: INFO
     address: 127.0.0.1:1503
-    timeout: 3000
+    timeout: 30
+  - id: modbus_ammeter
+    protocol: modbus_tcp
+    logLevel: INFO
+    address: 192.168.0.100:5000
+    timeout: 30
   - id: gpio
     protocol: gpio  # sysfs
     logLevel: DEBUG
@@ -25,33 +30,17 @@ device:
         maxCharge: 30
         maxDischarge: 30
         capacity: 100
+        modbusServerEnable: true
+        modbusUrl: tcp://0.0.0.0:1506
       device-children:
-        - id: button-scram
-          name: 急停按钮
-          driver: gpio_basic_v1
-          protocolId: gpio
+        - id : station-ammeter-1
+          name: 物理安科瑞电表
+          protocolId: modbus_ammeter
+          driver: ammeter_acrel_10r_v1
           enable: true
+          logLevel: INFO
           params:
-            io: 280
-            level: Error
-            direction: in
-        - id: led-running
-          name: 运行指示灯
-          driver: gpio_basic_v1
-          protocolId: gpio
-          enable: true
-          params:
-            io: 280
-            level: Error
-            direction: out
-        - id: led-fault
-          name: 故障指示灯
-          driver: gpio_basic_v1
-          protocolId: gpio
-          enable: true
-          params:
-            io: 280
-            direction: out
+            unitId: 1
         - id: ess-1
           name: 储能柜1
           driver: ess_pylon_checkwatt_v1
@@ -100,4 +89,30 @@ device:
                 io: 280
                 direction: in
                 reverse: true
-
+#  IO 设备
+        - id: button-scram
+          name: 急停按钮
+          driver: gpio_basic_v1
+          protocolId: gpio
+          enable: true
+          params:
+            io: 280
+            level: Error
+            direction: in
+        - id: led-running
+          name: 运行指示灯
+          driver: gpio_basic_v1
+          protocolId: gpio
+          enable: true
+          params:
+            io: 280
+            level: Error
+            direction: out
+        - id: led-fault
+          name: 故障指示灯
+          driver: gpio_basic_v1
+          protocolId: gpio
+          enable: true
+          params:
+            io: 280
+            direction: out

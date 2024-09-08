@@ -1,4 +1,4 @@
-package sess_basic_v1
+package allocate
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"gonum.org/v1/gonum/optimize/convex/lp"
 )
 
-type sSessBasic struct {
+type SessBasic struct {
 	Id                string
 	Name              string
 	Soc               int
@@ -23,7 +23,7 @@ type sSessBasic struct {
 AllocatePower
 tol 容差用来确定算法在寻找最优解时的精度。具体来说，当最大约简成本（reduced cost）低于 tol 时，算法认为已经找到了最优解，并终止计算。
 */
-func AllocatePower(totalPower, tol float64, efficiencySegment int, showLog bool, cabinets []*sSessBasic) ([]float64, error) {
+func AllocatePower(totalPower, tol float64, efficiencySegment int, showLog bool, cabinets []*SessBasic) ([]float64, error) {
 	isCharge := totalPower < 0
 	if isCharge {
 		// 功率为负数，表示充电,变成正数

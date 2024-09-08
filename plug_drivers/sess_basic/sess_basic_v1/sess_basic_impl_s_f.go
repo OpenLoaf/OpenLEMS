@@ -11,6 +11,8 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtimer"
 	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
+	"station_energy_store/sess_basic_v1/allocate"
+	"station_energy_store/sess_basic_v1/modbus_checkwatt"
 	"time"
 )
 
@@ -116,6 +118,12 @@ func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_ba
 	if len(s.energyStores) == 0 {
 		panic(gerror.Newf("场站储能组：%s 未注册任何储能柜！", deviceConfig.Name))
 	}
+
+	// 启动modbus server
+	modbus_checkwatt.Start(s.ctx, &modbus_checkwatt.EssHandler{
+		Ctx:                 s.ctx,
+		IStationEnergyStore: s,
+	}, deviceConfig)
 
 	g.Log().Noticef(s.ctx, "场站储能初始化成功！")
 }
@@ -465,7 +473,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 	s.targetPower = power
 	// TODO选择算法
 
-	essList := make([]*sSessBasic, 0)
+	essList := make([]*allocate.SessBasic, 0)
 	for _, store := range s.energyStores {
 		var err error
 		soc, err := store.GetSoc()
@@ -501,7 +509,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 			g.Log().Warningf(s.ctx, "获取储能柜:%s 有功功率失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
 			continue
 		}
-		ess := &sSessBasic{
+		ess := &allocate.SessBasic{
 			Id:                store.GetDeviceConfig().Id,
 			Name:              store.GetDeviceConfig().Name,
 			CurrentPower:      getPower,
@@ -517,7 +525,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 	}
 
 	// 计算功率，先不执行
-	allocatePower, err := AllocatePower(float64(power), 200, 0, true, essList)
+	allocatePower, err := allocate.AllocatePower(float64(power), 200, 0, true, essList)
 	if err != nil {
 		g.Log().Errorf(s.ctx, "储能柜功率分配失败！使用平均功率分配算法！err:%v", err)
 		var singlePower = power / int32(len(s.energyStores))
