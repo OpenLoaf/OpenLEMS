@@ -13,7 +13,7 @@ var (
 		Addr:      Year.Addr,
 		Quantity:  6,
 		Function:  p_modbus.MqHoldingRegisters,
-		CycleMill: 1000,
+		CycleMill: 0,
 		Lifetime:  c_base.DefaultCacheLifeTime,
 		Metas:     []*c_base.Meta{Year, Month, Day, Hour, Minute, Second},
 	}
@@ -33,11 +33,11 @@ var (
 		Name:      "Total",
 		Desc:      "总电能",
 		Addr:      Epi.Addr,
-		Quantity:  Eqc.Addr - Epi.Addr + 2,
+		Quantity:  Eqe.Addr - Epi.Addr + 2,
 		CycleMill: 10000,
 		Function:  p_modbus.MqHoldingRegisters,
 		Lifetime:  15 * time.Second,
-		Metas:     []*c_base.Meta{Epi, Eqe, Eql, Eqc},
+		Metas:     []*c_base.Meta{Epi, Eqe},
 	}
 
 	GSwitch = &p_modbus.ModbusGroup{
