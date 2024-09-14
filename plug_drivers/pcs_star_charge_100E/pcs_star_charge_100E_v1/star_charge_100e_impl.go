@@ -6,7 +6,7 @@ import (
 	"ems-plan/c_error"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/glog"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/p_modbus"
 )
 
 type sStarCharge100EPcs struct {

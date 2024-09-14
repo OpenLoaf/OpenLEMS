@@ -2,7 +2,7 @@ package internal
 
 import (
 	common "ems-plan"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/p_modbus"
 )
 
 func (p *ModbusProtocolProvider) Init() {

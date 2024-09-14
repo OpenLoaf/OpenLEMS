@@ -1,6 +1,6 @@
 package bms_pylon_tech_us108_v1
 
-import "plug_protocol_modbus/p_modbus"
+import "modbus/p_modbus"
 
 type PylonTechUs108BmsConfig struct {
 	p_modbus.SModbusDeviceConfig

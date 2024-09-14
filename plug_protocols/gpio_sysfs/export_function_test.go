@@ -1,4 +1,4 @@
-package plug_protocol_gpio_sysfs
+package gpio_sysfs
 
 import (
 	"context"

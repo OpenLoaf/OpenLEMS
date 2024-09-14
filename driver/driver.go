@@ -8,9 +8,9 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gproc"
 	"github.com/torykit/go-modbus"
+	"gpio_sysfs"
+	protocolModbus "modbus"
 	"os"
-	"plug_protocol_gpio_sysfs"
-	"plug_protocol_modbus"
 	"reflect"
 )
 
@@ -136,10 +136,10 @@ func (d *DeviceCmd) getProtocolProvider(ctx context.Context, deviceConfig *c_bas
 			client = _client
 		} else {
 			// 创建client
-			client = plug_protocol_modbus.NewModbusClient(ctx, protocolConfig)
+			client = protocolModbus.NewModbusClient(ctx, protocolConfig)
 		}
 
-		modbusProvider, err := plug_protocol_modbus.NewModbusProvider(ctx, protocolConfig, deviceConfig, client)
+		modbusProvider, err := protocolModbus.NewModbusProvider(ctx, protocolConfig, deviceConfig, client)
 		if err != nil {
 			panic(err)
 		}
@@ -148,7 +148,7 @@ func (d *DeviceCmd) getProtocolProvider(ctx context.Context, deviceConfig *c_bas
 	case c_base.ECanbusTcp:
 	case c_base.ECanbus:
 	case c_base.EGpioSysfs:
-		gpioSysfsProtocol, err := plug_protocol_gpio_sysfs.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfig)
+		gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfig)
 		if err != nil {
 			panic(err)
 		}

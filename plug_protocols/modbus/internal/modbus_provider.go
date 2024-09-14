@@ -10,7 +10,7 @@ import (
 	"github.com/gogf/gf/v2/os/glog"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/torykit/go-modbus"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/p_modbus"
 	"sync"
 	"time"
 )

@@ -6,7 +6,7 @@ import (
 	"ems-plan/c_base"
 	common_analysis "example/ems/common-analysis"
 	"example/ems/common/config"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/p_modbus"
 	"testing"
 	"time"
 )

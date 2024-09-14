@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/p_modbus"
 	"time"
 )
 

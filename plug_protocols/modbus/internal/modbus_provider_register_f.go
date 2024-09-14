@@ -4,7 +4,7 @@ import (
 	"context"
 	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/p_modbus"
 	"time"
 )
 

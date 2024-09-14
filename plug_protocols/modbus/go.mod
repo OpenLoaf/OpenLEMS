@@ -1,4 +1,4 @@
-module plug_protocol_modbus
+module modbus
 
 require (
 github.com/gogf/gf/v2 v2.7.2

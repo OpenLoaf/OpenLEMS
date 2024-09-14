@@ -1,10 +1,10 @@
-package plug_protocol_gpio_sysfs
+package gpio_sysfs
 
 import (
 	"context"
 	"ems-plan/c_base"
-	"plug_protocol_gpio_sysfs/internal"
-	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
+	"gpio_sysfs/internal"
+	"gpio_sysfs/p_gpio_sysfs"
 )
 
 func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {

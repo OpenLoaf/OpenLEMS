@@ -2,7 +2,7 @@
 echo "Building for ARM"
 
 #export CGO_ENABLED=1
-#cd plug_protocol_gpio_sysfs || exit 1
+#cd gpio_sysfs || exit 1
 #go build -o ../arm-build/gpio export_function.go || exit 1
 #cd ..
 

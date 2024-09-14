@@ -12,7 +12,7 @@ use (
 	./plug_drivers/pcs_star_charge_100E
 	./plug_drivers/sess_basic
 
-	plug_protocol_modbus
-	plug_protocol_canbus
-	plug_protocol_gpio_sysfs
+	./plug_protocols/canbus
+	./plug_protocols/gpio_sysfs
+	./plug_protocols/modbus
 )

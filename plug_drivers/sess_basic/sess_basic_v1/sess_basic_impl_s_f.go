@@ -10,7 +10,7 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtimer"
-	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
+	"gpio_sysfs/p_gpio_sysfs"
 	"station_energy_store/sess_basic_v1/allocate"
 	"station_energy_store/sess_basic_v1/modbus_checkwatt"
 	"time"

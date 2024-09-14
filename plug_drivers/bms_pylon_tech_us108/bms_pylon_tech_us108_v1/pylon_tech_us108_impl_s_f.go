@@ -8,7 +8,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"math"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/p_modbus"
 	"time"
 )
 

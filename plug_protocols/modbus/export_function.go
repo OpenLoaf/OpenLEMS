@@ -1,11 +1,11 @@
-package plug_protocol_modbus
+package modbus
 
 import (
 	"context"
 	"ems-plan/c_base"
 	"github.com/torykit/go-modbus"
-	"plug_protocol_modbus/internal"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/internal"
+	"modbus/p_modbus"
 )
 
 func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig) modbus.Client {

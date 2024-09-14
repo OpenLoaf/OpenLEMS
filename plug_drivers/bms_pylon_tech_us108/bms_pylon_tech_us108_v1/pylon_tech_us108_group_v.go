@@ -2,7 +2,7 @@ package bms_pylon_tech_us108_v1
 
 import (
 	"ems-plan/c_base"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/p_modbus"
 	"time"
 )
 

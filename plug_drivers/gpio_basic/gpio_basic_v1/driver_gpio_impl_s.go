@@ -6,7 +6,7 @@ import (
 	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
+	"gpio_sysfs/p_gpio_sysfs"
 )
 
 type sDriverGpioImpl struct {

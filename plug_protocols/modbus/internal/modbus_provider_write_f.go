@@ -3,7 +3,7 @@ package internal
 import (
 	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"plug_protocol_modbus/p_modbus"
+	"modbus/p_modbus"
 )
 
 func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value int32) error {

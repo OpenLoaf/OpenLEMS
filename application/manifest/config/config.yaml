@@ -37,7 +37,7 @@ server:
   # 静态服务配置
   indexFiles:          ["index.html","index.htm"]   # 自动首页静态文件检索。默认为["index.html", "index.htm"]
   indexFolder:         false                        # 当访问静态文件目录时，是否展示目录下的文件列表。默认关闭，那么请求将返回403
-  serverRoot:          "/Users/zhao/Documents/01.Code/Zhao/ems/application/template/static"                   # 静态文件服务的目录根路径，配置时自动开启静态文件服务。默认关闭
+  serverRoot:          "manifest/web"                   # 静态文件服务的目录根路径，配置时自动开启静态文件服务。默认关闭
 #  searchPaths:         ["/home/www","/var/lib/www"] # 提供静态文件服务时额外的文件搜索路径，当根路径找不到时则按照顺序在搜索目录查找。默认关闭
   fileServerEnabled:   true                        # 静态文件服务总开关。默认false
 

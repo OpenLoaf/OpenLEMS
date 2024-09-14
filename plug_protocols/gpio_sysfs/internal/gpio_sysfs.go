@@ -13,7 +13,7 @@ import (
 	"github.com/gogf/gf/v2/os/gtimer"
 	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
-	"plug_protocol_gpio_sysfs/p_gpio_sysfs"
+	"gpio_sysfs/p_gpio_sysfs"
 	"sync"
 	"time"
 )
