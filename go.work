@@ -15,4 +15,7 @@ use (
 	./plug_protocols/canbus
 	./plug_protocols/gpio_sysfs
 	./plug_protocols/modbus
+
+	./plug_storages/influxdb_1
+	./plug_storages/influxdb_2
 )

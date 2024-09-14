@@ -167,7 +167,7 @@ func writeValue(ctx context.Context, conn *websocket.Conn, query RegisterTelemet
 			continue
 		}
 
-		value, err := util.ExecuteFunction(instance, values[1])
+		value, err := instance.GetTelemetry(values[1], instance)
 		if err != nil {
 			errMap[key] = err.Error()
 			continue

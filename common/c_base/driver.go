@@ -14,4 +14,7 @@ type IDriver interface {
 	GetMetaValueList() []*MetaValueWrapper // 获取元数据列表
 	GetDeviceConfig() *SDriverConfig       // 获取设备配置
 	GetDescription() *SDescription         // 获取设备描述
+
+	GetTelemetry(key string, instance any) (any, error) // 获取单个遥测值
+	GetAllTelemetry(instance any) map[string]any        // 获取所有遥测值
 }

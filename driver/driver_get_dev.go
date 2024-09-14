@@ -31,7 +31,7 @@ var pluginNewMethodCache = map[string]any{
 	"ammeter_acrel_10r_v1":    ammeter_acrel_10r_v1.NewPlugin,
 }
 
-func (d *DeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IDriver {
+func (d *SDeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IDriver {
 	if deviceConfig.Driver == "" {
 		panic(gerror.Newf("设备[%s]%s驱动名称为空！", deviceConfig.Id, deviceConfig.Name))
 	}

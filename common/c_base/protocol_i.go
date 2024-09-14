@@ -15,4 +15,5 @@ type IProtocol interface {
 
 	GetDeviceConfig() *SDriverConfig     // 获取设备配置
 	GetProtocolConfig() *SProtocolConfig // 获取协议配置
+
 }

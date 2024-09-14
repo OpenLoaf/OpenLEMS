@@ -18,7 +18,7 @@ func init() {
 }
 
 // 生产环境下使用驱动加载的方式进行加载
-func (d *DeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IDriver {
+func (d *SDeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IDriver {
 	if deviceConfig.Driver == "" {
 		panic(gerror.Newf("设备[%s]%s驱动名称为空！", deviceConfig.Id, deviceConfig.Name))
 	}

@@ -11,28 +11,27 @@ import (
 	"gpio_sysfs"
 	protocolModbus "modbus"
 	"os"
-	"reflect"
 )
 
-type DeviceCmd struct {
-	ctx                  context.Context
-	cancelFunc           context.CancelFunc
-	modbusClientCache    map[string]modbus.Client
-	driverCache          map[string]c_base.IDriver
-	pluginNewMethodCache map[string]reflect.Method
+type SDeviceCmd struct {
+	ctx               context.Context
+	cancelFunc        context.CancelFunc
+	modbusClientCache map[string]modbus.Client
+	//driverCache          map[string]c_base.IDriver
+	//pluginNewMethodCache map[string]reflect.Method
 }
 
-func NewDeviceCmd(ctx context.Context) *DeviceCmd {
+func NewDeviceCmd(ctx context.Context) *SDeviceCmd {
 	ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Driver")
 	ctx, cancelFunc := context.WithCancel(ctx)
-	return &DeviceCmd{
-		ctx:         ctx,
-		cancelFunc:  cancelFunc,
-		driverCache: make(map[string]c_base.IDriver),
+	return &SDeviceCmd{
+		ctx:        ctx,
+		cancelFunc: cancelFunc,
+		//driverCache: make(map[string]c_base.IDriver),
 	}
 }
 
-func (d *DeviceCmd) Start() {
+func (d *SDeviceCmd) Start() {
 	// 捕捉panic
 	defer func() {
 		if err := recover(); err != nil {
@@ -43,7 +42,7 @@ func (d *DeviceCmd) Start() {
 	d.InitDriver(common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))
 }
 
-func (d *DeviceCmd) Stop() {
+func (d *SDeviceCmd) Stop() {
 	// 关闭所有client
 	for _, driver := range common.GetDeviceAll() {
 		driver.Destroy()
@@ -52,7 +51,7 @@ func (d *DeviceCmd) Stop() {
 	d.cancelFunc()
 }
 
-func (d *DeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver {
+func (d *SDeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver {
 	if err := config.Check(); err != nil {
 		panic(err)
 	}
@@ -108,7 +107,7 @@ func (d *DeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList 
 }
 
 // Block 阻塞进程
-func (d *DeviceCmd) Block() {
+func (d *SDeviceCmd) Block() {
 	gproc.AddSigHandlerShutdown(func(sig os.Signal) {
 		g.Log().Noticef(d.ctx, "接收到信号：%s", sig.String())
 		d.Stop()
@@ -117,7 +116,7 @@ func (d *DeviceCmd) Block() {
 	gproc.Listen()
 }
 
-func (d *DeviceCmd) getProtocolProvider(ctx context.Context, deviceConfig *c_base.SDriverConfig, protocolConfig *c_base.SProtocolConfig) c_base.IProtocol {
+func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, deviceConfig *c_base.SDriverConfig, protocolConfig *c_base.SProtocolConfig) c_base.IProtocol {
 	// 从配置中获取协议
 	//protocolConfig := common.GetProtocolById(ctx, protocolId)
 	if protocolConfig == nil {

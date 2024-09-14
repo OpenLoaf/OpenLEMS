@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/encoding/gyaml"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/text/gstr"
+	"reflect"
 	"strings"
 	"text/tabwriter"
 )
@@ -19,6 +21,8 @@ type SDescription struct {
 	Author     string        `json:"author"`     // 作者
 	Remark     string        `json:"remark"`     // 备注
 	Telemetry  []*STelemetry `json:"telemetry"`  // 遥测
+
+	reflectMethodCache map[string]reflect.Value // 反射方法缓存
 }
 
 func BuildDescriptionFromYaml(ctx context.Context, yaml []byte) *SDescription {
@@ -38,8 +42,6 @@ func (s *SDescription) String() string {
 
 	// 创建一个新的 tabwriter，写入 strings.Builder
 	writer := tabwriter.NewWriter(&builder, 0, 0, 3, ' ', 0)
-	//_, _ = writer.Write([]byte("| Basic Information |\n"))
-	// 写入表格头
 
 	_, _ = writer.Write([]byte(fmt.Sprintf("Brand\t:\t%s\t\n", s.Brand)))
 	_, _ = writer.Write([]byte(fmt.Sprintf("Model\t:\t%s\t\n", s.Model)))
@@ -54,9 +56,6 @@ func (s *SDescription) String() string {
 	}
 	_, _ = writer.Write([]byte(fmt.Sprintf("Remark\t:\t%s\t\n", s.Remark)))
 
-	//_, _ = writer.Write([]byte("Version\tBrand\tModel\tRemark\t"))
-	//_, _ = writer.Write([]byte(fmt.Sprintf("\n%s\t%s\t%s\t%s\t", s.Version, s.Brand, s.Model, s.Remark)))
-
 	if len(s.Telemetry) != 0 {
 		_, _ = writer.Write([]byte("\nTelemetry Information:\t\n"))
 		_, _ = writer.Write([]byte("Name\tNationalization\tUnit\tRemark\t"))
@@ -68,14 +67,60 @@ func (s *SDescription) String() string {
 	}
 
 	_ = writer.Flush()
-	//telemetryStr := ""
-	//for _, telemetry := range s.Telemetry {
-	//	telemetryStr += telemetry.String() + "\n\t"
-	//}
-
 	return builder.String()
 }
 
+// GetDescription 获取描述信息 用于实现IDriver接口
 func (s *SDescription) GetDescription() *SDescription {
 	return s
+}
+
+// GetTelemetry 反射获取遥测信息 用于实现IDriver接口
+func (s *SDescription) GetTelemetry(key string, instance any) (any, error) {
+
+	// 反射前先判断缓存中是否存在
+	if s.reflectMethodCache == nil {
+		s.reflectMethodCache = make(map[string]reflect.Value)
+	}
+
+	var (
+		method reflect.Value
+		ok     bool
+	)
+
+	// 如果缓冲中不存在，就反射新增
+	if method, ok = s.reflectMethodCache[key]; !ok {
+		functionName := fmt.Sprintf("Get%s", gstr.UcFirst(key))
+		method = reflect.ValueOf(instance).MethodByName(functionName)
+		if !method.IsValid() {
+			return 0, gerror.Newf("method %s not found", key)
+		}
+		s.reflectMethodCache[key] = method
+	}
+
+	// 空参数调用
+	value := method.Call(nil)
+	if len(value) == 1 {
+		return value[0].Interface(), nil
+	}
+
+	if len(value) != 2 {
+		return 0, gerror.Newf("function %s return value length is not 2", key)
+	}
+	if value[1].Interface() != nil {
+		return 0, value[1].Interface().(error)
+	}
+	return value[0].Interface(), nil
+}
+
+func (s *SDescription) GetAllTelemetry(instance any) map[string]any {
+	telemetryMap := make(map[string]any, len(s.Telemetry))
+	for _, telemetry := range s.Telemetry {
+		value, err := s.GetTelemetry(telemetry.Name, instance)
+		if err != nil {
+			continue
+		}
+		telemetryMap[telemetry.Name] = value
+	}
+	return telemetryMap
 }

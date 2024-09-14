@@ -3,7 +3,6 @@ package telemetry
 import (
 	"context"
 	common "ems-plan"
-	"ems-plan/util"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -18,7 +17,7 @@ func (c *ControllerV1) GetTelemetryGet(ctx context.Context, req *v1.GetTelemetry
 	}
 
 	// 反射执行方法
-	value, err := util.ExecuteFunction(instance, req.TelemetryKey)
+	value, err := instance.GetTelemetry(req.TelemetryKey, instance)
 	if err != nil {
 		return nil, err
 	}
