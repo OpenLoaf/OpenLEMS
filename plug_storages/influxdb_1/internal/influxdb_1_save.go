@@ -29,12 +29,16 @@ func NewInfluxdb1(ctx context.Context, storageConfig *c_base.SStorageConfig) c_b
 		panic(gerror.Newf("Error creating InfluxDB Client: %v", err))
 	}
 	return &Influxdb1{
-		ct:  c,
-		ctx: ctx,
+		ct:            c,
+		ctx:           ctx,
+		storageConfig: storageConfig,
 	}
 }
 
 func (i *Influxdb1) Save(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {
+	if len(fields) == 0 {
+		return nil
+	}
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Precision: "s",
 		Database:  i.storageConfig.Database,
@@ -56,6 +60,7 @@ func (i *Influxdb1) Save(deviceId string, deviceType c_base.EDeviceType, fields 
 		g.Log().Errorf(i.ctx, "Error writing to InfluxDB: %v", err)
 		return err
 	}
+	//g.Log().Infof(i.ctx, "设备 %s 写入InfluxDB成功", deviceId)
 	return nil
 }
 

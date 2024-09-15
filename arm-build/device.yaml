@@ -2,19 +2,13 @@ protocols:
   - id: modbus_local
     protocol: modbus_tcp
     logLevel: INFO
-    address: 192.168.0.146:1502
-    timeout: 3000
+    address: 192.168.0.149:1503
+    timeout: 30
   - id: modbus_ammeter
     protocol: modbus_tcp
     logLevel: INFO
     address: 192.168.0.100:5000
-    timeout: 3000
-  - id: gpio
-    protocol: gpio  # sysfs
-    logLevel: DEBUG
-    address: /Users/zhao/Downloads/gpio
-    params:
-      period: 200 # 读取周期
+    timeout: 30
 
 device:
   id: root
@@ -30,33 +24,17 @@ device:
         maxCharge: 30
         maxDischarge: 30
         capacity: 100
+        modbusServerEnable: true
+        modbusUrl: tcp://0.0.0.0:1506
       device-children:
-        - id: button-scram
-          name: 急停按钮
-          driver: gpio_basic_v1
-          protocolId: gpio
+        - id : station-ammeter-1
+          name: 物理安科瑞电表
+          protocolId: modbus_ammeter
+          driver: ammeter_acrel_10r_v1
           enable: true
+          logLevel: INFO
           params:
-            io: 291
-            level: Error
-            direction: in
-        - id: led-running
-          name: 运行指示灯
-          driver: gpio_basic_v1
-          protocolId: gpio
-          enable: true
-          params:
-            io: 436
-            level: Error
-            direction: out
-        - id: led-fault
-          name: 故障指示灯
-          driver: gpio_basic_v1
-          protocolId: gpio
-          enable: true
-          params:
-            io: 439
-            direction: out
+            unitId: 1
         - id: ess-1
           name: 储能柜1
           driver: ess_pylon_checkwatt_v1
@@ -65,23 +43,16 @@ device:
             maxCharge: 30
             maxDischarge: 30
           device-children:
-            - id: ess-ammeter
-              name: 储能汇总电表
-              protocolId: modbus_ammeter
-              enable: true
-              driver: ammeter_example
-              logLevel: INFO
-              params:
-                unitId: 2
-                syncTime: true
             - id: star-charge-100E-1
               name: 本地模拟阳光电源PCS
               protocolId: modbus_local
               enable: true
               driver: pcs_star_charge_100E_v1
-              logLevel: DEBUG
+              logLevel: INFO
               params:
                 unitId: 1
+                ratedPower: 100
+                syncTime: true   # 同步时间
             - id: pylon-tech-us108-1
               name: 本地模拟派能MBMS
               protocolId: modbus_local
@@ -95,21 +66,3 @@ device:
                 capacity: 100
                 maxInputPower: 70
                 maxOutputPower: 70
-            - id: button-charge
-              name: 充电开关
-              driver: gpio_basic_v1
-              protocolId: gpio
-              enable: true
-              params:
-                io: 380
-                direction: in
-            - id: button-discharge
-              name: 放电开关
-              driver: gpio_basic_v1
-              protocolId: gpio
-              enable: true
-              params:
-                io: 383
-                direction: in
-                reverse: true
-

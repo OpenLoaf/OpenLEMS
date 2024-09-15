@@ -7,10 +7,12 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gproc"
+	"github.com/gogf/gf/v2/os/gtimer"
 	"github.com/torykit/go-modbus"
 	"gpio_sysfs"
 	protocolModbus "modbus"
 	"os"
+	"time"
 )
 
 type SDeviceCmd struct {
@@ -103,6 +105,21 @@ func (d *SDeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList
 	}
 
 	common.RegisterDevice(driver)
+
+	if config.StorageIntervalSec >= 0 {
+		var dur time.Duration
+		if config.StorageIntervalSec == 0 {
+			dur = 1 * time.Minute
+		} else {
+			dur = time.Duration(config.StorageIntervalSec) * time.Second
+		}
+		gtimer.SetInterval(d.ctx, dur, func(ctx context.Context) {
+			// 保存数据
+			_ = GetStorageCmd().Save(config.Id, driver.GetDriverType(), driver.GetAllTelemetry(driver))
+		})
+		g.Log().Infof(d.ctx, "设备[%s]存储间隔：%v", config.Name, dur)
+	}
+
 	return driver
 }
 

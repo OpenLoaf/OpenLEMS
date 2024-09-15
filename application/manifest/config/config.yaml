@@ -7,14 +7,15 @@ logger:
 
 gfcli:
   build:
-#    path:     "./bin"
-#    arch:     "amd64,arm"
-#    system:   "linux,darwin"
-    output: "./bin/ems"
+    path:     "./bin"
+    arch:     "arm,amd64"
+    system:   "linux,darwin"
+#    output: "./bin/ems"
     mod:      "none"
     packSrc:  "manifest"
     version:  "v1.0.0"
-    extra:    ""
+    extra:    "-tags=dev"
+    dumpEnv: true
 
 
 server:
