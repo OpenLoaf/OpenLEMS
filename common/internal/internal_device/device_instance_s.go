@@ -59,7 +59,7 @@ func (d *sDeviceInstance) FindByType(t c_base.EDeviceType) []c_base.IDriver {
 	return result
 }
 
-// GetInstance 获取设备实例
+// FindById 获取设备实例
 func (d *sDeviceInstance) FindById(id string) c_base.IDriver {
 	for _, instance := range d.array.Slice() {
 		if instance.(c_base.IDriver).GetDeviceConfig().Id == id {

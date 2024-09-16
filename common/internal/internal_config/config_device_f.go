@@ -9,6 +9,15 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
+func (c *SConfig) GetStorageConfig(ctx context.Context) *c_base.SStorageConfig {
+	config, configPath, err := getConfig[c_base.SStorageConfig](ctx, c.deviceCfgName, "storage")
+	if err != nil {
+		panic(gerror.Newf("解析设备配置文件中的[storage]失败！配置文件路径: %s 错误原因：%v", configPath, err))
+	}
+	g.Log().Infof(ctx, "加载存储配置文件：%s", configPath)
+	return config
+}
+
 func (c *SConfig) GetDriverConfig(ctx context.Context) *c_base.SDriverConfig {
 	config, configPath, err := getConfig[c_base.SDriverConfig](ctx, c.deviceCfgName, "device")
 	if err != nil {

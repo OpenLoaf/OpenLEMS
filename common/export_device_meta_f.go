@@ -18,6 +18,7 @@ func MetaTransformAndCache(ctx context.Context, protocol c_base.IProtocol, meta 
 	return internal_meta.MetaProcess("", "", ctx, protocol, meta, value, cache, lifetime)
 }
 
+// RegisterDevice 注册设备实例
 func RegisterDevice(info c_base.IDriver) {
 	internal_device.Instances.RegisterInstance(info)
 }
@@ -27,18 +28,22 @@ func GetDeviceAll(isVirtual ...bool) []c_base.IDriver {
 	return internal_device.Instances.FindAll(isVirtual...)
 }
 
+// GetDeviceById 通过id获取设备实例
 func GetDeviceById(id string) c_base.IDriver {
 	return internal_device.Instances.FindById(id)
 }
 
+// GetDeviceByType 通过类型获取设备实例
 func GetDeviceByType(t c_base.EDeviceType) []c_base.IDriver {
 	return internal_device.Instances.FindByType(t)
 }
 
+// RemoveDeviceById 通过id删除设备实例
 func RemoveDeviceById(id string) {
 	internal_device.Instances.RemoveById(id)
 }
 
+// GetStationEnergyStore 获取站点能量存储
 func GetStationEnergyStore() c_device.IStationEnergyStore {
 	return internal_device.Instances.GetStationEnergyStore()
 }

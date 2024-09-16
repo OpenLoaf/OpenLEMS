@@ -32,6 +32,8 @@ type ModbusProtocolProvider struct {
 	deviceConfig       *c_base.SDriverConfig
 	modbusDeviceConfig *p_modbus.SModbusDeviceConfig
 	protocolConfig     *c_base.SProtocolConfig
+
+	metricProtocol *c_base.SMetricProtocol // 统计协议
 }
 
 func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, client any) (p_modbus.IModbusProtocol, error) {

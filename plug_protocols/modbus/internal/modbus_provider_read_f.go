@@ -102,6 +102,8 @@ func (p *ModbusProtocolProvider) read(addr uint16, quantity uint16, function p_m
 		err    error
 	)
 
+	// 累计分钟请求次数
+
 	switch function {
 	case p_modbus.MqReadCoils:
 		result, err = p.client.ReadCoils(p.modbusDeviceConfig.UnitId, addr, quantity)
@@ -112,6 +114,11 @@ func (p *ModbusProtocolProvider) read(addr uint16, quantity uint16, function p_m
 	case p_modbus.MqInputRegisters:
 		result, err = p.client.ReadInputRegistersBytes(p.modbusDeviceConfig.UnitId, addr, quantity)
 	}
+
+	// 累计请求返回的数据量
+
+	// 累计失败次数
+
 	return result, err
 }
 

@@ -17,6 +17,11 @@ func GetDriverConfig(ctx context.Context) *c_base.SDriverConfig {
 	return internal_config.ConfigInstance.GetDriverConfig(ctx)
 }
 
+// GetStorageConfig 获取存储配置，失败将直接系统退出
+func GetStorageConfig(ctx context.Context) *c_base.SStorageConfig {
+	return internal_config.ConfigInstance.GetStorageConfig(ctx)
+}
+
 // GetProtocolsConfigList 获取协议配置，失败将直接系统退出
 func GetProtocolsConfigList(ctx context.Context) []*c_base.SProtocolConfig {
 	return internal_config.ConfigInstance.GetProtocolsConfig(ctx)
