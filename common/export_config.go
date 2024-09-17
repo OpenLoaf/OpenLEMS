@@ -1,9 +1,9 @@
 package common
 
 import (
+	"common/c_base"
+	"common/internal/internal_config"
 	"context"
-	"ems-plan/c_base"
-	"ems-plan/internal/internal_config"
 	"plugin"
 )
 

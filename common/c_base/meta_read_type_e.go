@@ -3,7 +3,7 @@ package c_base
 
 import (
 	"bytes"
-	"ems-plan/util"
+	"common/util"
 	"fmt"
 	"github.com/gogf/gf/v2/encoding/gbinary"
 	"github.com/gogf/gf/v2/errors/gerror"

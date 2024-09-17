@@ -16,11 +16,11 @@ type SMetricProtocol struct {
 }
 
 func NewMetricProtocol(ctx context.Context, protocolConfig *SProtocolConfig, storage IStorage) *SMetricProtocol {
-	s := &SMetricProtocol{}
 
-	if storage == nil || protocolConfig == nil {
-		return s
+	if protocolConfig == nil {
+		panic("协议配置不能为空！")
 	}
+	s := &SMetricProtocol{}
 
 	gtimer.SetInterval(ctx, time.Minute, func(ctx context.Context) {
 		s.metricRwMutex.RLock()
@@ -31,8 +31,13 @@ func NewMetricProtocol(ctx context.Context, protocolConfig *SProtocolConfig, sto
 			"failed_count":  s.metricMinuteFailedCount,
 			"result_size":   s.metricMinuteResultSize,
 		}
-		_ = storage.SaveProtocolMetrics(protocolConfig, result)
-		g.Log().Debugf(ctx, "保存协议[%s]的统计数据成功！统计结果为：%+v", protocolConfig.Id, result)
+		err := storage.SaveProtocolMetrics(protocolConfig, result)
+		if err != nil {
+			g.Log().Errorf(ctx, "保存协议[%s]的统计数据失败！统计结果为：%+v", protocolConfig.Id, result)
+		} else {
+			g.Log().Debugf(ctx, "保存协议[%s]的统计数据成功！统计结果为：%+v", protocolConfig.Id, result)
+		}
+
 		s.metricRwMutex.RUnlock()
 		s.Clear()
 	})
@@ -52,10 +57,10 @@ func (s *SMetricProtocol) AddMinuteFailedCount() {
 	s.metricMinuteFailedCount++
 }
 
-func (s *SMetricProtocol) AddMinuteResultSize(size uint32) {
+func (s *SMetricProtocol) AddMinuteResultSize(size int) {
 	s.metricRwMutex.Lock()
 	defer s.metricRwMutex.Unlock()
-	s.metricMinuteResultSize += size
+	s.metricMinuteResultSize += uint32(size)
 }
 
 func (s *SMetricProtocol) Clear() {

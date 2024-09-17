@@ -1,6 +1,6 @@
 package entity
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 type SSingleDeviceValue struct {
 	DeviceId   string             `json:"deviceId,omitempty"`

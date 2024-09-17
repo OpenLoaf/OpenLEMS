@@ -1,4 +1,4 @@
-module ems-plan
+module common
 
 go 1.22
 

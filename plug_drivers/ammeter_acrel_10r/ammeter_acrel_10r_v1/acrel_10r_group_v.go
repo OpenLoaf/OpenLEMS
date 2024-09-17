@@ -1,7 +1,7 @@
 package ammeter_acrel_10r_v1
 
 import (
-	"ems-plan/c_base"
+	"common/c_base"
 	"modbus/p_modbus"
 	"time"
 )

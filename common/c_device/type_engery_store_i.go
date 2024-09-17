@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 type IEnergyStoreBasic interface {
 	GetCellMinTemp() (float32, error)    // 电芯最低温度

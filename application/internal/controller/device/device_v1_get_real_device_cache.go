@@ -3,9 +3,9 @@ package device
 import (
 	"application/api/device/v1"
 	"application/internal/model/entity"
+	"common"
+	"common/util"
 	"context"
-	common "ems-plan"
-	"ems-plan/util"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 )

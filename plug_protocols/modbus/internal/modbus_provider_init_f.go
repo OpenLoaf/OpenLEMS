@@ -1,7 +1,7 @@
 package internal
 
 import (
-	common "ems-plan"
+	"common"
 	"modbus/p_modbus"
 )
 

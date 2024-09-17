@@ -1,8 +1,8 @@
 package internal_config
 
 import (
+	"common/c_base"
 	"context"
-	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gfile"

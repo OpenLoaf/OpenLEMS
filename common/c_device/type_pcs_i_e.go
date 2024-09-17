@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 type IPcsBasic interface {
 	SetReset() error                                  // 复位

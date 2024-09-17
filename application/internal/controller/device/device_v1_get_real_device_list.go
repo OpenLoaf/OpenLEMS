@@ -3,8 +3,8 @@ package device
 import (
 	"application/api/device/v1"
 	"application/internal/model/entity"
+	"common"
 	"context"
-	common "ems-plan"
 )
 
 func (c *ControllerV1) GetRealDeviceList(ctx context.Context, req *v1.GetRealDeviceListReq) (res *v1.GetRealDeviceListRes, err error) {

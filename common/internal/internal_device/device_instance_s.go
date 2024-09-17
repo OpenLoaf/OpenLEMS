@@ -1,8 +1,8 @@
 package internal_device
 
 import (
-	"ems-plan/c_base"
-	"ems-plan/c_device"
+	"common/c_base"
+	"common/c_device"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"reflect"

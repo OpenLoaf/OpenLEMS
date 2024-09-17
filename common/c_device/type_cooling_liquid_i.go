@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 // ICoolingLiquid 液冷
 type ICoolingLiquid interface {

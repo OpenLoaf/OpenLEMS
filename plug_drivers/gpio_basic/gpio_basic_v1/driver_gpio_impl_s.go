@@ -1,9 +1,9 @@
 package gpio_basic_v1
 
 import (
+	"common/c_base"
 	"context"
 	_ "embed"
-	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"gpio_sysfs/p_gpio_sysfs"

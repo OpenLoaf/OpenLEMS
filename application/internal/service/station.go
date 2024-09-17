@@ -7,7 +7,7 @@ package service
 
 import (
 	"application/internal/model/entity"
-	"ems-plan/c_base"
+	"common/c_base"
 )
 
 type (

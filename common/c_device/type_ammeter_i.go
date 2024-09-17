@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 type IAmmeterBasic interface {
 	GetUa() (float32, error)     // A相电压

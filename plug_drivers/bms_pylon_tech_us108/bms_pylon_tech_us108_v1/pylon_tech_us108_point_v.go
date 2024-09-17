@@ -1,7 +1,7 @@
 package bms_pylon_tech_us108_v1
 
 import (
-	"ems-plan/c_base"
+	"common/c_base"
 )
 
 // 设备信息

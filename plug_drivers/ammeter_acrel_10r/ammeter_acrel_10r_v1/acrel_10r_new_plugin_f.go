@@ -1,9 +1,9 @@
 package ammeter_acrel_10r_v1
 
 import (
+	"common/c_base"
 	"context"
 	_ "embed"
-	"ems-plan/c_base"
 )
 
 //go:embed build.yaml

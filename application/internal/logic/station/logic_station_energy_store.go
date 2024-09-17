@@ -2,9 +2,9 @@ package station
 
 import (
 	"application/internal/model/entity"
-	common "ems-plan"
-	"ems-plan/c_base"
-	"ems-plan/util"
+	"common"
+	"common/c_base"
+	"common/util"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
 )

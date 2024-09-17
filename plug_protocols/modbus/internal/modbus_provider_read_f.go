@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"ems-plan/c_base"
+	"common/c_base"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -103,6 +103,7 @@ func (p *ModbusProtocolProvider) read(addr uint16, quantity uint16, function p_m
 	)
 
 	// 累计分钟请求次数
+	p.metricProtocol.AddMinuteReadCount()
 
 	switch function {
 	case p_modbus.MqReadCoils:
@@ -116,8 +117,12 @@ func (p *ModbusProtocolProvider) read(addr uint16, quantity uint16, function p_m
 	}
 
 	// 累计请求返回的数据量
+	p.metricProtocol.AddMinuteResultSize(len(result))
 
 	// 累计失败次数
+	if err != nil {
+		p.metricProtocol.AddMinuteFailedCount()
+	}
 
 	return result, err
 }

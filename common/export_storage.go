@@ -1,9 +1,9 @@
 package common
 
 import (
+	"common/c_base"
+	"common/internal/internal_storage"
 	"context"
-	"ems-plan/c_base"
-	"ems-plan/internal/internal_storage"
 )
 
 func InitStorage(ctx context.Context, storage c_base.IStorage) {

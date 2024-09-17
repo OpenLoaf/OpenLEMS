@@ -1,12 +1,12 @@
 package sess_basic_v1
 
 import (
+	"common"
+	"common/c_base"
+	"common/c_device"
+	"common/c_error"
 	"context"
 	_ "embed"
-	common "ems-plan"
-	"ems-plan/c_base"
-	"ems-plan/c_device"
-	"ems-plan/c_error"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtimer"

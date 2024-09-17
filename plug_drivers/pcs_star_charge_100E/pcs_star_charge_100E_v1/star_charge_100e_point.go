@@ -1,6 +1,6 @@
 package pcs_star_charge_100E_v1
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 // 年月日，可写
 var (

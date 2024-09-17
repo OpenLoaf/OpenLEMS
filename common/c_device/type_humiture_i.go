@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 type IHumitureBasic interface {
 	GetTemperature() (float64, error) // 获取温度

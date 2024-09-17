@@ -1,6 +1,6 @@
 package p_gpio_sysfs
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 type SDeviceGpioConfig struct {
 	Direction EGpioDirection `json:"direction" dc:"GPIO方向IN/OUT" name:"direction" brief:"GPIO方向"`

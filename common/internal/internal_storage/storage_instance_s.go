@@ -1,8 +1,8 @@
 package internal_storage
 
 import (
+	"common/c_base"
 	"context"
-	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtimer"
@@ -14,8 +14,8 @@ var (
 )
 
 type SStorageInstance struct {
-	ctx     context.Context
-	storage c_base.IStorage
+	ctx context.Context
+	c_base.IStorage
 }
 
 func InitStorage(ctx context.Context, storage c_base.IStorage) {
@@ -24,13 +24,13 @@ func InitStorage(ctx context.Context, storage c_base.IStorage) {
 	}
 	StorageInstance = &SStorageInstance{}
 	//StorageInstance.ctx, StorageInstance.cancelFunc = context.WithCancel(ctx)
-	StorageInstance.storage = storage
+	StorageInstance.IStorage = storage
 
 	// 监听取消信号
 	go func() {
 		_ = <-ctx.Done()
-		if StorageInstance.storage != nil {
-			StorageInstance.storage.Close()
+		if StorageInstance.IStorage != nil {
+			StorageInstance.IStorage.Close()
 		}
 		StorageInstance = nil
 		g.Log().Infof(ctx, "存储服务已关闭！")
@@ -47,7 +47,7 @@ func (s *SStorageInstance) TimerSaveDeviceMetrics(storageIntervalSec int32, driv
 		}
 		gtimer.SetInterval(s.ctx, dur, func(ctx context.Context) {
 			// 保存数据
-			_ = s.storage.Save(driver.GetDeviceConfig().Id, driver.GetDriverType(), driver.GetAllTelemetry(driver))
+			_ = s.IStorage.Save(driver.GetDeviceConfig().Id, driver.GetDriverType(), driver.GetAllTelemetry(driver))
 		})
 		g.Log().Infof(s.ctx, "设备[%s]存储间隔：%v", driver.GetDeviceConfig().Name, dur)
 	} else {

@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"ems-plan/c_base"
+	"common/c_base"
 	"github.com/gogf/gf/v2/frame/g"
 )
 

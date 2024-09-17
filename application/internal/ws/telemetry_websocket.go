@@ -1,9 +1,9 @@
 package ws
 
 import (
+	"common"
+	"common/util"
 	"context"
-	common "ems-plan"
-	"ems-plan/util"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"

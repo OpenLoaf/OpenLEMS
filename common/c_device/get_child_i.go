@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 type IGetChildren interface {
 	GetChildren() []c_base.IDriver

@@ -1,8 +1,9 @@
 package internal
 
 import (
+	"common"
+	"common/c_base"
 	"context"
-	"ems-plan/c_base"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -65,7 +66,8 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 		SAlarmHandler: &c_base.SAlarmHandler{
 			Ctx: ctx,
 		},
-		log: g.Log(deviceConfig.Id),
+		log:            g.Log(deviceConfig.Id),
+		metricProtocol: c_base.NewMetricProtocol(ctx, protocolConfig, common.GetStorageInstance()),
 	}
 	if client != nil {
 		provider.client = client.(modbus.Client)

@@ -3,10 +3,10 @@ package telemetry
 import (
 	"application/api/telemetry/v1"
 	"application/internal/model/entity"
+	"common"
+	"common/c_base"
+	"common/c_device"
 	"context"
-	common "ems-plan"
-	"ems-plan/c_base"
-	"ems-plan/c_device"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 )

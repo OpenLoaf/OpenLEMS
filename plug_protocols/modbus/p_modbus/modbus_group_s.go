@@ -1,7 +1,7 @@
 package p_modbus
 
 import (
-	"ems-plan/c_base"
+	"common/c_base"
 	"github.com/gogf/gf/v2/container/gset"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"time"

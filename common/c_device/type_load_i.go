@@ -1,6 +1,6 @@
 package c_device
 
-import "ems-plan/c_base"
+import "common/c_base"
 
 type ILoadBasic interface {
 	SetPower(power float64) error         // 设置有功功率

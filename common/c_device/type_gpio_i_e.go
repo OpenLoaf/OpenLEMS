@@ -1,8 +1,8 @@
 package c_device
 
 import (
+	"common/c_base"
 	"context"
-	"ems-plan/c_base"
 )
 
 type IGpio interface {

@@ -1,7 +1,7 @@
 package pcs_star_charge_100E_v1
 
 import (
-	"ems-plan/c_base"
+	"common/c_base"
 	"modbus/p_modbus"
 	"time"
 )

@@ -3,9 +3,9 @@ package main
 
 import (
 	"basic_v1/gpio_basic_v1"
+	"common/c_base"
 	"context"
 	_ "embed"
-	"ems-plan/c_base"
 )
 
 // 通过构建脚本自动注入

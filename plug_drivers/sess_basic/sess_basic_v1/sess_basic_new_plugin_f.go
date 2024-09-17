@@ -1,10 +1,10 @@
 package sess_basic_v1
 
 import (
+	"common/c_base"
+	"common/c_device"
 	"context"
 	_ "embed"
-	"ems-plan/c_base"
-	"ems-plan/c_device"
 )
 
 //go:embed build.yaml

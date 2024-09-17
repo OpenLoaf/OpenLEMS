@@ -3,7 +3,7 @@ package internal
 /*
 import (
 	"context"
-	"ems-plan/c_base"
+	"common/c_base"
 	common_analysis "example/ems/common-analysis"
 	"example/ems/common/config"
 	"modbus/p_modbus"

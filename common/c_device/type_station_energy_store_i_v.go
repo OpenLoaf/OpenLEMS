@@ -1,7 +1,7 @@
 package c_device
 
 import (
-	"ems-plan/c_base"
+	"common/c_base"
 )
 
 type IStationEnergyStore interface {
