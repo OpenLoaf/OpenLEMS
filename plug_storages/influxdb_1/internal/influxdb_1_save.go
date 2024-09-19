@@ -6,22 +6,29 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/influxdata/influxdb/client/v2"
 	"time"
 )
 
 type Influxdb1 struct {
-	ct            client.Client
-	ctx           context.Context
-	storageConfig *c_base.SStorageConfig
+	ct              client.Client
+	ctx             context.Context
+	storageConfig   *c_base.SStorageConfig
+	influxdb1Config *sInfluxdb1Config
 }
 
 func NewInfluxdb1(ctx context.Context, storageConfig *c_base.SStorageConfig) c_base.IStorage {
+	var influxdb1Config = &sInfluxdb1Config{}
+	err := gconv.Struct(storageConfig.Params, influxdb1Config)
+	if err != nil {
+		panic(gerror.Newf("创建Influxdb2实例失败！无法解析params %v", err))
+	}
 	// Create a new HTTPClient
 	c, err := client.NewHTTPClient(client.HTTPConfig{
 		Addr:     storageConfig.Url,
-		Username: storageConfig.Username,
-		Password: storageConfig.Password,
+		Username: influxdb1Config.Username,
+		Password: influxdb1Config.Password,
 	})
 	if ctx == nil {
 		ctx = context.Background()
@@ -32,9 +39,10 @@ func NewInfluxdb1(ctx context.Context, storageConfig *c_base.SStorageConfig) c_b
 	}
 
 	d := &Influxdb1{
-		ct:            c,
-		ctx:           ctx,
-		storageConfig: storageConfig,
+		ct:              c,
+		ctx:             ctx,
+		storageConfig:   storageConfig,
+		influxdb1Config: influxdb1Config,
 	}
 
 	// 检查并创建数据库
@@ -71,7 +79,7 @@ func (i *Influxdb1) write(name, retentionPolicy string, tags map[string]string, 
 	}
 	bp, err := client.NewBatchPoints(client.BatchPointsConfig{
 		Precision:       "s",
-		Database:        i.storageConfig.Database,
+		Database:        i.influxdb1Config.Database,
 		RetentionPolicy: retentionPolicy,
 	})
 	if err != nil {
@@ -118,10 +126,10 @@ func (i *Influxdb1) createRetentionIfNotExists(rpName string, days int32) {
 }
 
 func (i *Influxdb1) retentionPolicyExists(rpName string) (bool, error) {
-	q := fmt.Sprintf("SHOW RETENTION POLICIES ON \"%s\"", i.storageConfig.Database)
+	q := fmt.Sprintf("SHOW RETENTION POLICIES ON \"%s\"", i.influxdb1Config.Database)
 	query := client.Query{
 		Command:  q,
-		Database: i.storageConfig.Database,
+		Database: i.influxdb1Config.Database,
 	}
 
 	response, err := i.ct.Query(query)
@@ -150,7 +158,7 @@ func (i *Influxdb1) retentionPolicyExists(rpName string) (bool, error) {
 
 func (i *Influxdb1) createRetentionPolicy(rpName, duration, shardDuration string, replication int, isDefault bool) error {
 	q := fmt.Sprintf("CREATE RETENTION POLICY \"%s\" ON \"%s\" DURATION %s REPLICATION %d SHARD DURATION %s",
-		rpName, i.storageConfig.Database, duration, replication, shardDuration)
+		rpName, i.influxdb1Config.Database, duration, replication, shardDuration)
 
 	if isDefault {
 		q += " DEFAULT"
@@ -158,7 +166,7 @@ func (i *Influxdb1) createRetentionPolicy(rpName, duration, shardDuration string
 
 	query := client.Query{
 		Command:  q,
-		Database: i.storageConfig.Database,
+		Database: i.influxdb1Config.Database,
 	}
 
 	response, err := i.ct.Query(query)
@@ -174,7 +182,7 @@ func (i *Influxdb1) createRetentionPolicy(rpName, duration, shardDuration string
 }
 
 func (i *Influxdb1) createDatabaseIfNotExists() error {
-	q := fmt.Sprintf("CREATE DATABASE \"%s\"", i.storageConfig.Database)
+	q := fmt.Sprintf("CREATE DATABASE \"%s\"", i.influxdb1Config.Database)
 	query := client.Query{
 		Command: q,
 	}
@@ -187,6 +195,6 @@ func (i *Influxdb1) createDatabaseIfNotExists() error {
 		return response.Error()
 	}
 
-	g.Log().Info(i.ctx, "数据库 \"%s\" 已存在或创建成功\n", i.storageConfig.Database)
+	g.Log().Info(i.ctx, "数据库 \"%s\" 已存在或创建成功\n", i.influxdb1Config.Database)
 	return nil
 }

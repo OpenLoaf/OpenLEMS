@@ -1,3 +1,4 @@
+// //go:generate mockgen -source=storage_i.go -package=mock_c_base -destination=mock_c_base/storage_i.mock.go
 package c_base
 
 type IStorage interface {
