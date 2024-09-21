@@ -24,9 +24,13 @@ type Influxdb2 struct {
 }
 
 const (
-	devicesBucket  = "ems/devices"
-	protocolBucket = "ems/protocol_metrics"
-	systemBucket   = "ems/system_metrics"
+	devicesBucket = "ems/device_metrics"
+	//protocolBucket = "ems/protocol_metrics"
+	systemBucket = "ems/system_metrics"
+
+	protocolId      = "protocol_id"
+	protocolAddress = "protocol_address"
+	protocolType    = "protocol_type"
 )
 
 func NewInfluxdb2(ctx context.Context, storageConfig *c_base.SStorageConfig) c_base.IStorage {
@@ -61,10 +65,10 @@ func NewInfluxdb2(ctx context.Context, storageConfig *c_base.SStorageConfig) c_b
 		panic(gerror.Newf("创建Bucket:%s 失败！%v", devicesBucket, err))
 	}
 
-	err = d.createOrUpdateBucket(protocolBucket, storageConfig.ProtocolMetricsSurvivalDays)
-	if err != nil {
-		panic(gerror.Newf("创建Bucket:%s 失败！%v", protocolBucket, err))
-	}
+	//err = d.createOrUpdateBucket(protocolBucket, storageConfig.ProtocolMetricsSurvivalDays)
+	//if err != nil {
+	//	panic(gerror.Newf("创建Bucket:%s 失败！%v", protocolBucket, err))
+	//}
 	err = d.createOrUpdateBucket(systemBucket, storageConfig.SystemMetricsSurvivalDays)
 	if err != nil {
 		panic(gerror.Newf("创建Bucket:%s 失败！%v", systemBucket, err))
@@ -72,8 +76,8 @@ func NewInfluxdb2(ctx context.Context, storageConfig *c_base.SStorageConfig) c_b
 	return d
 }
 
-func (i *Influxdb2) Save(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {
-	return i.write("ems/devices", string(deviceType), map[string]string{"device_id": deviceId}, fields)
+func (i *Influxdb2) SaveDevices(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {
+	return i.write(devicesBucket, string(deviceType), map[string]string{"device_id": deviceId}, fields)
 }
 
 func (i *Influxdb2) Close() {
@@ -82,11 +86,11 @@ func (i *Influxdb2) Close() {
 
 func (i *Influxdb2) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, metrics map[string]any) error {
 	tags := map[string]string{
-		"protocol_id":      protocolConfig.Id,
-		"protocol_address": protocolConfig.Address,
-		"protocol_type":    string(protocolConfig.Protocol),
+		protocolId:      protocolConfig.Id,
+		protocolAddress: protocolConfig.Address,
+		protocolType:    string(protocolConfig.Protocol),
 	}
-	return i.write("ems/protocol_metrics", "protocol_metrics", tags, metrics)
+	return i.write(systemBucket, "protocol", tags, metrics)
 }
 
 func (i *Influxdb2) write(bucket, measurement string, tags map[string]string, fields map[string]interface{}, t ...time.Time) error {
@@ -155,10 +159,10 @@ func (i *Influxdb2) updateBucketRetentionPolicy(bucketName string, days int32) e
 		return err
 	}
 	if bucket == nil {
-		return fmt.Errorf("Bucket \"%s\" 不存在", bucketName)
+		return fmt.Errorf("bucket \"%s\" 不存在!", bucketName)
 	}
 	if bucket.RetentionRules == nil || len(bucket.RetentionRules) == 0 {
-		return fmt.Errorf("Bucket \"%s\" 没有保留策略", bucketName)
+		return fmt.Errorf("bucket \"%s\" 没有保留策略!", bucketName)
 	}
 	// 更新保留策略
 	bucket.RetentionRules[0].EverySeconds = int64(days) * 60 * 60 * 24

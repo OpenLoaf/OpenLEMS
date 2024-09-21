@@ -51,12 +51,11 @@ func NewInfluxdb1(ctx context.Context, storageConfig *c_base.SStorageConfig) c_b
 		panic(gerror.Newf("Error creating database: %v", err))
 	}
 
-	d.createRetentionIfNotExists("protocol_policy", storageConfig.ProtocolMetricsSurvivalDays)
 	d.createRetentionIfNotExists("system_policy", storageConfig.SystemMetricsSurvivalDays)
 	return d
 }
 
-func (i *Influxdb1) Save(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {
+func (i *Influxdb1) SaveDevices(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {
 	return i.write(string(deviceType), "", map[string]string{"device_id": deviceId}, fields)
 }
 

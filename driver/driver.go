@@ -9,7 +9,7 @@ import (
 	"github.com/gogf/gf/v2/os/gproc"
 	"github.com/torykit/go-modbus"
 	"gpio_sysfs"
-	"influxdb_1"
+	"influxdb_2"
 	protocolModbus "modbus"
 	"os"
 )
@@ -42,11 +42,18 @@ func (d *SDeviceCmd) Start() {
 	}()
 
 	// 初始化存储
-	common.InitStorage(d.ctx, influxdb_1.NewStorageInstance(d.ctx, common.GetStorageConfig(d.ctx)))
+	//common.InitStorage(d.ctx, influxdb_1.NewStorageInstance(d.ctx, common.GetStorageConfig(d.ctx)))
+
+	common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
+		return influxdb_2.NewStorageInstance(ctx, common.GetStorageConfig(d.ctx))
+	})
+
 	d.InitDriver(common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))
 }
 
 func (d *SDeviceCmd) Stop() {
+	// 关闭存储
+	common.CloseStorage()
 	// 关闭所有client
 	for _, driver := range common.GetDeviceAll() {
 		driver.Destroy()
@@ -108,7 +115,7 @@ func (d *SDeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList
 
 	common.RegisterDevice(driver)
 
-	common.GetStorageInstance().TimerSaveDeviceMetrics(config.StorageIntervalSec, driver)
+	common.StorageTimerSaveDeviceMetrics(d.ctx, config.StorageIntervalSec, driver)
 
 	return driver
 }

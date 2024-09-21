@@ -1,13 +1,14 @@
 storage:
   enable: true
-  type: influxdb1
-  url: http://192.168.0.248:8086
-  database: mydb
-  username: test
-  password: 123456
-  protocolMetricsSurvivalDays: 30 # 数据保存天数,0代表永久保存,-1代表不保存
+  type: influxdb2
+  url: http://localhost:8086
+#  database: mydb
+#  username: test
+#  password: 123456
   systemMetricsSurvivalDays: 30 # 数据保存天数,0代表永久保存,-1代表不保存
-
+  params:
+    Token: "vdfoWUugqfivUqnxD2rECypyHUQCHL0taOZfNkH4iS25wxUkwqHhmb8AyszIMhcZJ2oOl2NpLdPJr7GpH2tYLw=="
+    Org: "hexsolar"
 protocols:
   - id: modbus_local
     protocol: modbus_tcp

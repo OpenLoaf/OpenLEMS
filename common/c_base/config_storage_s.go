@@ -5,7 +5,6 @@ type SStorageConfig struct {
 	Type   EStorageType // 类型
 	Url    string       // 地址
 
-	ProtocolMetricsSurvivalDays int32 // 数据保存天数,0代表永久保存,-1代表不保存
-	SystemMetricsSurvivalDays   int32 // 数据保存天数,0代表永久保存,-1代表不保存
-	Params                      map[string]string
+	SystemMetricsSurvivalDays int32 // 数据保存天数,0代表永久保存,-1代表不保存
+	Params                    map[string]string
 }

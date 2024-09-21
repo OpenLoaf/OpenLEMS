@@ -1,9 +1,6 @@
-go 1.22
+go 1.23.0
 
 use (
-	application
-	common
-	driver
 
 	./plug_drivers/ammeter_acrel_10r
 	./plug_drivers/bms_pylon_tech_us108
@@ -16,6 +13,11 @@ use (
 	./plug_protocols/gpio_sysfs
 	./plug_protocols/modbus
 
+	./plug_push/mqtt
+
 	./plug_storages/influxdb_1
 	./plug_storages/influxdb_2
+	application
+	common
+	driver
 )
