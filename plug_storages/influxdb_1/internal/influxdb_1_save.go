@@ -63,7 +63,7 @@ func (i *Influxdb1) Close() {
 	_ = i.ct.Close()
 }
 
-func (i *Influxdb1) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, metrics map[string]any) error {
+func (i *Influxdb1) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, metrics map[string]any) error {
 	tags := map[string]string{
 		"protocol_id":      protocolConfig.Id,
 		"protocol_address": protocolConfig.Address,

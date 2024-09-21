@@ -27,10 +27,6 @@ const (
 	devicesBucket = "ems/device_metrics"
 	//protocolBucket = "ems/protocol_metrics"
 	systemBucket = "ems/system_metrics"
-
-	protocolId      = "protocol_id"
-	protocolAddress = "protocol_address"
-	protocolType    = "protocol_type"
 )
 
 func NewInfluxdb2(ctx context.Context, storageConfig *c_base.SStorageConfig) c_base.IStorage {
@@ -84,13 +80,15 @@ func (i *Influxdb2) Close() {
 	i.client.Close()
 }
 
-func (i *Influxdb2) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, metrics map[string]any) error {
+func (i *Influxdb2) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, metrics map[string]any) error {
 	tags := map[string]string{
-		protocolId:      protocolConfig.Id,
-		protocolAddress: protocolConfig.Address,
-		protocolType:    string(protocolConfig.Protocol),
+		c_base.ConstDeviceId:        deviceConfig.Id,
+		c_base.ConstDeviceName:      deviceConfig.Name,
+		c_base.ConstProtocolId:      protocolConfig.Id,
+		c_base.ConstProtocolAddress: protocolConfig.Address,
+		c_base.ConstProtocolType:    string(protocolConfig.Protocol),
 	}
-	return i.write(systemBucket, "protocol", tags, metrics)
+	return i.write(systemBucket, c_base.ConstProtocol, tags, metrics)
 }
 
 func (i *Influxdb2) write(bucket, measurement string, tags map[string]string, fields map[string]interface{}, t ...time.Time) error {

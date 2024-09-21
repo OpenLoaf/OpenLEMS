@@ -67,7 +67,7 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 			Ctx: ctx,
 		},
 		log:            g.Log(deviceConfig.Id),
-		metricProtocol: c_base.NewMetricProtocol(ctx, protocolConfig, common.GetStorageInstance()),
+		metricProtocol: c_base.NewMetricProtocol(ctx, protocolConfig, deviceConfig, common.GetStorageInstance()),
 	}
 	if client != nil {
 		provider.client = client.(modbus.Client)

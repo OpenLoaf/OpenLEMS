@@ -18,7 +18,7 @@ type SMetricProtocol struct {
 	maxWaitTaskName string        // 最大读取任务名称
 }
 
-func NewMetricProtocol(ctx context.Context, protocolConfig *SProtocolConfig, storage IStorage) *SMetricProtocol {
+func NewMetricProtocol(ctx context.Context, protocolConfig *SProtocolConfig, deviceConfig *SDriverConfig, storage IStorage) *SMetricProtocol {
 
 	if protocolConfig == nil {
 		panic("协议配置不能为空！")
@@ -36,7 +36,7 @@ func NewMetricProtocol(ctx context.Context, protocolConfig *SProtocolConfig, sto
 			"max_wait_ms":   s.maxWaitTime.Milliseconds(),
 			"max_task_name": s.maxWaitTaskName,
 		}
-		err := storage.SaveProtocolMetrics(protocolConfig, result)
+		err := storage.SaveProtocolMetrics(protocolConfig, deviceConfig, result)
 		if err != nil {
 			g.Log().Errorf(ctx, "保存协议[%s]的统计数据失败！统计结果为：%+v", protocolConfig.Id, result)
 		} else {

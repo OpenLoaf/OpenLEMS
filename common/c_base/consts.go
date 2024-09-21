@@ -12,3 +12,15 @@ const (
 const (
 	ConstStationEnergyStoreId = "station-energy-store"
 )
+
+const (
+	ConstProtocol = "protocol"
+	ConstSystem   = "system"
+
+	ConstProtocolId      = "protocol_id"
+	ConstProtocolAddress = "protocol_address"
+	ConstProtocolType    = "protocol_type"
+	ConstDeviceId        = "device_id"
+	ConstDeviceName      = "device_name"
+	ConstDeviceType      = "device_type"
+)
