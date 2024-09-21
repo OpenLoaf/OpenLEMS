@@ -27,7 +27,7 @@ func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value in
 	return nil
 }
 
-func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *p_modbus.ModbusGroup, values []int64) error {
+func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *p_modbus.SModbusTask, values []int64) error {
 	dataLength := group.Quantity
 	if len(group.Metas) != len(values) {
 		panic(gerror.Newf("点位数量与值数量不一致！点位数量：%d, 值数量：%d", len(group.Metas), dataLength))

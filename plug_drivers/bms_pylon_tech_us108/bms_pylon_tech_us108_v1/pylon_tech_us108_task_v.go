@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	GroupHeart = &p_modbus.ModbusGroup{
+	GroupHeart = &p_modbus.SModbusTask{
 		Name:      "GroupHeart",
 		Desc:      "心跳,等点位",
 		Addr:      ChargeForbiddenMark.Addr,
@@ -18,7 +18,7 @@ var (
 		Metas:     []*c_base.Meta{ChargeForbiddenMark, DischargeForbiddenMark, SOC30Flag, SOE, HeartbeatSignal},
 	}
 
-	GroupInfo = &p_modbus.ModbusGroup{
+	GroupInfo = &p_modbus.SModbusTask{
 		Name:      "GroupInfo",
 		Desc:      "查询基本运行信息",
 		Addr:      BasicStatus.Addr,
@@ -34,7 +34,7 @@ var (
 		},
 	}
 
-	GroupTime = &p_modbus.ModbusGroup{
+	GroupTime = &p_modbus.SModbusTask{
 		Name:      "GroupTime",
 		Desc:      "查询年月日时分秒",
 		Addr:      Year.Addr,
@@ -45,7 +45,7 @@ var (
 		Metas:     []*c_base.Meta{Year, Month, Day, Hour, Minute, Second},
 	}
 
-	GroupStatistics = &p_modbus.ModbusGroup{
+	GroupStatistics = &p_modbus.SModbusTask{
 		Name:      "GroupStatistics",
 		Desc:      "查询统计信息",
 		Addr:      SOH.Addr,

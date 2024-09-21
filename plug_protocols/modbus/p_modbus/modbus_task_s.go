@@ -7,8 +7,7 @@ import (
 	"time"
 )
 
-// TODO 改名字加S
-type ModbusGroup struct {
+type SModbusTask struct {
 	Name           string
 	Desc           string
 	Addr           uint16
@@ -21,12 +20,12 @@ type ModbusGroup struct {
 	Metas          []*c_base.Meta
 }
 
-func (m *ModbusGroup) Check() {
+func (m *SModbusTask) Check() {
 	var pointNameSet gset.StrSet
 
 	for _, p := range m.Metas {
 		if !pointNameSet.AddIfNotExist(p.Name) {
-			panic(gerror.Newf("ModbusGroup[%s] has duplicate point name: %s", m.Name, p.Name))
+			panic(gerror.Newf("SModbusTask[%s] has duplicate point name: %s", m.Name, p.Name))
 		}
 	}
 }

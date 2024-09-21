@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (p *ModbusProtocolProvider) RegisterRead(ctx context.Context, group *p_modbus.ModbusGroup, gps ...*p_modbus.ModbusGroup) {
+func (p *ModbusProtocolProvider) RegisterRead(ctx context.Context, group *p_modbus.SModbusTask, gps ...*p_modbus.SModbusTask) {
 	if group == nil {
 		return
 	}
@@ -21,7 +21,7 @@ func (p *ModbusProtocolProvider) RegisterRead(ctx context.Context, group *p_modb
 	}
 }
 
-func (p *ModbusProtocolProvider) registerReadOne(ctx context.Context, group *p_modbus.ModbusGroup) {
+func (p *ModbusProtocolProvider) registerReadOne(ctx context.Context, group *p_modbus.SModbusTask) {
 	if group.Name == "" {
 		panic(gerror.Newf("[%v-%v] 参数错误！modbusQuery的name为空！%+v", p.deviceConfig.Id, group.Name, group))
 	}
@@ -103,7 +103,7 @@ func (p *ModbusProtocolProvider) registerReadOne(ctx context.Context, group *p_m
 }
 
 // setDefaultValue 检查点位是否规范
-func setDefaultValue(group *p_modbus.ModbusGroup) {
+func setDefaultValue(group *p_modbus.SModbusTask) {
 	for _, meta := range group.Metas {
 		// 如果倍率没有设置，就默认为1
 		if meta.Factor == 0 {

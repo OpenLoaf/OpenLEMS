@@ -13,7 +13,7 @@ func (p *ModbusProtocolProvider) Init() {
 			p.deviceType = device.GetDriverType()
 		}
 
-		go func(c chan *p_modbus.ModbusGroup) {
+		go func(c chan *p_modbus.SModbusTask) {
 			for {
 				select {
 				case <-p.ctx.Done():

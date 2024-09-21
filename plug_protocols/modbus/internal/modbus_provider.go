@@ -22,7 +22,7 @@ type ModbusProtocolProvider struct {
 	once                  sync.Once       // 只执行一次Init方法
 	//deviceId              string                     // 设备名称
 	//unitId                uint8                      // 设备的unitId
-	modbusReadChan     chan *p_modbus.ModbusGroup // 查询用的通道
+	modbusReadChan     chan *p_modbus.SModbusTask // 查询用的通道
 	client             modbus.Client              // modbus的通讯
 	preQuery           map[string]bool            // 预读
 	cache              *gcache.Cache              // 点位缓存
@@ -60,7 +60,7 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 		deviceConfig:       deviceConfig,
 		protocolConfig:     protocolConfig,
 		modbusDeviceConfig: modbusDeviceConfig,
-		modbusReadChan:     make(chan *p_modbus.ModbusGroup),
+		modbusReadChan:     make(chan *p_modbus.SModbusTask),
 		preQuery:           make(map[string]bool),
 		cache:              gcache.New(),
 		SAlarmHandler: &c_base.SAlarmHandler{

@@ -43,7 +43,7 @@ func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function p_mo
 }
 
 // ReadGroupSync 同步读取
-func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus.ModbusGroup, readCache bool, metas ...*c_base.Meta) ([]*gvar.Var, error) {
+func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus.SModbusTask, readCache bool, metas ...*c_base.Meta) ([]*gvar.Var, error) {
 	returnMetasLength := len(metas)
 	if readCache && metas != nil && returnMetasLength != 0 {
 		vars := make([]*gvar.Var, returnMetasLength)

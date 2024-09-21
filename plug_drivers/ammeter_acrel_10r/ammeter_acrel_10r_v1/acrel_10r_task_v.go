@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	GDatetime = &p_modbus.ModbusGroup{
+	GDatetime = &p_modbus.SModbusTask{
 		Name:      "GDatetime",
 		Desc:      "时间",
 		Addr:      Year.Addr,
@@ -18,7 +18,7 @@ var (
 		Metas:     []*c_base.Meta{Year, Month, Day, Hour, Minute, Second},
 	}
 
-	GRealtimeInfo = &p_modbus.ModbusGroup{
+	GRealtimeInfo = &p_modbus.SModbusTask{
 		Name:      "RealtimeInfo",
 		Desc:      "实时信息",
 		Addr:      Ua.Addr,
@@ -29,7 +29,7 @@ var (
 		Metas:     []*c_base.Meta{Ua, Ub, Uc, Uab, Ubc, Uca, Ia, Ib, Ic, Pa, Pb, Pc, Pt, Qa, Qb, Qc, Qt, Sa, Sb, Sc, St, Pfa, Pfb, Pfc, Pft, F},
 	}
 
-	GTotal = &p_modbus.ModbusGroup{
+	GTotal = &p_modbus.SModbusTask{
 		Name:      "Total",
 		Desc:      "总电能",
 		Addr:      Epi.Addr,
@@ -40,7 +40,7 @@ var (
 		Metas:     []*c_base.Meta{Epi, Eqe},
 	}
 
-	GSwitch = &p_modbus.ModbusGroup{
+	GSwitch = &p_modbus.SModbusTask{
 		Name:      "Switch",
 		Desc:      "开关量输入",
 		Addr:      SwitchIn1.Addr,
