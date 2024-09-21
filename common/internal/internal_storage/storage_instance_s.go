@@ -2,9 +2,12 @@ package internal_storage
 
 import (
 	"common/c_base"
+	"common/util"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtimer"
 	"sync"
+	"time"
 )
 
 var (
@@ -18,7 +21,7 @@ type SStorageInstance struct {
 	c_base.IStorage
 }
 
-func GetInstance() c_base.IStorage {
+func GetInstance() *SStorageInstance {
 	rwMutex.RLock()
 	defer rwMutex.RUnlock()
 	return sStorageInstance
@@ -55,6 +58,12 @@ func RegisterInstance(builder func(ctx context.Context) c_base.IStorage) {
 		IStorage:   builder(ctx),
 	}
 
+	// 启动系统监测数据保存
+	gtimer.SetInterval(ctx, 1*time.Minute, func(ctx context.Context) {
+		// 保存数据
+		_ = sStorageInstance.IStorage.SaveSystemMetrics(util.GetSystemInfo(), util.GetSystemMetrics())
+	})
+
 	go func() {
 		_ = <-ctx.Done()
 		if sStorageInstance.IStorage != nil {
@@ -63,4 +72,23 @@ func RegisterInstance(builder func(ctx context.Context) c_base.IStorage) {
 		sStorageInstance = nil
 		g.Log().Infof(ctx, "存储服务已关闭！")
 	}()
+}
+
+func (s *SStorageInstance) RegisterDriver(storageIntervalSec int32, driver c_base.IDriver) {
+	if storageIntervalSec >= 0 {
+		var dur time.Duration
+		if storageIntervalSec == 0 {
+			dur = 1 * time.Minute
+		} else {
+			dur = time.Duration(storageIntervalSec) * time.Second
+		}
+		//TODO 此处需要能同时监测设备关闭或者存储关闭的情况，需要能自动销毁定时任务。现在只有storage关闭时会销毁定时任务，device如果关闭了，定时任务不会销毁
+		gtimer.SetInterval(s.ctx, dur, func(ctx context.Context) {
+			// 保存数据
+			_ = s.IStorage.SaveDevices(driver.GetDeviceConfig().Id, driver.GetDriverType(), driver.GetAllTelemetry(driver))
+		})
+		g.Log().Infof(s.ctx, "设备[%s]存储间隔：%v", driver.GetDeviceConfig().Name, dur)
+	} else {
+		g.Log().Infof(s.ctx, "设备[%s] 数据不存储！", driver.GetDeviceConfig().Name)
+	}
 }

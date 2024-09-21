@@ -55,6 +55,11 @@ func NewInfluxdb1(ctx context.Context, storageConfig *c_base.SStorageConfig) c_b
 	return d
 }
 
+func (i *Influxdb1) SaveSystemMetrics(tags map[string]string, metrics map[string]any) error {
+	//TODO implement me
+	panic("implement me")
+}
+
 func (i *Influxdb1) SaveDevices(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {
 	return i.write(string(deviceType), "", map[string]string{"device_id": deviceId}, fields)
 }

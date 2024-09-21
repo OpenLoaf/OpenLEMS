@@ -91,6 +91,10 @@ func (i *Influxdb2) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, 
 	return i.write(systemBucket, c_base.ConstProtocol, tags, metrics)
 }
 
+func (i *Influxdb2) SaveSystemMetrics(tags map[string]string, metrics map[string]any) error {
+	return i.write(systemBucket, c_base.ConstSystem, tags, metrics)
+}
+
 func (i *Influxdb2) write(bucket, measurement string, tags map[string]string, fields map[string]interface{}, t ...time.Time) error {
 	if len(fields) == 0 {
 		return nil

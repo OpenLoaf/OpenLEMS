@@ -115,7 +115,7 @@ func (d *SDeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList
 
 	common.RegisterDevice(driver)
 
-	common.StorageTimerSaveDeviceMetrics(d.ctx, config.StorageIntervalSec, driver)
+	common.RegisterStorageDriver(config.StorageIntervalSec, driver)
 
 	return driver
 }
