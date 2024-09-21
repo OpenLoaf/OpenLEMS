@@ -13,6 +13,9 @@ type SMetricProtocol struct {
 	metricMinuteReadCount   uint32       // 分钟读取次数
 	metricMinuteFailedCount uint32       // 分钟失败次数
 	metricMinuteResultSize  uint32       // 分钟读取到的数据量
+
+	maxWaitTime     time.Duration // 最大读取时间
+	maxWaitTaskName string        // 最大读取任务名称
 }
 
 func NewMetricProtocol(ctx context.Context, protocolConfig *SProtocolConfig, storage IStorage) *SMetricProtocol {
@@ -26,10 +29,12 @@ func NewMetricProtocol(ctx context.Context, protocolConfig *SProtocolConfig, sto
 		s.metricRwMutex.RLock()
 		// 保存数据到数据库
 		result := map[string]any{
-			"read_count":    s.metricMinuteReadCount,
-			"success_count": s.metricMinuteReadCount - s.metricMinuteFailedCount,
-			"failed_count":  s.metricMinuteFailedCount,
+			"total":         s.metricMinuteReadCount,
+			"success":       s.metricMinuteReadCount - s.metricMinuteFailedCount,
+			"failed":        s.metricMinuteFailedCount,
 			"result_size":   s.metricMinuteResultSize,
+			"max_wait_ms":   s.maxWaitTime.Milliseconds(),
+			"max_task_name": s.maxWaitTaskName,
 		}
 		err := storage.SaveProtocolMetrics(protocolConfig, result)
 		if err != nil {
@@ -69,4 +74,20 @@ func (s *SMetricProtocol) Clear() {
 	s.metricMinuteReadCount = 0
 	s.metricMinuteFailedCount = 0
 	s.metricMinuteResultSize = 0
+	s.maxWaitTime = 0
+	s.maxWaitTaskName = ""
+}
+
+// CalcReadTime 计算读取时间
+func (s *SMetricProtocol) CalcReadTime(taskName string, useTime time.Duration) {
+	if useTime < time.Millisecond {
+		// 小于1毫秒的不统计
+		return
+	}
+	s.metricRwMutex.Lock()
+	defer s.metricRwMutex.Unlock()
+	if useTime > s.maxWaitTime {
+		s.maxWaitTime = useTime
+		s.maxWaitTaskName = taskName
+	}
 }

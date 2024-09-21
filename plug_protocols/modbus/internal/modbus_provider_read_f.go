@@ -96,7 +96,7 @@ func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus.ModbusGroup, read
 	return vars, nil
 }
 
-func (p *ModbusProtocolProvider) read(addr uint16, quantity uint16, function p_modbus.ModbusReadFunction) ([]byte, error) {
+func (p *ModbusProtocolProvider) read(name string, addr uint16, quantity uint16, function p_modbus.ModbusReadFunction) ([]byte, error) {
 	var (
 		result []byte
 		err    error
@@ -105,6 +105,7 @@ func (p *ModbusProtocolProvider) read(addr uint16, quantity uint16, function p_m
 	// 累计分钟请求次数
 	p.metricProtocol.AddMinuteReadCount()
 
+	queryTime := time.Now()
 	switch function {
 	case p_modbus.MqReadCoils:
 		result, err = p.client.ReadCoils(p.modbusDeviceConfig.UnitId, addr, quantity)
@@ -115,7 +116,8 @@ func (p *ModbusProtocolProvider) read(addr uint16, quantity uint16, function p_m
 	case p_modbus.MqInputRegisters:
 		result, err = p.client.ReadInputRegistersBytes(p.modbusDeviceConfig.UnitId, addr, quantity)
 	}
-
+	// 累计请求时间
+	p.metricProtocol.CalcReadTime(name, time.Since(queryTime))
 	// 累计请求返回的数据量
 	p.metricProtocol.AddMinuteResultSize(len(result))
 
@@ -130,7 +132,7 @@ func (p *ModbusProtocolProvider) read(addr uint16, quantity uint16, function p_m
 func (p *ModbusProtocolProvider) readValues(name string, addr, quantity uint16, function p_modbus.ModbusReadFunction) ([]byte, error) {
 	p.modbusRwMutex.Lock()
 	defer p.modbusRwMutex.Unlock()
-	result, err := p.read(addr, quantity, function)
+	result, err := p.read(name, addr, quantity, function)
 	if err != nil {
 		if err.Error() == "EOF" {
 			_ = p.client.Close()
