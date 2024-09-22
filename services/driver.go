@@ -15,11 +15,8 @@ import (
 )
 
 type SDeviceCmd struct {
-	ctx               context.Context
-	cancelFunc        context.CancelFunc
-	modbusClientCache map[string]modbus.Client
-	//driverCache          map[string]c_base.IDriver
-	//pluginNewMethodCache map[string]reflect.Method
+	ctx        context.Context
+	cancelFunc context.CancelFunc
 }
 
 func NewDeviceCmd(ctx context.Context) *SDeviceCmd {
@@ -28,7 +25,6 @@ func NewDeviceCmd(ctx context.Context) *SDeviceCmd {
 	return &SDeviceCmd{
 		ctx:        ctx,
 		cancelFunc: cancelFunc,
-		//driverCache: make(map[string]c_base.IDriver),
 	}
 }
 
@@ -48,7 +44,9 @@ func (d *SDeviceCmd) Start() {
 		return influxdb_2.NewStorageInstance(ctx, common.GetStorageConfig(d.ctx))
 	})
 
-	d.InitDriver(common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))
+	d.InitDriver(make(map[string]modbus.Client), common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))
+
+	//d.modbusClientCache = make(map[string]modbus.Client)
 }
 
 func (d *SDeviceCmd) Stop() {
@@ -58,11 +56,11 @@ func (d *SDeviceCmd) Stop() {
 	for _, driver := range common.GetDeviceAll() {
 		driver.Destroy()
 	}
-	d.modbusClientCache = make(map[string]modbus.Client)
+
 	d.cancelFunc()
 }
 
-func (d *SDeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver {
+func (d *SDeviceCmd) InitDriver(clientCache map[string]modbus.Client, config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver {
 	if err := config.Check(); err != nil {
 		panic(err)
 	}
@@ -75,7 +73,7 @@ func (d *SDeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList
 	// 先递归初始化子设备
 	if config.DeviceChildren != nil {
 		for _, _device := range config.DeviceChildren {
-			d.InitDriver(_device, protocolConfigList)
+			d.InitDriver(clientCache, _device, protocolConfigList)
 		}
 	}
 
@@ -94,7 +92,7 @@ func (d *SDeviceCmd) InitDriver(config *c_base.SDriverConfig, protocolConfigList
 				break
 			}
 		}
-		protocolProvider = d.getProtocolProvider(d.ctx, config, protocolConfig)
+		protocolProvider = d.getProtocolProvider(d.ctx, clientCache, config, protocolConfig)
 	} else {
 		d.ctx = context.WithValue(d.ctx, c_base.ConstCtxKeyProtocolId, "Virtual")
 	}
@@ -130,7 +128,7 @@ func (d *SDeviceCmd) Block() {
 	gproc.Listen()
 }
 
-func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, deviceConfig *c_base.SDriverConfig, protocolConfig *c_base.SProtocolConfig) c_base.IProtocol {
+func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, clientCache map[string]modbus.Client, deviceConfig *c_base.SDriverConfig, protocolConfig *c_base.SProtocolConfig) c_base.IProtocol {
 	// 从配置中获取协议
 	//protocolConfig := common.GetProtocolById(ctx, protocolId)
 	if protocolConfig == nil {
@@ -145,7 +143,7 @@ func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, deviceConfig *c_ba
 	case c_base.EModbusRtu, c_base.EModbusTcp:
 		// 从缓存中获取client，如果没有就新建后放入缓存
 		var client modbus.Client
-		if _client, exist := d.modbusClientCache[protocolConfig.Id]; exist {
+		if _client, exist := clientCache[protocolConfig.Id]; exist {
 			client = _client
 		} else {
 			// 创建client

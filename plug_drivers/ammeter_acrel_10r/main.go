@@ -5,6 +5,7 @@ import (
 	"common/c_base"
 	"context"
 	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/torykit/go-modbus"
 	"services"
 )
 
@@ -35,7 +36,7 @@ func main() {
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			cmd := services.NewDeviceCmd(ctx)
 
-			cmd.InitDriver(&c_base.SDriverConfig{
+			cmd.InitDriver(make(map[string]modbus.Client), &c_base.SDriverConfig{
 				Id:         "TestAmmeterAcrel10r",
 				Name:       "安科瑞10R电表",
 				ProtocolId: "192.168.0.100:5000",

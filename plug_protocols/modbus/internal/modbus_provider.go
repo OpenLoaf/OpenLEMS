@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"common"
 	"common/c_base"
 	"context"
 	"github.com/gogf/gf/v2/container/garray"
@@ -34,7 +33,7 @@ type ModbusProtocolProvider struct {
 	modbusDeviceConfig *p_modbus.SModbusDeviceConfig
 	protocolConfig     *c_base.SProtocolConfig
 
-	metricProtocol *c_base.SMetricProtocol // 统计协议
+	metricProtocol *sMetricProtocol // 统计协议
 }
 
 func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, client any) (p_modbus.IModbusProtocol, error) {
@@ -67,7 +66,7 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 			Ctx: ctx,
 		},
 		log:            g.Log(deviceConfig.Id),
-		metricProtocol: c_base.NewMetricProtocol(ctx, protocolConfig, deviceConfig, common.GetStorageInstance()),
+		metricProtocol: newMetricProtocol(ctx, protocolConfig, deviceConfig),
 	}
 	if client != nil {
 		provider.client = client.(modbus.Client)
