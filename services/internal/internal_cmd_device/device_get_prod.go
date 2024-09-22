@@ -1,7 +1,7 @@
 //go:build !dev && !windows
 // +build !dev,!windows
 
-package services
+package internal_cmd_device
 
 import (
 	"common"

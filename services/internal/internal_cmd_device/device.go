@@ -1,4 +1,4 @@
-package services
+package internal_cmd_device
 
 import (
 	"common"
