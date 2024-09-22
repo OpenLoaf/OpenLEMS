@@ -13,13 +13,13 @@ import (
 
 func GetSystemMetrics() map[string]any {
 	result := map[string]any{}
-	// 开始时间
+	// 系统在线时长
 	if uptime, err := host.Uptime(); err == nil {
 		result["uptime_minute"] = time.Duration(uptime) * time.Minute
 	}
 
 	// 获取 CPU 总使用率
-	if percent, err := cpu.Percent(0, false); err != nil {
+	if percent, err := cpu.Percent(0, false); err == nil {
 		result["cpu"] = percent[0]
 	}
 	if percent, err := cpu.Percent(0, true); err == nil {
@@ -69,6 +69,10 @@ func GetSystemInfo() map[string]string {
 		result["kernel_version"] = info.KernelVersion
 		//result["virtualization_system"] = info.VirtualizationSystem
 		//result["virtualization_role"] = info.VirtualizationRole
+	}
+
+	if bootTime, err := host.BootTime(); err == nil {
+		result["boot_time"] = time.Unix(int64(bootTime), 0).Format("2006-01-02 15:04:05")
 	}
 	return result
 }
