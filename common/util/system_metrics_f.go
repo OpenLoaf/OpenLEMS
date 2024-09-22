@@ -1,7 +1,9 @@
 package util
 
 import (
+	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -78,30 +80,35 @@ func GetProcessInfo() map[string]any {
 			result["threads"] = threads
 		}
 	}
+	// 获取pprof是否启动
+	isPprofEnabled := g.Config().MustGet(context.Background(), "server.pprofEnabled").Bool()
 
-	// 获取堆使用情况
-	heapStats := pprof.Lookup("heap")
-	if heapStats != nil {
-		result["heap_alloc"] = heapStats.Count()
+	if isPprofEnabled {
+		// 获取堆使用情况
+		heapStats := pprof.Lookup("heap")
+		if heapStats != nil {
+			result["heap_alloc"] = heapStats.Count()
+		}
+
+		// 获取goroutine数量
+		goroutineStats := pprof.Lookup("goroutine")
+		if goroutineStats != nil {
+			result["goroutine_count"] = goroutineStats.Count()
+		}
+
+		// 获取线程创建情况
+		threadCreateStats := pprof.Lookup("threadcreate")
+		if threadCreateStats != nil {
+			result["thread_create_count"] = threadCreateStats.Count()
+		}
+
+		// 获取阻塞分析
+		blockStats := pprof.Lookup("block")
+		if blockStats != nil {
+			result["block_count"] = blockStats.Count()
+		}
 	}
 
-	// 获取goroutine数量
-	goroutineStats := pprof.Lookup("goroutine")
-	if goroutineStats != nil {
-		result["goroutine_count"] = goroutineStats.Count()
-	}
-
-	// 获取线程创建情况
-	threadCreateStats := pprof.Lookup("threadcreate")
-	if threadCreateStats != nil {
-		result["thread_create_count"] = threadCreateStats.Count()
-	}
-
-	// 获取阻塞分析
-	blockStats := pprof.Lookup("block")
-	if blockStats != nil {
-		result["block_count"] = blockStats.Count()
-	}
 	return result
 }
 
