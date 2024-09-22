@@ -1,7 +1,7 @@
 //go:build dev || windows
 // +build dev windows
 
-package driver
+package services
 
 import (
 	"ammeter_acrel_10r_v1/ammeter_acrel_10r_v1"

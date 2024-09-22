@@ -4,7 +4,6 @@ import (
 	"common"
 	"common/c_base"
 	"context"
-	"driver"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/i18n/gi18n"
 	"github.com/gogf/gf/v2/net/ghttp"
@@ -13,6 +12,7 @@ import (
 	"github.com/gogf/gf/v2/os/gproc"
 	"os"
 	"runtime"
+	"services"
 	"time"
 )
 
@@ -57,7 +57,7 @@ var (
 			g.Log().Infof(ctx, "加载驱动文件路径：%s", driverConfigName)
 
 			// 启动设备
-			deviceCmd := driver.NewDeviceCmd(ctx)
+			deviceCmd := services.NewDeviceCmd(ctx)
 			deviceCmd.Start()
 
 			var web *ghttp.Server

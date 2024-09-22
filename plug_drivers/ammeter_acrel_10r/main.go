@@ -4,8 +4,8 @@ import (
 	"ammeter_acrel_10r_v1/ammeter_acrel_10r_v1"
 	"common/c_base"
 	"context"
-	"driver"
 	"github.com/gogf/gf/v2/os/gcmd"
+	"services"
 )
 
 // 通过构建脚本自动注入
@@ -33,7 +33,7 @@ func main() {
 		Usage: "test",
 		Brief: "测试启动",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
-			cmd := driver.NewDeviceCmd(ctx)
+			cmd := services.NewDeviceCmd(ctx)
 
 			cmd.InitDriver(&c_base.SDriverConfig{
 				Id:         "TestAmmeterAcrel10r",

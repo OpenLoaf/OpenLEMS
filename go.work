@@ -19,5 +19,5 @@ use (
 	./plug_storages/influxdb_2
 	application
 	common
-	driver
+	./services
 )
