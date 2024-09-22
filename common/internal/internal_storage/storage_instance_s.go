@@ -61,7 +61,9 @@ func RegisterInstance(builder func(ctx context.Context) c_base.IStorage) {
 	// 启动系统监测数据保存
 	gtimer.SetInterval(ctx, 1*time.Minute, func(ctx context.Context) {
 		// 保存数据
-		_ = sStorageInstance.IStorage.SaveSystemMetrics(util.GetSystemInfo(), util.GetSystemMetrics())
+		systemInfo := util.GetSystemInfo()
+		_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstSystem, systemInfo, util.GetSystemMetrics())
+		_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstProcess, systemInfo, util.GetProcessInfo())
 	})
 
 	go func() {

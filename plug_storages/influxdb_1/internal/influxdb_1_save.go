@@ -55,7 +55,7 @@ func NewInfluxdb1(ctx context.Context, storageConfig *c_base.SStorageConfig) c_b
 	return d
 }
 
-func (i *Influxdb1) SaveSystemMetrics(tags map[string]string, metrics map[string]any) error {
+func (i *Influxdb1) SaveSystemMetrics(measurement string, tags map[string]string, metrics map[string]any) error {
 	//TODO implement me
 	panic("implement me")
 }

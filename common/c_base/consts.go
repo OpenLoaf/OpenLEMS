@@ -16,6 +16,7 @@ const (
 const (
 	ConstProtocol = "protocol"
 	ConstSystem   = "system"
+	ConstProcess  = "process"
 
 	ConstProtocolId      = "protocol_id"
 	ConstProtocolAddress = "protocol_address"

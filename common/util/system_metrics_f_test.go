@@ -11,3 +11,10 @@ func TestGetSystemMetrics(t *testing.T) {
 		fmt.Printf("%s: %v\n", key, value)
 	}
 }
+
+func TestGetProcessInfo(t *testing.T) {
+	processInfo := GetProcessInfo()
+	for key, value := range processInfo {
+		fmt.Printf("%s: %v\n", key, value)
+	}
+}
