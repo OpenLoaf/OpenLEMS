@@ -1,4 +1,4 @@
-package internal_config
+package internal_config_with_file
 
 import (
 	"context"

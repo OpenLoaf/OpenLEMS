@@ -24,8 +24,6 @@ const (
 	argTimeZone         = "time-zone"   // 全局时区设置
 )
 
-var stopSignal = false
-
 var (
 	Main = gcmd.Command{
 		Name:  "Start",
@@ -64,7 +62,6 @@ var (
 
 			gproc.AddSigHandlerShutdown(func(sig os.Signal) {
 				g.Log().Noticef(ctx, "接收到信号：%s", sig.String())
-				stopSignal = true
 				if web != nil {
 					_ = web.Shutdown()
 				}

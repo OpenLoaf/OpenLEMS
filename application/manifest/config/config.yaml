@@ -17,6 +17,11 @@ gfcli:
     extra:    "-tags=dev"
     dumpEnv: true
 
+database:
+  default:
+    link: "sqlite::@file(out/db.sqlite3)"
+    timezone: "Local"
+    debug: true
 
 server:
   # 基本配置

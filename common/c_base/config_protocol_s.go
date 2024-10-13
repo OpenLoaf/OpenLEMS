@@ -4,12 +4,12 @@ import "github.com/gogf/gf/v2/errors/gerror"
 
 // SProtocolConfig 基础协议配置
 type SProtocolConfig struct {
-	Id       string            // 协议Id
-	Protocol EProtocolType     // 协议
-	Address  string            // 地址
-	Timeout  int64             // 超时时间
-	LogLevel string            // 日志等级
-	Params   map[string]string // 配置
+	Id       string            `json:"id,omitempty" orm:"id"`             // 协议Id
+	Protocol EProtocolType     `json:"protocol,omitempty" orm:"protocol"` // 协议
+	Address  string            `json:"address,omitempty" orm:"address"`   // 地址
+	Timeout  int64             `json:"timeout,omitempty" orm:"timeout"`   // 超时时间
+	LogLevel string            `json:"logLevel,omitempty" orm:"logLevel"` // 日志等级
+	Params   map[string]string `json:"params,omitempty" orm:"params"`     // 配置
 }
 
 func (b *SProtocolConfig) GetProtocol() EProtocolType {

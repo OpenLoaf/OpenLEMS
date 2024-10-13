@@ -37,16 +37,12 @@ func (d *SDeviceCmd) Start() {
 		}
 	}()
 
-	// 初始化存储
-	//common.InitStorage(d.ctx, influxdb_1.NewStorageInstance(d.ctx, common.GetStorageConfig(d.ctx)))
-
+	// TODO: 以后搬到其他地方去
 	common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
-		return influxdb_2.NewStorageInstance(ctx, common.GetStorageConfig(d.ctx))
+		return influxdb_2.NewStorageInstance(ctx, common.GetStorageConfig(ctx))
 	})
 
 	d.InitDriver(make(map[string]modbus.Client), common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))
-
-	//d.modbusClientCache = make(map[string]modbus.Client)
 }
 
 func (d *SDeviceCmd) Stop() {
@@ -65,7 +61,7 @@ func (d *SDeviceCmd) InitDriver(clientCache map[string]modbus.Client, config *c_
 		panic(err)
 	}
 
-	if config.Enable == false {
+	if config.IsEnable == false {
 		g.Log().Noticef(d.ctx, "设备[%s]未启用！", config.Name)
 		return nil
 	}
@@ -82,9 +78,11 @@ func (d *SDeviceCmd) InitDriver(clientCache map[string]modbus.Client, config *c_
 	}
 
 	var protocolProvider c_base.IProtocol
+
+	driverCtx := d.ctx
 	// 设备初始化
 	if config.ProtocolId != "" {
-		d.ctx = context.WithValue(d.ctx, c_base.ConstCtxKeyProtocolId, config.ProtocolId)
+		driverCtx = context.WithValue(driverCtx, c_base.ConstCtxKeyProtocolId, config.ProtocolId)
 		var protocolConfig *c_base.SProtocolConfig
 		for _, _protocolConfig := range protocolConfigList {
 			if _protocolConfig.Id == config.ProtocolId {
@@ -92,20 +90,20 @@ func (d *SDeviceCmd) InitDriver(clientCache map[string]modbus.Client, config *c_
 				break
 			}
 		}
-		protocolProvider = d.getProtocolProvider(d.ctx, clientCache, config, protocolConfig)
+		protocolProvider = d.getProtocolProvider(driverCtx, clientCache, config, protocolConfig)
 	} else {
-		d.ctx = context.WithValue(d.ctx, c_base.ConstCtxKeyProtocolId, "Virtual")
+		driverCtx = context.WithValue(driverCtx, c_base.ConstCtxKeyProtocolId, "Virtual")
 	}
 
-	driver := d.getDriver(d.ctx, config)
+	driver := d.getDriver(driverCtx, config)
 	if driver == nil {
-		g.Log().Errorf(d.ctx, "设备[%s]驱动加载失败！", config.Name)
+		g.Log().Errorf(driverCtx, "设备[%s]驱动加载失败！", config.Name)
 		return nil
 	}
 
 	driver.Init(protocolProvider, config)
 
-	g.Log().Noticef(d.ctx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", config.Name, driver.GetDescription())
+	g.Log().Noticef(driverCtx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", config.Name, driver.GetDescription())
 
 	if protocolProvider != nil {
 		protocolProvider.Init()

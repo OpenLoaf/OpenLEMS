@@ -34,7 +34,7 @@ func NewTcpClient() (context.Context, p_modbus.IModbusProtocol, error) {
 		Id:     "测试Modbus",
 		Protocol: "modbus_tcp",
 		Address:  "127.0.0.1:1504",
-		Enable:   true,
+		IsEnable:   true,
 	}
 	deviceConfig := &p_modbus.SModbusDeviceConfig{
 		UnitId: 1,

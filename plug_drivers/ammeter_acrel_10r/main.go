@@ -41,7 +41,7 @@ func main() {
 				Name:       "安科瑞10R电表",
 				ProtocolId: "192.168.0.100:5000",
 				Driver:     "ammeter_acrel_10r_v1",
-				Enable:     true,
+				IsEnable:   true,
 				LogLevel:   "",
 				Params: map[string]string{
 					"unitId": "1",

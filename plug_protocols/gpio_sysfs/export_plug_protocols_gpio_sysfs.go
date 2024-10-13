@@ -30,7 +30,7 @@ func (m *sMain) Start(ctx context.Context, config sInput) (*sOutput, error) {
 		Timeout:        0,
 		LogLevel:       "INFO",
 		Params:         nil,
-		Enable:         true,
+		IsEnable:         true,
 		DeviceChildren: nil,
 	}, &p_gpio_sysfs.SDeviceGpioConfig{
 		SDriverConfig: c_base.SDriverConfig{

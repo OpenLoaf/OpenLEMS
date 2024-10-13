@@ -1,10 +1,11 @@
-package internal_config
+package internal_config_with_file
 
 import (
 	"common/c_base"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gfile"
 	"plugin"
 	"sync"
@@ -20,6 +21,10 @@ var (
 	configInitOnce = sync.Once{}
 	ConfigInstance *SConfig
 )
+
+func init() {
+	gcmd.GetOptWithEnv("device")
+}
 
 func NewConfigInstance(deviceCfgName, driverPath string) *SConfig {
 	if deviceCfgName == "" {
