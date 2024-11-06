@@ -49,6 +49,9 @@ func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_ba
 		}
 	}
 	for _, child := range deviceConfig.DeviceChildren {
+		if child.IsEnable == false {
+			continue
+		}
 		dv := common.GetDeviceById(child.Id)
 		if dv == nil {
 			panic(gerror.Newf("设备Id: %s 不存在！", child.Id))

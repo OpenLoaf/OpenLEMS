@@ -14,7 +14,6 @@ import (
 type SConfig struct {
 	deviceCfgName string // 设备配置文件名
 	driverPath    string // 驱动存放路径
-
 }
 
 var (

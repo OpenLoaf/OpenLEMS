@@ -49,6 +49,7 @@ func getConfig[T any](ctx context.Context, cfgName string, key string) (*T, stri
 	cfg := g.Cfg(cfgName)
 	// 添加搜索的路径
 	_ = cfg.GetAdapter().(*gcfg.AdapterFile).AddPath("resources")
+
 	data := cfg.MustData(ctx)[key]
 	if data == nil {
 		return nil, cfgName, gerror.Newf("配置文件:%s中没有devices字段", cfgName)
@@ -57,6 +58,7 @@ func getConfig[T any](ctx context.Context, cfgName string, key string) (*T, stri
 	config := new(T)
 	err := gconv.Scan(data, config)
 	if err != nil {
+		g.Log().Errorf(ctx, "解析配置文件[%s]失败！错误原因：%v", cfgName, err)
 		return nil, cfgName, err
 	}
 

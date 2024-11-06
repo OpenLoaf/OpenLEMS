@@ -1,8 +1,10 @@
-package c_base
+package internal_config_with_file
 
 import (
-	"github.com/gogf/gf/v2/errors/gerror"
+	"context"
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gmeta"
+	"testing"
 )
 
 // SDriverConfig 基础设备配置
@@ -19,35 +21,21 @@ type SDriverConfig struct {
 	DeviceChildren     []*SDriverConfig  `json:"deviceChildren,omitempty" orm:"with:parent_id=id"` // 子设备
 }
 
-func (s *SDriverConfig) Check() error {
-	if s.Id == "" {
-		return gerror.Newf("设备ID不能为空")
+func TestSConfig_GetDriverConfig(t *testing.T) {
+	ctx := context.Background()
+	c := &SConfig{
+		deviceCfgName: "device",
 	}
-	if s.Name == "" {
-		return gerror.Newf("设备名称不能为空")
+
+	//config := c.GetDriverConfig(ctx)
+	//g.Log().Infof(ctx, "config: %v", config)
+
+	config, configPath, err := getConfig[SDriverConfig](ctx, c.deviceCfgName, "device")
+
+	if err != nil {
+		t.Errorf("GetDriverConfig() error = %v", err)
+		return
 	}
-	return nil
-}
 
-func (s *SDriverConfig) IsVirtual() bool {
-	return s.ProtocolId == ""
+	g.Log().Infof(ctx, "加载设备%s \n%+v,", configPath, config)
 }
-
-// 现在暂时从配置文件中读取，后续可以从数据库中读取
-//func (s *SDriverConfig) UnmarshalValue(value interface{}) error {
-//	if record, ok := value.(gdb.Record); ok {
-//		*s = SDriverConfig{
-//			Id: record["id"].String(),
-//			//Name:               record[],
-//			ProtocolId:         "",
-//			Driver:             "",
-//			IsEnable:           false,
-//			StorageIntervalSec: 0,
-//			LogLevel:           "",
-//			Params:             nil,
-//			DeviceChildren:     nil,
-//		}
-//		return nil
-//	}
-//	return gerror.Newf(`unsupported value type for UnmarshalValue: %v`, reflect.TypeOf(value))
-//}

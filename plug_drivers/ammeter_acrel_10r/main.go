@@ -5,7 +5,6 @@ import (
 	"common/c_base"
 	"context"
 	"github.com/gogf/gf/v2/os/gcmd"
-	"github.com/torykit/go-modbus"
 	"services"
 )
 
@@ -34,24 +33,26 @@ func main() {
 		Usage: "test",
 		Brief: "测试启动",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
-			cmd := services.NewDeviceCmd(ctx)
+			_ = services.NewDeviceCmd(ctx)
 
-			cmd.InitDriver(make(map[string]modbus.Client), &c_base.SDriverConfig{
-				Id:         "TestAmmeterAcrel10r",
-				Name:       "安科瑞10R电表",
-				ProtocolId: "192.168.0.100:5000",
-				Driver:     "ammeter_acrel_10r_v1",
-				IsEnable:   true,
-				LogLevel:   "",
-				Params: map[string]string{
-					"unitId": "1",
-				},
-				DeviceChildren: nil,
-			}, []*c_base.SProtocolConfig{
-				{Id: "192.168.0.100:5000", Protocol: c_base.EModbusTcp, Address: "192.168.0.100:5000", Timeout: 30, LogLevel: "DEBUG", Params: nil},
-			})
-
-			cmd.Block()
+			//	cmd.InitDriver(make(map[string]modbus.Client), &c_base.SDriverConfig{
+			//		Id:         "TestAmmeterAcrel10r",
+			//		Name:       "安科瑞10R电表",
+			//		ProtocolId: "192.168.0.100:5000",
+			//		Driver:     "ammeter_acrel_10r_v1",
+			//		IsEnable:   true,
+			//		LogLevel:   "",
+			//		Params: map[string]string{
+			//			"unitId": "1",
+			//		},
+			//		DeviceChildren: nil,
+			//	}, []*c_base.SProtocolConfig{
+			//		{Id: "192.168.0.100:5000", Protocol: c_base.EModbusTcp, Address: "192.168.0.100:5000", Timeout: 30, LogLevel: "DEBUG", Params: nil},
+			//	})
+			//
+			//	cmd.Block()
+			//	return err
+			//},
 			return err
 		},
 	})

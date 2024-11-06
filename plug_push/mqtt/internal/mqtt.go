@@ -1,8 +1,8 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -14,10 +14,16 @@ var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
 	fmt.Printf("MSG: %s\n", msg.Payload())
 }
 
+type Message struct {
+	Content   string `json:"content"`
+	Timestamp string `json:"timestamp"`
+}
+
 func start() {
-	mqtt.DEBUG = log.New(os.Stdout, "", 0)
-	mqtt.ERROR = log.New(os.Stdout, "", 0)
-	opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883").SetClientID("emqx_test_client")
+	//mqtt.DEBUG = log.New(os.Stdout, "", 0)
+	//mqtt.ERROR = log.New(os.Stdout, "", 0)
+	opts := mqtt.NewClientOptions().AddBroker("tcp://mqtt.test.hexems.com:1883").
+		SetUsername("emqx_go_client").SetPassword("public")
 
 	opts.SetKeepAlive(60 * time.Second)
 	// 设置消息回调处理函数
@@ -25,6 +31,8 @@ func start() {
 	opts.SetPingTimeout(1 * time.Second)
 
 	c := mqtt.NewClient(opts)
+	defer c.Disconnect(250)
+
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
@@ -36,10 +44,25 @@ func start() {
 	}
 
 	// 发布消息
-	token := c.Publish("testtopic/1", 0, false, "Hello World")
-	token.Wait()
+	for {
 
-	time.Sleep(10 * time.Second)
+		message := Message{
+			Content:   "Hello World With Go Client",
+			Timestamp: time.Now().Format("2006-01-02 15:04:05"),
+		}
+		payload, err := json.Marshal(message)
+		if err != nil {
+			fmt.Println("json.Marshal failed")
+			return
+		}
+
+		token := c.Publish("/ttt/1", 0, false, payload)
+		token.Wait()
+
+		time.Sleep(10 * time.Second)
+
+		// 等到中断信号，断开链接
+	}
 
 	//// 取消订阅
 	//if token := c.Unsubscribe("testtopic/#"); token.Wait() && token.Error() != nil {
@@ -48,6 +71,6 @@ func start() {
 	//}
 
 	// 断开连接
-	c.Disconnect(250)
-	time.Sleep(1 * time.Second)
+	//c.Disconnect(250)
+	//time.Sleep(1 * time.Second)
 }
