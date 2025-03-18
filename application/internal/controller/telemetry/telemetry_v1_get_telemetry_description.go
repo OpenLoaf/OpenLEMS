@@ -24,6 +24,7 @@ func (c *ControllerV1) GetTelemetryDescription(ctx context.Context, req *v1.GetT
 func makeResponse(ctx context.Context, stationEnergyStore c_device.IStationEnergyStore) *v1.TelemetryDescriptionObj {
 
 	var stationTelemetryList []*entity.DeviceTelemetry
+	//var stationTelemetryList
 	stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
 		DeviceId:      stationEnergyStore.GetDeviceConfig().Id,
 		I8nName:       stationEnergyStore.GetDeviceConfig().Name,
@@ -37,6 +38,14 @@ func makeResponse(ctx context.Context, stationEnergyStore c_device.IStationEnerg
 			TelemetryKeys: c_base.TelemetryListI18n(ctx, child.GetDescription().Telemetry),
 		})
 	}
+
+	// TODO 添加排序
+
+	//garray.NewSortedArray(func(v1, v2 interface{}) int {
+	//	if v1.(*entity.DeviceTelemetry).I8nName > v2.(*entity.DeviceTelemetry).I8nName {
+	//		return 1
+	//	}
+	//})
 
 	return &v1.TelemetryDescriptionObj{
 		Name:     g.I18n().T(ctx, stationEnergyStore.GetDeviceConfig().Name),

@@ -107,7 +107,7 @@ func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 			}
 
 			// 验证一下数据是否正确
-			if query.Millisecond < 200 || query.Millisecond > 1000*60*60*24 {
+			if query.Millisecond < 100 || query.Millisecond > 1000*60*60*24 {
 				_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 					Code:    500,
 					Message: "时间间隔范围为200到86400000",

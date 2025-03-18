@@ -10,7 +10,8 @@ import (
 
 // Meta 点位元数据
 type Meta struct {
-	Debug      bool           `json:"-"`                    // 调试打印
+	Debug bool `json:"-"` // 调试打印
+	// TODO 这里再加一个系统点位类型
 	Name       string         `json:"name"`                 // 名称
 	Cn         string         `json:"cn"`                   // 中文名称, TODO 以后改成I18N
 	Addr       uint16         `json:"addr"`                 // 地址，索引

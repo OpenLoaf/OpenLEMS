@@ -2,7 +2,7 @@ package c_device
 
 import "common/c_base"
 
-type IEnergyStoreBasic interface {
+type IEnergyStoreBasic interface { // 储能系统
 	GetCellMinTemp() (float32, error)    // 电芯最低温度
 	GetCellMaxTemp() (float32, error)    // 电芯最高温度
 	GetCellAvgTemp() (float32, error)    // 电芯平均温度
