@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtimer"
+	"reflect"
 	"sync"
 	"time"
 )
@@ -39,8 +40,9 @@ func newMetricProtocol(ctx context.Context, protocolConfig *c_base.SProtocolConf
 			"max_wait_ms":   s.maxWaitTime.Milliseconds(),
 			"max_task_name": s.maxWaitTaskName,
 		}
+		g.Log().Noticef(ctx, "保存协议[%s]的统计数据，统计结果为：%+v", protocolConfig.Id, result)
 		storage := common.GetStorageInstance()
-		if storage == nil {
+		if storage == nil || reflect.ValueOf(storage).IsNil() {
 			g.Log().Debugf(ctx, "没有找到存储实例，无法保存协议[%s]的统计数据，跳过本次存储！", protocolConfig.Id)
 			return
 		}

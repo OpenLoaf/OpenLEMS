@@ -629,12 +629,20 @@ func (s *sStationEnergyStore) GetReactivePower() (float64, error) {
 	return reactivePower, nil
 }
 
-func (s *sStationEnergyStore) GetRatedPower() uint32 {
+func (s *sStationEnergyStore) GetRatedPower() int32 {
 	// 额定功率累计
-	var ratedPower uint32
+	var ratedPower int32
 	for _, ess := range s.energyStores {
 		value := ess.GetRatedPower()
+		if value == -1 {
+			// -1 代表未知，不统计
+			continue
+		}
 		ratedPower += value
+	}
+	if ratedPower == 0 {
+		// TODO 这里是不是应该改一下，有点奇怪
+		return -1
 	}
 	return ratedPower
 }

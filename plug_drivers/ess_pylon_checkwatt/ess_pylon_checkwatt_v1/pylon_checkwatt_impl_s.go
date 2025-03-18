@@ -166,7 +166,7 @@ func (p *sPylonCheckwattEss) GetCycleCount() (uint, error) {
 	return p.bms.GetCycleCount()
 }
 
-func (p *sPylonCheckwattEss) GetRatedPower() uint32 {
+func (p *sPylonCheckwattEss) GetRatedPower() int32 {
 	return p.pcs.GetRatedPower()
 }
 

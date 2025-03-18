@@ -23,6 +23,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 	s.Use(ghttp.MiddlewareHandlerResponse, ghttp.MiddlewareNeverDoneCtx, MiddlewareErrorHandler)
 
 	s.Group("/api", func(group *ghttp.RouterGroup) {
+
 		group.Middleware(
 			ghttp.MiddlewareCORS,
 			func(r *ghttp.Request) {

@@ -1,13 +1,16 @@
-go 1.23.0
+go 1.24.1
 
 use (
 
 	./plug_drivers/ammeter_acrel_10r
 	./plug_drivers/bms_pylon_tech_us108
+	./plug_drivers/bms_lnxall
 	./plug_drivers/ess_pylon_checkwatt
 	./plug_drivers/gpio_basic
 	./plug_drivers/pcs_star_charge_100E
+	./plug_drivers/pcs_lnxall
 	./plug_drivers/sess_basic
+	./plug_drivers/ess_boost_lnxall
 
 	./plug_protocols/canbus
 	./plug_protocols/gpio_sysfs

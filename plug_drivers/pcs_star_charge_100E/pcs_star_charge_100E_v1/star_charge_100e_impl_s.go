@@ -143,7 +143,7 @@ func (s *sStarCharge100EPcs) GetReactivePower() (float64, error) {
 	return s.GetFloat64Value(TotalReactivePowerInverterSide)
 }
 
-func (s *sStarCharge100EPcs) GetRatedPower() uint32 {
+func (s *sStarCharge100EPcs) GetRatedPower() int32 {
 	return 100
 }
 

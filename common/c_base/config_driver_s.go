@@ -13,6 +13,7 @@ type SDriverConfig struct {
 	ProtocolId         string            `json:"protocolId,omitempty" orm:"protocolId"`            // 协议配置ID,如果配置了肯定是实体设备
 	Driver             string            `json:"driver,omitempty" orm:"driver"`                    // 驱动名称
 	IsEnable           bool              `json:"enable" orm:"isEnable"`                            // 是否启用
+	StorageEnable      bool              `json:"StorageEnable" orm:"StorageEnable"`                // 是否存储
 	StorageIntervalSec int32             `json:"storageIntervalSec" orm:"storageIntervalSec"`      // 存储间隔(秒),0代表默认1分钟，负数代表不存储
 	LogLevel           string            `json:"logLevel,omitempty" orm:"logLevel"`                // 日志等级
 	Params             map[string]string `json:"params,omitempty" orm:"params"`                    // 额外参数

@@ -1,0 +1,130 @@
+## 派能
+storage:
+  enable: true
+  type: influxdb2
+  url: http://124.221.64.180:8086
+#  database: mydb
+#  username: test
+#  password: 123456
+  systemMetricsSurvivalDays: 30 # 数据保存天数,0代表永久保存,-1代表不保存
+  params:
+    Token: "64W6GrhaK2XOYUPeI2_y-UKoQsDvGYJRQKrkVXOdRzpg14pTTGEpF-AfsoyeDv3R59zkidymcqJ3_UHsCCwZaA=="
+    Org: "hexems"
+protocols:
+  - id: modbus_local
+    protocol: modbus_tcp
+    logLevel: INFO
+    address: 127.0.0.1:1503
+    timeout: 30
+  - id: modbus_ammeter
+    protocol: modbus_tcp
+    logLevel: INFO
+    address: 192.168.0.100:5000
+    timeout: 30
+  - id: gpio
+    protocol: gpio  # sysfs
+    logLevel: DEBUG
+    address: /Users/zhao/Downloads/gpio
+    params:
+      period: 200 # 读取周期
+
+device:
+  id: root
+  name: XX场站
+  enable: true
+  device-children:
+    - id: station-energy-store
+      name: 储能站
+      driver: sess_basic_v1
+      enable: true
+      logLevel: INFO
+      params:
+        maxCharge: 30
+        maxDischarge: 30
+        capacity: 100
+        modbusServerEnable: true
+        modbusUrl: tcp://0.0.0.0:1506
+      device-children:
+        - id : station-ammeter-1
+          name: 物理安科瑞电表
+          protocolId: modbus_ammeter
+          driver: ammeter_acrel_10r_v1
+          enable: false
+          logLevel: INFO
+          params:
+            unitId: 1
+        - id: ess-1
+          name: 储能柜1
+          driver: ess_pylon_checkwatt_v1
+          enable: true
+          params:
+            maxCharge: 30
+            maxDischarge: 30
+          device-children:
+            - id: star-charge-100E-1
+              name: 本地模拟阳光电源PCS
+              protocolId: modbus_local
+              enable: true
+              driver: pcs_star_charge_100E_v1
+              logLevel: INFO
+              params:
+                unitId: 1
+                ratedPower: 100
+                syncTime: true   # 同步时间
+            - id: pylon-tech-us108-1
+              name: 本地模拟派能MBMS
+              protocolId: modbus_local
+              enable: true
+              driver: bms_pylon_tech_us108_v1
+              logLevel: INFO
+              params:
+                unitId: 2
+                syncTime: true # 同步时间
+                ratedPower: 100
+                capacity: 100
+                maxInputPower: 70
+                maxOutputPower: 70
+#            - id: button-charge
+#              name: 充电开关
+#              driver: gpio_basic_v1
+#              protocolId: gpio
+#              enable: false
+#              params:
+#                io: 280
+#                direction: in
+#            - id: button-discharge
+#              name: 放电开关
+#              driver: gpio_basic_v1
+#              protocolId: gpio
+#              enable: false
+#              params:
+#                io: 280
+#                direction: in
+#                reverse: true
+#  IO 设备
+#        - id: button-scram
+#          name: 急停按钮
+#          driver: gpio_basic_v1
+#          protocolId: gpio
+#          enable: false
+#          params:
+#            io: 280
+#            level: Error
+#            direction: in
+#        - id: led-running
+#          name: 运行指示灯
+#          driver: gpio_basic_v1
+#          protocolId: gpio
+#          enable: false
+#          params:
+#            io: 280
+#            level: Error
+#            direction: out
+#        - id: led-fault
+#          name: 故障指示灯
+#          driver: gpio_basic_v1
+#          protocolId: gpio
+#          enable: false
+#          params:
+#            io: 280
+#            direction: out

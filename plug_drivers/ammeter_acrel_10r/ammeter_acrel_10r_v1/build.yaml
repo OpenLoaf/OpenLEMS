@@ -5,7 +5,7 @@ author: "dynamicoct@qq.com"
 create: "2024-09-07"
 remark: "安科瑞三相电表"
 telemetry:
-    - name: power
+    - name: PTotal
       unit: "Kw"
       remark: "功率"
     - name: Ua

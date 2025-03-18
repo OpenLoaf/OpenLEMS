@@ -1,0 +1,50 @@
+package pcs_lnxall_v1
+
+import (
+	"common/c_base"
+	"modbus/p_modbus"
+	"time"
+)
+
+var GroupAcInfo = &p_modbus.SModbusTask{
+	Name:      "GroupAcInfo",
+	Desc:      "交流电流电压功率",
+	Addr:      Ua.Addr,
+	Quantity:  PF.Addr - Ua.Addr + 1,
+	Function:  p_modbus.MqInputRegisters,
+	CycleMill: 1000,
+	Lifetime:  30 * time.Second,
+	Metas: []*c_base.Meta{
+		Ua, Ub, Uc, Ia, Ib, Ic, Freq,
+		Pa, Pb, Pc, Sa, Sb, Sc, Qa, Qb, Qc,
+		PTotal, QTotal, STotal, PF,
+	},
+}
+
+var GroupDcInfo = &p_modbus.SModbusTask{
+	Name:      "GroupDcInfo",
+	Desc:      "直流信息",
+	Addr:      Vbatt.Addr,
+	Quantity:  Vn.Addr - Vbatt.Addr + 1,
+	Function:  p_modbus.MqInputRegisters,
+	CycleMill: 0,                // 不需要定时读取，需要的时候读取
+	Lifetime:  30 * time.Second, // 30s后过期
+	Metas: []*c_base.Meta{
+		Vbatt, Ibatt, Pdc, Idc, Vbus, Vp, Vn,
+	},
+}
+
+var GroupOtherInfo = &p_modbus.SModbusTask{
+	Name:      "GroupOtherInfo",
+	Desc:      "其他信息",
+	Addr:      Vbatt.Addr,
+	Quantity:  OnlineState.Addr - Vbatt.Addr + 1,
+	Function:  p_modbus.MqInputRegisters,
+	CycleMill: 1000,
+	Lifetime:  30 * time.Second,
+	Metas: []*c_base.Meta{
+		WorkState, IGBTTemp, PaPF, PbPF, PcPF, DcHistoryCharge, DcDayCharge,
+		DcHistoryDischarge, DcDayDischarge, AcHistoryCharge, AcDayCharge, AcHistoryDischarge,
+		AcDayDischarge, OnlineState,
+	},
+}

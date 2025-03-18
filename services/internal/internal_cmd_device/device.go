@@ -111,7 +111,9 @@ func (d *SDeviceCmd) InitDriver(clientCache map[string]modbus.Client, config *c_
 
 	common.RegisterDevice(driver)
 
-	common.RegisterStorageDriver(config.StorageIntervalSec, driver)
+	if config.StorageEnable {
+		common.RegisterStorageDriver(config.StorageIntervalSec, driver)
+	}
 
 	return driver
 }

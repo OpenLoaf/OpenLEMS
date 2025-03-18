@@ -18,7 +18,7 @@ protocols:
   - id: modbus_ammeter
     protocol: modbus_tcp
     logLevel: INFO
-    address: 192.168.0.100:5000
+    address: 192.168.3.66:5002
     timeout: 30
   - id: gpio
     protocol: gpio  # sysfs
@@ -48,7 +48,7 @@ device:
           name: 物理安科瑞电表
           protocolId: modbus_ammeter
           driver: ammeter_acrel_10r_v1
-          enable: false
+          enable: true
           logLevel: INFO
           params:
             unitId: 1
@@ -83,6 +83,8 @@ device:
                 capacity: 100
                 maxInputPower: 70
                 maxOutputPower: 70
+
+
 #            - id: button-charge
 #              name: 充电开关
 #              driver: gpio_basic_v1

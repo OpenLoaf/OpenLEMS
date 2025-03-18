@@ -27,3 +27,4 @@ bin
 ems
 application/manifest/web/*
 tmp
+*.sum

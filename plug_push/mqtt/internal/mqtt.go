@@ -1,76 +1,83 @@
 package internal
 
 import (
-	"encoding/json"
-	"fmt"
-	"os"
+	"common/c_base"
+	"context"
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"time"
 
 	"github.com/eclipse/paho.mqtt.golang"
 )
 
-var f mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
-	fmt.Printf("TOPIC: %s\n", msg.Topic())
-	fmt.Printf("MSG: %s\n", msg.Payload())
+type MqttClient struct {
+	ctx    context.Context
+	config *c_base.SMqttConfig
+	client mqtt.Client
 }
 
-type Message struct {
-	Content   string `json:"content"`
-	Timestamp string `json:"timestamp"`
+func NewMqttClient(ctx context.Context, config *c_base.SMqttConfig) *MqttClient {
+	return &MqttClient{
+		ctx:    ctx,
+		config: config,
+	}
 }
 
-func start() {
+func (c *MqttClient) start() {
+	if c.config == nil {
+		panic("mqtt config is nil")
+	}
+	if c.config.Timeout == 0 {
+		c.config.Timeout = 5000
+	}
+
 	//mqtt.DEBUG = log.New(os.Stdout, "", 0)
 	//mqtt.ERROR = log.New(os.Stdout, "", 0)
-	opts := mqtt.NewClientOptions().AddBroker("tcp://mqtt.test.hexems.com:1883").
-		SetUsername("emqx_go_client").SetPassword("public")
+	opts := mqtt.NewClientOptions().AddBroker(c.config.Url).SetUsername(c.config.Username).SetPassword(c.config.Password)
 
 	opts.SetKeepAlive(60 * time.Second)
 	// 设置消息回调处理函数
-	opts.SetDefaultPublishHandler(f)
-	opts.SetPingTimeout(1 * time.Second)
+	//opts.SetDefaultPublishHandler(f)
+	opts.SetPingTimeout(60 * time.Second)
 
-	c := mqtt.NewClient(opts)
-	defer c.Disconnect(250)
+	c.client = mqtt.NewClient(opts)
 
-	if token := c.Connect(); token.Wait() && token.Error() != nil {
+	if token := c.client.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
+}
 
-	// 订阅主题
-	if token := c.Subscribe("testtopic/#", 0, nil); token.Wait() && token.Error() != nil {
-		fmt.Println(token.Error())
-		os.Exit(1)
+func (c *MqttClient) Subscribe(topic string, qos byte, callback mqtt.MessageHandler) {
+	if token := c.client.Subscribe(topic, qos, callback); token.Wait() && token.Error() != nil {
+		panic(token.Error())
 	}
+}
 
-	// 发布消息
-	for {
-
-		message := Message{
-			Content:   "Hello World With Go Client",
-			Timestamp: time.Now().Format("2006-01-02 15:04:05"),
-		}
-		payload, err := json.Marshal(message)
-		if err != nil {
-			fmt.Println("json.Marshal failed")
-			return
-		}
-
-		token := c.Publish("/ttt/1", 0, false, payload)
-		token.Wait()
-
-		time.Sleep(10 * time.Second)
-
-		// 等到中断信号，断开链接
+func (c *MqttClient) Unsubscribe(topics ...string) {
+	if token := c.client.Unsubscribe(topics...); token.Wait() && token.Error() != nil {
+		panic(token.Error())
 	}
+}
 
-	//// 取消订阅
-	//if token := c.Unsubscribe("testtopic/#"); token.Wait() && token.Error() != nil {
-	//	fmt.Println(token.Error())
-	//	os.Exit(1)
-	//}
+func (c *MqttClient) SendMap(topic string, payload map[string]any) {
+	c.SendStruct(topic, payload)
+}
 
-	// 断开连接
-	//c.Disconnect(250)
-	//time.Sleep(1 * time.Second)
+func (c *MqttClient) SendStruct(topic string, payload interface{}) {
+	j, err := gjson.Encode(payload)
+	if err != nil {
+		panic(err)
+	}
+	c.SendJson(topic, string(j))
+}
+
+func (c *MqttClient) SendJson(topic string, payload string) {
+	token := c.client.Publish(topic, 0, false, payload)
+	token.WaitTimeout(time.Second * time.Duration(c.config.Timeout))
+	if token.Error() != nil {
+		panic(token.Error())
+	}
+}
+
+func (c *MqttClient) Disconnect() {
+	c.client.Disconnect(250)
 }

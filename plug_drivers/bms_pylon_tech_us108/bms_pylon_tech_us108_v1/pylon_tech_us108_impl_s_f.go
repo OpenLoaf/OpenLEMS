@@ -47,7 +47,7 @@ func (p *sPylonTechUs108Bms) Destroy() {
 
 }
 
-func (p *sPylonTechUs108Bms) GetRatedPower() uint32 {
+func (p *sPylonTechUs108Bms) GetRatedPower() int32 {
 	return p.bmsConfig.RatedPower
 }
 

@@ -6,10 +6,12 @@ package internal_cmd_device
 import (
 	"ammeter_acrel_10r_v1/ammeter_acrel_10r_v1"
 	"basic_v1/gpio_basic_v1"
+	"bms_lnxall/bms_lnxall_v1"
 	"common/c_base"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"pcs_lnxall/pcs_lnxall_v1"
 	"pylonTechUs108_v1/bms_pylon_tech_us108_v1"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
@@ -29,6 +31,9 @@ var pluginNewMethodCache = map[string]any{
 	"pcs_star_charge_100E_v1": pcs_star_charge_100E_v1.NewPlugin,
 	"sess_basic_v1":           sess_basic_v1.NewPlugin,
 	"ammeter_acrel_10r_v1":    ammeter_acrel_10r_v1.NewPlugin,
+	"pcs_lnxall_v1":           pcs_lnxall_v1.NewPlugin,
+	"bms_lnxall_v1":           bms_lnxall_v1.NewPlugin,
+	//"ess_boost_lnxall_v1":     ess_boost_lnxall_v1.NewPlugin,
 }
 
 func (d *SDeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IDriver {

@@ -1,6 +1,6 @@
 module common
 
-go 1.22
+go 1.24.1
 
 require (
 	github.com/gogf/gf/v2 v2.7.2

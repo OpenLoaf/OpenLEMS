@@ -43,6 +43,21 @@ func PluginDriverCommand(getDriver func() IDriver) *gcmd.Command {
 			return err
 		},
 	}
-	_ = Main.AddCommand(Version, Info)
+	Metas := &gcmd.Command{
+		Name:  "meta",
+		Brief: "Show meta info",
+		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+			// TODO 这里报错 exception recovered: runtime error: invalid memory address or nil pointer dereference
+			metaList := getDriver().GetMetaValueList()
+			if metaList == nil {
+				fmt.Println("Driver has no meta info")
+			}
+			for _, meta := range metaList {
+				fmt.Printf("%+v\n", meta)
+			}
+			return err
+		},
+	}
+	_ = Main.AddCommand(Version, Info, Metas)
 	return Main
 }

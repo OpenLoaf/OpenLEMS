@@ -19,7 +19,7 @@ type IPcsBasic interface {
 	GetApparentPower() (float64, error)  // 视在功率
 	GetReactivePower() (float64, error)  // 无功功率
 
-	GetRatedPower() uint32               // 额定功率， -1代表未知
+	GetRatedPower() int32                // 额定功率， -1代表未知
 	GetMaxInputPower() (float32, error)  // 最大充电功率、最大输入功率限制
 	GetMaxOutputPower() (float32, error) // 最大放电功率、最大输出功率限制
 

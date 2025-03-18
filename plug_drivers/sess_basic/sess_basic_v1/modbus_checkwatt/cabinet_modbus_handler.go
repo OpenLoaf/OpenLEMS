@@ -100,7 +100,7 @@ func (c *EssHandler) HandleInputRegisters(req *modbus.InputRegistersRequest) (re
 			res[index] = 0xFFFF
 			updateValue(index, res, &wg, 10, 0, c.GetCellAvgVoltage)
 		case 0xF00E: // 0xF00E Rated Power
-			updateValue(index, res, &wg, 1, uint32(0), func() (uint32, error) {
+			updateValue(index, res, &wg, 1, int32(0), func() (int32, error) {
 				return c.GetRatedPower(), nil
 			})
 		case 0xF00F: // 0xF00F Rated RatedPower
