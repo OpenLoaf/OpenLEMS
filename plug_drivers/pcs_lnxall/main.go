@@ -5,7 +5,13 @@ import (
 	"common/c_base"
 	"context"
 	_ "embed"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/gogf/gf/v2/os/gtimer"
+	"github.com/torykit/go-modbus"
 	"pcs_lnxall/pcs_lnxall_v1"
+	"services"
+	"time"
 )
 
 // 通过构建脚本自动注入
@@ -24,12 +30,48 @@ func NewPlugin(ctx context.Context) c_base.IDriver {
 }
 
 func main() {
-	ctx := context.Background()
 	command := c_base.PluginDriverCommand(func() c_base.IDriver {
-		return NewPlugin(ctx)
+		return NewPlugin(context.Background())
 	})
 
 	// 此处可添加自定义命令
-	//command.AddCommand()
-	command.Run(ctx)
+	_ = command.AddCommand(&gcmd.Command{
+		Name:  "test",
+		Usage: "test",
+		Brief: "测试启动",
+		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+			cmd := services.NewDeviceCmd(ctx)
+
+			device := cmd.InitDriver(make(map[string]modbus.Client),
+				&c_base.SDriverConfig{
+					Id:            "pcs",
+					Name:          "协能PCS",
+					ProtocolId:    "test_modbus",
+					StorageEnable: false,
+					Driver:        "pcs_lnxall_v1",
+					IsEnable:      true,
+					LogLevel:      "",
+					Params: map[string]string{
+						"unitId": "2",
+					},
+					DeviceChildren: nil,
+				},
+				[]*c_base.SProtocolConfig{{
+					Id:       "test_modbus",
+					Protocol: "modbus_tcp",
+					Address:  "127.0.0.1:2509",
+					Timeout:  30,
+					LogLevel: "DEBUG",
+					Params:   nil,
+				}})
+
+			gtimer.SetInterval(ctx, 1*time.Second, func(ctx context.Context) {
+				g.Log().Noticef(ctx, "设备[%s]数据:\n%v", device.GetDeviceConfig().Name, device.GetAllTelemetry(device))
+			})
+
+			<-ctx.Done()
+			return err
+		},
+	})
+	command.Run(context.Background())
 }

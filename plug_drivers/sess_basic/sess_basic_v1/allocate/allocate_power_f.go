@@ -24,11 +24,31 @@ AllocatePower
 tol 容差用来确定算法在寻找最优解时的精度。具体来说，当最大约简成本（reduced cost）低于 tol 时，算法认为已经找到了最优解，并终止计算。
 */
 func AllocatePower(totalPower, tol float64, efficiencySegment int, showLog bool, cabinets []*SessBasic) ([]float64, error) {
+	if len(cabinets) == 0 {
+		return nil, gerror.New("cabinets is empty")
+	}
+
 	isCharge := totalPower < 0
 	if isCharge {
 		// 功率为负数，表示充电,变成正数
 		totalPower = -totalPower
 	}
+	if len(cabinets) == 1 { // 处理只有单个柜子的情况
+		if isCharge {
+			maxChargePower := cabinets[0].MaxChargePower
+			if totalPower < maxChargePower {
+				return []float64{totalPower}, nil
+			}
+			return []float64{maxChargePower}, nil
+		} else {
+			maxDischargePower := cabinets[0].MaxDischargePower
+			if totalPower < maxDischargePower {
+				return []float64{totalPower}, nil
+			}
+			return []float64{maxDischargePower}, nil
+		}
+	}
+
 	totalCycleCount := 0 // 总循环次数
 	for _, ess := range cabinets {
 		totalCycleCount += ess.CycleCount

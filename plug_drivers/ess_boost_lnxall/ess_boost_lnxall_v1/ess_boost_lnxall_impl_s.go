@@ -22,6 +22,7 @@ const (
 
 type sEssBoostLnxallEss struct {
 	p_modbus.IModbusProtocol
+	*c_base.SDescription
 	deviceConfig *c_base.SDriverConfig
 	ctx          context.Context
 
@@ -170,10 +171,13 @@ func (s *sEssBoostLnxallEss) GetMetaValueList() []*c_base.MetaValueWrapper {
 
 func GetMetaValueList(driver ...c_base.IDriver) []*c_base.MetaValueWrapper {
 	var metaValueList []*c_base.MetaValueWrapper
-	if driver != nil {
+	if driver == nil {
 		return nil
 	}
 	for _, d := range driver {
+		if d == nil {
+			continue
+		}
 		metaValueList = append(metaValueList, d.GetMetaValueList()...)
 	}
 	return metaValueList
@@ -216,7 +220,7 @@ func (s *sEssBoostLnxallEss) GetSoh() (float32, error) {
 }
 
 func (s *sEssBoostLnxallEss) GetCapacity() (uint32, error) {
-	return s.bms.GetCapacity()
+	return s.GetUint32Value(ESS_RATED_CAPACITY)
 }
 
 func (s *sEssBoostLnxallEss) GetCycleCount() (uint, error) {
@@ -249,6 +253,7 @@ func (s *sEssBoostLnxallEss) GetGridMode() (c_base.EGridMode, error) {
 
 func (s *sEssBoostLnxallEss) SetPower(power int32) error {
 	s.targetPower = power
+	g.Log().Infof(s.ctx, "SetPower(%d)", power)
 	return s.WriteSingleRegister(ESS_SET_AP_POWER, power)
 }
 
@@ -276,23 +281,23 @@ func (s *sEssBoostLnxallEss) GetTargetPowerFactor() float32 {
 }
 
 func (s *sEssBoostLnxallEss) GetPower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.pcs.GetPower()
 }
 
 func (s *sEssBoostLnxallEss) GetApparentPower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.pcs.GetApparentPower()
 }
 
 func (s *sEssBoostLnxallEss) GetReactivePower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.pcs.GetReactivePower()
 }
 
 func (s *sEssBoostLnxallEss) GetRatedPower() int32 {
-	//TODO implement me
-	panic("implement me")
+	value, err := s.GetInt32Value(ESS_RATED_POWER)
+	if err != nil {
+		return 0
+	}
+	return value
 }
 
 func (s *sEssBoostLnxallEss) GetMaxInputPower() (float32, error) {

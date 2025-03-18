@@ -8,8 +8,9 @@ import (
 var GroupController = &p_modbus.SModbusTask{
 	Name:      "GroupController",
 	Desc:      "状态控制",
+	Function:  p_modbus.MqHoldingRegisters,
 	Addr:      ESS_ON_OFF.Addr,
-	Quantity:  ESS_SET_RP_POWER.Addr - ESS_ON_OFF.Addr + 1,
+	Quantity:  ESS_SET_RP_POWER.Addr - ESS_ON_OFF.Addr + 2,
 	CycleMill: 1000,
 	Lifetime:  c_base.DefaultCacheLifeTime,
 	Metas: []*c_base.Meta{
@@ -20,8 +21,9 @@ var GroupController = &p_modbus.SModbusTask{
 var GroupDetail = &p_modbus.SModbusTask{
 	Name:      "GroupDetail",
 	Desc:      "详细信息",
+	Function:  p_modbus.MqInputRegisters,
 	Addr:      LIMIT_ESS_POWER_ENABLE.Addr,
-	Quantity:  ESS_ONLINE_STATUS.Addr - LIMIT_ESS_POWER_ENABLE.Addr + 1,
+	Quantity:  ESS_ONLINE_STATUS.Addr - LIMIT_ESS_POWER_ENABLE.Addr + 2,
 	CycleMill: 1000,
 	Metas: []*c_base.Meta{
 		LIMIT_ESS_POWER_ENABLE, ESS_INVERSE_FLOW_ENABLE, ESS_MAX_DEMAND,

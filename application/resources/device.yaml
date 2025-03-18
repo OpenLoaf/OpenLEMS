@@ -12,8 +12,8 @@ storage:
 protocols:
   - id: modbus_local
     protocol: modbus_tcp
-    logLevel: INFO
-    address: 127.0.0.1:1503
+    logLevel: DEBUG
+    address: 127.0.0.1:2509
     timeout: 30
   - id: modbus_ammeter
     protocol: modbus_tcp
@@ -36,7 +36,7 @@ device:
       name: 储能站
       driver: sess_basic_v1
       enable: true
-      logLevel: INFO
+      logLevel: DEBUG
       params:
         maxCharge: 30
         maxDischarge: 30
@@ -48,41 +48,38 @@ device:
           name: 物理安科瑞电表
           protocolId: modbus_ammeter
           driver: ammeter_acrel_10r_v1
-          enable: true
+          enable: false
           logLevel: INFO
           params:
             unitId: 1
         - id: ess-1
           name: 储能柜1
-          driver: ess_pylon_checkwatt_v1
+          protocolId: modbus_local
+          driver: ess_boost_lnxall_v1
           enable: true
+          logLevel: DEBUG
           params:
+            unitId: 1
             maxCharge: 30
             maxDischarge: 30
           device-children:
-            - id: star-charge-100E-1
-              name: 本地模拟阳光电源PCS
+            - id: pcs-1
+              name: PCS
               protocolId: modbus_local
               enable: true
-              driver: pcs_star_charge_100E_v1
-              logLevel: INFO
-              params:
-                unitId: 1
-                ratedPower: 100
-                syncTime: true   # 同步时间
-            - id: pylon-tech-us108-1
-              name: 本地模拟派能MBMS
-              protocolId: modbus_local
-              enable: true
-              driver: bms_pylon_tech_us108_v1
+              driver: pcs_lnxall_v1
               logLevel: INFO
               params:
                 unitId: 2
-                syncTime: true # 同步时间
                 ratedPower: 100
-                capacity: 100
-                maxInputPower: 70
-                maxOutputPower: 70
+            - id: bms-1
+              name: BMS
+              protocolId: modbus_local
+              enable: true
+              driver: bms_lnxall_v1
+              logLevel: INFO
+              params:
+                unitId: 34
 
 
 #            - id: button-charge

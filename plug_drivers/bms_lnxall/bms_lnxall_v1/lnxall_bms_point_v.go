@@ -16,14 +16,14 @@ var (
 	TEMP_MAX        = &c_base.Meta{Name: "TEMP_MAX", Cn: "电池最高温度", Unit: "℃", Addr: 40021, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 1}
 	TEMP_MAX_RACK   = &c_base.Meta{Name: "TEMP_MAX_RACK", Cn: "电池最高温度所在模块号", Unit: "", Addr: 40023, ReadType: c_base.RUint32, SystemType: c_base.SUint16, Factor: 1}
 	TEMP_MAX_MODULE = &c_base.Meta{Name: "TEMP_MAX_MODULE", Cn: "电池最高温度模块内序号", Unit: "", Addr: 40025, ReadType: c_base.RUint32, SystemType: c_base.SUint16, Factor: 1}
-	TEMP_MIN        = &c_base.Meta{Name: "TEMP_MIN", Cn: "电池最低温度", Unit: "℃", Addr: 40027, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 1}
+	TEMP_MIN        = &c_base.Meta{Name: "TEMP_MIN", Cn: "电池最低温度", Unit: "℃", Addr: 40027, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 1}
 	TEMP_MIN_RACK   = &c_base.Meta{Name: "TEMP_MIN_RACK", Cn: "电池最低温度所在模块号", Unit: "", Addr: 40029, ReadType: c_base.RUint32, SystemType: c_base.SUint16, Factor: 1}
 	TEMP_MIN_MODULE = &c_base.Meta{Name: "TEMP_MIN_MODULE", Cn: "电池最低温度模块内序号", Unit: "", Addr: 40031, ReadType: c_base.RUint32, SystemType: c_base.SUint16, Factor: 1}
 	TEMP_AVG        = &c_base.Meta{Name: "TEMP_AVG", Cn: "电池平均温度", Unit: "℃", Addr: 40033, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 1}
 	BATT_NUM        = &c_base.Meta{Name: "BATT_NUM", Cn: "电池组电池总节数", Unit: "", Addr: 40035, ReadType: c_base.RUint32, SystemType: c_base.SUint16, Factor: 1}
-	BATT_AVG        = &c_base.Meta{Name: "BATT_AVG", Cn: "单体平均电压", Unit: "V", Addr: 40037, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 1}
+	BATT_AVG        = &c_base.Meta{Name: "BATT_AVG", Cn: "单体平均电压", Unit: "V", Addr: 40037, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001}
 
-	BATT_MAX        = &c_base.Meta{Name: "BATT_MAX", Cn: "最高单体电压", Unit: "V", Addr: 40039, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 1}
+	BATT_MAX        = &c_base.Meta{Name: "BATT_MAX", Cn: "最高单体电压", Unit: "V", Addr: 40039, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001}
 	BATT_MAX_RACK   = &c_base.Meta{Name: "BATT_MAX_RACK", Cn: "最高单体电压所在模块号", Unit: "", Addr: 40041, ReadType: c_base.RUint32, SystemType: c_base.SUint16, Factor: 1}
 	BATT_MAX_MODULE = &c_base.Meta{Name: "BATT_MAX_MODULE", Cn: "最高单体电压模块内序号", Unit: "", Addr: 40043, ReadType: c_base.RUint32, SystemType: c_base.SUint16, Factor: 1}
 	BATT_MIN        = &c_base.Meta{Name: "BATT_MIN", Cn: "最低单体电压", Unit: "V", Addr: 40045, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 1}

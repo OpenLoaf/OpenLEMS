@@ -32,6 +32,16 @@ func (p *ModbusProtocolProvider) GetIntValue(meta *c_base.Meta) (int, error) {
 	}
 	return get.Int(), err
 }
+func (p *ModbusProtocolProvider) GetInt32Value(meta *c_base.Meta) (int32, error) {
+	get, err := p.GetValue(meta)
+	if err != nil {
+		return 0, err
+	}
+	if get == nil {
+		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
+	}
+	return get.Int32(), err
+}
 func (p *ModbusProtocolProvider) GetBool(meta *c_base.Meta) (bool, error) {
 	get, err := p.GetValue(meta)
 	if err != nil {
@@ -52,6 +62,17 @@ func (p *ModbusProtocolProvider) GetUintValue(meta *c_base.Meta) (uint, error) {
 		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
 	return get.Uint(), err
+}
+
+func (p *ModbusProtocolProvider) GetUint32Value(meta *c_base.Meta) (uint32, error) {
+	get, err := p.GetValue(meta)
+	if err != nil {
+		return 0, err
+	}
+	if get == nil {
+		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
+	}
+	return get.Uint32(), err
 }
 
 func (p *ModbusProtocolProvider) GetFloat32Value(meta *c_base.Meta) (float32, error) {
