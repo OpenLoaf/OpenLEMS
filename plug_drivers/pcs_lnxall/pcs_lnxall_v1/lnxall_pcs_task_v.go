@@ -12,7 +12,7 @@ var GroupAcInfo = &p_modbus.SModbusTask{
 	Addr:      Ua.Addr,
 	Quantity:  PF.Addr - Ua.Addr + 2,
 	Function:  p_modbus.MqInputRegisters,
-	CycleMill: 1000,
+	CycleMill: 100,
 	Lifetime:  30 * time.Second,
 	Metas: []*c_base.Meta{
 		Ua, Ub, Uc, Ia, Ib, Ic, Freq,

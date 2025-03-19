@@ -54,6 +54,7 @@ func (s *sPcsLnxallPcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	if err != nil {
 		return c_base.EPcsStatusUnknown, err
 	}
+	//g.Log().Noticef(s.ctx, "Pcs状态获取%v", value)
 	switch value {
 	case 0:
 		return c_base.EPcsStatusOff, nil
@@ -63,9 +64,26 @@ func (s *sPcsLnxallPcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
 		return c_base.EPcsStatusStandby, nil
 	case 32:
 		return c_base.EPcsStatusFault, nil
+	case 257:
+		apPower, err := s.GetApparentPower()
+		if err != nil {
+			return c_base.EPcsStatusUnknown, err
+		}
+		if apPower > 0 {
+			return c_base.EPcsStatusCharge, nil
+		}
+		if apPower == 0 {
+			return c_base.EPcsStatusStandby, nil
+		}
+		if apPower < 0 {
+			return c_base.EPcsStatusDischarge, nil
+		}
+
 	default:
 		return c_base.EPcsStatusUnknown, nil
 	}
+
+	return c_base.EPcsStatusUnknown, nil
 
 }
 
@@ -75,8 +93,7 @@ func (s *sPcsLnxallPcs) GetGridMode() (c_base.EGridMode, error) {
 }
 
 func (s *sPcsLnxallPcs) SetPower(power int32) error {
-	//TODO implement me
-	panic("implement me")
+	return s.WriteSingleRegister(PTotal, power)
 }
 
 func (s *sPcsLnxallPcs) SetReactivePower(power int32) error {

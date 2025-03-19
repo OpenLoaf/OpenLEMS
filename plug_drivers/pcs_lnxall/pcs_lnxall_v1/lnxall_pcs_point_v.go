@@ -19,9 +19,9 @@ var (
 	Qa     = &c_base.Meta{Name: "Qa", Cn: "A相无功功率", Unit: "var", Addr: 40027, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 0.1}
 	Qb     = &c_base.Meta{Name: "Qb", Cn: "B相无功功率", Unit: "var", Addr: 40029, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 0.1}
 	Qc     = &c_base.Meta{Name: "Qc", Cn: "C相无功功率", Unit: "var", Addr: 40031, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 0.1}
-	PTotal = &c_base.Meta{Name: "PTotal", Cn: "总有功功率", Unit: "W", Addr: 40033, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 0.1}
-	QTotal = &c_base.Meta{Name: "QTotal", Cn: "总无功功率", Unit: "var", Addr: 40035, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 0.1}
-	STotal = &c_base.Meta{Name: "STotal", Cn: "总视在功率", Unit: "VA", Addr: 40037, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 0.1}
+	PTotal = &c_base.Meta{Name: "PTotal", Cn: "总有功功率", Unit: "W", Addr: 40033, ReadType: c_base.RInt32, SystemType: c_base.SFloat32, Factor: 0.1}
+	QTotal = &c_base.Meta{Name: "QTotal", Cn: "总无功功率", Unit: "var", Addr: 40035, ReadType: c_base.RInt32, SystemType: c_base.SFloat32, Factor: 0.1}
+	STotal = &c_base.Meta{Name: "STotal", Cn: "总视在功率", Unit: "VA", Addr: 40037, ReadType: c_base.RInt32, SystemType: c_base.SFloat32, Factor: 0.1}
 	PF     = &c_base.Meta{Name: "PF", Cn: "功率因数", Unit: "cosφ", Addr: 40039, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 0.01}
 )
 

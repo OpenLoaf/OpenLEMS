@@ -22,9 +22,9 @@ var (
 		Name:      "RealtimeInfo",
 		Desc:      "实时信息",
 		Addr:      Ua.Addr,
-		Quantity:  F.Addr - Ua.Addr + 1,
+		Quantity:  F.Addr - Ua.Addr + 2,
 		Function:  p_modbus.MqHoldingRegisters,
-		CycleMill: 200,
+		CycleMill: 100,
 		Lifetime:  c_base.DefaultCacheLifeTime,
 		Metas:     []*c_base.Meta{Ua, Ub, Uc, Uab, Ubc, Uca, Ia, Ib, Ic, Pa, Pb, Pc, Pt, Qa, Qb, Qc, Qt, Sa, Sb, Sc, St, Pfa, Pfb, Pfc, Pft, F},
 	}

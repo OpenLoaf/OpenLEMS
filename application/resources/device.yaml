@@ -12,8 +12,9 @@ storage:
 protocols:
   - id: modbus_local
     protocol: modbus_tcp
-    logLevel: DEBUG
-    address: 127.0.0.1:2509
+    logLevel: INFO
+#    address: 127.0.0.1:2509
+    address: 172.18.38.50:502
     timeout: 30
   - id: modbus_ammeter
     protocol: modbus_tcp
@@ -36,7 +37,7 @@ device:
       name: 储能站
       driver: sess_basic_v1
       enable: true
-      logLevel: DEBUG
+      logLevel: INFO
       params:
         maxCharge: 30
         maxDischarge: 30
@@ -48,7 +49,7 @@ device:
           name: 物理安科瑞电表
           protocolId: modbus_ammeter
           driver: ammeter_acrel_10r_v1
-          enable: false
+          enable: true
           logLevel: INFO
           params:
             unitId: 1
@@ -57,7 +58,7 @@ device:
           protocolId: modbus_local
           driver: ess_boost_lnxall_v1
           enable: true
-          logLevel: DEBUG
+          logLevel: INFO
           params:
             unitId: 1
             maxCharge: 30

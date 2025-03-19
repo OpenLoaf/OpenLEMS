@@ -12,6 +12,7 @@ import (
 	"ess_lnxall/ess_boost_lnxall_v1"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"pcs_enjoy/pcs_enjoy_basic_v1"
 	"pcs_lnxall/pcs_lnxall_v1"
 	"pylonTechUs108_v1/bms_pylon_tech_us108_v1"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
@@ -30,6 +31,7 @@ var pluginNewMethodCache = map[string]any{
 	"ess_pylon_checkwatt_v1":  ess_pylon_checkwatt_v1.NewPlugin,
 	"gpio_basic_v1":           gpio_basic_v1.NewPlugin,
 	"pcs_star_charge_100E_v1": pcs_star_charge_100E_v1.NewPlugin,
+	"pcs_enjoy_basic_v1":      pcs_enjoy_basic_v1.NewPlugin,
 	"sess_basic_v1":           sess_basic_v1.NewPlugin,
 	"ammeter_acrel_10r_v1":    ammeter_acrel_10r_v1.NewPlugin,
 	"pcs_lnxall_v1":           pcs_lnxall_v1.NewPlugin,

@@ -236,7 +236,16 @@ func (s *sEssBoostLnxallEss) SetReset() error {
 }
 
 func (s *sEssBoostLnxallEss) SetStatus(status c_base.EEnergyStoreStatus) error {
-	return c_error.NonSupportError
+	g.Log().Noticef(s.ctx, "SetStatus(%d)", status)
+	switch status {
+	case c_base.EPcsStatusStandby:
+		return s.WriteSingleRegister(ESS_ON_OFF, 1)
+	case c_base.EPcsStatusOff:
+		return s.WriteSingleRegister(ESS_ON_OFF, 0)
+	default:
+		return c_error.NonSupportError
+	}
+
 }
 
 func (s *sEssBoostLnxallEss) SetGridMode(mode c_base.EGridMode) error {
@@ -253,8 +262,9 @@ func (s *sEssBoostLnxallEss) GetGridMode() (c_base.EGridMode, error) {
 
 func (s *sEssBoostLnxallEss) SetPower(power int32) error {
 	s.targetPower = power
-	g.Log().Infof(s.ctx, "SetPower(%d)", power)
-	return s.WriteSingleRegister(ESS_SET_AP_POWER, power)
+	//g.Log().Infof(s.ctx, "SetPower(%d)", power)
+	//return s.WriteSingleRegister(ESS_SET_AP_POWER, power)
+	return s.pcs.SetPower(power)
 }
 
 func (s *sEssBoostLnxallEss) SetReactivePower(power int32) error {
@@ -268,11 +278,19 @@ func (s *sEssBoostLnxallEss) SetPowerFactor(factor float32) error {
 }
 
 func (s *sEssBoostLnxallEss) GetTargetPower() int32 {
-	return s.targetPower
+	value, err := s.GetInt32Value(ESS_SET_AP_POWER)
+	if err != nil {
+		return 0
+	}
+	return value
 }
 
 func (s *sEssBoostLnxallEss) GetTargetReactivePower() int32 {
-	return s.targetReactivePower
+	value, err := s.GetInt32Value(ESS_SET_RP_POWER)
+	if err != nil {
+		return 0
+	}
+	return value
 }
 
 func (s *sEssBoostLnxallEss) GetTargetPowerFactor() float32 {
@@ -301,11 +319,13 @@ func (s *sEssBoostLnxallEss) GetRatedPower() int32 {
 }
 
 func (s *sEssBoostLnxallEss) GetMaxInputPower() (float32, error) {
-	return s.GetFloat32Value(ESS_MAX_CHARGE_POWER)
+	//return s.GetFloat32Value(ESS_MAX_CHARGE_POWER)
+	return 100.0, nil
 }
 
 func (s *sEssBoostLnxallEss) GetMaxOutputPower() (float32, error) {
-	return s.GetFloat32Value(ESS_MAX_DISCHARGE_POWER)
+	//return s.GetFloat32Value(ESS_MAX_DISCHARGE_POWER)
+	return 100.0, nil
 }
 
 func (s *sEssBoostLnxallEss) GetTodayIncomingQuantity() (float64, error) {
