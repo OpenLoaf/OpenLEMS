@@ -22,11 +22,18 @@ type SessBasic struct {
 /*
 AllocatePower
 tol 容差用来确定算法在寻找最优解时的精度。具体来说，当最大约简成本（reduced cost）低于 tol 时，算法认为已经找到了最优解，并终止计算。
+若efficiencySegment=4且某机柜效率曲线为[0.9, 0.95, 0.92, 0.85]，算法会为该机柜创建4个变量，分别对应不同效率段。优化时，更高效率段（如0.95）的变量可能被优先分配功率，以减少损耗。
 */
 func AllocatePower(totalPower, tol float64, efficiencySegment int, showLog bool, cabinets []*SessBasic) ([]float64, error) {
 	if len(cabinets) == 0 {
 		return nil, gerror.New("cabinets is empty")
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered from panic:", r)
+		}
+	}()
 
 	isCharge := totalPower < 0
 	if isCharge {
@@ -53,6 +60,7 @@ func AllocatePower(totalPower, tol float64, efficiencySegment int, showLog bool,
 	for _, ess := range cabinets {
 		totalCycleCount += ess.CycleCount
 	}
+
 	numCabinets := len(cabinets)
 	numVars := numCabinets
 	if efficiencySegment != 0 {
@@ -75,7 +83,11 @@ func AllocatePower(totalPower, tol float64, efficiencySegment int, showLog bool,
 		}
 
 		// 循环权重
-		cycleWeight := 100.0 - float64(cabinet.CycleCount)/float64(totalCycleCount)*100
+		cycleWeight := 1.0
+		if totalCycleCount != 0 {
+			cycleWeight = 100.0 - float64(cabinet.CycleCount)/float64(totalCycleCount)*100
+		}
+
 		// 功率权重
 		powerWeight := 0.0
 		if isCharge {

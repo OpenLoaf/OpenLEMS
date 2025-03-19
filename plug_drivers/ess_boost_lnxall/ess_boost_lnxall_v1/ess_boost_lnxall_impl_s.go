@@ -262,9 +262,9 @@ func (s *sEssBoostLnxallEss) GetGridMode() (c_base.EGridMode, error) {
 
 func (s *sEssBoostLnxallEss) SetPower(power int32) error {
 	s.targetPower = power
-	//g.Log().Infof(s.ctx, "SetPower(%d)", power)
-	//return s.WriteSingleRegister(ESS_SET_AP_POWER, power)
-	return s.pcs.SetPower(power)
+	g.Log().Infof(s.ctx, "SetPower(%d)", power)
+	return s.WriteSingleRegister(ESS_SET_AP_POWER, power)
+	//return s.pcs.SetPower(power)
 }
 
 func (s *sEssBoostLnxallEss) SetReactivePower(power int32) error {
@@ -311,11 +311,11 @@ func (s *sEssBoostLnxallEss) GetReactivePower() (float64, error) {
 }
 
 func (s *sEssBoostLnxallEss) GetRatedPower() int32 {
-	value, err := s.GetInt32Value(ESS_RATED_POWER)
-	if err != nil {
-		return 0
-	}
-	return value
+	//value, err := s.GetInt32Value(ESS_RATED_POWER)
+	//if err != nil {
+	//	return 0
+	//}
+	return 100
 }
 
 func (s *sEssBoostLnxallEss) GetMaxInputPower() (float32, error) {

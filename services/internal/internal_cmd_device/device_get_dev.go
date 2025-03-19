@@ -9,6 +9,7 @@ import (
 	"bms_lnxall/bms_lnxall_v1"
 	"common/c_base"
 	"context"
+	"ess_boost_gold/ess_boost_gold_v1"
 	"ess_lnxall/ess_boost_lnxall_v1"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -29,6 +30,8 @@ func init() {
 var pluginNewMethodCache = map[string]any{
 	"bms_pylon_tech_us108_v1": bms_pylon_tech_us108_v1.NewPlugin,
 	"ess_pylon_checkwatt_v1":  ess_pylon_checkwatt_v1.NewPlugin,
+	"ess_boost_gold_v1":       ess_boost_gold_v1.NewPlugin,
+	"ess_boost_lnxall_v1":     ess_boost_lnxall_v1.NewPlugin,
 	"gpio_basic_v1":           gpio_basic_v1.NewPlugin,
 	"pcs_star_charge_100E_v1": pcs_star_charge_100E_v1.NewPlugin,
 	"pcs_enjoy_basic_v1":      pcs_enjoy_basic_v1.NewPlugin,
@@ -36,7 +39,6 @@ var pluginNewMethodCache = map[string]any{
 	"ammeter_acrel_10r_v1":    ammeter_acrel_10r_v1.NewPlugin,
 	"pcs_lnxall_v1":           pcs_lnxall_v1.NewPlugin,
 	"bms_lnxall_v1":           bms_lnxall_v1.NewPlugin,
-	"ess_boost_lnxall_v1":     ess_boost_lnxall_v1.NewPlugin,
 }
 
 func (d *SDeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IDriver {

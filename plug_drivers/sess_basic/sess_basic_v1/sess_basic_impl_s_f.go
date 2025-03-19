@@ -10,6 +10,7 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtimer"
+	"github.com/gogf/gf/v2/util/gconv"
 	"gpio_sysfs/p_gpio_sysfs"
 	"station_energy_store/sess_basic_v1/allocate"
 	"station_energy_store/sess_basic_v1/modbus_checkwatt"
@@ -20,6 +21,7 @@ type sStationEnergyStore struct {
 	*c_base.SAlarmHandler
 	*c_base.SDescription
 	deviceConfig *c_base.SDriverConfig
+	sessConfig   *sSessBaseConfig
 
 	ctx          context.Context
 	rootAmmeter  c_device.IAmmeter       // 储能总电表
@@ -40,6 +42,12 @@ func (s *sStationEnergyStore) Destroy() {
 
 func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
 	s.deviceConfig = deviceConfig
+
+	s.sessConfig = &sSessBaseConfig{}
+	err := gconv.Scan(deviceConfig, &s.sessConfig)
+	if err != nil {
+		panic(gerror.Newf("设备配置解析失败！%s", err.Error()))
+	}
 
 	for _, deviceChild := range deviceConfig.DeviceChildren {
 		// 从缓存中获取
@@ -449,6 +457,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 		for _, store := range s.energyStores {
 			_ = store.SetPower(0)
 		}
+		s.targetPower = 0
 		return nil
 	}
 
