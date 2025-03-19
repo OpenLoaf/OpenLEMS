@@ -58,7 +58,42 @@ func (s *sPcsEnjoyBasic) SetGridMode(mode c_base.EGridMode) error {
 }
 
 func (s *sPcsEnjoyBasic) GetStatus() (c_base.EEnergyStoreStatus, error) {
-	return c_base.EPcsStatusUnknown, c_error.NonSupportError
+
+	status, err := s.GetUintValue(Pcs_Status)
+	if err != nil {
+		return c_base.EPcsStatusUnknown, err
+	}
+	// 停机：全 0，表示停机；
+	if status == 0 {
+		return c_base.EPcsStatusOff, nil
+	}
+	// 开机中：Bit0 为 1，Bit2 为 0；
+	if status == 1 {
+		return c_base.EPcsBooting, nil
+	}
+
+	//待机：Bit0、Bit2 都为 1；（0 功率指令）
+	if status == 5 {
+		return c_base.EPcsStatusStandby, nil
+	}
+
+	// Bit0、Bit3 都为 1 或 Bit0、Bit8 都为 1；
+	if status == 257 || status == 258 {
+		// 判断是充电还是放电
+		power, err := s.GetPower()
+		if err != nil {
+			return c_base.EPcsStatusUnknown, err
+		}
+		if power > 0 {
+			return c_base.EPcsStatusDischarge, nil
+		} else {
+			return c_base.EPcsStatusCharge, nil
+		}
+	}
+
+	g.Log().Noticef(s.ctx, "GetStatus : status = %d", status)
+
+	return c_base.EPcsStatusStandby, c_error.NonSupportError
 }
 
 func (s *sPcsEnjoyBasic) GetGridMode() (c_base.EGridMode, error) {
@@ -123,21 +158,17 @@ func (s *sPcsEnjoyBasic) GetMaxOutputPower() (float32, error) {
 }
 
 func (s *sPcsEnjoyBasic) GetTodayIncomingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFloat64Value(Ac_today_charge)
 }
 
 func (s *sPcsEnjoyBasic) GetHistoryIncomingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFloat64Value(Ac_history_charge)
 }
 
 func (s *sPcsEnjoyBasic) GetTodayOutgoingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFloat64Value(Ac_today_discharge)
 }
 
 func (s *sPcsEnjoyBasic) GetHistoryOutgoingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFloat64Value(Ac_history_discharge)
 }

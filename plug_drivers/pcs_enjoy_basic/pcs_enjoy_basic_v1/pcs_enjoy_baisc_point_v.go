@@ -3,6 +3,11 @@ package pcs_enjoy_basic_v1
 import "common/c_base"
 
 var (
+	Ac_history_charge    = &c_base.Meta{Addr: 0x6018, Name: "Ac_history_charge", Cn: "交流历史充电量", ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 1, Unit: "kWh", Desc: "History charge of AC"}
+	Ac_today_charge      = &c_base.Meta{Addr: 0x601A, Name: "Ac_today_charge", Cn: "交流日充电量", ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 1, Unit: "kWh", Desc: "Today charge of AC"}
+	Ac_history_discharge = &c_base.Meta{Addr: 0x601C, Name: "Ac_history_discharge", Cn: "交流历史放电量", ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 1, Unit: "kWh", Desc: "History discharge of AC"}
+	Ac_today_discharge   = &c_base.Meta{Addr: 0x601E, Name: "Ac_today_discharge", Cn: "交流日放电量", ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Factor: 1, Unit: "kWh", Desc: "Today discharge of AC"}
+
 	Ua               = &c_base.Meta{Addr: 0x6023, Name: "Ua", Cn: "A相电压", ReadType: c_base.RInt16, SystemType: c_base.SFloat32, Factor: 0.1, Unit: "V", Desc: "Phase A voltage"}
 	Ub               = &c_base.Meta{Addr: 0x6024, Name: "Ub", Cn: "B相电压", ReadType: c_base.RInt16, SystemType: c_base.SFloat32, Factor: 0.1, Unit: "V", Desc: "Phase B voltage"}
 	Uc               = &c_base.Meta{Addr: 0x6025, Name: "Uc", Cn: "C相电压", ReadType: c_base.RInt16, SystemType: c_base.SFloat32, Factor: 0.1, Unit: "V", Desc: "Phase C voltage"}

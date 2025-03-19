@@ -11,4 +11,5 @@ const (
 	EPcsStatusDischarge                           // 放电
 	EPcsStatusFault                               // 故障
 	EPcsStatusSync                                // 同步中（多个设备的状态不一致）
+	EPcsBooting                                   // 启动中
 )

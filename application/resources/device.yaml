@@ -16,6 +16,12 @@ protocols:
 #    address: 127.0.0.1:2509
     address: 172.18.38.50:502
     timeout: 30
+  - id: modbus_pcs
+    protocol: modbus_tcp
+    logLevel: INFO
+    #    address: 127.0.0.1:2509
+    address: 172.18.39.150:502
+    timeout: 30
   - id: modbus_ammeter
     protocol: modbus_tcp
     logLevel: INFO
@@ -64,14 +70,23 @@ device:
             maxCharge: 30
             maxDischarge: 30
           device-children:
+#            - id: pcs-1
+#              name: PCS
+#              protocolId: modbus_local
+#              enable: true
+#              driver: pcs_lnxall_v1
+#              logLevel: INFO
+#              params:
+#                unitId: 2
+#                ratedPower: 100
             - id: pcs-1
               name: PCS
-              protocolId: modbus_local
+              protocolId: modbus_pcs
               enable: true
-              driver: pcs_lnxall_v1
+              driver: pcs_enjoy_basic_v1
               logLevel: INFO
               params:
-                unitId: 2
+                unitId: 1
                 ratedPower: 100
             - id: bms-1
               name: BMS
