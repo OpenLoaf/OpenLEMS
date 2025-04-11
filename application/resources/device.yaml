@@ -1,5 +1,5 @@
 storage:
-  enable: true
+  enable: false
   type: influxdb2
   url: http://124.221.64.180:8086
 #  database: mydb
@@ -10,35 +10,11 @@ storage:
     Token: "64W6GrhaK2XOYUPeI2_y-UKoQsDvGYJRQKrkVXOdRzpg14pTTGEpF-AfsoyeDv3R59zkidymcqJ3_UHsCCwZaA=="
     Org: "hexems"
 protocols:
-  - id: modbus_local
-    protocol: modbus_tcp
-    logLevel: INFO
-#    address: 127.0.0.1:2509
-    address: 172.18.38.50:502
-    timeout: 30
-  - id: modbus_pcs
-    protocol: modbus_tcp
-    logLevel: INFO
-    #    address: 127.0.0.1:2509
-    address: 172.18.39.150:502
-    timeout: 30
-  - id: modbus_gold
-    protocol: modbus_tcp
-    logLevel: INFO
-    #    address: 127.0.0.1:2509
-    address: 172.18.38.200:502
-    timeout: 30
   - id: modbus_ammeter
     protocol: modbus_tcp
     logLevel: INFO
     address: 192.168.3.66:5002
     timeout: 30
-  - id: gpio
-    protocol: gpio  # sysfs
-    logLevel: DEBUG
-    address: /Users/zhao/Downloads/gpio
-    params:
-      period: 200 # 读取周期
 
 device:
   id: root
@@ -47,7 +23,7 @@ device:
   device-children:
     - id: station-energy-store
       name: 储能站
-      driver: sess_basic_v1
+      driver: sess_basic_v1.0.0
       enable: true
       logLevel: INFO
       params:
@@ -60,95 +36,8 @@ device:
         - id : station-ammeter-1
           name: 物理安科瑞电表
           protocolId: modbus_ammeter
-          driver: ammeter_acrel_10r_v1
-          enable: false
-          logLevel: INFO
-          params:
-            unitId: 1
-        - id: ess-gold
-          name: 高特EMS储能柜
-          protocolId: modbus_gold
-          driver: ess_boost_gold_v1
+          driver: ammeter_acrel_10r_v1.0.0
           enable: true
           logLevel: INFO
           params:
             unitId: 1
-            ratedPower: 100
-            capacity: 200
-            maxCharge: 30
-            maxDischarge: 30
-            usePcsData: false
-        - id: ess-lnxall
-          name: 协能EMS储能柜
-          protocolId: modbus_local
-          driver: ess_boost_lnxall_v1
-          enable: true
-          logLevel: INFO
-          params:
-            unitId: 1
-            maxCharge: 30
-            maxDischarge: 30
-          device-children:
-            - id: pcs-1
-              name: PCS
-              protocolId: modbus_local
-              enable: true
-              driver: pcs_lnxall_v1
-              logLevel: INFO
-              params:
-                unitId: 2
-                ratedPower: 100
-            - id: bms-1
-              name: BMS
-              protocolId: modbus_local
-              enable: true
-              driver: bms_lnxall_v1
-              logLevel: INFO
-              params:
-                unitId: 34
-
-
-#            - id: button-charge
-#              name: 充电开关
-#              driver: gpio_basic_v1
-#              protocolId: gpio
-#              enable: false
-#              params:
-#                io: 280
-#                direction: in
-#            - id: button-discharge
-#              name: 放电开关
-#              driver: gpio_basic_v1
-#              protocolId: gpio
-#              enable: false
-#              params:
-#                io: 280
-#                direction: in
-#                reverse: true
-#  IO 设备
-#        - id: button-scram
-#          name: 急停按钮
-#          driver: gpio_basic_v1
-#          protocolId: gpio
-#          enable: false
-#          params:
-#            io: 280
-#            level: Error
-#            direction: in
-#        - id: led-running
-#          name: 运行指示灯
-#          driver: gpio_basic_v1
-#          protocolId: gpio
-#          enable: false
-#          params:
-#            io: 280
-#            level: Error
-#            direction: out
-#        - id: led-fault
-#          name: 故障指示灯
-#          driver: gpio_basic_v1
-#          protocolId: gpio
-#          enable: false
-#          params:
-#            io: 280
-#            direction: out

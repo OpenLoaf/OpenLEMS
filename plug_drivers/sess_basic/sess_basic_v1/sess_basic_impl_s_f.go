@@ -126,9 +126,9 @@ func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_ba
 			g.Log().Infof(s.ctx, "场站注册急停按钮成功！")
 		}
 	}
-	if len(s.energyStores) == 0 {
-		panic(gerror.Newf("场站储能组：%s 未注册任何储能柜！", deviceConfig.Name))
-	}
+	//if len(s.energyStores) == 0 {
+	//	panic(gerror.Newf("场站储能组：%s 未注册任何储能柜！", deviceConfig.Name))
+	//}
 
 	// 启动modbus server
 	modbus_checkwatt.Start(s.ctx, &modbus_checkwatt.EssHandler{

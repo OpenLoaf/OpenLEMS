@@ -30,7 +30,7 @@ func NewConfigInstance(deviceCfgName, driverPath string) *SConfig {
 		deviceCfgName = "device"
 	}
 	if driverPath == "" {
-		driverPath = "driver"
+		driverPath = "drivers"
 	}
 	configInitOnce.Do(func() {
 		ConfigInstance = &SConfig{
@@ -57,7 +57,7 @@ func openPlugin(ctx context.Context, path string, symName string) (plugin.Symbol
 	// 打开插件
 	p, err := plugin.Open(path)
 	if err != nil {
-		panic(gerror.Newf("打开插件%s失败原因：%v", path, err))
+		panic(gerror.Newf("打开插件%s失败,symName%s。失败原因：%v", path, symName, err))
 	}
 
 	// 查找并使用结构体和函数

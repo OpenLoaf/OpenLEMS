@@ -2,19 +2,21 @@ FROM ubuntu:20.04
 
 # 设置时区，避免交互式安装中的时区选择
 ENV DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Shanghai
 
 RUN apt update -y
 RUN apt install gcc ca-certificates -y && update-ca-certificates
 RUN apt install rsync ssh -y
 
-ADD https://golang.google.cn/dl/go1.23.0.linux-arm64.tar.gz /
-RUN tar -zxvf go1.23.0.linux-arm64.tar.gz
+ADD https://golang.google.cn/dl/go1.24.1.linux-arm64.tar.gz /
+RUN tar -zxvf go1.24.1.linux-arm64.tar.gz
+
+RUN apt install build-essential git
 
 # 设置环境变量
-ENV GO_VERSION 1.23
+ENV GO_VERSION 1.24.1
 ENV GOROOT /go
 ENV PATH /root/go/bin:/go/bin:/usr/local/go/bin:$PATH
+ENV TZ=Asia/Shanghai
 RUN go install github.com/gogf/gf/cmd/gf/v2@latest
 
 #RUN go mod download github.com/gogf/gf/v2@v2.7.2 && \

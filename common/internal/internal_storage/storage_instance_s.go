@@ -24,6 +24,9 @@ type SStorageInstance struct {
 func GetInstance() *SStorageInstance {
 	rwMutex.RLock()
 	defer rwMutex.RUnlock()
+	if sStorageInstance.IStorage == nil {
+		return nil
+	}
 	return sStorageInstance
 }
 
@@ -56,6 +59,10 @@ func RegisterInstance(builder func(ctx context.Context) c_base.IStorage) {
 		ctx:        ctx,
 		cancelFunc: cancelFunc,
 		IStorage:   builder(ctx),
+	}
+	if sStorageInstance.IStorage == nil {
+		g.Log().Infof(sStorageInstance.ctx, "未启动长时存储！")
+		return
 	}
 
 	// 启动系统监测数据保存

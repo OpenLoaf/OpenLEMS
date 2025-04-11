@@ -78,53 +78,25 @@ device:
             maxCharge: 30
             maxDischarge: 30
             usePcsData: false
-#          device-children:
-            #            - id: pcs-1
-            #              name: PCS
-            #              protocolId: modbus_local
-            #              enable: true
-            #              driver: pcs_lnxall_v1.0.0
-            #              logLevel: INFO
-            #              params:
-            #                unitId: 2
-            #                ratedPower: 100
-#            - id: pcs-1
-#              name: PCS
-#              protocolId: modbus_pcs
-#              enable: false
-#              driver: pcs_enjoy_basic_v1.0.0
-#              logLevel: INFO
-#              params:
-#                unitId: 1
-#                ratedPower: 100
         - id: ess-lnxall
           name: 协能EMS储能柜
           protocolId: modbus_local
           driver: ess_boost_lnxall_v1.0.0
-          enable: false
+          enable: true
           logLevel: INFO
           params:
             unitId: 1
             maxCharge: 30
             maxDischarge: 30
           device-children:
-#            - id: pcs-1
-#              name: PCS
-#              protocolId: modbus_local
-#              enable: true
-#              driver: pcs_lnxall_v1.0.0
-#              logLevel: INFO
-#              params:
-#                unitId: 2
-#                ratedPower: 100
             - id: pcs-1
               name: PCS
-              protocolId: modbus_pcs
+              protocolId: modbus_local
               enable: true
-              driver: pcs_enjoy_basic_v1.0.0
+              driver: pcs_lnxall_v1.0.0
               logLevel: INFO
               params:
-                unitId: 1
+                unitId: 2
                 ratedPower: 100
             - id: bms-1
               name: BMS

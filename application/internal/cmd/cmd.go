@@ -44,14 +44,14 @@ var (
 			// 设置默认语言为中文(简体)
 			gi18n.SetLanguage("zh-CN")
 			deviceConfigName := parser.GetOpt(argDeviceConfigName, "device").String()
-			driverConfigName := parser.GetOpt(argDriverConfigName, gfile.Join(pwd, "driver")).String()
+			driverConfigName := parser.GetOpt(argDriverConfigName, gfile.Join(pwd, "drivers")).String()
 			common.SystemInitConfigInstance(deviceConfigName, driverConfigName)
 
 			// 初始化context
 			ctx, cancelFunc := context.WithCancel(context.Background())
 			ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Main")
 
-			g.Log().Infof(ctx, "程序启动！PID：%d", os.Getpid())
+			g.Log().Infof(ctx, "Hex EMS程序启动！PID：%d", os.Getpid())
 			g.Log().Infof(ctx, "加载驱动文件路径：%s", driverConfigName)
 
 			// 启动设备

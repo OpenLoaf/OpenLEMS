@@ -9,12 +9,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 	"strings"
 )
 
 func init() {
-	g.Log().Noticef(context.Background(), "当前环境为生产环境，从driver文件中获取驱动！")
+	//g.Log().Noticef(context.Background(), "当前环境为生产环境，从driver文件中获取驱动！")
 }
 
 // 生产环境下使用驱动加载的方式进行加载

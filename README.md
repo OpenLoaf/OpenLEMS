@@ -34,3 +34,21 @@ Function:
 
 结构体:
 > {Golang类型缩写(大写)}{Name}
+
+
+## 运行
+### 参数
+
+--driver-path=resources/driver --web=true
+
+## 编译
+### 创建镜像
+docker build -t ems-go .
+
+### 启动容器
+docker run -v .:/root/work -ti ems-go /bin/bash
+
+
+## 环境部署
+### influxdb
+https://docs.influxdata.com/influxdb/v2/install/#install-influxdb-as-a-service-with-systemd
