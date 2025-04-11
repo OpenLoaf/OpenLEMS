@@ -29,3 +29,4 @@ application/manifest/web/*
 tmp
 *.sum
 arm-build/manifest/web/*
+arm-build/*.tar.gz

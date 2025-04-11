@@ -20,9 +20,10 @@ type Influxdb1 struct {
 
 func NewInfluxdb1(ctx context.Context, storageConfig *c_base.SStorageConfig) c_base.IStorage {
 	var influxdb1Config = &sInfluxdb1Config{}
+	g.Log().Infof(ctx, "")
 	err := gconv.Struct(storageConfig.Params, influxdb1Config)
 	if err != nil {
-		panic(gerror.Newf("创建Influxdb2实例失败！无法解析params %v", err))
+		panic(gerror.Newf("创建Influxdb1实例失败！无法解析params %v", err))
 	}
 	// Create a new HTTPClient
 	c, err := client.NewHTTPClient(client.HTTPConfig{
@@ -52,12 +53,12 @@ func NewInfluxdb1(ctx context.Context, storageConfig *c_base.SStorageConfig) c_b
 	}
 
 	d.createRetentionIfNotExists("system_policy", storageConfig.SystemMetricsSurvivalDays)
+	d.createRetentionIfNotExists("protocol_policy", storageConfig.SystemMetricsSurvivalDays)
 	return d
 }
 
 func (i *Influxdb1) SaveSystemMetrics(measurement string, tags map[string]string, metrics map[string]any) error {
-	//TODO implement me
-	panic("implement me")
+	return i.write("system_metrics", "protocol_policy", tags, metrics)
 }
 
 func (i *Influxdb1) SaveDevices(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {
@@ -91,7 +92,7 @@ func (i *Influxdb1) write(name, retentionPolicy string, tags map[string]string, 
 		return err
 	}
 
-	point, err := client.NewPoint(name, tags, fields, t...)
+	point, err := client.NewPoint(name, tags, fields, time.Now())
 	if err != nil {
 		g.Log().Errorf(i.ctx, "Error creating InfluxDB Point: %v", err)
 		return err
@@ -188,7 +189,8 @@ func (i *Influxdb1) createRetentionPolicy(rpName, duration, shardDuration string
 func (i *Influxdb1) createDatabaseIfNotExists() error {
 	q := fmt.Sprintf("CREATE DATABASE \"%s\"", i.influxdb1Config.Database)
 	query := client.Query{
-		Command: q,
+		Command:  q,
+		Database: i.influxdb1Config.Database,
 	}
 
 	response, err := i.ct.Query(query)
@@ -199,6 +201,6 @@ func (i *Influxdb1) createDatabaseIfNotExists() error {
 		return response.Error()
 	}
 
-	g.Log().Info(i.ctx, "数据库 \"%s\" 已存在或创建成功\n", i.influxdb1Config.Database)
+	g.Log().Infof(i.ctx, "数据库 \"%s\" 已存在或创建成功", i.influxdb1Config.Database)
 	return nil
 }

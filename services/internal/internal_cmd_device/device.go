@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/os/gproc"
 	"github.com/torykit/go-modbus"
 	"gpio_sysfs"
+	"influxdb_1"
 	"influxdb_2"
 	protocolModbus "modbus"
 	"os"
@@ -39,7 +40,14 @@ func (d *SDeviceCmd) Start() {
 
 	// TODO: 以后搬到其他地方去
 	common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
-		return influxdb_2.NewStorageInstance(ctx, common.GetStorageConfig(ctx))
+		storageConfig := common.GetStorageConfig(ctx)
+		if storageConfig.Type == c_base.EStorageTypeInfluxDB1 {
+			return influxdb_1.NewStorageInstance(ctx, storageConfig)
+		} else if storageConfig.Type == c_base.EStorageTypeInfluxDB2 {
+			return influxdb_2.NewStorageInstance(ctx, storageConfig)
+		} else {
+			return nil
+		}
 	})
 
 	d.InitDriver(make(map[string]modbus.Client), common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))

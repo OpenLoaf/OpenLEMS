@@ -50,5 +50,12 @@ docker run -v .:/root/work -ti ems-go /bin/bash
 
 
 ## 环境部署
-### influxdb
+### influxdb1
+https://docs.influxdata.com/influxdb/v1/introduction/install/
+
+```bash
+sudo apt install influxdb-client
+```
+
+### influxdb2
 https://docs.influxdata.com/influxdb/v2/install/#install-influxdb-as-a-service-with-systemd

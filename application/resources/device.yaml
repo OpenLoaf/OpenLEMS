@@ -1,19 +1,22 @@
 storage:
-  enable: false
-  type: influxdb2
-  url: http://124.221.64.180:8086
-#  database: mydb
-#  username: test
-#  password: 123456
+  enable: true
+  type: influxdb1
+  #  url: http://124.221.64.180:8086
+  url: http://192.168.2.136:8086
+  #  username: test
+  #  password: 123456
   systemMetricsSurvivalDays: 30 # 数据保存天数,0代表永久保存,-1代表不保存
   params:
-    Token: "64W6GrhaK2XOYUPeI2_y-UKoQsDvGYJRQKrkVXOdRzpg14pTTGEpF-AfsoyeDv3R59zkidymcqJ3_UHsCCwZaA=="
-    Org: "hexems"
+    ## influxdb1的配置
+    database: mydb
+    ## influxdb2的配置
+#    Token: "64W6GrhaK2XOYUPeI2_y-UKoQsDvGYJRQKrkVXOdRzpg14pTTGEpF-AfsoyeDv3R59zkidymcqJ3_UHsCCwZaA=="
+#    Org: "hexems"
 protocols:
   - id: modbus_ammeter
     protocol: modbus_tcp
     logLevel: INFO
-    address: 192.168.3.66:5002
+    address: 192.168.1.66:5002
     timeout: 30
 
 device:

@@ -65,12 +65,13 @@ func RegisterInstance(builder func(ctx context.Context) c_base.IStorage) {
 		return
 	}
 
+	// 保存当前的系统信息
+	saveSystemMetrics()
+
 	// 启动系统监测数据保存
 	gtimer.SetInterval(ctx, 1*time.Minute, func(ctx context.Context) {
 		// 保存数据
-		systemInfo := util.GetSystemInfo()
-		_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstSystem, systemInfo, util.GetSystemMetrics())
-		_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstProcess, systemInfo, util.GetProcessInfo())
+		saveSystemMetrics()
 	})
 
 	go func() {
@@ -81,6 +82,12 @@ func RegisterInstance(builder func(ctx context.Context) c_base.IStorage) {
 		sStorageInstance = nil
 		g.Log().Infof(ctx, "存储服务已关闭！")
 	}()
+}
+
+func saveSystemMetrics() {
+	systemInfo := util.GetSystemInfo()
+	_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstSystem, systemInfo, util.GetSystemMetrics())
+	_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstProcess, systemInfo, util.GetProcessInfo())
 }
 
 func (s *SStorageInstance) RegisterDriver(storageIntervalSec int32, driver c_base.IDriver) {
