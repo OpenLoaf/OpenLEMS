@@ -2,6 +2,9 @@ package model
 
 import (
 	"context"
+	"fmt"
+
+	"github.com/gogf/gf/v2/encoding/gjson"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -9,13 +12,34 @@ import (
 // 协议表结构
 type Protocol struct {
 	g.Meta   `orm:"table:protocol"`
-	Id       uint   `json:"id" orm:"id,primary"`
+	Id       string `json:"id" orm:"id,primary"`
 	Name     string `json:"name" orm:"name"`
 	Address  string `json:"address" orm:"address"`
 	Timeout  int64  `json:"timeout" orm:"timeout"`
 	LogLevel string `json:"log_level" orm:"log_level"`
 	// 在sqlite中以json字符串形式存储设备参数
 	Params string `json:"params" orm:"params"`
+}
+
+func (p *Protocol) GetParamsMap() (map[string]string, error) {
+	if p.Params == "" || p.Params == "null" {
+		return map[string]string{}, nil
+	}
+
+	// 先反序列化为 map[string]interface{} 来处理混合类型
+	var paramsMapInterface map[string]interface{}
+	err := gjson.DecodeTo(p.Params, &paramsMapInterface)
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换为 map[string]string
+	paramsMap := make(map[string]string)
+	for key, value := range paramsMapInterface {
+		paramsMap[key] = fmt.Sprintf("%v", value)
+	}
+
+	return paramsMap, nil
 }
 
 // Create 创建协议记录
@@ -25,7 +49,7 @@ func (p *Protocol) Create(ctx context.Context) error {
 }
 
 // GetById 根据ID获取协议记录
-func (p *Protocol) GetById(ctx context.Context, id uint) error {
+func (p *Protocol) GetById(ctx context.Context, id string) error {
 	return g.Model("protocol").Ctx(ctx).Where("id", id).Scan(p)
 }
 
@@ -53,7 +77,7 @@ func (p *Protocol) Delete(ctx context.Context) error {
 }
 
 // DeleteById 根据ID删除协议记录
-func DeleteProtocolById(ctx context.Context, id uint) error {
+func DeleteProtocolById(ctx context.Context, id string) error {
 	_, err := g.Model("protocol").Ctx(ctx).Where("id", id).Delete()
 	return err
 }

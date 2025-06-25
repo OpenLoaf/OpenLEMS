@@ -30,7 +30,7 @@ func Init() {
 	// 创建协议表
 	_, err := g.DB().Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS protocol (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			id TEXT PRIMARY KEY,
 			name TEXT NOT NULL,
 			address TEXT NOT NULL,
 			timeout INTEGER NOT NULL,
@@ -57,10 +57,10 @@ func Init() {
 	// 创建设备表
 	_, err = g.DB().Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS device (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			pid INTEGER NOT NULL,
+			id TEXT PRIMARY KEY,
+			pid TEXT NOT NULL,
 			gid INTEGER NOT NULL,
-			protocol_id INTEGER,
+			protocol_id TEXT,
 			name TEXT NOT NULL,
 			driver TEXT,
 			log_level TEXT,

@@ -11,10 +11,10 @@ import (
 // 设备表结构
 type Device struct {
 	g.Meta     `orm:"table:device"`
-	Id         uint   `json:"id" orm:"id,primary"`
-	Pid        uint   `json:"pid" orm:"pid"`
+	Id         string `json:"id" orm:"id,primary"`
+	Pid        string `json:"pid" orm:"pid"`
 	Gid        uint   `json:"gid" orm:"gid"`
-	ProtocolId uint   `json:"protocol_id" orm:"protocol_id"`
+	ProtocolId string `json:"protocol_id" orm:"protocol_id"`
 	Name       string `json:"name" orm:"name"`
 	Driver     string `json:"driver" orm:"driver"`
 	LogLevel   string `json:"log_level" orm:"log_level"`
@@ -68,7 +68,7 @@ func (d *Device) Create(ctx context.Context) error {
 }
 
 // GetById 根据ID获取设备记录
-func (d *Device) GetById(ctx context.Context, id uint) error {
+func (d *Device) GetById(ctx context.Context, id string) error {
 	return g.Model("device").Ctx(ctx).Where("id", id).Scan(d)
 }
 
@@ -96,7 +96,7 @@ func (d *Device) Delete(ctx context.Context) error {
 }
 
 // DeleteById 根据ID删除设备记录
-func DeleteDeviceById(ctx context.Context, id uint) error {
+func DeleteDeviceById(ctx context.Context, id string) error {
 	_, err := g.Model("device").Ctx(ctx).Where("id", id).Delete()
 	return err
 }
@@ -116,7 +116,7 @@ func GetDevicesByCondition(ctx context.Context, condition g.Map) ([]*Device, err
 }
 
 // GetByPid 根据父设备ID获取子设备列表
-func GetDevicesByPid(ctx context.Context, pid uint) ([]*Device, error) {
+func GetDevicesByPid(ctx context.Context, pid string) ([]*Device, error) {
 	var devices []*Device
 	err := g.Model("device").Ctx(ctx).Where("pid", pid).Scan(&devices)
 	return devices, err
@@ -130,7 +130,7 @@ func GetDevicesByGid(ctx context.Context, gid uint) ([]*Device, error) {
 }
 
 // GetByProtocolId 根据协议ID获取设备列表
-func GetDevicesByProtocolId(ctx context.Context, protocolId uint) ([]*Device, error) {
+func GetDevicesByProtocolId(ctx context.Context, protocolId string) ([]*Device, error) {
 	var devices []*Device
 	err := g.Model("device").Ctx(ctx).Where("protocol_id", protocolId).Scan(&devices)
 	return devices, err
