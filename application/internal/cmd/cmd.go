@@ -4,16 +4,17 @@ import (
 	"common"
 	"common/c_base"
 	"context"
+	"os"
+	"runtime"
+	"services"
+	database "sqlite"
+	"time"
+
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/i18n/gi18n"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/os/gcmd"
-	"github.com/gogf/gf/v2/os/gfile"
 	"github.com/gogf/gf/v2/os/gproc"
-	"os"
-	"runtime"
-	"services"
-	"time"
 )
 
 const (
@@ -36,23 +37,23 @@ var (
 			{Name: argTimeZone, Short: "t", Brief: "Default: zh-CN 设置语言 ", IsArg: false, Orphan: false},
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
-			pwd, err := os.Getwd()
-			if err != nil {
-				return err
-			}
 
 			// 设置默认语言为中文(简体)
 			gi18n.SetLanguage("zh-CN")
-			deviceConfigName := parser.GetOpt(argDeviceConfigName, "device").String()
-			driverConfigName := parser.GetOpt(argDriverConfigName, gfile.Join(pwd, "drivers")).String()
-			common.SystemInitConfigInstance(deviceConfigName, driverConfigName)
+			// deviceConfigName := parser.GetOpt(argDeviceConfigName, "device").String()
+			// driverConfigName := parser.GetOpt(argDriverConfigName, gfile.Join(pwd, "drivers")).String()
+			common.SystemInitConfigInstance(ctx)
 
+			// 初始化数据库表
+			database.Init()
+
+			// database.NewConfigManage(ctx, 1).GetDeviceConfig(ctx)
 			// 初始化context
 			ctx, cancelFunc := context.WithCancel(context.Background())
 			ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Main")
 
 			g.Log().Infof(ctx, "Hex EMS程序启动！PID：%d", os.Getpid())
-			g.Log().Infof(ctx, "加载驱动文件路径：%s", driverConfigName)
+			// g.Log().Infof(ctx, "加载驱动文件路径：%s", driverConfigName)
 
 			// 启动设备
 			deviceCmd := services.NewDeviceCmd(ctx)

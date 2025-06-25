@@ -4,10 +4,11 @@ import (
 	"common/c_base"
 	"common/util"
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gtimer"
 	"sync"
 	"time"
+
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gtimer"
 )
 
 var (
@@ -24,7 +25,7 @@ type SStorageInstance struct {
 func GetInstance() *SStorageInstance {
 	rwMutex.RLock()
 	defer rwMutex.RUnlock()
-	if sStorageInstance.IStorage == nil {
+	if sStorageInstance == nil || sStorageInstance.IStorage == nil {
 		return nil
 	}
 	return sStorageInstance

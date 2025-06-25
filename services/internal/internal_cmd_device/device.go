@@ -4,15 +4,15 @@ import (
 	"common"
 	"common/c_base"
 	"context"
+	"fmt"
+	"gpio_sysfs"
+	protocolModbus "modbus"
+	"os"
+
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gproc"
 	"github.com/torykit/go-modbus"
-	"gpio_sysfs"
-	"influxdb_1"
-	"influxdb_2"
-	protocolModbus "modbus"
-	"os"
 )
 
 type SDeviceCmd struct {
@@ -39,16 +39,16 @@ func (d *SDeviceCmd) Start() {
 	}()
 
 	// TODO: 以后搬到其他地方去
-	common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
-		storageConfig := common.GetStorageConfig(ctx)
-		if storageConfig.Type == c_base.EStorageTypeInfluxDB1 {
-			return influxdb_1.NewStorageInstance(ctx, storageConfig)
-		} else if storageConfig.Type == c_base.EStorageTypeInfluxDB2 {
-			return influxdb_2.NewStorageInstance(ctx, storageConfig)
-		} else {
-			return nil
-		}
-	})
+	//common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
+	//	storageConfig := common.GetStorageConfig(ctx)
+	//	if storageConfig.Type == c_base.EStorageTypeInfluxDB1 {
+	//		return influxdb_1.NewStorageInstance(ctx, storageConfig)
+	//	} else if storageConfig.Type == c_base.EStorageTypeInfluxDB2 {
+	//		return influxdb_2.NewStorageInstance(ctx, storageConfig)
+	//	} else {
+	//		return nil
+	//	}
+	//})
 
 	d.InitDriver(make(map[string]modbus.Client), common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))
 }
@@ -65,6 +65,8 @@ func (d *SDeviceCmd) Stop() {
 }
 
 func (d *SDeviceCmd) InitDriver(clientCache map[string]modbus.Client, config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver {
+
+	fmt.Print(config, "config")
 	if err := config.Check(); err != nil {
 		panic(err)
 	}

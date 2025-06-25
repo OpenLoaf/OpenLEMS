@@ -1,5 +1,5 @@
 storage:
-  enable: true
+  enable: false
   type: influxdb1
   #  url: http://124.221.64.180:8086
   url: http://192.168.2.136:8086

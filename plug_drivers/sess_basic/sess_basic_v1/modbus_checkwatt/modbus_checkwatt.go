@@ -3,6 +3,7 @@ package modbus_checkwatt
 import (
 	"common/c_base"
 	"context"
+	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
@@ -25,6 +26,7 @@ func Start(ctx context.Context, handler modbus.RequestHandler, deviceConfig *c_b
 	}
 	var server *modbus.ModbusServer
 
+	fmt.Print(config, "config")
 	// create the server object
 	server, err = modbus.NewServer(&modbus.ServerConfiguration{
 		// listen on localhost port 5502
