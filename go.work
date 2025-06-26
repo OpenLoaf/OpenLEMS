@@ -21,6 +21,7 @@ use (
 
 	./plug_storages/influxdb_1
 	./plug_storages/influxdb_2
+	./plug_storages/pebbledb
 	./plug_storages/sqlite
 	./services
 	application

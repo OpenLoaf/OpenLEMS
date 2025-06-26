@@ -27,6 +27,15 @@ func Start(ctx context.Context, handler modbus.RequestHandler, deviceConfig *c_b
 	var server *modbus.ModbusServer
 
 	fmt.Print(config, "config")
+	s := &modbus.ServerConfiguration{
+		// listen on localhost port 5502
+		URL: config.GetModbusUrl(),
+		// close idle connections after 30s of inactivity
+		Timeout: config.GetTimeout() * time.Second,
+		// accept 5 concurrent connections max.
+		MaxClients: config.GetMaxClients(),
+	}
+	g.Log().Info(ctx, "%v", s)
 	// create the server object
 	server, err = modbus.NewServer(&modbus.ServerConfiguration{
 		// listen on localhost port 5502

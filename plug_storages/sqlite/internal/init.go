@@ -10,6 +10,11 @@ import (
 )
 
 func Init() {
+	initConfigDatabase()
+}
+
+// 初始化配置数据库
+func initConfigDatabase() {
 	ctx := gctx.New()
 
 	// 确保数据库目录存在
@@ -72,5 +77,5 @@ func Init() {
 		g.Log().Fatal(ctx, err)
 	}
 
-	g.Log().Info(ctx, "Tables created successfully")
+	g.Log().Info(ctx, "Config tables created successfully")
 }
