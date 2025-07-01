@@ -4,379 +4,447 @@ import (
 	"common/c_base"
 	"encoding/json"
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/cockroachdb/pebble"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
-// DeviceDataResult 设备数据查询结果
-type DeviceDataResult struct {
-	DeviceID   string                 `json:"device_id"`
-	DeviceType string                 `json:"device_type"`
-	Timestamp  int64                  `json:"timestamp"`
-	Fields     map[string]interface{} `json:"fields"`
+type XAxis struct {
+	Type string   `json:"type"`
+	Data []string `json:"data"`
 }
 
-// ProtocolMetricsResult 协议指标数据查询结果
-type ProtocolMetricsResult struct {
-	DeviceID        string                 `json:"device_id"`
-	DeviceName      string                 `json:"device_name"`
-	ProtocolID      string                 `json:"protocol_id"`
-	ProtocolAddress string                 `json:"protocol_address"`
-	ProtocolType    string                 `json:"protocol_type"`
-	Timestamp       int64                  `json:"timestamp"`
-	Metrics         map[string]interface{} `json:"metrics"`
+type SeriesItem struct {
+	Name string   `json:"name"`
+	Type string   `json:"type"`
+	Data []string `json:"data"`
 }
 
-// SystemMetricsResult 系统指标数据查询结果
-type SystemMetricsResult struct {
-	Measurement string                 `json:"measurement"`
-	Tags        map[string]string      `json:"tags"`
-	Timestamp   int64                  `json:"timestamp"`
-	Metrics     map[string]interface{} `json:"metrics"`
+type ChartData struct {
+	XAxis  XAxis        `json:"xAxis"`
+	Series []SeriesItem `json:"series"`
 }
 
-// GetDeviceData 根据设备ID获取设备数据
-func (p *Pebbledb) GetDeviceData(deviceID string, limit int) ([]*DeviceDataResult, error) {
-	if limit <= 0 {
-		limit = 100 // 默认限制100条
+// PebbleItem 表示单个数据项
+type PebbleItem struct {
+	Key       string `json:"key"`
+	Value     []byte `json:"value"`
+	Timestamp int    `json:"timestamp"`
+}
+
+func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) (map[string]any, error) {
+	switch storageType {
+	case c_base.StorageTypeDevice:
+		// 键名：device/{deviceId}/{timestamp}
+		data, err := GetChartData(p.db.DeviceDb, fmt.Sprintf("device/%s", id), pointKey, startTime, endTime, step, "metrics")
+		if err != nil {
+			return nil, err
+		}
+
+		return map[string]any{
+			"data": data,
+		}, nil
+	case c_base.StorageTypeProtocol:
+		// 键名：protocol/{protocolId}/{timestamp}
+		data, err := GetChartData(p.db.ProtocolDb, fmt.Sprintf("protocol/%s", id), pointKey, startTime, endTime, step, "metrics")
+		log.Println("data", data)
+		if err != nil {
+			return nil, err
+		}
+		return map[string]any{
+			"data": data,
+		}, nil
+	case c_base.StorageTypeSystem:
+		// 键名：system/{measurement}/{timestamp}
+		data, err := GetChartData(p.db.SystemDb, fmt.Sprintf("system/%s", id), pointKey, startTime, endTime, step, "metrics")
+		if err != nil {
+			return nil, err
+		}
+		return map[string]any{
+			"data": data,
+		}, nil
+	default:
+		return nil, nil
+	}
+}
+
+// GetPagesByTimeRange 根据时间范围查询数据（key格式：prefix/timestamp）
+// prefix: 键前缀
+// startTime: 开始时间戳，nil表示左边界全开
+// endTime: 结束时间戳，nil表示右边界全开
+// page: 页码（从1开始）
+// pageSize: 每页大小
+// sortOrder: 排序方式 ("asc" 或 "desc")
+// step: 时间间隔（毫秒），如60000表示按分钟查询，<=0表示不按间隔过滤
+// 返回分页结果和总数
+func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) ([]PebbleItem, int, error) {
+	// 验证参数
+	needPaging := true
+	if page <= 0 && pageSize <= 0 {
+		// 如果都没传或都为0，则不分页，返回所有数据
+		needPaging = false
+	} else {
+		// 如果传了分页参数，则设置默认值
+		if page < 1 {
+			page = 1
+		}
+		if pageSize < 1 {
+			pageSize = 10
+		}
 	}
 
-	var results []*DeviceDataResult
-	// 修复：使用通配符来匹配所有设备类型下的设备ID
-	prefix := fmt.Sprintf("devices/")
+	if sortOrder != "asc" && sortOrder != "desc" {
+		sortOrder = "asc" // 默认升序
+	}
 
-	iter, _ := p.db.NewIter(&pebble.IterOptions{
-		LowerBound: []byte(prefix),
-		UpperBound: []byte(fmt.Sprintf("%s~", prefix)),
+	// 构造查询范围的边界
+	var lowerBound, upperBound []byte
+
+	if prefix == "" {
+		// prefix为空时，查询所有键
+		if startTime != nil && *startTime != 0 {
+			startKey := fmt.Sprintf("%d", *startTime)
+			lowerBound = []byte(startKey)
+		} else {
+			lowerBound = nil // 不设置下界，从头开始
+		}
+
+		if endTime != nil && *endTime != 0 {
+			endKey := fmt.Sprintf("%d", *endTime)
+			upperBound = []byte(endKey + "z") // 添加后缀确保包含endKey
+		} else {
+			upperBound = nil // 不设置上界，查询到末尾
+		}
+	} else {
+		// 有prefix的情况
+		if startTime != nil && *startTime != 0 {
+			startKey := fmt.Sprintf("%s/%d", prefix, *startTime)
+			lowerBound = []byte(startKey)
+		} else {
+			// 左边界全开，从prefix开始
+			lowerBound = []byte(prefix + "/")
+		}
+
+		if endTime != nil && *endTime != 0 {
+			endKey := fmt.Sprintf("%s/%d", prefix, *endTime)
+			upperBound = []byte(endKey + "z") // 添加后缀确保包含endKey
+		} else {
+			// 右边界全开，不设置upperBound，通过前缀的下一个字典序字符串作为上界
+			prefixBytes := []byte(prefix)
+			upperBound = make([]byte, len(prefixBytes))
+			copy(upperBound, prefixBytes)
+			// 将最后一个字符+1，创建前缀的上界
+			upperBound[len(upperBound)-1]++
+		}
+	}
+
+	iter, err := p.NewIter(&pebble.IterOptions{
+		LowerBound: lowerBound,
+		UpperBound: upperBound,
 	})
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to create iterator: %w", err)
+	}
 	defer iter.Close()
 
-	for iter.First(); iter.Valid() && len(results) < limit; iter.Next() {
-		// 检查键名是否包含目标设备ID
-		key := string(iter.Key())
-		// 键名格式：devices/{deviceType}/{deviceId}/{timestamp}
-		parts := strings.Split(key, "/")
-		if len(parts) < 3 || parts[2] != deviceID {
-			continue
-		}
+	// 收集所有匹配的数据
+	var allData []PebbleItem
 
-		var data map[string]interface{}
-		if err := json.Unmarshal(iter.Value(), &data); err != nil {
-			g.Log().Errorf(p.ctx, "解析设备数据失败: %v, key: %s", err, string(iter.Key()))
-			continue
-		}
+	for iter.First(); iter.Valid(); iter.Next() {
+		keyStr := string(iter.Key())
+		var timestampStr string
+		var timestamp int
+		var err error
 
-		result := &DeviceDataResult{
-			DeviceID:   fmt.Sprintf("%v", data["device_id"]),
-			DeviceType: fmt.Sprintf("%v", data["device_type"]),
-			Timestamp:  int64(data["timestamp"].(float64)),
-			Fields:     data["fields"].(map[string]interface{}),
-		}
-		results = append(results, result)
-	}
-
-	// 按时间戳倒序排列（最新的在前）
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Timestamp > results[j].Timestamp
-	})
-
-	return results, nil
-}
-
-// GetDeviceDataByType 根据设备类型获取设备数据
-func (p *Pebbledb) GetDeviceDataByType(deviceType c_base.EDeviceType, limit int) ([]*DeviceDataResult, error) {
-	if limit <= 0 {
-		limit = 100
-	}
-
-	var results []*DeviceDataResult
-	prefix := fmt.Sprintf("devices/%s/", string(deviceType))
-
-	iter, _ := p.db.NewIter(&pebble.IterOptions{
-		LowerBound: []byte(prefix),
-		UpperBound: []byte(fmt.Sprintf("%s~", prefix)),
-	})
-	defer iter.Close()
-
-	for iter.First(); iter.Valid() && len(results) < limit; iter.Next() {
-		var data map[string]interface{}
-		if err := json.Unmarshal(iter.Value(), &data); err != nil {
-			g.Log().Errorf(p.ctx, "解析设备数据失败: %v, key: %s", err, string(iter.Key()))
-			continue
-		}
-
-		result := &DeviceDataResult{
-			DeviceID:   fmt.Sprintf("%v", data["device_id"]),
-			DeviceType: fmt.Sprintf("%v", data["device_type"]),
-			Timestamp:  int64(data["timestamp"].(float64)),
-			Fields:     data["fields"].(map[string]interface{}),
-		}
-		results = append(results, result)
-	}
-
-	// 按时间戳倒序排列
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Timestamp > results[j].Timestamp
-	})
-
-	return results, nil
-}
-
-// GetDeviceDataByTimeRange 根据时间范围获取设备数据
-func (p *Pebbledb) GetDeviceDataByTimeRange(deviceID string, startTime, endTime time.Time, limit int) ([]*DeviceDataResult, error) {
-	if limit <= 0 {
-		limit = 1000
-	}
-
-	var results []*DeviceDataResult
-	// 修复：使用通配符来匹配所有设备类型下的设备ID
-	prefix := fmt.Sprintf("devices/")
-
-	iter, _ := p.db.NewIter(&pebble.IterOptions{
-		LowerBound: []byte(prefix),
-		UpperBound: []byte(fmt.Sprintf("%s~", prefix)),
-	})
-	defer iter.Close()
-
-	startTimestamp := startTime.Unix()
-	endTimestamp := endTime.Unix()
-
-	for iter.First(); iter.Valid() && len(results) < limit; iter.Next() {
-		// 检查键名是否包含目标设备ID
-		key := string(iter.Key())
-		// 键名格式：devices/{deviceType}/{deviceId}/{timestamp}
-		parts := strings.Split(key, "/")
-		if len(parts) < 3 || parts[2] != deviceID {
-			continue
-		}
-
-		var data map[string]interface{}
-		if err := json.Unmarshal(iter.Value(), &data); err != nil {
-			continue
-		}
-
-		timestamp := int64(data["timestamp"].(float64))
-		if timestamp >= startTimestamp && timestamp <= endTimestamp {
-			result := &DeviceDataResult{
-				DeviceID:   fmt.Sprintf("%v", data["device_id"]),
-				DeviceType: fmt.Sprintf("%v", data["device_type"]),
-				Timestamp:  timestamp,
-				Fields:     data["fields"].(map[string]interface{}),
+		if prefix == "" {
+			// prefix为空时，尝试解析整个key作为时间戳，或者key中包含时间戳
+			// 如果key包含"/"，取最后一部分作为时间戳
+			if strings.Contains(keyStr, "/") {
+				parts := strings.Split(keyStr, "/")
+				timestampStr = parts[len(parts)-1]
+			} else {
+				// 整个key作为时间戳
+				timestampStr = keyStr
 			}
-			results = append(results, result)
-		}
-	}
 
-	// 按时间戳排序
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Timestamp > results[j].Timestamp
-	})
+			timestamp, err = strconv.Atoi(timestampStr)
+			if err != nil {
+				continue // 跳过无效的时间戳
+			}
+		} else {
+			// 检查key是否符合预期格式
+			if !strings.HasPrefix(keyStr, prefix+"/") {
+				continue
+			}
 
-	return results, nil
-}
+			// 提取时间戳并验证范围
+			parts := strings.Split(keyStr, "/")
+			if len(parts) < 2 {
+				continue
+			}
 
-// GetProtocolMetrics 获取协议指标数据
-func (p *Pebbledb) GetProtocolMetrics(deviceID string, limit int) ([]*ProtocolMetricsResult, error) {
-	if limit <= 0 {
-		limit = 100
-	}
-
-	var results []*ProtocolMetricsResult
-	prefix := fmt.Sprintf("protocol_metrics/%s", deviceID)
-
-	iter, _ := p.db.NewIter(&pebble.IterOptions{
-		LowerBound: []byte(prefix),
-		UpperBound: []byte(fmt.Sprintf("%s~", prefix)),
-	})
-	defer iter.Close()
-
-	for iter.First(); iter.Valid() && len(results) < limit; iter.Next() {
-		var data map[string]interface{}
-		if err := json.Unmarshal(iter.Value(), &data); err != nil {
-			g.Log().Errorf(p.ctx, "解析协议指标数据失败: %v, key: %s", err, string(iter.Key()))
-			continue
+			timestampStr = parts[len(parts)-1]
+			timestamp, err = strconv.Atoi(timestampStr)
+			if err != nil {
+				continue // 跳过无效的时间戳
+			}
 		}
 
-		result := &ProtocolMetricsResult{
-			DeviceID:        fmt.Sprintf("%v", data["device_id"]),
-			DeviceName:      fmt.Sprintf("%v", data["device_name"]),
-			ProtocolID:      fmt.Sprintf("%v", data["protocol_id"]),
-			ProtocolAddress: fmt.Sprintf("%v", data["protocol_address"]),
-			ProtocolType:    fmt.Sprintf("%v", data["protocol_type"]),
-			Timestamp:       int64(data["timestamp"].(float64)),
-			Metrics:         data["metrics"].(map[string]interface{}),
+		// 检查时间戳是否在范围内
+		inRange := true
+		if startTime != nil && *startTime != 0 && timestamp < *startTime {
+			inRange = false
 		}
-		results = append(results, result)
-	}
-
-	// 按时间戳倒序排列
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Timestamp > results[j].Timestamp
-	})
-
-	return results, nil
-}
-
-// GetSystemMetrics 获取系统指标数据
-func (p *Pebbledb) GetSystemMetrics(measurement string, limit int) ([]*SystemMetricsResult, error) {
-	if limit <= 0 {
-		limit = 100
-	}
-
-	var results []*SystemMetricsResult
-	prefix := fmt.Sprintf("system_metrics/%s", measurement)
-
-	iter, _ := p.db.NewIter(&pebble.IterOptions{
-		LowerBound: []byte(prefix),
-		UpperBound: []byte(fmt.Sprintf("%s~", prefix)),
-	})
-	defer iter.Close()
-
-	for iter.First(); iter.Valid() && len(results) < limit; iter.Next() {
-		var data map[string]interface{}
-		if err := json.Unmarshal(iter.Value(), &data); err != nil {
-			g.Log().Errorf(p.ctx, "解析系统指标数据失败: %v, key: %s", err, string(iter.Key()))
-			continue
+		if endTime != nil && *endTime != 0 && timestamp > *endTime {
+			inRange = false
 		}
 
-		result := &SystemMetricsResult{
-			Measurement: fmt.Sprintf("%v", data["measurement"]),
-			Timestamp:   int64(data["timestamp"].(float64)),
-			Metrics:     data["metrics"].(map[string]interface{}),
-		}
-
-		// 安全处理tags字段
-		if tagsInterface, ok := data["tags"]; ok {
-			if tagsMap, ok := tagsInterface.(map[string]interface{}); ok {
-				result.Tags = make(map[string]string)
-				for k, v := range tagsMap {
-					result.Tags[k] = fmt.Sprintf("%v", v)
+		// 检查时间间隔步长
+		if inRange && step > 0 {
+			// 如果设置了起始时间，从起始时间开始按step间隔过滤
+			if startTime != nil && *startTime != 0 {
+				if (timestamp-*startTime)%step != 0 {
+					inRange = false
+				}
+			} else {
+				// 如果没有设置起始时间，则按时间戳对step取模
+				if timestamp%step != 0 {
+					inRange = false
 				}
 			}
 		}
 
-		results = append(results, result)
-	}
+		if inRange {
+			key := make([]byte, len(iter.Key()))
+			copy(key, iter.Key())
 
-	// 按时间戳倒序排列
-	sort.Slice(results, func(i, j int) bool {
-		return results[i].Timestamp > results[j].Timestamp
-	})
+			value := make([]byte, len(iter.Value()))
+			copy(value, iter.Value())
 
-	return results, nil
-}
-
-// GetAllKeys 获取所有键名（用于调试）
-func (p *Pebbledb) GetAllKeys(prefix string, limit int) ([]string, error) {
-	if limit <= 0 {
-		limit = 1000
-	}
-
-	var keys []string
-	var iterOptions *pebble.IterOptions
-
-	if prefix != "" {
-		iterOptions = &pebble.IterOptions{
-			LowerBound: []byte(prefix),
-			UpperBound: []byte(fmt.Sprintf("%s~", prefix)),
+			allData = append(allData, PebbleItem{
+				Key:       string(key),
+				Value:     value,
+				Timestamp: timestamp,
+			})
 		}
 	}
 
-	iter, _ := p.db.NewIter(iterOptions)
-	defer iter.Close()
-
-	for iter.First(); iter.Valid() && len(keys) < limit; iter.Next() {
-		keys = append(keys, string(iter.Key()))
+	if err := iter.Error(); err != nil {
+		return nil, 0, fmt.Errorf("iterator error: %w", err)
 	}
 
-	return keys, nil
+	// 排序数据
+	if sortOrder == "asc" {
+		// 升序排列（时间戳从小到大）
+		sort.Slice(allData, func(i, j int) bool {
+			return allData[i].Timestamp < allData[j].Timestamp
+		})
+	} else {
+		// 降序排列（时间戳从大到小）
+		sort.Slice(allData, func(i, j int) bool {
+			return allData[i].Timestamp > allData[j].Timestamp
+		})
+	}
+
+	// 计算分页
+	total := len(allData)
+
+	if !needPaging {
+		// 不分页，返回所有数据
+		return allData, total, nil
+	}
+
+	// 进行分页
+	startIndex := (page - 1) * pageSize
+	endIndex := startIndex + pageSize
+
+	if startIndex >= total {
+		// 页码超出范围，返回空结果
+		return []PebbleItem{}, total, nil
+	}
+
+	if endIndex > total {
+		endIndex = total
+	}
+
+	// 构建分页结果
+	result := allData[startIndex:endIndex]
+
+	return result, total, nil
 }
 
-// GetDataByKey 根据完整键名获取数据（用于调试）
-func (p *Pebbledb) GetDataByKey(key string) (map[string]interface{}, error) {
-	value, closer, err := p.db.Get([]byte(key))
+// GetChartData根据时间范围查询数据（key格式：prefix/timestamp）
+// prefix: 键前缀
+// points: 点位列表
+// startTime: 开始时间戳，nil表示左边界全开
+// endTime: 结束时间戳，nil表示右边界全开
+// step: 时间间隔（毫秒），如60000表示按分钟查询，<=0表示不按间隔过滤
+// tag: 标签， 获取到数据后，根据tag过滤数据
+// 返回分页结果和总数
+func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTime *int, step int, tag string) (*ChartData, error) {
+
+	// 构造查询范围的边界
+	var lowerBound, upperBound []byte
+
+	if prefix == "" {
+		// prefix为空时，查询所有键
+		if startTime != nil && *startTime != 0 {
+			startKey := fmt.Sprintf("%d", *startTime)
+			lowerBound = []byte(startKey)
+		} else {
+			lowerBound = nil // 不设置下界，从头开始
+		}
+
+		if endTime != nil && *endTime != 0 {
+			endKey := fmt.Sprintf("%d", *endTime)
+			upperBound = []byte(endKey + "z") // 添加后缀确保包含endKey
+		} else {
+			upperBound = nil // 不设置上界，查询到末尾
+		}
+	} else {
+		// 有prefix的情况
+		if startTime != nil && *startTime != 0 {
+			startKey := fmt.Sprintf("%s/%d", prefix, *startTime)
+			lowerBound = []byte(startKey)
+		} else {
+			// 左边界全开，从prefix开始
+			lowerBound = []byte(prefix + "/")
+		}
+
+		if endTime != nil && *endTime != 0 {
+			endKey := fmt.Sprintf("%s/%d", prefix, *endTime)
+			upperBound = []byte(endKey + "z") // 添加后缀确保包含endKey
+		} else {
+			// 右边界全开，不设置upperBound，通过前缀的下一个字典序字符串作为上界
+			prefixBytes := []byte(prefix)
+			upperBound = make([]byte, len(prefixBytes))
+			copy(upperBound, prefixBytes)
+			// 将最后一个字符+1，创建前缀的上界
+			upperBound[len(upperBound)-1]++
+		}
+	}
+
+	iter, err := p.NewIter(&pebble.IterOptions{
+		LowerBound: lowerBound,
+		UpperBound: upperBound,
+	})
 	if err != nil {
-		if err == pebble.ErrNotFound {
-			return nil, gerror.Newf("数据不存在: %s", key)
-		}
-		return nil, gerror.Wrapf(err, "获取数据失败: %s", key)
+		return nil, fmt.Errorf("failed to create iterator: %w", err)
 	}
-	defer closer.Close()
-
-	var data map[string]interface{}
-	if err := json.Unmarshal(value, &data); err != nil {
-		return nil, gerror.Wrapf(err, "解析数据失败: %s", key)
-	}
-
-	return data, nil
-}
-
-// GetStats 获取数据库统计信息
-func (p *Pebbledb) GetStats() map[string]interface{} {
-	stats := make(map[string]interface{})
-
-	// 获取各类型数据的数量
-	deviceCount := p.countKeysWithPrefix("devices/")
-	protocolCount := p.countKeysWithPrefix("protocol_metrics/")
-	systemCount := p.countKeysWithPrefix("system_metrics/")
-
-	stats["device_data_count"] = deviceCount
-	stats["protocol_metrics_count"] = protocolCount
-	stats["system_metrics_count"] = systemCount
-	stats["total_count"] = deviceCount + protocolCount + systemCount
-	stats["db_path"] = p.pebbleConfig.Path
-
-	return stats
-}
-
-// countKeysWithPrefix 计算指定前缀的键数量
-func (p *Pebbledb) countKeysWithPrefix(prefix string) int {
-	count := 0
-	iter, _ := p.db.NewIter(&pebble.IterOptions{
-		LowerBound: []byte(prefix),
-		UpperBound: []byte(fmt.Sprintf("%s~", prefix)),
-	})
 	defer iter.Close()
+
+	// 收集所有匹配的数据
+	var chartData ChartData
+	xAxis := XAxis{
+		Type: "category",
+		Data: make([]string, 0),
+	}
+	series := make([]SeriesItem, len(points))
+	for i, point := range points {
+		series[i].Name = point
+		series[i].Type = "line"
+		series[i].Data = make([]string, 0)
+	}
 
 	for iter.First(); iter.Valid(); iter.Next() {
-		count++
+		keyStr := string(iter.Key())
+		var timestampStr string
+		var timestamp int
+		var err error
+
+		if prefix == "" {
+			// prefix为空时，尝试解析整个key作为时间戳，或者key中包含时间戳
+			// 如果key包含"/"，取最后一部分作为时间戳
+			if strings.Contains(keyStr, "/") {
+				parts := strings.Split(keyStr, "/")
+				timestampStr = parts[len(parts)-1]
+			} else {
+				// 整个key作为时间戳
+				timestampStr = keyStr
+			}
+
+			timestamp, err = strconv.Atoi(timestampStr)
+			if err != nil {
+				continue // 跳过无效的时间戳
+			}
+		} else {
+			// 检查key是否符合预期格式
+			if !strings.HasPrefix(keyStr, prefix+"/") {
+				continue
+			}
+
+			// 提取时间戳并验证范围
+			parts := strings.Split(keyStr, "/")
+			if len(parts) < 2 {
+				continue
+			}
+
+			timestampStr = parts[len(parts)-1]
+			timestamp, err = strconv.Atoi(timestampStr)
+			if err != nil {
+				continue // 跳过无效的时间戳
+			}
+		}
+
+		// 检查时间戳是否在范围内
+		inRange := true
+		if startTime != nil && *startTime != 0 && timestamp < *startTime {
+			inRange = false
+		}
+		if endTime != nil && *endTime != 0 && timestamp > *endTime {
+			inRange = false
+		}
+
+		// 检查时间间隔步长
+		if inRange && step > 0 {
+			// 如果设置了起始时间，从起始时间开始按step间隔过滤
+			if startTime != nil && *startTime != 0 {
+				if (timestamp-*startTime)%step != 0 {
+					inRange = false
+				}
+			} else {
+				// 如果没有设置起始时间，则按时间戳对step取模
+				if timestamp%step != 0 {
+					inRange = false
+				}
+			}
+		}
+
+		if inRange {
+			xAxis.Data = append(xAxis.Data, fmt.Sprintf("%d", timestamp))
+			value, err := iter.ValueAndErr()
+			if err != nil {
+				continue
+			}
+			var data map[string]any
+			err = json.Unmarshal(value, &data)
+			if err != nil {
+				log.Println("unmarshal value error", err)
+				continue
+			}
+			if data[tag] == nil {
+				continue
+			}
+
+			pointData := data[tag].(map[string]any)
+			for i, point := range points {
+				if pointData[point] != nil {
+					series[i].Data = append(series[i].Data, fmt.Sprintf("%v", pointData[point]))
+				} else {
+					series[i].Data = append(series[i].Data, "")
+				}
+			}
+
+		}
 	}
 
-	return count
-}
-
-// GetLatestDeviceData 获取设备的最新数据
-func (p *Pebbledb) GetLatestDeviceData(deviceID string) (*DeviceDataResult, error) {
-	results, err := p.GetDeviceData(deviceID, 1)
-	if err != nil {
-		return nil, err
+	if err := iter.Error(); err != nil {
+		return nil, fmt.Errorf("iterator error: %w", err)
 	}
-
-	if len(results) == 0 {
-		return nil, gerror.Newf("没有找到设备数据: %s", deviceID)
-	}
-
-	return results[0], nil
-}
-
-// ParseTimestampFromKey 从键名中解析时间戳（辅助函数）
-func ParseTimestampFromKey(key string) (int64, error) {
-	parts := strings.Split(key, "/")
-	if len(parts) < 4 {
-		return 0, gerror.Newf("无效的键格式: %s", key)
-	}
-
-	timestampStr := parts[len(parts)-1]
-	timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
-	if err != nil {
-		return 0, gerror.Wrapf(err, "解析时间戳失败: %s", timestampStr)
-	}
-
-	return timestamp, nil
+	chartData.XAxis = xAxis
+	chartData.Series = series
+	return &chartData, nil
 }

@@ -12,35 +12,46 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-type sPebbledbConfig struct {
-	Path string `json:"path,omitempty" dc:"数据库文件路径"`
+type PebbledbDatabase struct {
+	SystemDb   *pebble.DB
+	DeviceDb   *pebble.DB
+	ProtocolDb *pebble.DB
 }
 
 type Pebbledb struct {
-	db           *pebble.DB
-	ctx          context.Context
-	pebbleConfig *sPebbledbConfig
+	db  PebbledbDatabase
+	ctx context.Context
 }
 
 func NewPebbledb(ctx context.Context) c_base.IStorage {
 
-	var pebbleConfig = &sPebbledbConfig{
-		Path: "./out/pebbledb",
-	}
-
 	// 创建PebbleDB实例
-	db, err := pebble.Open(pebbleConfig.Path, &pebble.Options{})
+	systemDb, err := pebble.Open("./out/pebbledb/system", &pebble.Options{})
 	if err != nil {
 		panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
 	}
 
-	d := &Pebbledb{
-		db:           db,
-		ctx:          ctx,
-		pebbleConfig: pebbleConfig,
+	deviceDb, err := pebble.Open("./out/pebbledb/device", &pebble.Options{})
+	if err != nil {
+		panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
 	}
 
-	g.Log().Infof(ctx, "PebbleDB 初始化成功，数据路径: %s", pebbleConfig.Path)
+	protocolDb, err := pebble.Open("./out/pebbledb/protocol", &pebble.Options{})
+	if err != nil {
+		panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
+	}
+	db := PebbledbDatabase{
+		SystemDb:   systemDb,
+		DeviceDb:   deviceDb,
+		ProtocolDb: protocolDb,
+	}
+
+	d := &Pebbledb{
+		db:  db,
+		ctx: ctx,
+	}
+
+	g.Log().Infof(ctx, "PebbleDB 初始化成功")
 	return d
 }
 
@@ -52,9 +63,9 @@ func (p *Pebbledb) SaveDevices(deviceId string, deviceType c_base.EDeviceType, f
 	// 创建设备数据结构
 	deviceData := map[string]any{
 		"device_id":   deviceId,
-		"device_type": string(deviceType),
-		"timestamp":   time.Now().Unix(),
-		"fields":      fields,
+		"device_type": deviceType,
+		"timestamp":   time.Now().UnixMilli(),
+		"metrics":     fields,
 	}
 
 	// 序列化数据
@@ -63,11 +74,11 @@ func (p *Pebbledb) SaveDevices(deviceId string, deviceType c_base.EDeviceType, f
 		return gerror.Wrapf(err, "序列化设备数据失败, deviceId: %s", deviceId)
 	}
 
-	// 生成键名：devices/{deviceType}/{deviceId}/{timestamp}
-	key := fmt.Sprintf("devices/%s/%s/%d", string(deviceType), deviceId, time.Now().UnixNano())
+	// 生成键名：device/{deviceId}/{timestamp}
+	key := fmt.Sprintf("device/%s/%d", deviceId, time.Now().UnixMilli())
 
 	// 写入数据
-	err = p.db.Set([]byte(key), data, pebble.Sync)
+	err = p.db.DeviceDb.Set([]byte(key), data, pebble.Sync)
 	if err != nil {
 		return gerror.Wrapf(err, "写入设备数据失败, deviceId: %s", deviceId)
 	}
@@ -88,7 +99,7 @@ func (p *Pebbledb) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, d
 		"protocol_id":      protocolConfig.Id,
 		"protocol_address": protocolConfig.Address,
 		"protocol_type":    string(protocolConfig.Protocol),
-		"timestamp":        time.Now().Unix(),
+		"timestamp":        time.Now().UnixMilli(),
 		"metrics":          metrics,
 	}
 
@@ -98,11 +109,11 @@ func (p *Pebbledb) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, d
 		return gerror.Wrapf(err, "序列化协议指标数据失败, deviceId: %s, protocolId: %s", deviceConfig.Id, protocolConfig.Id)
 	}
 
-	// 生成键名：protocol_metrics/{deviceId}/{protocolId}/{timestamp}
-	key := fmt.Sprintf("protocol_metrics/%s/%s/%d", deviceConfig.Id, protocolConfig.Id, time.Now().UnixNano())
+	// 生成键名：protocol/{protocolId}/{timestamp}
+	key := fmt.Sprintf("protocol/%s/%d", protocolConfig.Id, time.Now().UnixMilli())
 
 	// 写入数据
-	err = p.db.Set([]byte(key), data, pebble.Sync)
+	err = p.db.ProtocolDb.Set([]byte(key), data, pebble.Sync)
 	if err != nil {
 		return gerror.Wrapf(err, "写入协议指标数据失败, deviceId: %s, protocolId: %s", deviceConfig.Id, protocolConfig.Id)
 	}
@@ -120,7 +131,7 @@ func (p *Pebbledb) SaveSystemMetrics(measurement string, tags map[string]string,
 	systemData := map[string]any{
 		"measurement": measurement,
 		"tags":        tags,
-		"timestamp":   time.Now().Unix(),
+		"timestamp":   time.Now().UnixMilli(),
 		"metrics":     metrics,
 	}
 
@@ -130,11 +141,11 @@ func (p *Pebbledb) SaveSystemMetrics(measurement string, tags map[string]string,
 		return gerror.Wrapf(err, "序列化系统指标数据失败, measurement: %s", measurement)
 	}
 
-	// 生成键名：system_metrics/{measurement}/{timestamp}
-	key := fmt.Sprintf("system_metrics/%s/%d", measurement, time.Now().UnixNano())
+	// 生成键名：system/{measurement}/{timestamp}
+	key := fmt.Sprintf("system/%s/%d", measurement, time.Now().UnixMilli())
 
 	// 写入数据
-	err = p.db.Set([]byte(key), data, pebble.Sync)
+	err = p.db.SystemDb.Set([]byte(key), data, pebble.Sync)
 	if err != nil {
 		return gerror.Wrapf(err, "写入系统指标数据失败, measurement: %s", measurement)
 	}
@@ -144,12 +155,28 @@ func (p *Pebbledb) SaveSystemMetrics(measurement string, tags map[string]string,
 }
 
 func (p *Pebbledb) Close() {
-	if p.db != nil {
-		err := p.db.Close()
+	if p.db.SystemDb != nil {
+		err := p.db.SystemDb.Close()
 		if err != nil {
-			g.Log().Errorf(p.ctx, "关闭PebbleDB失败: %v", err)
+			g.Log().Errorf(p.ctx, "关闭SystemDb失败: %v", err)
 		} else {
-			g.Log().Infof(p.ctx, "PebbleDB已关闭")
+			g.Log().Infof(p.ctx, "SystemDb已关闭")
+		}
+	}
+	if p.db.DeviceDb != nil {
+		err := p.db.DeviceDb.Close()
+		if err != nil {
+			g.Log().Errorf(p.ctx, "关闭DeviceDb失败: %v", err)
+		} else {
+			g.Log().Infof(p.ctx, "DeviceDb已关闭")
+		}
+	}
+	if p.db.ProtocolDb != nil {
+		err := p.db.ProtocolDb.Close()
+		if err != nil {
+			g.Log().Errorf(p.ctx, "关闭ProtocolDb失败: %v", err)
+		} else {
+			g.Log().Infof(p.ctx, "ProtocolDb已关闭")
 		}
 	}
 }
