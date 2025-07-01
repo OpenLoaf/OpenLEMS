@@ -1,6 +1,14 @@
 // //go:generate mockgen -source=storage_i.go -package=mock_c_base -destination=mock_c_base/storage_i.mock.go
 package c_base
 
+type StorageType string
+
+const (
+	StorageTypeDevice   StorageType = "device"
+	StorageTypeProtocol StorageType = "protocol"
+	StorageTypeSystem   StorageType = "system"
+)
+
 type IStorage interface {
 
 	// SaveDevices 保存设备数据
@@ -12,6 +20,9 @@ type IStorage interface {
 	// SaveSystemMetrics 保存系统指标数据
 	SaveSystemMetrics(measurement string, tags map[string]string, metrics map[string]any) error
 
+	// GetStorageData 获取存储数据
+	GetStorageData(storageType StorageType, id string, pointKey []string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) (map[string]any, error)
+
+	// Close 关闭数据库
 	Close()
-	//FindByDeviceId(deviceId string) (map[string]any, error)
 }
