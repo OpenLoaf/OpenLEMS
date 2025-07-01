@@ -4,14 +4,15 @@ import (
 	"common/c_base"
 	"context"
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	influxdb2 "github.com/influxdata/influxdb-client-go/v2"
 	"github.com/influxdata/influxdb-client-go/v2/api"
 	"github.com/influxdata/influxdb-client-go/v2/domain"
-	"strings"
-	"time"
 )
 
 type Influxdb2 struct {
@@ -183,4 +184,8 @@ func (i *Influxdb2) getOrganization() *domain.Organization {
 		panic(gerror.Newf("Error getting organization info: %v", err))
 	}
 	return organization
+}
+
+func (i *Influxdb2) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) (map[string]any, error) {
+	return nil, nil
 }

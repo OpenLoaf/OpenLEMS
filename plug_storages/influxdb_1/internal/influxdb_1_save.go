@@ -4,11 +4,12 @@ import (
 	"common/c_base"
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/influxdata/influxdb/client/v2"
-	"time"
 )
 
 type Influxdb1 struct {
@@ -203,4 +204,8 @@ func (i *Influxdb1) createDatabaseIfNotExists() error {
 
 	g.Log().Infof(i.ctx, "数据库 \"%s\" 已存在或创建成功", i.influxdb1Config.Database)
 	return nil
+}
+
+func (i *Influxdb1) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) (map[string]any, error) {
+	return nil, nil
 }
