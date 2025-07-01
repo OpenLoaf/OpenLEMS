@@ -77,5 +77,18 @@ func initConfigDatabase() {
 		g.Log().Fatal(ctx, err)
 	}
 
+	// 创建设置表
+	_, err = g.DB().Exec(ctx, `
+		CREATE TABLE IF NOT EXISTS setting (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
+			params TEXT,
+			enable BOOLEAN
+		)
+	`)
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
+
 	g.Log().Info(ctx, "Config tables created successfully")
 }
