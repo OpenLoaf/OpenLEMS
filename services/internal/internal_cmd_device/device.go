@@ -41,8 +41,7 @@ func (d *SDeviceCmd) Start() {
 }
 
 func (d *SDeviceCmd) Stop() {
-	// 关闭存储
-	common.CloseStorage()
+
 	// 关闭所有client
 	for _, driver := range common.GetDeviceAll() {
 		driver.Destroy()

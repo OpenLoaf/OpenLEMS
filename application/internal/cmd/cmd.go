@@ -83,6 +83,9 @@ var (
 					deviceCmd.Stop()
 				}
 				cancelFunc()
+				// 关闭存储
+				common.CloseStorage()
+
 				time.Sleep(1 * time.Second)
 				g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())
 			})
