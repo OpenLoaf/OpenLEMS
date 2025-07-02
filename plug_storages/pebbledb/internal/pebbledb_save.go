@@ -60,7 +60,7 @@ func NewPebbledb(ctx context.Context) c_base.IStorage {
 	dataRetentionDays := 30 // 默认30天
 
 	// 获取数据保留天数
-	dataRetentionDaysValue := configManage.GetSettingValueByName(ctx, "data_retention_days")
+	dataRetentionDaysValue := configManage.GetSettingValueByName(ctx, "device_retention_days")
 	if dataRetentionDaysValue != "" {
 		if days, err := strconv.Atoi(dataRetentionDaysValue); err == nil && days > 0 {
 			dataRetentionDays = days
@@ -199,7 +199,7 @@ func (p *Pebbledb) SetDataRetentionDays(days int) error {
 	}
 
 	// 先保存到数据库
-	err := configManage.SetSettingValueByName(p.ctx, "data_retention_days", strconv.Itoa(days))
+	err := configManage.SetSettingValueByName(p.ctx, "device_retention_days", strconv.Itoa(days))
 	if err != nil {
 		g.Log().Errorf(p.ctx, "设置数据保留天数失败: %v", err)
 		return gerror.Wrapf(err, "设置数据保留天数到数据库失败")
