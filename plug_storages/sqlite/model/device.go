@@ -20,7 +20,8 @@ type Device struct {
 	LogLevel   string `json:"log_level" orm:"log_level"`
 	Enable     bool   `json:"enable" orm:"enable"`
 	// 在sqlite中以json字符串形式存储设备参数
-	Params string `json:"params" orm:"params"`
+	Params        string `json:"params" orm:"params"`
+	RetentionDays int    `json:"retention_days" orm:"retention_days"`
 }
 
 // GetParamsMap 获取参数的map格式

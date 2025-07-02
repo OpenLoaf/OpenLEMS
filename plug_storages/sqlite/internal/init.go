@@ -70,7 +70,8 @@ func initConfigDatabase() {
 			driver TEXT,
 			log_level TEXT,
 			enable BOOLEAN,
-			params TEXT
+			params TEXT,
+			retention_days INTEGER NOT NULL
 		)
 	`)
 	if err != nil {
