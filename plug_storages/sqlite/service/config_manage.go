@@ -12,6 +12,8 @@ import (
 type IConfigManage interface {
 	GetDeviceConfig(ctx context.Context) *c_base.SDriverConfig
 	GetProtocolConfig(ctx context.Context) []*c_base.SProtocolConfig
+	GetSettingValueByName(ctx context.Context, name string) string
+	SetSettingValueByName(ctx context.Context, name string, value string) error
 }
 
 type sConfigManage struct {
@@ -119,6 +121,38 @@ func (s *sConfigManage) GetProtocolConfig(ctx context.Context) []*c_base.SProtoc
 	return protocolConfigs
 }
 
+// 获取设置配置通过名称
+func (s *sConfigManage) GetSettingValueByName(ctx context.Context, name string) string {
+	setting := &model.Setting{}
+	// 通过 name 获取设置，如果设置不存在，则返回空字符串
+	err := setting.GetByName(ctx, name)
+	if err != nil {
+		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", name, err)
+		return ""
+	}
+
+	// 检查设置是否启用
+	if !setting.Enable {
+		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", name)
+		return ""
+	}
+
+	return setting.GetValue()
+}
+
+// 设置设置值通过名称
+func (s *sConfigManage) SetSettingValueByName(ctx context.Context, name string, value string) error {
+	setting := &model.Setting{}
+	err := setting.GetByName(ctx, name)
+	if err != nil {
+		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", name, err)
+		return err
+	}
+	setting.SetValue(value)
+	setting.Update(ctx)
+	return nil
+}
+
 // BuildDeviceTree 递归构建设备树结构
 func BuildDeviceTree(ctx context.Context, devices []*model.Device, parentId string) *c_base.SDriverConfig {
 	var tree []*c_base.SDriverConfig
@@ -185,7 +219,7 @@ func PrintDeviceTree(ctx context.Context, config *c_base.SDriverConfig, level in
 		indent, config.Driver, config.ProtocolId, config.IsEnable)
 
 	// 打印参数
-	if config.Params != nil && len(config.Params) > 0 {
+	if len(config.Params) > 0 {
 		g.Log().Infof(ctx, "%s   Params:", indent)
 		for key, value := range config.Params {
 			g.Log().Infof(ctx, "%s     %s: %s", indent, key, value)

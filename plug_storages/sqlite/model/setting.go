@@ -2,9 +2,7 @@ package model
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -13,46 +11,19 @@ type Setting struct {
 	g.Meta `orm:"table:setting"`
 	Id     uint   `json:"id" orm:"id,primary"`
 	Name   string `json:"name" orm:"name"`
-	Params string `json:"params" orm:"params"`
+	Value  string `json:"value" orm:"value"`
 	Enable bool   `json:"enable" orm:"enable"`
+	Remark string `json:"remark" orm:"remark"`
 }
 
-// GetParamsMap 获取参数的map格式
-func (s *Setting) GetParamsMap() (map[string]string, error) {
-	if s.Params == "" || s.Params == "null" {
-		return map[string]string{}, nil
-	}
-
-	// 先反序列化为 map[string]interface{} 来处理混合类型
-	var paramsMapInterface map[string]interface{}
-	err := gjson.DecodeTo(s.Params, &paramsMapInterface)
-	if err != nil {
-		return nil, err
-	}
-
-	// 转换为 map[string]string
-	paramsMap := make(map[string]string)
-	for key, value := range paramsMapInterface {
-		paramsMap[key] = fmt.Sprintf("%v", value)
-	}
-
-	return paramsMap, nil
+// GetValue 获取设置值
+func (s *Setting) GetValue() string {
+	return s.Value
 }
 
-// SetParamsFromMap 从map设置参数
-func (s *Setting) SetParamsFromMap(paramsMap g.Map) error {
-	if paramsMap == nil {
-		s.Params = ""
-		return nil
-	}
-
-	paramsJSON, err := gjson.Encode(paramsMap)
-	if err != nil {
-		return err
-	}
-
-	s.Params = string(paramsJSON)
-	return nil
+// SetValue 设置值
+func (s *Setting) SetValue(value string) {
+	s.Value = value
 }
 
 // Create 创建设置记录
@@ -95,6 +66,12 @@ func DeleteSettingById(ctx context.Context, id uint) error {
 	return err
 }
 
+// DeleteByName 根据名称删除设置记录
+func DeleteSettingByName(ctx context.Context, name string) error {
+	_, err := g.Model("setting").Ctx(ctx).Where("name", name).Delete()
+	return err
+}
+
 // GetAll 获取所有设置记录
 func GetAllSettings(ctx context.Context) ([]*Setting, error) {
 	var settings []*Setting
@@ -113,13 +90,6 @@ func GetSettingsByCondition(ctx context.Context, condition g.Map) ([]*Setting, e
 func GetEnabledSettings(ctx context.Context) ([]*Setting, error) {
 	var settings []*Setting
 	err := g.Model("setting").Ctx(ctx).Where("enable", true).Scan(&settings)
-	return settings, err
-}
-
-// GetDisabledSettings 获取所有禁用的设置
-func GetDisabledSettings(ctx context.Context) ([]*Setting, error) {
-	var settings []*Setting
-	err := g.Model("setting").Ctx(ctx).Where("enable", false).Scan(&settings)
 	return settings, err
 }
 
@@ -142,25 +112,24 @@ func PaginateSettings(ctx context.Context, page, pageSize int) ([]*Setting, erro
 	return settings, err
 }
 
-// Exists 检查设置是否存在
-func (s *Setting) Exists(ctx context.Context) (bool, error) {
-	count, err := g.Model("setting").Ctx(ctx).Where("id", s.Id).Count()
-	return count > 0, err
+// IsEnabled 检查设置是否启用
+func (s *Setting) IsEnabled() bool {
+	return s.Enable
 }
 
-// ExistsByName 根据名称检查设置是否存在
-func ExistsSettingByName(ctx context.Context, name string) (bool, error) {
-	count, err := g.Model("setting").Ctx(ctx).Where("name", name).Count()
-	return count > 0, err
+// SetEnabled 设置启用状态
+func (s *Setting) SetEnabled(ctx context.Context, enabled bool) error {
+	return s.UpdateFields(ctx, g.Map{"enable": enabled})
 }
 
-// ToggleEnable 切换启用状态
-func (s *Setting) ToggleEnable(ctx context.Context) error {
-	s.Enable = !s.Enable
-	return s.Update(ctx)
+// UpdateValue 更新设置值
+func (s *Setting) UpdateValue(ctx context.Context, value string) error {
+	s.Value = value
+	return s.UpdateFields(ctx, g.Map{"value": value})
 }
 
-// SetEnable 设置启用状态
-func (s *Setting) SetEnable(ctx context.Context, enable bool) error {
-	return s.UpdateFields(ctx, g.Map{"enable": enable})
+// UpdateRemark 更新备注
+func (s *Setting) UpdateRemark(ctx context.Context, remark string) error {
+	s.Remark = remark
+	return s.UpdateFields(ctx, g.Map{"remark": remark})
 }

@@ -5,11 +5,16 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"sqlite"
+	"sqlite/service"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/cockroachdb/pebble"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gcron"
 )
 
 type PebbledbDatabase struct {
@@ -19,9 +24,12 @@ type PebbledbDatabase struct {
 }
 
 type Pebbledb struct {
-	db  PebbledbDatabase
-	ctx context.Context
+	db                PebbledbDatabase
+	ctx               context.Context
+	dataRetentionDays int // 数据保留天数，默认30天
 }
+
+var configManage service.IConfigManage
 
 func NewPebbledb(ctx context.Context) c_base.IStorage {
 
@@ -40,19 +48,167 @@ func NewPebbledb(ctx context.Context) c_base.IStorage {
 	if err != nil {
 		panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
 	}
+
 	db := PebbledbDatabase{
 		SystemDb:   systemDb,
 		DeviceDb:   deviceDb,
 		ProtocolDb: protocolDb,
 	}
 
-	d := &Pebbledb{
-		db:  db,
-		ctx: ctx,
+	// 初始化配置管理
+	configManage = sqlite.NewConfigManage(ctx, 1)
+	dataRetentionDays := 30 // 默认30天
+
+	// 获取数据保留天数
+	dataRetentionDaysValue := configManage.GetSettingValueByName(ctx, "data_retention_days")
+	if dataRetentionDaysValue != "" {
+		if days, err := strconv.Atoi(dataRetentionDaysValue); err == nil && days > 0 {
+			dataRetentionDays = days
+		} else {
+			g.Log().Warningf(ctx, "数据保留天数配置无效: %s，使用默认值30天", dataRetentionDaysValue)
+		}
 	}
+
+	// 创建Pebbledb实例
+	d := &Pebbledb{
+		db:                db,
+		ctx:               ctx,
+		dataRetentionDays: dataRetentionDays, // 数据保留天数
+	}
+
+	// 每天凌晨0点执行一次清理,判断数据超过了保留日期，如果超过了，则删除
+	d.startDataCleanupScheduler()
 
 	g.Log().Infof(ctx, "PebbleDB 初始化成功")
 	return d
+}
+
+// startDataCleanupScheduler 启动数据清理定时任务
+func (p *Pebbledb) startDataCleanupScheduler() {
+	// 每天凌晨0点执行清理任务
+	_, err := gcron.Add(p.ctx, "0 0 * * *", func(ctx context.Context) {
+		g.Log().Info(ctx, "开始执行PebbleDB数据清理任务")
+
+		if err := p.cleanupExpiredData(); err != nil {
+			g.Log().Errorf(ctx, "PebbleDB数据清理失败: %v", err)
+		} else {
+			g.Log().Info(ctx, "PebbleDB数据清理完成")
+		}
+	})
+
+	if err != nil {
+		g.Log().Errorf(p.ctx, "启动数据清理定时任务失败: %v", err)
+	} else {
+		g.Log().Infof(p.ctx, "数据清理定时任务已启动，每天凌晨0点执行，数据保留%d天", p.dataRetentionDays)
+	}
+}
+
+// cleanupExpiredData 清理过期数据
+func (p *Pebbledb) cleanupExpiredData() error {
+	// 计算过期时间戳（毫秒）
+	expiredTimestamp := time.Now().AddDate(0, 0, -p.dataRetentionDays).UnixMilli()
+
+	// 清理设备数据
+	if err := p.cleanupDatabase(p.db.DeviceDb, "device", expiredTimestamp); err != nil {
+		return gerror.Wrapf(err, "清理设备数据失败")
+	}
+
+	// 清理协议数据
+	if err := p.cleanupDatabase(p.db.ProtocolDb, "protocol", expiredTimestamp); err != nil {
+		return gerror.Wrapf(err, "清理协议数据失败")
+	}
+
+	// 清理系统数据
+	if err := p.cleanupDatabase(p.db.SystemDb, "system", expiredTimestamp); err != nil {
+		return gerror.Wrapf(err, "清理系统数据失败")
+	}
+
+	return nil
+}
+
+// cleanupDatabase 清理指定数据库中的过期数据
+func (p *Pebbledb) cleanupDatabase(db *pebble.DB, prefix string, expiredTimestamp int64) error {
+	iter, err := db.NewIter(nil)
+	if err != nil {
+		return gerror.Wrapf(err, "创建迭代器失败")
+	}
+	defer iter.Close()
+
+	var keysToDelete [][]byte
+	deletedCount := 0
+
+	// 遍历所有键
+	for iter.First(); iter.Valid(); iter.Next() {
+		key := string(iter.Key())
+
+		// 检查键是否符合预期格式：prefix/id/timestamp
+		if !strings.HasPrefix(key, prefix+"/") {
+			continue
+		}
+
+		// 从键名中提取时间戳
+		parts := strings.Split(key, "/")
+		if len(parts) < 3 {
+			continue
+		}
+
+		timestampStr := parts[len(parts)-1]
+		timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
+		if err != nil {
+			g.Log().Warningf(p.ctx, "解析时间戳失败，跳过键: %s, 错误: %v", key, err)
+			continue
+		}
+
+		// 如果数据过期，标记为删除
+		if timestamp < expiredTimestamp {
+			keysToDelete = append(keysToDelete, iter.Key())
+			deletedCount++
+		}
+	}
+
+	// 批量删除过期数据
+	if len(keysToDelete) > 0 {
+		batch := db.NewBatch()
+		for _, key := range keysToDelete {
+			if err := batch.Delete(key, nil); err != nil {
+				batch.Close()
+				return gerror.Wrapf(err, "添加删除操作到批处理失败")
+			}
+		}
+
+		if err := batch.Commit(pebble.Sync); err != nil {
+			batch.Close()
+			return gerror.Wrapf(err, "提交批量删除操作失败")
+		}
+		batch.Close()
+
+		g.Log().Infof(p.ctx, "成功删除%s数据库中的%d条过期记录", prefix, deletedCount)
+	} else {
+		g.Log().Infof(p.ctx, "%s数据库中没有需要清理的过期数据", prefix)
+	}
+
+	return nil
+}
+
+// SetDataRetentionDays 设置数据保留天数
+func (p *Pebbledb) SetDataRetentionDays(days int) error {
+	if days <= 0 {
+		err := gerror.Newf("数据保留天数必须大于0，当前值: %d", days)
+		g.Log().Warningf(p.ctx, "%v", err)
+		return err
+	}
+
+	// 先保存到数据库
+	err := configManage.SetSettingValueByName(p.ctx, "data_retention_days", strconv.Itoa(days))
+	if err != nil {
+		g.Log().Errorf(p.ctx, "设置数据保留天数失败: %v", err)
+		return gerror.Wrapf(err, "设置数据保留天数到数据库失败")
+	}
+
+	// 只有数据库更新成功后才更新内存中的值
+	p.dataRetentionDays = days
+	g.Log().Infof(p.ctx, "数据保留天数已设置为: %d天", days)
+	return nil
 }
 
 func (p *Pebbledb) SaveDevices(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {

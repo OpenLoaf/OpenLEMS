@@ -82,8 +82,9 @@ func initConfigDatabase() {
 		CREATE TABLE IF NOT EXISTS setting (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name TEXT NOT NULL,
-			params TEXT,
-			enable BOOLEAN
+			value TEXT,
+			enable BOOLEAN,
+			remark TEXT
 		)
 	`)
 	if err != nil {
