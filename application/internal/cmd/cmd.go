@@ -25,6 +25,8 @@ const (
 	argTimeZone         = "time-zone"   // 全局时区设置
 )
 
+var DeviceStartCancel context.CancelFunc = nil // 设备启动取消函数，设备启动时候回堵塞进程
+
 var (
 	Main = gcmd.Command{
 		Name:  "Start",
@@ -57,7 +59,9 @@ var (
 
 			// 启动设备
 			deviceCmd := services.NewDeviceCmd(ctx)
-			deviceCmd.Start()
+
+			deviceStartCtx, DeviceStartCancel := context.WithCancel(context.Background())
+			go deviceStart(deviceStartCtx, deviceCmd)
 
 			var web *ghttp.Server
 
@@ -65,6 +69,9 @@ var (
 				g.Log().Noticef(ctx, "接收到信号：%s", sig.String())
 				if web != nil {
 					_ = web.Shutdown()
+				}
+				if DeviceStartCancel != nil {
+					DeviceStartCancel()
 				}
 				if deviceCmd != nil {
 					deviceCmd.Stop()
@@ -87,3 +94,15 @@ var (
 		},
 	}
 )
+
+func deviceStart(deviceStartCtx context.Context, deviceCmd c_base.IService) {
+	for {
+		select {
+		case <-deviceStartCtx.Done():
+			deviceCmd.Stop()
+			return
+		default:
+			deviceCmd.Start()
+		}
+	}
+}

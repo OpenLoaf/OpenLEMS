@@ -55,20 +55,17 @@ func (d EReadType) ReadValue(bytes []byte, bitLength uint8, endianness ECharSequ
 		if bitLength == 0 {
 			bitLength = 1
 		}
-
 		// 先找到d的位置，再找到bit end的位置
 		start := d / 16
 		end := (uint8(d)+bitLength)/16 + 2
-
 		// 0b00000101
 		bits := gbinary.DecodeBytesToBits(bytes[start:end])
 		_bitsLength := len(bits)
 		endBit := _bitsLength - int(d)
-		bits = bits[endBit-int(bitLength) : endBit] // 倒过来取
+		bits = bits[endBit-int(bitLength) : endBit] // 数据倒置
 		if bitLength == 1 {
 			return bits[0] == 1, nil // 如果只有一个bit，直接返回bool类型
 		}
-
 		if bitLength > 0 {
 			if bitLength <= 8 {
 				bits = endianness.FillUpSizeBit(bits, 8)
@@ -82,7 +79,6 @@ func (d EReadType) ReadValue(bytes []byte, bitLength uint8, endianness ECharSequ
 				return endianness.DecodeToUint64(gbinary.EncodeBitsToBytes(bits)), nil
 			}
 		}
-
 		return nil, gerror.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 	case RInt8:
 		if dataLength < 1 {
