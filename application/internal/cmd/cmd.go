@@ -5,6 +5,7 @@ import (
 	"common/c_base"
 	"context"
 	"os"
+	"pebbledb"
 	"runtime"
 	"services"
 	database "sqlite"
@@ -48,6 +49,11 @@ var (
 
 			// 初始化数据库表
 			database.Init()
+
+			// 初始化存储
+			common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
+				return pebbledb.NewStorageInstance(ctx)
+			})
 
 			// database.NewConfigManage(ctx, 1).GetDeviceConfig(ctx)
 			// 初始化context

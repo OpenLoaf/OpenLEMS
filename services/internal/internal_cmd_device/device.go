@@ -5,15 +5,13 @@ import (
 	"common/c_base"
 	"context"
 	"fmt"
-	"gpio_sysfs"
-	protocolModbus "modbus"
-	"os"
-	"pebbledb"
-
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gproc"
 	"github.com/torykit/go-modbus"
+	"gpio_sysfs"
+	protocolModbus "modbus"
+	"os"
 )
 
 type SDeviceCmd struct {
@@ -38,11 +36,6 @@ func (d *SDeviceCmd) Start() {
 			d.Stop()
 		}
 	}()
-
-	// TODO: 以后搬到其他地方去
-	common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
-		return pebbledb.NewStorageInstance(ctx)
-	})
 
 	d.InitDriver(make(map[string]modbus.Client), common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))
 }
