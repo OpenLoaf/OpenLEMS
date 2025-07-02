@@ -105,13 +105,11 @@ var (
 )
 
 func deviceStart(deviceStartCtx context.Context, deviceCmd c_base.IService) {
-	for {
-		select {
-		case <-deviceStartCtx.Done():
-			deviceCmd.Stop()
-			return
-		default:
-			deviceCmd.Start()
-		}
+	select {
+	case <-deviceStartCtx.Done():
+		deviceCmd.Stop()
+		return
+	default:
+		deviceCmd.Start()
 	}
 }

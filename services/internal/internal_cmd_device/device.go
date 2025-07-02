@@ -29,6 +29,9 @@ func NewDeviceCmd(ctx context.Context) *SDeviceCmd {
 }
 
 func (d *SDeviceCmd) Start() {
+	deviceConfig := common.GetDriverConfig(d.ctx)
+	protocolConfigList := common.GetProtocolsConfigList(d.ctx)
+
 	// 捕捉panic
 	defer func() {
 		if err := recover(); err != nil {
@@ -37,7 +40,7 @@ func (d *SDeviceCmd) Start() {
 		}
 	}()
 
-	d.InitDriver(make(map[string]modbus.Client), common.GetDriverConfig(d.ctx), common.GetProtocolsConfigList(d.ctx))
+	d.InitDriver(make(map[string]modbus.Client), deviceConfig, protocolConfigList)
 }
 
 func (d *SDeviceCmd) Stop() {
