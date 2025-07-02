@@ -9,6 +9,7 @@ import (
 	"sqlite/service"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/cockroachdb/pebble"
@@ -31,56 +32,73 @@ type Pebbledb struct {
 
 var configManage service.IConfigManage
 
+// 单例相关变量
+var (
+	pebbledbInstance c_base.IStorage
+	once             sync.Once
+	initMutex        sync.Mutex
+)
+
 func NewPebbledb(ctx context.Context) c_base.IStorage {
+	once.Do(func() {
+		initMutex.Lock()
+		defer initMutex.Unlock()
 
-	// 创建PebbleDB实例
-	systemDb, err := pebble.Open("./out/pebbledb/system", &pebble.Options{})
-	if err != nil {
-		panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
-	}
-
-	deviceDb, err := pebble.Open("./out/pebbledb/device", &pebble.Options{})
-	if err != nil {
-		panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
-	}
-
-	protocolDb, err := pebble.Open("./out/pebbledb/protocol", &pebble.Options{})
-	if err != nil {
-		panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
-	}
-
-	db := PebbledbDatabase{
-		SystemDb:   systemDb,
-		DeviceDb:   deviceDb,
-		ProtocolDb: protocolDb,
-	}
-
-	// 初始化配置管理
-	configManage = sqlite.NewConfigManage(ctx, 1)
-	dataRetentionDays := 30 // 默认30天
-
-	// 获取数据保留天数
-	dataRetentionDaysValue := configManage.GetSettingValueByName(ctx, "device_retention_days")
-	if dataRetentionDaysValue != "" {
-		if days, err := strconv.Atoi(dataRetentionDaysValue); err == nil && days > 0 {
-			dataRetentionDays = days
-		} else {
-			g.Log().Warningf(ctx, "数据保留天数配置无效: %s，使用默认值30天", dataRetentionDaysValue)
+		if pebbledbInstance != nil {
+			return
 		}
-	}
 
-	// 创建Pebbledb实例
-	d := &Pebbledb{
-		db:                db,
-		ctx:               ctx,
-		dataRetentionDays: dataRetentionDays, // 数据保留天数
-	}
+		// 创建PebbleDB实例
+		systemDb, err := pebble.Open("./out/pebbledb/system", &pebble.Options{})
+		if err != nil {
+			panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
+		}
 
-	// 每天凌晨0点执行一次清理,判断数据超过了保留日期，如果超过了，则删除
-	d.startDataCleanupScheduler()
+		deviceDb, err := pebble.Open("./out/pebbledb/device", &pebble.Options{})
+		if err != nil {
+			panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
+		}
 
-	g.Log().Infof(ctx, "PebbleDB 初始化成功")
-	return d
+		protocolDb, err := pebble.Open("./out/pebbledb/protocol", &pebble.Options{})
+		if err != nil {
+			panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
+		}
+
+		db := PebbledbDatabase{
+			SystemDb:   systemDb,
+			DeviceDb:   deviceDb,
+			ProtocolDb: protocolDb,
+		}
+
+		// 初始化配置管理
+		configManage = sqlite.NewConfigManage(ctx, 1)
+		dataRetentionDays := 30 // 默认30天
+
+		// 获取数据保留天数
+		dataRetentionDaysValue := configManage.GetSettingValueByName(ctx, "device_retention_days")
+		if dataRetentionDaysValue != "" {
+			if days, err := strconv.Atoi(dataRetentionDaysValue); err == nil && days > 0 {
+				dataRetentionDays = days
+			} else {
+				g.Log().Warningf(ctx, "数据保留天数配置无效: %s，使用默认值30天", dataRetentionDaysValue)
+			}
+		}
+
+		// 创建Pebbledb实例
+		d := &Pebbledb{
+			db:                db,
+			ctx:               ctx,
+			dataRetentionDays: dataRetentionDays, // 数据保留天数
+		}
+
+		// 每天凌晨0点执行一次清理,判断数据超过了保留日期，如果超过了，则删除
+		d.startDataCleanupScheduler()
+
+		pebbledbInstance = d
+		g.Log().Infof(ctx, "PebbleDB 单例初始化成功")
+	})
+
+	return pebbledbInstance
 }
 
 // startDataCleanupScheduler 启动数据清理定时任务

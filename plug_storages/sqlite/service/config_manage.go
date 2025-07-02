@@ -1,12 +1,14 @@
 package service
 
 import (
-	"common/c_base"
 	"context"
 	"encoding/json"
-	"sqlite/model"
+	"sync"
 
 	"github.com/gogf/gf/v2/frame/g"
+
+	"common/c_base"
+	"sqlite/model"
 )
 
 type IConfigManage interface {
@@ -20,10 +22,49 @@ type sConfigManage struct {
 	gId uint
 }
 
+var (
+	instances = make(map[uint]IConfigManage)
+	mu        sync.RWMutex
+)
+
 func NewConfigManage(ctx context.Context, gId uint) IConfigManage {
-	return &sConfigManage{
+	// 先用读锁检查实例是否已存在
+	mu.RLock()
+	if instance, exists := instances[gId]; exists {
+		mu.RUnlock()
+		return instance
+	}
+	mu.RUnlock()
+
+	// 用写锁创建新实例
+	mu.Lock()
+	defer mu.Unlock()
+
+	// 双重检查，防止并发创建
+	if instance, exists := instances[gId]; exists {
+		return instance
+	}
+
+	// 创建新的单例实例
+	instance := &sConfigManage{
 		gId: gId,
 	}
+	instances[gId] = instance
+	return instance
+}
+
+// ClearConfigManageInstance 清理指定gId的ConfigManage实例
+func ClearConfigManageInstance(gId uint) {
+	mu.Lock()
+	defer mu.Unlock()
+	delete(instances, gId)
+}
+
+// ClearAllConfigManageInstances 清理所有ConfigManage实例
+func ClearAllConfigManageInstances() {
+	mu.Lock()
+	defer mu.Unlock()
+	instances = make(map[uint]IConfigManage)
 }
 
 func (s *sConfigManage) GetDeviceConfig(ctx context.Context) *c_base.SDriverConfig {
@@ -31,10 +72,12 @@ func (s *sConfigManage) GetDeviceConfig(ctx context.Context) *c_base.SDriverConf
 		"gid": s.gId,
 	})
 	if err != nil {
-		panic(err)
+		g.Log().Errorf(ctx, "获取设备配置失败 - gId: %d, 错误: %v", s.gId, err)
+		return nil
 	}
 
 	if len(devices) == 0 {
+		g.Log().Warningf(ctx, "未找到任何设备配置 - gId: %d", s.gId)
 		return nil
 	}
 
@@ -72,10 +115,12 @@ func (s *sConfigManage) GetDeviceConfig(ctx context.Context) *c_base.SDriverConf
 func (s *sConfigManage) GetProtocolConfig(ctx context.Context) []*c_base.SProtocolConfig {
 	protocols, err := model.GetAllProtocols(ctx)
 	if err != nil {
-		panic(err)
+		g.Log().Errorf(ctx, "获取协议配置失败 - 错误: %v", err)
+		return nil
 	}
 
 	if len(protocols) == 0 {
+		g.Log().Warningf(ctx, "未找到任何协议配置")
 		return nil
 	}
 
