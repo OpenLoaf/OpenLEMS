@@ -86,7 +86,7 @@ func NewPebbledb(ctx context.Context) c_base.IStorage {
 // startDataCleanupScheduler 启动数据清理定时任务
 func (p *Pebbledb) startDataCleanupScheduler() {
 	// 每天凌晨0点执行清理任务
-	_, err := gcron.Add(p.ctx, "0 0 * * *", func(ctx context.Context) {
+	_, err := gcron.Add(p.ctx, "0 0 0 * * *", func(ctx context.Context) {
 		g.Log().Info(ctx, "开始执行PebbleDB数据清理任务")
 
 		if err := p.cleanupExpiredData(); err != nil {
