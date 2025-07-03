@@ -12,34 +12,110 @@ import (
 	"github.com/cockroachdb/pebble"
 )
 
+// 排序相关常量
+const (
+	SortOrderAsc  = "asc"  // 升序
+	SortOrderDesc = "desc" // 降序
+)
+
+// 存储前缀常量
+const (
+	DevicePrefix   = "device"   // 设备前缀
+	ProtocolPrefix = "protocol" // 协议前缀
+	SystemPrefix   = "system"   // 系统前缀
+)
+
+// 数据标签常量
+const (
+	MetricsTag = "metrics" // 指标标签
+)
+
+// 图表相关常量
+const (
+	ChartTypeCategory = "category" // 图表X轴类型
+	ChartTypeLine     = "line"     // 图表系列类型
+)
+
+// 分页相关常量
+const (
+	DefaultPage     = 1  // 默认页码
+	DefaultPageSize = 10 // 默认页面大小
+)
+
+// 其他常量
+const (
+	KeySeparator   = "/" // 键分隔符
+	BoundarySuffix = "z" // 边界后缀
+	EmptyString    = ""  // 空字符串
+	ZeroTimestamp  = 0   // 零时间戳
+)
+
+// XAxis 表示图表X轴配置
 type XAxis struct {
 	Type string   `json:"type"`
 	Data []string `json:"data"`
 }
 
-type SeriesItem struct {
+// Series 表示图表数据系列
+type Series struct {
 	Name string   `json:"name"`
 	Type string   `json:"type"`
 	Data []string `json:"data"`
 }
 
+// NewSeries 创建新的数据系列
+func NewSeries(name, seriesType string, capacity int) *Series {
+	return &Series{
+		Name: name,
+		Type: seriesType,
+		Data: make([]string, 0, capacity),
+	}
+}
+
+// AppendData 向系列添加数据
+func (s *Series) AppendData(value string) {
+	s.Data = append(s.Data, value)
+}
+
+// ChartData 表示完整的图表数据
 type ChartData struct {
-	XAxis  XAxis        `json:"xAxis"`
-	Series []SeriesItem `json:"series"`
+	XAxis  XAxis    `json:"xAxis"`
+	Series []Series `json:"series"`
+}
+
+// NewChartData 创建新的图表数据
+func NewChartData(pointCount int) *ChartData {
+	return &ChartData{
+		XAxis: XAxis{
+			Type: ChartTypeCategory,
+			Data: make([]string, 0),
+		},
+		Series: make([]Series, 0, pointCount),
+	}
+}
+
+// AddTimestamp 向X轴添加时间戳
+func (c *ChartData) AddTimestamp(timestamp int64) {
+	c.XAxis.Data = append(c.XAxis.Data, fmt.Sprintf("%d", timestamp))
+}
+
+// AddSeries 添加数据系列
+func (c *ChartData) AddSeries(series Series) {
+	c.Series = append(c.Series, series)
 }
 
 // PebbleItem 表示单个数据项
 type PebbleItem struct {
 	Key       string `json:"key"`
 	Value     []byte `json:"value"`
-	Timestamp int    `json:"timestamp"`
+	Timestamp int64  `json:"timestamp"` // 使用int64避免时间戳溢出
 }
 
 func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) (map[string]any, error) {
 	switch storageType {
 	case c_base.StorageTypeDevice:
 		// 键名：device/{deviceId}/{timestamp}
-		data, err := GetChartData(p.db.DeviceDb, fmt.Sprintf("device/%s", id), pointKey, startTime, endTime, step, "metrics")
+		data, err := GetChartData(p.db.DeviceDb, fmt.Sprintf("%s%s%s", DevicePrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
 		if err != nil {
 			return nil, err
 		}
@@ -49,7 +125,7 @@ func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, poi
 		}, nil
 	case c_base.StorageTypeProtocol:
 		// 键名：protocol/{protocolId}/{timestamp}
-		data, err := GetChartData(p.db.ProtocolDb, fmt.Sprintf("protocol/%s", id), pointKey, startTime, endTime, step, "metrics")
+		data, err := GetChartData(p.db.ProtocolDb, fmt.Sprintf("%s%s%s", ProtocolPrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
 		log.Println("data", data)
 		if err != nil {
 			return nil, err
@@ -59,7 +135,7 @@ func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, poi
 		}, nil
 	case c_base.StorageTypeSystem:
 		// 键名：system/{measurement}/{timestamp}
-		data, err := GetChartData(p.db.SystemDb, fmt.Sprintf("system/%s", id), pointKey, startTime, endTime, step, "metrics")
+		data, err := GetChartData(p.db.SystemDb, fmt.Sprintf("%s%s%s", SystemPrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
 		if err != nil {
 			return nil, err
 		}
@@ -88,49 +164,49 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 		needPaging = false
 	} else {
 		// 如果传了分页参数，则设置默认值
-		if page < 1 {
-			page = 1
+		if page < DefaultPage {
+			page = DefaultPage
 		}
-		if pageSize < 1 {
-			pageSize = 10
+		if pageSize < DefaultPage {
+			pageSize = DefaultPageSize
 		}
 	}
 
-	if sortOrder != "asc" && sortOrder != "desc" {
-		sortOrder = "asc" // 默认升序
+	if sortOrder != SortOrderAsc && sortOrder != SortOrderDesc {
+		sortOrder = SortOrderAsc // 默认升序
 	}
 
 	// 构造查询范围的边界
 	var lowerBound, upperBound []byte
 
-	if prefix == "" {
+	if prefix == EmptyString {
 		// prefix为空时，查询所有键
-		if startTime != nil && *startTime != 0 {
+		if startTime != nil && *startTime != ZeroTimestamp {
 			startKey := fmt.Sprintf("%d", *startTime)
 			lowerBound = []byte(startKey)
 		} else {
 			lowerBound = nil // 不设置下界，从头开始
 		}
 
-		if endTime != nil && *endTime != 0 {
+		if endTime != nil && *endTime != ZeroTimestamp {
 			endKey := fmt.Sprintf("%d", *endTime)
-			upperBound = []byte(endKey + "z") // 添加后缀确保包含endKey
+			upperBound = []byte(endKey + BoundarySuffix) // 添加后缀确保包含endKey
 		} else {
 			upperBound = nil // 不设置上界，查询到末尾
 		}
 	} else {
 		// 有prefix的情况
-		if startTime != nil && *startTime != 0 {
-			startKey := fmt.Sprintf("%s/%d", prefix, *startTime)
+		if startTime != nil && *startTime != ZeroTimestamp {
+			startKey := fmt.Sprintf("%s%s%d", prefix, KeySeparator, *startTime)
 			lowerBound = []byte(startKey)
 		} else {
 			// 左边界全开，从prefix开始
-			lowerBound = []byte(prefix + "/")
+			lowerBound = []byte(prefix + KeySeparator)
 		}
 
-		if endTime != nil && *endTime != 0 {
-			endKey := fmt.Sprintf("%s/%d", prefix, *endTime)
-			upperBound = []byte(endKey + "z") // 添加后缀确保包含endKey
+		if endTime != nil && *endTime != ZeroTimestamp {
+			endKey := fmt.Sprintf("%s%s%d", prefix, KeySeparator, *endTime)
+			upperBound = []byte(endKey + BoundarySuffix) // 添加后缀确保包含endKey
 		} else {
 			// 右边界全开，不设置upperBound，通过前缀的下一个字典序字符串作为上界
 			prefixBytes := []byte(prefix)
@@ -159,11 +235,11 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 		var timestamp int
 		var err error
 
-		if prefix == "" {
+		if prefix == EmptyString {
 			// prefix为空时，尝试解析整个key作为时间戳，或者key中包含时间戳
 			// 如果key包含"/"，取最后一部分作为时间戳
-			if strings.Contains(keyStr, "/") {
-				parts := strings.Split(keyStr, "/")
+			if strings.Contains(keyStr, KeySeparator) {
+				parts := strings.Split(keyStr, KeySeparator)
 				timestampStr = parts[len(parts)-1]
 			} else {
 				// 整个key作为时间戳
@@ -176,12 +252,12 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 			}
 		} else {
 			// 检查key是否符合预期格式
-			if !strings.HasPrefix(keyStr, prefix+"/") {
+			if !strings.HasPrefix(keyStr, prefix+KeySeparator) {
 				continue
 			}
 
 			// 提取时间戳并验证范围
-			parts := strings.Split(keyStr, "/")
+			parts := strings.Split(keyStr, KeySeparator)
 			if len(parts) < 2 {
 				continue
 			}
@@ -195,17 +271,17 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 
 		// 检查时间戳是否在范围内
 		inRange := true
-		if startTime != nil && *startTime != 0 && timestamp < *startTime {
+		if startTime != nil && *startTime != ZeroTimestamp && timestamp < *startTime {
 			inRange = false
 		}
-		if endTime != nil && *endTime != 0 && timestamp > *endTime {
+		if endTime != nil && *endTime != ZeroTimestamp && timestamp > *endTime {
 			inRange = false
 		}
 
 		// 检查时间间隔步长
 		if inRange && step > 0 {
 			// 如果设置了起始时间，从起始时间开始按step间隔过滤
-			if startTime != nil && *startTime != 0 {
+			if startTime != nil && *startTime != ZeroTimestamp {
 				if (timestamp-*startTime)%step != 0 {
 					inRange = false
 				}
@@ -227,7 +303,7 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 			allData = append(allData, PebbleItem{
 				Key:       string(key),
 				Value:     value,
-				Timestamp: timestamp,
+				Timestamp: int64(timestamp),
 			})
 		}
 	}
@@ -237,7 +313,7 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 	}
 
 	// 排序数据
-	if sortOrder == "asc" {
+	if sortOrder == SortOrderAsc {
 		// 升序排列（时间戳从小到大）
 		sort.Slice(allData, func(i, j int) bool {
 			return allData[i].Timestamp < allData[j].Timestamp
@@ -289,34 +365,34 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 	// 构造查询范围的边界
 	var lowerBound, upperBound []byte
 
-	if prefix == "" {
+	if prefix == EmptyString {
 		// prefix为空时，查询所有键
-		if startTime != nil && *startTime != 0 {
+		if startTime != nil && *startTime != ZeroTimestamp {
 			startKey := fmt.Sprintf("%d", *startTime)
 			lowerBound = []byte(startKey)
 		} else {
 			lowerBound = nil // 不设置下界，从头开始
 		}
 
-		if endTime != nil && *endTime != 0 {
+		if endTime != nil && *endTime != ZeroTimestamp {
 			endKey := fmt.Sprintf("%d", *endTime)
-			upperBound = []byte(endKey + "z") // 添加后缀确保包含endKey
+			upperBound = []byte(endKey + BoundarySuffix) // 添加后缀确保包含endKey
 		} else {
 			upperBound = nil // 不设置上界，查询到末尾
 		}
 	} else {
 		// 有prefix的情况
-		if startTime != nil && *startTime != 0 {
-			startKey := fmt.Sprintf("%s/%d", prefix, *startTime)
+		if startTime != nil && *startTime != ZeroTimestamp {
+			startKey := fmt.Sprintf("%s%s%d", prefix, KeySeparator, *startTime)
 			lowerBound = []byte(startKey)
 		} else {
 			// 左边界全开，从prefix开始
-			lowerBound = []byte(prefix + "/")
+			lowerBound = []byte(prefix + KeySeparator)
 		}
 
-		if endTime != nil && *endTime != 0 {
-			endKey := fmt.Sprintf("%s/%d", prefix, *endTime)
-			upperBound = []byte(endKey + "z") // 添加后缀确保包含endKey
+		if endTime != nil && *endTime != ZeroTimestamp {
+			endKey := fmt.Sprintf("%s%s%d", prefix, KeySeparator, *endTime)
+			upperBound = []byte(endKey + BoundarySuffix) // 添加后缀确保包含endKey
 		} else {
 			// 右边界全开，不设置upperBound，通过前缀的下一个字典序字符串作为上界
 			prefixBytes := []byte(prefix)
@@ -337,16 +413,13 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 	defer iter.Close()
 
 	// 收集所有匹配的数据
-	var chartData ChartData
-	xAxis := XAxis{
-		Type: "category",
-		Data: make([]string, 0),
-	}
-	series := make([]SeriesItem, len(points))
-	for i, point := range points {
-		series[i].Name = point
-		series[i].Type = "line"
-		series[i].Data = make([]string, 0)
+	chartData := NewChartData(len(points))
+
+	// 创建数据系列映射，用于数据收集过程
+	seriesMap := make(map[string]*Series)
+	for _, point := range points {
+		series := NewSeries(point, ChartTypeLine, 0) // 容量设为0，让其自动扩容
+		seriesMap[point] = series
 	}
 
 	for iter.First(); iter.Valid(); iter.Next() {
@@ -355,11 +428,11 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 		var timestamp int
 		var err error
 
-		if prefix == "" {
+		if prefix == EmptyString {
 			// prefix为空时，尝试解析整个key作为时间戳，或者key中包含时间戳
 			// 如果key包含"/"，取最后一部分作为时间戳
-			if strings.Contains(keyStr, "/") {
-				parts := strings.Split(keyStr, "/")
+			if strings.Contains(keyStr, KeySeparator) {
+				parts := strings.Split(keyStr, KeySeparator)
 				timestampStr = parts[len(parts)-1]
 			} else {
 				// 整个key作为时间戳
@@ -372,12 +445,12 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 			}
 		} else {
 			// 检查key是否符合预期格式
-			if !strings.HasPrefix(keyStr, prefix+"/") {
+			if !strings.HasPrefix(keyStr, prefix+KeySeparator) {
 				continue
 			}
 
 			// 提取时间戳并验证范围
-			parts := strings.Split(keyStr, "/")
+			parts := strings.Split(keyStr, KeySeparator)
 			if len(parts) < 2 {
 				continue
 			}
@@ -391,17 +464,17 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 
 		// 检查时间戳是否在范围内
 		inRange := true
-		if startTime != nil && *startTime != 0 && timestamp < *startTime {
+		if startTime != nil && *startTime != ZeroTimestamp && timestamp < *startTime {
 			inRange = false
 		}
-		if endTime != nil && *endTime != 0 && timestamp > *endTime {
+		if endTime != nil && *endTime != ZeroTimestamp && timestamp > *endTime {
 			inRange = false
 		}
 
 		// 检查时间间隔步长
 		if inRange && step > 0 {
 			// 如果设置了起始时间，从起始时间开始按step间隔过滤
-			if startTime != nil && *startTime != 0 {
+			if startTime != nil && *startTime != ZeroTimestamp {
 				if (timestamp-*startTime)%step != 0 {
 					inRange = false
 				}
@@ -414,7 +487,7 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 		}
 
 		if inRange {
-			xAxis.Data = append(xAxis.Data, fmt.Sprintf("%d", timestamp))
+			chartData.AddTimestamp(int64(timestamp))
 			value, err := iter.ValueAndErr()
 			if err != nil {
 				continue
@@ -430,11 +503,11 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 			}
 
 			pointData := data[tag].(map[string]any)
-			for i, point := range points {
+			for _, point := range points {
 				if pointData[point] != nil {
-					series[i].Data = append(series[i].Data, fmt.Sprintf("%v", pointData[point]))
+					seriesMap[point].AppendData(fmt.Sprintf("%v", pointData[point]))
 				} else {
-					series[i].Data = append(series[i].Data, "")
+					seriesMap[point].AppendData("")
 				}
 			}
 
@@ -444,7 +517,11 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 	if err := iter.Error(); err != nil {
 		return nil, fmt.Errorf("iterator error: %w", err)
 	}
-	chartData.XAxis = xAxis
-	chartData.Series = series
-	return &chartData, nil
+
+	// 将收集到的数据系列添加到图表数据中
+	for _, point := range points {
+		chartData.AddSeries(*seriesMap[point])
+	}
+
+	return chartData, nil
 }

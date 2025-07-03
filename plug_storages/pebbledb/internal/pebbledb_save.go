@@ -15,7 +15,34 @@ import (
 	"github.com/cockroachdb/pebble"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gcron"
+	"github.com/gogf/gf/v2/os/gfile"
+)
+
+// 常量定义
+const (
+	// 数据保留天数相关
+	DefaultDataRetentionDays = 30
+	DataRetentionConfigKey   = "device_retention_days"
+
+	// 定时任务
+	DataCleanupCronSpec = "0 0 0 * * *" // 每天凌晨0点执行
+
+	// 配置管理ID
+	ConfigManageId = 1
+
+	// 键名格式
+	MinKeyParts = 3
+)
+
+// 变量定义
+var (
+	// 数据库路径
+	DefaultPebbleDbPath = gcmd.GetOpt("pebbledb-path", "./out/pebbledb").String()
+	SystemDbPath        = gfile.Join(DefaultPebbleDbPath, "system")
+	DeviceDbPath        = gfile.Join(DefaultPebbleDbPath, "device")
+	ProtocolDbPath      = gfile.Join(DefaultPebbleDbPath, "protocol")
 )
 
 type PebbledbDatabase struct {
@@ -49,17 +76,18 @@ func NewPebbledb(ctx context.Context) c_base.IStorage {
 		}
 
 		// 创建PebbleDB实例
-		systemDb, err := pebble.Open("./out/pebbledb/system", &pebble.Options{})
+		systemDb, err := pebble.Open(SystemDbPath, &pebble.Options{})
+		if err != nil {
+			panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
+		}
+		fmt.Println("SystemDbPath", SystemDbPath)
+
+		deviceDb, err := pebble.Open(DeviceDbPath, &pebble.Options{})
 		if err != nil {
 			panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
 		}
 
-		deviceDb, err := pebble.Open("./out/pebbledb/device", &pebble.Options{})
-		if err != nil {
-			panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
-		}
-
-		protocolDb, err := pebble.Open("./out/pebbledb/protocol", &pebble.Options{})
+		protocolDb, err := pebble.Open(ProtocolDbPath, &pebble.Options{})
 		if err != nil {
 			panic(gerror.Newf("创建Pebbledb实例失败！%v", err))
 		}
@@ -71,11 +99,11 @@ func NewPebbledb(ctx context.Context) c_base.IStorage {
 		}
 
 		// 初始化配置管理
-		configManage = sqlite.NewConfigManage(ctx, 1)
-		dataRetentionDays := 30 // 默认30天
+		configManage = sqlite.NewConfigManage(ctx, ConfigManageId)
+		dataRetentionDays := DefaultDataRetentionDays // 默认30天
 
 		// 获取数据保留天数
-		dataRetentionDaysValue := configManage.GetSettingValueByName(ctx, "device_retention_days")
+		dataRetentionDaysValue := configManage.GetSettingValueByName(ctx, DataRetentionConfigKey)
 		if dataRetentionDaysValue != "" {
 			if days, err := strconv.Atoi(dataRetentionDaysValue); err == nil && days > 0 {
 				dataRetentionDays = days
@@ -104,7 +132,7 @@ func NewPebbledb(ctx context.Context) c_base.IStorage {
 // startDataCleanupScheduler 启动数据清理定时任务
 func (p *Pebbledb) startDataCleanupScheduler() {
 	// 每天凌晨0点执行清理任务
-	_, err := gcron.Add(p.ctx, "0 0 0 * * *", func(ctx context.Context) {
+	_, err := gcron.Add(p.ctx, DataCleanupCronSpec, func(ctx context.Context) {
 		g.Log().Info(ctx, "开始执行PebbleDB数据清理任务")
 
 		if err := p.cleanupExpiredData(); err != nil {
@@ -127,17 +155,17 @@ func (p *Pebbledb) cleanupExpiredData() error {
 	expiredTimestamp := time.Now().AddDate(0, 0, -p.dataRetentionDays).UnixMilli()
 
 	// 清理设备数据
-	if err := p.cleanupDatabase(p.db.DeviceDb, "device", expiredTimestamp); err != nil {
+	if err := p.cleanupDatabase(p.db.DeviceDb, DevicePrefix, expiredTimestamp); err != nil {
 		return gerror.Wrapf(err, "清理设备数据失败")
 	}
 
 	// 清理协议数据
-	if err := p.cleanupDatabase(p.db.ProtocolDb, "protocol", expiredTimestamp); err != nil {
+	if err := p.cleanupDatabase(p.db.ProtocolDb, ProtocolPrefix, expiredTimestamp); err != nil {
 		return gerror.Wrapf(err, "清理协议数据失败")
 	}
 
 	// 清理系统数据
-	if err := p.cleanupDatabase(p.db.SystemDb, "system", expiredTimestamp); err != nil {
+	if err := p.cleanupDatabase(p.db.SystemDb, SystemPrefix, expiredTimestamp); err != nil {
 		return gerror.Wrapf(err, "清理系统数据失败")
 	}
 
@@ -160,13 +188,13 @@ func (p *Pebbledb) cleanupDatabase(db *pebble.DB, prefix string, expiredTimestam
 		key := string(iter.Key())
 
 		// 检查键是否符合预期格式：prefix/id/timestamp
-		if !strings.HasPrefix(key, prefix+"/") {
+		if !strings.HasPrefix(key, prefix+KeySeparator) {
 			continue
 		}
 
 		// 从键名中提取时间戳
-		parts := strings.Split(key, "/")
-		if len(parts) < 3 {
+		parts := strings.Split(key, KeySeparator)
+		if len(parts) < MinKeyParts {
 			continue
 		}
 
@@ -217,7 +245,7 @@ func (p *Pebbledb) SetDataRetentionDays(days int) error {
 	}
 
 	// 先保存到数据库
-	err := configManage.SetSettingValueByName(p.ctx, "device_retention_days", strconv.Itoa(days))
+	err := configManage.SetSettingValueByName(p.ctx, DataRetentionConfigKey, strconv.Itoa(days))
 	if err != nil {
 		g.Log().Errorf(p.ctx, "设置数据保留天数失败: %v", err)
 		return gerror.Wrapf(err, "设置数据保留天数到数据库失败")
@@ -249,7 +277,7 @@ func (p *Pebbledb) SaveDevices(deviceId string, deviceType c_base.EDeviceType, f
 	}
 
 	// 生成键名：device/{deviceId}/{timestamp}
-	key := fmt.Sprintf("device/%s/%d", deviceId, time.Now().UnixMilli())
+	key := fmt.Sprintf("%s%s%s%s%d", DevicePrefix, KeySeparator, deviceId, KeySeparator, time.Now().UnixMilli())
 
 	// 写入数据
 	err = p.db.DeviceDb.Set([]byte(key), data, pebble.Sync)
@@ -284,7 +312,7 @@ func (p *Pebbledb) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, d
 	}
 
 	// 生成键名：protocol/{protocolId}/{timestamp}
-	key := fmt.Sprintf("protocol/%s/%d", protocolConfig.Id, time.Now().UnixMilli())
+	key := fmt.Sprintf("%s%s%s%s%d", ProtocolPrefix, KeySeparator, protocolConfig.Id, KeySeparator, time.Now().UnixMilli())
 
 	// 写入数据
 	err = p.db.ProtocolDb.Set([]byte(key), data, pebble.Sync)
@@ -316,7 +344,7 @@ func (p *Pebbledb) SaveSystemMetrics(measurement string, tags map[string]string,
 	}
 
 	// 生成键名：system/{measurement}/{timestamp}
-	key := fmt.Sprintf("system/%s/%d", measurement, time.Now().UnixMilli())
+	key := fmt.Sprintf("%s%s%s%s%d", SystemPrefix, KeySeparator, measurement, KeySeparator, time.Now().UnixMilli())
 
 	// 写入数据
 	err = p.db.SystemDb.Set([]byte(key), data, pebble.Sync)

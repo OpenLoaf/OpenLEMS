@@ -19,11 +19,13 @@ import (
 )
 
 const (
-	argDeviceConfigName = "device-name" // 驱动配置文件
-	argDriverConfigName = "driver-path" // 驱动文件的存放路径
-	argEnableWeb        = "web"         // 是否启动web
-	argLanguage         = "language"    // 全局语言设置
-	argTimeZone         = "time-zone"   // 全局时区设置
+	argDeviceConfigName = "device-name"   // 驱动配置文件
+	argDriverConfigName = "driver-path"   // 驱动文件的存放路径
+	argEnableWeb        = "web"           // 是否启动web
+	argLanguage         = "language"      // 全局语言设置
+	argTimeZone         = "time-zone"     // 全局时区设置
+	argPebbleDbPath     = "pebbledb-path" // pebble数据库路径
+	argSqliteDbPath     = "sqlite-path"   // sqlite数据库路径
 )
 
 var DeviceStartCancel context.CancelFunc = nil // 设备启动取消函数，设备启动时候回堵塞进程
@@ -38,6 +40,8 @@ var (
 			{Name: argEnableWeb, Short: "w", Brief: "Default: false 启动web端 ", IsArg: false, Orphan: false},
 			{Name: argLanguage, Short: "l", Brief: "Default: zh-CN 设置语言 ", IsArg: false, Orphan: false},
 			{Name: argTimeZone, Short: "t", Brief: "Default: zh-CN 设置语言 ", IsArg: false, Orphan: false},
+			{Name: argPebbleDbPath, Short: "p", Brief: "Default: ./out/pebbledb 设置pebbledb数据库路径 ", IsArg: false, Orphan: false},
+			{Name: argSqliteDbPath, Short: "s", Brief: "Default: ./out 设置sqlite数据库路径 ", IsArg: false, Orphan: false},
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 
