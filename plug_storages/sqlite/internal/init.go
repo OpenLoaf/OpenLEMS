@@ -5,9 +5,12 @@ import (
 	"path/filepath"
 
 	_ "github.com/gogf/gf/contrib/drivers/sqlite/v2"
+	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gctx"
 )
+
+var DefaultSqliteDbPath = gcmd.GetOpt("sqlite-path", "./out/db.sqlite3").String()
 
 func Init() {
 	initConfigDatabase()
@@ -18,7 +21,7 @@ func initConfigDatabase() {
 	ctx := gctx.New()
 
 	// 确保数据库目录存在
-	dbPath := "out/db.sqlite3"
+	dbPath := DefaultSqliteDbPath
 	dbDir := filepath.Dir(dbPath)
 	if _, err := os.Stat(dbDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(dbDir, 0755); err != nil {

@@ -41,7 +41,7 @@ var (
 			{Name: argLanguage, Short: "l", Brief: "Default: zh-CN 设置语言 ", IsArg: false, Orphan: false},
 			{Name: argTimeZone, Short: "t", Brief: "Default: zh-CN 设置语言 ", IsArg: false, Orphan: false},
 			{Name: argPebbleDbPath, Short: "p", Brief: "Default: ./out/pebbledb 设置pebbledb数据库路径 ", IsArg: false, Orphan: false},
-			{Name: argSqliteDbPath, Short: "s", Brief: "Default: ./out 设置sqlite数据库路径 ", IsArg: false, Orphan: false},
+			{Name: argSqliteDbPath, Short: "s", Brief: "Default: ./out/db.sqlite3 设置sqlite数据库路径 ", IsArg: false, Orphan: false},
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 
