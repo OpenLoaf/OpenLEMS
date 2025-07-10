@@ -19,18 +19,17 @@ type IConfigManage interface {
 }
 
 type sConfigManage struct {
-	gId uint
 }
 
 var (
-	instances = make(map[uint]IConfigManage)
-	mu        sync.RWMutex
+	instance IConfigManage
+	mu       sync.RWMutex
 )
 
-func NewConfigManage(ctx context.Context, gId uint) IConfigManage {
+func NewConfigManage(ctx context.Context) IConfigManage {
 	// 先用读锁检查实例是否已存在
 	mu.RLock()
-	if instance, exists := instances[gId]; exists {
+	if instance != nil {
 		mu.RUnlock()
 		return instance
 	}
@@ -41,43 +40,31 @@ func NewConfigManage(ctx context.Context, gId uint) IConfigManage {
 	defer mu.Unlock()
 
 	// 双重检查，防止并发创建
-	if instance, exists := instances[gId]; exists {
+	if instance != nil {
 		return instance
 	}
 
 	// 创建新的单例实例
-	instance := &sConfigManage{
-		gId: gId,
-	}
-	instances[gId] = instance
+	instance = &sConfigManage{}
 	return instance
 }
 
-// ClearConfigManageInstance 清理指定gId的ConfigManage实例
-func ClearConfigManageInstance(gId uint) {
+// ClearConfigManageInstance 清理ConfigManage实例
+func ClearConfigManageInstance() {
 	mu.Lock()
 	defer mu.Unlock()
-	delete(instances, gId)
-}
-
-// ClearAllConfigManageInstances 清理所有ConfigManage实例
-func ClearAllConfigManageInstances() {
-	mu.Lock()
-	defer mu.Unlock()
-	instances = make(map[uint]IConfigManage)
+	instance = nil
 }
 
 func (s *sConfigManage) GetDeviceConfig(ctx context.Context) *c_base.SDriverConfig {
-	devices, err := model.GetDevicesByCondition(ctx, g.Map{
-		"gid": s.gId,
-	})
+	devices, err := model.GetDevicesByCondition(ctx, g.Map{})
 	if err != nil {
-		g.Log().Errorf(ctx, "获取设备配置失败 - gId: %d, 错误: %v", s.gId, err)
+		g.Log().Errorf(ctx, "获取设备配置失败 - 错误: %v", err)
 		return nil
 	}
 
 	if len(devices) == 0 {
-		g.Log().Warningf(ctx, "未找到任何设备配置 - gId: %d", s.gId)
+		g.Log().Warningf(ctx, "未找到任何设备配置")
 		return nil
 	}
 

@@ -29,9 +29,6 @@ const (
 	// 定时任务
 	DataCleanupCronSpec = "0 0 0 * * *" // 每天凌晨0点执行
 
-	// 配置管理ID
-	ConfigManageId = 1
-
 	// 键名格式
 	MinKeyParts = 3
 )
@@ -99,7 +96,7 @@ func NewPebbledb(ctx context.Context) c_base.IStorage {
 		}
 
 		// 初始化配置管理
-		configManage = sqlite.NewConfigManage(ctx, ConfigManageId)
+		configManage = sqlite.NewConfigManage(ctx)
 		dataRetentionDays := DefaultDataRetentionDays // 默认30天
 
 		// 获取数据保留天数

@@ -11,6 +11,6 @@ func Init() {
 	internal.Init()
 }
 
-func NewConfigManage(ctx context.Context, gId uint) service.IConfigManage {
-	return service.NewConfigManage(ctx, gId)
+func NewConfigManage(ctx context.Context) service.IConfigManage {
+	return service.NewConfigManage(ctx)
 }

@@ -16,7 +16,7 @@ import (
 func SystemInitConfigInstance(ctx context.Context) {
 	all := gcmd.GetOptAll()
 	fmt.Println(all)
-	internal_config_with_sqlite.NewConfigInstance(ctx, 1)
+	internal_config_with_sqlite.NewConfigInstance(ctx)
 }
 
 // GetDriverConfig 获取设备配置，失败将直接系统退出

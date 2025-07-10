@@ -59,7 +59,6 @@ var (
 				return pebbledb.NewStorageInstance(ctx)
 			})
 
-			// database.NewConfigManage(ctx, 1).GetDeviceConfig(ctx)
 			// 初始化context
 			ctx, cancelFunc := context.WithCancel(context.Background())
 			ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Main")

@@ -16,7 +16,6 @@ const (
 	// 字段名
 	FieldId            = "id"
 	FieldPid           = "pid"
-	FieldGid           = "gid"
 	FieldProtocolId    = "protocol_id"
 	FieldName          = "name"
 	FieldDriver        = "driver"
@@ -35,7 +34,6 @@ type Device struct {
 	g.Meta     `orm:"table:device"`
 	Id         string `json:"id" orm:"id,primary"`
 	Pid        string `json:"pid" orm:"pid"`
-	Gid        uint   `json:"gid" orm:"gid"`
 	ProtocolId string `json:"protocol_id" orm:"protocol_id"`
 	Name       string `json:"name" orm:"name"`
 	Driver     string `json:"driver" orm:"driver"`
@@ -142,13 +140,6 @@ func GetDevicesByCondition(ctx context.Context, condition g.Map) ([]*Device, err
 func GetDevicesByPid(ctx context.Context, pid string) ([]*Device, error) {
 	var devices []*Device
 	err := g.Model(TableDevice).Ctx(ctx).Where(FieldPid, pid).Scan(&devices)
-	return devices, err
-}
-
-// GetByGid 根据组ID获取设备列表
-func GetDevicesByGid(ctx context.Context, gid uint) ([]*Device, error) {
-	var devices []*Device
-	err := g.Model(TableDevice).Ctx(ctx).Where(FieldGid, gid).Scan(&devices)
 	return devices, err
 }
 

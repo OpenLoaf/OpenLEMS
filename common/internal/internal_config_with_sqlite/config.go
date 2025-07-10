@@ -11,7 +11,6 @@ import (
 )
 
 type SConfig struct {
-	groupId  uint // 设备配置组
 	instance service.IConfigManage
 }
 
@@ -24,11 +23,10 @@ func init() {
 	gcmd.GetOptWithEnv("device")
 }
 
-func NewConfigInstance(ctx context.Context, groupId uint) *SConfig {
+func NewConfigInstance(ctx context.Context) *SConfig {
 	configInitOnce.Do(func() {
 		ConfigInstance = &SConfig{
-			groupId:  groupId,
-			instance: database.NewConfigManage(ctx, groupId),
+			instance: database.NewConfigManage(ctx),
 		}
 	})
 	return ConfigInstance
