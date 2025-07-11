@@ -8,12 +8,140 @@ import (
 	"common/c_base"
 	"context"
 	"fmt"
-	"github.com/gogf/gf/v2/errors/gerror"
+	"io/ioutil"
 	"strings"
+
+	"github.com/gogf/gf/v2/errors/gerror"
 )
 
 func init() {
 	//g.Log().Noticef(context.Background(), "当前环境为生产环境，从driver文件中获取驱动！")
+}
+
+// DriverInfo 驱动信息结构
+type DriverInfo struct {
+	Name        string               `json:"name"`        // 驱动名称
+	Type        c_base.EDeviceType   `json:"type"`        // 驱动类型
+	Description *c_base.SDescription `json:"description"` // 驱动描述
+	Available   bool                 `json:"available"`   // 是否可用
+}
+
+// GetAllDriverNames 获取所有驱动名称
+func GetAllDriverNames() []string {
+	var driverNames []string
+
+	// 扫描当前目录下的所有.driver文件
+	files, err := ioutil.ReadDir(".")
+	if err != nil {
+		return driverNames
+	}
+
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".driver") {
+			driverName := strings.TrimSuffix(file.Name(), ".driver")
+			driverNames = append(driverNames, driverName)
+		}
+	}
+
+	return driverNames
+}
+
+// GetAllDriversInfo 获取所有驱动的详细信息
+func GetAllDriversInfo(ctx context.Context) []DriverInfo {
+	var driversInfo []DriverInfo
+	driverNames := GetAllDriverNames()
+
+	for _, driverName := range driverNames {
+		driverInfo := DriverInfo{
+			Name:      driverName,
+			Available: true,
+		}
+
+		// 尝试加载驱动获取详细信息
+		driverPath := fmt.Sprintf("%s.driver", driverName)
+
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					// 如果加载驱动失败，标记为不可用
+					driverInfo.Available = false
+				}
+			}()
+
+			pluginSymbol, err := common.OpenPlugin(ctx, driverPath)
+			if err != nil {
+				driverInfo.Available = false
+				return
+			}
+
+			if driverNewFunction, ok := pluginSymbol.(func(ctx context.Context) c_base.IDriver); ok {
+				driver := driverNewFunction(ctx)
+				if driver != nil {
+					driverInfo.Type = driver.GetDriverType()
+					driverInfo.Description = driver.GetDescription()
+				}
+			} else {
+				driverInfo.Available = false
+			}
+		}()
+
+		driversInfo = append(driversInfo, driverInfo)
+	}
+
+	return driversInfo
+}
+
+// GetDriverInfo 获取指定驱动的详细信息
+func GetDriverInfo(ctx context.Context, driverName string) (*DriverInfo, error) {
+	driverPath := fmt.Sprintf("%s.driver", driverName)
+
+	// 检查驱动文件是否存在
+	if _, err := ioutil.ReadFile(driverPath); err != nil {
+		return nil, gerror.Newf("未找到驱动文件[%s]", driverPath)
+	}
+
+	driverInfo := &DriverInfo{
+		Name:      driverName,
+		Available: true,
+	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			driverInfo.Available = false
+		}
+	}()
+
+	pluginSymbol, err := common.OpenPlugin(ctx, driverPath)
+	if err != nil {
+		return nil, gerror.Newf("加载驱动[%s]失败: %v", driverPath, err)
+	}
+
+	if driverNewFunction, ok := pluginSymbol.(func(ctx context.Context) c_base.IDriver); ok {
+		driver := driverNewFunction(ctx)
+		if driver != nil {
+			driverInfo.Type = driver.GetDriverType()
+			driverInfo.Description = driver.GetDescription()
+		}
+	} else {
+		driverInfo.Available = false
+		return nil, gerror.Newf("驱动[%s]不包含有效的NewPlugin函数", driverPath)
+	}
+
+	return driverInfo, nil
+}
+
+// GetDriversByType 根据设备类型获取驱动信息
+func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []DriverInfo {
+	allDrivers := GetAllDriversInfo(ctx)
+	var filteredDrivers []DriverInfo
+
+	for _, driver := range allDrivers {
+		if driver.Type == deviceType {
+			filteredDrivers = append(filteredDrivers, driver)
+		}
+	}
+
+	return filteredDrivers
 }
 
 // 生产环境下使用驱动加载的方式进行加载

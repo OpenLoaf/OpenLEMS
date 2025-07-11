@@ -11,8 +11,6 @@ import (
 	"context"
 	"ess_boost_gold/ess_boost_gold_v1"
 	"ess_lnxall/ess_boost_lnxall_v1"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 	"pcs_enjoy/pcs_enjoy_basic_v1"
 	"pcs_lnxall/pcs_lnxall_v1"
 	"pylonTechUs108_v1/bms_pylon_tech_us108_v1"
@@ -21,6 +19,9 @@ import (
 	"starCharge100E_v1/pcs_star_charge_100E_v1"
 	"station_energy_store/sess_basic_v1"
 	"strings"
+
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 func init() {
@@ -39,6 +40,111 @@ var pluginNewMethodCache = map[string]any{
 	"ammeter_acrel_10r_v1.0.0":    ammeter_acrel_10r_v1.NewPlugin,
 	"pcs_lnxall_v1.0.0":           pcs_lnxall_v1.NewPlugin,
 	"bms_lnxall_v1.0.0":           bms_lnxall_v1.NewPlugin,
+}
+
+func GetAllDriverNames() []string {
+	var driverNames []string
+	for driverName := range pluginNewMethodCache {
+		driverNames = append(driverNames, driverName)
+	}
+	return driverNames
+}
+
+// DriverInfo 驱动信息结构
+type DriverInfo struct {
+	Name        string               `json:"name"`        // 驱动名称
+	Type        c_base.EDeviceType   `json:"type"`        // 驱动类型
+	Description *c_base.SDescription `json:"description"` // 驱动描述
+	Available   bool                 `json:"available"`   // 是否可用
+}
+
+// GetAllDriversInfo 获取所有驱动的详细信息
+func GetAllDriversInfo(ctx context.Context) []DriverInfo {
+	var driversInfo []DriverInfo
+
+	for driverName, newMethod := range pluginNewMethodCache {
+		driverInfo := DriverInfo{
+			Name:      driverName,
+			Available: newMethod != nil,
+		}
+
+		// 尝试创建驱动实例获取详细信息
+		if newMethod != nil {
+			func() {
+				defer func() {
+					if r := recover(); r != nil {
+						// 如果创建驱动失败，标记为不可用
+						driverInfo.Available = false
+						g.Log().Warningf(ctx, "创建驱动[%s]失败: %v", driverName, r)
+					}
+				}()
+
+				// 调用NewPlugin方法创建驱动实例
+				args := []reflect.Value{reflect.ValueOf(ctx)}
+				results := reflect.ValueOf(newMethod).Call(args)
+
+				if len(results) > 0 {
+					if driver, ok := results[0].Interface().(c_base.IDriver); ok {
+						driverInfo.Type = driver.GetDriverType()
+						driverInfo.Description = driver.GetDescription()
+					}
+				}
+			}()
+		}
+
+		driversInfo = append(driversInfo, driverInfo)
+	}
+
+	return driversInfo
+}
+
+// GetDriverInfo 获取指定驱动的详细信息
+func GetDriverInfo(ctx context.Context, driverName string) (*DriverInfo, error) {
+	newMethod, exists := pluginNewMethodCache[driverName]
+	if !exists {
+		return nil, gerror.Newf("未找到驱动[%s]", driverName)
+	}
+
+	driverInfo := &DriverInfo{
+		Name:      driverName,
+		Available: newMethod != nil,
+	}
+
+	if newMethod != nil {
+		defer func() {
+			if r := recover(); r != nil {
+				driverInfo.Available = false
+				g.Log().Warningf(ctx, "创建驱动[%s]失败: %v", driverName, r)
+			}
+		}()
+
+		// 调用NewPlugin方法创建驱动实例
+		args := []reflect.Value{reflect.ValueOf(ctx)}
+		results := reflect.ValueOf(newMethod).Call(args)
+
+		if len(results) > 0 {
+			if driver, ok := results[0].Interface().(c_base.IDriver); ok {
+				driverInfo.Type = driver.GetDriverType()
+				driverInfo.Description = driver.GetDescription()
+			}
+		}
+	}
+
+	return driverInfo, nil
+}
+
+// GetDriversByType 根据设备类型获取驱动信息
+func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []DriverInfo {
+	allDrivers := GetAllDriversInfo(ctx)
+	var filteredDrivers []DriverInfo
+
+	for _, driver := range allDrivers {
+		if driver.Type == deviceType {
+			filteredDrivers = append(filteredDrivers, driver)
+		}
+	}
+
+	return filteredDrivers
 }
 
 func (d *SDeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) c_base.IDriver {
