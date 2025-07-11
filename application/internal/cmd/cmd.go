@@ -49,10 +49,11 @@ var (
 			gi18n.SetLanguage("zh-CN")
 			// deviceConfigName := parser.GetOpt(argDeviceConfigName, "device").String()
 			// driverConfigName := parser.GetOpt(argDriverConfigName, gfile.Join(pwd, "drivers")).String()
-			common.SystemInitConfigInstance(ctx)
 
 			// 初始化数据库表
 			database.Init()
+
+			common.SystemInitConfigInstance(ctx)
 
 			// 初始化存储
 			common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
