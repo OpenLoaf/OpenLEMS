@@ -4,6 +4,7 @@ import (
 	"application/internal/consts"
 	"application/internal/controller/device"
 	"application/internal/controller/driver"
+	"application/internal/controller/protocol"
 	"application/internal/controller/station_ess"
 	"application/internal/controller/telemetry"
 	"application/internal/ws"
@@ -41,6 +42,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		group.Bind(station_ess.NewV1())
 		group.Bind(device.NewV1())
 		group.Bind(driver.NewV1())
+		group.Bind(protocol.NewV1())
 	})
 
 	s.BindObject("/station", ws.NewStationWebsocket())
