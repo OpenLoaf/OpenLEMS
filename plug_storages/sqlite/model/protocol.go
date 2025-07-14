@@ -78,6 +78,13 @@ func (p *Protocol) GetByName(ctx context.Context, name string) error {
 	return g.Model(TableProtocol).Ctx(ctx).Where(ProtocolFieldName, name).Scan(p)
 }
 
+// GetByType 根据类型获取协议记录
+func (p *Protocol) GetByType(ctx context.Context, type_ string) ([]*Protocol, error) {
+	var protocols []*Protocol
+	err := g.Model(TableProtocol).Ctx(ctx).Where(ProtocolFieldType, type_).Scan(&protocols)
+	return protocols, err
+}
+
 // Update 更新协议记录
 func (p *Protocol) Update(ctx context.Context) error {
 	_, err := g.Model(TableProtocol).Ctx(ctx).Where(ProtocolFieldId, p.Id).Update(p)
