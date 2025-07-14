@@ -17,6 +17,7 @@ const (
 	// 字段名
 	ProtocolFieldId       = "id"
 	ProtocolFieldName     = "name"
+	ProtocolFieldType     = "type"
 	ProtocolFieldAddress  = "address"
 	ProtocolFieldTimeout  = "timeout"
 	ProtocolFieldLogLevel = "log_level"
@@ -32,6 +33,7 @@ type Protocol struct {
 	g.Meta   `orm:"table:protocol"`
 	Id       string `json:"id" orm:"id,primary"`
 	Name     string `json:"name" orm:"name"`
+	Type     string `json:"type" orm:"type"`
 	Address  string `json:"address" orm:"address"`
 	Timeout  int64  `json:"timeout" orm:"timeout"`
 	LogLevel string `json:"log_level" orm:"log_level"`
