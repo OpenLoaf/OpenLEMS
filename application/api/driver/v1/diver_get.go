@@ -11,5 +11,6 @@ type GetDriverListReq struct {
 }
 
 type GetDriverListRes struct {
-	DriverList []*entity.SDriver `json:"driverList" dc:"驱动列表"`
+	DriverList []*entity.SDriver `json:"list" dc:"驱动列表"`
+	Total      int               `json:"total" dc:"总数"`
 }
