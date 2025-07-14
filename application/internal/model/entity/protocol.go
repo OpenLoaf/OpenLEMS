@@ -1,6 +1,7 @@
 package entity
 
 type SProtocol struct {
+	ProtocolId       string `json:"protocolId" dc:"协议ID"`
 	ProtocolName     string `json:"protocolName" dc:"协议名称"`
 	ProtocolType     string `json:"protocolType" dc:"协议类型"`
 	ProtocolAddress  string `json:"protocolAddress" dc:"协议地址"`

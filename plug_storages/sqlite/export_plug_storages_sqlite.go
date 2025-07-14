@@ -14,3 +14,7 @@ func Init() {
 func NewConfigManage(ctx context.Context) service.IConfigManage {
 	return service.NewConfigManage(ctx)
 }
+
+func NewProtocolManage(ctx context.Context) service.IProtocolManage {
+	return service.NewProtocolManage(ctx)
+}

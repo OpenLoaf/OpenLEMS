@@ -5,11 +5,11 @@ import (
 
 	v1 "application/api/protocol/v1"
 	"application/internal/model/entity"
-	"sqlite/service"
+	"sqlite"
 )
 
 func (c *ControllerV1) GetProtocolList(ctx context.Context, req *v1.GetProtocolListReq) (res *v1.GetProtocolListRes, err error) {
-	protocolManage := service.NewProtocolManage(ctx)
+	protocolManage := sqlite.NewProtocolManage(ctx)
 	protocols, err := protocolManage.GetProtocolList(ctx, req.Type)
 	if err != nil {
 		return nil, err
@@ -19,6 +19,7 @@ func (c *ControllerV1) GetProtocolList(ctx context.Context, req *v1.GetProtocolL
 	var entityProtocols []*entity.SProtocol
 	for _, protocol := range protocols {
 		entityProtocols = append(entityProtocols, &entity.SProtocol{
+			ProtocolId:       protocol.Id,
 			ProtocolName:     protocol.Name,
 			ProtocolType:     protocol.Type,
 			ProtocolAddress:  protocol.Address,
