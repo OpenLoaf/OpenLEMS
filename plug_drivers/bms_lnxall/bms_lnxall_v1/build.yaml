@@ -4,5 +4,6 @@ version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-03-18"
 remark: "协能BMS协议"
+protocolType: "modbus"
 
 

@@ -4,6 +4,7 @@ version: v1.0.0
 author: "dynamicoct@qq.com"
 create: "2024-09-07"
 remark: "场站级驱动:储能组"
+protocolType: "virtual"
 telemetry:
     - name: Soc
       unit: "%"

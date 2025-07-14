@@ -4,6 +4,7 @@ version: v1.0.0
 author: "dynamicoct@qq.com"
 create: "2024-09-07"
 remark: "GPIO基础驱动"
+protocolType: "gpio"
 telemetry:
   - name: status
     unit: bool

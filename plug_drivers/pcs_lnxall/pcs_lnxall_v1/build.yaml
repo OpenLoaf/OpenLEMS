@@ -4,3 +4,4 @@ version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-03-17"
 remark: "协能PCS协议"
+protocolType: "modbus"

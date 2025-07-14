@@ -4,6 +4,7 @@ version: v1.0.0
 author: "dynamicoct@qq.com"
 create: "2024-09-07"
 remark: "派能108kWh风冷电池MBMS"
+protocolType: "modbus"
 telemetry:
     - name: soc
       unit: "%"

@@ -4,6 +4,7 @@ version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-03-17"
 remark: "博时储能柜协能EMS"
+protocolType: "modbus"
 telemetry:
   - name: soc
     unit: "%"
