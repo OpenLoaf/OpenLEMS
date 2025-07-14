@@ -3,35 +3,38 @@ package c_base
 import (
 	"context"
 	"fmt"
-	"github.com/gogf/gf/v2/encoding/gyaml"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/text/gstr"
 	"reflect"
 	"strings"
 	"text/tabwriter"
+
+	"github.com/gogf/gf/v2/encoding/gyaml"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/text/gstr"
 )
 
 type SDescription struct {
-	Brand      string        `json:"brand"`      // 品牌
-	Model      string        `json:"model"`      // 型号
-	Version    string        `json:"version"`    // 版本
-	Create     string        `json:"create"`     // 创建时间
-	BuildTime  string        `json:"buildTime"`  // 编译时间
-	CommitHash string        `json:"commitHash"` // 提交哈希
-	Author     string        `json:"author"`     // 作者
-	Remark     string        `json:"remark"`     // 备注
-	Telemetry  []*STelemetry `json:"telemetry"`  // 遥测
+	Brand        string        `json:"brand" yaml:"brand"`               // 品牌
+	Model        string        `json:"model" yaml:"model"`               // 型号
+	Version      string        `json:"version" yaml:"version"`           // 版本
+	Create       string        `json:"create" yaml:"create"`             // 创建时间
+	BuildTime    string        `json:"buildTime" yaml:"buildTime"`       // 编译时间
+	CommitHash   string        `json:"commitHash" yaml:"commitHash"`     // 提交哈希
+	Author       string        `json:"author" yaml:"author"`             // 作者
+	Remark       string        `json:"remark" yaml:"remark"`             // 备注
+	ProtocolType string        `json:"protocolType" yaml:"protocolType"` // 协议类型
+	Telemetry    []*STelemetry `json:"telemetry" yaml:"telemetry"`       // 遥测
 
 	reflectMethodCache map[string]reflect.Value // 反射方法缓存
 }
 
 func BuildDescriptionFromYaml(ctx context.Context, yaml []byte) *SDescription {
-	//g.Log().Debugf(ctx, "BuildDescriptionFromYaml: %s", string(yaml))
+	// g.Log().Debugf(ctx, "BuildDescriptionFromYaml: %s", string(yaml))
 	description := &SDescription{}
 	err := gyaml.DecodeTo(yaml, &description)
 	if err != nil {
 		panic(gerror.Newf("解析版本信息失败！请检查version.yaml文件!%v", err))
 	}
+
 	return description
 }
 
@@ -48,6 +51,8 @@ func (s *SDescription) String() string {
 	_, _ = writer.Write([]byte(fmt.Sprintf("Version\t:\t%s\t\n", s.Version)))
 	_, _ = writer.Write([]byte(fmt.Sprintf("Author\t:\t%s\t\n", s.Author)))
 	_, _ = writer.Write([]byte(fmt.Sprintf("CreateTime\t:\t%s\t\n", s.Create)))
+	_, _ = writer.Write([]byte(fmt.Sprintf("ProtocolType\t:\t%s\t\n", s.ProtocolType)))
+
 	if s.BuildTime != "" {
 		_, _ = writer.Write([]byte(fmt.Sprintf("BuildTime\t:\t%s\t\n", s.BuildTime)))
 	}
