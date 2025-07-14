@@ -3,11 +3,13 @@ package cmd
 import (
 	"application/internal/consts"
 	"application/internal/controller/device"
+	"application/internal/controller/driver"
 	"application/internal/controller/station_ess"
 	"application/internal/controller/telemetry"
 	"application/internal/ws"
 	"common/c_base"
 	"context"
+
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/i18n/gi18n"
@@ -38,6 +40,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		group.Bind(telemetry.NewV1())
 		group.Bind(station_ess.NewV1())
 		group.Bind(device.NewV1())
+		group.Bind(driver.NewV1())
 	})
 
 	s.BindObject("/station", ws.NewStationWebsocket())
