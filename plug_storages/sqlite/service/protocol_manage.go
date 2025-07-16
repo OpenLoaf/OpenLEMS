@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"sqlite/model"
 
-	"github.com/gogf/gf/v2/util/guid"
+	"github.com/google/uuid"
 )
 
 type IProtocolManage interface {
@@ -82,7 +82,7 @@ func (s *sProtocolManage) UpdateProtocol(ctx context.Context, protocolId string,
 
 func (s *sProtocolManage) CreateProtocol(ctx context.Context, data map[string]interface{}) (string, error) {
 	// 生成协议ID
-	protocolId := guid.S()
+	protocolId := uuid.NewString()
 
 	// 处理地址和端口
 	address := ""
