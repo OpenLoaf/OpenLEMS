@@ -56,7 +56,10 @@ func initConfigDatabase() {
 			address VARCHAR(255) NOT NULL,
 			timeout INTEGER NOT NULL,
 			log_level VARCHAR(255) NOT NULL,
-			params TEXT
+			sort INTEGER DEFAULT 0,
+			params TEXT,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
 	if err != nil {
@@ -74,7 +77,10 @@ func initConfigDatabase() {
 			log_level VARCHAR(255),
 			enable BOOLEAN,
 			params TEXT,
-			retention_days INTEGER NOT NULL
+			retention_days INTEGER NOT NULL,
+			sort INTEGER DEFAULT 0,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
 	if err != nil {
@@ -88,7 +94,10 @@ func initConfigDatabase() {
 			name VARCHAR(255) NOT NULL,
 			value VARCHAR(255),
 			enable BOOLEAN,
-			remark VARCHAR(255)
+			remark VARCHAR(255),
+			sort INTEGER DEFAULT 0,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
 	if err != nil {

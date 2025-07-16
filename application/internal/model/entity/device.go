@@ -10,3 +10,15 @@ type SDevice struct {
 	IsVirtual      bool               `json:"isVirtual"  dc:"是否虚拟设备"`
 	AlarmLevel     c_base.EAlarmLevel `json:"alarmLevel" dc:"告警级别"`
 }
+
+type SDeviceTree struct {
+	DeviceId       string         `json:"deviceId" dc:"设备Id"`
+	DevicePid      string         `json:"devicePid" dc:"父设备Id"`
+	ProtocolId     string         `json:"protocolId" dc:"协议Id"`
+	DeviceName     string         `json:"deviceName" dc:"设备名称"`
+	DeviceDriver   string         `json:"deviceDriver" dc:"设备驱动"`
+	LogLevel       string         `json:"logLevel" dc:"日志级别"`
+	Enable         bool           `json:"enable" dc:"是否启用"`
+	Sort           int            `json:"sort" dc:"排序"`
+	DeviceChildren []*SDeviceTree `json:"deviceChildren" dc:"子设备列表"`
+}

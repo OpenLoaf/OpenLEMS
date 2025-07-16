@@ -18,3 +18,7 @@ func NewConfigManage(ctx context.Context) service.IConfigManage {
 func NewProtocolManage(ctx context.Context) service.IProtocolManage {
 	return service.NewProtocolManage(ctx)
 }
+
+func NewDeviceManage(ctx context.Context) service.IDeviceManage {
+	return service.NewDeviceManage(ctx)
+}

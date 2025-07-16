@@ -1,11 +1,12 @@
 package device
 
 import (
-	"application/api/device/v1"
+	v1 "application/api/device/v1"
 	"application/internal/model/entity"
 	"common"
 	"common/util"
 	"context"
+
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 )

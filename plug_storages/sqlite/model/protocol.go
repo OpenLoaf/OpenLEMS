@@ -15,13 +15,16 @@ const (
 	TableProtocol = "protocol"
 
 	// 字段名
-	ProtocolFieldId       = "id"
-	ProtocolFieldName     = "name"
-	ProtocolFieldType     = "type"
-	ProtocolFieldAddress  = "address"
-	ProtocolFieldTimeout  = "timeout"
-	ProtocolFieldLogLevel = "log_level"
-	ProtocolFieldParams   = "params"
+	ProtocolFieldId        = "id"
+	ProtocolFieldName      = "name"
+	ProtocolFieldType      = "type"
+	ProtocolFieldAddress   = "address"
+	ProtocolFieldTimeout   = "timeout"
+	ProtocolFieldLogLevel  = "log_level"
+	ProtocolFieldParams    = "params"
+	ProtocolFieldSort      = "sort"
+	ProtocolFieldCreatedAt = "created_at"
+	ProtocolFieldUpdatedAt = "updated_at"
 
 	// 特殊值
 	ProtocolNullValue  = "null"
@@ -38,7 +41,10 @@ type Protocol struct {
 	Timeout  int64  `json:"timeout" orm:"timeout"`
 	LogLevel string `json:"log_level" orm:"log_level"`
 	// 在sqlite中以json字符串形式存储设备参数
-	Params string `json:"params" orm:"params"`
+	Params    string `json:"params" orm:"params"`
+	Sort      int    `json:"sort" orm:"sort"`
+	CreatedAt string `json:"created_at" orm:"created_at"`
+	UpdatedAt string `json:"updated_at" orm:"updated_at"`
 }
 
 func (p *Protocol) GetParamsMap() (map[string]string, error) {
@@ -172,5 +178,12 @@ func ExistsProtocolByName(ctx context.Context, name string) (bool, error) {
 func GetProtocolsByTimeoutRange(ctx context.Context, minTimeout, maxTimeout int64) ([]*Protocol, error) {
 	var protocols []*Protocol
 	err := g.Model(TableProtocol).Ctx(ctx).WhereBetween(ProtocolFieldTimeout, minTimeout, maxTimeout).Scan(&protocols)
+	return protocols, err
+}
+
+// GetAllProtocolsOrderBySort 获取所有协议记录，按sort字段排序
+func GetAllProtocolsOrderBySort(ctx context.Context) ([]*Protocol, error) {
+	var protocols []*Protocol
+	err := g.Model(TableProtocol).Ctx(ctx).Order(ProtocolFieldSort).Scan(&protocols)
 	return protocols, err
 }

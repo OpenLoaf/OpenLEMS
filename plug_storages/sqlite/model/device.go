@@ -23,6 +23,9 @@ const (
 	FieldEnable        = "enable"
 	FieldParams        = "params"
 	FieldRetentionDays = "retention_days"
+	FieldSort          = "sort"
+	FieldCreatedAt     = "created_at"
+	FieldUpdatedAt     = "updated_at"
 
 	// 特殊值
 	NullValue  = "null"
@@ -42,6 +45,9 @@ type Device struct {
 	// 在sqlite中以json字符串形式存储设备参数
 	Params        string `json:"params" orm:"params"`
 	RetentionDays int    `json:"retention_days" orm:"retention_days"`
+	Sort          int    `json:"sort" orm:"sort"`
+	CreatedAt     string `json:"created_at" orm:"created_at"`
+	UpdatedAt     string `json:"updated_at" orm:"updated_at"`
 }
 
 // GetParamsMap 获取参数的map格式
@@ -173,5 +179,26 @@ func CountDevicesByCondition(ctx context.Context, condition g.Map) (int, error) 
 func PaginateDevices(ctx context.Context, page, pageSize int) ([]*Device, error) {
 	var devices []*Device
 	err := g.Model(TableDevice).Ctx(ctx).Page(page, pageSize).Scan(&devices)
+	return devices, err
+}
+
+// GetAllDevicesOrderBySort 获取所有设备记录，按sort字段排序
+func GetAllDevicesOrderBySort(ctx context.Context) ([]*Device, error) {
+	var devices []*Device
+	err := g.Model(TableDevice).Ctx(ctx).Order(FieldSort).Scan(&devices)
+	return devices, err
+}
+
+// GetAllDevicesOrderBySortAndEnable 获取所有设备记录，按sort字段排序，enable参数控制是否只获取启用的设备
+func GetAllDevicesOrderBySortAndEnable(ctx context.Context, enable bool) ([]*Device, error) {
+	var devices []*Device
+	err := g.Model(TableDevice).Ctx(ctx).Where(FieldEnable, enable).Order(FieldSort).Scan(&devices)
+	return devices, err
+}
+
+// GetDevicesByPidOrderBySort 根据父设备ID获取子设备列表，按sort字段排序
+func GetDevicesByPidOrderBySort(ctx context.Context, pid string) ([]*Device, error) {
+	var devices []*Device
+	err := g.Model(TableDevice).Ctx(ctx).Where(FieldPid, pid).Order(FieldSort).Scan(&devices)
 	return devices, err
 }

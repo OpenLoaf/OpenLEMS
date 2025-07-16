@@ -12,21 +12,27 @@ const (
 	TableSetting = "setting"
 
 	// 字段名
-	SettingFieldId     = "id"
-	SettingFieldName   = "name"
-	SettingFieldValue  = "value"
-	SettingFieldEnable = "enable"
-	SettingFieldRemark = "remark"
+	SettingFieldId        = "id"
+	SettingFieldName      = "name"
+	SettingFieldValue     = "value"
+	SettingFieldEnable    = "enable"
+	SettingFieldRemark    = "remark"
+	SettingFieldSort      = "sort"
+	SettingFieldCreatedAt = "created_at"
+	SettingFieldUpdatedAt = "updated_at"
 )
 
 // 设置表结构
 type Setting struct {
-	g.Meta `orm:"table:setting"`
-	Id     uint   `json:"id" orm:"id,primary"`
-	Name   string `json:"name" orm:"name"`
-	Value  string `json:"value" orm:"value"`
-	Enable bool   `json:"enable" orm:"enable"`
-	Remark string `json:"remark" orm:"remark"`
+	g.Meta    `orm:"table:setting"`
+	Id        uint   `json:"id" orm:"id,primary"`
+	Name      string `json:"name" orm:"name"`
+	Value     string `json:"value" orm:"value"`
+	Enable    bool   `json:"enable" orm:"enable"`
+	Remark    string `json:"remark" orm:"remark"`
+	Sort      int    `json:"sort" orm:"sort"`
+	CreatedAt string `json:"created_at" orm:"created_at"`
+	UpdatedAt string `json:"updated_at" orm:"updated_at"`
 }
 
 // GetValue 获取设置值
@@ -145,4 +151,11 @@ func (s *Setting) UpdateValue(ctx context.Context, value string) error {
 func (s *Setting) UpdateRemark(ctx context.Context, remark string) error {
 	s.Remark = remark
 	return s.UpdateFields(ctx, g.Map{SettingFieldRemark: remark})
+}
+
+// GetAllSettingsOrderBySort 获取所有设置记录，按sort字段排序
+func GetAllSettingsOrderBySort(ctx context.Context) ([]*Setting, error) {
+	var settings []*Setting
+	err := g.Model(TableSetting).Ctx(ctx).Order(SettingFieldSort).Scan(&settings)
+	return settings, err
 }

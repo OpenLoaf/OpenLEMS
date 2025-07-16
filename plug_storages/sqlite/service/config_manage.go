@@ -123,7 +123,7 @@ func (s *sConfigManage) GetProtocolConfig(ctx context.Context) []*c_base.SProtoc
 
 		protocolConfig := &c_base.SProtocolConfig{
 			Id:       protocol.Id,
-			Protocol: c_base.EProtocolType(protocol.Name),
+			Protocol: c_base.EProtocolType(protocol.Type),
 			Address:  protocol.Address,
 			Timeout:  protocol.Timeout,
 			LogLevel: protocol.LogLevel,
