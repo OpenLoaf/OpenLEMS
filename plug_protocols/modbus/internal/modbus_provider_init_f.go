@@ -35,3 +35,7 @@ func (p *ModbusProtocolProvider) Init() {
 
 	})
 }
+
+func (p *ModbusProtocolProvider) Close() {
+	//p.cache.Clear(p.ctx)
+}

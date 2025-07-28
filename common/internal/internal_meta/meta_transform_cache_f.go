@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func MetaProcess(deviceId string, deviceType c_base.EDeviceType, ctx context.Context, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
+func MetaProcess(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
 	if meta == nil {
 		return nil, gerror.Newf("[%s] Analysis的查询方法获取到point为nil", deviceId)
 	}
@@ -39,7 +39,7 @@ func MetaProcess(deviceId string, deviceType c_base.EDeviceType, ctx context.Con
 	}
 
 	// 判断是否是非信息类型，用于触发告警
-	if meta.Level != 0 {
+	if meta.Level != 0 && protocol != nil {
 		if meta.Trigger != nil {
 			if meta.Trigger(value) {
 				//alarmProvider.TriggerAlarm(meta, value)
@@ -58,12 +58,14 @@ func MetaProcess(deviceId string, deviceType c_base.EDeviceType, ctx context.Con
 	now := time.Now()
 
 	// 缓存
-	err := cache.Set(ctx, meta, &c_base.MetaValue{
-		Value:      gvar.New(value),
-		HappenTime: &now,
-	}, lifetime)
-	if err != nil {
-		return nil, err
+	if cache != nil {
+		err := cache.Set(ctx, meta, &c_base.MetaValue{
+			Value:      gvar.New(value),
+			HappenTime: &now,
+		}, lifetime)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if meta.Debug {

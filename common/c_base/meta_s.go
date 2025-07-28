@@ -34,9 +34,9 @@ func (p *Meta) AddrDecString() string {
 	return strconv.FormatUint(uint64(p.Addr), 10)
 }
 
-func (p *Meta) GetValueReflectKind() reflect.Kind {
-	return p.SystemType.GetReflectKind(p.ReadType, p.BitLength)
-}
+//func (p *Meta) GetValueReflectKind() reflect.Kind {
+//	return p.SystemType.GetReflectKind(p.ReadType, p.BitLength)
+//}
 
 func (p *Meta) ValueToString(value *gvar.Var) string {
 	switch p.SystemType.GetReflectKind(p.ReadType, p.BitLength) {

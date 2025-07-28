@@ -2,7 +2,6 @@ package internal
 
 import (
 	"canbus/p_canbus"
-	"common"
 	"common/c_base"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -21,9 +20,10 @@ type CanbusProtocolProvider struct {
 	ctx                   context.Context // 上下文
 	once                  sync.Once       // 只执行一次Init方法
 
-	connect         net.Conn         // 链接
-	receiverChan    <-chan can.Frame // 接收通道
-	transmitterChan chan<- can.Frame // 发送通道
+	connect         net.Conn                         // 链接
+	receiverChan    <-chan can.Frame                 // 接收通道
+	transmitterChan chan<- can.Frame                 // 发送通道
+	canTaskMap      map[uint32]*p_canbus.SCanbusTask // 任务map
 
 	cache              *gcache.Cache // 点位缓存
 	log                *glog.Logger  // 日志
@@ -35,33 +35,6 @@ type CanbusProtocolProvider struct {
 	protocolConfig     *c_base.SProtocolConfig
 
 	//metricProtocol *sMetricProtocol // 统计协议
-}
-
-func (c *CanbusProtocolProvider) Init() {
-	c.once.Do(func() {
-		device := common.GetDeviceById(c.deviceConfig.Id)
-		if device != nil {
-			c.deviceType = device.GetDriverType()
-		}
-
-		go func() {
-			for {
-				select {
-				case <-c.ctx.Done():
-					return
-
-				case frame := <-c.receiverChan:
-					g.Log().Infof(c.ctx, "内部接收到数据：%v", frame)
-				}
-			}
-		}()
-
-	})
-
-}
-
-func (c *CanbusProtocolProvider) Close() {
-	c.cache.Clear(c.Ctx)
 }
 
 func (c *CanbusProtocolProvider) IsActivate() bool {
@@ -83,56 +56,6 @@ func (c *CanbusProtocolProvider) GetDeviceConfig() *c_base.SDriverConfig {
 
 func (c *CanbusProtocolProvider) GetProtocolConfig() *c_base.SProtocolConfig {
 	return c.protocolConfig
-}
-
-func (c *CanbusProtocolProvider) RegisterRead(ctx context.Context, group *p_canbus.SCanbusTask, gs ...*p_canbus.SCanbusTask) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *CanbusProtocolProvider) GetBool(meta *c_base.Meta) (bool, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *CanbusProtocolProvider) GetIntValue(meta *c_base.Meta) (int, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *CanbusProtocolProvider) GetInt32Value(meta *c_base.Meta) (int32, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *CanbusProtocolProvider) GetUintValue(meta *c_base.Meta) (uint, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *CanbusProtocolProvider) GetUint32Value(meta *c_base.Meta) (uint32, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *CanbusProtocolProvider) GetFloat32Value(meta *c_base.Meta) (float32, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *CanbusProtocolProvider) GetFloat32Values(metas ...*c_base.Meta) ([]float32, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *CanbusProtocolProvider) GetFloat64Value(meta *c_base.Meta) (float64, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (c *CanbusProtocolProvider) GetFloat64Values(meta ...*c_base.Meta) ([]float64, error) {
-	//TODO implement me
-	panic("implement me")
 }
 
 func (c *CanbusProtocolProvider) GetCanbusDeviceConfig() *p_canbus.SCanbusDeviceConfig {
@@ -160,9 +83,8 @@ func NewCanbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 		canbusDeviceConfig: canbusDeviceConfig,
 		receiverChan:       receiverChan,
 		transmitterChan:    transmitterChan,
+		canTaskMap:         make(map[uint32]*p_canbus.SCanbusTask),
 
-		//modbusReadChan:     make(chan *p_canbus.SCanbusTask),
-		//preQuery: make(map[string]bool),
 		cache: gcache.New(),
 		SAlarmHandler: &c_base.SAlarmHandler{
 			Ctx: ctx,

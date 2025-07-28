@@ -14,8 +14,8 @@ import (
 // internal_device.Instances 所有设备实例
 
 // MetaTransformAndCache 元数据转换并缓存
-func MetaTransformAndCache(ctx context.Context, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
-	return internal_meta.MetaProcess("", "", ctx, protocol, meta, value, cache, lifetime)
+func MetaTransformAndCache(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
+	return internal_meta.MetaProcess(ctx, deviceId, deviceType, protocol, meta, value, cache, lifetime)
 }
 
 // RegisterDevice 注册设备实例

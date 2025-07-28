@@ -7,10 +7,10 @@ import (
 )
 
 type SCanbusTask struct {
-	Name  string
-	Desc  string
-	CanID uint32
-	Metas []*c_base.Meta
+	Name     string
+	Desc     string
+	CanbusID uint32
+	Metas    []*c_base.Meta
 }
 
 func (t *SCanbusTask) Check() {

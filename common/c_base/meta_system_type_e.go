@@ -33,7 +33,7 @@ func (s ESystemType) Transform(value any, readType EReadType, bitLength uint8, f
 	case SInt32:
 		return calc(gconv.Int32(value), factor, offset)
 	case SBool:
-		return calc(gconv.Int8(value), factor, offset) == 1
+		return calc(gconv.Int8(value), factor, offset) != 0
 	case SInt8:
 		return calc(gconv.Int8(value), factor, offset)
 	case SUint8:
@@ -94,7 +94,7 @@ func (s ESystemType) GetReflectKind(readType EReadType, bitLength uint8) reflect
 
 func calc[T util.Number](result T, factor float32, offset int) T {
 	// 先乘
-	if factor != 1 {
+	if factor != 1 && factor != 0 {
 		result = T(factor * float32(result))
 	}
 	// 偏移值

@@ -110,10 +110,6 @@ func (p *ModbusProtocolProvider) IsActivate() bool {
 	return p.client.IsConnected()
 }
 
-func (p *ModbusProtocolProvider) Close() {
-	_ = p.client.Close()
-}
-
 func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 	// 排序
 	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
