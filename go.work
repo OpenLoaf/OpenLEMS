@@ -12,6 +12,7 @@ use (
 	./plug_drivers/pcs_lnxall
 	./plug_drivers/pcs_star_charge_100E
 	./plug_drivers/sess_basic
+	./plug_drivers/fire_control
 
 	./plug_protocols/canbus
 	./plug_protocols/gpio_sysfs

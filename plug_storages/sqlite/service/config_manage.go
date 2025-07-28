@@ -57,7 +57,22 @@ func ClearConfigManageInstance() {
 }
 
 func (s *sConfigManage) GetDeviceConfig(ctx context.Context) *c_base.SDriverConfig {
-	devices, err := model.GetDevicesByCondition(ctx, g.Map{})
+	//devices, err := model.GetDevicesByCondition(ctx, g.Map{})
+	deviceRootId, err := model.GetSettingValueByName("active_device_root_id")
+	if err != nil {
+		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
+		return nil
+	}
+	rootDevice, err := model.GetDevicesById(ctx, deviceRootId)
+	if err != nil {
+		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
+		return nil
+	}
+
+	g.Log().Infof(ctx, "激活的设备父ID配置: %s", deviceRootId)
+	devices, err := model.GetRecursiveDevicesByPid(ctx, deviceRootId)
+	devices = append(devices, rootDevice)
+
 	if err != nil {
 		g.Log().Errorf(ctx, "获取设备配置失败 - 错误: %v", err)
 		return nil

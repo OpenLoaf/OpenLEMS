@@ -1,0 +1,51 @@
+package fire_control_v1
+
+import (
+	"common/c_base"
+	"context"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/glog"
+	"modbus/p_modbus"
+)
+
+type sFireControlBasic struct {
+	p_modbus.IModbusProtocol
+	ctx          context.Context
+	log          *glog.Logger
+	deviceConfig *c_base.SDriverConfig
+	*c_base.SDescription
+}
+
+func (s *sFireControlBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
+
+	// 注册
+	s.IModbusProtocol.RegisterRead(s.ctx,
+		GroupBasic,
+		//GroupStatistic,
+	)
+
+}
+
+func (s *sFireControlBasic) Destroy() {
+	g.Log().Info(s.ctx, "Destroy")
+}
+
+func (s *sFireControlBasic) GetDriverType() c_base.EDeviceType {
+	return c_base.EDeviceFire
+}
+
+func (s *sFireControlBasic) GetFireEnvTemperature() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sFireControlBasic) GetCarbonMonoxideConcentration() (float64, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sFireControlBasic) HasSmoke() (bool, error) {
+	//TODO implement me
+	panic("implement me")
+}

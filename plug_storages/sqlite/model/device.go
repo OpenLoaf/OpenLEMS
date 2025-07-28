@@ -142,7 +142,32 @@ func GetDevicesByCondition(ctx context.Context, condition g.Map) ([]*Device, err
 	return devices, err
 }
 
-// GetByPid 根据父设备ID获取子设备列表
+func GetRecursiveDevicesByPid(ctx context.Context, pid string) ([]*Device, error) {
+	var devices []*Device
+	err := g.Model(TableDevice).Ctx(ctx).Where(FieldPid, pid).Scan(&devices)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, device := range devices {
+		subDevices, err := GetRecursiveDevicesByPid(ctx, device.Id)
+		if err != nil {
+			return nil, err
+		}
+		devices = append(devices, subDevices...)
+	}
+
+	return devices, nil
+}
+
+// GetDevicesById 根据ID获取设备记录
+func GetDevicesById(ctx context.Context, id string) (*Device, error) {
+	var device *Device
+	err := g.Model(TableDevice).Ctx(ctx).Where(FieldId, id).Scan(&device)
+	return device, err
+}
+
+// GetDevicesByPid 根据父设备ID获取子设备列表
 func GetDevicesByPid(ctx context.Context, pid string) ([]*Device, error) {
 	var devices []*Device
 	err := g.Model(TableDevice).Ctx(ctx).Where(FieldPid, pid).Scan(&devices)
