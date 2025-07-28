@@ -5,7 +5,7 @@ const (
 	EModbusTcp EProtocolType = "modbus_tcp"
 	EModbusRtu EProtocolType = "modbus_rtu"
 	ECanbus    EProtocolType = "canbus"
-	ECanbusTcp EProtocolType = "canbus_tcp"
+	ECanbusUdp EProtocolType = "canbus_udp"
 	EGpioSysfs EProtocolType = "gpio"
 	EVirtual   EProtocolType = "virtual"
 )

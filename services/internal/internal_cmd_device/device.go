@@ -1,6 +1,7 @@
 package internal_cmd_device
 
 import (
+	protocolCanbus "canbus"
 	"common"
 	"common/c_base"
 	"context"
@@ -72,10 +73,9 @@ func (d *SDeviceCmd) InitDriver(clientCache map[string]modbus.Client, config *c_
 		}
 	}
 
-	if config.Id == "root" {
-		return nil
-	}
-
+	//if config.Id == "root" {
+	//	return nil
+	//}
 	var protocolProvider c_base.IProtocol
 
 	driverCtx := d.ctx
@@ -155,8 +155,14 @@ func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, clientCache map[st
 		}
 
 		return modbusProvider
-	case c_base.ECanbusTcp:
-	case c_base.ECanbus:
+	case c_base.ECanbusUdp, c_base.ECanbus:
+		receiverChan, transmitterChan := protocolCanbus.NewCanbusChan(ctx, protocolConfig)
+		canbusProvider, err := protocolCanbus.NewCanbusProvider(ctx, protocolConfig, deviceConfig, receiverChan, transmitterChan)
+		if err != nil {
+			panic(err)
+		}
+		g.Log().Infof(ctx, "canbusProvider: %s 创建成功 ", protocolConfig.GetAddress())
+		return canbusProvider
 	case c_base.EGpioSysfs:
 		gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfig)
 		if err != nil {

@@ -38,7 +38,7 @@ type ModbusProtocolProvider struct {
 
 func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, client any) (p_modbus.IModbusProtocol, error) {
 	if protocolConfig == nil {
-		panic(gerror.Newf("GPIO设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
+		panic(gerror.Newf("Modbus设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
 	}
 	if deviceConfig == nil {
 		panic(gerror.Newf("modbus协议：%s 的设备配置不能为空！", protocolConfig.Id))

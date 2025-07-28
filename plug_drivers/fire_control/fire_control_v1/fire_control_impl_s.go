@@ -1,15 +1,15 @@
 package fire_control_v1
 
 import (
+	"canbus/p_canbus"
 	"common/c_base"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/glog"
-	"modbus/p_modbus"
 )
 
 type sFireControlBasic struct {
-	p_modbus.IModbusProtocol
+	p_canbus.ICanbusProtocol
 	ctx          context.Context
 	log          *glog.Logger
 	deviceConfig *c_base.SDriverConfig
@@ -17,13 +17,7 @@ type sFireControlBasic struct {
 }
 
 func (s *sFireControlBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
-	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
-
-	// 注册
-	s.IModbusProtocol.RegisterRead(s.ctx,
-		GroupBasic,
-		//GroupStatistic,
-	)
+	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
 
 }
 
