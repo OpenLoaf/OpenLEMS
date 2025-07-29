@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func MetaProcess(value any, meta *c_base.Meta) any {
+func MetaProcess(meta *c_base.Meta, value any) any {
 	return meta.SystemType.Transform(value, meta.ReadType, meta.BitLength, meta.Factor, meta.Offset)
 }
 

@@ -15,7 +15,7 @@ import (
 
 // MetaTransformAndCache 元数据转换并缓存
 func MetaTransformAndCache(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
-	v := internal_meta.MetaProcess(value, meta)
+	v := internal_meta.MetaProcess(meta, value)
 	return internal_meta.CacheValue(ctx, deviceId, deviceType, protocol, meta, v, cache, lifetime)
 }
 
