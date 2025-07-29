@@ -6,6 +6,7 @@ import (
 	"common/c_base"
 	"github.com/gogf/gf/v2/frame/g"
 	"go.einride.tech/can"
+	"time"
 )
 
 func (c *CanbusProtocolProvider) analysisCanbus(task *p_canbus.SCanbusTask, frame can.Frame) {
@@ -21,16 +22,17 @@ func (c *CanbusProtocolProvider) analysisCanbus(task *p_canbus.SCanbusTask, fram
 		if meta == nil {
 			continue
 		}
-		c.analysisSingleCanbusMeta(meta, data)
+		c.analysisSingleCanbusMeta(meta, data, task.Lifetime)
 	}
 
 }
 
-func (c *CanbusProtocolProvider) analysisSingleCanbusMeta(meta *c_base.Meta, frameData *can.Data) {
+func (c *CanbusProtocolProvider) analysisSingleCanbusMeta(meta *c_base.Meta, frameData *can.Data, lifeTime time.Duration) {
 	//frameData.
 
 	//value, err := meta.ReadType.ReadValue(result[index:], meta.BitLength, meta.Endianness)
-	v, err := common.MetaTransformCanbus(frameData[:], meta)
+	v, err := common.MetaTransformCanbus(c.ctx, c.deviceConfig.Id, c.deviceType, c, meta, frameData[:], c.cache, lifeTime)
+
 	if err != nil {
 		g.Log().Errorf(c.ctx, "解析数据失败：%v", err)
 		return

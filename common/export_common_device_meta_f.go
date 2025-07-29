@@ -15,7 +15,8 @@ import (
 
 // MetaTransformAndCache 元数据转换并缓存
 func MetaTransformAndCache(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
-	return internal_meta.MetaProcess(ctx, deviceId, deviceType, protocol, meta, value, cache, lifetime)
+	v := internal_meta.MetaProcess(value, meta)
+	return internal_meta.CacheValue(ctx, deviceId, deviceType, protocol, meta, v, cache, lifetime)
 }
 
 // RegisterDevice 注册设备实例
@@ -49,6 +50,11 @@ func GetStationEnergyStore() c_device.IStationEnergyStore {
 }
 
 // MetaTransformCanbus 解析can的数据
-func MetaTransformCanbus(canData []byte, meta *c_base.Meta) (any, error) {
-	return internal_meta.ParseCanbusData(canData, meta)
+func MetaTransformCanbus(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, canData []byte, cache *gcache.Cache, lifetime time.Duration) (any, error) {
+	v, err := internal_meta.ParseCanbusData(canData, meta)
+	if err != nil {
+		return nil, err
+	}
+
+	return internal_meta.CacheValue(ctx, deviceId, deviceType, protocol, meta, v, cache, lifetime)
 }
