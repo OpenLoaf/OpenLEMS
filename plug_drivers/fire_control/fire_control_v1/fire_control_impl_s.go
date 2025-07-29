@@ -19,6 +19,7 @@ type sFireControlBasic struct {
 func (s *sFireControlBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
 	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
 
+	s.RegisterRead(&Detail)
 }
 
 func (s *sFireControlBasic) Destroy() {

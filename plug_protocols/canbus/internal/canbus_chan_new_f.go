@@ -76,7 +76,7 @@ func NewCanbusConnect(ctx context.Context, protocolConfig *c_base.SProtocolConfi
 			default:
 				// 读取 CAN 帧
 				frame := receiver.Frame()
-				g.Log().Debugf(ctx, "接口 %s 接收到 CAN 帧: %s", protocolConfig.GetAddress(), frame.String()) // 可以打印调试信息
+				//g.Log().Debugf(ctx, "接口 %s 接收到 CAN 帧: %s", protocolConfig.GetAddress(), frame.String()) // 可以打印调试信息
 				// 成功接收到帧，发送到通道
 				receiverChan <- frame
 			}

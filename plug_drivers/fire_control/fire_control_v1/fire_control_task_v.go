@@ -9,6 +9,11 @@ var (
 	AlarmAndFault = p_canbus.SCanbusTask{
 		Name:     "AlarmAndFault",
 		CanbusID: 0x1C000109,
-		Metas:    []*c_base.Meta{DetectorId, TemperatureAlarm, SmokeAlarm, COAlarm, H2Alarm, VOCAlarm, Level1Alarm, Level2Alarm, DetectorFault, GasCapsuleHardwareFault, MainCircuitVoltageFault, Reserved4, Reserved5, Reserved6, Reserved7, AlarmNumber},
+		Metas:    []*c_base.Meta{DetectorNumber, TemperatureAlarm, SmokeAlarm, COAlarm, H2Alarm, VOCAlarm, Level1Alarm, Level2Alarm, DetectorFault, GasCapsuleHardwareFault, MainCircuitVoltageFault, ReportNumber},
+	}
+	Detail = p_canbus.SCanbusTask{
+		Name:     "Detail",
+		CanbusID: 0x1C00010A,
+		Metas:    []*c_base.Meta{DetectorNumber_V2, AlarmLevel, COConcentration, TemperatureData, SmokeAlarm_V2, DetectorOfflineFault, SensorFault, VOCAlarm_V2, H2Alarm_V2, ReportNumber_V2},
 	}
 )

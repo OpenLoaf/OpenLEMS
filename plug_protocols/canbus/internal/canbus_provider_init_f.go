@@ -2,7 +2,6 @@ package internal
 
 import (
 	"common"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 func (c *CanbusProtocolProvider) Init() {
@@ -26,8 +25,6 @@ func (c *CanbusProtocolProvider) Init() {
 					}
 					// 解析数据
 					c.analysisCanbus(task, frame)
-
-					g.Log().Infof(c.ctx, "内部接收到数据：%v", frame)
 				}
 			}
 		}()

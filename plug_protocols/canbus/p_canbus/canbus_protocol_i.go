@@ -2,13 +2,12 @@ package p_canbus
 
 import (
 	"common/c_base"
-	"context"
 )
 
 type ICanbusProtocol interface {
 	c_base.IProtocol
 
-	RegisterRead(ctx context.Context, group *SCanbusTask, gs ...*SCanbusTask)
+	RegisterRead(group *SCanbusTask, gs ...*SCanbusTask)
 
 	GetBool(meta *c_base.Meta) (bool, error)
 	GetIntValue(meta *c_base.Meta) (int, error)

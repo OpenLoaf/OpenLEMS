@@ -47,3 +47,8 @@ func RemoveDeviceById(id string) {
 func GetStationEnergyStore() c_device.IStationEnergyStore {
 	return internal_device.Instances.GetStationEnergyStore()
 }
+
+// MetaTransformCanbus 解析can的数据
+func MetaTransformCanbus(canData []byte, meta *c_base.Meta) (any, error) {
+	return internal_meta.ParseCanbusData(canData, meta)
+}
