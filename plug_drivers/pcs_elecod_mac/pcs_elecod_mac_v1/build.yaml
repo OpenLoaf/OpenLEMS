@@ -1,7 +1,7 @@
-brand: Enjoy
+brand: Elecod
 model: pcs
 version: v1.0.0
 author: "dynamicoct@qq.com"
 create: "2025-03-19"
-remark: "恩玖 PCS 通用协议"
-protocolType: "modbus"
+remark: "亿兰科MAC协议"
+protocolType: "canbus"

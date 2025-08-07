@@ -161,7 +161,7 @@ func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, clientCache map[st
 		if err != nil {
 			panic(err)
 		}
-		g.Log().Infof(ctx, "canbusProvider: %s 创建成功 ", protocolConfig.GetAddress())
+		g.Log().Infof(ctx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
 		return canbusProvider
 	case c_base.EGpioSysfs:
 		gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfig)

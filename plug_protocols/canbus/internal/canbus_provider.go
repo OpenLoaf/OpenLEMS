@@ -20,10 +20,11 @@ type CanbusProtocolProvider struct {
 	ctx                   context.Context // 上下文
 	once                  sync.Once       // 只执行一次Init方法
 
-	connect         net.Conn                         // 链接
-	receiverChan    <-chan can.Frame                 // 接收通道
-	transmitterChan chan<- can.Frame                 // 发送通道
-	canTaskMap      map[uint32]*p_canbus.SCanbusTask // 任务map
+	connect         net.Conn         // 链接
+	receiverChan    <-chan can.Frame // 接收通道
+	transmitterChan chan<- can.Frame // 发送通道
+	//canTaskMap      map[uint32]*p_canbus.SCanbusTask // 任务map
+	canTaskList []*p_canbus.SCanbusTask // 任务列表
 
 	cache              *gcache.Cache // 点位缓存
 	log                *glog.Logger  // 日志
@@ -83,9 +84,9 @@ func NewCanbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 		canbusDeviceConfig: canbusDeviceConfig,
 		receiverChan:       receiverChan,
 		transmitterChan:    transmitterChan,
-		canTaskMap:         make(map[uint32]*p_canbus.SCanbusTask),
-
-		cache: gcache.New(),
+		//canTaskMap:         make(map[uint32]*p_canbus.SCanbusTask),
+		canTaskList: make([]*p_canbus.SCanbusTask, 0),
+		cache:       gcache.New(),
 		SAlarmHandler: &c_base.SAlarmHandler{
 			Ctx: ctx,
 		},

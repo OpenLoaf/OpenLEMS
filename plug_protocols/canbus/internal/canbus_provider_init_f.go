@@ -17,14 +17,17 @@ func (c *CanbusProtocolProvider) Init() {
 				case <-c.ctx.Done():
 					return
 
-				case frame := <-c.receiverChan:
+				case frame := <-c.receiverChan: // 接收canbus数据
+					//g.Log().Infof(c.ctx, "收到canbus 数据: %v", frame)
 
-					task, ok := c.canTaskMap[frame.ID]
-					if !ok {
-						continue
+					for _, task := range c.canTaskList {
+						if task.IDMatch != nil && task.IDMatch(frame.ID) {
+							// 如果有IDMatch 并且匹配上的话，执行解析
+							c.analysisCanbus(task, frame)
+						} else if task.CanbusID == frame.ID {
+							c.analysisCanbus(task, frame)
+						}
 					}
-					// 解析数据
-					c.analysisCanbus(task, frame)
 				}
 			}
 		}()

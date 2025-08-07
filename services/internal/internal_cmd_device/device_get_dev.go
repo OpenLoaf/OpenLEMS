@@ -12,6 +12,7 @@ import (
 	"ess_boost_gold/ess_boost_gold_v1"
 	"ess_lnxall/ess_boost_lnxall_v1"
 	"fire_control/fire_control_v1"
+	"pcs_elecod/pcs_elecod_mac_v1"
 	"pcs_enjoy/pcs_enjoy_basic_v1"
 	"pcs_lnxall/pcs_lnxall_v1"
 	"pylonTechUs108_v1/bms_pylon_tech_us108_v1"
@@ -42,6 +43,7 @@ var pluginNewMethodCache = map[string]any{
 	"pcs_lnxall_v1.0.0":           pcs_lnxall_v1.NewPlugin,
 	"bms_lnxall_v1.0.0":           bms_lnxall_v1.NewPlugin,
 	"fire_control_v1.0.0":         fire_control_v1.NewPlugin,
+	"pcs_elecod_mac_v1":           pcs_elecod_mac_v1.NewPlugin,
 }
 
 func GetAllDriverNames() []string {
