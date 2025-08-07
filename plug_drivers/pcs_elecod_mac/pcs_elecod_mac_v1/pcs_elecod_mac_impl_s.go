@@ -19,7 +19,13 @@ type sPcsElecodBasic struct {
 func (s *sPcsElecodBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
 	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
 
-	s.RegisterRead(&AlarmAndFault)
+	for _, task := range analogAllTasks {
+		s.RegisterRead(task)
+	}
+	for _, task := range configAllTasks {
+		s.RegisterRead(task)
+	}
+
 }
 
 func (s *sPcsElecodBasic) Destroy() {
