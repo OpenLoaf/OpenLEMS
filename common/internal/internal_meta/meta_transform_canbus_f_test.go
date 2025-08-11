@@ -2,6 +2,7 @@ package internal_meta
 
 import (
 	"common/c_base"
+	"encoding/binary"
 	"encoding/hex"
 	"fmt"
 	"testing"
@@ -173,5 +174,47 @@ func TestBitIndexConversion(t *testing.T) {
 			t.Logf("Bit %d of 0x%02X: %v (expected: %v)",
 				bitIndex, testByte, boolValue, expectedBits[bitIndex])
 		})
+	}
+}
+
+// TestParseInteger 测试解析整数数据的方法
+func TestParseInteger(t *testing.T) {
+	// 输入的十六进制数据
+	candata := "320C3F0C410C3200"
+	// C32
+	// C3F  12 63
+	// C41
+	// 32
+
+	var (
+		analogGridVoltageA  = &c_base.Meta{Name: "AnalogGridVoltageA", Cn: "电网电压A(AB)", Addr: 0, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
+		analogGridVoltageB  = &c_base.Meta{Name: "AnalogGridVoltageB", Cn: "电网电压B(BC)", Addr: 2, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
+		analogGridVoltageC  = &c_base.Meta{Name: "AnalogGridVoltageC", Cn: "电网电压C(CA)", Addr: 4, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
+		analogPowerTubeTemp = &c_base.Meta{Name: "AnalogPowerTubeTemp", Cn: "功率管温度", Addr: 6, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 1, Unit: "℃"}
+	)
+	// 将十六进制字符串解码为字节
+	data, err := hex.DecodeString(candata)
+	if err != nil {
+		t.Fatalf("Failed to decode hex string: %v", err)
+	}
+
+	// 定义测试用的元数据
+	testMetas := []*c_base.Meta{
+		analogGridVoltageA,
+		analogGridVoltageB,
+		analogGridVoltageC,
+		analogPowerTubeTemp,
+	}
+
+	fmt.Println(binary.BigEndian.Uint16([]byte{12, 50}))
+	// 执行测试
+	for _, meta := range testMetas {
+		result, _ := ParseCanbusData(data, meta)
+		fmt.Printf("%s (%s): %v %s\n", meta.Name, meta.Cn, result, meta.Unit)
+
+		// 在实际测试中，您可以添加断言来验证结果
+		// if result != expected {
+		//     t.Errorf("%s: expected %.2f, got %.2f", meta.Name, expected, result)
+		// }
 	}
 }

@@ -21,6 +21,7 @@ func (c *CanbusProtocolProvider) Init() {
 					//g.Log().Infof(c.ctx, "收到canbus 数据: %v", frame)
 
 					for _, task := range c.canTaskList {
+
 						if task.IDMatch != nil && task.IDMatch(frame.ID) {
 							// 如果有IDMatch 并且匹配上的话，执行解析
 							c.analysisCanbus(task, frame)

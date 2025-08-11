@@ -4,9 +4,10 @@ import (
 	"canbus/p_canbus"
 	"common"
 	"common/c_base"
+	"time"
+
 	"github.com/gogf/gf/v2/frame/g"
 	"go.einride.tech/can"
-	"time"
 )
 
 func (c *CanbusProtocolProvider) analysisCanbus(task *p_canbus.SCanbusTask, frame can.Frame) {

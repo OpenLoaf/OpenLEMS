@@ -19,11 +19,8 @@ package internal_meta
 
 import (
 	"common/c_base"
-	"encoding/binary"
-	"math"
 
 	"github.com/gogf/gf/v2/encoding/gbinary"
-
 	"github.com/gogf/gf/v2/errors/gerror"
 )
 
@@ -122,48 +119,62 @@ func ParseCanbusData(canData []byte, meta *c_base.Meta) (any, error) {
 		return float32(val)*meta.Factor + float32(meta.Offset), nil
 
 	case c_base.RInt16:
-		return parseInteger(canData, meta, 2, func(b []byte, endian binary.ByteOrder) (any, error) {
-			val := int16(endian.Uint16(b))
-			return float32(val)*meta.Factor + float32(meta.Offset), nil
-		})
+		b, err := checkAndGetBytes(canData, meta, 2)
+		if err != nil {
+			return nil, err
+		}
+		v := meta.Endianness.DecodeToInt16(b)
+		return float32(v)*meta.Factor + float32(meta.Offset), nil
 	case c_base.RUint16:
-		return parseInteger(canData, meta, 2, func(b []byte, endian binary.ByteOrder) (any, error) {
-			val := endian.Uint16(b)
-			return float32(val)*meta.Factor + float32(meta.Offset), nil
-		})
-
+		b, err := checkAndGetBytes(canData, meta, 2)
+		if err != nil {
+			return nil, err
+		}
+		v := meta.Endianness.DecodeToUint16(b)
+		return float32(v)*meta.Factor + float32(meta.Offset), nil
 	case c_base.RInt32:
-		return parseInteger(canData, meta, 4, func(b []byte, endian binary.ByteOrder) (any, error) {
-			val := int32(endian.Uint32(b))
-			return float32(val)*meta.Factor + float32(meta.Offset), nil
-		})
+		b, err := checkAndGetBytes(canData, meta, 4)
+		if err != nil {
+			return nil, err
+		}
+		v := meta.Endianness.DecodeToInt32(b)
+		return float32(v)*meta.Factor + float32(meta.Offset), nil
 	case c_base.RUint32:
-		return parseInteger(canData, meta, 4, func(b []byte, endian binary.ByteOrder) (any, error) {
-			val := endian.Uint32(b)
-			return float32(val)*meta.Factor + float32(meta.Offset), nil
-		})
+		b, err := checkAndGetBytes(canData, meta, 4)
+		if err != nil {
+			return nil, err
+		}
+		v := meta.Endianness.DecodeToUint32(b)
+		return float32(v)*meta.Factor + float32(meta.Offset), nil
 
 	case c_base.RInt64:
-		return parseInteger(canData, meta, 8, func(b []byte, endian binary.ByteOrder) (any, error) {
-			val := int64(endian.Uint64(b))
-			return float64(val)*float64(meta.Factor) + float64(meta.Offset), nil
-		})
+		b, err := checkAndGetBytes(canData, meta, 8)
+		if err != nil {
+			return nil, err
+		}
+		v := meta.Endianness.DecodeToInt64(b)
+		return float32(v)*meta.Factor + float32(meta.Offset), nil
 	case c_base.RUint64:
-		return parseInteger(canData, meta, 8, func(b []byte, endian binary.ByteOrder) (any, error) {
-			val := endian.Uint64(b)
-			return float64(val)*float64(meta.Factor) + float64(meta.Offset), nil
-		})
-
+		b, err := checkAndGetBytes(canData, meta, 8)
+		if err != nil {
+			return nil, err
+		}
+		v := meta.Endianness.DecodeToUint64(b)
+		return float32(v)*meta.Factor + float32(meta.Offset), nil
 	case c_base.RFloat32:
-		return parseInteger(canData, meta, 4, func(b []byte, endian binary.ByteOrder) (any, error) {
-			val := math.Float32frombits(endian.Uint32(b))
-			return val*meta.Factor + float32(meta.Offset), nil
-		})
+		b, err := checkAndGetBytes(canData, meta, 8)
+		if err != nil {
+			return nil, err
+		}
+		v := meta.Endianness.DecodeToFloat32(b)
+		return float32(v)*float32(meta.Factor) + float32(meta.Offset), nil
 	case c_base.RFloat64:
-		return parseInteger(canData, meta, 8, func(b []byte, endian binary.ByteOrder) (any, error) {
-			val := math.Float64frombits(endian.Uint64(b))
-			return val*float64(meta.Factor) + float64(meta.Offset), nil
-		})
+		b, err := checkAndGetBytes(canData, meta, 8)
+		if err != nil {
+			return nil, err
+		}
+		v := meta.Endianness.DecodeToFloat64(b)
+		return float32(v)*float32(meta.Factor) + float32(meta.Offset), nil
 
 	default:
 		return nil, gerror.Newf("Unsupported ReadType: %v", meta.ReadType)
@@ -275,61 +286,13 @@ func parseBitValue(canData []byte, meta *c_base.Meta) (any, error) {
 	return convertBitsToUint(toBytes, actualBitLength, meta.Endianness)
 }
 
-// parseInteger 解析多字节整数和浮点数的通用辅助函数。
-//
-// 此函数统一处理所有多字节数据类型的解析，包括字节序转换、边界检查和类型转换。
-// 支持大端序、小端序、中端序和反中端序四种字节序格式。
-//
-// 工作流程:
-//  1. 边界检查确保数据长度足够
-//  2. 根据字节序选择相应的处理方式
-//  3. 对于标准字节序直接使用 encoding/binary
-//  4. 对于中端序使用 FillUpSize 进行字节重排
-//  5. 调用转换函数完成最终的类型转换
-//
-// 参数:
-//   - canData: CANbus 原始数据
-//   - meta: 元数据，包含地址和字节序信息
-//   - size: 数据类型的字节大小 (2, 4, 8)
-//   - converter: 类型转换函数，接收处理后的字节和字节序，返回目标类型
-//
-// 返回值:
-//   - any: 转换后的数据
-//   - error: 边界检查失败或不支持的字节序错误
-//
-// 支持的字节序:
-//   - 大端序 (EBigEndian): 高字节在前，如 0x1234 -> [0x12, 0x34]
-//   - 小端序 (ELittleEndian): 低字节在前，如 0x1234 -> [0x34, 0x12]
-//   - 中端序 (EMiddleEndian): 中间字节序，如 0x12345678 -> [0x34, 0x12, 0x78, 0x56]
-//   - 反中端序 (EReverseMiddleEndian): 反向中端序
-func parseInteger(canData []byte, meta *c_base.Meta, size int, converter func([]byte, binary.ByteOrder) (any, error)) (any, error) {
+// checkAndGetBytes 解析多字节整数和浮点数的通用辅助函数。
+
+func checkAndGetBytes(canData []byte, meta *c_base.Meta, size int) ([]byte, error) {
 	if int(meta.Addr)+size > len(canData) {
 		return nil, gerror.Newf("Read out of bounds for ReadType %v. Addr: %d, Size: %d, Data Len: %d", meta.ReadType, meta.Addr, size, len(canData))
 	}
-	dataBytes := canData[meta.Addr : meta.Addr+uint16(size)]
-
-	var byteOrder binary.ByteOrder
-	var processedBytes []byte
-
-	switch meta.Endianness {
-	case c_base.EBigEndian:
-		byteOrder = binary.BigEndian
-		processedBytes = dataBytes
-	case c_base.ELittleEndian:
-		byteOrder = binary.LittleEndian
-		processedBytes = dataBytes
-	case c_base.EMiddleEndian, c_base.EReverseMiddleEndian:
-		// 对于中端序和反中端序，FillUpSize 用于将字节重新排序
-		// 为 encoding/binary 可以处理的标准大/小端格式。
-		// 我们假设 FillUpSize 将生成字节，这些字节在大端序解释时产生正确的值。
-		processedBytes = meta.Endianness.FillUpSize(dataBytes, size)
-		// 经过 FillUpSize 后，我们假设字节已有效转换为大端序以供解码
-		byteOrder = binary.BigEndian
-	default:
-		return nil, gerror.Newf("Unsupported Endianness: %v", meta.Endianness)
-	}
-
-	return converter(processedBytes, byteOrder)
+	return canData[meta.Addr : meta.Addr+uint16(size)], nil
 }
 
 // convertBitsToUint 将位数据转换为相应的无符号整数类型。

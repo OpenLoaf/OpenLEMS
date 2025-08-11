@@ -24,10 +24,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x01
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -38,10 +43,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x02
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -52,10 +62,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x03
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -66,10 +81,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x04
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -80,10 +100,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x05
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -94,10 +119,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x06
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -108,10 +138,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x07
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -122,10 +157,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x08
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -136,10 +176,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x09
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -150,10 +195,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x0A
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -164,10 +214,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x0B
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -178,10 +233,15 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return info.TargetDeviceType == DeviceTypeScreen &&
+			match := info.TargetDeviceType == DeviceTypeScreen &&
 				info.SourceDeviceType == DeviceTypeMAC &&
 				info.MessageType == MessageTypeAnalog &&
 				info.ServiceCode == 0x0C
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 )

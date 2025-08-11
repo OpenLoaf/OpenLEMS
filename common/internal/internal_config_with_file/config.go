@@ -46,6 +46,7 @@ func (c *SConfig) OpenPlugin(ctx context.Context, path string, symName ...string
 	if len(symName) != 0 {
 		functionName = symName[0]
 	}
+	g.Log().Infof(ctx, "加载插件：%s, 函数名：%s", path, functionName)
 	return openPlugin(ctx, gfile.Join(c.driverPath, path), functionName)
 }
 

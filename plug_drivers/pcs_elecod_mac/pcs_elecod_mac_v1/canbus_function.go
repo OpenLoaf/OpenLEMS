@@ -17,6 +17,7 @@ func parseCANbusID(id uint32) CANFrameInfo {
 	cacheLock.RLock()
 	if info, exists := cache[id]; exists {
 		cacheLock.RUnlock()
+
 		return info
 	}
 	cacheLock.RUnlock()
@@ -59,6 +60,10 @@ func parseDataFrame(data [8]byte) {
 func PrintCANbusID(id uint32) {
 	info := parseCANbusID(id)
 
+	PrintCanFrame(id, info)
+}
+
+func PrintCanFrame(id uint32, info CANFrameInfo) {
 	fmt.Printf("ID: 0x%X (%029b)\t源=%s(%d) -> 目标=%s(%d)\t信息类型=%s(%d)\t服务码=0x%X\t\n",
 		id,
 		id,

@@ -47,7 +47,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x01
+			match := isConfig(info) && info.ServiceCode == 0x01
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -58,7 +63,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x02
+			match := isConfig(info) && info.ServiceCode == 0x02
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -69,7 +79,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x03
+			match := isConfig(info) && info.ServiceCode == 0x03
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -80,7 +95,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x04
+			match := isConfig(info) && info.ServiceCode == 0x04
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -91,7 +111,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x05
+			match := isConfig(info) && info.ServiceCode == 0x05
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -102,7 +127,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x06
+			match := isConfig(info) && info.ServiceCode == 0x06
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -113,7 +143,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x07
+			match := isConfig(info) && info.ServiceCode == 0x07
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -124,7 +159,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x08
+			match := isConfig(info) && info.ServiceCode == 0x08
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -135,7 +175,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x09
+			match := isConfig(info) && info.ServiceCode == 0x09
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -146,7 +191,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x0A
+			match := isConfig(info) && info.ServiceCode == 0x0A
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -157,7 +207,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x0B
+			match := isConfig(info) && info.ServiceCode == 0x0B
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -168,7 +223,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x0C
+			match := isConfig(info) && info.ServiceCode == 0x0C
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -179,7 +239,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x0D
+			match := isConfig(info) && info.ServiceCode == 0x0D
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -190,7 +255,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x0E
+			match := isConfig(info) && info.ServiceCode == 0x0E
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -201,7 +271,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x0F
+			match := isConfig(info) && info.ServiceCode == 0x0F
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -212,7 +287,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x10
+			match := isConfig(info) && info.ServiceCode == 0x10
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -223,7 +303,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x11
+			match := isConfig(info) && info.ServiceCode == 0x11
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -234,7 +319,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x12
+			match := isConfig(info) && info.ServiceCode == 0x12
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -245,7 +335,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x13
+			match := isConfig(info) && info.ServiceCode == 0x13
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -256,7 +351,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x14
+			match := isConfig(info) && info.ServiceCode == 0x14
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -267,7 +367,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x15
+			match := isConfig(info) && info.ServiceCode == 0x15
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 
@@ -278,7 +383,12 @@ var (
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
-			return isConfig(info) && info.ServiceCode == 0x16
+			match := isConfig(info) && info.ServiceCode == 0x16
+			if match {
+				PrintCanFrame(id, info)
+				return true
+			}
+			return false
 		},
 	}
 )
