@@ -19,4 +19,6 @@ type ICanbusProtocol interface {
 	GetFloat64Value(meta *c_base.Meta) (float64, error)
 	GetFloat64Values(meta ...*c_base.Meta) ([]float64, error)
 	GetCanbusDeviceConfig() *SCanbusDeviceConfig
+
+	SendMessage(task *SCanbusTask, values []int64) error
 }

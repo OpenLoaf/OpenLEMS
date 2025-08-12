@@ -41,6 +41,22 @@ func parseCANbusID(id uint32) CANFrameInfo {
 	return info
 }
 
+// 构建CANbus ID
+func buildCANbusID(info *CANFrameInfo) uint32 {
+	var id uint32
+
+	// 按照解析时的位操作进行反向操作
+	id |= (uint32(info.TargetDeviceType) & 0x07) << 26 // TargetDeviceType: bits 26-28
+	id |= (info.TargetDeviceAddr & 0x0F) << 22         // TargetDeviceAddr: bits 22-25
+	id |= (uint32(info.SourceDeviceType) & 0x07) << 19 // SourceDeviceType: bits 19-21
+	id |= (info.SourceDeviceAddr & 0x0F) << 15         // SourceDeviceAddr: bits 15-18
+	id |= (uint32(info.MessageType) & 0x0F) << 11      // MessageType: bits 11-14
+	id |= (info.ServiceCode & 0xFF) << 3               // ServiceCode: bits 3-10
+	id |= info.Reserved & 0x07                         // Reserved: bits 0-2
+
+	return id
+}
+
 // 解析数据帧
 func parseDataFrame(data [8]byte) {
 	// 按照DATA1(LB:HB)DATA2(LB:HB)DATA3(LB:HB)DATA4(LB:HB)格式解析

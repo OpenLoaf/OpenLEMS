@@ -3,13 +3,14 @@ package main
 import (
 	"common/c_base"
 	"context"
+	"pcs_elecod/pcs_elecod_mac_v1"
+	"services"
+	"time"
+
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gtimer"
 	"github.com/torykit/go-modbus"
-	"pcs_elecod/pcs_elecod_mac_v1"
-	"services"
-	"time"
 )
 
 // 通过构建脚本自动注入
@@ -70,5 +71,6 @@ func main() {
 			return err
 		},
 	})
+
 	command.Run(context.Background())
 }

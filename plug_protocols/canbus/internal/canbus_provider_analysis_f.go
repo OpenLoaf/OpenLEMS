@@ -11,7 +11,7 @@ import (
 )
 
 func (c *CanbusProtocolProvider) analysisCanbus(task *p_canbus.SCanbusTask, frame can.Frame) {
-	//if task.CanbusID != frame.ID {
+	//if task.GetCanbusID != frame.ID {
 	//	return
 	//}
 

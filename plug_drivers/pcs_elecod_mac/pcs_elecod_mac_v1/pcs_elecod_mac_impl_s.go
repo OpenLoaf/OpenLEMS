@@ -6,6 +6,8 @@ import (
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/glog"
+	"github.com/gogf/gf/v2/os/gtimer"
+	"time"
 )
 
 type sPcsElecodBasic struct {
@@ -26,6 +28,12 @@ func (s *sPcsElecodBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.S
 		s.RegisterRead(task)
 	}
 
+	gtimer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
+		g.Log().Debugf(s.ctx, "测试发送数据")
+
+		//_ = s.SendMessage(sandBy, nil)
+	})
+	g.Log().Info(s.ctx, "测试结束！！！！")
 }
 
 func (s *sPcsElecodBasic) Destroy() {
