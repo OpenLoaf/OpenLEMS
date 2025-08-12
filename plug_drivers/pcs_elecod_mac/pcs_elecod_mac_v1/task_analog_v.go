@@ -22,7 +22,7 @@ var (
 		Metas: []*c_base.Meta{
 			analogDcVoltage, analogDcCurrent, analogDcPower, analogBusVoltage,
 		},
-		GetCanbusID: func(deviceConfig *c_base.SDriverConfig) uint32 {
+		GetCanbusID: func(params map[string]string) uint32 {
 			return buildCANbusID(&CANFrameInfo{})
 		},
 		IDMatch: func(id uint32) bool {
