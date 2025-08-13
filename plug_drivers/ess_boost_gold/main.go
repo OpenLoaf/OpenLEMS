@@ -7,7 +7,6 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gtimer"
-	"github.com/torykit/go-modbus"
 	"services"
 	"time"
 )
@@ -40,31 +39,29 @@ func main() {
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			cmd := services.NewDeviceCmd(ctx)
 
-			device := cmd.InitDriver(make(map[string]modbus.Client),
-				&c_base.SDriverConfig{
-					Id:            "ems",
-					Name:          "高特EMS",
-					ProtocolId:    "test_modbus",
-					StorageEnable: false,
-					Driver:        "ess_boost_gold_v1",
-					IsEnable:      true,
-					LogLevel:      "",
-					Params: map[string]string{
-						"unitId":       "1",
-						"usePcsData":   "false",
-						"maxDischarge": "100",
-						"maxCharge":    "100",
-					},
-					DeviceChildren: nil,
+			device := cmd.InitDriver(make(map[string]any), &c_base.SDriverConfig{
+				Id:            "ems",
+				Name:          "高特EMS",
+				ProtocolId:    "test_modbus",
+				StorageEnable: false,
+				Driver:        "ess_boost_gold_v1",
+				IsEnable:      true,
+				LogLevel:      "",
+				Params: map[string]string{
+					"unitId":       "1",
+					"usePcsData":   "false",
+					"maxDischarge": "100",
+					"maxCharge":    "100",
 				},
-				[]*c_base.SProtocolConfig{{
-					Id:       "test_modbus",
-					Protocol: "modbus_tcp",
-					Address:  "172.18.38.200:502",
-					Timeout:  30,
-					LogLevel: "DEBUG",
-					Params:   nil,
-				}})
+				DeviceChildren: nil,
+			}, []*c_base.SProtocolConfig{{
+				Id:       "test_modbus",
+				Protocol: "modbus_tcp",
+				Address:  "172.18.38.200:502",
+				Timeout:  30,
+				LogLevel: "DEBUG",
+				Params:   nil,
+			}})
 
 			gtimer.SetInterval(ctx, 1*time.Second, func(ctx context.Context) {
 				g.Log().Noticef(ctx, "设备[%s]数据:\n%v", device.GetDeviceConfig().Name, device.GetAllTelemetry(device))

@@ -10,7 +10,6 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gtimer"
-	"github.com/torykit/go-modbus"
 )
 
 // 通过构建脚本自动注入
@@ -40,28 +39,26 @@ func main() {
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			cmd := services.NewDeviceCmd(ctx)
 
-			device := cmd.InitDriver(make(map[string]modbus.Client),
-				&c_base.SDriverConfig{
-					Id:             "TestPcsElecodV1",
-					Name:           "亿兰科PCS测试",
-					ProtocolId:     "test_canbus",
-					StorageEnable:  false,
-					Driver:         "pcs_elecod_mac_v1",
-					IsEnable:       true,
-					LogLevel:       "",
-					Params:         map[string]string{},
-					DeviceChildren: nil,
+			device := cmd.InitDriver(make(map[string]any), &c_base.SDriverConfig{
+				Id:             "TestPcsElecodV1",
+				Name:           "亿兰科PCS测试",
+				ProtocolId:     "test_canbus",
+				StorageEnable:  false,
+				Driver:         "pcs_elecod_mac_v1",
+				IsEnable:       true,
+				LogLevel:       "",
+				Params:         map[string]string{},
+				DeviceChildren: nil,
+			}, []*c_base.SProtocolConfig{{
+				Id:       "test_canbus",
+				Protocol: "canbus",
+				Address:  "can0",
+				Timeout:  30,
+				LogLevel: "DEBUG",
+				Params: map[string]string{
+					"BaudRate": "250000",
 				},
-				[]*c_base.SProtocolConfig{{
-					Id:       "test_canbus",
-					Protocol: "canbus",
-					Address:  "can0",
-					Timeout:  30,
-					LogLevel: "DEBUG",
-					Params: map[string]string{
-						"BaudRate": "250000",
-					},
-				}})
+			}})
 
 			gtimer.SetInterval(ctx, 1*time.Minute, func(ctx context.Context) {
 				g.Log().Noticef(ctx, "设备[%s]数据:\n%v", device.GetDeviceConfig().Name, device.GetAllTelemetry(device))

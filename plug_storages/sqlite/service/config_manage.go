@@ -12,7 +12,7 @@ import (
 )
 
 type IConfigManage interface {
-	GetDeviceConfig(ctx context.Context) *c_base.SDriverConfig
+	GetDeviceConfig(ctx context.Context, activeDeviceRootId string) *c_base.SDriverConfig
 	GetProtocolConfig(ctx context.Context) []*c_base.SProtocolConfig
 	GetSettingValueByName(ctx context.Context, name string) string
 	SetSettingValueByName(ctx context.Context, name string, value string) error
@@ -56,9 +56,22 @@ func ClearConfigManageInstance() {
 	instance = nil
 }
 
-func (s *sConfigManage) GetDeviceConfig(ctx context.Context) *c_base.SDriverConfig {
+func (s *sConfigManage) GetDeviceConfig(ctx context.Context, activeDeviceRootId string) *c_base.SDriverConfig {
 	//devices, err := model.GetDevicesByCondition(ctx, g.Map{})
-	deviceRootId, err := model.GetSettingValueByName("active_device_root_id")
+	var (
+		deviceRootId string
+		err          error
+	)
+
+	if activeDeviceRootId == "" {
+		deviceRootId, err = model.GetSettingValueByName("active_device_root_id")
+		g.Log().Noticef(ctx, "GetDeviceConfig From DB! active_device_root_id: %v", activeDeviceRootId)
+	} else {
+		deviceRootId = activeDeviceRootId
+	}
+
+	g.Log().Infof(ctx, "Activce Device Root Id: %s", deviceRootId)
+
 	if err != nil {
 		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
 		return nil

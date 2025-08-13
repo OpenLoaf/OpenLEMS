@@ -10,6 +10,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gproc"
 	"github.com/torykit/go-modbus"
+	"go.einride.tech/can"
 	"gpio_sysfs"
 	protocolModbus "modbus"
 	"os"
@@ -29,8 +30,8 @@ func NewDeviceCmd(ctx context.Context) *SDeviceCmd {
 	}
 }
 
-func (d *SDeviceCmd) Start() {
-	deviceConfig := common.GetDriverConfig(d.ctx)
+func (d *SDeviceCmd) Start(activeDeviceRootId string) {
+	deviceConfig := common.GetDriverConfig(d.ctx, activeDeviceRootId)
 	protocolConfigList := common.GetProtocolsConfigList(d.ctx)
 
 	// 捕捉panic
@@ -41,7 +42,7 @@ func (d *SDeviceCmd) Start() {
 		}
 	}()
 
-	d.InitDriver(make(map[string]modbus.Client), deviceConfig, protocolConfigList)
+	d.InitDriver(map[string]any{}, deviceConfig, protocolConfigList)
 }
 
 func (d *SDeviceCmd) Stop() {
@@ -54,7 +55,7 @@ func (d *SDeviceCmd) Stop() {
 	d.cancelFunc()
 }
 
-func (d *SDeviceCmd) InitDriver(clientCache map[string]modbus.Client, config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver {
+func (d *SDeviceCmd) InitDriver(clientCache map[string]any, config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver {
 
 	fmt.Print(config, "config")
 	if err := config.Check(); err != nil {
@@ -127,7 +128,7 @@ func (d *SDeviceCmd) Block() {
 	gproc.Listen()
 }
 
-func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, clientCache map[string]modbus.Client, deviceConfig *c_base.SDriverConfig, protocolConfig *c_base.SProtocolConfig) c_base.IProtocol {
+func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, clientCache map[string]any, deviceConfig *c_base.SDriverConfig, protocolConfig *c_base.SProtocolConfig) c_base.IProtocol {
 	// 从配置中获取协议
 	//protocolConfig := common.GetProtocolById(ctx, protocolId)
 	if protocolConfig == nil {
@@ -143,7 +144,7 @@ func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, clientCache map[st
 		// 从缓存中获取client，如果没有就新建后放入缓存
 		var client modbus.Client
 		if _client, exist := clientCache[protocolConfig.Id]; exist {
-			client = _client
+			client = _client.(modbus.Client)
 		} else {
 			// 创建client
 			client = protocolModbus.NewModbusClient(ctx, protocolConfig)
@@ -156,7 +157,21 @@ func (d *SDeviceCmd) getProtocolProvider(ctx context.Context, clientCache map[st
 
 		return modbusProvider
 	case c_base.ECanbusUdp, c_base.ECanbus:
-		receiverChan, transmitterChan := protocolCanbus.NewCanbusChan(ctx, protocolConfig)
+		var (
+			receiverChan    <-chan can.Frame
+			transmitterChan chan<- can.Frame
+		)
+		if _receiverChan, exist := clientCache[protocolConfig.Id+"_receiverChan"]; exist {
+			receiverChan = _receiverChan.(chan can.Frame)
+		}
+		if _transmitterChan, exist := clientCache[protocolConfig.Id+"_transmitterChan"]; exist {
+			transmitterChan = _transmitterChan.(chan<- can.Frame)
+		}
+
+		if receiverChan == nil || transmitterChan == nil {
+			receiverChan, transmitterChan = protocolCanbus.NewCanbusChan(ctx, protocolConfig)
+		}
+
 		canbusProvider, err := protocolCanbus.NewCanbusProvider(ctx, protocolConfig, deviceConfig, receiverChan, transmitterChan)
 		if err != nil {
 			panic(err)

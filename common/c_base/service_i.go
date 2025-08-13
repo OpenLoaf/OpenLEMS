@@ -1,11 +1,12 @@
 package c_base
 
-import "github.com/torykit/go-modbus"
-
 type IService interface {
-	Start()
+	// Start 启动EMS 服务
+	Start(activeDeviceRootId string)
 
+	// Stop 停止EMS服务
 	Stop()
 
-	InitDriver(clientCache map[string]modbus.Client, config *SDriverConfig, protocolConfigList []*SProtocolConfig) IDriver
+	// InitDriver 初始化驱动
+	InitDriver(clientCache map[string]any, config *SDriverConfig, protocolConfigList []*SProtocolConfig) IDriver
 }

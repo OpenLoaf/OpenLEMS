@@ -5,8 +5,8 @@ import (
 	"context"
 )
 
-func (c *SConfig) GetDriverConfig(ctx context.Context) *c_base.SDriverConfig {
-	return c.instance.GetDeviceConfig(ctx)
+func (c *SConfig) GetDriverConfig(ctx context.Context, activeDeviceRootId string) *c_base.SDriverConfig {
+	return c.instance.GetDeviceConfig(ctx, activeDeviceRootId)
 }
 
 func (c *SConfig) GetProtocolsConfig(ctx context.Context) []*c_base.SProtocolConfig {

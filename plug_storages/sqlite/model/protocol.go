@@ -43,6 +43,7 @@ type Protocol struct {
 	// 在sqlite中以json字符串形式存储设备参数
 	Params    string `json:"params" orm:"params"`
 	Sort      int    `json:"sort" orm:"sort"`
+	Enable    bool   `json:"enable" orm:"enable"`
 	CreatedAt string `json:"created_at" orm:"created_at"`
 	UpdatedAt string `json:"updated_at" orm:"updated_at"`
 }

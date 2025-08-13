@@ -58,6 +58,7 @@ func initConfigDatabase() {
 			log_level VARCHAR(255) NOT NULL,
 			sort INTEGER DEFAULT 0,
 			params TEXT,
+		    enable BOOLEAN DEFAULT 1,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
@@ -75,7 +76,7 @@ func initConfigDatabase() {
 			name VARCHAR(255) NOT NULL,
 			driver VARCHAR(255),
 			log_level VARCHAR(255),
-			enable BOOLEAN,
+			enabled BOOLEAN DEFAULT 1,
 			params TEXT,
 			retention_days INTEGER NOT NULL,
 			sort INTEGER DEFAULT 0,
@@ -93,7 +94,7 @@ func initConfigDatabase() {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name VARCHAR(255) NOT NULL,
 			value VARCHAR(255),
-			enable BOOLEAN,
+			enabled BOOLEAN default 1,
 			remark VARCHAR(255),
 			sort INTEGER DEFAULT 0,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

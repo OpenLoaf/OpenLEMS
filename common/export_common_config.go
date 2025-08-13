@@ -20,8 +20,8 @@ func SystemInitConfigInstance(ctx context.Context) {
 }
 
 // GetDriverConfig 获取设备配置，失败将直接系统退出
-func GetDriverConfig(ctx context.Context) *c_base.SDriverConfig {
-	return internal_config_with_sqlite.ConfigInstance.GetDriverConfig(ctx)
+func GetDriverConfig(ctx context.Context, activeDeviceRootId string) *c_base.SDriverConfig {
+	return internal_config_with_sqlite.ConfigInstance.GetDriverConfig(ctx, activeDeviceRootId)
 }
 
 // GetStorageConfig 获取存储配置，失败将直接系统退出
