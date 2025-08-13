@@ -76,7 +76,7 @@ var (
 			var web *ghttp.Server
 
 			gproc.AddSigHandlerShutdown(func(sig os.Signal) {
-				g.Log().Noticef(ctx, "接收到信号：%s", sig.String())
+				g.Log().Infof(ctx, "接收到关闭服务信号：%s", sig.String())
 				if web != nil {
 					_ = web.Shutdown()
 				}

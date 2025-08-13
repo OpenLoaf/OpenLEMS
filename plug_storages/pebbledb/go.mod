@@ -1,6 +1,6 @@
 module pebbledb
 
-go 1.24.1
+go 1.24.4
 
 require (
 	github.com/cockroachdb/pebble v1.1.0
