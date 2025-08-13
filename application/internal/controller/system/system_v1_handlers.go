@@ -2,17 +2,12 @@ package system
 
 import (
 	"context"
-	stdnet "net"
 	"os/exec"
 	"runtime"
 	"strings"
 	"time"
 
-	ntv1 "application/api/network/v1"
 	v1 "application/api/system/v1"
-	ntctl "application/internal/controller/network"
-
-	"github.com/gogf/gf/v2/frame/g"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -80,20 +75,7 @@ func fetchNet(ctx context.Context) (v1.NetBrief, error) {
 	return v1.NetBrief{UpBytes: upBytes, DownBytes: downBytes, UpBps: 0, DownBps: 0}, nil
 }
 
-func fetchIfaces(ctx context.Context) ([]v1.IfaceItem, error) {
-	// 直接调用网络模块控制器的公共方法
-	res, err := ntctl.NewV1().GetNetworkInterfaceList(ctx, &ntv1.GetNetworkInterfaceListReq{OnlyEthernet: false})
-	if err != nil {
-		return nil, err
-	}
-	var items []v1.IfaceItem
-	for _, it := range res.Interfaces {
-		items = append(items, v1.IfaceItem{Name: it.Name, IP: it.IPv4, Up: it.Connected})
-	}
-	return items, nil
-}
-
-func net2Interface(name string) (*stdnet.Interface, error) { return stdnet.InterfaceByName(name) }
+// 删除冗余：接口列表由网络模块独立提供
 
 func fetchTime(ctx context.Context) (v1.TimeInfo, error) {
 	now := time.Now()
@@ -138,30 +120,13 @@ func fetchSys(ctx context.Context) (v1.SysInfo, error) {
 
 // 汇总与单项接口实现
 func (c *ControllerV1) GetSummary(ctx context.Context, req *v1.GetSummaryReq) (res *v1.GetSummaryRes, err error) {
-	start := time.Now()
-	g.Log().Infof(ctx, "[SystemSummary] start")
-	t := time.Now()
 	cpuI, _ := fetchCPU(ctx)
-	g.Log().Infof(ctx, "[SystemSummary] cpu=%s", time.Since(t))
-	t = time.Now()
 	memI, _ := fetchMemory(ctx)
-	g.Log().Infof(ctx, "[SystemSummary] memory=%s", time.Since(t))
-	t = time.Now()
 	diskI, _ := fetchDisk(ctx)
-	g.Log().Infof(ctx, "[SystemSummary] disk=%s", time.Since(t))
-	t = time.Now()
 	upI, _ := fetchUptime(ctx)
-	g.Log().Infof(ctx, "[SystemSummary] uptime=%s", time.Since(t))
-	t = time.Now()
 	netI, _ := fetchNet(ctx)
-	g.Log().Infof(ctx, "[SystemSummary] net=%s", time.Since(t))
-	t = time.Now()
 	timeI, _ := fetchTime(ctx)
-	g.Log().Infof(ctx, "[SystemSummary] time=%s", time.Since(t))
-	t = time.Now()
 	sysI, _ := fetchSys(ctx)
-	g.Log().Infof(ctx, "[SystemSummary] sys=%s", time.Since(t))
-	g.Log().Infof(ctx, "[SystemSummary] done cost=%s", time.Since(start))
 	return &v1.GetSummaryRes{CPU: cpuI, Memory: memI, Disk: diskI, Uptime: upI, Net: netI, Time: timeI, Sys: sysI}, nil
 }
 
