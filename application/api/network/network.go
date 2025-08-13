@@ -12,4 +12,6 @@ import (
 
 type INetworkV1 interface {
 	GetNetworkInterfaceList(ctx context.Context, req *v1.GetNetworkInterfaceListReq) (res *v1.GetNetworkInterfaceListRes, err error)
+	UpdateNetworkInterface(ctx context.Context, req *v1.UpdateNetworkInterfaceReq) (res *v1.UpdateNetworkInterfaceRes, err error)
+	UpdateDNS(ctx context.Context, req *v1.UpdateDNSReq) (res *v1.UpdateDNSRes, err error)
 }

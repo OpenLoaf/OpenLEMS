@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -18,6 +19,25 @@ import (
 
 // GetNetworkInterfaceList 获取本机网络接口列表
 func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetNetworkInterfaceListReq) (res *v1.GetNetworkInterfaceListRes, err error) {
+	// macOS 走 system_profiler，以获取更完整的网卡信息
+	if runtime.GOOS == "darwin" {
+		dnsServers := readSystemDNSServers()
+		list, derr := getInterfacesFromSystemProfiler(req, dnsServers)
+		if derr != nil {
+			return nil, derr
+		}
+		// 按名称排序
+		for i := 0; i < len(list)-1; i++ {
+			for j := i + 1; j < len(list); j++ {
+				if list[i].Name > list[j].Name {
+					list[i], list[j] = list[j], list[i]
+				}
+			}
+		}
+		res = &v1.GetNetworkInterfaceListRes{Interfaces: list, Total: len(list), DNS: dnsServers}
+		return res, nil
+	}
+
 	interfaces, err := net.Interfaces()
 	if err != nil {
 		return nil, err
@@ -33,11 +53,10 @@ func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetN
 			continue
 		}
 		item := &entity.SNetworkInterface{
-			Name:       nif.Name,
-			MAC:        nif.HardwareAddr.String(),
-			Connected:  (nif.Flags & net.FlagUp) != 0,
-			DNSServers: dnsServers,
-			Gateway:    gatewayMap[nif.Name],
+			Name:      nif.Name,
+			MAC:       nif.HardwareAddr.String(),
+			Connected: (nif.Flags & net.FlagUp) != 0,
+			Gateway:   gatewayMap[nif.Name],
 		}
 
 		if (nif.Flags & net.FlagLoopback) != 0 {
@@ -81,7 +100,7 @@ func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetN
 			}
 		}
 	}
-	res = &v1.GetNetworkInterfaceListRes{Interfaces: list, Total: len(list)}
+	res = &v1.GetNetworkInterfaceListRes{Interfaces: list, Total: len(list), DNS: dnsServers}
 	return res, nil
 }
 
@@ -159,6 +178,88 @@ func getDefaultGatewayPerInterface() map[string]string {
 		}
 	}
 	return result
+}
+
+// macOS：使用 system_profiler 获取网卡信息
+func getInterfacesFromSystemProfiler(req *v1.GetNetworkInterfaceListReq, dnsServers []string) ([]*entity.SNetworkInterface, error) {
+	cmd := exec.Command("system_profiler", "SPNetworkDataType", "-json")
+	out, err := cmd.Output()
+	if err != nil {
+		return nil, fmt.Errorf("system_profiler failed: %v", err)
+	}
+
+	// 只解析我们关心的字段
+	var sp struct {
+		SPNetworkDataType []struct {
+			Name      string                 `json:"_name"`
+			Hardware  string                 `json:"hardware"`
+			Iface     string                 `json:"interface"`
+			Type      string                 `json:"type"`
+			Ethernet  map[string]interface{} `json:"Ethernet"`
+			IPv4      map[string]interface{} `json:"IPv4"`
+			DNS       map[string]interface{} `json:"DNS"`
+			IPAddress []string               `json:"ip_address"`
+		} `json:"SPNetworkDataType"`
+	}
+	if err := json.Unmarshal(out, &sp); err != nil {
+		return nil, fmt.Errorf("parse system_profiler json failed: %v", err)
+	}
+
+	var list []*entity.SNetworkInterface
+	for _, it := range sp.SPNetworkDataType {
+		iface := it.Iface
+		if iface == "" {
+			continue
+		}
+
+		// 仅以太网过滤
+		if req.OnlyEthernet {
+			hw := strings.ToLower(it.Hardware)
+			if !(strings.Contains(hw, "ethernet") || strings.HasPrefix(strings.ToLower(iface), "en")) {
+				continue
+			}
+		}
+
+		item := &entity.SNetworkInterface{
+			Name:      it.Name,
+			Type:      strings.ToLower(it.Hardware),
+			Connected: false,
+		}
+
+		// MAC
+		if it.Ethernet != nil {
+			if macVal, ok := it.Ethernet["MAC Address"].(string); ok {
+				item.MAC = macVal
+			}
+		}
+
+		// IPv4 地址与子网掩码
+		if it.IPv4 != nil {
+			if addrs, ok := it.IPv4["Addresses"].([]interface{}); ok && len(addrs) > 0 {
+				if s, ok2 := addrs[0].(string); ok2 {
+					item.IPv4 = s
+				}
+			}
+			if masks, ok := it.IPv4["SubnetMasks"].([]interface{}); ok && len(masks) > 0 {
+				if s, ok2 := masks[0].(string); ok2 {
+					item.Netmask = s
+				}
+			}
+			if r, ok := it.IPv4["Router"].(string); ok && r != "" {
+				item.Gateway = r
+			}
+		}
+		if item.IPv4 == "" && len(it.IPAddress) > 0 {
+			item.IPv4 = it.IPAddress[0]
+		}
+
+		// 连接状态简单判定：有 IP 即视为连接
+		item.Connected = item.IPv4 != ""
+
+		// 若仅以太网且未连接且无 IP，可以保留由前端选择是否显示
+		list = append(list, item)
+	}
+	return list, nil
 }
 
 // isEthernetInterface 判断 iface 是否为以太网(过滤掉 Wi‑Fi/回环等)

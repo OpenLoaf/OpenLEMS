@@ -3,6 +3,7 @@ logger:
   Level:   "all"
   Stdout:  true
   CtxKeys: ["GroupName","ProtocolId","DeviceId","DeviceDetail"]
+  path:    "out/logs/app"        # 应用日志文件目录，建议使用绝对路径于生产环境
   writerColorEnable: true  # 日志文件是否带上颜色。默认false，表示不带颜色
 
 gfcli:
@@ -60,12 +61,12 @@ server:
 
   # 日志基本配置
   # 此配置类似nginx，主要对请求日志的记录
-  logPath:             ""                 # 日志文件存储目录路径，建议使用绝对路径。默认为空，表示关闭
+  logPath:             "out/logs/http"    # 日志文件存储目录路径，建议使用绝对路径。为空表示关闭
   logStdout:           true               # 日志是否输出到终端。默认为true
   errorStack:          true               # 当Server捕获到异常时是否记录堆栈信息到日志中。默认为true
   errorLogEnabled:     true               # 是否记录异常日志信息到日志中。默认为true
   errorLogPattern:     "error-{Ymd}.log"  # 异常错误日志文件格式。默认为"error-{Ymd}.log"
-  accessLogEnabled:    false              # 是否记录访问日志。默认为false
+  accessLogEnabled:    true               # 是否记录访问日志。默认为false
   accessLogPattern:    "access-{Ymd}.log" # 访问日志文件格式。默认为"access-{Ymd}.log"
 
 
@@ -90,7 +91,7 @@ server:
 #    prefix:                ""                    # 日志内容输出前缀。默认为空
     level:                 "all"                 # 日志输出级别
 #    timeFormat:            "2006-01-02T15:04:05" # 自定义日志输出的时间格式，使用Golang标准的时间格式配置
-    ctxKeys:               []                    # 自定义Context上下文变量名称，自动打印Context的变量到日志中。默认为空
+    ctxKeys:               ["GroupName","ProtocolId","DeviceId","DeviceDetail","RequestId"]  # 透传常用上下文字段
     header:                true                  # 是否打印日志的头信息。默认true
     stdout:                true                  # 日志是否同时输出到终端。默认true
     rotateSize:            0                     # 按照日志文件大小对文件进行滚动切分。默认为0，表示关闭滚动切分特性

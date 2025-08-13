@@ -59,25 +59,30 @@ func startWeb(ctx context.Context) *ghttp.Server {
 func MiddlewareErrorHandler(r *ghttp.Request) {
 	r.Middleware.Next()
 	if err := r.GetError(); err != nil {
-		// 记录到自定义错误日志文件
-		//g.Log("exception").Error(r.Context(), err)
-		//返回固定的友好信息
+		// 更详细的错误日志：包含请求方法/路径、请求体、堆栈
+		ctx := r.Context()
+		g.Log().Errorf(ctx, "HTTP %s %s - Error: %v", r.Method, r.URL.Path, err)
+		if stack := gerror.Stack(err); stack != "" {
+			g.Log().Errorf(ctx, "Stack:\n%s", stack)
+		}
+		if body := r.GetBodyString(); body != "" {
+			// 仅在调试或出现错误时打印请求体（注意敏感字段）
+			g.Log().Debugf(ctx, "Request Body: %s", body)
+		}
+
+		// 返回统一JSON，尽量带上Code与详细Message
 		r.Response.ClearBuffer()
 		if gerr, ok := err.(*gerror.Error); ok {
 			r.Response.WriteJson(ghttp.DefaultHandlerResponse{
-				Code: gerr.Code().Code(),
-				//Message: g.I18n().T(r.Context(), gerr.Code().Message()),
+				Code:    gerr.Code().Code(),
 				Message: err.Error(),
 			})
 			return
-		} else {
-			r.Response.WriteJson(ghttp.DefaultHandlerResponse{
-				Code: 500,
-				//Message: g.I18n().T(r.Context(), "serverError"),
-				Message: err.Error(),
-			})
 		}
-
+		r.Response.WriteJson(ghttp.DefaultHandlerResponse{
+			Code:    500,
+			Message: err.Error(),
+		})
 	}
 }
 

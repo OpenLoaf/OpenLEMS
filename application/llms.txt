@@ -1,0 +1,1500 @@
+========================
+CODE SNIPPETS
+========================
+TITLE: Initializing a Basic GoFrame Web Server
+DESCRIPTION: This snippet demonstrates how to create and run the simplest GoFrame web server. It initializes a default server instance using `g.Server()`, binds a handler to the root path (`/`) that responds with '哈喽世界！', and starts the server on the default port (80). This example showcases the minimal setup required to get a basic HTTP service running.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.8.x/docs/WEB服务开发/开始使用.md#_snippet_0
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+func main() {
+    s := g.Server()
+    s.BindHandler("/", func(r *ghttp.Request) {
+        r.Response.Write("哈喽世界！")
+    })
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Example of GF CLI Installation Output
+DESCRIPTION: This snippet shows an example output when running the `./gf install` command. It prompts the user to choose an installation path from available options and confirms the successful installation of the `gf` binary to the selected directory, typically `/usr/local/bin`.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.6.x/开发工具/工具安装-install.md#_snippet_3
+
+LANGUAGE: bash
+CODE:
+```
+$ ./gf_darwin_amd64 install
+I found some installable paths for you(from $PATH):
+  Id | Writable | Installed | Path
+   0 |     true |      true | /usr/local/bin
+   1 |     true |     false | /Users/john/Workspace/Go/GOPATH/bin
+   2 |     true |     false | /Users/john/.gvm/bin
+   4 |     true |     false | /Users/john/.ft
+please choose one installation destination [default 0]:
+gf binary is successfully installed to: /usr/local/bin
+```
+
+----------------------------------------
+
+TITLE: Interactive GF CLI Installation Example
+DESCRIPTION: This example illustrates the interactive process of running the `./gf install` command after downloading the `gf` binary. It shows how the tool identifies writable paths in the system's `$PATH` and prompts the user to select an installation destination, confirming successful placement of the `gf` binary.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.5.x/开发工具/工具安装-install.md#_snippet_3
+
+LANGUAGE: bash
+CODE:
+```
+$ ./gf_darwin_amd64 install
+I found some installable paths for you(from $PATH):
+  Id | Writable | Installed | Path
+   0 |     true |      true | /usr/local/bin
+   1 |     true |     false | /Users/john/Workspace/Go/GOPATH/bin
+   2 |     true |     false | /Users/john/.gvm/bin
+   4 |     true |     false | /Users/john/.ft
+please choose one installation destination [default 0]:
+gf binary is successfully installed to: /usr/local/bin
+```
+
+----------------------------------------
+
+TITLE: Example of GoFrame CLI Installation Output
+DESCRIPTION: This snippet shows an example output when running the `gf install` command after downloading a pre-compiled binary. It prompts the user to choose an installation path from available writable directories in the system's PATH, confirming successful installation to the chosen location.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/docs/开发工具/工具安装-install.md#_snippet_4
+
+LANGUAGE: bash
+CODE:
+```
+$ ./gf_darwin_amd64 install
+I found some installable paths for you(from $PATH):
+  Id | Writable | Installed | Path
+   0 |     true |      true | /usr/local/bin
+   1 |     true |     false | /Users/john/Workspace/Go/GOPATH/bin
+   2 |     true |     false | /Users/john/.gvm/bin
+   4 |     true |     false | /Users/john/.ft
+please choose one installation destination [default 0]:
+gf binary is successfully installed to: /usr/local/bin
+```
+
+----------------------------------------
+
+TITLE: Setup GoFrame Proxy Example
+DESCRIPTION: Commands to clone the GoFrame examples repository, navigate to the specific proxy example directory, and install the necessary Go module dependencies.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/examples/httpserver/proxy/proxy.md#_snippet_0
+
+LANGUAGE: Bash
+CODE:
+```
+git clone https://github.com/gogf/examples.git
+cd examples/httpserver/proxy
+go mod tidy
+```
+
+----------------------------------------
+
+TITLE: Example GoFrame CLI Installation Output
+DESCRIPTION: Demonstrates the interactive output when running `./gf install` after downloading the `gf` binary. It shows the tool identifying potential installation paths and confirming a successful installation to `/usr/local/bin`.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.8.x/docs/开发工具/工具安装-install.md#_snippet_5
+
+LANGUAGE: bash
+CODE:
+```
+$ ./gf_darwin_amd64 install
+I found some installable paths for you(from $PATH):
+  Id | Writable | Installed | Path
+   0 |     true |      true | /usr/local/bin
+   1 |     true |     false | /Users/john/Workspace/Go/GOPATH/bin
+   2 |     true |     false | /Users/john/.gvm/bin
+   4 |     true |     false | /Users/john/.ft
+please choose one installation destination [default 0]:
+gf binary is successfully installed to: /usr/local/bin
+```
+
+----------------------------------------
+
+TITLE: Example of GoFrame CLI Installation Output
+DESCRIPTION: This snippet demonstrates the interactive output when running the `./gf install` command. It shows the available installation paths, prompts the user to choose one, and confirms the successful installation of the `gf` binary to the selected directory, typically `/usr/local/bin`.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/docs/开发工具/工具安装-install.md#_snippet_4
+
+LANGUAGE: bash
+CODE:
+```
+$ ./gf_darwin_amd64 install
+I found some installable paths for you(from $PATH):
+  Id | Writable | Installed | Path
+   0 |     true |      true | /usr/local/bin
+   1 |     true |     false | /Users/john/Workspace/Go/GOPATH/bin
+   2 |     true |     false | /Users/john/.gvm/bin
+   4 |     true |     false | /Users/john/.ft
+please choose one installation destination [default 0]:
+gf binary is successfully installed to: /usr/local/bin
+```
+
+----------------------------------------
+
+TITLE: Basic Static File Server Usage - Go
+DESCRIPTION: This example demonstrates the basic setup of a static file server using `gf`. It initializes a server, enables folder indexing, sets a primary server root directory, adds an additional search path for static files, configures the listening port, and then starts the server to serve content from the specified directories.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.3.x/WEB服务开发/高级特性/静态文件服务.md#_snippet_1
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import "github.com/gogf/gf/v2/frame/g"
+
+// 静态文件服务器基本使用
+func main() {
+    s := g.Server()
+    s.SetIndexFolder(true)
+    s.SetServerRoot("/Users/john/Temp")
+    s.AddSearchPath("/Users/john/Documents")
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Installing Protobuf and gRPC Tools on MacOS
+DESCRIPTION: This Bash command demonstrates how to install Protobuf and its associated gRPC Go plugins on a macOS environment using Homebrew. This simplifies the setup process for developers working on Apple systems.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/course/proxima-book/第一章-基础信息/1.3.环境准备.md#_snippet_2
+
+LANGUAGE: bash
+CODE:
+```
+brew install grpc protoc-gen-go protoc-gen-go-grpc
+```
+
+----------------------------------------
+
+TITLE: Verifying Protobuf Installation
+DESCRIPTION: This command is used to verify the successful installation of the Protobuf compiler by checking its version. A successful output confirms that `protoc` is correctly installed and accessible in the system's PATH.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/course/proxima-book/第一章-基础信息/1.3.环境准备.md#_snippet_3
+
+LANGUAGE: bash
+CODE:
+```
+protoc --version
+```
+
+----------------------------------------
+
+TITLE: Install and Run GoFrame HTTP Basic Auth Example
+DESCRIPTION: These Bash commands provide the steps to set up and run the GoFrame HTTP Basic Authentication example. It includes cloning the repository, navigating to the project directory, installing Go module dependencies, and executing the main application. The server will launch on port 8000, and users can access the protected resource at `http://127.0.0.1:8000/` using the default credentials 'user' and 'pass'.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/examples/httpserver/basic-auth/basic-auth.md#_snippet_1
+
+LANGUAGE: Bash
+CODE:
+```
+git clone https://github.com/gogf/examples.git
+cd examples/httpserver/basic-auth
+```
+
+LANGUAGE: Bash
+CODE:
+```
+go mod tidy
+```
+
+LANGUAGE: Bash
+CODE:
+```
+go run main.go
+```
+
+----------------------------------------
+
+TITLE: Example of GoFrame CLI Manual Installation Output
+DESCRIPTION: This snippet illustrates the interactive output when running the `gf install` command manually after downloading the binary. It shows how the tool identifies potential installation paths from the system's `$PATH` and prompts the user to select a destination, confirming successful installation to the chosen directory.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/version-2.8.x/docs/开发工具/工具安装-install.md#_snippet_4
+
+LANGUAGE: bash
+CODE:
+```
+$ ./gf_darwin_amd64 install
+I found some installable paths for you(from $PATH):
+  Id | Writable | Installed | Path
+   0 |     true |      true | /usr/local/bin
+   1 |     true |     false | /Users/john/Workspace/Go/GOPATH/bin
+   2 |     true |     false | /Users/john/.gvm/bin
+   4 |     true |     false | /Users/john/.ft
+please choose one installation destination [default 0]:
+gf binary is successfully installed to: /usr/local/bin
+```
+
+----------------------------------------
+
+TITLE: Running the GoFrame Metric Example
+DESCRIPTION: This command executes the main Go application, starting the server and initializing the metric collection. It's the first step to observe the metrics.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/examples/observability/metric/basic/basic.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+go run main.go
+```
+
+----------------------------------------
+
+TITLE: Creating a Basic Hello World Web Server in GoFrame
+DESCRIPTION: This snippet demonstrates how to set up the simplest GoFrame web server. It initializes a default server instance using `g.Server()`, binds a handler to the root path (`/`) that responds with 'Hello World!', and starts the server listening on the default port (80). It does not support static files and serves as a basic entry point.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/docs/WEB服务开发/开始使用.md#_snippet_0
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+func main() {
+    s := g.Server()
+    s.BindHandler("/", func(r *ghttp.Request) {
+        r.Response.Write("Hello World!")
+    })
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Implementing a Basic Hello Service in GoFrame
+DESCRIPTION: This Go code defines a simple 'Hello' service using the GoFrame framework. It includes a request and response struct for the `/hello` GET endpoint, a `Say` method to handle the request, and a `main` function to initialize the server, apply a response middleware, bind the `Hello` service, and start the server. It demonstrates basic routing and middleware usage.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.8.x/docs/WEB服务开发/路由管理/路由管理-路由注册/路由注册-规范路由/规范路由-基本示例.md#_snippet_1
+
+LANGUAGE: go
+CODE:
+```
+package main
+
+import (
+    "context"
+    "fmt"
+
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+type HelloReq struct {
+    g.Meta `path:"/hello" method:"get"`
+    Name   string `v:"required" dc:"Your name"`
+}
+type HelloRes struct {
+    Reply string `dc:"Reply content"`
+}
+
+type Hello struct{}
+
+func (Hello) Say(ctx context.Context, req *HelloReq) (res *HelloRes, err error) {
+    g.Log().Debugf(ctx, `receive say: %+v`, req)
+    res = &HelloRes{
+        Reply: fmt.Sprintf(`Hi %s`, req.Name),
+    }
+    return
+}
+
+func main() {
+    s := g.Server()
+    s.Use(ghttp.MiddlewareHandlerResponse)
+    s.Group("/", func(group *ghttp.RouterGroup) {
+        group.Bind(
+            new(Hello),
+        )
+    })
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Configuring a GoFrame Web Server for Static File Serving
+DESCRIPTION: This example shows how to configure the GoFrame WebServer to serve static files. It initializes a server, then uses `s.SetIndexFolder(true)` to allow directory listing and `s.SetServerRoot("/home/www/")` to specify the root directory for static content. The server starts listening with `s.Run()`.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/version-2.8.x/docs/WEB服务开发/开始使用.md#_snippet_1
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+)
+
+func main() {
+    s := g.Server()
+    s.SetIndexFolder(true)
+    s.SetServerRoot("/home/www/")
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Basic Static File Server Setup in GoGF
+DESCRIPTION: This example demonstrates the fundamental setup of a static file server using the `gf` framework. It shows how to enable folder indexing, set the server root directory to `/Users/john/Temp`, add an additional search path `/Users/john/Documents`, and specify the listening port as `8199` before starting the server.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.0.x/WEB服务开发/高级特性/静态文件服务.md#_snippet_1
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import "github.com/gogf/gf/v2/frame/g"
+
+// 静态文件服务器基本使用
+func main() {
+    s := g.Server()
+    s.SetIndexFolder(true)
+    s.SetServerRoot("/Users/john/Temp")
+    s.AddSearchPath("/Users/john/Documents")
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Running GoFrame HTTP Client Metrics Example
+DESCRIPTION: This command executes the main Go program to start the HTTP client metrics collection example.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/examples/observability/metric/http_client/http_client.md#_snippet_1
+
+LANGUAGE: bash
+CODE:
+```
+go run main.go
+```
+
+----------------------------------------
+
+TITLE: Running Go HTTP Server Example
+DESCRIPTION: This Bash command executes the Go HTTP server example, starting the server on the configured port (8199) and displaying its routing information and a 'server started' message.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.5.x/WEB服务开发/HTTPClient/HTTPClient-拦截器中间件.md#_snippet_6
+
+LANGUAGE: Bash
+CODE:
+```
+$ go run server.go
+```
+
+----------------------------------------
+
+TITLE: Installing GF CLI on Linux/macOS
+DESCRIPTION: This snippet demonstrates the interactive process of installing the `gf` command-line tool using `gf install`. It shows how the tool identifies writable paths, prompts the user for a destination, and confirms successful installation to the chosen directory, typically `/usr/local/bin`.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-1.16.x/开发工具/install 工具安装.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+$ gf install
+I found some installable paths for you:
+  Id | Writable | Installed | Path
+   0 |     true |      true | /usr/local/bin
+please choose one installation destination [default 0]:
+gf binary is successfully installed to: /usr/local/bin
+```
+
+----------------------------------------
+
+TITLE: Creating a Hello World Web Server with GoFrame (Go)
+DESCRIPTION: This Go code snippet demonstrates how to initialize a basic web server using the GoFrame framework. It obtains a singleton g.Server object, binds the root path ("/") to a handler function that writes "Hello World!" to the response, sets the server to listen on port 8000, and then starts the server. This provides a minimal example for setting up a web service.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/quick/快速开始/Hello World.md#_snippet_0
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+func main() {
+    s := g.Server()
+    s.BindHandler("/", func(r *ghttp.Request) {
+        r.Response.Write("Hello World!")
+    })
+    s.SetPort(8000)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Running Multiple GoFrame Server Instances in a Single Process
+DESCRIPTION: This example demonstrates how to run multiple GoFrame server instances within the same process. Each instance is identified by a unique name passed to g.Server(), allowing them to have independent configurations like port and server root, and started concurrently using s.Start().
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.1.x/WEB服务开发/开始使用.md#_snippet_3
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+)
+
+func main() {
+    s1 := g.Server("s1")
+    s1.SetPort(8080)
+    s1.SetIndexFolder(true)
+    s1.SetServerRoot("/home/www/static1")
+    s1.Start()
+
+    s2 := g.Server("s2")
+    s2.SetPort(8088)
+    s2.SetIndexFolder(true)
+    s2.SetServerRoot("/home/www/static2")
+    s2.Start()
+
+    g.Wait()
+}
+```
+
+----------------------------------------
+
+TITLE: Installing GoFrame via go get (Bash)
+DESCRIPTION: This command uses `go get` to download and install the latest version of the GoFrame framework (v2) into your Go module cache, updating it if already present. It's the primary method for direct installation.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/quick/快速开始/下载与使用.md#_snippet_1
+
+LANGUAGE: Bash
+CODE:
+```
+go get -u -v github.com/gogf/gf/v2
+```
+
+----------------------------------------
+
+TITLE: Getting Start of Day for gtime.Time in Go
+DESCRIPTION: This example demonstrates how to get the `gtime.Time` object representing the very beginning of the day (00:00:00) for a given time using the `StartOfDay` method.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.7.x/docs/组件列表/系统相关/时间管理-gtime/时间管理-方法介绍.md#_snippet_19
+
+LANGUAGE: Go
+CODE:
+```
+func ExampleTime_StartOfDay() {
+      gt1 := gtime.New("2018-08-08 08:08:08")
+
+      fmt.Println(gt1.StartOfDay())
+}
+```
+
+----------------------------------------
+
+TITLE: Starting Nacos Server with Docker Compose
+DESCRIPTION: This snippet demonstrates how to start the Nacos server locally using Docker Compose. It's a prerequisite for running the GoFrame Nacos integration examples. Ensure Docker and Docker Compose are installed and running on your system.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/examples/registry/nacos/nacos.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+cd docker-compose
+docker-compose up -d
+```
+
+----------------------------------------
+
+TITLE: Running Multiple GoFrame Web Server Instances in Go
+DESCRIPTION: This example illustrates how to run multiple independent GoFrame server instances within the same process. Each server is created with a unique name using `g.Server("name")`, configured with its own port and static root, and started independently. `g.Wait()` is used to keep the main goroutine alive until all servers are stopped.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.7.x/docs/WEB服务开发/开始使用.md#_snippet_3
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+)
+
+func main() {
+    s1 := g.Server("s1")
+    s1.SetPort(8080)
+    s1.SetIndexFolder(true)
+    s1.SetServerRoot("/home/www/static1")
+    s1.Start()
+
+    s2 := g.Server("s2")
+    s2.SetPort(8088)
+    s2.SetIndexFolder(true)
+    s2.SetServerRoot("/home/www/static2")
+    s2.Start()
+
+    g.Wait()
+}
+```
+
+----------------------------------------
+
+TITLE: Running a GoFrame Project and Verifying Server (Bash)
+DESCRIPTION: This command navigates into the newly created project directory and starts the GoFrame application. It compiles the `main.go` file and launches the HTTP server, typically on port 8000. The output displays server startup information, including listening addresses for the API, Swagger UI, and a sample `/hello` endpoint.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/course/starbook/第一章-基础信息/1.4.环境准备.md#_snippet_4
+
+LANGUAGE: Bash
+CODE:
+```
+$ cd star && gf run main.go
+build: .\main.go
+go build -o .\main.exe  .\main.go
+.\main.exe 
+build running pid: 13628
+2024-11-06 16:45:46.015 [INFO] pid[13628]: http server started listening on [:8000]
+2024-11-06 16:45:46.015 [INFO] {4c9b7c33a654051860769a5fdef82a84} swagger ui is serving at address: http://127.0.0.1:8000/swagger/
+2024-11-06 16:45:46.015 [INFO] {4c9b7c33a654051860769a5fdef82a84} openapi specification is serving at address: http://127.0.0.1:8000/api.json
+
+  ADDRESS | METHOD |   ROUTE    |                        HANDLER                        |           MIDDLEWARE
+----------|--------|------------|-------------------------------------------------------|----------------------------------
+  :8000   | ALL    | /api.json  | github.com/gogf/gf/v2/net/ghttp.(*Server).openapiSpec |
+----------|--------|------------|-------------------------------------------------------|----------------------------------
+  :8000   | GET    | /hello     | star/internal/controller/hello.(*ControllerV1).Hello  | ghttp.MiddlewareHandlerResponse
+----------|--------|------------|-------------------------------------------------------|----------------------------------
+  :8000   | ALL    | /swagger/* | github.com/gogf/gf/v2/net/ghttp.(*Server).swaggerUI   | HOOK_BEFORE_SERVE
+----------|--------|------------|-------------------------------------------------------|----------------------------------
+```
+
+----------------------------------------
+
+TITLE: Implementing a Basic HTTP Server Command with gcmd.Command in Go
+DESCRIPTION: This example demonstrates how to use the `gcmd.Command` object to define a main command that starts an HTTP server. It showcases the `Func` callback method, where the server setup and binding of a handler are performed, illustrating a common entry point for `gogf/gf` applications.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.6.x/核心组件/命令管理/命令管理-命令行对象.md#_snippet_2
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "context"
+
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+    "github.com/gogf/gf/v2/os/gcmd"
+    "github.com/gogf/gf/v2/os/gctx"
+)
+
+var (
+    Main = &gcmd.Command{
+        Name:        "main",
+        Brief:       "start http server",
+        Description: "this is the command entry for starting your http server",
+        Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+            s := g.Server()
+            s.BindHandler("/", func(r *ghttp.Request) {
+                r.Response.Write("Hello world")
+            })
+            s.SetPort(8199)
+            s.Run()
+            return
+        },
+    }
+)
+
+func main() {
+    Main.Run(gctx.New())
+}
+```
+
+----------------------------------------
+
+TITLE: Setting Up a Basic GoFrame Server (No CORS)
+DESCRIPTION: This Go code defines a simple HTTP server using the GoFrame framework. It sets up a `/api.v1/order` GET endpoint that responds with 'GET'. This initial setup does not include any CORS handling, demonstrating a scenario where cross-origin requests would fail.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.2.x/WEB服务开发/高级特性/HOOK事件回调.md#_snippet_3
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+func Order(r *ghttp.Request) {
+    r.Response.Write("GET")
+}
+
+func main() {
+    s := g.Server()
+    s.Group("/api.v1", func(group *ghttp.RouterGroup) {
+        group.GET("/order", Order)
+    })
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: GoFrame Web Server with Resource Integration
+DESCRIPTION: This Go application initializes a GoFrame web server, demonstrating seamless resource management. The key is the blank import of the `boot` package, which automatically registers bundled resources (config, static files, templates) without requiring explicit code setup.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.2.x/核心组件-重点/资源管理/资源管理-使用示例.md#_snippet_3
+
+LANGUAGE: go
+CODE:
+```
+package main
+
+import (
+    _ "github.com/gogf/gf/v2/os/gres/testdata/example/boot"
+
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+func main() {
+    s := g.Server()
+    s.Group("/", func(group *ghttp.RouterGroup) {
+        group.GET("/template", func(r *ghttp.Request) {
+            r.Response.WriteTplDefault(g.Map{
+                "name": "GoFrame",
+            })
+        })
+    })
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Implementing In-Memory Session Storage with GF Server in Go
+DESCRIPTION: This Go example demonstrates how to configure and use in-memory session storage (`gsession.NewStorageMemory()`) with the `gogf/gf` framework. It sets a session maximum age, defines routes for setting, getting, and deleting session data, and starts an HTTP server. This setup is efficient but session data is lost upon application restart due to the non-persistent nature of memory storage.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.0.x/WEB服务开发/Session/Session-Memory.md#_snippet_0
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+    "github.com/gogf/gf/v2/os/gsession"
+    "github.com/gogf/gf/v2/os/gtime"
+    "time"
+)
+
+func main() {
+    s := g.Server()
+    s.SetSessionMaxAge(time.Minute)
+    s.SetSessionStorage(gsession.NewStorageMemory())
+    s.Group("/", func(group *ghttp.RouterGroup) {
+        group.ALL("/set", func(r *ghttp.Request) {
+            r.Session.MustSet("time", gtime.Timestamp())
+            r.Response.Write("ok")
+        })
+        group.ALL("/get", func(r *ghttp.Request) {
+            r.Response.Write(r.Session.Data())
+        })
+        group.ALL("/del", func(r *ghttp.Request) {
+            _ = r.Session.RemoveAll()
+            r.Response.Write("ok")
+        })
+    })
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Running a GoFrame Project
+DESCRIPTION: This command navigates into the newly created project directory and runs the GoFrame application. It compiles the `main.go` file, starts the HTTP server typically on port 8000, and outputs details about available API routes and the Swagger UI endpoint for testing.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/course/starbook/第一章-基础信息/1.4.环境准备.md#_snippet_4
+
+LANGUAGE: bash
+CODE:
+```
+$ cd star && gf run main.go
+build: .\main.go
+go build -o .\main.exe  .\main.go
+.\main.exe 
+build running pid: 13628
+2024-11-06 16:45:46.015 [INFO] pid[13628]: http server started listening on [:8000]
+2024-11-06 16:45:46.015 [INFO] {4c9b7c33a654051860769a5fdef82a84} swagger ui is serving at address: http://127.0.0.1:8000/swagger/
+2024-11-06 16:45:46.015 [INFO] {4c9b7c33a654051860769a5fdef82a84} openapi specification is serving at address: http://127.0.0.1:8000/api.json
+
+  ADDRESS | METHOD |   ROUTE    |                        HANDLER                        |           MIDDLEWARE
+----------|--------|------------|-------------------------------------------------------|----------------------------------
+  :8000   | ALL    | /api.json  | github.com/gogf/gf/v2/net/ghttp.(*Server).openapiSpec |
+----------|--------|------------|-------------------------------------------------------|----------------------------------
+  :8000   | GET    | /hello     | star/internal/controller/hello.(*ControllerV1).Hello  | ghttp.MiddlewareHandlerResponse
+----------|--------|------------|-------------------------------------------------------|----------------------------------
+  :8000   | ALL    | /swagger/* | github.com/gogf/gf/v2/net/ghttp.(*Server).swaggerUI   | HOOK_BEFORE_SERVE
+----------|--------|------------|-------------------------------------------------------|----------------------------------
+```
+
+----------------------------------------
+
+TITLE: Example of Get Method Usage in GoFrame
+DESCRIPTION: This example demonstrates how to use the `Get` method to retrieve configuration data. It initializes a `gcfg` instance with inline content, then fetches the 'redis' section, printing the resulting `gvar.Var` object. Error handling is included.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.1.x/核心组件-重点/配置管理/配置管理-常用方法.md#_snippet_13
+
+LANGUAGE: Go
+CODE:
+```
+func ExampleConfig_Get() {
+      ctx = gctx.New()
+      content := `\nv1    = 1\nv2    = "true"\nv3    = "off"\nv4    = "1.23"\narray = [1,2,3]\n[redis]\n      disk  = "127.0.0.1:6379,0"\n      cache = "127.0.0.1:6379,1"\n`
+      c, err := gcfg.New()
+      if err != nil{
+          panic(err)
+      }
+
+      c.GetAdapter().(*gcfg.AdapterFile).SetContent(content)
+      data,err := c.Get(ctx,"redis")
+
+      if err != nil {
+          panic(err)
+      }
+      fmt.Println(data)
+
+      // Output:
+      // {"cache":"127.0.0.1:6379,1","disk":"127.0.0.1:6379,0"}
+}
+```
+
+----------------------------------------
+
+TITLE: Initializing a Basic GoFrame Web Server in Go
+DESCRIPTION: This snippet demonstrates how to create and run a minimal GoFrame web server. It initializes a default server instance using `g.Server()`, binds a handler to the root path (`/`), and starts the server. By default, it listens on port 80 and responds with '哈喽世界！' when accessed.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.7.x/docs/WEB服务开发/开始使用.md#_snippet_0
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+func main() {
+    s := g.Server()
+    s.BindHandler("/", func(r *ghttp.Request) {
+        r.Response.Write("哈喽世界！")
+    })
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Basic Static File Server Usage - Go
+DESCRIPTION: This example demonstrates the fundamental setup of a static file server using the `gf` framework. It configures the server to allow folder indexing, sets the server root directory, adds an additional search path, and listens on port 8199. This snippet illustrates how to quickly get a basic static file server running.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.4.x/WEB服务开发/高级特性/静态文件服务.md#_snippet_1
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import "github.com/gogf/gf/v2/frame/g"
+
+// 静态文件服务器基本使用
+func main() {
+    s := g.Server()
+    s.SetIndexFolder(true)
+    s.SetServerRoot("/Users/john/Temp")
+    s.AddSearchPath("/Users/john/Documents")
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Installing gRPC-Go Plugins
+DESCRIPTION: Installs the necessary Go plugins for Protocol Buffers and gRPC, `protoc-gen-go` and `protoc-gen-go-grpc`, which are essential for generating Go code from `.proto` files.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/course/proxima-book/第一章-基础信息/1.3.环境准备.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+$ go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+```
+
+----------------------------------------
+
+TITLE: Installing GoFrame via go get (Bash)
+DESCRIPTION: This command installs the latest version of the GoFrame framework using `go get`. The `-u` flag ensures all dependencies are updated, and `-v` provides verbose output, confirming the successful download and installation of the GoFrame module into your Go environment.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/version-2.8.x/quick/快速开始/下载与使用.md#_snippet_1
+
+LANGUAGE: bash
+CODE:
+```
+go get -u -v github.com/gogf/gf/v2
+```
+
+----------------------------------------
+
+TITLE: Initializing GoFrame Static File Server - Basic Usage (Go)
+DESCRIPTION: This example demonstrates the basic setup of a GoFrame static file server. It enables folder indexing, sets the server root to `/Users/john/Temp`, adds an additional search path `/Users/john/Documents`, and starts the server on port 8199.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.7.x/docs/WEB服务开发/高级特性/静态文件服务.md#_snippet_1
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import "github.com/gogf/gf/v2/frame/g"
+
+// 静态文件服务器基本使用
+func main() {
+    s := g.Server()
+    s.SetIndexFolder(true)
+    s.SetServerRoot("/Users/john/Temp")
+    s.AddSearchPath("/Users/john/Documents")
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Building and Running GoFrame Microservice in Bash
+DESCRIPTION: This Bash snippet provides commands to navigate to the app/word directory, build the Go application into an executable, and then run it. The output demonstrates the service starting, registering with a default registry, and listening on the configured gRPC port, confirming successful deployment.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/course/proxima-book/第三章-单词服务/3.5.启动运行.md#_snippet_3
+
+LANGUAGE: Bash
+CODE:
+```
+$ cd app/word
+build: .\main.go
+go build -o .\main.exe  .\main.go
+.\main.exe 
+build running pid: 2416
+2024-12-09 15:10:40.546 [DEBU] {18cc6c8aa5700f18bf2deb5e3439664a} set default registry using file registry as no custom registry set, path: C:\Users\half\AppData\Local\Temp\gsvc
+2024-12-09 15:10:40.566 [DEBU] {18cc6c8aa5700f18bf2deb5e3439664a} service register: &{Head: Deployment: Namespace: Name:word Version: Endpoints:192.168.10.98:32002 Metadata:map[protocol:grpc]}
+2024-12-09 15:10:40.567 [INFO] {18cc6c8aa5700f18bf2deb5e3439664a} pid[2416]: grpc server started listening on [:32002]
+```
+
+----------------------------------------
+
+TITLE: Preparing and Starting GoFrame User Microservice
+DESCRIPTION: This Bash snippet provides commands to prepare the Go module dependencies by running `go mod tidy` from the project root, and then starts the user microservice using `gf run .\main.go` from its specific directory.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/course/proxima-book/第二章-用户服务/2.5.启动运行.md#_snippet_3
+
+LANGUAGE: bash
+CODE:
+```
+$ cd ../../
+go mod tidy
+```
+
+LANGUAGE: bash
+CODE:
+```
+$ cd app/user
+gf run .\main.go
+build: .\main.go
+go build -o .\main.exe  .\main.go
+.\main.exe 
+build running pid: 15480
+2024-12-06 15:02:01.246 [DEBU] {d8e6fef56e840e1815d0325bc73eda8f} set default registry using file registry as no custom registry set, path: C:\Users\half\AppData\Local\Temp\gsvc
+2024-12-06 15:02:01.269 [DEBU] {d8e6fef56e840e1815d0325bc73eda8f} service register: &{Head: Deployment: Namespace: Name:user Version: Endpoints:192.168.10.91:32001 Metadata:map[protocol:grpc]}
+2024-12-06 15:02:01.270 [INFO] {d8e6fef56e840e1815d0325bc73eda8f} pid[15480]: grpc server started listening on [:32001]
+```
+
+----------------------------------------
+
+TITLE: Defining a Basic GoFrame API Endpoint
+DESCRIPTION: This GoFrame example defines a simple HTTP GET endpoint at `/api.v1/order` that responds with 'GET'. It serves as a base for demonstrating cross-origin request issues before CORS is enabled. The server listens on port 8199, and this setup inherently disallows cross-origin requests by default.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-1.16.x/WEB服务开发/高级特性/HOOK事件回调.md#_snippet_0
+
+LANGUAGE: go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/frame/g"
+    "github.com/gogf/gf/net/ghttp"
+)
+
+func Order(r *ghttp.Request) {
+    r.Response.Write("GET")
+}
+
+func main() {
+    s := g.Server()
+    s.Group("/api.v1", func(group *ghttp.RouterGroup) {
+        group.GET("/order", Order)
+    })
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Displaying `gf init` Command Help
+DESCRIPTION: This snippet shows how to display the help information for the `gf init` command, detailing its arguments, options, and usage examples. It explains the `NAME` argument for project naming and the `-m` or `--mono` option for initializing a mono-repo.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.0.x/开发工具/项目创建-init.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+$ gf init -h
+USAGE
+    gf init ARGUMENT [OPTION]
+
+ARGUMENT
+    NAME    name for the project. It will create a folder with NAME in current directory.The NAME will also be the
+            module name for the project.
+
+OPTION
+    -m, --mono    initialize a mono-repo instead a single-repo
+    -h, --help    more information about this command
+
+EXAMPLE
+    gf init my-project
+    gf init my-mono-repo -m
+```
+
+----------------------------------------
+
+TITLE: Creating a Basic Hello World Web Server in GoFrame
+DESCRIPTION: This snippet demonstrates the simplest GoFrame web service. It initializes a default server using `g.Server()`, binds a handler to the root path (`/`) that responds with 'Hello World!', and starts the server using `s.Run()`. By default, it listens on port 80 and does not support static files.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/version-2.8.x/docs/WEB服务开发/开始使用.md#_snippet_0
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+func main() {
+    s := g.Server()
+    s.BindHandler("/", func(r *ghttp.Request) {
+        r.Response.Write("Hello World!")
+    })
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: GoFrame I18N Tf Method Example Directory Structure
+DESCRIPTION: This snippet outlines the directory structure for the Tf method example, featuring main.go and an i18n directory containing en.toml and zh-CN.toml. This setup is typical for GoFrame i18n projects, where translation files are organized by language within a dedicated directory.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.7.x/docs/核心组件/I18N国际化/I18N国际化-使用介绍.md#_snippet_9
+
+LANGUAGE: Bash
+CODE:
+```
+├── main.go
+└── i18n
+    ├── en.toml
+    └── zh-CN.toml
+```
+
+----------------------------------------
+
+TITLE: Starting the gRPC Server
+DESCRIPTION: This command changes the directory to the `server` folder and then executes the `server.go` Go program. This starts the raw gRPC server, making it ready to accept incoming client connections and process RPC calls.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/examples/grpc/rawgrpc/rawgrpc.md#_snippet_2
+
+LANGUAGE: bash
+CODE:
+```
+cd server
+go run server.go
+```
+
+----------------------------------------
+
+TITLE: Basic Static File Server Usage with GoFrame
+DESCRIPTION: This example demonstrates the fundamental setup for a static file server using GoFrame. It enables folder indexing, sets the server root directory, adds an additional search path, and starts the server on port 8199.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.6.x/WEB服务开发/高级特性/静态文件服务.md#_snippet_1
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import "github.com/gogf/gf/v2/frame/g"
+
+// 静态文件服务器基本使用
+func main() {
+    s := g.Server()
+    s.SetIndexFolder(true)
+    s.SetServerRoot("/Users/john/Temp")
+    s.AddSearchPath("/Users/john/Documents")
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Starting HTTP Server with gcmd.Command in GoFrame
+DESCRIPTION: This example demonstrates how to use `gcmd.Command` to create a command-line entry point for a GoFrame application that starts an HTTP server. The `Func` callback binds a handler to the root path and sets the server port, showcasing a typical application startup pattern with `gcmd`.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/docs/核心组件/命令管理/命令管理-命令行对象.md#_snippet_2
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "context"
+
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+    "github.com/gogf/gf/v2/os/gcmd"
+    "github.com/gogf/gf/v2/os/gctx"
+)
+
+var (
+    Main = &gcmd.Command{
+        Name:        "main",
+        Brief:       "start http server",
+        Description: "this is the command entry for starting your http server",
+        Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+            s := g.Server()
+            s.BindHandler("/", func(r *ghttp.Request) {
+                r.Response.Write("Hello world")
+            })
+            s.SetPort(8199)
+            s.Run()
+            return
+        },
+    }
+)
+
+func main() {
+    Main.Run(gctx.New())
+}
+```
+
+----------------------------------------
+
+TITLE: Initializing GoFrame Static File Server in Go
+DESCRIPTION: This example demonstrates the basic setup of a GoFrame static file server. It enables folder indexing, sets the server root directory to `/Users/john/Temp`, adds an additional search path `/Users/john/Documents`, and starts the server on port 8199.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/docs/WEB服务开发/高级特性/静态文件服务.md#_snippet_1
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import "github.com/gogf/gf/v2/frame/g"
+
+// 静态文件服务器基本使用
+func main() {
+    s := g.Server()
+    s.SetIndexFolder(true)
+    s.SetServerRoot("/Users/john/Temp")
+    s.AddSearchPath("/Users/john/Documents")
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Initializing a GoFrame 'Hello World' Web Server
+DESCRIPTION: This Go snippet demonstrates how to set up a basic web server using the GoFrame framework. It initializes a default server instance using `g.Server()`, binds the root path (`/`) to an anonymous handler function that writes 'Hello World!' to the HTTP response, configures the server to listen on port 8000 using `SetPort()`, and finally starts the server using `Run()`. This provides a foundational example for handling simple HTTP requests.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/version-2.8.x/quick/快速开始/Hello World.md#_snippet_0
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+func main() {
+    s := g.Server()
+    s.BindHandler("/", func(r *ghttp.Request) {
+        r.Response.Write("Hello World!")
+    })
+    s.SetPort(8000)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Starting etcd Server with Docker
+DESCRIPTION: This command launches an `etcd` server as a Docker container, essential for service registration and discovery in the GoFrame load balancing example. It exposes ports 2379 and 2380 and allows non-authenticated access for ease of setup.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/examples/balancer/http/http.md#_snippet_1
+
+LANGUAGE: Bash
+CODE:
+```
+docker run -d --name etcd-server \
+   --publish 2379:2379 \
+   --publish 2380:2380 \
+   --env ALLOW_NONE_AUTHENTICATION=yes \
+   bitnami/etcd:latest
+```
+
+----------------------------------------
+
+TITLE: Running Multiple GoFrame Server Instances
+DESCRIPTION: This Go example demonstrates how to run multiple `g.Server` instances within the same process. Each server is identified by a unique name, allowing them to listen on different ports and serve content from distinct root directories. The `g.Wait()` call ensures the main goroutine waits for all servers to complete.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/docs/WEB服务开发/开始使用.md#_snippet_3
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+)
+
+func main() {
+    s1 := g.Server("s1")
+    s1.SetPort(8080)
+    s1.SetIndexFolder(true)
+    s1.SetServerRoot("/home/www/static1")
+    s1.Start()
+
+    s2 := g.Server("s2")
+    s2.SetPort(8088)
+    s2.SetIndexFolder(true)
+    s2.SetServerRoot("/home/www/static2")
+    s2.Start()
+
+    g.Wait()
+}
+```
+
+----------------------------------------
+
+TITLE: Initializing a New GoFrame Project
+DESCRIPTION: This command initializes a new GoFrame project named 'star' in the current directory, setting up the basic project structure. The output confirms successful initialization and provides the next steps to navigate into the project directory and run the application.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/course/starbook/第一章-基础信息/1.4.环境准备.md#_snippet_3
+
+LANGUAGE: bash
+CODE:
+```
+$ gf init star
+initializing...
+initialization done!
+you can now run "cd star && gf run main.go" to start your journey, enjoy!
+```
+
+----------------------------------------
+
+TITLE: Verifying GF CLI Installation
+DESCRIPTION: After installing the GF CLI, this command verifies the installation and displays the GoFrame CLI version along with the Go environment details. This step confirms that the tool is correctly installed and ready for use in your development environment.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/course/starbook/第一章-基础信息/1.4.环境准备.md#_snippet_2
+
+LANGUAGE: bash
+CODE:
+```
+$ gf version
+v2.8.0
+Welcome to GoFrame!
+Env Detail:
+  Go Version: go1.22.2 windows/amd64
+  GF Version(go.mod): cannot find go.mod
+...
+```
+
+----------------------------------------
+
+TITLE: Initializing and Running a GF gRPC Server
+DESCRIPTION: This Go `main` function initializes a new gRPC server using `grpcx.Server.New()`, registers the `controller`'s service implementation, and starts the server. By default, it uses a file-based service discovery for single-machine testing.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.5.x/微服务开发/微服务开发.md#_snippet_6
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/contrib/rpc/grpcx/v2"
+    "github.com/gogf/gf/example/rpc/grpcx/basic/controller"
+)
+
+func main() {
+    s := grpcx.Server.New()
+    controller.Register(s)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Running GoFrame HTTP Server Example
+DESCRIPTION: This command executes the main Go application, starting the HTTP server with integrated metrics collection. It's the first step to run the example.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/examples/observability/metric/http_server/http_server.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+go run main.go
+```
+
+----------------------------------------
+
+TITLE: Setting Up a Basic GF Server (No CORS)
+DESCRIPTION: This Go snippet initializes a GF server, defines a `/api.v1/order` GET endpoint, and starts the server on port 8199. This initial setup does not include any CORS handling, leading to cross-origin errors when accessed from different domains.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.0.x/WEB服务开发/高级特性/HOOK事件回调.md#_snippet_6
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+)
+
+func Order(r *ghttp.Request) {
+    r.Response.Write("GET")
+}
+
+func main() {
+    s := g.Server()
+    s.Group("/api.v1", func(group *ghttp.RouterGroup) {
+        group.GET("/order", Order)
+    })
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Running HTTP Service Example (Server & Client)
+DESCRIPTION: These commands demonstrate how to start the HTTP server and then run the corresponding HTTP client to interact with the registered service within the GoFrame Etcd example. This showcases service registration and discovery for HTTP-based communication.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/examples/registry/etcd/etcd.md#_snippet_1
+
+LANGUAGE: Bash
+CODE:
+```
+cd http/server
+go run server.go
+
+cd http/client
+go run client.go
+```
+
+----------------------------------------
+
+TITLE: Downloading and Installing GoFrame CLI on Mac/Linux
+DESCRIPTION: This command downloads the latest precompiled `gf` binary for Mac/Linux, makes it executable, installs it to a system-wide path, and then removes the temporary download. It's a quick method for initial setup.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/docs/开发工具/工具安装-install.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+wget -O gf https://github.com/gogf/gf/releases/latest/download/gf_$(go env GOOS)_$(go env GOARCH) && chmod +x gf && ./gf install -y && rm ./gf
+```
+
+----------------------------------------
+
+TITLE: Installing GoFrame CLI Tools on Linux
+DESCRIPTION: This command downloads the latest pre-compiled GoFrame CLI binary for Linux, makes it executable, installs it, and then removes the temporary download file. It's the recommended method for quick setup on Linux.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/i18n/en/docusaurus-plugin-content-docs/current/quick/项目脚手架/基本介绍.md#_snippet_1
+
+LANGUAGE: bash
+CODE:
+```
+wget -O gf "https://github.com/gogf/gf/releases/latest/download/gf_$(go env GOOS)_$(go env GOARCH)" && chmod +x gf && ./gf install -y && rm ./gf
+```
+
+----------------------------------------
+
+TITLE: Displaying `gf init` Command Help
+DESCRIPTION: This snippet shows how to display the help information for the `gf init` command. It outlines the command's usage, arguments (project name), and options like `-m` for mono-repo initialization and `-h` for help, along with examples.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.3.x/开发工具/项目创建-init.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+$ gf init -h
+USAGE
+    gf init ARGUMENT [OPTION]
+
+ARGUMENT
+    NAME    name for the project. It will create a folder with NAME in current directory.The NAME will also be the
+            module name for the project.
+
+OPTION
+    -m, --mono    initialize a mono-repo instead a single-repo
+    -h, --help    more information about this command
+
+EXAMPLE
+    gf init my-project
+    gf init my-mono-repo -m
+```
+
+----------------------------------------
+
+TITLE: Installing golint Tool
+DESCRIPTION: These commands provide a manual installation process for the golint tool, which is used for code style and quality checks. It involves creating necessary directories, cloning the golang/lint and golang/tools repositories, navigating to the golint directory, and then running go install to build and place the binary in $GOPATH/bin.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.6.x/项目开发/准备工作/开发环境配置.md#_snippet_2
+
+LANGUAGE: Bash
+CODE:
+```
+mkdir -p $GOPATH/src/golang.org/x/
+cd $GOPATH/src/golang.org/x/
+git clone https://github.com/golang/lint.git
+git clone https://github.com/golang/tools.git
+cd $GOPATH/src/golang.org/x/lint/golint
+go install
+```
+
+----------------------------------------
+
+TITLE: Implementing GoFrame Session File Storage with ghttp.Server
+DESCRIPTION: This example demonstrates how to configure and use file-based session storage in a GoFrame application. It sets the session maximum age to 1 minute for observation, defines routes for setting, getting, and deleting session data, and starts an HTTP server. The example highlights session persistence across server restarts and automatic expiration.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/versioned_docs/version-2.8.x/docs/WEB服务开发/Session/Session-File.md#_snippet_0
+
+LANGUAGE: Go
+CODE:
+```
+package main
+
+import (
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/net/ghttp"
+    "github.com/gogf/gf/v2/os/gtime"
+    "time"
+)
+
+func main() {
+    s := g.Server()
+    s.SetSessionMaxAge(time.Minute)
+    s.Group("/", func(group *ghttp.RouterGroup) {
+        group.ALL("/set", func(r *ghttp.Request) {
+            r.Session.Set("time", gtime.Timestamp())
+            r.Response.Write("ok")
+        })
+        group.ALL("/get", func(r *ghttp.Request) {
+            r.Response.Write(r.Session.Data())
+        })
+        group.ALL("/del", func(r *ghttp.Request) {
+            _ = r.Session.RemoveAll()
+            r.Response.Write("ok")
+        })
+    })
+    s.SetPort(8199)
+    s.Run()
+}
+```
+
+----------------------------------------
+
+TITLE: Main Go Application for Gateway Startup
+DESCRIPTION: This Go `main` function initializes the GoFrame gateway application. It retrieves the etcd address from configuration, registers an etcd resolver for gRPCx, and then executes the main command defined in `cmd.Main` to start the HTTP server, enabling service discovery and routing.
+
+SOURCE: https://github.com/gogf/gf-site/blob/main/docs/course/proxima-book/第四章-业务网关/4.3.启动运行.md#_snippet_3
+
+LANGUAGE: Go
+CODE:
+```
+package main  
+  
+import (  
+    "github.com/gogf/gf/contrib/registry/etcd/v2"  
+    "github.com/gogf/gf/contrib/rpc/grpcx/v2"
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/os/gctx"  
+    "proxima/app/gateway/internal/cmd"
+)  
+  
+func main() {  
+    var ctx = gctx.New()  
+    conf, err := g.Cfg("etcd").Get(ctx, "etcd.address")  
+    if err != nil {  
+       panic(err)  
+    }  
+  
+    var address = conf.String()  
+    grpcx.Resolver.Register(etcd.New(address))  
+  
+    cmd.Main.Run(ctx)  
+}
+```
