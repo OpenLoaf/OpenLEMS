@@ -7,40 +7,13 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 )
 
-// IDriverManager 驱动管理器接口
-type IDriverManager interface {
-	// GetAllDriverNames 获取所有驱动名称
-	GetAllDriverNames() []string
-
-	// GetAllDriversInfo 获取所有驱动的详细信息
-	GetAllDriversInfo(ctx context.Context) []DriverInfo
-
-	// GetDriverInfo 获取指定驱动的详细信息
-	GetDriverInfo(ctx context.Context, driverName string) (*DriverInfo, error)
-
-	// GetDriversByType 根据设备类型获取驱动信息
-	GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []DriverInfo
-
-	// CreateDriver 创建驱动实例
-	CreateDriver(ctx context.Context, deviceConfig *c_base.SDriverConfig) (c_base.IDriver, error)
-
-	// IsDriverAvailable 检查驱动是否可用
-	IsDriverAvailable(ctx context.Context, driverName string) bool
-
-	// GetDriverDescription 获取驱动描述信息
-	GetDriverDescription(ctx context.Context, driverName string) (*c_base.SDescription, error)
-
-	// GetSupportedDeviceTypes 获取支持的设备类型列表
-	GetSupportedDeviceTypes(ctx context.Context) []c_base.EDeviceType
-}
-
 // DriverManager 通用驱动管理器实现
 type DriverManager struct {
 	deviceCmd *SDeviceCmd
 }
 
 // NewDriverManager 创建驱动管理器
-func NewDriverManager() IDriverManager {
+func NewDriverManager() c_base.IDriverManager {
 	return &DriverManager{
 		deviceCmd: &SDeviceCmd{},
 	}
@@ -52,17 +25,17 @@ func (dm *DriverManager) GetAllDriverNames() []string {
 }
 
 // GetAllDriversInfo 获取所有驱动的详细信息
-func (dm *DriverManager) GetAllDriversInfo(ctx context.Context) []DriverInfo {
+func (dm *DriverManager) GetAllDriversInfo(ctx context.Context) []c_base.DriverInfo {
 	return GetAllDriversInfo(ctx)
 }
 
 // GetDriverInfo 获取指定驱动的详细信息
-func (dm *DriverManager) GetDriverInfo(ctx context.Context, driverName string) (*DriverInfo, error) {
+func (dm *DriverManager) GetDriverInfo(ctx context.Context, driverName string) (*c_base.DriverInfo, error) {
 	return GetDriverInfo(ctx, driverName)
 }
 
 // GetDriversByType 根据设备类型获取驱动信息
-func (dm *DriverManager) GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []DriverInfo {
+func (dm *DriverManager) GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []c_base.DriverInfo {
 	return GetDriversByType(ctx, deviceType)
 }
 
@@ -122,7 +95,7 @@ func (dm *DriverManager) GetSupportedDeviceTypes(ctx context.Context) []c_base.E
 
 // DriverManagerHelper 驱动管理器帮助工具
 type DriverManagerHelper struct {
-	manager IDriverManager
+	manager c_base.IDriverManager
 }
 
 // NewDriverManagerHelper 创建驱动管理器帮助工具
@@ -190,9 +163,9 @@ func (dmh *DriverManagerHelper) GetDriverTelemetryInfo(ctx context.Context, driv
 }
 
 // SearchDrivers 搜索驱动
-func (dmh *DriverManagerHelper) SearchDrivers(ctx context.Context, keyword string) []DriverInfo {
+func (dmh *DriverManagerHelper) SearchDrivers(ctx context.Context, keyword string) []c_base.DriverInfo {
 	allDrivers := dmh.manager.GetAllDriversInfo(ctx)
-	var matchedDrivers []DriverInfo
+	var matchedDrivers []c_base.DriverInfo
 
 	for _, driver := range allDrivers {
 		if contains(driver.Name, keyword) ||
@@ -225,6 +198,6 @@ func contains(str, substr string) bool {
 }
 
 // GetManager 获取驱动管理器实例
-func (dmh *DriverManagerHelper) GetManager() IDriverManager {
+func (dmh *DriverManagerHelper) GetManager() c_base.IDriverManager {
 	return dmh.manager
 }

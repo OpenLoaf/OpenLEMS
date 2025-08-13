@@ -10,6 +10,6 @@ func NewDeviceCmd(ctx context.Context) c_base.IService {
 	return internal_cmd_device.NewDeviceCmd(ctx)
 }
 
-func NewDriverManager() internal_cmd_device.IDriverManager {
+func NewDriverManager() c_base.IDriverManager {
 	return internal_cmd_device.NewDriverManager()
 }

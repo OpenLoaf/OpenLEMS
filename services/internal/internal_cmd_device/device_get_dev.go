@@ -54,20 +54,12 @@ func GetAllDriverNames() []string {
 	return driverNames
 }
 
-// DriverInfo 驱动信息结构
-type DriverInfo struct {
-	Name        string               `json:"name"`        // 驱动名称
-	Type        c_base.EDeviceType   `json:"type"`        // 驱动类型
-	Description *c_base.SDescription `json:"description"` // 驱动描述
-	Available   bool                 `json:"available"`   // 是否可用
-}
-
 // GetAllDriversInfo 获取所有驱动的详细信息
-func GetAllDriversInfo(ctx context.Context) []DriverInfo {
-	var driversInfo []DriverInfo
+func GetAllDriversInfo(ctx context.Context) []c_base.DriverInfo {
+	var driversInfo []c_base.DriverInfo
 
 	for driverName, newMethod := range pluginNewMethodCache {
-		driverInfo := DriverInfo{
+		driverInfo := c_base.DriverInfo{
 			Name:      driverName,
 			Available: newMethod != nil,
 		}
@@ -103,13 +95,13 @@ func GetAllDriversInfo(ctx context.Context) []DriverInfo {
 }
 
 // GetDriverInfo 获取指定驱动的详细信息
-func GetDriverInfo(ctx context.Context, driverName string) (*DriverInfo, error) {
+func GetDriverInfo(ctx context.Context, driverName string) (*c_base.DriverInfo, error) {
 	newMethod, exists := pluginNewMethodCache[driverName]
 	if !exists {
 		return nil, gerror.Newf("未找到驱动[%s]", driverName)
 	}
 
-	driverInfo := &DriverInfo{
+	driverInfo := &c_base.DriverInfo{
 		Name:      driverName,
 		Available: newMethod != nil,
 	}
@@ -138,9 +130,9 @@ func GetDriverInfo(ctx context.Context, driverName string) (*DriverInfo, error) 
 }
 
 // GetDriversByType 根据设备类型获取驱动信息
-func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []DriverInfo {
+func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []c_base.DriverInfo {
 	allDrivers := GetAllDriversInfo(ctx)
-	var filteredDrivers []DriverInfo
+	var filteredDrivers []c_base.DriverInfo
 
 	for _, driver := range allDrivers {
 		if driver.Type == deviceType {
