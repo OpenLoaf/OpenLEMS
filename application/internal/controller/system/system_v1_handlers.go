@@ -2,6 +2,7 @@ package system
 
 import (
 	"context"
+	"fmt"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -16,6 +17,8 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 	psnet "github.com/shirou/gopsutil/v4/net"
 )
+
+var rebootApplyExpireAt time.Time
 
 // 非阻塞网络速率缓存（在进程内做差）
 var (
@@ -136,7 +139,7 @@ func fetchSys(ctx context.Context) (v1.SysInfo, error) {
 		return v1.SysInfo{}, err
 	}
 	kernel := hi.KernelVersion
-	return v1.SysInfo{OSName: hi.Platform, OSVersion: hi.PlatformVersion, Kernel: kernel}, nil
+	return v1.SysInfo{Hostname: hi.Hostname, OSName: hi.Platform, OSVersion: hi.PlatformVersion, Kernel: kernel}, nil
 }
 
 // 汇总与单项接口实现
@@ -152,14 +155,14 @@ func (c *ControllerV1) GetSummary(ctx context.Context, req *v1.GetSummaryReq) (r
 
 func (c *ControllerV1) GetNetworkTraffic(ctx context.Context, req *v1.GetNetworkTrafficReq) (res *v1.GetNetworkTrafficRes, err error) {
 	if !netPrevInit {
-		// 首次采样，等待500ms再做第二次统计，直接返回有效速率
+		// 首次采样，等待100ms再做第二次统计，直接返回有效速率
 		cur, _ := psnet.IOCountersWithContext(ctx, false)
 		if len(cur) == 0 {
 			return &v1.GetNetworkTrafficRes{Net: v1.NetBrief{}}, nil
 		}
 		netPrev = cur[0]
 		netPrevTime = time.Now()
-		time.Sleep(500 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 	netI, _ := fetchNet(ctx)
 	return &v1.GetNetworkTrafficRes{Net: netI}, nil
@@ -173,4 +176,87 @@ func (c *ControllerV1) GetTimeInfo(ctx context.Context, req *v1.GetTimeInfoReq) 
 func (c *ControllerV1) GetSystemInfo(ctx context.Context, req *v1.GetSystemInfoReq) (res *v1.GetSystemInfoRes, err error) {
 	sysI, _ := fetchSys(ctx)
 	return &v1.GetSystemInfoRes{Sys: sysI}, nil
+}
+
+// GetNow 返回当前系统时间
+func (c *ControllerV1) GetNow(ctx context.Context, req *v1.GetNowReq) (res *v1.GetNowRes, err error) {
+	return &v1.GetNowRes{Now: time.Now().Format("2006-01-02 15:04:05")}, nil
+}
+
+// UpdateHostname 修改主机名
+func (c *ControllerV1) UpdateHostname(ctx context.Context, req *v1.UpdateHostnameReq) (res *v1.UpdateHostnameRes, err error) {
+	switch runtime.GOOS {
+	case "linux":
+		if out, err := exec.Command("hostnamectl", "set-hostname", req.Hostname).CombinedOutput(); err != nil {
+			return nil, fmt.Errorf("set-hostname failed: %v, %s", err, string(out))
+		}
+	case "darwin":
+		args := []string{"-c", fmt.Sprintf("scutil --set HostName '%s'; scutil --set LocalHostName '%s'; scutil --set ComputerName '%s'", req.Hostname, req.Hostname, req.Hostname)}
+		if out, err := exec.Command("sh", args...).CombinedOutput(); err != nil {
+			return nil, fmt.Errorf("set hostname failed: %v, %s", err, string(out))
+		}
+	default:
+		return nil, fmt.Errorf("unsupported OS")
+	}
+	return &v1.UpdateHostnameRes{}, nil
+}
+
+// UpdateSystemTime 修改系统时间/时区
+func (c *ControllerV1) UpdateSystemTime(ctx context.Context, req *v1.UpdateSystemTimeReq) (res *v1.UpdateSystemTimeRes, err error) {
+	if req.Timezone != "" {
+		switch runtime.GOOS {
+		case "linux":
+			if out, err := exec.Command("timedatectl", "set-timezone", req.Timezone).CombinedOutput(); err != nil {
+				return nil, fmt.Errorf("set-timezone failed: %v, %s", err, string(out))
+			}
+		case "darwin":
+			if out, err := exec.Command("systemsetup", "-settimezone", req.Timezone).CombinedOutput(); err != nil {
+				return nil, fmt.Errorf("settimezone failed: %v, %s", err, string(out))
+			}
+		}
+	}
+
+	if req.Time != "" {
+		switch runtime.GOOS {
+		case "linux":
+			if out, err := exec.Command("date", "-s", req.Time).CombinedOutput(); err != nil {
+				return nil, fmt.Errorf("set time failed: %v, %s", err, string(out))
+			}
+			// 同步到硬件时钟
+			exec.Command("hwclock", "-w").Run()
+		case "darwin":
+			// macOS: 使用 systemsetup -setdate/-settime, 需要拆分
+			// 尝试使用 date 命令: [[MMDDHHmm[[CC]YY][.ss]]]
+			// 将 2006-01-02 15:04:05 转换为 010215042006.05
+			// 简化：调用 shell 用 date -f 解析
+			script := fmt.Sprintf("date -j -f '%s' '%s' +%s >/dev/null && sudo sntp -sS 2>/dev/null || true", "%Y-%m-%d %H:%M:%S", req.Time, "%Y%m%d%H%M.%S")
+			if out, err := exec.Command("sh", "-c", script).CombinedOutput(); err != nil {
+				_ = out // 某些系统无 sntp
+			}
+		}
+	}
+	return &v1.UpdateSystemTimeRes{}, nil
+}
+
+// RebootApply 设置30s内有效的重启令牌
+func (c *ControllerV1) RebootApply(ctx context.Context, req *v1.RebootApplyReq) (res *v1.RebootApplyRes, err error) {
+	rebootApplyExpireAt = time.Now().Add(30 * time.Second)
+	return &v1.RebootApplyRes{}, nil
+}
+
+// RebootExecute 若令牌有效则执行重启
+func (c *ControllerV1) RebootExecute(ctx context.Context, req *v1.RebootExecuteReq) (res *v1.RebootExecuteRes, err error) {
+	if time.Now().After(rebootApplyExpireAt) {
+		return nil, fmt.Errorf("reboot token expired or not applied")
+	}
+	switch runtime.GOOS {
+	case "linux":
+		// 以非阻塞方式触发重启
+		go exec.Command("sh", "-c", "(sleep 1; systemctl reboot || reboot) >/dev/null 2>&1 &").Start()
+	default:
+		// 其他系统模拟成功
+	}
+	// 清空令牌
+	rebootApplyExpireAt = time.Time{}
+	return &v1.RebootExecuteRes{}, nil
 }

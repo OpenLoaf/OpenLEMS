@@ -37,6 +37,36 @@ type GetSystemInfoRes struct {
 	Sys SysInfo `json:"sys" dc:"系统基础信息"`
 }
 
+type GetNowReq struct {
+	g.Meta `path:"/system/now" method:"get" tags:"系统相关" summary:"获取系统当前时间"`
+}
+type GetNowRes struct {
+	Now string `json:"now" dc:"当前时间(YYYY-MM-DD HH:mm:ss)"`
+}
+
+type UpdateHostnameReq struct {
+	g.Meta   `path:"/system/hostname/update" method:"post" tags:"系统相关" summary:"修改主机名"`
+	Hostname string `json:"hostname" v:"required|regex:^[a-zA-Z0-9-]{1,63}$#主机名不能为空|主机名格式不正确" dc:"新的主机名(字母数字及短横线,<=63)"`
+}
+type UpdateHostnameRes struct{}
+
+type UpdateSystemTimeReq struct {
+	g.Meta   `path:"/system/time/update" method:"post" tags:"系统相关" summary:"修改系统时间"`
+	Time     string `json:"time" v:"required#时间不能为空" dc:"新的时间, 格式: 2006-01-02 15:04:05"`
+	Timezone string `json:"timezone" dc:"可选, 设置系统时区, 例如 Asia/Shanghai"`
+}
+type UpdateSystemTimeRes struct{}
+
+type RebootApplyReq struct {
+	g.Meta `path:"/system/reboot/apply" method:"post" tags:"系统相关" summary:"申请重启(30s内有效)"`
+}
+type RebootApplyRes struct{}
+
+type RebootExecuteReq struct {
+	g.Meta `path:"/system/reboot/execute" method:"post" tags:"系统相关" summary:"确认并执行重启(需先申请)"`
+}
+type RebootExecuteRes struct{}
+
 type CPUInfo struct {
 	Usage  float64 `json:"usage" dc:"CPU使用率(%)"`
 	Load1  float64 `json:"load1" dc:"1分钟平均负载"`
@@ -79,6 +109,7 @@ type TimeInfo struct {
 	NTPServer  string `json:"ntpServer" dc:"NTP服务器地址"`
 }
 type SysInfo struct {
+	Hostname  string `json:"hostname" dc:"主机名"`
 	OSName    string `json:"osName" dc:"系统名称/发行版"`
 	OSVersion string `json:"osVersion" dc:"系统版本号"`
 	Kernel    string `json:"kernel" dc:"内核版本号"`
