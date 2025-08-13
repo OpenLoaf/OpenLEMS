@@ -17,6 +17,13 @@ import (
 	psnet "github.com/shirou/gopsutil/v4/net"
 )
 
+// 非阻塞网络速率缓存（在进程内做差）
+var (
+	netPrevInit bool
+	netPrev     psnet.IOCountersStat
+	netPrevTime time.Time
+)
+
 // 单项采集函数
 func fetchCPU(ctx context.Context) (v1.CPUInfo, error) {
 	// 无阻塞获取CPU百分比
@@ -72,7 +79,21 @@ func fetchNet(ctx context.Context) (v1.NetBrief, error) {
 	}
 	upBytes := cur[0].BytesSent
 	downBytes := cur[0].BytesRecv
-	return v1.NetBrief{UpBytes: upBytes, DownBytes: downBytes, UpBps: 0, DownBps: 0}, nil
+	if !netPrevInit {
+		netPrevInit = true
+		netPrev = cur[0]
+		netPrevTime = time.Now()
+		return v1.NetBrief{UpBytes: upBytes, DownBytes: downBytes, UpBps: 0, DownBps: 0}, nil
+	}
+	dur := time.Since(netPrevTime).Seconds()
+	if dur <= 0 {
+		dur = 1
+	}
+	upBps := float64(upBytes-netPrev.BytesSent) / dur
+	downBps := float64(downBytes-netPrev.BytesRecv) / dur
+	netPrev = cur[0]
+	netPrevTime = time.Now()
+	return v1.NetBrief{UpBytes: upBytes, DownBytes: downBytes, UpBps: upBps, DownBps: downBps}, nil
 }
 
 // 删除冗余：接口列表由网络模块独立提供
@@ -124,13 +145,22 @@ func (c *ControllerV1) GetSummary(ctx context.Context, req *v1.GetSummaryReq) (r
 	memI, _ := fetchMemory(ctx)
 	diskI, _ := fetchDisk(ctx)
 	upI, _ := fetchUptime(ctx)
-	netI, _ := fetchNet(ctx)
 	timeI, _ := fetchTime(ctx)
 	sysI, _ := fetchSys(ctx)
-	return &v1.GetSummaryRes{CPU: cpuI, Memory: memI, Disk: diskI, Uptime: upI, Net: netI, Time: timeI, Sys: sysI}, nil
+	return &v1.GetSummaryRes{CPU: cpuI, Memory: memI, Disk: diskI, Uptime: upI, Time: timeI, Sys: sysI}, nil
 }
 
 func (c *ControllerV1) GetNetworkTraffic(ctx context.Context, req *v1.GetNetworkTrafficReq) (res *v1.GetNetworkTrafficRes, err error) {
+	if !netPrevInit {
+		// 首次采样，等待500ms再做第二次统计，直接返回有效速率
+		cur, _ := psnet.IOCountersWithContext(ctx, false)
+		if len(cur) == 0 {
+			return &v1.GetNetworkTrafficRes{Net: v1.NetBrief{}}, nil
+		}
+		netPrev = cur[0]
+		netPrevTime = time.Now()
+		time.Sleep(500 * time.Millisecond)
+	}
 	netI, _ := fetchNet(ctx)
 	return &v1.GetNetworkTrafficRes{Net: netI}, nil
 }
