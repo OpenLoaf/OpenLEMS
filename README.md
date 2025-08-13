@@ -42,6 +42,12 @@
    - 运行容器（挂载当前目录以便调试）：
      docker run -v .:/root/work -ti ems-go /bin/bash
 
+## 开发调试运行
+```bash
+cd appllication
+gf run main.go -p ./bin -a "--web=true" -w "api/*.go" -w "internal/*.go"
+```
+
 ## 目录说明（节选）
 - application/             应用入口与命令初始化
 - common/                  通用基础能力（配置、枚举、接口、工具）

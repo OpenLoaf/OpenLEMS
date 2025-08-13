@@ -7,6 +7,7 @@ import (
 	"application/internal/controller/network"
 	"application/internal/controller/protocol"
 	"application/internal/controller/station_ess"
+	"application/internal/controller/system"
 	"application/internal/controller/telemetry"
 	"application/internal/ws"
 	"common/c_base"
@@ -44,6 +45,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		group.Bind(device.NewV2())
 		group.Bind(driver.NewV1())
 		group.Bind(network.NewV1())
+		group.Bind(system.NewV1())
 		group.Bind(protocol.NewV1())
 	})
 

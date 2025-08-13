@@ -13,12 +13,18 @@ import (
 	"runtime"
 	"strings"
 
+	"time"
+
+	"github.com/gogf/gf/v2/frame/g"
+
 	v1 "application/api/network/v1"
 	"application/internal/model/entity"
 )
 
 // GetNetworkInterfaceList 获取本机网络接口列表
 func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetNetworkInterfaceListReq) (res *v1.GetNetworkInterfaceListRes, err error) {
+	start := time.Now()
+	g.Log().Infof(ctx, "[Network] start GetNetworkInterfaceList")
 	// macOS 走 system_profiler，以获取更完整的网卡信息
 	if runtime.GOOS == "darwin" {
 		dnsServers := readSystemDNSServers()
@@ -35,6 +41,7 @@ func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetN
 			}
 		}
 		res = &v1.GetNetworkInterfaceListRes{Interfaces: list, Total: len(list), DNS: dnsServers}
+		g.Log().Infof(ctx, "[Network] done(GetNetworkInterfaceList mac) cost=%s", time.Since(start))
 		return res, nil
 	}
 
@@ -101,6 +108,7 @@ func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetN
 		}
 	}
 	res = &v1.GetNetworkInterfaceListRes{Interfaces: list, Total: len(list), DNS: dnsServers}
+	g.Log().Infof(ctx, "[Network] done(GetNetworkInterfaceList linux/other) cost=%s", time.Since(start))
 	return res, nil
 }
 

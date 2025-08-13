@@ -349,7 +349,7 @@ func (p *Pebbledb) SaveSystemMetrics(measurement string, tags map[string]string,
 		return gerror.Wrapf(err, "写入系统指标数据失败, measurement: %s", measurement)
 	}
 
-	g.Log().Debugf(p.ctx, "系统指标数据写入成功, measurement: %s", measurement)
+	g.Log().Noticef(p.ctx, "系统指标数据写入成功, measurement: %s", measurement)
 	return nil
 }
 

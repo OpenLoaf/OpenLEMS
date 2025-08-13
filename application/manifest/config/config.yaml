@@ -7,6 +7,13 @@ logger:
   writerColorEnable: true  # 日志文件是否带上颜色。默认false，表示不带颜色
 
 gfcli:
+  run:
+    path: "./bin"
+    extra: ""
+    args: "--driver-path=resources/drivers --web=true"
+    watchPaths:
+      - api/*.go
+      - internal/*.go
   build:
     path:     "./bin"
     arch:     "arm,amd64"
