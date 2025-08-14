@@ -47,14 +47,14 @@ func (s *sConfigServiceImpl) GetDeviceConfig(ctx context.Context, activeDeviceRo
 		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
 		return nil
 	}
-	rootDevice, err := s_db_model.GetDevicesById(ctx, deviceRootId)
+	rootDevice, err := GetDeviceService().GetDeviceById(ctx, deviceRootId)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
 		return nil
 	}
 
 	g.Log().Infof(ctx, "激活的设备父ID配置: %s", deviceRootId)
-	devices, err := s_db_model.GetRecursiveDevicesByPid(ctx, deviceRootId)
+	devices, err := GetDeviceService().GetRecursiveDevicesByPid(ctx, deviceRootId)
 	devices = append(devices, rootDevice)
 
 	if err != nil {

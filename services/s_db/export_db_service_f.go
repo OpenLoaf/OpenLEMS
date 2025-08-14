@@ -12,7 +12,7 @@ func Init() {
 }
 
 // GetDbDriverConfigService 创建基础包中获取驱动配置服务的实现
-func GetDbDriverConfigService() common.IDriverConfigService {
+func GetDbDriverConfigService() common.IDriverConfigServ {
 	return impl.GetDriverConfigService()
 }
 

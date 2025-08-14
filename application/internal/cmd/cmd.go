@@ -55,7 +55,7 @@ var (
 
 			// 使用SqliteDriverConfig
 			common.RegisterDriverConfig(s_db.GetDbDriverConfigService())
-			//common.GetDriverConfigService().SystemInitConfigInstance(ctx)
+			//common.GetDriverConfigServ().SystemInitConfigInstance(ctx)
 
 			// 初始化存储
 			common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {

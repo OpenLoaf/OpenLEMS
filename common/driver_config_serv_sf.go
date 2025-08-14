@@ -7,8 +7,8 @@ import (
 	"plugin"
 )
 
-// DIDriverConfigService 获取驱动配置服务类(依赖注入)
-type DIDriverConfigService interface {
+// IDriverConfigServ 获取驱动配置服务类(依赖注入)
+type IDriverConfigServ interface {
 
 	// GetDriverConfig 获取设备配置，失败将直接系统退出
 	GetDriverConfig(ctx context.Context, activeDeviceRootId string) *c_base.SDriverConfig
@@ -26,15 +26,15 @@ type DIDriverConfigService interface {
 	GetProtocolById(ctx context.Context, id string) *c_base.SProtocolConfig
 }
 
-var driverConfigInstance DIDriverConfigService
+var driverConfigInstance IDriverConfigServ
 
 // RegisterDriverConfig 注册服务
-func RegisterDriverConfig(d DIDriverConfigService) {
+func RegisterDriverConfig(d IDriverConfigServ) {
 	driverConfigInstance = d
 }
 
-// GetDriverConfigService 获取驱动配置服务
-func GetDriverConfigService() DIDriverConfigService {
+// GetDriverConfigServ 获取驱动配置服务
+func GetDriverConfigServ() IDriverConfigServ {
 	if driverConfigInstance == nil {
 		panic("StringProcessor not initialized. Call mylib.Init() first.")
 	}

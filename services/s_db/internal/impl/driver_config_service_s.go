@@ -8,16 +8,17 @@ import (
 	"sync"
 )
 
+// driverConfigServiceImpl 实现 common.IDriverConfigServ 接口。通过依赖注入控制反转
 type driverConfigServiceImpl struct {
 	manage s_db_interface.IConfigService
 }
 
 var (
-	driverConfigServiceInstance common.IDriverConfigService
+	driverConfigServiceInstance common.IDriverConfigServ
 	driverConfigServiceOnce     sync.Once
 )
 
-func GetDriverConfigService() common.IDriverConfigService {
+func GetDriverConfigService() common.IDriverConfigServ {
 	driverConfigServiceOnce.Do(func() {
 		driverConfigServiceInstance = &driverConfigServiceImpl{
 			manage: GetConfigService(),

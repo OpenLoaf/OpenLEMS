@@ -23,7 +23,7 @@ func (c *ControllerV2) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeR
 }
 
 // BuildDeviceTree 递归构建设备树结构
-func BuildDeviceTree(ctx context.Context, devices []*s_db_model.Device, parentId string) []*entity.SDeviceTree {
+func BuildDeviceTree(ctx context.Context, devices []*s_db_model.SDeviceModel, parentId string) []*entity.SDeviceTree {
 	var tree []*entity.SDeviceTree
 
 	for _, device := range devices {
