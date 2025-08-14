@@ -41,7 +41,7 @@ func (s *sConfigServiceImpl) GetDeviceConfig(ctx context.Context, activeDeviceRo
 		deviceRootId = activeDeviceRootId
 	}
 
-	g.Log().Infof(ctx, "Activce Device Root Id: %s", deviceRootId)
+	g.Log().Infof(ctx, "Activce SDeviceModel Root Id: %s", deviceRootId)
 
 	if err != nil {
 		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
@@ -143,7 +143,7 @@ func (s *sConfigServiceImpl) GetProtocolsConfigList(ctx context.Context) []*c_ba
 		// 额外打印一些关键信息
 		g.Log().Infof(ctx, "协议配置数量: %d", len(protocolConfigs))
 		for i, protocol := range protocolConfigs {
-			g.Log().Infof(ctx, "协议[%d]: ID=%s, Protocol=%s",
+			g.Log().Infof(ctx, "协议[%d]: ID=%s, SProtocolModel=%s",
 				i, protocol.Id, protocol.Protocol)
 		}
 	} else {
@@ -154,7 +154,7 @@ func (s *sConfigServiceImpl) GetProtocolsConfigList(ctx context.Context) []*c_ba
 
 // 获取设置配置通过名称
 func (s *sConfigServiceImpl) GetSettingValueByName(ctx context.Context, name string) string {
-	setting := &s_db_model.Setting{}
+	setting := &s_db_model.SSettingModel{}
 	// 通过 name 获取设置，如果设置不存在，则返回空字符串
 	err := setting.GetByName(ctx, name)
 	if err != nil {
@@ -173,7 +173,7 @@ func (s *sConfigServiceImpl) GetSettingValueByName(ctx context.Context, name str
 
 // 设置设置值通过名称
 func (s *sConfigServiceImpl) SetSettingValueByName(ctx context.Context, name string, value string) error {
-	setting := &s_db_model.Setting{}
+	setting := &s_db_model.SSettingModel{}
 	err := setting.GetByName(ctx, name)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", name, err)
@@ -185,7 +185,7 @@ func (s *sConfigServiceImpl) SetSettingValueByName(ctx context.Context, name str
 }
 
 // BuildDeviceTree 递归构建设备树结构
-func BuildDeviceTree(ctx context.Context, devices []*s_db_model.Device, parentId string) *c_base.SDriverConfig {
+func BuildDeviceTree(ctx context.Context, devices []*s_db_model.SDeviceModel, parentId string) *c_base.SDriverConfig {
 	var tree []*c_base.SDriverConfig
 
 	for _, device := range devices {
@@ -246,7 +246,7 @@ func PrintDeviceTree(ctx context.Context, config *c_base.SDriverConfig, level in
 
 	// 打印当前设备信息
 	g.Log().Infof(ctx, "%s├─ [%s] %s", indent, config.Id, config.Name)
-	g.Log().Infof(ctx, "%s   Driver: %s, Protocol: %s, Enable: %t",
+	g.Log().Infof(ctx, "%s   Driver: %s, SProtocolModel: %s, Enable: %t",
 		indent, config.Driver, config.ProtocolId, config.IsEnable)
 
 	// 打印参数

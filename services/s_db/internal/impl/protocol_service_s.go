@@ -25,8 +25,8 @@ func GetProtocolService() s_db_interface.IProtocolService {
 	return protocolManageInstance
 }
 
-func (s *sProtocolServiceImpl) GetProtocolList(ctx context.Context, type_ string) ([]*s_db_model.Protocol, error) {
-	protocols, err := (&s_db_model.Protocol{}).GetByType(ctx, type_)
+func (s *sProtocolServiceImpl) GetProtocolList(ctx context.Context, type_ string) ([]*s_db_model.SProtocolModel, error) {
+	protocols, err := (&s_db_model.SProtocolModel{}).GetByType(ctx, type_)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func (s *sProtocolServiceImpl) GetProtocolList(ctx context.Context, type_ string
 }
 
 func (s *sProtocolServiceImpl) UpdateProtocol(ctx context.Context, protocolId string, data map[string]interface{}) error {
-	protocol := &s_db_model.Protocol{}
+	protocol := &s_db_model.SProtocolModel{}
 	// 先根据ID获取协议对象
 	err := protocol.GetById(ctx, protocolId)
 	if err != nil {
@@ -103,7 +103,7 @@ func (s *sProtocolServiceImpl) CreateProtocol(ctx context.Context, data map[stri
 	}
 
 	// 创建协议对象
-	protocol := &s_db_model.Protocol{
+	protocol := &s_db_model.SProtocolModel{
 		Id:       protocolId,
 		Name:     data["protocolName"].(string),
 		Type:     data["protocolType"].(string),
@@ -124,7 +124,7 @@ func (s *sProtocolServiceImpl) CreateProtocol(ctx context.Context, data map[stri
 
 func (s *sProtocolServiceImpl) DeleteProtocol(ctx context.Context, protocolId string) error {
 	// 先检查协议是否存在
-	protocol := &s_db_model.Protocol{}
+	protocol := &s_db_model.SProtocolModel{}
 	err := protocol.GetById(ctx, protocolId)
 	if err != nil {
 		return err

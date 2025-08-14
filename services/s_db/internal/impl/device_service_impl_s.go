@@ -29,7 +29,7 @@ func GetDeviceService() s_db_interface.IDeviceService {
 	return deviceManageInstance
 }
 
-func (s *sDeviceServiceImpl) GetDeviceList(ctx context.Context) ([]*s_db_model.Device, error) {
+func (s *sDeviceServiceImpl) GetDeviceList(ctx context.Context) ([]*s_db_model.SDeviceModel, error) {
 	devices, err := s_db_model.GetAllDevicesOrderBySortAndEnable(ctx, true)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (s *sDeviceServiceImpl) GetDeviceList(ctx context.Context) ([]*s_db_model.D
 func (s *sDeviceServiceImpl) CreateDevice(ctx context.Context, deviceName string, pId string) (string, error) {
 	// 生成带横杠的UUID
 	deviceId := uuid.NewString()
-	device := &s_db_model.Device{
+	device := &s_db_model.SDeviceModel{
 		Id:            deviceId,
 		Pid:           pId,
 		Name:          deviceName,
@@ -60,7 +60,7 @@ func (s *sDeviceServiceImpl) CreateDevice(ctx context.Context, deviceName string
 
 // DeleteDevice 删除设备
 func (s *sDeviceServiceImpl) DeleteDevice(ctx context.Context, deviceId string) error {
-	device := &s_db_model.Device{
+	device := &s_db_model.SDeviceModel{
 		Id: deviceId,
 	}
 	err := device.Delete(ctx)
