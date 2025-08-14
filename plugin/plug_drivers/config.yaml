@@ -1,0 +1,8 @@
+gfcli:
+  build:
+#    name: "sess_basic_v1.driver"
+#    path:     "/Users/zhao/Documents/01.Code/Hex/ems-plan/application/resources/driver"
+    output: "/Users/zhao/Documents/01.Code/Hex/ems-plan/application/resources/driver/sess_basic_v1.driver"
+    version:  "v1.0.0"
+    cgo: true
+    extra:    '-ldflags "-s -w" -buildmode=plugin'

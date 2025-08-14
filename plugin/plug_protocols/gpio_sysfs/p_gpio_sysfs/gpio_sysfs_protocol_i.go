@@ -1,0 +1,19 @@
+package p_gpio_sysfs
+
+import (
+	"common/c_base"
+	"context"
+)
+
+type IGpioSysfsProtocol interface {
+	c_base.IProtocol
+
+	RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) // 状态变化处理
+
+	GetStatus() bool // 获取状态
+
+	SetHigh() error // 设置为高电平
+	SetLow() error  // 设置为低电平
+
+	GetGpioDeviceConfig() *SDeviceGpioConfig
+}
