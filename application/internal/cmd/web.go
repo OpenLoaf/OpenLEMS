@@ -10,8 +10,11 @@ import (
 	"application/internal/controller/system"
 	"application/internal/controller/telemetry"
 	"application/internal/ws"
+	"application/manifest"
 	"common/c_base"
 	"context"
+	"io"
+	"net/http"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
@@ -54,6 +57,34 @@ func startWeb(ctx context.Context) *ghttp.Server {
 
 	// Custom enhance API document.
 	enhanceOpenAPIDoc(s)
+
+	// 静态站点：将 `application/manifest/web` 打包进可执行文件并作为根路径提供
+	if webfs, err := manifest.WebFS(); err != nil {
+		g.Log().Warningf(ctx, "Web 静态资源初始化失败: %v", err)
+	} else {
+		fileServer := http.FileServer(http.FS(webfs))
+		// 根路径：直接输出 index.html
+		s.BindHandler("GET:/", func(r *ghttp.Request) {
+			f, err := webfs.Open("index.html")
+			if err != nil {
+				r.Response.WriteStatus(http.StatusNotFound)
+				return
+			}
+			defer f.Close()
+			// 明确 Content-Type
+			r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+			if _, err := io.Copy(r.Response.Writer, f); err != nil {
+				g.Log().Warningf(ctx, "写入 index.html 失败: %v", err)
+			}
+		})
+		// 静态资源路径
+		s.BindHandler("GET:/assets/*", func(r *ghttp.Request) {
+			fileServer.ServeHTTP(r.Response.Writer, r.Request)
+		})
+		s.BindHandler("GET:/images/*", func(r *ghttp.Request) {
+			fileServer.ServeHTTP(r.Response.Writer, r.Request)
+		})
+	}
 	// Just run the server.
 	return s
 }
