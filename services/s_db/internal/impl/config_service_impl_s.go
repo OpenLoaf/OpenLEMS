@@ -99,7 +99,7 @@ func (s *sConfigServiceImpl) GetDeviceConfig(ctx context.Context, activeDeviceRo
 }
 
 func (s *sConfigServiceImpl) GetProtocolsConfigList(ctx context.Context) []*c_base.SProtocolConfig {
-	protocols, err := s_db_model.GetAllProtocols(ctx)
+	protocols, err := GetProtocolService().GetAllProtocols(ctx)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取协议配置失败 - 错误: %v", err)
 		return nil

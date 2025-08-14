@@ -36,4 +36,7 @@ type IProtocolService interface {
 	UpdateProtocol(ctx context.Context, protocolId string, data map[string]interface{}) error
 	CreateProtocol(ctx context.Context, data map[string]interface{}) (string, error)
 	DeleteProtocol(ctx context.Context, protocolId string) error
+
+	// GetAllProtocols 获取协议列表
+	GetAllProtocols(ctx context.Context) ([]*s_db_model.SProtocolModel, error)
 }

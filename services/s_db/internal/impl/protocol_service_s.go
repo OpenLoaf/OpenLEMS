@@ -3,6 +3,7 @@ package impl
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/v2/frame/g"
 	"s_db/s_db_interface"
 	"s_db/s_db_model"
 	"sync"
@@ -11,6 +12,7 @@ import (
 )
 
 type sProtocolServiceImpl struct {
+	tableProtocol *s_db_model.SProtocolModel
 }
 
 var (
@@ -131,5 +133,85 @@ func (s *sProtocolServiceImpl) DeleteProtocol(ctx context.Context, protocolId st
 	}
 
 	// 删除协议
-	return s_db_model.DeleteProtocolById(ctx, protocolId)
+	return s.DeleteProtocolById(ctx, protocolId)
 }
+
+// DeleteProtocolById 根据ID删除协议记录
+func (s *sProtocolServiceImpl) DeleteProtocolById(ctx context.Context, id string) error {
+	_, err := g.Model(s.tableProtocol).Ctx(ctx).Where(s_db_model.FieldId, id).Delete()
+	return err
+}
+
+// GetAllProtocols 获取所有协议记录
+func (s *sProtocolServiceImpl) GetAllProtocols(ctx context.Context) ([]*s_db_model.SProtocolModel, error) {
+	var protocols []*s_db_model.SProtocolModel
+	err := g.Model(s.tableProtocol).Ctx(ctx).Scan(&protocols)
+	return protocols, err
+}
+
+//
+//// GetByCondition 根据条件获取协议记录
+//func GetProtocolsByCondition(ctx context.Context, condition g.Map) ([]*SProtocolModel, error) {
+//	var protocols []*SProtocolModel
+//	err := g.Model(s.tableProtocol).Ctx(ctx).Where(condition).Scan(&protocols)
+//	return protocols, err
+//}
+//
+//// GetByAddress 根据地址获取协议列表
+//func GetProtocolsByAddress(ctx context.Context, address string) ([]*SProtocolModel, error) {
+//	var protocols []*SProtocolModel
+//	err := g.Model(s.tableProtocol).Ctx(ctx).Where(ProtocolFieldAddress, address).Scan(&protocols)
+//	return protocols, err
+//}
+//
+//// GetByLogLevel 根据日志级别获取协议列表
+//func GetProtocolsByLogLevel(ctx context.Context, logLevel string) ([]*SProtocolModel, error) {
+//	var protocols []*SProtocolModel
+//	err := g.Model(s.tableProtocol).Ctx(ctx).Where(ProtocolFieldLogLevel, logLevel).Scan(&protocols)
+//	return protocols, err
+//}
+//
+//// Count 获取协议总数
+//func CountProtocols(ctx context.Context) (int, error) {
+//	count, err := g.Model(s.tableProtocol).Ctx(ctx).Count()
+//	return count, err
+//}
+//
+//// CountByCondition 根据条件获取协议数量
+//func CountProtocolsByCondition(ctx context.Context, condition g.Map) (int, error) {
+//	count, err := g.Model(s.tableProtocol).Ctx(ctx).Where(condition).Count()
+//	return count, err
+//}
+//
+//// Paginate 分页获取协议列表
+//func PaginateProtocols(ctx context.Context, page, pageSize int) ([]*SProtocolModel, error) {
+//	var protocols []*SProtocolModel
+//	err := g.Model(s.tableProtocol).Ctx(ctx).Page(page, pageSize).Scan(&protocols)
+//	return protocols, err
+//}
+//
+//// Exists 检查协议是否存在
+//func (p *SProtocolModel) Exists(ctx context.Context) (bool, error) {
+//	count, err := g.Model(s.tableProtocol).Ctx(ctx).Where(ProtocolFieldId, p.Id).Count()
+//	return count > 0, err
+//}
+//
+//// ExistsByName 根据名称检查协议是否存在
+//func ExistsProtocolByName(ctx context.Context, name string) (bool, error) {
+//	count, err := g.Model(s.tableProtocol).Ctx(ctx).Where(ProtocolFieldName, name).Count()
+//	return count > 0, err
+//}
+//
+//// GetByTimeout 根据超时时间范围获取协议列表
+//func GetProtocolsByTimeoutRange(ctx context.Context, minTimeout, maxTimeout int64) ([]*SProtocolModel, error) {
+//	var protocols []*SProtocolModel
+//	err := g.Model(s.tableProtocol).Ctx(ctx).WhereBetween(ProtocolFieldTimeout, minTimeout, maxTimeout).Scan(&protocols)
+//	return protocols, err
+//}
+//
+//// GetAllProtocolsOrderBySort 获取所有协议记录，按sort字段排序
+//func GetAllProtocolsOrderBySort(ctx context.Context) ([]*SProtocolModel, error) {
+//	var protocols []*SProtocolModel
+//	err := g.Model(s.tableProtocol).Ctx(ctx).Order(ProtocolFieldSort).Scan(&protocols)
+//	return protocols, err
+//}

@@ -10,16 +10,6 @@ import (
 const (
 	// 表名
 	TableSetting = "setting"
-
-	// 字段名
-	SettingFieldId        = "id"
-	SettingFieldName      = "name"
-	SettingFieldValue     = "value"
-	SettingFieldEnable    = "enable"
-	SettingFieldRemark    = "remark"
-	SettingFieldSort      = "sort"
-	SettingFieldCreatedAt = "created_at"
-	SettingFieldUpdatedAt = "updated_at"
 )
 
 // 设置表结构
@@ -53,41 +43,41 @@ func (s *SSettingModel) Create(ctx context.Context) error {
 
 // GetById 根据ID获取设置记录
 func (s *SSettingModel) GetById(ctx context.Context, id uint) error {
-	return g.Model(TableSetting).Ctx(ctx).Where(SettingFieldId, id).Scan(s)
+	return g.Model(TableSetting).Ctx(ctx).Where(FieldId, id).Scan(s)
 }
 
 // GetByName 根据名称获取设置记录
 func (s *SSettingModel) GetByName(ctx context.Context, name string) error {
-	return g.Model(TableSetting).Ctx(ctx).Where(SettingFieldName, name).Scan(s)
+	return g.Model(TableSetting).Ctx(ctx).Where(FieldName, name).Scan(s)
 }
 
 // Update 更新设置记录
 func (s *SSettingModel) Update(ctx context.Context) error {
-	_, err := g.Model(TableSetting).Ctx(ctx).Where(SettingFieldId, s.Id).Update(s)
+	_, err := g.Model(TableSetting).Ctx(ctx).Where(FieldId, s.Id).Update(s)
 	return err
 }
 
 // UpdateFields 更新指定字段
 func (s *SSettingModel) UpdateFields(ctx context.Context, data g.Map) error {
-	_, err := g.Model(TableSetting).Ctx(ctx).Where(SettingFieldId, s.Id).Update(data)
+	_, err := g.Model(TableSetting).Ctx(ctx).Where(FieldId, s.Id).Update(data)
 	return err
 }
 
 // Delete 删除设置记录
 func (s *SSettingModel) Delete(ctx context.Context) error {
-	_, err := g.Model(TableSetting).Ctx(ctx).Where(SettingFieldId, s.Id).Delete()
+	_, err := g.Model(TableSetting).Ctx(ctx).Where(FieldId, s.Id).Delete()
 	return err
 }
 
 // DeleteById 根据ID删除设置记录
 func DeleteSettingById(ctx context.Context, id uint) error {
-	_, err := g.Model(TableSetting).Ctx(ctx).Where(SettingFieldId, id).Delete()
+	_, err := g.Model(TableSetting).Ctx(ctx).Where(FieldId, id).Delete()
 	return err
 }
 
 // DeleteByName 根据名称删除设置记录
 func DeleteSettingByName(ctx context.Context, name string) error {
-	_, err := g.Model(TableSetting).Ctx(ctx).Where(SettingFieldName, name).Delete()
+	_, err := g.Model(TableSetting).Ctx(ctx).Where(FieldName, name).Delete()
 	return err
 }
 
@@ -108,7 +98,7 @@ func GetSettingsByCondition(ctx context.Context, condition g.Map) ([]*SSettingMo
 // GetEnabledSettings 获取所有启用的设置
 func GetEnabledSettings(ctx context.Context) ([]*SSettingModel, error) {
 	var settings []*SSettingModel
-	err := g.Model(TableSetting).Ctx(ctx).Where(SettingFieldEnable, true).Scan(&settings)
+	err := g.Model(TableSetting).Ctx(ctx).Where(FieldEnable, true).Scan(&settings)
 	return settings, err
 }
 
@@ -138,31 +128,31 @@ func (s *SSettingModel) IsEnabled() bool {
 
 // SetEnabled 设置启用状态
 func (s *SSettingModel) SetEnabled(ctx context.Context, enabled bool) error {
-	return s.UpdateFields(ctx, g.Map{SettingFieldEnable: enabled})
+	return s.UpdateFields(ctx, g.Map{FieldEnable: enabled})
 }
 
 // UpdateValue 更新设置值
 func (s *SSettingModel) UpdateValue(ctx context.Context, value string) error {
 	s.Value = value
-	return s.UpdateFields(ctx, g.Map{SettingFieldValue: value})
+	return s.UpdateFields(ctx, g.Map{FieldValue: value})
 }
 
 // UpdateRemark 更新备注
 func (s *SSettingModel) UpdateRemark(ctx context.Context, remark string) error {
 	s.Remark = remark
-	return s.UpdateFields(ctx, g.Map{SettingFieldRemark: remark})
+	return s.UpdateFields(ctx, g.Map{FieldRemark: remark})
 }
 
 // GetAllSettingsOrderBySort 获取所有设置记录，按sort字段排序
 func GetAllSettingsOrderBySort(ctx context.Context) ([]*SSettingModel, error) {
 	var settings []*SSettingModel
-	err := g.Model(TableSetting).Ctx(ctx).Order(SettingFieldSort).Scan(&settings)
+	err := g.Model(TableSetting).Ctx(ctx).Order(FieldSort).Scan(&settings)
 	return settings, err
 }
 
 // GetSettingValueByName 获取指定名称的设置
 func GetSettingValueByName(name string) (string, error) {
 	var setting *SSettingModel
-	err := g.Model(TableSetting).Where(SettingFieldName, name).Scan(&setting)
+	err := g.Model(TableSetting).Where(FieldName, name).Scan(&setting)
 	return setting.GetValue(), err
 }

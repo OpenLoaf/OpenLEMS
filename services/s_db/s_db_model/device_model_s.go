@@ -14,22 +14,12 @@ const (
 	TableDevice = "device"
 
 	// 字段名
-	FieldId            = "id"
 	FieldPid           = "pid"
 	FieldProtocolId    = "protocol_id"
-	FieldName          = "name"
 	FieldDriver        = "driver"
 	FieldLogLevel      = "log_level"
-	FieldEnable        = "enable"
 	FieldParams        = "params"
 	FieldRetentionDays = "retention_days"
-	FieldSort          = "sort"
-	FieldCreatedAt     = "created_at"
-	FieldUpdatedAt     = "updated_at"
-
-	// 特殊值
-	NullValue  = "null"
-	EmptyValue = ""
 )
 
 // 设备表结构
