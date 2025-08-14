@@ -1,0 +1,10 @@
+database:
+  default:
+    debug: false
+
+server:
+  address: ":80"
+  pprofEnabled: false
+  dumpRouterMap: false
+  accessLogEnabled: false
+

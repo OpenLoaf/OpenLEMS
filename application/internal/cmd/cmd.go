@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"application/manifest"
 	"common"
 	"common/c_base"
 	"context"
@@ -27,6 +28,7 @@ const (
 	ArgPebbleDbPath       = "runtime-path"          // pebble数据库路径
 	ArgSqliteDbPath       = "db-path"               // sqlite数据库路径
 	ArgActiveDeviceRootId = "active-device-root-id" // 强制激活根设备
+	ArgProfile            = "profile"               // 配置profile: default/dev/prod等
 )
 
 var (
@@ -41,8 +43,16 @@ var (
 			{Name: ArgSqliteDbPath, Short: "cp", Brief: "Default: ./out/db.sqlite3 设置配置数据库路径 ", IsArg: false, Orphan: false},
 			{Name: ArgLanguage, Short: "l", Brief: "Default: zh-CN 设置语言 ", IsArg: false, Orphan: false},
 			{Name: ArgActiveDeviceRootId, Brief: "强制激活根设备ID ", IsArg: false, Orphan: false},
+			{Name: ArgProfile, Short: "p", Brief: "Default: default 选择配置profile (default/dev/prod等)", IsArg: false, Orphan: false},
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+
+			// 优先加载嵌入式配置，支持 --profile 或 APP_PROFILE 环境变量
+			profile := parser.GetOpt(ArgProfile, os.Getenv("APP_PROFILE")).String()
+			if profile == "" || profile == "default" {
+				profile = "prod"
+			}
+			manifest.LoadEmbeddedConfig(profile)
 
 			fmt.Printf("获取到数据库地址 %s\n", parser.GetOpt(ArgSqliteDbPath))
 			// 设置默认语言为中文(简体)

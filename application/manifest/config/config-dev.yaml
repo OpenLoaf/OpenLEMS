@@ -1,0 +1,10 @@
+database:
+  default:
+    debug: true
+
+server:
+  address: ":15880"
+  pprofEnabled: true
+  dumpRouterMap: true
+  accessLogEnabled: true
+
