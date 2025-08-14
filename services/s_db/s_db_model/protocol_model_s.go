@@ -78,7 +78,13 @@ func (p *SProtocolModel) GetByName(ctx context.Context, name string) error {
 // GetByType 根据类型获取协议记录
 func (p *SProtocolModel) GetByType(ctx context.Context, type_ string) ([]*SProtocolModel, error) {
 	var protocols []*SProtocolModel
-	err := g.Model(TableProtocol).Ctx(ctx).Where(FieldType, type_).Scan(&protocols)
+	var err error
+	if type_ == "" || type_ == "all" {
+		err = g.Model(TableProtocol).Ctx(ctx).Scan(&protocols)
+	} else {
+		err = g.Model(TableProtocol).Ctx(ctx).Where(FieldType, type_).Scan(&protocols)
+	}
+
 	return protocols, err
 }
 
