@@ -1,1 +1,0 @@
-module ammeter_acrel_10r_v1

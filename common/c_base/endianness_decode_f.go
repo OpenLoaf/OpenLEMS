@@ -1,7 +1,7 @@
 package c_base
 
 import (
-	"common/util/util_binary"
+	"common/c_util/util_binary"
 	"github.com/gogf/gf/v2/encoding/gbinary"
 	"github.com/gogf/gf/v2/errors/gerror"
 )

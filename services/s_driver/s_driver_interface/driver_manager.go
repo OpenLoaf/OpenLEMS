@@ -1,4 +1,4 @@
-package s_driver
+package s_driver_interface
 
 import (
 	"common/c_base"

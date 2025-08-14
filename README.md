@@ -34,7 +34,7 @@
      - --language            全局语言（默认：zh-CN）
      - --time-zone           全局时区
      - --pebbledb-path       PebbleDB 路径（默认：./out/pebbledb）
-     - --sqlite-path         SQLite 路径（默认：./out/db.sqlite3）
+     - --db-path         SQLite 路径（默认：./out/db.sqlite3）
 
 3. Docker 构建与运行：
    - 构建镜像：

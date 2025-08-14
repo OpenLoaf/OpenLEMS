@@ -2,7 +2,7 @@ package internal_storage
 
 import (
 	"common/c_base"
-	"common/util"
+	"common/c_util"
 	"context"
 	"sync"
 	"time"
@@ -86,9 +86,9 @@ func RegisterInstance(builder func(ctx context.Context) c_base.IStorage) {
 }
 
 func saveSystemMetrics() {
-	systemInfo := util.GetSystemInfo()
-	_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstSystem, systemInfo, util.GetSystemMetrics())
-	_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstProcess, systemInfo, util.GetProcessInfo())
+	systemInfo := c_util.GetSystemInfo()
+	_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstSystem, systemInfo, c_util.GetSystemMetrics())
+	_ = sStorageInstance.IStorage.SaveSystemMetrics(c_base.ConstProcess, systemInfo, c_util.GetProcessInfo())
 }
 
 func (s *SStorageInstance) RegisterDriver(storageIntervalSec int32, driver c_base.IDriver) {

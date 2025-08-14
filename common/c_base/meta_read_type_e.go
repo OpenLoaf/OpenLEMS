@@ -3,7 +3,7 @@ package c_base
 
 import (
 	"bytes"
-	"common/util"
+	"common/c_util"
 	"fmt"
 	"github.com/gogf/gf/v2/encoding/gbinary"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -131,7 +131,7 @@ func (d EReadType) ReadValue(bytes []byte, bitLength uint8, endianness ECharSequ
 		}
 		return endianness.DecodeToFloat64(bytes[:8]), nil
 	case RBcd16:
-		return util.BcdToDecimalMulti(bytes[:2]), nil
+		return c_util.BcdToDecimalMulti(bytes[:2]), nil
 	}
 	panic(`unknown data type`)
 }
@@ -230,7 +230,7 @@ func (d EReadType) Encoder(value int64, factor float32, offset int, endianness E
 	case RFloat64:
 		return endianness.EncodeFloat64(float64(value))
 	case RBcd16:
-		return util.DecimalToBCD16Bytes(int(value))
+		return c_util.DecimalToBCD16Bytes(int(value))
 	}
 	panic(`unknown data type`)
 }

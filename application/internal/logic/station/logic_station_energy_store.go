@@ -4,7 +4,7 @@ import (
 	"application/internal/model/entity"
 	"common"
 	"common/c_base"
-	"common/util"
+	"common/c_util"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
 )
@@ -32,36 +32,36 @@ func (s *sStation) GetEnergyStoreStatus() *entity.EnergyStoreStatus {
 		Status:              status,
 		TargetPower:         gconv.String(ess.GetTargetPower()),
 		TargetReactivePower: gconv.String(ess.GetTargetReactivePower()),
-		TargetPowerFactor:   util.Float32ToString(ess.GetTargetPowerFactor(), 2),
+		TargetPowerFactor:   c_util.Float32ToString(ess.GetTargetPowerFactor(), 2),
 	}
 	if value, err := ess.GetPower(); err == nil {
-		essStatus.Power = util.Float64ToString(value, 2)
+		essStatus.Power = c_util.Float64ToString(value, 2)
 	}
 
 	if value, err := ess.GetApparentPower(); err == nil {
-		essStatus.ApparentPower = util.Float64ToString(value, 2)
+		essStatus.ApparentPower = c_util.Float64ToString(value, 2)
 	}
 
 	if value, err := ess.GetReactivePower(); err == nil {
-		essStatus.ReactivePower = util.Float64ToString(value, 2)
+		essStatus.ReactivePower = c_util.Float64ToString(value, 2)
 	}
 	if value, err := ess.GetSoc(); err == nil {
-		essStatus.Soc = util.Float32ToString(value, 2)
+		essStatus.Soc = c_util.Float32ToString(value, 2)
 	}
 
 	if value, err := ess.GetTodayIncomingQuantity(); err == nil {
-		essStatus.TodayCharge = util.Float64ToString(value, 4)
+		essStatus.TodayCharge = c_util.Float64ToString(value, 4)
 	}
 
 	if value, err := ess.GetTodayOutgoingQuantity(); err == nil {
-		essStatus.TodayDischarge = util.Float64ToString(value, 4)
+		essStatus.TodayDischarge = c_util.Float64ToString(value, 4)
 	}
 
 	if value, err := ess.GetHistoryIncomingQuantity(); err == nil {
-		essStatus.HistoryCharge = util.Float64ToString(value, 4)
+		essStatus.HistoryCharge = c_util.Float64ToString(value, 4)
 	}
 	if value, err := ess.GetHistoryOutgoingQuantity(); err == nil {
-		essStatus.HistoryDischarge = util.Float64ToString(value, 4)
+		essStatus.HistoryDischarge = c_util.Float64ToString(value, 4)
 	}
 	return essStatus
 }

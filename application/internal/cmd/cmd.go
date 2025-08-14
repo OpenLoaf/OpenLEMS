@@ -4,11 +4,12 @@ import (
 	"common"
 	"common/c_base"
 	"context"
+	"fmt"
 	"os"
 	"pebbledb"
 	"runtime"
-	"services"
-	database "sqlite"
+	"s_db"
+	"s_driver"
 	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -28,8 +29,6 @@ const (
 	ArgActiveDeviceRootId = "active-device-root-id" // 强制激活根设备
 )
 
-var DeviceStartCancel context.CancelFunc = nil // 设备启动取消函数，设备启动时候回堵塞进程
-
 var (
 	Main = gcmd.Command{
 		Name:  "Start",
@@ -45,15 +44,18 @@ var (
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 
+			fmt.Printf("获取到数据库地址 %s\n", parser.GetOpt(ArgSqliteDbPath))
 			// 设置默认语言为中文(简体)
 			gi18n.SetLanguage("zh-CN")
 			// deviceConfigName := parser.GetOpt(ArgDeviceConfigName, "device").String()
 			// driverConfigName := parser.GetOpt(ArgDriverConfigName, gfile.Join(pwd, "drivers")).String()
 
-			// 初始化数据库表
-			database.Init()
+			// 初始化数据库
+			s_db.Init()
 
-			common.SystemInitConfigInstance(ctx)
+			// 使用SqliteDriverConfig
+			common.RegisterDriverConfig(s_db.GetDbDriverConfigService())
+			//common.GetDriverConfigService().SystemInitConfigInstance(ctx)
 
 			// 初始化存储
 			common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
@@ -68,7 +70,7 @@ var (
 			// g.Log().Infof(ctx, "加载驱动文件路径：%s", driverConfigName)
 
 			// 启动设备
-			deviceCmd := services.NewDeviceCmd(ctx)
+			deviceCmd := s_driver.NewDeviceCmd(ctx)
 
 			deviceStartCtx, DeviceStartCancel := context.WithCancel(context.Background())
 			go deviceStart(deviceStartCtx, deviceCmd, parser.GetOpt(ArgActiveDeviceRootId).String())

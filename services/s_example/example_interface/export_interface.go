@@ -1,4 +1,4 @@
-package s_i_example
+package example_interface
 
 type IExample interface {
 	Hay()

@@ -2,7 +2,7 @@ package ws
 
 import (
 	"common"
-	"common/util"
+	"common/c_util"
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
@@ -88,7 +88,7 @@ func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 					_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 						Code:    500,
 						Message: err.Error(),
-						Time:    util.GetNow(),
+						Time:    c_util.GetNow(),
 					})
 					continue
 				}
@@ -111,7 +111,7 @@ func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 				_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 					Code:    500,
 					Message: "时间间隔范围为200到86400000",
-					Time:    util.GetNow(),
+					Time:    c_util.GetNow(),
 				})
 				continue
 			}
@@ -120,7 +120,7 @@ func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 				_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 					Code:    500,
 					Message: "遥测列表不能为空",
-					Time:    util.GetNow(),
+					Time:    c_util.GetNow(),
 				})
 				continue
 			}
@@ -201,14 +201,14 @@ func writeValue(ctx context.Context, conn *websocket.Conn, query RegisterTelemet
 		_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 			Code:    500,
 			Message: errorMessage,
-			Time:    util.GetNow(),
+			Time:    c_util.GetNow(),
 		})
 	}
 
 	// 写入数据
 	_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 		Code: 200,
-		Time: util.GetNow(),
+		Time: c_util.GetNow(),
 		Data: dataMap,
 	})
 

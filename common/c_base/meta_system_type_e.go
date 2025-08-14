@@ -1,7 +1,7 @@
 package c_base
 
 import (
-	"common/util"
+	"common/c_util"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
 	"reflect"
@@ -92,7 +92,7 @@ func (s ESystemType) GetReflectKind(readType EReadType, bitLength uint8) reflect
 	panic(gerror.New("未知的SystemType类型！"))
 }
 
-func calc[T util.Number](result T, factor float32, offset int) T {
+func calc[T c_util.Number](result T, factor float32, offset int) T {
 	// 先乘
 	if factor != 1 && factor != 0 {
 		result = T(factor * float32(result))

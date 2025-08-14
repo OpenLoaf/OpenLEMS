@@ -1,4 +1,4 @@
-package s_driver
+package internal
 
 import (
 	"context"

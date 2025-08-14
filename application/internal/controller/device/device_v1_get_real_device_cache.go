@@ -4,7 +4,7 @@ import (
 	v1 "application/api/device/v1"
 	"application/internal/model/entity"
 	"common"
-	"common/util"
+	"common/c_util"
 	"context"
 
 	"github.com/gogf/gf/v2/errors/gcode"
@@ -30,7 +30,7 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	var values = make([]*entity.SSingleDeviceValue, 0)
 
 	for _, wrapper := range device.GetMetaValueList() {
-		if len(req.TelemetryKeyList) != 0 && util.Contains(req.TelemetryKeyList, wrapper.Meta.Name) == false {
+		if len(req.TelemetryKeyList) != 0 && c_util.Contains(req.TelemetryKeyList, wrapper.Meta.Name) == false {
 			continue
 		}
 

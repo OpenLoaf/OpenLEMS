@@ -31,8 +31,8 @@ func NewDeviceCmd(ctx context.Context) *SDeviceCmd {
 }
 
 func (d *SDeviceCmd) Start(activeDeviceRootId string) {
-	deviceConfig := common.GetDriverConfig(d.ctx, activeDeviceRootId)
-	protocolConfigList := common.GetProtocolsConfigList(d.ctx)
+	deviceConfig := common.GetDriverConfigService().GetDriverConfig(d.ctx, activeDeviceRootId)
+	protocolConfigList := common.GetDriverConfigService().GetProtocolsConfigList(d.ctx)
 
 	// 捕捉panic
 	defer func() {

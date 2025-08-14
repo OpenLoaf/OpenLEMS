@@ -2,8 +2,9 @@ package impl
 
 import (
 	"context"
-	"database/db_model"
 	"encoding/json"
+	"s_db/s_db_interface"
+	"s_db/s_db_model"
 	"sync"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -11,45 +12,22 @@ import (
 	"common/c_base"
 )
 
-type sConfigManage struct {
+type sConfigServiceImpl struct {
 }
 
 var (
-	instance *sConfigManage
-	mu       sync.RWMutex
+	configManageInstance s_db_interface.IConfigService
+	configManageOnce     sync.Once
 )
 
-func NewConfigManage(ctx context.Context) *sConfigManage {
-	// 先用读锁检查实例是否已存在
-	mu.RLock()
-	if instance != nil {
-		mu.RUnlock()
-		return instance
-	}
-	mu.RUnlock()
-
-	// 用写锁创建新实例
-	mu.Lock()
-	defer mu.Unlock()
-
-	// 双重检查，防止并发创建
-	if instance != nil {
-		return instance
-	}
-
-	// 创建新的单例实例
-	instance = &sConfigManage{}
-	return instance
+func GetConfigService() s_db_interface.IConfigService {
+	configManageOnce.Do(func() {
+		configManageInstance = &sConfigServiceImpl{}
+	})
+	return configManageInstance
 }
 
-// ClearConfigManageInstance 清理ConfigManage实例
-func ClearConfigManageInstance() {
-	mu.Lock()
-	defer mu.Unlock()
-	instance = nil
-}
-
-func (s *sConfigManage) GetDeviceConfig(ctx context.Context, activeDeviceRootId string) *c_base.SDriverConfig {
+func (s *sConfigServiceImpl) GetDeviceConfig(ctx context.Context, activeDeviceRootId string) *c_base.SDriverConfig {
 	//devices, err := model.GetDevicesByCondition(ctx, g.Map{})
 	var (
 		deviceRootId string
@@ -57,7 +35,7 @@ func (s *sConfigManage) GetDeviceConfig(ctx context.Context, activeDeviceRootId 
 	)
 
 	if activeDeviceRootId == "" {
-		deviceRootId, err = db_model.GetSettingValueByName("active_device_root_id")
+		deviceRootId, err = s_db_model.GetSettingValueByName("active_device_root_id")
 		g.Log().Noticef(ctx, "GetDeviceConfig From DB! active_device_root_id: %v", activeDeviceRootId)
 	} else {
 		deviceRootId = activeDeviceRootId
@@ -69,14 +47,14 @@ func (s *sConfigManage) GetDeviceConfig(ctx context.Context, activeDeviceRootId 
 		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
 		return nil
 	}
-	rootDevice, err := db_model.GetDevicesById(ctx, deviceRootId)
+	rootDevice, err := s_db_model.GetDevicesById(ctx, deviceRootId)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
 		return nil
 	}
 
 	g.Log().Infof(ctx, "激活的设备父ID配置: %s", deviceRootId)
-	devices, err := db_model.GetRecursiveDevicesByPid(ctx, deviceRootId)
+	devices, err := s_db_model.GetRecursiveDevicesByPid(ctx, deviceRootId)
 	devices = append(devices, rootDevice)
 
 	if err != nil {
@@ -120,8 +98,8 @@ func (s *sConfigManage) GetDeviceConfig(ctx context.Context, activeDeviceRootId 
 	return tree
 }
 
-func (s *sConfigManage) GetProtocolConfig(ctx context.Context) []*c_base.SProtocolConfig {
-	protocols, err := db_model.GetAllProtocols(ctx)
+func (s *sConfigServiceImpl) GetProtocolsConfigList(ctx context.Context) []*c_base.SProtocolConfig {
+	protocols, err := s_db_model.GetAllProtocols(ctx)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取协议配置失败 - 错误: %v", err)
 		return nil
@@ -175,8 +153,8 @@ func (s *sConfigManage) GetProtocolConfig(ctx context.Context) []*c_base.SProtoc
 }
 
 // 获取设置配置通过名称
-func (s *sConfigManage) GetSettingValueByName(ctx context.Context, name string) string {
-	setting := &db_model.Setting{}
+func (s *sConfigServiceImpl) GetSettingValueByName(ctx context.Context, name string) string {
+	setting := &s_db_model.Setting{}
 	// 通过 name 获取设置，如果设置不存在，则返回空字符串
 	err := setting.GetByName(ctx, name)
 	if err != nil {
@@ -194,8 +172,8 @@ func (s *sConfigManage) GetSettingValueByName(ctx context.Context, name string) 
 }
 
 // 设置设置值通过名称
-func (s *sConfigManage) SetSettingValueByName(ctx context.Context, name string, value string) error {
-	setting := &db_model.Setting{}
+func (s *sConfigServiceImpl) SetSettingValueByName(ctx context.Context, name string, value string) error {
+	setting := &s_db_model.Setting{}
 	err := setting.GetByName(ctx, name)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", name, err)
@@ -207,7 +185,7 @@ func (s *sConfigManage) SetSettingValueByName(ctx context.Context, name string, 
 }
 
 // BuildDeviceTree 递归构建设备树结构
-func BuildDeviceTree(ctx context.Context, devices []*db_model.Device, parentId string) *c_base.SDriverConfig {
+func BuildDeviceTree(ctx context.Context, devices []*s_db_model.Device, parentId string) *c_base.SDriverConfig {
 	var tree []*c_base.SDriverConfig
 
 	for _, device := range devices {

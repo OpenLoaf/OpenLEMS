@@ -2,15 +2,14 @@ package driver
 
 import (
 	"context"
+	"s_driver"
 
 	v1 "application/api/driver/v1"
 	"application/internal/model/entity"
-
-	"services"
 )
 
 func (c *ControllerV1) GetDriverList(ctx context.Context, req *v1.GetDriverListReq) (res *v1.GetDriverListRes, err error) {
-	driverManager := services.NewDriverManager()
+	driverManager := s_driver.GetDriverManager()
 	driverList := driverManager.GetAllDriverNames()
 
 	var driverInfoList []*entity.SDriver

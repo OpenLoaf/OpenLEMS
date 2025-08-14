@@ -3,18 +3,16 @@ package protocol
 import (
 	"context"
 	"net"
+	"s_db"
 	"strconv"
 	"strings"
 
 	v1 "application/api/protocol/v1"
 	"application/internal/model/entity"
-
-	"sqlite"
 )
 
 func (c *ControllerV1) GetProtocolList(ctx context.Context, req *v1.GetProtocolListReq) (res *v1.GetProtocolListRes, err error) {
-	protocolManage := sqlite.NewProtocolManage(ctx)
-	protocols, err := protocolManage.GetProtocolList(ctx, req.Type)
+	protocols, err := s_db.GetProtocolService().GetProtocolList(ctx, req.Type)
 	if err != nil {
 		return nil, err
 	}

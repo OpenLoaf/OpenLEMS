@@ -1,4 +1,4 @@
-package util
+package c_util
 
 // DecimalToBCD16 将一个最多四位的十进制数转换为16位BCD码
 func DecimalToBCD16(n int) uint16 {

@@ -10,9 +10,9 @@ import (
 	"github.com/gogf/gf/v2/os/gctx"
 )
 
-var DefaultSqliteDbPath = gcmd.GetOpt("sqlite-path", "./out/db.sqlite3").String()
+var DefaultSqliteDbPath = gcmd.GetOpt("db-path", "./out/db.sqlite3").String()
 
-func init() {
+func Init() {
 	initConfigDatabase()
 }
 

@@ -2,32 +2,45 @@ package impl
 
 import (
 	"context"
-	"database/db_model"
+	"s_db/s_db_interface"
+	"s_db/s_db_model"
+	"sync"
 
 	"time"
 
 	"github.com/google/uuid"
 )
 
-type sDeviceManage struct {
+type sDeviceServiceImpl struct {
+	ctx context.Context
 }
 
-func NewDeviceManage(ctx context.Context) *sDeviceManage {
-	return &sDeviceManage{}
+var (
+	deviceManageInstance s_db_interface.IDeviceService
+	deviceManageOnce     sync.Once
+)
+
+func GetDeviceService() s_db_interface.IDeviceService {
+	deviceManageOnce.Do(func() {
+		deviceManageInstance = &sDeviceServiceImpl{
+			ctx: context.Background(),
+		}
+	})
+	return deviceManageInstance
 }
 
-func (s *sDeviceManage) GetDeviceList(ctx context.Context) ([]*db_model.Device, error) {
-	devices, err := db_model.GetAllDevicesOrderBySortAndEnable(ctx, true)
+func (s *sDeviceServiceImpl) GetDeviceList(ctx context.Context) ([]*s_db_model.Device, error) {
+	devices, err := s_db_model.GetAllDevicesOrderBySortAndEnable(ctx, true)
 	if err != nil {
 		return nil, err
 	}
 	return devices, nil
 }
 
-func (s *sDeviceManage) CreateDevice(ctx context.Context, deviceName string, pId string) (string, error) {
+func (s *sDeviceServiceImpl) CreateDevice(ctx context.Context, deviceName string, pId string) (string, error) {
 	// 生成带横杠的UUID
 	deviceId := uuid.NewString()
-	device := &db_model.Device{
+	device := &s_db_model.Device{
 		Id:            deviceId,
 		Pid:           pId,
 		Name:          deviceName,
@@ -46,8 +59,8 @@ func (s *sDeviceManage) CreateDevice(ctx context.Context, deviceName string, pId
 }
 
 // DeleteDevice 删除设备
-func (s *sDeviceManage) DeleteDevice(ctx context.Context, deviceId string) error {
-	device := &db_model.Device{
+func (s *sDeviceServiceImpl) DeleteDevice(ctx context.Context, deviceId string) error {
+	device := &s_db_model.Device{
 		Id: deviceId,
 	}
 	err := device.Delete(ctx)

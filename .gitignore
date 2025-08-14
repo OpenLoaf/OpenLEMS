@@ -32,3 +32,4 @@ arm-build/manifest/web/*
 arm-build/*.tar.gz
 
 out/
+go.sum

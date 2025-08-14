@@ -1,31 +1,34 @@
 go 1.24.4
 
 use (
-	./plug_drivers/ammeter_acrel_10r
-	./plug_drivers/bms_lnxall
-	./plug_drivers/bms_pylon_tech_us108
-	./plug_drivers/ess_boost_gold
-	./plug_drivers/ess_boost_lnxall
-	./plug_drivers/ess_pylon_checkwatt
-	./plug_drivers/gpio_basic
-	./plug_drivers/pcs_enjoy_basic
-	./plug_drivers/pcs_lnxall
-	./plug_drivers/pcs_star_charge_100E
-	./plug_drivers/sess_basic
-	./plug_drivers/fire_control
-	./plug_drivers/pcs_elecod_mac
+	./plugins/plug_drivers/ammeter_acrel_10r
+	./plugins/./plug_drivers/bms_lnxall
+	./plugins/./plug_drivers/bms_pylon_tech_us108
+	./plugins/./plug_drivers/ess_boost_gold
+	./plugins/./plug_drivers/ess_boost_lnxall
+	./plugins/./plug_drivers/ess_pylon_checkwatt
+	./plugins/./plug_drivers/gpio_basic
+	./plugins/./plug_drivers/pcs_enjoy_basic
+	./plugins/./plug_drivers/pcs_lnxall
+	./plugins/./plug_drivers/pcs_star_charge_100E
+	./plugins/./plug_drivers/sess_basic
+	./plugins/./plug_drivers/fire_control
+	./plugins/./plug_drivers/pcs_elecod_mac
 
-	./plug_protocols/canbus
-	./plug_protocols/gpio_sysfs
-	./plug_protocols/modbus
+	./plugins/./plug_protocols/canbus
+	./plugins/./plug_protocols/gpio_sysfs
+	./plugins/./plug_protocols/modbus
 
-	./plug_push/mqtt
+	./plugins/./plug_push/mqtt
 
-	./plug_storages/influxdb_1
-	./plug_storages/influxdb_2
-	./plug_storages/pebbledb
-	./plug_storages/sqlite
-	./services
+	./plugins/./plug_storages/influxdb_1
+	./plugins/./plug_storages/influxdb_2
+	./plugins/./plug_storages/pebbledb
+
+	./services/s_driver
+	./services/s_db
+	./services/s_example
+
 	application
 	common
 

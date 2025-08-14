@@ -1,4 +1,4 @@
-module database
+module s_db
 
 go 1.24
 

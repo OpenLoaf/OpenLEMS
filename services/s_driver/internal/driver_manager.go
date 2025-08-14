@@ -3,8 +3,8 @@ package internal
 import (
 	"common/c_base"
 	"context"
-
-	"github.com/gogf/gf/v2/errors/gerror"
+	"s_driver/s_driver_interface"
+	"sync"
 )
 
 // DriverManager 通用驱动管理器实现
@@ -12,14 +12,22 @@ type DriverManager struct {
 	deviceCmd *SDeviceCmd
 }
 
-// 编译期断言内部实现满足对外接口
-var _ c_base.IDriverManager = (*DriverManager)(nil)
+var (
+	// 编译期断言内部实现满足对外接口
+	_ s_driver_interface.IDriverManager = (*DriverManager)(nil)
 
-// NewDriverManager 创建驱动管理器
-func NewDriverManager() c_base.IDriverManager {
-	return &DriverManager{
-		deviceCmd: &SDeviceCmd{},
-	}
+	driverManagerInstance *DriverManager
+	driverManagerInitOnce sync.Once
+)
+
+// GetDriverManager 创建驱动管理器
+func GetDriverManager() *DriverManager {
+	driverManagerInitOnce.Do(func() {
+		driverManagerInstance = &DriverManager{
+			deviceCmd: &SDeviceCmd{},
+		}
+	})
+	return driverManagerInstance
 }
 
 // GetAllDriverNames 获取所有驱动名称
@@ -94,113 +102,4 @@ func (dm *DriverManager) GetSupportedDeviceTypes(ctx context.Context) []c_base.E
 	}
 
 	return deviceTypes
-}
-
-// DriverManagerHelper 驱动管理器帮助工具
-type DriverManagerHelper struct {
-	manager c_base.IDriverManager
-}
-
-// NewDriverManagerHelper 创建驱动管理器帮助工具
-func NewDriverManagerHelper() *DriverManagerHelper {
-	return &DriverManagerHelper{
-		manager: NewDriverManager(),
-	}
-}
-
-// GetDriverStats 获取驱动统计信息
-func (dmh *DriverManagerHelper) GetDriverStats(ctx context.Context) map[string]interface{} {
-	allDrivers := dmh.manager.GetAllDriversInfo(ctx)
-
-	stats := make(map[string]interface{})
-	stats["total"] = len(allDrivers)
-
-	availableCount := 0
-	unavailableCount := 0
-	typeCount := make(map[c_base.EDeviceType]int)
-
-	for _, driver := range allDrivers {
-		if driver.Available {
-			availableCount++
-		} else {
-			unavailableCount++
-		}
-
-		if driver.Type != "" {
-			typeCount[driver.Type]++
-		}
-	}
-
-	stats["available"] = availableCount
-	stats["unavailable"] = unavailableCount
-	stats["byType"] = typeCount
-
-	return stats
-}
-
-// ValidateDriverConfig 验证驱动配置
-func (dmh *DriverManagerHelper) ValidateDriverConfig(ctx context.Context, deviceConfig *c_base.SDriverConfig) error {
-	if deviceConfig.Driver == "" {
-		return gerror.Newf("驱动名称不能为空")
-	}
-
-	if !dmh.manager.IsDriverAvailable(ctx, deviceConfig.Driver) {
-		return gerror.Newf("驱动[%s]不可用", deviceConfig.Driver)
-	}
-
-	return nil
-}
-
-// GetDriverTelemetryInfo 获取驱动遥测信息
-func (dmh *DriverManagerHelper) GetDriverTelemetryInfo(ctx context.Context, driverName string) ([]*c_base.STelemetry, error) {
-	description, err := dmh.manager.GetDriverDescription(ctx, driverName)
-	if err != nil {
-		return nil, err
-	}
-
-	if description == nil {
-		return nil, nil
-	}
-
-	return description.Telemetry, nil
-}
-
-// SearchDrivers 搜索驱动
-func (dmh *DriverManagerHelper) SearchDrivers(ctx context.Context, keyword string) []c_base.DriverInfo {
-	allDrivers := dmh.manager.GetAllDriversInfo(ctx)
-	var matchedDrivers []c_base.DriverInfo
-
-	for _, driver := range allDrivers {
-		if contains(driver.Name, keyword) ||
-			(driver.Description != nil &&
-				(contains(driver.Description.Brand, keyword) ||
-					contains(driver.Description.Model, keyword))) {
-			matchedDrivers = append(matchedDrivers, driver)
-		}
-	}
-
-	return matchedDrivers
-}
-
-// contains 检查字符串是否包含子串（忽略大小写）
-func contains(str, substr string) bool {
-	if len(substr) == 0 {
-		return true
-	}
-	if len(str) == 0 {
-		return false
-	}
-
-	// 简单的包含检查
-	for i := 0; i <= len(str)-len(substr); i++ {
-		if str[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
-}
-
-// GetManager 获取驱动管理器实例
-func (dmh *DriverManagerHelper) GetManager() c_base.IDriverManager {
-	return dmh.manager
 }

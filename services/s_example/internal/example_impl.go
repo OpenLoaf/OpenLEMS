@@ -1,12 +1,15 @@
-package impl
+package internal
 
-import "fmt"
+import (
+	"fmt"
+	"s_example/example_interface"
+)
 
 type Hello struct {
 }
 
-func NewHay() Hello {
-	return Hello{}
+func NewHay() example_interface.IExample {
+	return &Hello{}
 }
 
 func (h *Hello) Hay() {

@@ -2,18 +2,17 @@ package device
 
 import (
 	"context"
+	"s_db"
+	"s_db/s_db_model"
 
 	"github.com/gogf/gf/v2/frame/g"
 
 	v2 "application/api/device/v2"
 	"application/internal/model/entity"
-	"sqlite"
-	"sqlite/model"
 )
 
 func (c *ControllerV2) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeReq) (res *v2.GetDeviceTreeRes, err error) {
-	deviceManage := sqlite.NewDeviceManage(ctx)
-	deviceList, err := deviceManage.GetDeviceList(ctx)
+	deviceList, err := s_db.GetDeviceService().GetDeviceList(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +23,7 @@ func (c *ControllerV2) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeR
 }
 
 // BuildDeviceTree 递归构建设备树结构
-func BuildDeviceTree(ctx context.Context, devices []*model.Device, parentId string) []*entity.SDeviceTree {
+func BuildDeviceTree(ctx context.Context, devices []*s_db_model.Device, parentId string) []*entity.SDeviceTree {
 	var tree []*entity.SDeviceTree
 
 	for _, device := range devices {

@@ -2,29 +2,39 @@ package impl
 
 import (
 	"context"
-	"database/db_model"
 	"fmt"
+	"s_db/s_db_interface"
+	"s_db/s_db_model"
+	"sync"
 
 	"github.com/google/uuid"
 )
 
-type sProtocolManage struct {
+type sProtocolServiceImpl struct {
 }
 
-func NewProtocolManage(ctx context.Context) *sProtocolManage {
-	return &sProtocolManage{}
+var (
+	protocolManageInstance s_db_interface.IProtocolService
+	protocolManageOnce     sync.Once
+)
+
+func GetProtocolService() s_db_interface.IProtocolService {
+	protocolManageOnce.Do(func() {
+		protocolManageInstance = &sProtocolServiceImpl{}
+	})
+	return protocolManageInstance
 }
 
-func (s *sProtocolManage) GetProtocolList(ctx context.Context, type_ string) ([]*db_model.Protocol, error) {
-	protocols, err := (&db_model.Protocol{}).GetByType(ctx, type_)
+func (s *sProtocolServiceImpl) GetProtocolList(ctx context.Context, type_ string) ([]*s_db_model.Protocol, error) {
+	protocols, err := (&s_db_model.Protocol{}).GetByType(ctx, type_)
 	if err != nil {
 		return nil, err
 	}
 	return protocols, nil
 }
 
-func (s *sProtocolManage) UpdateProtocol(ctx context.Context, protocolId string, data map[string]interface{}) error {
-	protocol := &db_model.Protocol{}
+func (s *sProtocolServiceImpl) UpdateProtocol(ctx context.Context, protocolId string, data map[string]interface{}) error {
+	protocol := &s_db_model.Protocol{}
 	// 先根据ID获取协议对象
 	err := protocol.GetById(ctx, protocolId)
 	if err != nil {
@@ -71,7 +81,7 @@ func (s *sProtocolManage) UpdateProtocol(ctx context.Context, protocolId string,
 	return protocol.Update(ctx)
 }
 
-func (s *sProtocolManage) CreateProtocol(ctx context.Context, data map[string]interface{}) (string, error) {
+func (s *sProtocolServiceImpl) CreateProtocol(ctx context.Context, data map[string]interface{}) (string, error) {
 	// 生成协议ID
 	protocolId := uuid.NewString()
 
@@ -93,7 +103,7 @@ func (s *sProtocolManage) CreateProtocol(ctx context.Context, data map[string]in
 	}
 
 	// 创建协议对象
-	protocol := &db_model.Protocol{
+	protocol := &s_db_model.Protocol{
 		Id:       protocolId,
 		Name:     data["protocolName"].(string),
 		Type:     data["protocolType"].(string),
@@ -112,14 +122,14 @@ func (s *sProtocolManage) CreateProtocol(ctx context.Context, data map[string]in
 	return protocolId, nil
 }
 
-func (s *sProtocolManage) DeleteProtocol(ctx context.Context, protocolId string) error {
+func (s *sProtocolServiceImpl) DeleteProtocol(ctx context.Context, protocolId string) error {
 	// 先检查协议是否存在
-	protocol := &db_model.Protocol{}
+	protocol := &s_db_model.Protocol{}
 	err := protocol.GetById(ctx, protocolId)
 	if err != nil {
 		return err
 	}
 
 	// 删除协议
-	return db_model.DeleteProtocolById(ctx, protocolId)
+	return s_db_model.DeleteProtocolById(ctx, protocolId)
 }
