@@ -15,10 +15,11 @@ gfcli:
       - api/*.go
       - internal/*.go
   build:
+    name:     "ems"
     path:     "./bin"
     arch:     "arm,amd64"
     system:   "linux,darwin"
-#    output: "./bin/ems"
+    # output: "./bin/ems"
     mod:      "none"
     packSrc:  "manifest"
     version:  "v1.0.0"

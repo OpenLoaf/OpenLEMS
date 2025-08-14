@@ -8,6 +8,14 @@ type SDriver struct {
 	DriverStatus      bool   `json:"driverStatus" dc:"运行状态"`
 	DriverLastUpdate  string `json:"driverLastUpdate" dc:"更新时间	"`
 	ProtocolType      string `json:"protocolType" dc:"协议类型"`
+
+	// 扩展字段（参考 common/c_base/driver_description_s_f.go 与 driver_info_s.go）
+	Brand      string             `json:"brand" dc:"品牌"`
+	Model      string             `json:"model" dc:"型号"`
+	BuildTime  string             `json:"buildTime" dc:"编译时间"`
+	CommitHash string             `json:"commitHash" dc:"提交哈希"`
+	Author     string             `json:"author" dc:"作者"`
+	Telemetry  []*DriverTelemetry `json:"telemetry" dc:"遥测描述列表"`
 }
 
 // type SDriverDetail struct {
@@ -20,3 +28,11 @@ type SDriver struct {
 // 	ProtocolType      string `json:"protocolType" dc:"协议类型"`
 
 // }
+
+// DriverTelemetry 与 `common/c_base.STelemetry` 字段对齐的轻量实体定义
+type DriverTelemetry struct {
+	Name                string `json:"name" dc:"遥测名称"`
+	NationalizationName string `json:"nationalizationName" dc:"国际化名称"`
+	Unit                string `json:"unit" dc:"单位"`
+	Remark              string `json:"remark" dc:"备注"`
+}

@@ -5,7 +5,6 @@ import (
 	"common"
 	"common/c_base"
 	"context"
-	"fmt"
 	"os"
 	"pebbledb"
 	"runtime"
@@ -52,9 +51,9 @@ var (
 			if profile == "" || profile == "default" {
 				profile = "prod"
 			}
+			g.Log().Infof(ctx, "Active Profile: %s", profile)
 			manifest.LoadEmbeddedConfig(profile)
 
-			fmt.Printf("获取到数据库地址 %s\n", parser.GetOpt(ArgSqliteDbPath))
 			// 设置默认语言为中文(简体)
 			gi18n.SetLanguage("zh-CN")
 			// deviceConfigName := parser.GetOpt(ArgDeviceConfigName, "device").String()
