@@ -48,6 +48,6 @@ func GetDriverConfigServ() IDriverConfigServ {
 //}
 
 // OpenPlugin 打开插件
-func OpenPlugin(ctx context.Context, path string, symName ...string) (plugin.Symbol, error) {
+func OpenPlugin(ctx context.Context, path string, symName ...string) (plugin.Symbol, string, error) {
 	return internal_config_with_file.ConfigInstance.OpenPlugin(ctx, path, symName...)
 }
