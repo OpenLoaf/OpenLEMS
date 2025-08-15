@@ -2,7 +2,7 @@ package impl
 
 import (
 	"context"
-	"s_db/s_db_interface"
+	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"sync"
 
@@ -18,16 +18,16 @@ type sDeviceServiceImpl struct {
 	ctx         context.Context
 }
 
-func (s *sDeviceServiceImpl) GetRootDeviceId() (string, error) {
-	return s_db_model.GetSettingValueByName("active_device_root_id")
+func (s *sDeviceServiceImpl) GetRootDeviceId() string {
+	return GetConfigService().GetSettingValueByName(s.ctx, s_db_basic.ActiveDeviceRootId, s_db_basic.DefaultActiveDeviceRootId)
 }
 
 var (
-	deviceManageInstance s_db_interface.IDeviceService
+	deviceManageInstance s_db_basic.IDeviceService
 	deviceManageOnce     sync.Once
 )
 
-func GetDeviceService() s_db_interface.IDeviceService {
+func GetDeviceService() s_db_basic.IDeviceService {
 	deviceManageOnce.Do(func() {
 		deviceManageInstance = &sDeviceServiceImpl{
 			ctx: context.Background(),

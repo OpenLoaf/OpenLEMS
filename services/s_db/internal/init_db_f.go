@@ -50,7 +50,7 @@ func initConfigDatabase() {
 	// 创建协议表
 	_, err := g.DB().Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS protocol (
-			id VARCHAR(255) PRIMARY KEY,
+			id VARCHAR(255) PRIMARY KEY ,
 			name VARCHAR(255) NOT NULL,
 			type VARCHAR(255) NOT NULL,
 			address VARCHAR(255) NOT NULL,
@@ -70,7 +70,7 @@ func initConfigDatabase() {
 	// 创建设备表
 	_, err = g.DB().Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS device (
-			id VARCHAR(255) PRIMARY KEY,
+			id VARCHAR(255) PRIMARY KEY ,
 			pid VARCHAR(255) NOT NULL,
 			protocol_id VARCHAR(255),
 			name VARCHAR(255) NOT NULL,
@@ -94,6 +94,7 @@ func initConfigDatabase() {
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name VARCHAR(255) NOT NULL,
 			value VARCHAR(255),
+		    is_public BOOLEAN DEFAULT 0,
 			enabled BOOLEAN default 1,
 			remark VARCHAR(255),
 			sort INTEGER DEFAULT 0,

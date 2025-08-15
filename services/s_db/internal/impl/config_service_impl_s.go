@@ -3,9 +3,10 @@ package impl
 import (
 	"context"
 	"encoding/json"
-	"s_db/s_db_interface"
+	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"sync"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 
@@ -16,11 +17,11 @@ type sConfigServiceImpl struct {
 }
 
 var (
-	configManageInstance s_db_interface.IConfigService
+	configManageInstance s_db_basic.IConfigService
 	configManageOnce     sync.Once
 )
 
-func GetConfigService() s_db_interface.IConfigService {
+func GetConfigService() s_db_basic.IConfigService {
 	configManageOnce.Do(func() {
 		configManageInstance = &sConfigServiceImpl{}
 	})
@@ -29,32 +30,21 @@ func GetConfigService() s_db_interface.IConfigService {
 
 func (s *sConfigServiceImpl) GetDeviceConfig(ctx context.Context, activeDeviceRootId string) *c_base.SDriverConfig {
 	//devices, err := model.GetDevicesByCondition(ctx, g.Map{})
-	var (
-		deviceRootId string
-		err          error
-	)
 
 	if activeDeviceRootId == "" {
-		deviceRootId, err = s_db_model.GetSettingValueByName("active_device_root_id")
+		activeDeviceRootId = GetDeviceService().GetRootDeviceId()
 		g.Log().Noticef(ctx, "GetDeviceConfig From DB! active_device_root_id: %v", activeDeviceRootId)
-	} else {
-		deviceRootId = activeDeviceRootId
 	}
+	g.Log().Infof(ctx, "Activce SDeviceModel Root Id: %s", activeDeviceRootId)
 
-	g.Log().Infof(ctx, "Activce SDeviceModel Root Id: %s", deviceRootId)
-
-	if err != nil {
-		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
-		return nil
-	}
-	rootDevice, err := GetDeviceService().GetDeviceById(ctx, deviceRootId)
+	rootDevice, err := GetDeviceService().GetDeviceById(ctx, activeDeviceRootId)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取激活的设备父ID配置失败 - 错误: %v", err)
 		return nil
 	}
 
-	g.Log().Infof(ctx, "激活的设备父ID配置: %s", deviceRootId)
-	devices, err := GetDeviceService().GetRecursiveDevicesByPid(ctx, deviceRootId)
+	g.Log().Infof(ctx, "激活的设备父ID配置: %s", activeDeviceRootId)
+	devices, err := GetDeviceService().GetRecursiveDevicesByPid(ctx, activeDeviceRootId)
 	devices = append(devices, rootDevice)
 
 	if err != nil {
@@ -67,7 +57,7 @@ func (s *sConfigServiceImpl) GetDeviceConfig(ctx context.Context, activeDeviceRo
 		return nil
 	}
 
-	tree := BuildDeviceTree(ctx, devices, "0")
+	tree := BuildDeviceTree(ctx, devices, activeDeviceRootId)
 
 	//添加调试打印 - 使用JSON格式清楚显示tree结构
 	if tree != nil {
@@ -153,19 +143,36 @@ func (s *sConfigServiceImpl) GetProtocolsConfigList(ctx context.Context) []*c_ba
 }
 
 // 获取设置配置通过名称
-func (s *sConfigServiceImpl) GetSettingValueByName(ctx context.Context, name string) string {
+func (s *sConfigServiceImpl) GetSettingValueByName(ctx context.Context, name string, defaultValue ...string) string {
 	setting := &s_db_model.SSettingModel{}
 	// 通过 name 获取设置，如果设置不存在，则返回空字符串
 	err := setting.GetByName(ctx, name)
+
+	df := ""
+	if len(defaultValue) > 0 {
+		df = defaultValue[0]
+	}
+
 	if err != nil {
-		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", name, err)
-		return ""
+		g.Log().Warningf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", name, err)
+		setting.Name = name
+		setting.Value = df
+		setting.Enable = true
+		setting.Sort = 999
+		setting.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+		setting.UpdatedAt = time.Now().Format("2006-01-02 15:04:05")
+		err = setting.Create(ctx)
+		if err != nil {
+			g.Log().Errorf(ctx, "保存设置失败！设置名称：%s，值：%v 错误：%v", name, df, err)
+		}
+		g.Log().Infof(ctx, "保存默认设置成功！设置名称：%s，值：%s", name, df)
+		return df
 	}
 
 	// 检查设置是否启用
 	if !setting.Enable {
 		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", name)
-		return ""
+		return df
 	}
 
 	return setting.GetValue()

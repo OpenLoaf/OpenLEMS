@@ -1,4 +1,4 @@
-package s_db_interface
+package s_db_basic
 
 import (
 	"common/c_base"
@@ -13,13 +13,13 @@ type IDeviceService interface {
 	DeleteDevice(ctx context.Context, deviceId string) error                                      // 删除设备
 	GetDeviceById(ctx context.Context, id string) (*s_db_model.SDeviceModel, error)               // 根据ID 获取设备
 	GetRecursiveDevicesByPid(ctx context.Context, pid string) ([]*s_db_model.SDeviceModel, error) // 递归获取该设备ID下的所有设备
-	GetRootDeviceId() (string, error)                                                             // 获取根设备ID
+	GetRootDeviceId() string                                                                      // 获取根设备ID
 }
 
 type IConfigService interface {
 	GetDeviceConfig(ctx context.Context, activeDeviceRootId string) *c_base.SDriverConfig
 	GetProtocolsConfigList(ctx context.Context) []*c_base.SProtocolConfig
-	GetSettingValueByName(ctx context.Context, name string) string
+	GetSettingValueByName(ctx context.Context, name string, defaultValue ...string) string // 获取设置，如果获取不到，就设置为默认值
 	SetSettingValueByName(ctx context.Context, name string, value string) error
 }
 

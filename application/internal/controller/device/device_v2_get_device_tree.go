@@ -16,10 +16,7 @@ func (c *ControllerV2) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeR
 
 	parentId := "0"
 	if req.ActiveRootOnly {
-		rootDeviceId, err := s_db.GetDeviceService().GetRootDeviceId()
-		if err == nil {
-			parentId = rootDeviceId
-		}
+		parentId = s_db.GetDeviceService().GetRootDeviceId()
 	}
 
 	// 从数据库中获取设备列表

@@ -11,6 +11,7 @@ type SDriver struct {
 	DriverPath         string `json:"driverPath" dc:"驱动路径"`
 	DriverHash         string `json:"driverHash" dc:"哈希值"`
 	DriverFileSizeByte int64  `json:"driverFileSizeByte" dc:"文件大小(byte)"`
+	DriverImage        string `json:"driverImage" dc:"base64图片"`
 
 	ProtocolType string `json:"protocolType" dc:"协议类型"`
 
@@ -19,6 +20,7 @@ type SDriver struct {
 	Model      string             `json:"model" dc:"型号"`
 	BuildTime  string             `json:"buildTime" dc:"编译时间"`
 	CommitHash string             `json:"commitHash" dc:"提交哈希"`
+	Remark     string             `json:"remark" dc:"备注"`
 	Author     string             `json:"author" dc:"作者"`
 	Telemetry  []*DriverTelemetry `json:"telemetry" dc:"遥测描述列表"`
 }

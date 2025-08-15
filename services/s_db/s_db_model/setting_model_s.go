@@ -149,10 +149,3 @@ func GetAllSettingsOrderBySort(ctx context.Context) ([]*SSettingModel, error) {
 	err := g.Model(TableSetting).Ctx(ctx).Order(FieldSort).Scan(&settings)
 	return settings, err
 }
-
-// GetSettingValueByName 获取指定名称的设置
-func GetSettingValueByName(name string) (string, error) {
-	var setting *SSettingModel
-	err := g.Model(TableSetting).Where(FieldName, name).Scan(&setting)
-	return setting.GetValue(), err
-}

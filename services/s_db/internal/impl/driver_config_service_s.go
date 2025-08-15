@@ -4,13 +4,13 @@ import (
 	"common"
 	"common/c_base"
 	"context"
-	"s_db/s_db_interface"
+	"s_db/s_db_basic"
 	"sync"
 )
 
 // driverConfigServiceImpl 实现 common.IDriverConfigServ 接口。通过依赖注入控制反转
 type driverConfigServiceImpl struct {
-	manage s_db_interface.IConfigService
+	manage s_db_basic.IConfigService
 }
 
 var (

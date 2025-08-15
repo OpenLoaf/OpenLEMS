@@ -125,3 +125,10 @@ sudo apt install influxdb-client
 
 ### influxdb2
 https://docs.influxdata.com/influxdb/v2/install/#install-influxdb-as-a-service-with-systemd
+
+
+## 数据导出
+### sqlite3
+```bash
+sqlite3 db.sqlite3 .dump > init.sql
+```

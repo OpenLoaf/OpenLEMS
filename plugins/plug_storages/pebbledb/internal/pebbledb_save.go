@@ -96,7 +96,7 @@ func NewPebbledb(ctx context.Context) c_base.IStorage {
 		dataRetentionDays := DefaultDataRetentionDays // 默认30天
 
 		// 获取数据保留天数
-		dataRetentionDaysValue := s_db.GetConfigService().GetSettingValueByName(ctx, DataRetentionConfigKey)
+		dataRetentionDaysValue := s_db.GetConfigService().GetSettingValueByName(ctx, DataRetentionConfigKey, strconv.Itoa(dataRetentionDays))
 		if dataRetentionDaysValue != "" {
 			if days, err := strconv.Atoi(dataRetentionDaysValue); err == nil && days > 0 {
 				dataRetentionDays = days

@@ -82,7 +82,7 @@ var (
 			// 启动设备
 
 			deviceStartCtx, DeviceStartCancel := context.WithCancel(context.Background())
-			go deviceStart(deviceStartCtx, deviceCmd, parser.GetOpt(ArgActiveDeviceRootId).String())
+			go deviceStart(deviceStartCtx, deviceCmd, parser.GetOpt(ArgActiveDeviceRootId, "0").String())
 
 			var web *ghttp.Server
 

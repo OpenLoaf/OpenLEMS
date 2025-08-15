@@ -37,6 +37,11 @@ func (c *ControllerV1) GetDriverList(ctx context.Context, req *v1.GetDriverListR
 			sDriver.DriverDescription = driverInfo.Description.Remark
 			sDriver.DriverLastUpdate = driverInfo.Description.Create
 			sDriver.ProtocolType = driverInfo.Description.ProtocolType
+			sDriver.CommitHash = driverInfo.Description.CommitHash
+			sDriver.Remark = driverInfo.Description.Remark
+			sDriver.Brand = driverInfo.Description.Brand
+			sDriver.Model = driverInfo.Description.Model
+			sDriver.DriverImage = driverInfo.Description.Image
 		}
 
 		driverInfoList = append(driverInfoList, sDriver)

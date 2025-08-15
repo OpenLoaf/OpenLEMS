@@ -17,6 +17,7 @@ type SDescription struct {
 	Model        string        `json:"model" yaml:"model"`               // 型号
 	Version      string        `json:"version" yaml:"version"`           // 版本
 	Create       string        `json:"create" yaml:"create"`             // 创建时间
+	Image        string        `json:"image" yaml:"image"`               // 图片
 	BuildTime    string        `json:"buildTime" yaml:"buildTime"`       // 编译时间
 	CommitHash   string        `json:"commitHash" yaml:"commitHash"`     // 提交哈希
 	Author       string        `json:"author" yaml:"author"`             // 作者

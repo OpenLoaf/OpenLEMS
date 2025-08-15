@@ -5,6 +5,7 @@ import (
 )
 
 var (
+	NoData          = gerror.New("数据不存在")
 	NonSupportError = gerror.New("不支持的操作")
 	ErrorParam      = gerror.New("参数错误")
 

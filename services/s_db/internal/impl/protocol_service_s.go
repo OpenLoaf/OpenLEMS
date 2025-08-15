@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
-	"s_db/s_db_interface"
+	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"sync"
 
@@ -16,11 +16,11 @@ type sProtocolServiceImpl struct {
 }
 
 var (
-	protocolManageInstance s_db_interface.IProtocolService
+	protocolManageInstance s_db_basic.IProtocolService
 	protocolManageOnce     sync.Once
 )
 
-func GetProtocolService() s_db_interface.IProtocolService {
+func GetProtocolService() s_db_basic.IProtocolService {
 	protocolManageOnce.Do(func() {
 		protocolManageInstance = &sProtocolServiceImpl{}
 	})
