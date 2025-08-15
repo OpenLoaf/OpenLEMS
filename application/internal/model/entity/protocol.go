@@ -9,4 +9,5 @@ type SProtocol struct {
 	ProtocolTimeout  int    `json:"protocolTimeout" dc:"协议超时时间"`
 	ProtocolLogLevel string `json:"protocolLogLevel" dc:"协议日志级别"`
 	ProtocolParams   string `json:"protocolParams" dc:"协议参数"`
+	ProtocolActive   bool   `json:"protocolActive" dc:"协议是否激活"`
 }

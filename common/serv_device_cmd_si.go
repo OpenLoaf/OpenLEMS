@@ -12,6 +12,9 @@ type IDeviceCmd interface {
 	// Stop 停止EMS服务
 	Stop()
 
+	// IsProtocolActive 协议是否激活
+	IsProtocolActive(protocolId string) bool
+
 	// InitDriver 初始化驱动
 	InitDriver(clientCache map[string]any, config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver
 }
