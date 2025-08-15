@@ -2,10 +2,11 @@ package impl
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
 	"s_db/s_db_interface"
 	"s_db/s_db_model"
 	"sync"
+
+	"github.com/gogf/gf/v2/frame/g"
 
 	"time"
 
@@ -15,6 +16,10 @@ import (
 type sDeviceServiceImpl struct {
 	deviceModel *s_db_model.SDeviceModel
 	ctx         context.Context
+}
+
+func (s *sDeviceServiceImpl) GetRootDeviceId() (string, error) {
+	return s_db_model.GetSettingValueByName("active_device_root_id")
 }
 
 var (
@@ -31,10 +36,31 @@ func GetDeviceService() s_db_interface.IDeviceService {
 	return deviceManageInstance
 }
 
-func (s *sDeviceServiceImpl) GetDeviceList(ctx context.Context) ([]*s_db_model.SDeviceModel, error) {
-	devices, err := s.GetAllDevicesOrderBySortAndEnable(ctx, true)
+func (s *sDeviceServiceImpl) GetDeviceList(ctx context.Context, parentId string) ([]*s_db_model.SDeviceModel, error) {
+
+	// devices, err := s.GetAllDevicesOrderBySortAndEnable(ctx, true)
+
+	list, err := g.DB().GetAll(ctx, `
+		WITH RECURSIVE DeviceDescendants AS (
+			SELECT *
+			FROM device
+			WHERE id = ?  OR pid = ? AND enable =true
+			UNION ALL
+			SELECT d.*
+			FROM device AS d
+					 JOIN DeviceDescendants AS dd ON d.pid = dd.id
+			where d.enable = true
+		)
+		SELECT * FROM DeviceDescendants
+`, g.Slice{parentId, parentId})
+
 	if err != nil {
 		return nil, err
+	}
+
+	var devices []*s_db_model.SDeviceModel
+	if convErr := list.Structs(&devices); convErr != nil {
+		return nil, convErr
 	}
 	return devices, nil
 }

@@ -8,7 +8,7 @@ import (
 func (p *ModbusProtocolProvider) Init() {
 	// 只会执行一次监听
 	p.once.Do(func() {
-		device := common.GetDeviceById(p.deviceConfig.Id)
+		device := common.GetRunningDeviceById(p.deviceConfig.Id)
 		if device != nil {
 			p.deviceType = device.GetDriverType()
 		}

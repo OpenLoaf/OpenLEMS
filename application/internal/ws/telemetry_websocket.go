@@ -161,7 +161,7 @@ func writeValue(ctx context.Context, conn *websocket.Conn, query RegisterTelemet
 	for _, key := range query.Keys {
 		// 解析key group:deviceKey:telemetryKey
 		values := strings.SplitN(key, ":", 2)
-		instance := common.GetDeviceById(values[0])
+		instance := common.GetRunningDeviceById(values[0])
 		if instance == nil {
 			errMap[key] = fmt.Sprintf("设备 %s 不存在", values[0])
 			continue

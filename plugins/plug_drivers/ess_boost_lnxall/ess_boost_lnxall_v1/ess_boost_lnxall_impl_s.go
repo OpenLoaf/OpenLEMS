@@ -49,7 +49,7 @@ func (s *sEssBoostLnxallEss) Init(protocol c_base.IProtocol, deviceConfig *c_bas
 	// 从配置中获取电表、PCS、BMS的配置
 	// 从配置中获取电表、PCS、BMS的配置
 	for _, child := range deviceConfig.DeviceChildren {
-		dv := common.GetDeviceById(child.Id)
+		dv := common.GetRunningDeviceById(child.Id)
 		if dv == nil {
 			panic(gerror.Newf("EssBoostLnxallEss 设备Id: %s 不存在！", child.Id))
 		}

@@ -55,7 +55,7 @@ func (d *SDeviceCmd) Start(activeDeviceRootId string) {
 func (d *SDeviceCmd) Stop() {
 
 	// 关闭所有client
-	for _, driver := range common.GetDeviceAll() {
+	for _, driver := range common.GetRunningDeviceAll() {
 		driver.Destroy()
 	}
 
@@ -115,7 +115,7 @@ func (d *SDeviceCmd) InitDriver(clientCache map[string]any, config *c_base.SDriv
 		protocolProvider.Init()
 	}
 
-	common.RegisterDevice(driver)
+	common.RegisterRunningDevice(driver)
 
 	if config.StorageEnable {
 		common.RegisterStorageDriver(config.StorageIntervalSec, driver)

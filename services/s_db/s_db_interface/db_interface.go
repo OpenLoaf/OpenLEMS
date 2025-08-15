@@ -8,20 +8,12 @@ import (
 
 // IDeviceService 设备服务
 type IDeviceService interface {
-	// GetDeviceList 获取所有设备列表
-	GetDeviceList(ctx context.Context) ([]*s_db_model.SDeviceModel, error)
-
-	// CreateDevice 创建设备
-	CreateDevice(ctx context.Context, deviceName string, pId string) (string, error)
-
-	// DeleteDevice 删除设备
-	DeleteDevice(ctx context.Context, deviceId string) error
-
-	// GetDeviceById 更具ID 获取设备
-	GetDeviceById(ctx context.Context, id string) (*s_db_model.SDeviceModel, error)
-
-	// GetRecursiveDevicesByPid 递归获取该设备ID下的所有设备
-	GetRecursiveDevicesByPid(ctx context.Context, pid string) ([]*s_db_model.SDeviceModel, error)
+	GetDeviceList(ctx context.Context, parentId string) ([]*s_db_model.SDeviceModel, error)       // 获取所有设备列表
+	CreateDevice(ctx context.Context, deviceName string, pId string) (string, error)              // 创建设备
+	DeleteDevice(ctx context.Context, deviceId string) error                                      // 删除设备
+	GetDeviceById(ctx context.Context, id string) (*s_db_model.SDeviceModel, error)               // 根据ID 获取设备
+	GetRecursiveDevicesByPid(ctx context.Context, pid string) ([]*s_db_model.SDeviceModel, error) // 递归获取该设备ID下的所有设备
+	GetRootDeviceId() (string, error)                                                             // 获取根设备ID
 }
 
 type IConfigService interface {
@@ -36,7 +28,5 @@ type IProtocolService interface {
 	UpdateProtocol(ctx context.Context, protocolId string, data map[string]interface{}) error
 	CreateProtocol(ctx context.Context, data map[string]interface{}) (string, error)
 	DeleteProtocol(ctx context.Context, protocolId string) error
-
-	// GetAllProtocols 获取协议列表
-	GetAllProtocols(ctx context.Context) ([]*s_db_model.SProtocolModel, error)
+	GetAllProtocols(ctx context.Context) ([]*s_db_model.SProtocolModel, error) // 获取协议列表
 }

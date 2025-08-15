@@ -11,7 +11,7 @@ import (
 )
 
 func (c *ControllerV1) GetTelemetryGet(ctx context.Context, req *v1.GetTelemetryGetReq) (res *v1.GetTelemetryGetRes, err error) {
-	instance := common.GetDeviceById(req.DeviceId)
+	instance := common.GetRunningDeviceById(req.DeviceId)
 	if instance == nil {
 		return nil, gerror.NewCode(gcode.CodeNotFound)
 	}

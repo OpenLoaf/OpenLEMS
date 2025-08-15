@@ -7,7 +7,7 @@ import (
 
 func (c *CanbusProtocolProvider) Init() {
 	c.once.Do(func() {
-		device := common.GetDeviceById(c.deviceConfig.Id)
+		device := common.GetRunningDeviceById(c.deviceConfig.Id)
 		if device != nil {
 			c.deviceType = device.GetDriverType()
 		}

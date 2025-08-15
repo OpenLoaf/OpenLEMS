@@ -45,6 +45,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		)
 		group.Bind(telemetry.NewV1())
 		group.Bind(station_ess.NewV1())
+		group.Bind(device.NewV1())
 		group.Bind(device.NewV2())
 		group.Bind(driver.NewV1())
 		group.Bind(network.NewV1())

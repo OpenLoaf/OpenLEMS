@@ -1,6 +1,7 @@
 package device
 
 import (
+	"common"
 	"context"
 	"s_db"
 	"s_db/s_db_model"
@@ -12,52 +13,96 @@ import (
 )
 
 func (c *ControllerV2) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeReq) (res *v2.GetDeviceTreeRes, err error) {
-	deviceList, err := s_db.GetDeviceService().GetDeviceList(ctx)
+
+	parentId := "0"
+	if req.ActiveRootOnly {
+		rootDeviceId, err := s_db.GetDeviceService().GetRootDeviceId()
+		if err == nil {
+			parentId = rootDeviceId
+		}
+	}
+
+	// 从数据库中获取设备列表
+	deviceList, err := s_db.GetDeviceService().GetDeviceList(ctx, parentId)
 	if err != nil {
 		return nil, err
 	}
-	deviceTree := BuildDeviceTree(ctx, deviceList, "0")
+
+	deviceTree := BuildDeviceTree(ctx, req.RunningOnly, deviceList)
 	return &v2.GetDeviceTreeRes{
 		DeviceTree: deviceTree,
 	}, nil
 }
 
-// BuildDeviceTree 递归构建设备树结构
-func BuildDeviceTree(ctx context.Context, devices []*s_db_model.SDeviceModel, parentId string) []*entity.SDeviceTree {
-	var tree []*entity.SDeviceTree
+// BuildDeviceTree 将设备列表构造成树结构
+func BuildDeviceTree(ctx context.Context, runningOnly bool, devices []*s_db_model.SDeviceModel) []*entity.SDeviceTree {
+	// 建立索引
+	idToDevice := make(map[string]*s_db_model.SDeviceModel, len(devices))
+	pidToChildren := make(map[string][]*s_db_model.SDeviceModel, len(devices))
+	for _, d := range devices {
+		idToDevice[d.Id] = d
+		pidToChildren[d.Pid] = append(pidToChildren[d.Pid], d)
+	}
 
-	for _, device := range devices {
-		if device.Pid == parentId {
-			// 获取设备参数
-			_, err := device.GetParamsMap()
-			if err != nil {
-				g.Log().Errorf(context.Background(), "获取设备参数失败 - 设备ID: %d, 设备名称: %s, 参数原始值: %s, 错误: %v",
-					device.Id, device.Name, device.Params, err)
-				continue
-			}
-
-			// 创建驱动配置
-			driverConfig := &entity.SDeviceTree{
-				DeviceId:     device.Id,
-				ProtocolId:   device.ProtocolId,
-				DeviceName:   device.Name,
-				DeviceDriver: device.Driver,
-				LogLevel:     device.LogLevel,
-				Enable:       device.Enable,
-				Sort:         device.Sort,
-			}
-
-			// 递归获取子设备
-			children := BuildDeviceTree(ctx, devices, device.Id)
-			if children != nil {
-				driverConfig.DeviceChildren = children
-			}
-
-			tree = append(tree, driverConfig)
+	// 根节点：pid 不存在于 idToDevice 或者 pid 为空/"0"
+	var roots []*s_db_model.SDeviceModel
+	for _, d := range devices {
+		if d.Pid == "" || d.Pid == "0" || idToDevice[d.Pid] == nil {
+			roots = append(roots, d)
 		}
 	}
 
-	// 修复潜在的数组越界问题
+	var buildNode func(dev *s_db_model.SDeviceModel) *entity.SDeviceTree
+	buildNode = func(dev *s_db_model.SDeviceModel) *entity.SDeviceTree {
+		// 获取设备参数
+		if _, err := dev.GetParamsMap(); err != nil {
+			g.Log().Errorf(context.Background(), "获取设备参数失败 - 设备ID: %s, 设备名称: %s, 参数原始值: %s, 错误: %v", dev.Id, dev.Name, dev.Params, err)
+			return nil
+		}
+
+		isRunning := false
+		lastUpdateTime := ""
+		if d := common.GetRunningDeviceById(dev.Id); d != nil {
+			isRunning = true
+			if t := d.GetLastUpdateTime(); t != nil {
+				lastUpdateTime = t.Format("2006-01-02 15:04:05")
+			}
+		}
+
+		if runningOnly && !isRunning {
+			return nil
+		}
+
+		node := &entity.SDeviceTree{
+			DeviceId:       dev.Id,
+			ProtocolId:     dev.ProtocolId,
+			DeviceName:     dev.Name,
+			DeviceDriver:   dev.Driver,
+			LogLevel:       dev.LogLevel,
+			Enable:         dev.Enable,
+			Sort:           dev.Sort,
+			IsRunning:      isRunning,
+			LastUpdateTime: lastUpdateTime,
+		}
+
+		// 子节点
+		for _, cm := range pidToChildren[dev.Id] {
+			if child := buildNode(cm); child != nil {
+				node.DeviceChildren = append(node.DeviceChildren, child)
+			}
+		}
+		if len(node.DeviceChildren) == 0 {
+			node.DeviceChildren = nil
+		}
+		return node
+	}
+
+	var tree []*entity.SDeviceTree
+	for _, r := range roots {
+		if n := buildNode(r); n != nil {
+			tree = append(tree, n)
+		}
+	}
 	if len(tree) == 0 {
 		return nil
 	}

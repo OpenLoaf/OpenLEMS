@@ -19,28 +19,28 @@ func MetaTransformAndCache(ctx context.Context, deviceId string, deviceType c_ba
 	return internal_meta.CacheValue(ctx, deviceId, deviceType, protocol, meta, v, cache, lifetime)
 }
 
-// RegisterDevice 注册设备实例
-func RegisterDevice(info c_base.IDriver) {
+// RegisterRunningDevice 注册设备实例
+func RegisterRunningDevice(info c_base.IDriver) {
 	internal_device.Instances.RegisterInstance(info)
 }
 
-// GetDeviceAll 获取所有设备实例, 参数为空时获取所有设备实例, 参数为true时获取虚拟设备实例, 参数为false时获取实体设备实例
-func GetDeviceAll(isVirtual ...bool) []c_base.IDriver {
+// GetRunningDeviceAll 获取所有设备实例, 参数为空时获取所有设备实例, 参数为true时获取虚拟设备实例, 参数为false时获取实体设备实例
+func GetRunningDeviceAll(isVirtual ...bool) []c_base.IDriver {
 	return internal_device.Instances.FindAll(isVirtual...)
 }
 
-// GetDeviceById 通过id获取设备实例
-func GetDeviceById(id string) c_base.IDriver {
+// GetRunningDeviceById 通过id获取设备实例
+func GetRunningDeviceById(id string) c_base.IDriver {
 	return internal_device.Instances.FindById(id)
 }
 
-// GetDeviceByType 通过类型获取设备实例
-func GetDeviceByType(t c_base.EDeviceType) []c_base.IDriver {
+// GetRunningDeviceByType 通过类型获取设备实例
+func GetRunningDeviceByType(t c_base.EDeviceType) []c_base.IDriver {
 	return internal_device.Instances.FindByType(t)
 }
 
-// RemoveDeviceById 通过id删除设备实例
-func RemoveDeviceById(id string) {
+// RemoveRunningDeviceById 通过id删除设备实例
+func RemoveRunningDeviceById(id string) {
 	internal_device.Instances.RemoveById(id)
 }
 

@@ -17,7 +17,7 @@ func (c *ControllerV1) GetRealDeviceList(ctx context.Context, req *v1.GetRealDev
 		isVirtual = append(isVirtual, true)
 	}
 
-	for _, driver := range common.GetDeviceAll(isVirtual...) {
+	for _, driver := range common.GetRunningDeviceAll(isVirtual...) {
 		lastUpdateTime := ""
 		if driver.GetLastUpdateTime() != nil {
 			lastUpdateTime = driver.GetLastUpdateTime().Format("2006-01-02 15:04:05")
