@@ -8,8 +8,8 @@ import (
 
 type GetDeviceTreeReq struct {
 	g.Meta         `path:"/device/tree" method:"get" tags:"设备相关" summary:"获取设备树"`
-	ActiveRootOnly bool `query:"activeRootOnly" default:"false" dc:"是否只显示激活的设备下的设备"`
-	RunningOnly    bool `query:"runningOnly" default:"false" dc:"是否只显示运行中的设备"`
+	ActiveRootOnly bool `json:"activeRootOnly" default:"false" dc:"是否只显示激活的设备下的设备"`
+	RunningOnly    bool `json:"runningOnly" default:"false" dc:"是否只显示运行中的设备"`
 }
 
 type GetDeviceTreeRes struct {
