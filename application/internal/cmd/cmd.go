@@ -45,6 +45,9 @@ var (
 			{Name: ArgProfile, Short: "p", Brief: "Default: default 选择配置profile (default/dev/prod等)", IsArg: false, Orphan: false},
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
+			// 初始化context
+			ctx, cancelFunc := context.WithCancel(context.Background())
+			ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Main")
 
 			// 优先加载嵌入式配置，支持 --profile 或 APP_PROFILE 环境变量
 			profile := parser.GetOpt(ArgProfile, os.Getenv("APP_PROFILE")).String()
@@ -56,30 +59,27 @@ var (
 
 			// 设置默认语言为中文(简体)
 			gi18n.SetLanguage("zh-CN")
-			// deviceConfigName := parser.GetOpt(ArgDeviceConfigName, "device").String()
-			// driverConfigName := parser.GetOpt(ArgDriverConfigName, gfile.Join(pwd, "drivers")).String()
 
 			// 初始化数据库
 			s_db.Init()
 
 			// 使用SqliteDriverConfig
 			common.RegisterDriverConfig(s_db.GetDbDriverConfigService())
-			//common.GetDriverConfigServ().SystemInitConfigInstance(ctx)
 
 			// 初始化存储
 			common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
 				return pebbledb.NewStorageInstance(ctx)
 			})
 
-			// 初始化context
-			ctx, cancelFunc := context.WithCancel(context.Background())
-			ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Main")
+			common.RegisterDeviceCmd(s_driver.NewDeviceCmd(ctx))
+			deviceCmd, err := common.GetDeviceCmd()
+			if err != nil {
+				panic(err)
+			}
 
-			g.Log().Infof(ctx, "Hex EMS程序启动！PID：%d", os.Getpid())
-			// g.Log().Infof(ctx, "加载驱动文件路径：%s", driverConfigName)
+			g.Log().Infof(ctx, "EMS Start！PID：%d", os.Getpid())
 
 			// 启动设备
-			deviceCmd := s_driver.NewDeviceCmd(ctx)
 
 			deviceStartCtx, DeviceStartCancel := context.WithCancel(context.Background())
 			go deviceStart(deviceStartCtx, deviceCmd, parser.GetOpt(ArgActiveDeviceRootId).String())
@@ -119,7 +119,7 @@ var (
 	}
 )
 
-func deviceStart(deviceStartCtx context.Context, deviceCmd c_base.IService, activeDeviceRootId string) {
+func deviceStart(deviceStartCtx context.Context, deviceCmd common.IDeviceCmd, activeDeviceRootId string) {
 	select {
 	case <-deviceStartCtx.Done():
 		deviceCmd.Stop()

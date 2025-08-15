@@ -62,6 +62,7 @@ func GetAllDriversInfo(ctx context.Context) []c_base.DriverInfo {
 		driverInfo := c_base.DriverInfo{
 			Name:      driverName,
 			Available: newMethod != nil,
+			Embedded:  true,
 		}
 
 		// 尝试创建驱动实例获取详细信息

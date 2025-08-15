@@ -7,8 +7,12 @@ import (
 	"common"
 	"common/c_base"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -47,6 +51,7 @@ func GetAllDriversInfo(ctx context.Context) []c_base.DriverInfo {
 		driverInfo := c_base.DriverInfo{
 			Name:      driverName,
 			Available: true,
+			Embedded:  false,
 		}
 
 		// 尝试加载驱动获取详细信息
@@ -60,10 +65,26 @@ func GetAllDriversInfo(ctx context.Context) []c_base.DriverInfo {
 				}
 			}()
 
-			pluginSymbol, err := common.OpenPlugin(ctx, driverPath)
+			pluginSymbol, fullPath, err := common.OpenPlugin(ctx, driverPath)
 			if err != nil {
 				driverInfo.Available = false
 				return
+			}
+
+			driverInfo.Path = fullPath
+
+			// 设置文件大小
+			if stat, statErr := os.Stat(fullPath); statErr == nil {
+				driverInfo.FileSizeByte = stat.Size()
+			}
+
+			// 计算文件哈希（SHA-256）
+			if f, openErr := os.Open(fullPath); openErr == nil {
+				defer f.Close()
+				h := sha256.New()
+				if _, copyErr := io.Copy(h, f); copyErr == nil {
+					driverInfo.HashCode = hex.EncodeToString(h.Sum(nil))
+				}
 			}
 
 			if driverNewFunction, ok := pluginSymbol.(func(ctx context.Context) c_base.IDriver); ok {
@@ -103,9 +124,22 @@ func GetDriverInfo(ctx context.Context, driverName string) (*c_base.DriverInfo, 
 		}
 	}()
 
-	pluginSymbol, err := common.OpenPlugin(ctx, driverPath)
+	pluginSymbol, fullPath, err := common.OpenPlugin(ctx, driverPath)
 	if err != nil {
 		return nil, gerror.Newf("加载驱动[%s]失败: %v", driverPath, err)
+	}
+
+	// 记录路径并补全大小与哈希
+	driverInfo.Path = fullPath
+	if stat, statErr := os.Stat(fullPath); statErr == nil {
+		driverInfo.FileSizeByte = stat.Size()
+	}
+	if f, openErr := os.Open(fullPath); openErr == nil {
+		defer f.Close()
+		h := sha256.New()
+		if _, copyErr := io.Copy(h, f); copyErr == nil {
+			driverInfo.HashCode = hex.EncodeToString(h.Sum(nil))
+		}
 	}
 
 	if driverNewFunction, ok := pluginSymbol.(func(ctx context.Context) c_base.IDriver); ok {
@@ -153,7 +187,7 @@ func (d *SDeviceCmd) getDriver(ctx context.Context, deviceConfig *c_base.SDriver
 
 	ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
 
-	pluginSymbol, err := common.OpenPlugin(ctx, latestDriverPath)
+	pluginSymbol, _, err := common.OpenPlugin(ctx, latestDriverPath)
 	if err != nil {
 		panic(gerror.Newf("加载插件[%s]失败！原因：%v", latestDriverPath, err))
 	}

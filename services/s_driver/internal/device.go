@@ -5,7 +5,6 @@ import (
 	"common"
 	"common/c_base"
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gproc"
@@ -17,17 +16,25 @@ import (
 )
 
 type SDeviceCmd struct {
-	ctx        context.Context
-	cancelFunc context.CancelFunc
+	ctx                 context.Context
+	cancelFunc          context.CancelFunc
+	protocolClientCache map[string]any // 协议客户端缓存
 }
+
+var _ common.IDeviceCmd = (*SDeviceCmd)(nil)
 
 func NewDeviceCmd(ctx context.Context) *SDeviceCmd {
 	ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Driver")
 	ctx, cancelFunc := context.WithCancel(ctx)
 	return &SDeviceCmd{
-		ctx:        ctx,
-		cancelFunc: cancelFunc,
+		ctx:                 ctx,
+		cancelFunc:          cancelFunc,
+		protocolClientCache: make(map[string]any),
 	}
+}
+
+func (d *SDeviceCmd) IsProtocolActive(protocolId string) bool {
+	return d.protocolClientCache[protocolId] != nil
 }
 
 func (d *SDeviceCmd) Start(activeDeviceRootId string) {
@@ -42,7 +49,7 @@ func (d *SDeviceCmd) Start(activeDeviceRootId string) {
 		}
 	}()
 
-	d.InitDriver(map[string]any{}, deviceConfig, protocolConfigList)
+	d.InitDriver(d.protocolClientCache, deviceConfig, protocolConfigList)
 }
 
 func (d *SDeviceCmd) Stop() {
@@ -57,7 +64,6 @@ func (d *SDeviceCmd) Stop() {
 
 func (d *SDeviceCmd) InitDriver(clientCache map[string]any, config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver {
 
-	fmt.Print(config, "config")
 	if err := config.Check(); err != nil {
 		panic(err)
 	}

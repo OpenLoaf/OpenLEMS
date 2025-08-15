@@ -40,6 +40,9 @@ type sEssBoostLnxallEss struct {
 	ledFault        c_device.IGpio
 }
 
+// 必须实现储能柜接口
+var _ c_device.IEnergyStore = (*sEssBoostLnxallEss)(nil)
+
 func (s *sEssBoostLnxallEss) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
 	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
 	s.deviceConfig = deviceConfig

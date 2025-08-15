@@ -23,3 +23,4 @@ type SGpioScanResult struct {
 	Chips []*SGpioChipInfo
 	Gpios []*SGpioInfo
 }
+

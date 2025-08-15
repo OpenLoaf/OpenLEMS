@@ -22,9 +22,13 @@ func (c *ControllerV1) GetDriverList(ctx context.Context, req *v1.GetDriverListR
 
 		// 转换为entity.SDriver结构
 		sDriver := &entity.SDriver{
-			DriverName:   driverInfo.Name,
-			DriverType:   string(driverInfo.Type),
-			DriverStatus: driverInfo.Available,
+			DriverName:         driverInfo.Name,
+			DriverType:         string(driverInfo.Type),
+			DriverStatus:       driverInfo.Available,
+			DriverIsEmbedded:   driverInfo.Embedded,
+			DriverPath:         driverInfo.Path,
+			DriverHash:         driverInfo.HashCode,
+			DriverFileSizeByte: driverInfo.FileSizeByte,
 		}
 
 		// 如果有描述信息，填充相关字段

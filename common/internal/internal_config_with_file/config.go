@@ -41,13 +41,15 @@ func NewConfigInstance(deviceCfgName, driverPath string) *SConfig {
 	return ConfigInstance
 }
 
-func (c *SConfig) OpenPlugin(ctx context.Context, path string, symName ...string) (plugin.Symbol, error) {
+func (c *SConfig) OpenPlugin(ctx context.Context, path string, symName ...string) (plugin.Symbol, string, error) {
 	functionName := c_base.ConstNewPluginFunctionName
 	if len(symName) != 0 {
 		functionName = symName[0]
 	}
+	fullPath := gfile.Join(c.driverPath, path)
 	g.Log().Infof(ctx, "加载插件：%s, 函数名：%s", path, functionName)
-	return openPlugin(ctx, gfile.Join(c.driverPath, path), functionName)
+	symbol, err := plugin.Open(fullPath)
+	return symbol, fullPath, err
 }
 
 func openPlugin(ctx context.Context, path string, symName string) (plugin.Symbol, error) {

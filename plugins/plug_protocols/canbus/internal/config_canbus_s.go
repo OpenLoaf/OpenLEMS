@@ -7,8 +7,7 @@ import (
 )
 
 type SCanbusConfig struct {
-	BaudRate  uint32   // 波特率
-	FilterIds []uint32 // 过滤ID列表
+	BaudRate uint32 // 波特率
 }
 
 // GetCanbusConfig 从协议配置中获取canbus配置

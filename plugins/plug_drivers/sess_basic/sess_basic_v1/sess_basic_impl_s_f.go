@@ -40,6 +40,9 @@ func (s *sStationEnergyStore) Destroy() {
 
 }
 
+// 必须实现储能柜接口
+var _ c_device.IEnergyStore = (*sStationEnergyStore)(nil)
+
 func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
 	s.deviceConfig = deviceConfig
 

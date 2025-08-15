@@ -1,13 +1,13 @@
 package s_driver
 
 import (
-	"common/c_base"
+	"common"
 	"context"
 	"s_driver/internal"
 	"s_driver/s_driver_interface"
 )
 
-func NewDeviceCmd(ctx context.Context) c_base.IService {
+func NewDeviceCmd(ctx context.Context) common.IDeviceCmd {
 	return internal.NewDeviceCmd(ctx)
 }
 
