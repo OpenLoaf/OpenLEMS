@@ -76,6 +76,7 @@ func BuildDeviceTree(ctx context.Context, runningOnly bool, devices []*s_db_mode
 		node := &entity.SDeviceTree{
 			DeviceId:       dev.Id,
 			ProtocolId:     dev.ProtocolId,
+			DevicePid:      dev.Pid,
 			DeviceName:     dev.Name,
 			DeviceDriver:   dev.Driver,
 			LogLevel:       dev.LogLevel,
