@@ -1,49 +1,48 @@
 package pcs_star_charge_100E_v1
 
 import (
+	"common/c_log"
+	"common/c_timer"
 	"context"
-	"github.com/gogf/gf/v2/os/gcron"
 	"time"
 )
 
 func (s *sStarCharge100EPcs) writeTime() {
 	err := s._syncTime()
 	if err != nil {
+		// 每天凌晨3点执行一次
+		scheduleDaily3AM := func() {}
+		scheduleDaily3AM = func() {
+			d := next3AMDuration(time.Now())
+			c_timer.SetTimeout(s.ctx, d, func(ctx context.Context) {
+				if e := s._syncTime(); e == nil {
+					c_log.Infof(s.ctx, "_syncTime() success (daily)")
+				}
+				// 继续安排下一次
+				scheduleDaily3AM()
+			})
+		}
+		scheduleDaily3AM()
 
-		// 创建一个每天凌晨3点执行的定时任务
-		_, err := gcron.AddSingleton(s.ctx, "0 0 3 * * *", func(ctx context.Context) {
-			e := s._syncTime()
-			if e == nil {
-				s.log.Infof(s.ctx, "_syncTime() success")
-				//break
+		// 失败后每5秒重试，成功后取消
+		var cancelRetry func()
+		cancelRetry = c_timer.SetInterval(s.ctx, 5*time.Second, func(ctx context.Context) {
+			if e := s._syncTime(); e == nil {
+				c_log.Infof(s.ctx, "_syncTime() success (retry)")
+				cancelRetry()
 			}
 		})
-		if err != nil {
-			panic(err)
-		}
-
-		go func() {
-			// 每天凌晨3点同步一下时间
-
-			ticker := time.NewTicker(5 * time.Second)
-			defer ticker.Stop()
-
-			for {
-				select {
-
-				case <-s.ctx.Done():
-					s.log.Noticef(s.ctx, "writeTime() exit")
-					return
-				case <-ticker.C:
-					err := s._syncTime()
-					if err == nil {
-						s.log.Infof(s.ctx, "_syncTime() success")
-						//break
-					}
-				}
-			}
-		}()
 	}
+}
+
+// 计算从当前时间到下一次凌晨3点的等待时长
+func next3AMDuration(now time.Time) time.Duration {
+	loc := now.Location()
+	next := time.Date(now.Year(), now.Month(), now.Day(), 3, 0, 0, 0, loc)
+	if !next.After(now) {
+		next = next.Add(24 * time.Hour)
+	}
+	return next.Sub(now)
 }
 
 func (s *sStarCharge100EPcs) _syncTime() error {

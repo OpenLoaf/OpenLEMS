@@ -4,9 +4,9 @@ import (
 	"common/c_base"
 	"common/c_device"
 	"common/c_error"
+	"common/c_log"
 	"common/c_modbus"
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
 	"time"
 )
 
@@ -49,36 +49,36 @@ func (s *sEssBoostLnxallEss) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
 			s.ammeter = dv.(c_device.IAmmeter)
-			g.Log().Infof(s.ctx, "EssBoostLnxallEss 电表初始化完毕!")
+			c_log.Infof(s.ctx, "EssBoostLnxallEss 电表初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceBms {
 			s.bms = dv.(c_device.IBms)
-			g.Log().Infof(s.ctx, "EssBoostLnxallEss 电池初始化完毕!")
+			c_log.Infof(s.ctx, "EssBoostLnxallEss 电池初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDevicePcs {
 			s.pcs = dv.(c_device.IPcs)
-			g.Log().Infof(s.ctx, "EssBoostLnxallEss 逆变器初始化完毕!")
+			c_log.Infof(s.ctx, "EssBoostLnxallEss 逆变器初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceGpio {
 			if dv.GetDeviceConfig().Id == IdButtonDischarge {
 				s.buttonDischarge = dv.(c_device.IGpio)
-				g.Log().Infof(s.ctx, "EssBoostLnxallEss 放电按钮初始化完毕!")
+				c_log.Infof(s.ctx, "EssBoostLnxallEss 放电按钮初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdButtonCharge {
 				s.buttonCharge = dv.(c_device.IGpio)
-				g.Log().Infof(s.ctx, "EssBoostLnxallEss 充电按钮初始化完毕!")
+				c_log.Infof(s.ctx, "EssBoostLnxallEss 充电按钮初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdButtonScram {
 				s.buttonScram = dv.(c_device.IGpio)
-				g.Log().Infof(s.ctx, "EssBoostLnxallEss 急停按钮初始化完毕!")
+				c_log.Infof(s.ctx, "EssBoostLnxallEss 急停按钮初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdLedRunning {
 				s.ledRunning = dv.(c_device.IGpio)
-				g.Log().Infof(s.ctx, "EssBoostLnxallEss 运行指示灯初始化完毕!")
+				c_log.Infof(s.ctx, "EssBoostLnxallEss 运行指示灯初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdLedFault {
 				s.ledFault = dv.(c_device.IGpio)
-				g.Log().Infof(s.ctx, "EssBoostLnxallEss 故障指示灯初始化完毕!")
+				c_log.Infof(s.ctx, "EssBoostLnxallEss 故障指示灯初始化完毕!")
 			}
 		}
 	}
@@ -89,19 +89,19 @@ func (s *sEssBoostLnxallEss) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 		GroupController, GroupDetail,
 	)
 
-	g.Log().Infof(s.ctx, "EssBoostLnxallEss 储能柜初始化完毕!")
+	c_log.Infof(s.ctx, "EssBoostLnxallEss 储能柜初始化完毕!")
 }
 
 func (s *sEssBoostLnxallEss) Shutdown() {
 	err := s.SetPower(0)
 	if err != nil {
-		g.Log().Errorf(s.ctx, "关闭储能柜失败! %v", err)
+		c_log.Errorf(s.ctx, "关闭储能柜失败! %v", err)
 		return
 	}
 	// PCS停机
 	err = s.SetPower(0)
 	if err != nil {
-		g.Log().Errorf(s.ctx, "关闭储能柜失败! 下发PCS零功率失败！%v", err)
+		c_log.Errorf(s.ctx, "关闭储能柜失败! 下发PCS零功率失败！%v", err)
 		return
 	}
 }
@@ -229,7 +229,7 @@ func (s *sEssBoostLnxallEss) SetReset() error {
 }
 
 func (s *sEssBoostLnxallEss) SetStatus(status c_base.EEnergyStoreStatus) error {
-	g.Log().Noticef(s.ctx, "SetStatus(%d)", status)
+	c_log.Noticef(s.ctx, "SetStatus(%d)", status)
 	switch status {
 	case c_base.EPcsStatusStandby:
 		return s.WriteSingleRegister(ESS_ON_OFF, 1)
@@ -255,7 +255,7 @@ func (s *sEssBoostLnxallEss) GetGridMode() (c_base.EGridMode, error) {
 
 func (s *sEssBoostLnxallEss) SetPower(power int32) error {
 	s.targetPower = power
-	g.Log().Infof(s.ctx, "SetPower(%d)", power)
+	c_log.Infof(s.ctx, "SetPower(%d)", power)
 	return s.WriteSingleRegister(ESS_SET_AP_POWER, power)
 	//return s.pcs.SetPower(power)
 }

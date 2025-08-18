@@ -3,11 +3,11 @@ package bms_pylon_tech_us108_v1
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_log"
 	"common/c_modbus"
+	"common/c_util"
 	"context"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/util/gconv"
+	"fmt"
 	"math"
 	"time"
 )
@@ -29,9 +29,9 @@ func (p *sPylonTechUs108Bms) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 	p.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
 
 	bmsConfig := &PylonTechUs108BmsConfig{}
-	err := gconv.Scan(deviceConfig.Params, bmsConfig)
+	err := deviceConfig.ScanParams(bmsConfig)
 	if err != nil {
-		panic(gerror.Newf("BMS配置解析失败：%s", err.Error()))
+		panic(fmt.Errorf("BMS配置解析失败：%s", err.Error()))
 	}
 
 	// 注册
@@ -39,9 +39,9 @@ func (p *sPylonTechUs108Bms) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 
 	if bmsConfig.SyncTime {
 		p.writeTime()
-		g.Log().Infof(p.ctx, "syncTime配置为：true！同步时间已开启！")
+		c_log.Infof(p.ctx, "syncTime配置为：true！同步时间已开启！")
 	} else {
-		g.Log().Infof(p.ctx, "syncTime配置为：false！时间不同步！")
+		c_log.Infof(p.ctx, "syncTime配置为：false！时间不同步！")
 	}
 }
 
@@ -65,7 +65,7 @@ func (p *sPylonTechUs108Bms) GetMaxInputPower() (float32, error) {
 		return 0, err
 	}
 	power := values[0] * values[1]
-	g.Log().Debugf(p.ctx, "最大充电 电压：%f, 电流：%f, 功率：%f", values[0], values[1], power)
+	c_log.Debugf(p.ctx, "最大充电 电压：%f, 电流：%f, 功率：%f", values[0], values[1], power)
 
 	if p.bmsConfig.MaxInputPower != 0 && power < float32(p.bmsConfig.MaxInputPower) {
 		return float32(p.bmsConfig.MaxInputPower), nil
@@ -90,7 +90,7 @@ func (p *sPylonTechUs108Bms) GetMaxOutputPower() (float32, error) {
 	if p.bmsConfig.MaxOutputPower != 0 && power < float32(p.bmsConfig.MaxOutputPower) {
 		return float32(p.bmsConfig.MaxOutputPower), nil
 	}
-	g.Log().Debugf(p.ctx, "最大放电 电压：%f, 电流：%f, 功率：%f, 配置功率：%f", values[0], values[1], power, p.bmsConfig.MaxOutputPower)
+	c_log.Debugf(p.ctx, "最大放电 电压：%f, 电流：%f, 功率：%f, 配置功率：%f", values[0], values[1], power, p.bmsConfig.MaxOutputPower)
 	return power, nil
 }
 
@@ -182,7 +182,7 @@ func (p *sPylonTechUs108Bms) GetTodayIncomingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return read[0].Float64(), nil
+	return c_util.ToFloat64First(read)
 }
 
 func (p *sPylonTechUs108Bms) GetTodayOutgoingQuantity() (float64, error) {
@@ -190,7 +190,8 @@ func (p *sPylonTechUs108Bms) GetTodayOutgoingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return read[0].Float64(), nil
+	//return read[0].Float64(), nil
+	return c_util.ToFloat64First(read)
 }
 
 func (p *sPylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, error) {
@@ -198,7 +199,8 @@ func (p *sPylonTechUs108Bms) GetHistoryIncomingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return read[0].Float64(), nil
+	//return read[0].Float64(), nil
+	return c_util.ToFloat64First(read)
 }
 
 func (p *sPylonTechUs108Bms) GetHistoryOutgoingQuantity() (float64, error) {
@@ -206,7 +208,8 @@ func (p *sPylonTechUs108Bms) GetHistoryOutgoingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return read[0].Float64(), nil
+	//return read[0].Float64(), nil
+	return c_util.ToFloat64First(read)
 }
 
 func (p *sPylonTechUs108Bms) GetCapacity() (uint32, error) {
@@ -225,7 +228,7 @@ func (p *sPylonTechUs108Bms) writeTime() {
 		for {
 			select {
 			case <-p.ctx.Done():
-				g.Log().Noticef(p.ctx, "writeTime() 关闭!")
+				c_log.Noticef(p.ctx, "writeTime() 关闭!")
 				return
 			case <-ticker.C:
 				if !p.IsActivate() {
@@ -240,7 +243,7 @@ func (p *sPylonTechUs108Bms) writeTime() {
 
 func (p *sPylonTechUs108Bms) _syncTime() error {
 	if !p.IsActivate() {
-		return gerror.Newf("modbus client is not activate")
+		return fmt.Errorf("modbus client is not activate")
 	}
 	now := time.Now()
 
@@ -249,6 +252,6 @@ func (p *sPylonTechUs108Bms) _syncTime() error {
 	if err != nil {
 		return err
 	}
-	g.Log().Infof(p.ctx, "同步时间成功！")
+	c_log.Infof(p.ctx, "同步时间成功！")
 	return nil
 }

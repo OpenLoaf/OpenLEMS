@@ -21,6 +21,7 @@ func NewPlugin(ctx context.Context) c_base.IDevice {
 	return plugin
 }
 
+/*
 func main() {
 	command := c_base.PluginDriverCommand(func() c_base.IDevice {
 		return NewPlugin(context.Background())
@@ -30,3 +31,4 @@ func main() {
 	//command.AddCommand()
 	command.Run(context.Background())
 }
+*/

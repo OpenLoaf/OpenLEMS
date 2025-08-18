@@ -4,7 +4,6 @@ import (
 	"common/c_base"
 	"common/c_modbus"
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 type sAmmeterAcrel10r struct {
@@ -24,7 +23,6 @@ func (s *sAmmeterAcrel10r) InitDevice(deviceConfig *c_base.SDeviceConfig, protoc
 }
 
 func (s *sAmmeterAcrel10r) Shutdown() {
-	g.Log().Noticef(s.ctx, "[%s]%s销毁成功", s.GetDeviceConfig().Id, s.GetDeviceConfig().Name)
 }
 
 func (s *sAmmeterAcrel10r) GetDriverType() c_base.EDeviceType {

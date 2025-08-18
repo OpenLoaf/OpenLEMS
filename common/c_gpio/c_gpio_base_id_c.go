@@ -1,4 +1,4 @@
-package p_gpio_sysfs
+package c_gpio
 
 const (
 	IdLedRunning  = "led-running"  // 运行指示灯

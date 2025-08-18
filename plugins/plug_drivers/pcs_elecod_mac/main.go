@@ -4,12 +4,6 @@ import (
 	"common/c_base"
 	"context"
 	"pcs_elecod/pcs_elecod_mac_v1"
-	"services"
-	"time"
-
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gcmd"
-	"github.com/gogf/gf/v2/os/gtimer"
 )
 
 // 通过构建脚本自动注入
@@ -26,6 +20,7 @@ func NewPlugin(ctx context.Context) c_base.IDevice {
 	return plugin
 }
 
+/*
 func main() {
 	command := c_base.PluginDriverCommand(func() c_base.IDevice {
 		return NewPlugin(context.Background())
@@ -61,7 +56,7 @@ func main() {
 			}})
 
 			gtimer.SetInterval(ctx, 1*time.Minute, func(ctx context.Context) {
-				g.Log().Noticef(ctx, "设备[%s]数据:\n%v", device.GetDeviceConfig().Name, device.GetAllTelemetry(device))
+				c_log.Noticef(ctx, "设备[%s]数据:\n%v", device.GetDeviceConfig().Name, device.GetAllTelemetry(device))
 			})
 
 			<-ctx.Done()
@@ -71,3 +66,4 @@ func main() {
 
 	command.Run(context.Background())
 }
+*/

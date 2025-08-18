@@ -3,10 +3,10 @@ package modbus_checkwatt
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_log"
 	"common/c_util"
 	"context"
 	"encoding/binary"
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/simonvetter/modbus"
 	"sync"
 )
@@ -69,6 +69,7 @@ func (c *EssHandler) HandleInputRegisters(req *modbus.InputRegistersRequest) (re
 					return 0x03, nil
 				case c_base.EPcsStatusStandby:
 					return 0x01, nil
+				default:
 				}
 				return 0xFF, err
 			})
@@ -131,7 +132,7 @@ func (c *EssHandler) HandleInputRegisters(req *modbus.InputRegistersRequest) (re
 	//res = append(res, 0x1230)
 
 	wg.Wait()
-	g.Log().Debugf(c.Ctx, "Req: Address:%v,点位:%v,数量:%v Res: %v", req.ClientAddr, req.Addr, req.Quantity, res)
+	c_log.Debugf(c.Ctx, "Req: Address:%v,点位:%v,数量:%v Res: %v", req.ClientAddr, req.Addr, req.Quantity, res)
 
 	return
 }

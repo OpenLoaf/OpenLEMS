@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	applog "application/internal/log"
 	"application/manifest"
 	"common"
 	"common/c_base"
+	"common/c_log"
 	"context"
 	"os"
 	"runtime"
@@ -47,6 +49,12 @@ var (
 			// 初始化context
 			ctx, cancelFunc := context.WithCancel(context.Background())
 			ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Main")
+
+			// 注入系统日志（GoFrame）
+			c_log.SetSystemLogger(applog.NewGoFrameLoggerAdapter(g.Log()))
+			// 注入业务日志（GoFrame打印 + DB占位保存）
+			bizSaver := applog.NewBizLogNoopSaver(g.Log())
+			c_log.SetBusinessLogger(applog.NewBizLoggerAdapter(g.Log(), bizSaver))
 
 			// 优先加载嵌入式配置，支持 --profile 或 APP_PROFILE 环境变量
 			profile := parser.GetOpt(ArgProfile, os.Getenv("APP_PROFILE")).String()

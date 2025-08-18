@@ -11,7 +11,6 @@ var buildYaml []byte
 
 func NewPlugin(ctx context.Context) c_base.IDevice {
 	return &sEssBoostGoldEss{
-		//SAlarmHandler: &c_base.SAlarmHandler{},
 		ctx:                ctx,
 		SDriverDescription: c_base.BuildDescriptionFromYaml(ctx, buildYaml),
 	}

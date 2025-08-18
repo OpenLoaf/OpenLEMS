@@ -5,7 +5,6 @@ import (
 	"common/c_base"
 	p_modbus2 "common/c_modbus"
 	"fmt"
-	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"time"
 )
@@ -47,7 +46,7 @@ func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function p_mo
 func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus2.SModbusTask, readCache bool, metas ...*c_base.Meta) ([]any, error) {
 	returnMetasLength := len(metas)
 	if readCache && metas != nil && returnMetasLength != 0 {
-		vars := make([]*gvar.Var, returnMetasLength)
+		vars := make([]any, returnMetasLength)
 		var needRead bool
 		for i, meta := range metas {
 			value, err := p.GetValue(meta)
@@ -79,7 +78,7 @@ func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus2.SModbusTask, rea
 	}
 
 	// 从allGroupVars中取出metas对应的值
-	vars := make([]*gvar.Var, returnMetasLength)
+	vars := make([]any, returnMetasLength)
 
 	for i, meta := range metas {
 		for j := 0; j < len(allGroupVars); j++ {

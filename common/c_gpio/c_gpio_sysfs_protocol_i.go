@@ -1,4 +1,4 @@
-package p_gpio_sysfs
+package c_gpio
 
 import (
 	"common/c_base"

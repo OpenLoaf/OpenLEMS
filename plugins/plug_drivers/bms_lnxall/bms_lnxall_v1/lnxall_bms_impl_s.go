@@ -6,13 +6,11 @@ import (
 	"common/c_error"
 	"common/c_modbus"
 	"context"
-	"github.com/gogf/gf/v2/os/glog"
 )
 
 type sBmsLnxallBms struct {
 	c_modbus.IModbusProtocol
 	ctx          context.Context
-	log          *glog.Logger
 	deviceConfig *c_base.SDeviceConfig
 	*c_base.SDriverDescription
 }

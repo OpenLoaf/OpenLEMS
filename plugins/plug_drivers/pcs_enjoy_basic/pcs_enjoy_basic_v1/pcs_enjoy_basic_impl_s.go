@@ -3,16 +3,14 @@ package pcs_enjoy_basic_v1
 import (
 	"common/c_base"
 	"common/c_error"
+	"common/c_log"
 	"common/c_modbus"
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/glog"
 )
 
 type sPcsEnjoyBasic struct {
 	c_modbus.IModbusProtocol
 	ctx                 context.Context
-	log                 *glog.Logger
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
 	deviceConfig        *c_base.SDeviceConfig
@@ -31,13 +29,13 @@ func (s *sPcsEnjoyBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol
 		GroupSetting,
 	)
 
-	g.Log().Noticef(s.ctx, "sPcsEnjoyBasic InitDevice")
+	c_log.Noticef(s.ctx, "sPcsEnjoyBasic InitDevice")
 }
 
 func (s *sPcsEnjoyBasic) Shutdown() {
 	_ = s.SetPower(0)
 	_ = s.SetStatus(c_base.EPcsStatusOff)
-	g.Log().Noticef(s.ctx, "[%s]%s销毁成功,设置PCS状态为Off!", s.deviceConfig.Id, s.deviceConfig.Name)
+	c_log.Noticef(s.ctx, "[%s]%s销毁成功,设置PCS状态为Off!", s.deviceConfig.Id, s.deviceConfig.Name)
 }
 
 func (s *sPcsEnjoyBasic) GetDriverType() c_base.EDeviceType {
@@ -91,7 +89,7 @@ func (s *sPcsEnjoyBasic) GetStatus() (c_base.EEnergyStoreStatus, error) {
 		}
 	}
 
-	g.Log().Noticef(s.ctx, "GetStatus : status = %d", status)
+	c_log.Noticef(s.ctx, "GetStatus : status = %d", status)
 
 	return c_base.EPcsStatusStandby, c_error.NonSupportError
 }

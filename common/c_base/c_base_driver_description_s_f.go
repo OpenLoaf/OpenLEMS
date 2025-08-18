@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"strings"
 	"text/tabwriter"
+
+	"gopkg.in/yaml.v3"
 )
 
 // SDriverDescription 驱动的描述内容
@@ -25,16 +27,14 @@ type SDriverDescription struct {
 	reflectMethodCache map[string]reflect.Value // 反射方法缓存
 }
 
-func BuildDescriptionFromYaml(ctx context.Context, yaml []byte) *SDriverDescription {
-	// g.Log().Debugf(ctx, "BuildDescriptionFromYaml: %s", string(yaml))
-	//description := &SDriverDescription{}
-	//err := gyaml.DecodeTo(yaml, &description)
-	//if err != nil {
-	//	panic(fmt.Errorf("解析版本信息失败！请检查version.yaml文件!%v", err))
-	//}
-	//
-	//return description
-	return nil
+func BuildDescriptionFromYaml(ctx context.Context, yamlData []byte) *SDriverDescription {
+	description := &SDriverDescription{}
+	err := yaml.Unmarshal(yamlData, description)
+	if err != nil {
+		panic(fmt.Errorf("解析版本信息失败！请检查version.yaml文件!%v", err))
+	}
+
+	return description
 }
 
 func (s *SDriverDescription) String() string {

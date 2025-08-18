@@ -60,7 +60,7 @@ func main() {
 			}})
 
 			gtimer.SetInterval(ctx, 1*time.Second, func(ctx context.Context) {
-				g.Log().Noticef(ctx, "设备[%s]数据:\n%v", device.GetDeviceConfig().Name, device.GetAllTelemetry(device))
+				c_log.Noticef(ctx, "设备[%s]数据:\n%v", device.GetDeviceConfig().Name, device.GetAllTelemetry(device))
 			})
 
 			<-ctx.Done()

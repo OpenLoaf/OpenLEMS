@@ -3,17 +3,15 @@ package pcs_elecod_mac_v1
 import (
 	"canbus/p_canbus"
 	"common/c_base"
+	"common/c_log"
+	"common/c_timer"
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/glog"
-	"github.com/gogf/gf/v2/os/gtimer"
 	"time"
 )
 
 type sPcsElecodBasic struct {
 	p_canbus.ICanbusProtocol
 	ctx          context.Context
-	log          *glog.Logger
 	deviceConfig *c_base.SDeviceConfig
 	*c_base.SDriverDescription
 }
@@ -29,16 +27,17 @@ func (s *sPcsElecodBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protoco
 		s.RegisterRead(task)
 	}
 
-	gtimer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
-		g.Log().Debugf(s.ctx, "测试发送数据")
-
-		//_ = s.SendMessage(sandBy, nil)
+	// 使用自研定时器，监听 ctx
+	c_timer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
+		c_log.Debugf(s.ctx, "测试发送数据")
+		// _ = s.SendMessage(sandBy, nil)
 	})
-	g.Log().Info(s.ctx, "测试结束！！！！")
+
+	c_log.Info(s.ctx, "测试结束！！！！")
 }
 
 func (s *sPcsElecodBasic) Shutdown() {
-	g.Log().Info(s.ctx, "Shutdown")
+	c_log.Info(s.ctx, "Shutdown")
 }
 
 func (s *sPcsElecodBasic) GetDriverType() c_base.EDeviceType {

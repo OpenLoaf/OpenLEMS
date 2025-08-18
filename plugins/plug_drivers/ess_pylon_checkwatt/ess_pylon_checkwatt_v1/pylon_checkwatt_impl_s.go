@@ -4,8 +4,8 @@ import (
 	"common/c_base"
 	"common/c_device"
 	"common/c_error"
+	"common/c_log"
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
 	"time"
 )
 
@@ -55,29 +55,29 @@ func (p *sPylonCheckwattEss) InitDevice(deviceConfig *c_base.SDeviceConfig, _ c_
 	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
 			p.ammeter = dv.(c_device.IAmmeter)
-			g.Log().Infof(p.ctx, "sPylonCheckwattEss 电表初始化完毕!")
+			c_log.Infof(p.ctx, "sPylonCheckwattEss 电表初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceBms {
 			p.bms = dv.(c_device.IBms)
-			g.Log().Infof(p.ctx, "sPylonCheckwattEss 电池初始化完毕!")
+			c_log.Infof(p.ctx, "sPylonCheckwattEss 电池初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDevicePcs {
 			p.pcs = dv.(c_device.IPcs)
-			g.Log().Infof(p.ctx, "sPylonCheckwattEss 逆变器初始化完毕!")
+			c_log.Infof(p.ctx, "sPylonCheckwattEss 逆变器初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceGpio {
 			if dv.GetDeviceConfig().Id == IdButtonDischarge {
 				p.buttonDischarge = dv.(c_device.IGpio)
-				g.Log().Infof(p.ctx, "sPylonCheckwattEss 放电按钮初始化完毕!")
+				c_log.Infof(p.ctx, "sPylonCheckwattEss 放电按钮初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdButtonCharge {
 				p.buttonCharge = dv.(c_device.IGpio)
-				g.Log().Infof(p.ctx, "sPylonCheckwattEss 充电按钮初始化完毕!")
+				c_log.Infof(p.ctx, "sPylonCheckwattEss 充电按钮初始化完毕!")
 			}
 		}
 	}
 
-	g.Log().Infof(p.ctx, "sPylonCheckwattEss 虚拟储能柜初始化完毕!")
+	c_log.Infof(p.ctx, "sPylonCheckwattEss 虚拟储能柜初始化完毕!")
 }
 
 func (p *sPylonCheckwattEss) Shutdown() {

@@ -4,13 +4,12 @@ import (
 	"common/c_base"
 	"common/c_device"
 	"common/c_error"
+	"common/c_gpio"
+	"common/c_log"
+	"common/c_timer"
 	"context"
 	_ "embed"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gtimer"
-	"github.com/gogf/gf/v2/util/gconv"
-	"gpio_sysfs/p_gpio_sysfs"
+	"fmt"
 	"station_energy_store/sess_basic_v1/allocate"
 	"station_energy_store/sess_basic_v1/modbus_checkwatt"
 	"time"
@@ -57,25 +56,25 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 	s.deviceConfig = deviceConfig
 
 	s.sessConfig = &sSessBaseConfig{}
-	err := gconv.Scan(deviceConfig, &s.sessConfig)
+	err := deviceConfig.ScanParams(s.sessConfig)
 	if err != nil {
-		panic(gerror.Newf("设备配置解析失败！%s", err.Error()))
+		panic(fmt.Errorf("设备配置解析失败！%s", err.Error()))
 	}
 
 	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
 			s.rootAmmeter = dv.(c_device.IAmmeter)
-			g.Log().Infof(s.ctx, "注册总电表成功！")
+			c_log.Infof(s.ctx, "注册总电表成功！")
 		}
 		if dv.GetDriverType() == c_base.EDeviceEnergyStore {
 			s.energyStores = append(s.energyStores, dv.(c_device.IEnergyStore))
-			g.Log().Infof(s.ctx, "注册储能柜 %s 到 % s成功！", dv.GetDeviceConfig().Name, s.deviceConfig.Name)
+			c_log.Infof(s.ctx, "注册储能柜 %s 到 % s成功！", dv.GetDeviceConfig().Name, s.deviceConfig.Name)
 		}
 
-		if dv.GetDeviceConfig().Id == p_gpio_sysfs.IdLedFault && dv.GetDriverType() == c_base.EDeviceGpio {
+		if dv.GetDeviceConfig().Id == c_gpio.IdLedFault && dv.GetDriverType() == c_base.EDeviceGpio {
 			s.ledFault = dv.(c_device.IGpio)
 
-			gtimer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
+			c_timer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
 				status, err := s.GetStatus()
 				level := s.GetAlarmLevel()
 				if err == nil && status == c_base.EPcsStatusFault {
@@ -86,12 +85,12 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 					}
 				}
 			})
-			g.Log().Infof(s.ctx, "注册故障灯成功！")
+			c_log.Infof(s.ctx, "注册故障灯成功！")
 		}
-		if dv.GetDeviceConfig().Id == p_gpio_sysfs.IdLedRunning && dv.GetDriverType() == c_base.EDeviceGpio {
+		if dv.GetDeviceConfig().Id == c_gpio.IdLedRunning && dv.GetDriverType() == c_base.EDeviceGpio {
 			s.ledRunning = dv.(c_device.IGpio)
 
-			gtimer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
+			c_timer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
 				// 如果功率大于5，就亮灯
 				power, err := s.GetPower()
 				if err == nil && power > 5 {
@@ -101,10 +100,10 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 				}
 			})
 
-			g.Log().Infof(s.ctx, "注册运行灯成功！")
+			c_log.Infof(s.ctx, "注册运行灯成功！")
 		}
 
-		if dv.GetDeviceConfig().Id == p_gpio_sysfs.IdButtonScram {
+		if dv.GetDeviceConfig().Id == c_gpio.IdButtonScram {
 			gpioDv := dv.(c_device.IGpio)
 			gpioDv.RegisterHandler(func(ctx context.Context, status bool, isChange bool) {
 				if status {
@@ -114,19 +113,19 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 					//// 紧急停机
 					//if s.ledFault != nil && isChange {
 					//	_ = s.ledFault.SetHigh()
-					//	g.Log().Warningf(s.ctx, "储能场站触发急停！触发储能场站故障灯！")
+					//	c_log.Warningf(s.ctx, "储能场站触发急停！触发储能场站故障灯！")
 					//} else {
-					//	g.Log().Warningf(s.ctx, "储能场站触发急停！")
+					//	c_log.Warningf(s.ctx, "储能场站触发急停！")
 					//}
 				}
 
 			})
 			s.buttonScram = gpioDv
-			g.Log().Infof(s.ctx, "场站注册急停按钮成功！")
+			c_log.Infof(s.ctx, "场站注册急停按钮成功！")
 		}
 	}
 	//if len(s.energyStores) == 0 {
-	//	panic(gerror.Newf("场站储能组：%s 未注册任何储能柜！", deviceConfig.Name))
+	//	panic(fmt.Errorff("场站储能组：%s 未注册任何储能柜！", deviceConfig.Name))
 	//}
 
 	// 启动modbus server
@@ -135,7 +134,7 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 		IStationEnergyStore: s,
 	}, deviceConfig)
 
-	g.Log().Noticef(s.ctx, "场站储能初始化成功！")
+	c_log.Noticef(s.ctx, "场站储能初始化成功！")
 }
 
 func (s *sStationEnergyStore) Shutdown() {
@@ -148,7 +147,7 @@ func (s *sStationEnergyStore) getValue(getValueFunc func(store c_device.IEnergyS
 	for _, ess := range s.energyStores {
 		value, err := getValueFunc(ess)
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 获取数据失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 获取数据失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		if minTemp == 0 || value < minTemp {
@@ -181,7 +180,7 @@ func (s *sStationEnergyStore) GetCellAvgTemp() (float32, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetCellAvgTemp()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 平均温度失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 平均温度失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 
@@ -189,7 +188,7 @@ func (s *sStationEnergyStore) GetCellAvgTemp() (float32, error) {
 		count++
 	}
 	if count == 0 {
-		return 0, gerror.New("统计平均温度失败！")
+		return 0, fmt.Errorf("统计平均温度失败！")
 	}
 	return temp / float32(count), nil
 }
@@ -217,7 +216,7 @@ func (s *sStationEnergyStore) GetCellAvgVoltage() (float32, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetCellAvgVoltage()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 平均电压失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 平均电压失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 
@@ -225,7 +224,7 @@ func (s *sStationEnergyStore) GetCellAvgVoltage() (float32, error) {
 		count++
 	}
 	if count == 0 {
-		return 0, gerror.New("统计平均电压失败！")
+		return 0, fmt.Errorf("统计平均电压失败！")
 	}
 	return voltage / float32(count), nil
 }
@@ -294,14 +293,14 @@ func (s *sStationEnergyStore) GetSoc() (float32, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetSoc()
 		if err != nil {
-			g.Log().Debugf(s.ctx, "获取储能柜:%s SOC失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Debugf(s.ctx, "获取储能柜:%s SOC失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		soc += value
 		count++
 	}
 	if count == 0 {
-		return 0, gerror.New("设备离线")
+		return 0, fmt.Errorf("设备离线")
 	}
 	return soc / float32(count), nil
 }
@@ -315,14 +314,14 @@ func (s *sStationEnergyStore) GetSoh() (float32, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetSoh()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s SOH失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s SOH失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		soh += value
 		count++
 	}
 	if count == 0 {
-		return 0, gerror.New("设备离线")
+		return 0, fmt.Errorf("设备离线")
 	}
 	return soh / float32(count), nil
 }
@@ -336,14 +335,14 @@ func (s *sStationEnergyStore) GetCapacity() (uint32, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetCapacity()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 容量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 容量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		capacity += value
 		count++
 	}
 	if count == 0 {
-		return 0, gerror.New("设备离线")
+		return 0, fmt.Errorf("设备离线")
 	}
 	return capacity, nil
 }
@@ -354,7 +353,7 @@ func (s *sStationEnergyStore) GetCycleCount() (uint, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetCycleCount()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 循环次数失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 循环次数失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		cycleCount += value
@@ -369,7 +368,7 @@ func (s *sStationEnergyStore) GetDcPower() (float64, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetDcPower()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 直流功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 直流功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		dcPower += value
@@ -378,12 +377,12 @@ func (s *sStationEnergyStore) GetDcPower() (float64, error) {
 }
 
 func (s *sStationEnergyStore) SetReset() error {
-	g.Log().Debugf(s.ctx, "设置储能场站复位")
+	c_log.Debugf(s.ctx, "设置储能场站复位")
 	var err error
 	for _, store := range s.energyStores {
 		_err := store.SetReset()
 		if _err != nil {
-			g.Log().Errorf(s.ctx, "储能柜:%s 复位失败！err:%v", store.GetDeviceConfig().Name, _err)
+			c_log.Errorf(s.ctx, "储能柜:%s 复位失败！err:%v", store.GetDeviceConfig().Name, _err)
 			err = _err
 		}
 	}
@@ -391,12 +390,12 @@ func (s *sStationEnergyStore) SetReset() error {
 }
 
 func (s *sStationEnergyStore) SetStatus(status c_base.EEnergyStoreStatus) error {
-	g.Log().Debugf(s.ctx, "设置储能场站状态：%s", status)
+	c_log.Debugf(s.ctx, "设置储能场站状态：%s", status)
 	var err error
 	for _, store := range s.energyStores {
 		_err := store.SetStatus(status)
 		if _err != nil {
-			g.Log().Errorf(s.ctx, "储能柜:%s 设置状态失败！err:%v", store.GetDeviceConfig().Name, _err)
+			c_log.Errorf(s.ctx, "储能柜:%s 设置状态失败！err:%v", store.GetDeviceConfig().Name, _err)
 			err = _err
 		}
 	}
@@ -408,7 +407,7 @@ func (s *sStationEnergyStore) SetGridMode(mode c_base.EGridMode) error {
 	for _, store := range s.energyStores {
 		_err := store.SetGridMode(mode)
 		if _err != nil {
-			g.Log().Errorf(s.ctx, "储能柜:%s 设置模式失败！err:%v", store.GetDeviceConfig().Name, _err)
+			c_log.Errorf(s.ctx, "储能柜:%s 设置模式失败！err:%v", store.GetDeviceConfig().Name, _err)
 			err = _err
 		}
 	}
@@ -421,7 +420,7 @@ func (s *sStationEnergyStore) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	for _, ess := range s.energyStores {
 		singleStatus, err := ess.GetStatus()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 状态失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 状态失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		if status == c_base.EPcsStatusUnknown {
@@ -441,7 +440,7 @@ func (s *sStationEnergyStore) GetGridMode() (c_base.EGridMode, error) {
 	for _, ess := range s.energyStores {
 		singleMode, err := ess.GetGridMode()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 电网模式失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 电网模式失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		if mode == c_base.EGridUnknown {
@@ -455,7 +454,7 @@ func (s *sStationEnergyStore) GetGridMode() (c_base.EGridMode, error) {
 }
 
 func (s *sStationEnergyStore) SetPower(power int32) error {
-	g.Log().Debugf(s.ctx, "设置储能场站功率：%d", power)
+	c_log.Debugf(s.ctx, "设置储能场站功率：%d", power)
 	if power == 0 {
 		// 功率为0直接下发
 		for _, store := range s.energyStores {
@@ -468,7 +467,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 	// 判断一下防止超限
 	if power > 0 {
 		maxOutputPower, err := s.GetMaxOutputPower()
-		g.Log().Debugf(s.ctx, "储能场站最大输出功率：%f", maxOutputPower)
+		c_log.Debugf(s.ctx, "储能场站最大输出功率：%f", maxOutputPower)
 		if err != nil {
 			return err
 		}
@@ -477,7 +476,7 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 		}
 	} else {
 		maxInputPower, err := s.GetMaxInputPower()
-		g.Log().Debugf(s.ctx, "储能场站最大输入功率：%f", maxInputPower)
+		c_log.Debugf(s.ctx, "储能场站最大输入功率：%f", maxInputPower)
 		if err != nil {
 			return err
 		}
@@ -494,35 +493,35 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 		var err error
 		soc, err := store.GetSoc()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "储能柜:%s SOC失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "储能柜:%s SOC失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
 			continue
 		}
 		ratedPower := store.GetRatedPower()
 		if ratedPower < 0 {
-			g.Log().Errorf(s.ctx, "储能柜:%s 额定功率小于0！", store.GetDeviceConfig().Name)
+			c_log.Errorf(s.ctx, "储能柜:%s 额定功率小于0！", store.GetDeviceConfig().Name)
 			continue
 		}
 		inputPower, err := store.GetMaxInputPower()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "储能柜:%s 最大输入功率失败！", store.GetDeviceConfig().Name)
+			c_log.Warningf(s.ctx, "储能柜:%s 最大输入功率失败！", store.GetDeviceConfig().Name)
 			continue
 		}
 
 		outputPower, err := store.GetMaxOutputPower()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "储能柜:%s 最大输出功率失败！", store.GetDeviceConfig().Name)
+			c_log.Warningf(s.ctx, "储能柜:%s 最大输出功率失败！", store.GetDeviceConfig().Name)
 			continue
 		}
 
 		count, err := store.GetCycleCount()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 循环次数失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 循环次数失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
 			continue
 		}
 
 		getPower, err := store.GetPower()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 有功功率失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 有功功率失败！统计时跳过该柜 err:%v", store.GetDeviceConfig().Name, err)
 			continue
 		}
 		ess := &allocate.SessBasic{
@@ -536,14 +535,14 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 			CycleCount:        int(count),
 			EfficiencyCurve:   []float64{1},
 		}
-		g.Log().Noticef(s.ctx, "储能柜:%s SOC:%d 额定功率:%d 最小功率:%f 最大功率:%f 循环次数:%d", ess.Name, ess.Soc, ess.RatedPower, ess.MaxDischargePower, ess.MaxChargePower, ess.CycleCount)
+		c_log.Noticef(s.ctx, "储能柜:%s SOC:%d 额定功率:%d 最小功率:%f 最大功率:%f 循环次数:%d", ess.Name, ess.Soc, ess.RatedPower, ess.MaxDischargePower, ess.MaxChargePower, ess.CycleCount)
 		essList = append(essList, ess)
 	}
 
 	// 计算功率，先不执行
 	allocatePower, err := allocate.AllocatePower(float64(power), 200, 0, true, essList)
 	if err != nil {
-		g.Log().Errorf(s.ctx, "储能柜功率分配失败！使用平均功率分配算法！err:%v", err)
+		c_log.Errorf(s.ctx, "储能柜功率分配失败！使用平均功率分配算法！err:%v", err)
 		var singlePower = power / int32(len(s.energyStores))
 		for _, store := range s.energyStores {
 			_ = store.SetPower(singlePower)
@@ -561,9 +560,9 @@ func (s *sStationEnergyStore) SetPower(power int32) error {
 					}
 					err := store.SetPower(value)
 					if err != nil {
-						g.Log().Errorf(s.ctx, "储能柜:%s 设置功率失败！err:%v", store.GetDeviceConfig().Name, err)
+						c_log.Errorf(s.ctx, "储能柜:%s 设置功率失败！err:%v", store.GetDeviceConfig().Name, err)
 					} else {
-						g.Log().Noticef(s.ctx, "储能柜:%s 分配功率：%f", essList[i].Name, f)
+						c_log.Noticef(s.ctx, "储能柜:%s 分配功率：%f", essList[i].Name, f)
 					}
 					break
 				}
@@ -606,7 +605,7 @@ func (s *sStationEnergyStore) GetPower() (float64, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetPower()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 有功功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 有功功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		power += value
@@ -620,7 +619,7 @@ func (s *sStationEnergyStore) GetApparentPower() (float64, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetApparentPower()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 视在功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 视在功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		apparentPower += value
@@ -634,7 +633,7 @@ func (s *sStationEnergyStore) GetReactivePower() (float64, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetReactivePower()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 无功功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 无功功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		reactivePower += value
@@ -666,7 +665,7 @@ func (s *sStationEnergyStore) GetMaxInputPower() (float32, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetMaxInputPower()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 最大输入功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 最大输入功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		maxInputPower += value
@@ -680,7 +679,7 @@ func (s *sStationEnergyStore) GetMaxOutputPower() (float32, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetMaxOutputPower()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 最大输出功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 最大输出功率失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		maxOutputPower += value
@@ -694,7 +693,7 @@ func (s *sStationEnergyStore) GetTodayIncomingQuantity() (float64, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetTodayIncomingQuantity()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 今日充电量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 今日充电量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		todayIncomingQuantity += value
@@ -709,7 +708,7 @@ func (s *sStationEnergyStore) GetHistoryIncomingQuantity() (float64, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetHistoryIncomingQuantity()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 历史充电量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 历史充电量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		historyIncomingQuantity += value
@@ -724,7 +723,7 @@ func (s *sStationEnergyStore) GetTodayOutgoingQuantity() (float64, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetTodayOutgoingQuantity()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 今日放电量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 今日放电量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		todayOutgoingQuantity += value
@@ -739,7 +738,7 @@ func (s *sStationEnergyStore) GetHistoryOutgoingQuantity() (float64, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetHistoryOutgoingQuantity()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 历史放电量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 历史放电量失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		historyOutgoingQuantity += value
@@ -757,7 +756,7 @@ func (s *sStationEnergyStore) GetFireEnvTemperature() (float64, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.GetFireEnvTemperature()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 环境温度失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 环境温度失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		temperature += value
@@ -772,7 +771,7 @@ func (s *sStationEnergyStore) GetCarbonMonoxideConcentration() (float64, error) 
 	for _, ess := range s.energyStores {
 		value, err := ess.GetCarbonMonoxideConcentration()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 一氧化碳浓度失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 一氧化碳浓度失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		if value > carbonMonoxideConcentration {
@@ -787,7 +786,7 @@ func (s *sStationEnergyStore) HasSmoke() (bool, error) {
 	for _, ess := range s.energyStores {
 		value, err := ess.HasSmoke()
 		if err != nil {
-			g.Log().Warningf(s.ctx, "获取储能柜:%s 烟雾失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
+			c_log.Warningf(s.ctx, "获取储能柜:%s 烟雾失败！统计时跳过该柜 err:%v", ess.GetDeviceConfig().Name, err)
 			continue
 		}
 		if value {

@@ -5,8 +5,6 @@ import (
 	"ammeter_acrel_10r_v1/ammeter_acrel_10r_v1"
 	"common/c_base"
 	"context"
-	"github.com/gogf/gf/v2/os/gcmd"
-	"s_driver"
 )
 
 // 通过构建脚本自动注入
@@ -23,6 +21,7 @@ func NewPlugin(ctx context.Context) c_base.IDevice {
 	return plugin
 }
 
+/*
 func main() {
 	command := c_base.PluginDriverCommand(func() c_base.IDevice {
 		return NewPlugin(context.Background())
@@ -59,3 +58,4 @@ func main() {
 	})
 	command.Run(context.Background())
 }
+*/

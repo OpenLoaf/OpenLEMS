@@ -1,4 +1,5 @@
-package p_gpio_sysfs
+//go:generate stringer -type=EGpioDirection -output=c_gpio_direction_e.go
+package c_gpio
 
 type EGpioDirection string
 

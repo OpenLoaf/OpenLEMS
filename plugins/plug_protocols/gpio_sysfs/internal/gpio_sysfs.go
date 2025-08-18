@@ -2,6 +2,7 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_gpio"
 	"context"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
@@ -27,7 +28,7 @@ type SGpioSysfsProvider struct {
 	status                bool                                                  // 结果
 	lastUpdateTime        *time.Time                                            // 最后更新时间
 	deviceConfig          *c_base.SDeviceConfig                                 // 设备基础配置
-	deviceGpioConfig      *p_gpio_sysfs.SDeviceGpioConfig                       // 设备扩展配置
+	deviceGpioConfig      *c_gpio.SDeviceGpioConfig                             // 设备扩展配置
 	protocolConfig        *c_base.SProtocolConfig                               // 协议配置
 	protocolGpioConfig    *p_gpio_sysfs.SProtocolGpioConfig                     // 协议扩展配置
 	gpioDirPath           string                                                // gpio路径
@@ -44,7 +45,7 @@ func (s *SGpioSysfsProvider) GetProtocolState() c_base.EServerState {
 	panic("implement me")
 }
 
-func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
+func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (c_gpio.IGpioSysfsProtocol, error) {
 
 	if protocolConfig == nil {
 		panic(gerror.Newf("GPIO设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
@@ -55,7 +56,7 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 	if deviceConfig == nil {
 		panic(gerror.Newf("GPIO协议：%s 的设备配置不能为空！", protocolConfig.Id))
 	}
-	var deviceGpioConfig = &p_gpio_sysfs.SDeviceGpioConfig{}
+	var deviceGpioConfig = &c_gpio.SDeviceGpioConfig{}
 	err := gconv.Scan(deviceConfig.Params, deviceGpioConfig)
 	if err != nil {
 		panic(gerror.Newf("设备[%s]的Param参数配置错误：%v 无法转换为SGpioSysfsDeviceConfig", deviceConfig.Id, err))
@@ -138,7 +139,7 @@ func (s *SGpioSysfsProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 }
 
 func (s *SGpioSysfsProvider) ProtocolListen() {
-	if s.deviceGpioConfig.Direction == p_gpio_sysfs.EGpioDirectionNone {
+	if s.deviceGpioConfig.Direction == c_gpio.EGpioDirectionNone {
 		panic(gerror.Newf("direction方向未设置！"))
 	}
 	s.once.Do(func() {
@@ -169,7 +170,7 @@ func (s *SGpioSysfsProvider) ProtocolListen() {
 		}
 
 		// 如果是In类型的，说明需要时刻监听
-		if s.deviceGpioConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
+		if s.deviceGpioConfig.Direction == c_gpio.EGpioDirectionIn {
 			gtimer.SetInterval(s.Ctx, 200*time.Millisecond, func(ctx context.Context) {
 				// 读取值
 				s.isHighForce()
@@ -187,7 +188,7 @@ func (s *SGpioSysfsProvider) ProtocolListen() {
 }
 
 func (s *SGpioSysfsProvider) RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) {
-	if s.deviceGpioConfig.Direction != p_gpio_sysfs.EGpioDirectionIn {
+	if s.deviceGpioConfig.Direction != c_gpio.EGpioDirectionIn {
 		panic(gerror.Newf("只有输入类型的GPIO才能注册Handler"))
 	}
 	s.handler = handler
@@ -245,7 +246,7 @@ func (s *SGpioSysfsProvider) process(status bool) {
 		s.status = status
 
 		// 触发告警
-		if s.deviceGpioConfig.Level != c_base.ENone && s.deviceGpioConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
+		if s.deviceGpioConfig.Level != c_base.ENone && s.deviceGpioConfig.Direction == c_gpio.EGpioDirectionIn {
 			s.SAlarmHandler.TriggerAlarm(&c_base.SAlarmDetail{
 				DeviceId:   s.GetId(),
 				DeviceType: c_base.EDeviceGpio,
@@ -272,13 +273,13 @@ func (s *SGpioSysfsProvider) SetLow() error {
 
 func (s *SGpioSysfsProvider) setValue(value string) error {
 	// 设置为低电平
-	if s.deviceGpioConfig.Direction == p_gpio_sysfs.EGpioDirectionIn {
+	if s.deviceGpioConfig.Direction == c_gpio.EGpioDirectionIn {
 		s.log.Debugf(s.Ctx, "GPIO Direction %s is [in], can't output", s.GetId())
 		return nil
 	}
 	return gfile.PutContents(s.gpioValuePath, value)
 }
 
-func (s *SGpioSysfsProvider) GetGpioDeviceConfig() *p_gpio_sysfs.SDeviceGpioConfig {
+func (s *SGpioSysfsProvider) GetGpioDeviceConfig() *c_gpio.SDeviceGpioConfig {
 	return s.deviceGpioConfig
 }

@@ -3,16 +3,14 @@ package pcs_lnxall_v1
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_log"
 	"common/c_modbus"
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/glog"
 )
 
 type sPcsLnxallPcs struct {
 	c_modbus.IModbusProtocol
 	ctx          context.Context
-	log          *glog.Logger
 	deviceConfig *c_base.SDeviceConfig
 	*c_base.SDriverDescription
 }
@@ -30,7 +28,7 @@ func (s *sPcsLnxallPcs) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol 
 }
 
 func (s *sPcsLnxallPcs) Shutdown() {
-	g.Log().Noticef(s.ctx, "sPcsLnxallPcs Shutdown")
+	c_log.Noticef(s.ctx, "sPcsLnxallPcs Shutdown")
 }
 
 func (s *sPcsLnxallPcs) GetDriverType() c_base.EDeviceType {
@@ -38,17 +36,17 @@ func (s *sPcsLnxallPcs) GetDriverType() c_base.EDeviceType {
 }
 
 func (s *sPcsLnxallPcs) SetReset() error {
-	g.Log().Warningf(s.ctx, "SetReset() not support!")
+	c_log.Warningf(s.ctx, "SetReset() not support!")
 	return nil
 }
 
 func (s *sPcsLnxallPcs) SetStatus(status c_base.EEnergyStoreStatus) error {
-	g.Log().Warningf(s.ctx, "SetStatus() not support!")
+	c_log.Warningf(s.ctx, "SetStatus() not support!")
 	return nil
 }
 
 func (s *sPcsLnxallPcs) SetGridMode(mode c_base.EGridMode) error {
-	g.Log().Warningf(s.ctx, "SetGridMode() not support!")
+	c_log.Warningf(s.ctx, "SetGridMode() not support!")
 	return nil
 }
 
@@ -57,7 +55,7 @@ func (s *sPcsLnxallPcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	if err != nil {
 		return c_base.EPcsStatusUnknown, err
 	}
-	//g.Log().Noticef(s.ctx, "Pcs状态获取%v", value)
+	//c_log.Noticef(s.ctx, "Pcs状态获取%v", value)
 	switch value {
 	case 0:
 		return c_base.EPcsStatusOff, nil
@@ -91,7 +89,7 @@ func (s *sPcsLnxallPcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
 }
 
 func (s *sPcsLnxallPcs) GetGridMode() (c_base.EGridMode, error) {
-	g.Log().Warningf(s.ctx, "GetGridMode() not support!")
+	c_log.Warningf(s.ctx, "GetGridMode() not support!")
 	return c_base.EGridUnknown, nil
 }
 

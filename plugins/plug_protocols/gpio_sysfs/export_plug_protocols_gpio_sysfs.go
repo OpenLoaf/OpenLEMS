@@ -2,12 +2,13 @@ package gpio_sysfs
 
 import (
 	"common/c_base"
+	"common/c_gpio"
 	"context"
 	"gpio_sysfs/internal"
 	"gpio_sysfs/p_gpio_sysfs"
 )
 
-func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
+func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (c_gpio.IGpioSysfsProtocol, error) {
 	return internal.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfig)
 }
 

@@ -3,16 +3,15 @@ package pcs_star_charge_100E_v1
 import (
 	"common/c_base"
 	"common/c_error"
+	"common/c_log"
 	"common/c_modbus"
+	"common/c_util"
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/glog"
 )
 
 type sStarCharge100EPcs struct {
 	c_modbus.IModbusProtocol
 	ctx                 context.Context
-	log                 *glog.Logger
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
 	deviceConfig        *c_base.SDeviceConfig
@@ -40,7 +39,7 @@ func (s *sStarCharge100EPcs) GetDriverType() c_base.EDeviceType {
 func (s *sStarCharge100EPcs) Shutdown() {
 	_ = s.SetPower(0)
 	_ = s.SetStatus(c_base.EPcsStatusOff)
-	g.Log().Noticef(s.ctx, "[%s]%s销毁成功,设置PCS状态为Off!", s.deviceConfig.Id, s.deviceConfig.Name)
+	c_log.Noticef(s.ctx, "[%s]%s销毁成功,设置PCS状态为Off!", s.deviceConfig.Id, s.deviceConfig.Name)
 }
 
 func (s *sStarCharge100EPcs) GetFunctionList() []*c_base.STelemetry {
@@ -48,7 +47,7 @@ func (s *sStarCharge100EPcs) GetFunctionList() []*c_base.STelemetry {
 }
 
 func (s *sStarCharge100EPcs) SetReset() error {
-	g.Log().Warningf(s.ctx, "sStarCharge100EPcs SetReset() not support!")
+	c_log.Warningf(s.ctx, "sStarCharge100EPcs SetReset() not support!")
 	return nil
 }
 
@@ -114,7 +113,7 @@ func (s *sStarCharge100EPcs) SetReactivePower(power int32) error {
 }
 
 func (s *sStarCharge100EPcs) SetPowerFactor(factor float32) error {
-	g.Log().Warningf(s.ctx, "sStarCharge100EPcs SetPowerFactor() not support!")
+	c_log.Warningf(s.ctx, "sStarCharge100EPcs SetPowerFactor() not support!")
 	return nil
 }
 
@@ -159,7 +158,8 @@ func (s *sStarCharge100EPcs) GetTodayIncomingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return read[0].Float64(), nil
+	//return read[0].Float64(), nil
+	return c_util.ToFloat64First(read)
 }
 
 func (s *sStarCharge100EPcs) GetHistoryIncomingQuantity() (float64, error) {
@@ -167,7 +167,8 @@ func (s *sStarCharge100EPcs) GetHistoryIncomingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return read[0].Float64(), nil
+	//return read[0].Float64(), nil
+	return c_util.ToFloat64First(read)
 }
 
 func (s *sStarCharge100EPcs) GetTodayOutgoingQuantity() (float64, error) {
@@ -175,7 +176,8 @@ func (s *sStarCharge100EPcs) GetTodayOutgoingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return read[0].Float64(), nil
+	//return read[0].Float64(), nil
+	return c_util.ToFloat64First(read)
 }
 
 func (s *sStarCharge100EPcs) GetHistoryOutgoingQuantity() (float64, error) {
@@ -183,5 +185,6 @@ func (s *sStarCharge100EPcs) GetHistoryOutgoingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return read[0].Float64(), nil
+	//return read[0].Float64(), nil
+	return c_util.ToFloat64First(read)
 }
