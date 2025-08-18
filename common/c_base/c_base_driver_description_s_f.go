@@ -8,7 +8,6 @@ import (
 	"text/tabwriter"
 
 	"github.com/gogf/gf/v2/encoding/gyaml"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/text/gstr"
 )
 
@@ -34,7 +33,7 @@ func BuildDescriptionFromYaml(ctx context.Context, yaml []byte) *SDriverDescript
 	description := &SDriverDescription{}
 	err := gyaml.DecodeTo(yaml, &description)
 	if err != nil {
-		panic(gerror.Newf("解析版本信息失败！请检查version.yaml文件!%v", err))
+		panic(fmt.Errorf("解析版本信息失败！请检查version.yaml文件!%v", err))
 	}
 
 	return description
@@ -100,7 +99,7 @@ func (s *SDriverDescription) GetTelemetry(key string, instance any) (any, error)
 		functionName := fmt.Sprintf("Get%s", gstr.UcFirst(key))
 		method = reflect.ValueOf(instance).MethodByName(functionName)
 		if !method.IsValid() {
-			return 0, gerror.Newf("method %s not found", key)
+			return 0, fmt.Errorf("method %s not found", key)
 		}
 		s.reflectMethodCache[key] = method
 	}
@@ -112,7 +111,7 @@ func (s *SDriverDescription) GetTelemetry(key string, instance any) (any, error)
 	}
 
 	if len(value) != 2 {
-		return 0, gerror.Newf("function %s return value length is not 2", key)
+		return 0, fmt.Errorf("function %s return value length is not 2", key)
 	}
 	if value[1].Interface() != nil {
 		return 0, value[1].Interface().(error)

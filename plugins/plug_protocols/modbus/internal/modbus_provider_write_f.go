@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"c_protocol"
 	"common/c_base"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -11,11 +12,13 @@ func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value in
 	if !p.IsActivate() {
 		return fmt.Errorf("device %s connect is not activated", p.deviceConfig.Id)
 	}
-	result := meta.ReadType.Encoder(int64(value), meta.Factor, meta.Offset, meta.Endianness)
+	//result := meta.ReadType.Encoder(int64(value), meta.Factor, meta.Offset, meta.Endianness)
+	result := c_protocol.ReadTypeEncoder(meta.ReadType, int64(value), meta.Factor, meta.Offset, meta.Endianness)
 	// 通关result来计算需要多少个寄存器位置
 	registerLength := len(result) / 2
 	if registerLength == 1 {
-		uint16Value := meta.Endianness.DecodeToUint16(result)
+		//uint16Value := meta.Endianness.DecodeToUint16(result)
+		uint16Value := c_protocol.ECharSequenceDecodeToUint16(meta.Endianness, result)
 		p.log.Debugf(p.ctx, "%s 写入点位：%s 地址：0x%x 值：%v", p.deviceConfig.Id, meta.Name, meta.Addr, uint16Value)
 		err := p.client.WriteSingleRegister(p.modbusDeviceConfig.UnitId, meta.Addr, uint16Value)
 		if err != nil {
@@ -47,12 +50,13 @@ func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *p_modbus.SModbusT
 		if metaIndex == 0 {
 			metaIndex = meta.Addr
 		} else {
-			if meta.Addr != (metaIndex + meta.ReadType.RegisterSize()) {
-				panic(gerror.Newf("点位的顺序不正确！点位：%s, 地址：%d，实际地址应该为: %d", meta.Name, meta.Addr, metaIndex+meta.ReadType.RegisterSize()))
+
+			if meta.Addr != (metaIndex + c_protocol.ReadTypeRegisterSize(meta.ReadType)) {
+				panic(gerror.Newf("点位的顺序不正确！点位：%s, 地址：%d，实际地址应该为: %d", meta.Name, meta.Addr, metaIndex+c_protocol.ReadTypeRegisterSize(meta.ReadType)))
 			}
 			metaIndex = meta.Addr
 		}
-		valueBytes := meta.ReadType.Encoder(values[i], meta.Factor, meta.Offset, meta.Endianness)
+		valueBytes := c_protocol.ReadTypeEncoder(meta.ReadType, values[i], meta.Factor, meta.Offset, meta.Endianness)
 		copy(bytes[i*2:], valueBytes)
 		p.log.Debugf(p.ctx, "%s 写入点位：%s 地址：0x%x 值：%v", p.deviceConfig.Id, meta.Name, meta.Addr, valueBytes)
 	}

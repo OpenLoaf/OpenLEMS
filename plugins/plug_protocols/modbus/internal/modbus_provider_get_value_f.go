@@ -20,7 +20,8 @@ func (p *ModbusProtocolProvider) GetValue(meta *c_base.Meta) (*gvar.Var, error) 
 	if metaValue == nil {
 		return nil, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
-	return metaValue.Value, err
+
+	return gvar.New(metaValue.Value), err
 }
 func (p *ModbusProtocolProvider) GetIntValue(meta *c_base.Meta) (int, error) {
 	get, err := p.GetValue(meta)

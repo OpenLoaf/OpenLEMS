@@ -2,7 +2,7 @@ package c_base
 
 import (
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
+	"fmt"
 	"sync"
 )
 
@@ -83,7 +83,7 @@ func (s *SAlarmHandler) GetMonitorChan() chan<- *SAlarmDetail {
 				select {
 				case detail, ok := <-s.monitorChan:
 					if !ok {
-						g.Log().Notice(s.Ctx, "关闭告警监听Goroutine")
+						fmt.Println("关闭告警监听Goroutine")
 						return
 					}
 
@@ -91,7 +91,7 @@ func (s *SAlarmHandler) GetMonitorChan() chan<- *SAlarmDetail {
 				}
 			}
 		}()
-		g.Log().Infof(s.Ctx, "启动告警监听Goroutine")
+		fmt.Println("启动告警监听Goroutine")
 	})
 	return s.monitorChan
 }
@@ -107,14 +107,13 @@ func (s *SAlarmHandler) addDetail(detail *SAlarmDetail) bool {
 	s.details = append(s.details, detail)
 
 	if s.maxLevelAlarm == nil {
-		g.Log().Warning(s.Ctx, detail.ToString())
+		//g.Log().Warning(s.Ctx, detail.ToString())
 		s.maxLevelAlarm = detail
 		return true
 	}
 	// 更新最高等级告警
 	if s.maxLevelAlarm.Level < detail.Level {
-		g.Log().Warningf(s.Ctx, "%s 比原来的告警等级[%s]大！", detail.ToString(), s.maxLevelAlarm.Level.String())
-
+		//fmt.Printf("%s 比原来的告警等级[%s]大！", detail.ToString(), s.maxLevelAlarm.Level.String())
 		s.maxLevelAlarm = detail
 	}
 
@@ -134,7 +133,7 @@ func (s *SAlarmHandler) isExist(deviceId string, meta *Meta, value any) bool {
 			if detail.Value != value {
 				for i, _detail := range s.details {
 					if _detail.Meta == meta && _detail.DeviceId == deviceId {
-						g.Log().Noticef(s.Ctx, _detail.ToString())
+						//g.Log().Noticef(s.Ctx, _detail.ToString())
 						s.details = append(s.details[:i], s.details[i+1:]...)
 						break
 					}
@@ -156,7 +155,7 @@ func (s *SAlarmHandler) remove(deviceId string, meta *Meta) bool {
 	isRemove := false
 	for i, detail := range s.details {
 		if detail.Meta == meta && detail.DeviceId == deviceId {
-			g.Log().Noticef(s.Ctx, "-- 清除 Id:%s 的告警：%s(%s)告警！数值:%v", detail.DeviceId, detail.Meta.Name, detail.Meta.Cn, detail.Value)
+			//g.Log().Noticef(s.Ctx, "-- 清除 Id:%s 的告警：%s(%s)告警！数值:%v", detail.DeviceId, detail.Meta.Name, detail.Meta.Cn, detail.Value)
 			s.details = append(s.details[:i], s.details[i+1:]...)
 			isRemove = true
 

@@ -21,6 +21,14 @@ type SDeviceManager struct {
 	deviceWrapper       *gtree.AVLTree // c_base.IDeviceWrapper 设备树
 }
 
+func (d *SDeviceManager) GetDeviceById(deviceId string) c_base.IDevice {
+	dw := d.deviceWrapper.Get(deviceId)
+	if dw == nil {
+		return nil
+	}
+	return dw.(c_base.IDeviceWrapper).GetDeviceInstance()
+}
+
 func (d *SDeviceManager) Start(parentCtx context.Context) {
 	d.ctx, d.cancelFunc = context.WithCancel(parentCtx)
 	d.state = c_base.EStateInit
@@ -100,9 +108,10 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 		driver.InitDevice(deviceConfig, protocolProvider, d.GetChildDeviceInstance(deviceConfig.Id))
 		// 协议监听
 		driver.ProtocolListen()
-		if deviceConfig.StorageEnable {
-			common.RegisterStorageDriver(deviceConfig.StorageIntervalSec, driver)
-		}
+		//if deviceConfig.StorageEnable {
+		//	//common.GetStorageInstance().
+		//	c_storage.RegisterStorageDriver(deviceConfig.StorageIntervalSec, driver)
+		//}
 
 		deviceWrapper.UpdateState(c_base.EStateRunning)
 		g.Log().Noticef(ctx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", deviceConfig.Name, driver.GetDriverDescription())

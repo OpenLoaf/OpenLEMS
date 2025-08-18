@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"c_protocol"
 	"common/c_base"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
@@ -25,7 +26,7 @@ func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function p_mo
 		return vr, nil
 	}
 	name := fmt.Sprintf("SingleRead:%s", meta.Name)
-	result, err := p.readValues(name, meta.Addr, meta.ReadType.RegisterSize(), function)
+	result, err := p.readValues(name, meta.Addr, c_protocol.ReadTypeRegisterSize(meta.ReadType), function)
 	if err != nil {
 		return nil, err
 	}

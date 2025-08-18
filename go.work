@@ -16,10 +16,13 @@ use (
 	./plugins/plug_drivers/pcs_lnxall
 	./plugins/plug_drivers/pcs_star_charge_100E
 	./plugins/plug_drivers/sess_basic
+	./plugins/plug_protocols/c_protocol
 	./plugins/plug_protocols/canbus
 	./plugins/plug_protocols/gpio_sysfs
 	./plugins/plug_protocols/modbus
+	./plugins/plug_push/c_push
 	./plugins/plug_push/mqtt
+	./plugins/plug_storages/c_storage
 	./plugins/plug_storages/influxdb_1
 	./plugins/plug_storages/influxdb_2
 	./plugins/plug_storages/pebbledb

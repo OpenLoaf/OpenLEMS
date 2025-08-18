@@ -1,19 +1,12 @@
 package ws
 
 import (
-	"common"
-	"common/c_util"
 	"context"
-	"fmt"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
-	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gorilla/websocket"
-	"math"
-	"math/big"
-
 	"net/http"
-	"strings"
 	"time"
 )
 
@@ -88,7 +81,7 @@ func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 					_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 						Code:    500,
 						Message: err.Error(),
-						Time:    c_util.GetNow(),
+						Time:    gtime.Now().Format("Y-m-d H:i:s.u"),
 					})
 					continue
 				}
@@ -111,7 +104,7 @@ func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 				_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 					Code:    500,
 					Message: "时间间隔范围为200到86400000",
-					Time:    c_util.GetNow(),
+					Time:    gtime.Now().Format("Y-m-d H:i:s.u"),
 				})
 				continue
 			}
@@ -120,7 +113,7 @@ func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 				_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
 					Code:    500,
 					Message: "遥测列表不能为空",
-					Time:    c_util.GetNow(),
+					Time:    gtime.Now().Format("Y-m-d H:i:s.u"),
 				})
 				continue
 			}
@@ -156,61 +149,61 @@ func (w *TelemetryWebsocket) TelemetryWebsocket(r *ghttp.Request) {
 }
 
 func writeValue(ctx context.Context, conn *websocket.Conn, query RegisterTelemetryQuery) error {
-	var dataMap = make(map[string]any)
-	var errMap = make(map[string]string)
-	for _, key := range query.Keys {
-		// 解析key group:deviceKey:telemetryKey
-		values := strings.SplitN(key, ":", 2)
-		instance := common.GetRunningDeviceById(values[0])
-		if instance == nil {
-			errMap[key] = fmt.Sprintf("设备 %s 不存在", values[0])
-			continue
-		}
-		des := instance.GetDriverDescription()
-		value, err := des.GetTelemetry(values[1], instance)
-		if err != nil {
-			errMap[key] = err.Error()
-			continue
-		}
-
-		if value != "" && value != nil {
-			if ft, ok := value.(float32); ok {
-				if !math.IsNaN(float64(ft)) {
-					value = big.NewFloat(float64(ft)).Text('f', 2)
-					dataMap[key] = value
-				}
-			} else if ft, ok := value.(float64); ok {
-				if !math.IsNaN(ft) {
-					value = big.NewFloat(ft).Text('f', 4)
-					dataMap[key] = value
-				} else {
-					dataMap[key] = nil
-				}
-			} else {
-				dataMap[key] = gconv.String(value)
-			}
-
-		}
-	}
-	// 写入错误信息
-	if len(errMap) > 0 {
-		var errorMessage = ""
-		for _, v := range errMap {
-			errorMessage += v
-		}
-		_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
-			Code:    500,
-			Message: errorMessage,
-			Time:    c_util.GetNow(),
-		})
-	}
-
-	// 写入数据
-	_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
-		Code: 200,
-		Time: c_util.GetNow(),
-		Data: dataMap,
-	})
+	//var dataMap = make(map[string]any)
+	//var errMap = make(map[string]string)
+	//for _, key := range query.Keys {
+	//	// 解析key group:deviceKey:telemetryKey
+	//	values := strings.SplitN(key, ":", 2)
+	//	instance := common.GetStorageInstance().GetDeviceById(values[0])
+	//	if instance == nil {
+	//		errMap[key] = fmt.Sprintf("设备 %s 不存在", values[0])
+	//		continue
+	//	}
+	//	des := instance.GetDriverDescription()
+	//	value, err := des.GetTelemetry(values[1], instance)
+	//	if err != nil {
+	//		errMap[key] = err.Error()
+	//		continue
+	//	}
+	//
+	//	if value != "" && value != nil {
+	//		if ft, ok := value.(float32); ok {
+	//			if !math.IsNaN(float64(ft)) {
+	//				value = big.NewFloat(float64(ft)).Text('f', 2)
+	//				dataMap[key] = value
+	//			}
+	//		} else if ft, ok := value.(float64); ok {
+	//			if !math.IsNaN(ft) {
+	//				value = big.NewFloat(ft).Text('f', 4)
+	//				dataMap[key] = value
+	//			} else {
+	//				dataMap[key] = nil
+	//			}
+	//		} else {
+	//			dataMap[key] = gconv.String(value)
+	//		}
+	//
+	//	}
+	//}
+	//// 写入错误信息
+	//if len(errMap) > 0 {
+	//	var errorMessage = ""
+	//	for _, v := range errMap {
+	//		errorMessage += v
+	//	}
+	//	_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
+	//		Code:    500,
+	//		Message: errorMessage,
+	//		Time:    gtime.Now().Format("Y-m-d H:i:s.u"),
+	//	})
+	//}
+	//
+	//// 写入数据
+	//_ = conn.WriteJSON(&RegisterTelemetryQueryRes{
+	//	Code: 200,
+	//	Time: gtime.Now().Format("Y-m-d H:i:s.u"),
+	//	Data: dataMap,
+	//})
 
 	return nil
 }

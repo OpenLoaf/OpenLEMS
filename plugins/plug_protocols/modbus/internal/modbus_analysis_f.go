@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"common"
+	"c_protocol"
 	"common/c_base"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
@@ -41,18 +41,20 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr uint16, l
 			errMessage += message
 			continue
 		}
-		value, err := meta.ReadType.ReadValue(result[index:], meta.BitLength, meta.Endianness)
+
+		value, err := c_protocol.ReadTypeReadValue(meta.ReadType, result[index:], meta.BitLength, meta.Endianness)
 		if err != nil {
 			message := fmt.Sprintf("[%s-%s] %v;", groupName, meta.Name, err)
 			g.Log().Errorf(p.ctx, message)
 			errMessage += message
 			continue
 		}
-		kind := meta.ReadType.GetReflectKind(meta.BitLength)
+		//kind := meta.ReadType.GetReflectKind(meta.BitLength)
+		kind := c_protocol.ReadTypeGetReflectKind(meta.ReadType, meta.BitLength)
 		if kind == reflect.Float64 && math.IsNaN(value.(float64)) {
 			panic(gerror.Newf("[%s-%s] 读取到的float64位的值为NaN！请检查字段是否配置正确！\n%+v", groupName, meta.Name, meta))
 		}
-		vars, err := common.MetaTransformAndCache(p.ctx, p.deviceConfig.Id, p.deviceType, p, meta, value, p.cache, lifetime)
+		vars, err := c_protocol.MetaTransformAndCache(p.ctx, p.deviceConfig.Id, p.deviceType, p, meta, value, p.cache, lifetime)
 		if err != nil {
 			message := fmt.Sprintf("[%s-%s] %v;", groupName, meta.Name, err)
 			g.Log().Errorf(p.ctx, message)

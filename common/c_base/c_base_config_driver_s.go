@@ -2,12 +2,10 @@ package c_base
 
 import (
 	"fmt"
-	"github.com/gogf/gf/v2/util/gmeta"
 )
 
 // SDeviceConfig 基础设备配置
 type SDeviceConfig struct {
-	gmeta.Meta           `orm:"table:device"`
 	Id                   string            `json:"id,omitempty" orm:"id"`                             // 设备ID
 	Pid                  string            `json:"pid,omitempty" orm:"pid"`                           // 父设备Id
 	Name                 string            `json:"name,omitempty" orm:"name"`                         // 设备名称

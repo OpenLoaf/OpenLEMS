@@ -1,8 +1,8 @@
 package internal
 
 import (
+	"c_protocol"
 	"canbus/p_canbus"
-	"common"
 	"common/c_base"
 	"time"
 
@@ -32,7 +32,7 @@ func (c *CanbusProtocolProvider) analysisSingleCanbusMeta(meta *c_base.Meta, fra
 	//frameData.
 
 	//value, err := meta.ReadType.ReadValue(result[index:], meta.BitLength, meta.Endianness)
-	v, err := common.MetaTransformCanbus(c.ctx, c.deviceConfig.Id, c.deviceType, c, meta, frameData[:], c.cache, lifeTime)
+	v, err := c_protocol.MetaTransformCanbus(c.ctx, c.deviceConfig.Id, c.deviceType, c, meta, frameData[:], c.cache, lifeTime)
 
 	if err != nil {
 		g.Log().Errorf(c.ctx, "解析数据失败：%v", err)

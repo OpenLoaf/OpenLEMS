@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"c_protocol"
 	"canbus/p_canbus"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"go.einride.tech/can"
@@ -18,12 +19,13 @@ func (c *CanbusProtocolProvider) SendMessage(task *p_canbus.SCanbusTask, values 
 		if metaIndex == 0 {
 			metaIndex = meta.Addr
 		} else {
-			if meta.Addr != (metaIndex + meta.ReadType.RegisterSize()) {
-				return gerror.Newf("点位的顺序不正确！点位：%s, 地址：%d，实际地址应该为: %d", meta.Name, meta.Addr, metaIndex+meta.ReadType.RegisterSize())
+			if meta.Addr != (metaIndex + c_protocol.ReadTypeRegisterSize(meta.ReadType)) {
+				return gerror.Newf("点位的顺序不正确！点位：%s, 地址：%d，实际地址应该为: %d", meta.Name, meta.Addr, metaIndex+c_protocol.ReadTypeRegisterSize(meta.ReadType))
 			}
 			metaIndex = meta.Addr
 		}
-		valueBytes := meta.ReadType.Encoder(values[i], meta.Factor, meta.Offset, meta.Endianness)
+		valueBytes := c_protocol.ReadTypeEncoder(meta.ReadType, values[i], meta.Factor, meta.Offset, meta.Endianness)
+
 		copy(bytes[i*2:], valueBytes)
 	}
 
