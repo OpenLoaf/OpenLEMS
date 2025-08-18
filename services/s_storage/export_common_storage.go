@@ -1,9 +1,9 @@
-package c_storage
+package s_storage
 
 import (
-	"c_storage/internal"
 	"common/c_base"
 	"context"
+	"s_storage/internal"
 )
 
 func RegisterStorageInstance(builder func(ctx context.Context) c_base.IStorage) {
@@ -11,7 +11,7 @@ func RegisterStorageInstance(builder func(ctx context.Context) c_base.IStorage) 
 }
 
 func CloseStorage() {
-	internal.Close()
+	internal.Shutdown()
 }
 
 func GetStorageInstance() c_base.IStorage {

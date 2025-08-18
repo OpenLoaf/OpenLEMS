@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func (s *sStarCharge100EPcs) writeTime() {
+func (s *sPcsStarCharge100E) writeTime() {
 	err := s._syncTime()
 	if err != nil {
 		// 每天凌晨3点执行一次
@@ -45,7 +45,7 @@ func next3AMDuration(now time.Time) time.Duration {
 	return next.Sub(now)
 }
 
-func (s *sStarCharge100EPcs) _syncTime() error {
+func (s *sPcsStarCharge100E) _syncTime() error {
 	//if !s.client.IsActivate() {
 	//	return gerror.Newf("modbus client is not activate")
 	//}

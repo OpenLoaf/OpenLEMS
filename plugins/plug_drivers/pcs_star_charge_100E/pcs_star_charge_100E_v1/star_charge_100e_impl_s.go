@@ -9,7 +9,7 @@ import (
 	"context"
 )
 
-type sStarCharge100EPcs struct {
+type sPcsStarCharge100E struct {
 	c_modbus.IModbusProtocol
 	ctx                 context.Context
 	targetPower         int32 // 目标有功功率
@@ -18,7 +18,7 @@ type sStarCharge100EPcs struct {
 	*c_base.SDriverDescription
 }
 
-func (s *sStarCharge100EPcs) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
+func (s *sPcsStarCharge100E) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
 	s.deviceConfig = deviceConfig
 
@@ -32,26 +32,26 @@ func (s *sStarCharge100EPcs) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 	)
 }
 
-func (s *sStarCharge100EPcs) GetDriverType() c_base.EDeviceType {
+func (s *sPcsStarCharge100E) GetDriverType() c_base.EDeviceType {
 	return c_base.EDevicePcs
 }
 
-func (s *sStarCharge100EPcs) Shutdown() {
+func (s *sPcsStarCharge100E) Shutdown() {
 	_ = s.SetPower(0)
 	_ = s.SetStatus(c_base.EPcsStatusOff)
 	c_log.Noticef(s.ctx, "[%s]%s销毁成功,设置PCS状态为Off!", s.deviceConfig.Id, s.deviceConfig.Name)
 }
 
-func (s *sStarCharge100EPcs) GetFunctionList() []*c_base.STelemetry {
+func (s *sPcsStarCharge100E) GetFunctionList() []*c_base.STelemetry {
 	return nil
 }
 
-func (s *sStarCharge100EPcs) SetReset() error {
-	c_log.Warningf(s.ctx, "sStarCharge100EPcs SetReset() not support!")
+func (s *sPcsStarCharge100E) SetReset() error {
+	c_log.Warningf(s.ctx, "sPcsStarCharge100E SetReset() not support!")
 	return nil
 }
 
-func (s *sStarCharge100EPcs) SetStatus(status c_base.EEnergyStoreStatus) error {
+func (s *sPcsStarCharge100E) SetStatus(status c_base.EEnergyStoreStatus) error {
 	if status == c_base.EPcsStatusOff {
 		_ = s.SetPower(0)
 		return s.WriteSingleRegister(OnOffCommand, 0)
@@ -64,11 +64,11 @@ func (s *sStarCharge100EPcs) SetStatus(status c_base.EEnergyStoreStatus) error {
 	return c_error.ErrorParam
 }
 
-func (s *sStarCharge100EPcs) SetGridMode(mode c_base.EGridMode) error {
+func (s *sPcsStarCharge100E) SetGridMode(mode c_base.EGridMode) error {
 	return nil
 }
 
-func (s *sStarCharge100EPcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
+func (s *sPcsStarCharge100E) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	value, err := s.GetUintValue(InverterOperationStatus)
 	if err != nil {
 		return c_base.EPcsStatusUnknown, err
@@ -98,62 +98,62 @@ func (s *sStarCharge100EPcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	return c_base.EPcsStatusFault, err
 }
 
-func (s *sStarCharge100EPcs) GetGridMode() (c_base.EGridMode, error) {
+func (s *sPcsStarCharge100E) GetGridMode() (c_base.EGridMode, error) {
 	return c_base.EGridOn, nil
 }
 
-func (s *sStarCharge100EPcs) SetPower(power int32) error {
+func (s *sPcsStarCharge100E) SetPower(power int32) error {
 	s.targetPower = power
 	return s.WriteSingleRegister(ActivePowerSetting, power)
 }
 
-func (s *sStarCharge100EPcs) SetReactivePower(power int32) error {
+func (s *sPcsStarCharge100E) SetReactivePower(power int32) error {
 	s.targetReactivePower = power
 	return s.WriteSingleRegister(ReactivePowerSetting, power)
 }
 
-func (s *sStarCharge100EPcs) SetPowerFactor(factor float32) error {
-	c_log.Warningf(s.ctx, "sStarCharge100EPcs SetPowerFactor() not support!")
+func (s *sPcsStarCharge100E) SetPowerFactor(factor float32) error {
+	c_log.Warningf(s.ctx, "sPcsStarCharge100E SetPowerFactor() not support!")
 	return nil
 }
 
-func (s *sStarCharge100EPcs) GetTargetPower() int32 {
+func (s *sPcsStarCharge100E) GetTargetPower() int32 {
 	return s.targetPower
 }
 
-func (s *sStarCharge100EPcs) GetTargetReactivePower() int32 {
+func (s *sPcsStarCharge100E) GetTargetReactivePower() int32 {
 	return s.targetReactivePower
 }
 
-func (s *sStarCharge100EPcs) GetTargetPowerFactor() float32 {
+func (s *sPcsStarCharge100E) GetTargetPowerFactor() float32 {
 	return -1
 }
 
-func (s *sStarCharge100EPcs) GetPower() (float64, error) {
+func (s *sPcsStarCharge100E) GetPower() (float64, error) {
 	return s.GetFloat64Value(TotalActivePowerInverterSide)
 }
 
-func (s *sStarCharge100EPcs) GetApparentPower() (float64, error) {
+func (s *sPcsStarCharge100E) GetApparentPower() (float64, error) {
 	return s.GetFloat64Value(TotalApparentPowerInverterSide)
 }
 
-func (s *sStarCharge100EPcs) GetReactivePower() (float64, error) {
+func (s *sPcsStarCharge100E) GetReactivePower() (float64, error) {
 	return s.GetFloat64Value(TotalReactivePowerInverterSide)
 }
 
-func (s *sStarCharge100EPcs) GetRatedPower() int32 {
+func (s *sPcsStarCharge100E) GetRatedPower() int32 {
 	return 100
 }
 
-func (s *sStarCharge100EPcs) GetMaxInputPower() (float32, error) {
+func (s *sPcsStarCharge100E) GetMaxInputPower() (float32, error) {
 	return 100, nil
 }
 
-func (s *sStarCharge100EPcs) GetMaxOutputPower() (float32, error) {
+func (s *sPcsStarCharge100E) GetMaxOutputPower() (float32, error) {
 	return 100, nil
 }
 
-func (s *sStarCharge100EPcs) GetTodayIncomingQuantity() (float64, error) {
+func (s *sPcsStarCharge100E) GetTodayIncomingQuantity() (float64, error) {
 	read, err := s.ReadGroupSync(SyGroupStatistics, true, DailyBatteryDischargeEnergy)
 	if err != nil {
 		return 0, err
@@ -162,7 +162,7 @@ func (s *sStarCharge100EPcs) GetTodayIncomingQuantity() (float64, error) {
 	return c_util.ToFloat64First(read)
 }
 
-func (s *sStarCharge100EPcs) GetHistoryIncomingQuantity() (float64, error) {
+func (s *sPcsStarCharge100E) GetHistoryIncomingQuantity() (float64, error) {
 	read, err := s.ReadGroupSync(SyGroupStatistics, true, TotalBatteryDischargeEnergy)
 	if err != nil {
 		return 0, err
@@ -171,7 +171,7 @@ func (s *sStarCharge100EPcs) GetHistoryIncomingQuantity() (float64, error) {
 	return c_util.ToFloat64First(read)
 }
 
-func (s *sStarCharge100EPcs) GetTodayOutgoingQuantity() (float64, error) {
+func (s *sPcsStarCharge100E) GetTodayOutgoingQuantity() (float64, error) {
 	read, err := s.ReadGroupSync(SyGroupStatistics, true, DailyBatteryChargeEnergy)
 	if err != nil {
 		return 0, err
@@ -180,7 +180,7 @@ func (s *sStarCharge100EPcs) GetTodayOutgoingQuantity() (float64, error) {
 	return c_util.ToFloat64First(read)
 }
 
-func (s *sStarCharge100EPcs) GetHistoryOutgoingQuantity() (float64, error) {
+func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (float64, error) {
 	read, err := s.ReadGroupSync(SyGroupStatistics, true, TotalBatteryChargeEnergy)
 	if err != nil {
 		return 0, err

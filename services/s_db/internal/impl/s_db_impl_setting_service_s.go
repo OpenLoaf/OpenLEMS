@@ -17,7 +17,7 @@ var (
 	configManageOnce     sync.Once
 )
 
-func GetConfigService() basic.ISettingService {
+func GetSettingService() basic.ISettingService {
 	configManageOnce.Do(func() {
 		configManageInstance = &sSettingServiceImpl{}
 	})

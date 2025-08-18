@@ -10,7 +10,7 @@ import (
 var buildYaml []byte
 
 func NewPlugin(ctx context.Context) c_base.IDevice {
-	return &sPylonTechUs108Bms{
+	return &sBmsPylonTechUs108{
 		ctx:                ctx,
 		SDriverDescription: c_base.BuildDescriptionFromYaml(ctx, buildYaml),
 	}

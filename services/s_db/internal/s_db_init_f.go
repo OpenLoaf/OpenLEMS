@@ -81,7 +81,6 @@ func initConfigDatabase() {
 		    strategy VARCHAR(255),
 		    storage_enable BOOLEAN DEFAULT 1,
 			storage_interval_sec INTEGER NOT NULL DEFAULT 60,
-			storage_retention_days INTEGER NOT NULL DEFAULT 30,
 			sort INTEGER DEFAULT 0,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP

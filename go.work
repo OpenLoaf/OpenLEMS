@@ -31,6 +31,6 @@ use (
 	./services/s_db
 
 	./services/s_driver
-	./services/s_example
+	./services/s_storage
 
 )

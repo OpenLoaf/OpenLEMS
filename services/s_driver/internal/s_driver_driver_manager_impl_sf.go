@@ -8,6 +8,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gutil"
 	"s_db"
+	"s_storage"
 	"sync"
 )
 
@@ -62,7 +63,7 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 		d.deviceWrapper.Set(deviceConfig.Id, &SDeviceWrapper{
 			deviceConfig:   deviceConfig,
 			driverInfo:     nil,
-			protocolConfig: protocolConfigMap[deviceConfig.Id],
+			protocolConfig: protocolConfigMap[deviceConfig.ProtocolId],
 			instance:       nil,
 			deviceState:    c_base.EStateInit,
 		})
@@ -95,7 +96,7 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 		//}
 
 		var protocolProvider c_base.IProtocol
-		if driver.IsPhysical() {
+		if deviceConfig.ProtocolId != "" {
 			// 创建协议provider
 			protocolProvider, err = d.getProtocolProvider(ctx, driver.GetDriverType(), deviceConfig, protocolConfig)
 			if protocolProvider == nil || err != nil {
@@ -108,10 +109,11 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 		driver.InitDevice(deviceConfig, protocolProvider, d.GetChildDeviceInstance(deviceConfig.Id))
 		// 协议监听
 		driver.ProtocolListen()
-		//if deviceConfig.StorageEnable {
-		//	//common.GetStorageInstance().
-		//	c_storage.RegisterStorageDriver(deviceConfig.StorageIntervalSec, driver)
-		//}
+
+		if deviceConfig.StorageEnable {
+			//common.GetStorageInstance().
+			s_storage.RegisterStorageDriver(deviceConfig.StorageIntervalSec, driver)
+		}
 
 		deviceWrapper.UpdateState(c_base.EStateRunning)
 		g.Log().Noticef(ctx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", deviceConfig.Name, driver.GetDriverDescription())

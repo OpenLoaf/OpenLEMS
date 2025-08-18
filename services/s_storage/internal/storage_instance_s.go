@@ -3,11 +3,11 @@ package internal
 import (
 	"common/c_base"
 	"context"
-	"sync"
-	"time"
-
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtimer"
+	"s_db"
+	"sync"
+	"time"
 )
 
 var (
@@ -18,9 +18,29 @@ var (
 type SStorageInstance struct {
 	ctx        context.Context
 	cancelFunc context.CancelFunc
+	state      c_base.EServerState
 	c_base.IStorage
 }
 
+func (s *SStorageInstance) Start(ctx context.Context) {
+	s.ctx, s.cancelFunc = context.WithCancel(ctx)
+	s_db.GetSettingService().GetSettingValueByKey(ctx, "")
+}
+
+func (s *SStorageInstance) Shutdown() {
+	s.cancelFunc()
+	s.Close()
+}
+
+func (s *SStorageInstance) Cleanup() error {
+	return nil
+}
+
+func (s *SStorageInstance) Status() c_base.EServerState {
+	return s.state
+}
+
+// 重新下面的逻辑
 func GetInstance() *SStorageInstance {
 	rwMutex.RLock()
 	defer rwMutex.RUnlock()
@@ -30,23 +50,19 @@ func GetInstance() *SStorageInstance {
 	return sStorageInstance
 }
 
-func Close() {
+func Shutdown() {
 	rwMutex.Lock()
 	defer rwMutex.Unlock()
 	if sStorageInstance != nil {
 		g.Log().Infof(sStorageInstance.ctx, "StorageInstance已经注册！准备注销并重新注册！")
 		sStorageInstance.cancelFunc()
 	}
-
 }
 
-func RegisterInstance(builder func(ctx context.Context) c_base.IStorage) {
+func RegisterInstance(storage c_base.IStorage) {
 	rwMutex.Lock()
 	defer rwMutex.Unlock()
-	if builder == nil {
-		sStorageInstance = nil
-		return
-	}
+
 	if sStorageInstance != nil {
 		g.Log().Infof(sStorageInstance.ctx, "StorageInstance已经注册！准备注销并重新注册！")
 		sStorageInstance.cancelFunc()
@@ -58,7 +74,7 @@ func RegisterInstance(builder func(ctx context.Context) c_base.IStorage) {
 	sStorageInstance = &SStorageInstance{
 		ctx:        ctx,
 		cancelFunc: cancelFunc,
-		IStorage:   builder(ctx),
+		IStorage:   storage,
 	}
 	if sStorageInstance.IStorage == nil {
 		g.Log().Infof(sStorageInstance.ctx, "未启动长时存储！")
@@ -99,11 +115,11 @@ func (s *SStorageInstance) RegisterDriver(storageIntervalSec int32, driver c_bas
 			dur = time.Duration(storageIntervalSec) * time.Second
 		}
 		//TODO 此处需要能同时监测设备关闭或者存储关闭的情况，需要能自动销毁定时任务。现在只有storage关闭时会销毁定时任务，device如果关闭了，定时任务不会销毁
-		//gtimer.SetInterval(s.ctx, dur, func(ctx context.Context) {
-		//	// 保存数据
-		//	des := driver.GetDriverDescription()
-		//	_ = s.IStorage.SaveDevices(driver.GetDeviceConfig().Id, driver.GetDriverType(), des.GetAllTelemetry(driver))
-		//})
+		gtimer.SetInterval(s.ctx, dur, func(ctx context.Context) {
+			// 保存数据
+			des := driver.GetDriverDescription()
+			_ = s.IStorage.SaveDevices(driver.GetDeviceConfig().Id, driver.GetDriverType(), des.GetAllTelemetry(driver))
+		})
 		g.Log().Infof(s.ctx, "设备[%s]存储间隔：%v", driver.GetDeviceConfig().Name, dur)
 	} else {
 		g.Log().Infof(s.ctx, "设备[%s] 数据不存储！", driver.GetDeviceConfig().Name)

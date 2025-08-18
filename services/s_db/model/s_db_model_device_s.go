@@ -26,15 +26,17 @@ const (
 type SDeviceModel struct {
 	g.Meta `orm:"table:device"`
 	SDatabaseBasic
-	Pid           string `json:"pid" orm:"pid"`
-	Name          string `json:"name" orm:"name"`
-	ProtocolId    string `json:"protocol_id" orm:"protocol_id"`
-	Driver        string `json:"driver" orm:"driver"`
-	LogLevel      string `json:"log_level" orm:"log_level"`
-	Enabled       bool   `json:"enabled" orm:"enabled"`
-	Params        string `json:"params" orm:"params"` // 在sqlite中以json字符串形式存储设备参数
-	RetentionDays int    `json:"retention_days" orm:"retention_days"`
-	Sort          int    `json:"sort" orm:"sort"`
+	Pid                string `json:"pid" orm:"pid"`
+	Name               string `json:"name" orm:"name"`
+	ProtocolId         string `json:"protocol_id" orm:"protocol_id"`
+	Driver             string `json:"driver" orm:"driver"`
+	LogLevel           string `json:"log_level" orm:"log_level"`
+	Strategy           string `json:"strategy,omitempty" orm:"strategy"`             // 	策略名称
+	StorageEnable      bool   `json:"StorageEnable" orm:"storage_enable"`            // 是否存储
+	StorageIntervalSec int32  `json:"storageIntervalSec" orm:"storage_interval_sec"` // 存储间隔(秒),0代表默认1分钟，负数代表不存储
+	Sort               int    `json:"sort" orm:"sort"`
+	Enabled            bool   `json:"enabled" orm:"enabled"`
+	Params             string `json:"params" orm:"params"` // 在sqlite中以json字符串形式存储设备参数
 }
 
 // GetParamsMap 获取参数的map格式

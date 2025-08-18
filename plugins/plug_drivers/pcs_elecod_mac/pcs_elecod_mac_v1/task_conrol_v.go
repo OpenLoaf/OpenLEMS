@@ -7,7 +7,7 @@ import (
 var (
 	sandBy = &p_canbus.SCanbusTask{
 		Name:        "待机",
-		GetCanbusID: func(params map[string]string) uint32 { return 0x438900D },
+		GetCanbusID: func(params map[string]any) uint32 { return 0x438900D },
 		IsRemote:    true,
 		IsExtended:  true,
 	}

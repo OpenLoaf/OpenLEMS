@@ -16,7 +16,7 @@ type sDeviceServiceImpl struct {
 }
 
 func (s *sDeviceServiceImpl) GetRootDeviceId() string {
-	return GetConfigService().GetSettingValueByKey(s.ctx, basic.ActiveDeviceRootId, basic.DefaultActiveDeviceRootId)
+	return GetSettingService().GetSettingValueByKey(s.ctx, basic.ActiveDeviceRootId, basic.DefaultActiveDeviceRootId)
 }
 
 var (

@@ -15,8 +15,8 @@ func GetDeviceService() basic.IDeviceService {
 	return impl.GetDeviceService()
 }
 
-func GetConfigService() basic.ISettingService {
-	return impl.GetConfigService()
+func GetSettingService() basic.ISettingService {
+	return impl.GetSettingService()
 }
 
 func GetProtocolService() basic.IProtocolService {

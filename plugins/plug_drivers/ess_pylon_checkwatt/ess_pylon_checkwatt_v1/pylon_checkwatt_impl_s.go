@@ -14,7 +14,7 @@ const (
 	IdButtonCharge    = "button-charge"    // 充电按钮
 )
 
-type sPylonCheckwattEss struct {
+type sEssPylonCheckwatt struct {
 	*c_base.SAlarmHandler
 	*c_base.SDriverDescription
 	deviceConfig *c_base.SDeviceConfig
@@ -32,72 +32,72 @@ type sPylonCheckwattEss struct {
 	ledFault        c_device.IGpio
 }
 
-func (p *sPylonCheckwattEss) ProtocolListen() {
+func (p *sEssPylonCheckwatt) ProtocolListen() {
 
 }
 
-func (p *sPylonCheckwattEss) IsActivate() bool {
+func (p *sEssPylonCheckwatt) IsActivate() bool {
 	return true
 }
 
-func (p *sPylonCheckwattEss) GetProtocolConfig() *c_base.SProtocolConfig {
+func (p *sEssPylonCheckwatt) GetProtocolConfig() *c_base.SProtocolConfig {
 	return nil
 }
 
-func (p *sPylonCheckwattEss) IsPhysical() bool {
+func (p *sEssPylonCheckwatt) IsPhysical() bool {
 	return false
 }
 
-func (p *sPylonCheckwattEss) InitDevice(deviceConfig *c_base.SDeviceConfig, _ c_base.IProtocol, childDevice []c_base.IDevice) {
+func (p *sEssPylonCheckwatt) InitDevice(deviceConfig *c_base.SDeviceConfig, _ c_base.IProtocol, childDevice []c_base.IDevice) {
 	p.deviceConfig = deviceConfig
 
 	// 从配置中获取电表、PCS、BMS的配置
 	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
 			p.ammeter = dv.(c_device.IAmmeter)
-			c_log.Infof(p.ctx, "sPylonCheckwattEss 电表初始化完毕!")
+			c_log.Infof(p.ctx, "sEssPylonCheckwatt 电表初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceBms {
 			p.bms = dv.(c_device.IBms)
-			c_log.Infof(p.ctx, "sPylonCheckwattEss 电池初始化完毕!")
+			c_log.Infof(p.ctx, "sEssPylonCheckwatt 电池初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDevicePcs {
 			p.pcs = dv.(c_device.IPcs)
-			c_log.Infof(p.ctx, "sPylonCheckwattEss 逆变器初始化完毕!")
+			c_log.Infof(p.ctx, "sEssPylonCheckwatt 逆变器初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceGpio {
 			if dv.GetDeviceConfig().Id == IdButtonDischarge {
 				p.buttonDischarge = dv.(c_device.IGpio)
-				c_log.Infof(p.ctx, "sPylonCheckwattEss 放电按钮初始化完毕!")
+				c_log.Infof(p.ctx, "sEssPylonCheckwatt 放电按钮初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdButtonCharge {
 				p.buttonCharge = dv.(c_device.IGpio)
-				c_log.Infof(p.ctx, "sPylonCheckwattEss 充电按钮初始化完毕!")
+				c_log.Infof(p.ctx, "sEssPylonCheckwatt 充电按钮初始化完毕!")
 			}
 		}
 	}
 
-	c_log.Infof(p.ctx, "sPylonCheckwattEss 虚拟储能柜初始化完毕!")
+	c_log.Infof(p.ctx, "sEssPylonCheckwatt 虚拟储能柜初始化完毕!")
 }
 
-func (p *sPylonCheckwattEss) Shutdown() {
+func (p *sEssPylonCheckwatt) Shutdown() {
 	_ = p.SetPower(0)
 	_ = p.SetStatus(c_base.EPcsStatusOff)
 }
 
-func (p *sPylonCheckwattEss) Destroy() {
+func (p *sEssPylonCheckwatt) Destroy() {
 
 }
 
-func (p *sPylonCheckwattEss) GetDriverType() c_base.EDeviceType {
+func (p *sEssPylonCheckwatt) GetDriverType() c_base.EDeviceType {
 	return c_base.EDeviceEnergyStore
 }
 
-func (p *sPylonCheckwattEss) GetDeviceConfig() *c_base.SDeviceConfig {
+func (p *sEssPylonCheckwatt) GetDeviceConfig() *c_base.SDeviceConfig {
 	return p.deviceConfig
 }
 
-func (p *sPylonCheckwattEss) GetMetaValueList() []*c_base.MetaValueWrapper {
+func (p *sEssPylonCheckwatt) GetMetaValueList() []*c_base.MetaValueWrapper {
 	// 把电表、PCS、BMS、GPIO都所有的值都返回
 	var metaValueList []*c_base.MetaValueWrapper
 	if p.ammeter != nil {
@@ -127,7 +127,7 @@ func (p *sPylonCheckwattEss) GetMetaValueList() []*c_base.MetaValueWrapper {
 	return metaValueList
 }
 
-func (p *sPylonCheckwattEss) GetLastUpdateTime() *time.Time {
+func (p *sEssPylonCheckwatt) GetLastUpdateTime() *time.Time {
 	var lastUpdateTime *time.Time
 	if p.ammeter != nil {
 		lastUpdateTime = p.ammeter.GetLastUpdateTime()
@@ -153,111 +153,111 @@ func (p *sPylonCheckwattEss) GetLastUpdateTime() *time.Time {
 	return lastUpdateTime
 }
 
-func (p *sPylonCheckwattEss) SetReset() error {
+func (p *sEssPylonCheckwatt) SetReset() error {
 	return c_error.NonSupportError
 }
 
-func (p *sPylonCheckwattEss) SetBmsStatus(status c_device.EBmsStatus) error {
+func (p *sEssPylonCheckwatt) SetBmsStatus(status c_device.EBmsStatus) error {
 	return c_error.NonSupportError
 }
 
-func (p *sPylonCheckwattEss) GetBmsStatus() (c_device.EBmsStatus, error) {
+func (p *sEssPylonCheckwatt) GetBmsStatus() (c_device.EBmsStatus, error) {
 	return p.bms.GetBmsStatus()
 }
 
-func (p *sPylonCheckwattEss) GetSoc() (float32, error) {
+func (p *sEssPylonCheckwatt) GetSoc() (float32, error) {
 	return p.bms.GetSoc()
 }
 
-func (p *sPylonCheckwattEss) GetSoh() (float32, error) {
+func (p *sEssPylonCheckwatt) GetSoh() (float32, error) {
 	return p.bms.GetSoh()
 }
 
-func (p *sPylonCheckwattEss) GetCapacity() (uint32, error) {
+func (p *sEssPylonCheckwatt) GetCapacity() (uint32, error) {
 	return p.bms.GetCapacity()
 }
 
-func (p *sPylonCheckwattEss) GetCycleCount() (uint, error) {
+func (p *sEssPylonCheckwatt) GetCycleCount() (uint, error) {
 	return p.bms.GetCycleCount()
 }
 
-func (p *sPylonCheckwattEss) GetRatedPower() int32 {
+func (p *sEssPylonCheckwatt) GetRatedPower() int32 {
 	return p.pcs.GetRatedPower()
 }
 
-func (p *sPylonCheckwattEss) GetMaxInputPower() (float32, error) {
+func (p *sEssPylonCheckwatt) GetMaxInputPower() (float32, error) {
 	return p.pcs.GetMaxInputPower()
 }
 
-func (p *sPylonCheckwattEss) GetMaxOutputPower() (float32, error) {
+func (p *sEssPylonCheckwatt) GetMaxOutputPower() (float32, error) {
 	return p.pcs.GetMaxOutputPower()
 }
 
-func (p *sPylonCheckwattEss) GetDcPower() (float64, error) {
+func (p *sEssPylonCheckwatt) GetDcPower() (float64, error) {
 	return p.bms.GetDcPower()
 }
 
-func (p *sPylonCheckwattEss) GetDcVoltage() (float64, error) {
+func (p *sEssPylonCheckwatt) GetDcVoltage() (float64, error) {
 	return p.bms.GetDcVoltage()
 }
 
-func (p *sPylonCheckwattEss) GetDcCurrent() (float64, error) {
+func (p *sEssPylonCheckwatt) GetDcCurrent() (float64, error) {
 	return p.bms.GetDcCurrent()
 }
 
-func (p *sPylonCheckwattEss) GetCellMinTemp() (float32, error) {
+func (p *sEssPylonCheckwatt) GetCellMinTemp() (float32, error) {
 	return p.bms.GetCellMinTemp()
 }
 
-func (p *sPylonCheckwattEss) GetCellMaxTemp() (float32, error) {
+func (p *sEssPylonCheckwatt) GetCellMaxTemp() (float32, error) {
 	return p.bms.GetCellMaxTemp()
 }
 
-func (p *sPylonCheckwattEss) GetCellAvgTemp() (float32, error) {
+func (p *sEssPylonCheckwatt) GetCellAvgTemp() (float32, error) {
 	return p.bms.GetCellAvgTemp()
 }
 
-func (p *sPylonCheckwattEss) GetCellMinVoltage() (float32, error) {
+func (p *sEssPylonCheckwatt) GetCellMinVoltage() (float32, error) {
 	return p.bms.GetCellMinVoltage()
 }
 
-func (p *sPylonCheckwattEss) GetCellMaxVoltage() (float32, error) {
+func (p *sEssPylonCheckwatt) GetCellMaxVoltage() (float32, error) {
 	return p.bms.GetCellMaxVoltage()
 }
 
-func (p *sPylonCheckwattEss) GetCellAvgVoltage() (float32, error) {
+func (p *sEssPylonCheckwatt) GetCellAvgVoltage() (float32, error) {
 	return p.bms.GetCellAvgVoltage()
 }
 
-func (p *sPylonCheckwattEss) GetTodayIncomingQuantity() (float64, error) {
+func (p *sEssPylonCheckwatt) GetTodayIncomingQuantity() (float64, error) {
 	if p.ammeter != nil {
 		return p.ammeter.GetTodayIncomingQuantity()
 	}
 	return p.pcs.GetTodayIncomingQuantity()
 }
 
-func (p *sPylonCheckwattEss) GetHistoryIncomingQuantity() (float64, error) {
+func (p *sEssPylonCheckwatt) GetHistoryIncomingQuantity() (float64, error) {
 	if p.ammeter != nil {
 		return p.ammeter.GetHistoryIncomingQuantity()
 	}
 	return p.pcs.GetHistoryIncomingQuantity()
 }
 
-func (p *sPylonCheckwattEss) GetTodayOutgoingQuantity() (float64, error) {
+func (p *sEssPylonCheckwatt) GetTodayOutgoingQuantity() (float64, error) {
 	if p.ammeter != nil {
 		return p.ammeter.GetTodayOutgoingQuantity()
 	}
 	return p.pcs.GetTodayOutgoingQuantity()
 }
 
-func (p *sPylonCheckwattEss) GetHistoryOutgoingQuantity() (float64, error) {
+func (p *sEssPylonCheckwatt) GetHistoryOutgoingQuantity() (float64, error) {
 	if p.ammeter != nil {
 		return p.ammeter.GetHistoryOutgoingQuantity()
 	}
 	return p.pcs.GetHistoryOutgoingQuantity()
 }
 
-func (p *sPylonCheckwattEss) SetStatus(status c_base.EEnergyStoreStatus) error {
+func (p *sEssPylonCheckwatt) SetStatus(status c_base.EEnergyStoreStatus) error {
 	if status == c_base.EPcsStatusUnknown || status == c_base.EPcsStatusSync || status == c_base.EPcsStatusFault {
 		return c_error.ErrorParam
 	}
@@ -265,19 +265,19 @@ func (p *sPylonCheckwattEss) SetStatus(status c_base.EEnergyStoreStatus) error {
 	return p.pcs.SetStatus(status)
 }
 
-func (p *sPylonCheckwattEss) SetGridMode(mode c_base.EGridMode) error {
+func (p *sEssPylonCheckwatt) SetGridMode(mode c_base.EGridMode) error {
 	return p.pcs.SetGridMode(mode)
 }
 
-func (p *sPylonCheckwattEss) GetStatus() (c_base.EEnergyStoreStatus, error) {
+func (p *sEssPylonCheckwatt) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	return p.pcs.GetStatus()
 }
 
-func (p *sPylonCheckwattEss) GetGridMode() (c_base.EGridMode, error) {
+func (p *sEssPylonCheckwatt) GetGridMode() (c_base.EGridMode, error) {
 	return p.pcs.GetGridMode()
 }
 
-func (p *sPylonCheckwattEss) SetPower(power int32) error {
+func (p *sEssPylonCheckwatt) SetPower(power int32) error {
 	// 判断一下防止超限
 	if power > 0 {
 		maxOutputPower, err := p.GetMaxOutputPower()
@@ -299,46 +299,46 @@ func (p *sPylonCheckwattEss) SetPower(power int32) error {
 	return p.pcs.SetPower(power)
 }
 
-func (p *sPylonCheckwattEss) SetReactivePower(power int32) error {
+func (p *sEssPylonCheckwatt) SetReactivePower(power int32) error {
 	return p.pcs.SetReactivePower(power)
 }
 
-func (p *sPylonCheckwattEss) SetPowerFactor(factor float32) error {
+func (p *sEssPylonCheckwatt) SetPowerFactor(factor float32) error {
 	return p.pcs.SetPowerFactor(factor)
 }
 
-func (p *sPylonCheckwattEss) GetTargetPower() int32 {
+func (p *sEssPylonCheckwatt) GetTargetPower() int32 {
 	return p.pcs.GetTargetPower()
 }
 
-func (p *sPylonCheckwattEss) GetTargetReactivePower() int32 {
+func (p *sEssPylonCheckwatt) GetTargetReactivePower() int32 {
 	return p.pcs.GetTargetReactivePower()
 }
 
-func (p *sPylonCheckwattEss) GetTargetPowerFactor() float32 {
+func (p *sEssPylonCheckwatt) GetTargetPowerFactor() float32 {
 	return p.pcs.GetTargetPowerFactor()
 }
 
-func (p *sPylonCheckwattEss) GetPower() (float64, error) {
+func (p *sEssPylonCheckwatt) GetPower() (float64, error) {
 	return p.pcs.GetPower()
 }
 
-func (p *sPylonCheckwattEss) GetApparentPower() (float64, error) {
+func (p *sEssPylonCheckwatt) GetApparentPower() (float64, error) {
 	return p.pcs.GetApparentPower()
 }
 
-func (p *sPylonCheckwattEss) GetReactivePower() (float64, error) {
+func (p *sEssPylonCheckwatt) GetReactivePower() (float64, error) {
 	return p.pcs.GetReactivePower()
 }
 
-func (p *sPylonCheckwattEss) GetFireEnvTemperature() (float64, error) {
+func (p *sEssPylonCheckwatt) GetFireEnvTemperature() (float64, error) {
 	return -1, c_error.NonSupportError
 }
 
-func (p *sPylonCheckwattEss) GetCarbonMonoxideConcentration() (float64, error) {
+func (p *sEssPylonCheckwatt) GetCarbonMonoxideConcentration() (float64, error) {
 	return -1, c_error.NonSupportError
 }
 
-func (p *sPylonCheckwattEss) HasSmoke() (bool, error) {
+func (p *sEssPylonCheckwatt) HasSmoke() (bool, error) {
 	return false, c_error.NonSupportError
 }

@@ -8,6 +8,7 @@ import (
 	"common/c_log"
 	"context"
 	"os"
+	"pebbledb"
 	"runtime"
 	"s_db"
 	"s_driver"
@@ -71,9 +72,7 @@ var (
 			s_db.Init()
 
 			// 初始化存储
-			//common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
-			//	return pebbledb.NewStorageInstance(ctx)
-			//})
+			common.RegisterStorageInstance(pebbledb.NewStorageInstance(ctx))
 
 			common.RegisterDeviceManager(s_driver.GetDriverManager(ctx))
 			if err != nil {
