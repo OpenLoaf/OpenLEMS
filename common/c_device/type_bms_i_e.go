@@ -46,6 +46,6 @@ type IBmsBasic interface {
 }
 
 type IBms interface {
-	c_base.IDriver
+	c_base.IDevice
 	IBmsBasic
 }

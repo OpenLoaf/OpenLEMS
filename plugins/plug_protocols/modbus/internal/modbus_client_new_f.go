@@ -14,7 +14,7 @@ import (
 //const notifyManage =
 
 // NewModbusClient 创建modbus客户端，并链接
-func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig) modbus.Client {
+func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig) (modbus.Client, error) {
 	var client modbus.Client
 	switch protocolConfig.GetProtocol() {
 	case c_base.EModbusTcp:
@@ -32,7 +32,8 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		rtuConfig := &ModbusRtuProtocolConfig{}
 		err := gconv.Scan(protocolConfig.Params, rtuConfig)
 		if err != nil {
-			panic(gerror.New("modbus rtu配置文件解析失败"))
+			//panic(gerror.New("modbus rtu配置文件解析失败"))
+			return nil, gerror.Wrap(err, `modbus rtu配置文件解析失败`)
 		}
 
 		var option []modbus.ClientProviderOption
@@ -51,18 +52,17 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		p := modbus.NewRTUClientProvider(option...)
 		client = modbus.NewClient(p)
 	default:
-		panic(gerror.New("不支持的modbus协议！"))
+		//panic(gerror.New("不支持的modbus协议！"))
+		return nil, gerror.New("不支持的modbus协议！")
 	}
 
 	err := client.Connect()
 	if err != nil {
 		if protocolConfig.GetProtocol() == c_base.EModbusRtu {
-			// 如果是RTU协议，无法打开串口，那程序就没必要继续运行了
-			panic(gerror.Newf("modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
+			//panic(gerror.Newf("modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
+			return nil, gerror.Wrapf(err, "modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress())
 		}
-
 		g.Log().Warningf(ctx, "首次连接到：%s 失败！等待下一次连接！ %v", protocolConfig.GetAddress(), err)
-
 	} else {
 		g.Log().Infof(ctx, "首次连接到：%s 成功！", protocolConfig.GetAddress())
 	}
@@ -103,5 +103,5 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		}()
 	}
 
-	return client
+	return client, nil
 }

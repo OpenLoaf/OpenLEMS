@@ -70,11 +70,11 @@ func (i *Influxdb1) Close() {
 	_ = i.ct.Close()
 }
 
-func (i *Influxdb1) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, metrics map[string]any) error {
+func (i *Influxdb1) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, metrics map[string]any) error {
 	tags := map[string]string{
 		"protocol_id":      protocolConfig.Id,
 		"protocol_address": protocolConfig.Address,
-		"protocol_type":    string(protocolConfig.Protocol),
+		"protocol_type":    string(protocolConfig.Type),
 	}
 	return i.write("protocol_metrics", "protocol_policy", tags, metrics)
 }

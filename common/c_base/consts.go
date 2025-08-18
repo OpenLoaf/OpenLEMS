@@ -2,6 +2,7 @@ package c_base
 
 const (
 	ConstCtxKeyGroupName    = "GroupName"
+	ConstCtxDeviceManager   = "DeviceManager"
 	ConstCtxKeyProtocolId   = "ProtocolId"
 	ConstCtxKeyDeviceId     = "DeviceId"
 	ConstCtxKeyDeviceDetail = "DeviceDetail"

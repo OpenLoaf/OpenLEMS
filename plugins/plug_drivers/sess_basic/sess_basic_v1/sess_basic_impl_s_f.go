@@ -1,7 +1,6 @@
 package sess_basic_v1
 
 import (
-	"common"
 	"common/c_base"
 	"common/c_device"
 	"common/c_error"
@@ -19,8 +18,8 @@ import (
 
 type sStationEnergyStore struct {
 	*c_base.SAlarmHandler
-	*c_base.SDescription
-	deviceConfig *c_base.SDriverConfig
+	*c_base.SDriverDescription
+	deviceConfig *c_base.SDeviceConfig
 	sessConfig   *sSessBaseConfig
 
 	ctx          context.Context
@@ -36,14 +35,25 @@ type sStationEnergyStore struct {
 	buttonScram c_device.IGpio // 急停按钮
 }
 
-func (s *sStationEnergyStore) Destroy() {
+// 必须实现储能柜接口
+var _ c_device.IStationEnergyStore = (*sStationEnergyStore)(nil)
 
+func (s *sStationEnergyStore) ProtocolListen() {
 }
 
-// 必须实现储能柜接口
-var _ c_device.IEnergyStore = (*sStationEnergyStore)(nil)
+func (s *sStationEnergyStore) IsActivate() bool {
+	return true
+}
 
-func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+func (s *sStationEnergyStore) GetProtocolConfig() *c_base.SProtocolConfig {
+	return nil
+}
+
+func (s *sStationEnergyStore) IsPhysical() bool {
+	return false
+}
+
+func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.deviceConfig = deviceConfig
 
 	s.sessConfig = &sSessBaseConfig{}
@@ -52,21 +62,7 @@ func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_ba
 		panic(gerror.Newf("设备配置解析失败！%s", err.Error()))
 	}
 
-	for _, deviceChild := range deviceConfig.DeviceChildren {
-		// 从缓存中获取
-		if deviceChild.Id == "" {
-			// 如果ID都为空，就报错
-			panic(gerror.Newf("设备ID为空！设备名称：%s", deviceChild.Name))
-		}
-	}
-	for _, child := range deviceConfig.DeviceChildren {
-		if child.IsEnable == false {
-			continue
-		}
-		dv := common.GetRunningDeviceById(child.Id)
-		if dv == nil {
-			panic(gerror.Newf("设备Id: %s 不存在！", child.Id))
-		}
+	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
 			s.rootAmmeter = dv.(c_device.IAmmeter)
 			g.Log().Infof(s.ctx, "注册总电表成功！")
@@ -140,6 +136,11 @@ func (s *sStationEnergyStore) Init(protocol c_base.IProtocol, deviceConfig *c_ba
 	}, deviceConfig)
 
 	g.Log().Noticef(s.ctx, "场站储能初始化成功！")
+}
+
+func (s *sStationEnergyStore) Shutdown() {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (s *sStationEnergyStore) getValue(getValueFunc func(store c_device.IEnergyStore) (float32, error), needUpdate func(value, temp float32) bool) (float32, error) {
@@ -244,7 +245,7 @@ func (s *sStationEnergyStore) GetMetaValueList() []*c_base.MetaValueWrapper {
 	return metaValueList
 }
 
-func (s *sStationEnergyStore) GetDeviceConfig() *c_base.SDriverConfig {
+func (s *sStationEnergyStore) GetDeviceConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
@@ -253,8 +254,8 @@ func (s *sStationEnergyStore) GetAllowControl() bool {
 	return len(s.energyStores) != 0
 }
 
-func (s *sStationEnergyStore) GetChildren() []c_base.IDriver {
-	var children []c_base.IDriver
+func (s *sStationEnergyStore) GetChildren() []c_base.IDevice {
+	var children []c_base.IDevice
 	if s.rootAmmeter != nil {
 		children = append(children, s.rootAmmeter)
 	}

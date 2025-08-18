@@ -18,16 +18,16 @@ var (
 )
 
 // NewPlugin 必须的方法，不能取消。修改实现只需修改此方法
-func NewPlugin(ctx context.Context) c_base.IDriver {
+func NewPlugin(ctx context.Context) c_base.IDevice {
 	plugin := ess_boost_lnxall_v1.NewPlugin(ctx)
 
-	plugin.GetDescription().BuildTime = buildTime
-	plugin.GetDescription().CommitHash = commitHash
+	plugin.GetDriverDescription().BuildTime = buildTime
+	plugin.GetDriverDescription().CommitHash = commitHash
 	return plugin
 }
 
 func main() {
-	command := c_base.PluginDriverCommand(func() c_base.IDriver {
+	command := c_base.PluginDriverCommand(func() c_base.IDevice {
 		return NewPlugin(context.Background())
 	})
 
@@ -39,13 +39,13 @@ func main() {
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			cmd := services.NewDeviceCmd(ctx)
 
-			device := cmd.InitDriver(make(map[string]any), &c_base.SDriverConfig{
+			device := cmd.InitDriver(make(map[string]any), &c_base.SDeviceConfig{
 				Id:            "ems",
 				Name:          "高特EMS",
 				ProtocolId:    "test_modbus",
 				StorageEnable: false,
 				Driver:        "ess_boost_gold_v1",
-				IsEnable:      true,
+				Enabled:       true,
 				LogLevel:      "",
 				Params: map[string]string{
 					"unitId":       "1",
@@ -56,7 +56,7 @@ func main() {
 				DeviceChildren: nil,
 			}, []*c_base.SProtocolConfig{{
 				Id:       "test_modbus",
-				Protocol: "modbus_tcp",
+				Type:     "modbus_tcp",
 				Address:  "172.18.38.200:502",
 				Timeout:  30,
 				LogLevel: "DEBUG",

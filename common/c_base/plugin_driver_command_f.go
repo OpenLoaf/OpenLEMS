@@ -6,7 +6,7 @@ import (
 	"github.com/gogf/gf/v2/os/gcmd"
 )
 
-func PluginDriverCommand(getDriver func() IDriver) *gcmd.Command {
+func PluginDriverCommand(getDriver func() IDevice) *gcmd.Command {
 	Main := &gcmd.Command{
 		Name: "main",
 	}
@@ -14,7 +14,7 @@ func PluginDriverCommand(getDriver func() IDriver) *gcmd.Command {
 		Name:  "version",
 		Brief: "Show version",
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
-			des := getDriver().GetDescription()
+			des := getDriver().GetDriverDescription()
 			if des == nil || des.Version == "" {
 				fmt.Println("unknown")
 			} else {
@@ -34,7 +34,7 @@ func PluginDriverCommand(getDriver func() IDriver) *gcmd.Command {
 				fmt.Println("debug")
 			}
 
-			des := getDriver().GetDescription()
+			des := getDriver().GetDriverDescription()
 			if des == nil {
 				fmt.Println("unknown")
 			} else {

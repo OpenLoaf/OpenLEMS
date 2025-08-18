@@ -21,7 +21,7 @@ type sMetricProtocol struct {
 	maxWaitTaskName string        // 最大读取任务名称
 }
 
-func newMetricProtocol(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig) *sMetricProtocol {
+func newMetricProtocol(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) *sMetricProtocol {
 
 	if protocolConfig == nil {
 		panic("协议配置不能为空！")

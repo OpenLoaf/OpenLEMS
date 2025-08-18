@@ -12,18 +12,18 @@ type sFireControlBasic struct {
 	p_canbus.ICanbusProtocol
 	ctx          context.Context
 	log          *glog.Logger
-	deviceConfig *c_base.SDriverConfig
-	*c_base.SDescription
+	deviceConfig *c_base.SDeviceConfig
+	*c_base.SDriverDescription
 }
 
-func (s *sFireControlBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+func (s *sFireControlBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
 
 	s.RegisterRead(&Detail)
 }
 
-func (s *sFireControlBasic) Destroy() {
-	g.Log().Info(s.ctx, "Destroy")
+func (s *sFireControlBasic) Shutdown() {
+	g.Log().Info(s.ctx, "Shutdown")
 }
 
 func (s *sFireControlBasic) GetDriverType() c_base.EDeviceType {

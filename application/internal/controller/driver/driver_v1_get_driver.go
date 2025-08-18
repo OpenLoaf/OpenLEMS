@@ -9,7 +9,7 @@ import (
 )
 
 func (c *ControllerV1) GetDriver(ctx context.Context, req *v1.GetDriverReq) (res *v1.GetDriverRes, err error) {
-	driverManager := s_driver.GetDriverManager()
+	driverManager := s_driver.GetDriverManager(ctx)
 	info, err := driverManager.GetDriverInfo(ctx, req.DriverName)
 	if err != nil {
 		return nil, err

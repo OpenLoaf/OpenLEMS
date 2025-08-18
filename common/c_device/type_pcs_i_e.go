@@ -30,6 +30,6 @@ type IPcsBasic interface {
 }
 
 type IPcs interface {
-	c_base.IDriver
+	c_base.IDevice
 	IPcsBasic
 }

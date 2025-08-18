@@ -1,13 +1,13 @@
 package c_error
 
 import (
-	"github.com/gogf/gf/v2/errors/gerror"
+	"fmt"
 )
 
 var (
-	NoData          = gerror.New("数据不存在")
-	NonSupportError = gerror.New("不支持的操作")
-	ErrorParam      = gerror.New("参数错误")
+	NoData          = fmt.Errorf("数据不存在")
+	NonSupportError = fmt.Errorf("不支持的操作")
+	ErrorParam      = fmt.Errorf("参数错误")
 
-	OverLimitError = gerror.New("数值超过限制")
+	OverLimitError = fmt.Errorf("数值超过限制")
 )

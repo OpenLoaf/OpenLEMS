@@ -28,14 +28,14 @@ func makeResponse(ctx context.Context, stationEnergyStore c_device.IStationEnerg
 	stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
 		DeviceId:      stationEnergyStore.GetDeviceConfig().Id,
 		I8nName:       stationEnergyStore.GetDeviceConfig().Name,
-		TelemetryKeys: c_base.TelemetryListI18n(ctx, stationEnergyStore.GetDescription().Telemetry),
+		TelemetryKeys: c_base.TelemetryListI18n(ctx, stationEnergyStore.GetDriverDescription().Telemetry),
 	})
 	children := stationEnergyStore.(c_device.IStationEnergyStore).GetChildren()
 	for _, child := range children {
 		stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
 			DeviceId:      child.GetDeviceConfig().Id,
 			I8nName:       child.GetDeviceConfig().Name,
-			TelemetryKeys: c_base.TelemetryListI18n(ctx, child.GetDescription().Telemetry),
+			TelemetryKeys: c_base.TelemetryListI18n(ctx, child.GetDriverDescription().Telemetry),
 		})
 	}
 

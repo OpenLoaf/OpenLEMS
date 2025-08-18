@@ -15,19 +15,21 @@ import (
 type sPylonTechUs108Bms struct {
 	ctx context.Context
 	p_modbus.IModbusProtocol
-	*c_base.SDescription
+	*c_base.SDriverDescription
 	bmsConfig *PylonTechUs108BmsConfig
 }
+
+var _ c_device.IBms = (*sPylonTechUs108Bms)(nil)
 
 func (p *sPylonTechUs108Bms) GetDriverType() c_base.EDeviceType {
 	return c_base.EDeviceBms
 }
 
-func (p *sPylonTechUs108Bms) Init(protocol c_base.IProtocol, cfg *c_base.SDriverConfig) {
+func (p *sPylonTechUs108Bms) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	p.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
 
 	bmsConfig := &PylonTechUs108BmsConfig{}
-	err := gconv.Scan(cfg.Params, bmsConfig)
+	err := gconv.Scan(deviceConfig.Params, bmsConfig)
 	if err != nil {
 		panic(gerror.Newf("BMS配置解析失败：%s", err.Error()))
 	}
@@ -43,7 +45,7 @@ func (p *sPylonTechUs108Bms) Init(protocol c_base.IProtocol, cfg *c_base.SDriver
 	}
 }
 
-func (p *sPylonTechUs108Bms) Destroy() {
+func (p *sPylonTechUs108Bms) Shutdown() {
 
 }
 

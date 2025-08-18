@@ -26,7 +26,7 @@ type SGpioSysfsProvider struct {
 	log                   *glog.Logger                                          // 日志
 	status                bool                                                  // 结果
 	lastUpdateTime        *time.Time                                            // 最后更新时间
-	deviceConfig          *c_base.SDriverConfig                                 // 设备基础配置
+	deviceConfig          *c_base.SDeviceConfig                                 // 设备基础配置
 	deviceGpioConfig      *p_gpio_sysfs.SDeviceGpioConfig                       // 设备扩展配置
 	protocolConfig        *c_base.SProtocolConfig                               // 协议配置
 	protocolGpioConfig    *p_gpio_sysfs.SProtocolGpioConfig                     // 协议扩展配置
@@ -35,7 +35,16 @@ type SGpioSysfsProvider struct {
 	handler               func(ctx context.Context, status bool, isChange bool) // 处理函数
 }
 
-func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
+func (s *SGpioSysfsProvider) IsPhysical() bool {
+	return true
+}
+
+func (s *SGpioSysfsProvider) GetProtocolState() c_base.EServerState {
+	//TODO implement me
+	panic("implement me")
+}
+
+func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
 
 	if protocolConfig == nil {
 		panic(gerror.Newf("GPIO设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
@@ -110,7 +119,7 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 	return provider, nil
 }
 
-func (s *SGpioSysfsProvider) GetDeviceConfig() *c_base.SDriverConfig {
+func (s *SGpioSysfsProvider) GetDeviceConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
@@ -128,7 +137,7 @@ func (s *SGpioSysfsProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 	}}
 }
 
-func (s *SGpioSysfsProvider) Init() {
+func (s *SGpioSysfsProvider) ProtocolListen() {
 	if s.deviceGpioConfig.Direction == p_gpio_sysfs.EGpioDirectionNone {
 		panic(gerror.Newf("direction方向未设置！"))
 	}
@@ -186,10 +195,6 @@ func (s *SGpioSysfsProvider) RegisterHandler(handler func(ctx context.Context, s
 
 func (s *SGpioSysfsProvider) GetId() string {
 	return s.deviceConfig.Id
-}
-
-func (s *SGpioSysfsProvider) Close() {
-
 }
 
 func (s *SGpioSysfsProvider) IsActivate() bool {

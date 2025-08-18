@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func Start(ctx context.Context, handler modbus.RequestHandler, deviceConfig *c_base.SDriverConfig) {
+func Start(ctx context.Context, handler modbus.RequestHandler, deviceConfig *c_base.SDeviceConfig) {
 	// 获取配置文件
 	var config = &SSessBasicConfig{}
 	err := gconv.Scan(deviceConfig.Params, config)

@@ -2,32 +2,38 @@ package common
 
 import (
 	"common/c_base"
-	"common/c_error"
+	"context"
 )
 
-type IDeviceCmd interface {
-	// Start 启动EMS 服务
-	Start(activeDeviceRootId string)
+type IDeviceManager interface {
+	IManager
 
-	// Stop 停止EMS服务
-	Stop()
+	//InitDriver(clientCache map[string]any, config *c_base.SDeviceConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDevice // 初始化驱动
 
-	// IsProtocolActive 协议是否激活
-	IsProtocolActive(protocolId string) bool
+	GetAllDriverNames() []string                                                       // 获取所有驱动名称
+	GetAllDriversInfo(ctx context.Context) []c_base.SDriverInfo                        // 获取所有驱动的详细信息
+	GetDriverInfo(ctx context.Context, driverName string) (*c_base.SDriverInfo, error) //获取指定驱动的详细信息
 
-	// InitDriver 初始化驱动
-	InitDriver(clientCache map[string]any, config *c_base.SDriverConfig, protocolConfigList []*c_base.SProtocolConfig) c_base.IDriver
+	IsProtocolActive(protocolId string) bool                       // 协议是否激活
+	IsDriverAvailable(ctx context.Context, driverName string) bool // 检查驱动是否可用
+
+	//GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []c_base.SDriverInfo        //根据设备类型获取驱动信息
+	//GetDriverDescription(ctx context.Context, driverName string) (*c_base.SDriverDescription, error) // 获取驱动描述信息
+	//GetSupportedDeviceTypes(ctx context.Context) []c_base.EDeviceType                                // 获取支持的设备类型列表
+
+	//CreateDriver(ctx context.Context, deviceConfig *c_base.SDeviceConfig) (c_base.IDevice, error) // 创建驱动实例
+
 }
 
-var deviceCmd IDeviceCmd
+var deviceManager IDeviceManager
 
-func RegisterDeviceCmd(cmd IDeviceCmd) {
-	deviceCmd = cmd
+func RegisterDeviceManager(cmd IDeviceManager) {
+	deviceManager = cmd
 }
 
-func GetDeviceCmd() (IDeviceCmd, error) {
-	if deviceCmd == nil {
-		return nil, c_error.NonSupportError
+func GetDeviceManager() IDeviceManager {
+	if deviceManager == nil {
+		panic("device manager is nil !")
 	}
-	return deviceCmd, nil
+	return deviceManager
 }

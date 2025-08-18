@@ -27,13 +27,13 @@ func TestSConfig_GetDriverConfig(t *testing.T) {
 		deviceCfgName: "device",
 	}
 
-	//config := c.GetDriverConfig(ctx)
+	//config := c.GetDriverConfigList(ctx)
 	//g.Log().Infof(ctx, "config: %v", config)
 
 	config, configPath, err := getConfig[SDriverConfig](ctx, c.deviceCfgName, "device")
 
 	if err != nil {
-		t.Errorf("GetDriverConfig() error = %v", err)
+		t.Errorf("GetDriverConfigList() error = %v", err)
 		return
 	}
 

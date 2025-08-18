@@ -2,6 +2,8 @@ module common
 
 go 1.24.4
 
+tool golang.org/x/tools/cmd/stringer
+
 require (
 	github.com/gogf/gf/v2 v2.9.0
 	github.com/shirou/gopsutil/v4 v4.25.7

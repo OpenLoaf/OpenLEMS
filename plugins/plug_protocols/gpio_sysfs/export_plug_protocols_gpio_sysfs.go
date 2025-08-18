@@ -7,7 +7,7 @@ import (
 	"gpio_sysfs/p_gpio_sysfs"
 )
 
-func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
+func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (p_gpio_sysfs.IGpioSysfsProtocol, error) {
 	return internal.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfig)
 }
 
@@ -30,15 +30,15 @@ func (m *sMain) Start(ctx context.Context, config sInput) (*sOutput, error) {
 
 	provider, err := internal.NewGpioSysfsProvider(context.TODO(), &c_base.SProtocolConfig{
 		Id:           "",
-		Protocol:       "",
+		Type:       "",
 		Address:        "",
 		Timeout:        0,
 		LogLevel:       "INFO",
 		Params:         nil,
-		IsEnable:         true,
+		Enabled:         true,
 		DeviceChildren: nil,
 	}, &p_gpio_sysfs.SDeviceGpioConfig{
-		SDriverConfig: c_base.SDriverConfig{
+		SDeviceConfig: c_base.SDeviceConfig{
 			Id: "GpioTest",
 		},
 		Direction:  config.Direction,
@@ -50,7 +50,7 @@ func (m *sMain) Start(ctx context.Context, config sInput) (*sOutput, error) {
 		panic(err)
 	}
 
-	provider.Init(c_base.EDeviceGpio)
+	provider.InitDevice(c_base.EDeviceGpio)
 
 	provider.RegisterHandler(func(ctx context.Context, status bool) {
 		g.Log().Infof(ctx, "high")

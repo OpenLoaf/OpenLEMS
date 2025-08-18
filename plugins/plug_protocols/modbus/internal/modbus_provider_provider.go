@@ -29,14 +29,20 @@ type ModbusProtocolProvider struct {
 	modbusRwMutex      sync.RWMutex               // 读写锁
 	lastUpdateTime     *time.Time                 // 最后更新时间
 	deviceType         c_base.EDeviceType
-	deviceConfig       *c_base.SDriverConfig
+	deviceConfig       *c_base.SDeviceConfig
 	modbusDeviceConfig *p_modbus.SModbusDeviceConfig
 	protocolConfig     *c_base.SProtocolConfig
 
 	metricProtocol *sMetricProtocol // 统计协议
 }
 
-func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, client any) (p_modbus.IModbusProtocol, error) {
+var _ c_base.IProtocol = (*ModbusProtocolProvider)(nil)
+
+func (p *ModbusProtocolProvider) IsPhysical() bool {
+	return true
+}
+
+func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (p_modbus.IModbusProtocol, error) {
 	if protocolConfig == nil {
 		panic(gerror.Newf("Modbus设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
 	}
@@ -62,6 +68,7 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 		modbusReadChan:     make(chan *p_modbus.SModbusTask),
 		preQuery:           make(map[string]bool),
 		cache:              gcache.New(),
+		deviceType:         deviceType,
 		SAlarmHandler: &c_base.SAlarmHandler{
 			Ctx: ctx,
 		},
@@ -90,7 +97,7 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 	return provider, nil
 }
 
-func (p *ModbusProtocolProvider) GetDeviceConfig() *c_base.SDriverConfig {
+func (p *ModbusProtocolProvider) GetDeviceConfig() *c_base.SDeviceConfig {
 	return p.deviceConfig
 }
 

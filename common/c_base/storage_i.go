@@ -15,7 +15,7 @@ type IStorage interface {
 	SaveDevices(deviceId string, deviceType EDeviceType, fields map[string]any) error
 
 	// SaveProtocolMetrics 保存协议指标数据
-	SaveProtocolMetrics(protocolConfig *SProtocolConfig, deviceConfig *SDriverConfig, metrics map[string]any) error
+	SaveProtocolMetrics(protocolConfig *SProtocolConfig, deviceConfig *SDeviceConfig, metrics map[string]any) error
 
 	// SaveSystemMetrics 保存系统指标数据
 	SaveSystemMetrics(measurement string, tags map[string]string, metrics map[string]any) error

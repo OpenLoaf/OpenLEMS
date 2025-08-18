@@ -8,6 +8,6 @@ type IHumitureBasic interface {
 }
 
 type IHumiture interface {
-	c_base.IDriver
+	c_base.IDevice
 	IHumitureBasic
 }

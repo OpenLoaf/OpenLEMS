@@ -2,11 +2,15 @@ package internal
 
 import (
 	"common/c_base"
+	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"modbus/p_modbus"
 )
 
 func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value int32) error {
+	if !p.IsActivate() {
+		return fmt.Errorf("device %s connect is not activated", p.deviceConfig.Id)
+	}
 	result := meta.ReadType.Encoder(int64(value), meta.Factor, meta.Offset, meta.Endianness)
 	// 通关result来计算需要多少个寄存器位置
 	registerLength := len(result) / 2
@@ -28,6 +32,9 @@ func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value in
 }
 
 func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *p_modbus.SModbusTask, values []int64) error {
+	if !p.IsActivate() {
+		return fmt.Errorf("device %s connect is not activated", p.deviceConfig.Id)
+	}
 	dataLength := group.Quantity
 	if len(group.Metas) != len(values) {
 		panic(gerror.Newf("点位数量与值数量不一致！点位数量：%d, 值数量：%d", len(group.Metas), dataLength))

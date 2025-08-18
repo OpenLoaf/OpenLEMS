@@ -37,6 +37,6 @@ type IGeneratorBasic interface {
 }
 
 type IGenerator interface {
-	c_base.IDriver
+	c_base.IDevice
 	IGeneratorBasic
 }

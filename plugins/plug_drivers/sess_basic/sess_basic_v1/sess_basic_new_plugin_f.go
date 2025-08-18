@@ -12,9 +12,9 @@ var buildYaml []byte
 
 func NewPlugin(ctx context.Context) c_device.IStationEnergyStore {
 	instance := &sStationEnergyStore{
-		SAlarmHandler: &c_base.SAlarmHandler{},
-		ctx:           ctx,
-		SDescription:  c_base.BuildDescriptionFromYaml(ctx, buildYaml),
+		SAlarmHandler:      &c_base.SAlarmHandler{},
+		ctx:                ctx,
+		SDriverDescription: c_base.BuildDescriptionFromYaml(ctx, buildYaml),
 	}
 
 	return instance

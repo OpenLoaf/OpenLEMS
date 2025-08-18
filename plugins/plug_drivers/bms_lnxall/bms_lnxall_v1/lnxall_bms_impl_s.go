@@ -13,11 +13,11 @@ type sBmsLnxallBms struct {
 	p_modbus.IModbusProtocol
 	ctx          context.Context
 	log          *glog.Logger
-	deviceConfig *c_base.SDriverConfig
-	*c_base.SDescription
+	deviceConfig *c_base.SDeviceConfig
+	*c_base.SDriverDescription
 }
 
-func (s *sBmsLnxallBms) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+func (s *sBmsLnxallBms) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
 
 	// 注册
@@ -28,7 +28,7 @@ func (s *sBmsLnxallBms) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDr
 
 }
 
-func (s *sBmsLnxallBms) Destroy() {
+func (s *sBmsLnxallBms) Shutdown() {
 
 }
 

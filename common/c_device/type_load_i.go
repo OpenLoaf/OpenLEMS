@@ -26,6 +26,6 @@ type ILoadBasic interface {
 }
 
 type ILoad interface {
-	c_base.IDriver
+	c_base.IDevice
 	ILoadBasic
 }

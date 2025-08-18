@@ -19,15 +19,15 @@ var (
 )
 
 // NewPlugin 必须的方法，不能取消。修改实现只需修改此方法
-func NewPlugin(ctx context.Context) c_base.IDriver {
+func NewPlugin(ctx context.Context) c_base.IDevice {
 	plugin := pcs_elecod_mac_v1.NewPlugin(ctx)
-	plugin.GetDescription().BuildTime = buildTime
-	plugin.GetDescription().CommitHash = commitHash
+	plugin.GetDriverDescription().BuildTime = buildTime
+	plugin.GetDriverDescription().CommitHash = commitHash
 	return plugin
 }
 
 func main() {
-	command := c_base.PluginDriverCommand(func() c_base.IDriver {
+	command := c_base.PluginDriverCommand(func() c_base.IDevice {
 		return NewPlugin(context.Background())
 	})
 
@@ -39,19 +39,19 @@ func main() {
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			cmd := services.NewDeviceCmd(ctx)
 
-			device := cmd.InitDriver(make(map[string]any), &c_base.SDriverConfig{
+			device := cmd.InitDriver(make(map[string]any), &c_base.SDeviceConfig{
 				Id:             "TestPcsElecodV1",
 				Name:           "亿兰科PCS测试",
 				ProtocolId:     "test_canbus",
 				StorageEnable:  false,
 				Driver:         "pcs_elecod_mac_v1",
-				IsEnable:       true,
+				Enabled:        true,
 				LogLevel:       "",
 				Params:         map[string]string{},
 				DeviceChildren: nil,
 			}, []*c_base.SProtocolConfig{{
 				Id:       "test_canbus",
-				Protocol: "canbus",
+				Type:     "canbus",
 				Address:  "can0",
 				Timeout:  30,
 				LogLevel: "DEBUG",

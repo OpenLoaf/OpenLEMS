@@ -20,22 +20,22 @@ func MetaTransformAndCache(ctx context.Context, deviceId string, deviceType c_ba
 }
 
 // RegisterRunningDevice 注册设备实例
-func RegisterRunningDevice(info c_base.IDriver) {
+func RegisterRunningDevice(info c_base.IDevice) {
 	internal_device.Instances.RegisterInstance(info)
 }
 
 // GetRunningDeviceAll 获取所有设备实例, 参数为空时获取所有设备实例, 参数为true时获取虚拟设备实例, 参数为false时获取实体设备实例
-func GetRunningDeviceAll(isVirtual ...bool) []c_base.IDriver {
+func GetRunningDeviceAll(isVirtual ...bool) []c_base.IDevice {
 	return internal_device.Instances.FindAll(isVirtual...)
 }
 
 // GetRunningDeviceById 通过id获取设备实例
-func GetRunningDeviceById(id string) c_base.IDriver {
+func GetRunningDeviceById(id string) c_base.IDevice {
 	return internal_device.Instances.FindById(id)
 }
 
 // GetRunningDeviceByType 通过类型获取设备实例
-func GetRunningDeviceByType(t c_base.EDeviceType) []c_base.IDriver {
+func GetRunningDeviceByType(t c_base.EDeviceType) []c_base.IDevice {
 	return internal_device.Instances.FindByType(t)
 }
 

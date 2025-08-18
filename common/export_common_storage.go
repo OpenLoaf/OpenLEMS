@@ -18,6 +18,6 @@ func GetStorageInstance() c_base.IStorage {
 	return internal_storage.GetInstance()
 }
 
-func RegisterStorageDriver(storageIntervalSec int32, driver c_base.IDriver) {
+func RegisterStorageDriver(storageIntervalSec int32, driver c_base.IDevice) {
 	internal_storage.GetInstance().RegisterDriver(storageIntervalSec, driver)
 }

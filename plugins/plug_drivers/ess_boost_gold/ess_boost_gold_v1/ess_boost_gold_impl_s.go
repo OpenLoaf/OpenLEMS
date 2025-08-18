@@ -20,8 +20,8 @@ const (
 
 type sEssBoostGoldEss struct {
 	p_modbus.IModbusProtocol
-	*c_base.SDescription
-	deviceConfig *c_base.SDriverConfig
+	*c_base.SDriverDescription
+	deviceConfig *c_base.SDeviceConfig
 	essConfig    *EssBoostGoldConfig
 	ctx          context.Context
 
@@ -32,11 +32,12 @@ type sEssBoostGoldEss struct {
 
 }
 
-func (s *sEssBoostGoldEss) Init(protocol c_base.IProtocol, cfg *c_base.SDriverConfig) {
+func (s *sEssBoostGoldEss) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
+	s.deviceConfig = deviceConfig
 	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
 
 	s.essConfig = &EssBoostGoldConfig{}
-	err := gconv.Scan(cfg.Params, s.essConfig)
+	err := gconv.Scan(deviceConfig.Params, s.essConfig)
 	if err != nil {
 		panic(gerror.Newf("高特EMS配置解析失败：%s", err.Error()))
 	}
@@ -47,7 +48,7 @@ func (s *sEssBoostGoldEss) Init(protocol c_base.IProtocol, cfg *c_base.SDriverCo
 	g.Log().Noticef(s.ctx, "高特EMS初始化完毕！ 配置：%+v", s.essConfig)
 }
 
-func (s *sEssBoostGoldEss) Destroy() {
+func (s *sEssBoostGoldEss) Shutdown() {
 	_ = s.SetPower(0)
 	//s.set
 }

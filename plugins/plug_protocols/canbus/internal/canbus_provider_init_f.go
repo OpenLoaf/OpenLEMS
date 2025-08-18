@@ -1,17 +1,12 @@
 package internal
 
 import (
-	"common"
+	"common/c_base"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-func (c *CanbusProtocolProvider) Init() {
+func (c *CanbusProtocolProvider) ProtocolListen() {
 	c.once.Do(func() {
-		device := common.GetRunningDeviceById(c.deviceConfig.Id)
-		if device != nil {
-			c.deviceType = device.GetDriverType()
-		}
-
 		go func() {
 			for {
 				select {
@@ -37,11 +32,7 @@ func (c *CanbusProtocolProvider) Init() {
 				}
 			}
 		}()
-
+		c.protocolState = c_base.EStateRunning
 	})
 
-}
-
-func (c *CanbusProtocolProvider) Close() {
-	//c.cache.Clear(c.Ctx)
 }

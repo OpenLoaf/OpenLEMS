@@ -1,4 +1,4 @@
-//go:generate stringer -type=EGridMode -output=energy_store_grid_e_string.go
+//go:generate stringer -type=EGridMode  -output=energy_store_grid_e_string.go
 package c_base
 
 type EGridMode int // 电网状态

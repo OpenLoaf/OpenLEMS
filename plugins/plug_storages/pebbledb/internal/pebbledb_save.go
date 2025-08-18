@@ -96,7 +96,7 @@ func NewPebbledb(ctx context.Context) c_base.IStorage {
 		dataRetentionDays := DefaultDataRetentionDays // 默认30天
 
 		// 获取数据保留天数
-		dataRetentionDaysValue := s_db.GetConfigService().GetSettingValueByName(ctx, DataRetentionConfigKey, strconv.Itoa(dataRetentionDays))
+		dataRetentionDaysValue := s_db.GetConfigService().GetSettingValueByKey(ctx, DataRetentionConfigKey, strconv.Itoa(dataRetentionDays))
 		if dataRetentionDaysValue != "" {
 			if days, err := strconv.Atoi(dataRetentionDaysValue); err == nil && days > 0 {
 				dataRetentionDays = days
@@ -282,7 +282,7 @@ func (p *Pebbledb) SaveDevices(deviceId string, deviceType c_base.EDeviceType, f
 	return nil
 }
 
-func (p *Pebbledb) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, metrics map[string]any) error {
+func (p *Pebbledb) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, metrics map[string]any) error {
 	if len(metrics) == 0 {
 		return nil
 	}
@@ -293,7 +293,7 @@ func (p *Pebbledb) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, d
 		"device_name":      deviceConfig.Name,
 		"protocol_id":      protocolConfig.Id,
 		"protocol_address": protocolConfig.Address,
-		"protocol_type":    string(protocolConfig.Protocol),
+		"protocol_type":    string(protocolConfig.Type),
 		"timestamp":        time.Now().UnixMilli(),
 		"metrics":          metrics,
 	}

@@ -9,7 +9,7 @@ import (
 )
 
 func (c *ControllerV1) GetDriverList(ctx context.Context, req *v1.GetDriverListReq) (res *v1.GetDriverListRes, err error) {
-	driverManager := s_driver.GetDriverManager()
+	driverManager := s_driver.GetDriverManager(ctx)
 	driverList := driverManager.GetAllDriverNames()
 
 	var driverInfoList []*entity.SDriver

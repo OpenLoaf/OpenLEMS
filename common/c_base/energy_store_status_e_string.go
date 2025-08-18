@@ -15,11 +15,12 @@ func _() {
 	_ = x[EPcsStatusDischarge-4]
 	_ = x[EPcsStatusFault-5]
 	_ = x[EPcsStatusSync-6]
+	_ = x[EPcsBooting-7]
 }
 
-const _EEnergyStoreStatus_name = "EPcsStatusUnknownEPcsStatusOffEPcsStatusStandbyEPcsStatusChargeEPcsStatusDischargeEPcsStatusFaultEPcsStatusSync"
+const _EEnergyStoreStatus_name = "EPcsStatusUnknownEPcsStatusOffEPcsStatusStandbyEPcsStatusChargeEPcsStatusDischargeEPcsStatusFaultEPcsStatusSyncEPcsBooting"
 
-var _EEnergyStoreStatus_index = [...]uint8{0, 17, 30, 47, 63, 82, 97, 111}
+var _EEnergyStoreStatus_index = [...]uint8{0, 17, 30, 47, 63, 82, 97, 111, 122}
 
 func (i EEnergyStoreStatus) String() string {
 	if i < 0 || i >= EEnergyStoreStatus(len(_EEnergyStoreStatus_index)-1) {

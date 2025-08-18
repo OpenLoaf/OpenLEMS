@@ -63,16 +63,12 @@ var (
 			// 初始化数据库
 			s_db.Init()
 
-			// 使用SqliteDriverConfig
-			common.RegisterDriverConfig(s_db.GetDbDriverConfigService())
-
 			// 初始化存储
 			common.RegisterStorageInstance(func(ctx context.Context) c_base.IStorage {
 				return pebbledb.NewStorageInstance(ctx)
 			})
 
-			common.RegisterDeviceCmd(s_driver.NewDeviceCmd(ctx))
-			deviceCmd, err := common.GetDeviceCmd()
+			common.RegisterDeviceManager(s_driver.GetDriverManager(ctx))
 			if err != nil {
 				panic(err)
 			}
@@ -80,33 +76,21 @@ var (
 			g.Log().Infof(ctx, "EMS Start！PID：%d", os.Getpid())
 
 			// 启动设备
-
-			deviceStartCtx, DeviceStartCancel := context.WithCancel(context.Background())
-			go deviceStart(deviceStartCtx, deviceCmd, parser.GetOpt(ArgActiveDeviceRootId, "0").String())
-
-			var web *ghttp.Server
+			go func() {
+				common.GetDeviceManager().Start(ctx)
+				g.Log().Infof(ctx, "DeviceManger State : %s", common.GetDeviceManager().Status())
+			}()
 
 			gproc.AddSigHandlerShutdown(func(sig os.Signal) {
 				g.Log().Infof(ctx, "接收到关闭服务信号：%s", sig.String())
-				if web != nil {
-					_ = web.Shutdown()
-				}
-				if DeviceStartCancel != nil {
-					DeviceStartCancel()
-				}
-				if deviceCmd != nil {
-					deviceCmd.Stop()
-				}
 				cancelFunc()
-				// 关闭存储
-				common.CloseStorage()
-
 				time.Sleep(1 * time.Second)
 				g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())
 			})
 
 			if parser.GetOpt(ArgEnableWeb).Bool() {
 				g.Log().Infof(ctx, "启动web服务！")
+				var web *ghttp.Server
 				web = startWeb(ctx)
 				web.Run()
 			} else {
@@ -118,13 +102,3 @@ var (
 		},
 	}
 )
-
-func deviceStart(deviceStartCtx context.Context, deviceCmd common.IDeviceCmd, activeDeviceRootId string) {
-	select {
-	case <-deviceStartCtx.Done():
-		deviceCmd.Stop()
-		return
-	default:
-		deviceCmd.Start(activeDeviceRootId)
-	}
-}

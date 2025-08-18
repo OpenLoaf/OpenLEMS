@@ -18,7 +18,7 @@ import (
 type CanbusProtocolProvider struct {
 	*c_base.SAlarmHandler                 // 告警
 	ctx                   context.Context // 上下文
-	once                  sync.Once       // 只执行一次Init方法
+	once                  sync.Once
 
 	connect         net.Conn         // 链接
 	receiverChan    <-chan can.Frame // 接收通道
@@ -31,11 +31,18 @@ type CanbusProtocolProvider struct {
 	canbusRwMutex      sync.RWMutex  // 读写锁
 	lastUpdateTime     *time.Time    // 最后更新时间
 	deviceType         c_base.EDeviceType
-	deviceConfig       *c_base.SDriverConfig
+	deviceConfig       *c_base.SDeviceConfig
 	canbusDeviceConfig *p_canbus.SCanbusDeviceConfig
 	protocolConfig     *c_base.SProtocolConfig
 
+	protocolState c_base.EServerState
 	//metricProtocol *sMetricProtocol // 统计协议
+}
+
+var _ c_base.IProtocol = (*CanbusProtocolProvider)(nil)
+
+func (c *CanbusProtocolProvider) IsPhysical() bool {
+	return true
 }
 
 func (c *CanbusProtocolProvider) IsActivate() bool {
@@ -51,7 +58,7 @@ func (c *CanbusProtocolProvider) GetLastUpdateTime() *time.Time {
 	return c.lastUpdateTime
 }
 
-func (c *CanbusProtocolProvider) GetDeviceConfig() *c_base.SDriverConfig {
+func (c *CanbusProtocolProvider) GetDeviceConfig() *c_base.SDeviceConfig {
 	return c.deviceConfig
 }
 
@@ -63,22 +70,23 @@ func (c *CanbusProtocolProvider) GetCanbusDeviceConfig() *p_canbus.SCanbusDevice
 	return c.canbusDeviceConfig
 }
 
-func NewCanbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, receiverChan <-chan can.Frame, transmitterChan chan<- can.Frame) (p_canbus.ICanbusProtocol, error) {
+func NewCanbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, receiverChan <-chan can.Frame, transmitterChan chan<- can.Frame) (p_canbus.ICanbusProtocol, error) {
 	if protocolConfig == nil {
-		panic(gerror.Newf("Canbus协议：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
+		return nil, gerror.Newf("Canbus协议：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name)
 	}
 	if deviceConfig == nil {
-		panic(gerror.Newf("Canbus协议：%s 的设备配置不能为空！", protocolConfig.Id))
+		return nil, gerror.Newf("Canbus协议：%s 的设备配置不能为空！", protocolConfig.Id)
 	}
 	canbusDeviceConfig := &p_canbus.SCanbusDeviceConfig{}
 	err := gconv.Scan(deviceConfig.Params, canbusDeviceConfig)
 	if err != nil {
-		panic(gerror.Newf("设备[%s]的Param参数配置错误：%v 无法转换为SCanbusDeviceConfig", deviceConfig.Id, err))
+		return nil, gerror.Wrapf(err, "设备[%s]的Param参数配置错误：%v 无法转换为SCanbusDeviceConfig", deviceConfig.Id)
 	}
 
 	provider := &CanbusProtocolProvider{
 		once:               sync.Once{},
 		ctx:                ctx,
+		deviceType:         deviceType,
 		deviceConfig:       deviceConfig,
 		protocolConfig:     protocolConfig,
 		canbusDeviceConfig: canbusDeviceConfig,

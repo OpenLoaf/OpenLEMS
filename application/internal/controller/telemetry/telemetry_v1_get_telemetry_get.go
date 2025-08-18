@@ -17,7 +17,8 @@ func (c *ControllerV1) GetTelemetryGet(ctx context.Context, req *v1.GetTelemetry
 	}
 
 	// 反射执行方法
-	value, err := instance.GetTelemetry(req.TelemetryKey, instance)
+	des := instance.GetDriverDescription()
+	value, err := des.GetTelemetry(req.TelemetryKey, instance)
 	if err != nil {
 		return nil, err
 	}

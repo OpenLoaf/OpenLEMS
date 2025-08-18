@@ -22,8 +22,8 @@ func init() {
 	Instances = &sDeviceInstance{
 		mutex: sync.Mutex{},
 		array: garray.NewSortedArray(func(v1, v2 interface{}) int {
-			v1Info := v1.(c_base.IDriver).GetDeviceConfig().Id
-			v2Info := v2.(c_base.IDriver).GetDeviceConfig().Id
+			v1Info := v1.(c_base.IDevice).GetDeviceConfig().Id
+			v2Info := v2.(c_base.IDevice).GetDeviceConfig().Id
 
 			if v1Info > v2Info {
 				return -1
@@ -35,7 +35,7 @@ func init() {
 }
 
 // RegisterInstance 注册设备实例
-func (d *sDeviceInstance) RegisterInstance(info c_base.IDriver) {
+func (d *sDeviceInstance) RegisterInstance(info c_base.IDevice) {
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 	if info.GetDeviceConfig().Id == "" {
@@ -49,21 +49,21 @@ func (d *sDeviceInstance) RegisterInstance(info c_base.IDriver) {
 	d.array.Add(info)
 }
 
-func (d *sDeviceInstance) FindByType(t c_base.EDeviceType) []c_base.IDriver {
-	var result []c_base.IDriver
+func (d *sDeviceInstance) FindByType(t c_base.EDeviceType) []c_base.IDevice {
+	var result []c_base.IDevice
 	for _, instance := range d.array.Slice() {
-		if instance.(c_base.IDriver).GetDriverType() == t {
-			result = append(result, instance.(c_base.IDriver))
+		if instance.(c_base.IDevice).GetDriverType() == t {
+			result = append(result, instance.(c_base.IDevice))
 		}
 	}
 	return result
 }
 
 // FindById 获取设备实例
-func (d *sDeviceInstance) FindById(id string) c_base.IDriver {
+func (d *sDeviceInstance) FindById(id string) c_base.IDevice {
 	for _, instance := range d.array.Slice() {
-		if instance.(c_base.IDriver).GetDeviceConfig().Id == id {
-			return instance.(c_base.IDriver)
+		if instance.(c_base.IDevice).GetDeviceConfig().Id == id {
+			return instance.(c_base.IDevice)
 		}
 	}
 	return nil
@@ -76,23 +76,23 @@ func (d *sDeviceInstance) RemoveById(id string) {
 	}
 }
 
-func (d *sDeviceInstance) FindAll(isVirtual ...bool) []c_base.IDriver {
+func (d *sDeviceInstance) FindAll(isVirtual ...bool) []c_base.IDevice {
 
-	var result []c_base.IDriver
+	var result []c_base.IDevice
 	for _, info := range d.array.Slice() {
 		if isVirtual != nil && len(isVirtual) > 0 {
 			if isVirtual[0] {
-				if info.(c_base.IDriver).GetDeviceConfig().ProtocolId == "" {
-					result = append(result, info.(c_base.IDriver))
+				if info.(c_base.IDevice).GetDeviceConfig().ProtocolId == "" {
+					result = append(result, info.(c_base.IDevice))
 				}
 			} else {
-				if info.(c_base.IDriver).GetDeviceConfig().ProtocolId != "" {
-					result = append(result, info.(c_base.IDriver))
+				if info.(c_base.IDevice).GetDeviceConfig().ProtocolId != "" {
+					result = append(result, info.(c_base.IDevice))
 				}
 			}
 		} else {
 			// 获取所有
-			result = append(result, info.(c_base.IDriver))
+			result = append(result, info.(c_base.IDevice))
 		}
 
 	}

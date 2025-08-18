@@ -36,7 +36,7 @@ type IPvBase interface {
 }
 
 type IPv interface {
-	c_base.IDriver
+	c_base.IDevice
 	IPvBase
 }
 

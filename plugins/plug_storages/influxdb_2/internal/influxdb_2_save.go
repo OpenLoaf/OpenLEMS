@@ -81,13 +81,13 @@ func (i *Influxdb2) Close() {
 	i.client.Close()
 }
 
-func (i *Influxdb2) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDriverConfig, metrics map[string]any) error {
+func (i *Influxdb2) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, metrics map[string]any) error {
 	tags := map[string]string{
 		c_base.ConstDeviceId:        deviceConfig.Id,
 		c_base.ConstDeviceName:      deviceConfig.Name,
 		c_base.ConstProtocolId:      protocolConfig.Id,
 		c_base.ConstProtocolAddress: protocolConfig.Address,
-		c_base.ConstProtocolType:    string(protocolConfig.Protocol),
+		c_base.ConstProtocolType:    string(protocolConfig.Type),
 	}
 	return i.write(systemBucket, c_base.ConstProtocol, tags, metrics)
 }

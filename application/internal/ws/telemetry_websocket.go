@@ -166,8 +166,8 @@ func writeValue(ctx context.Context, conn *websocket.Conn, query RegisterTelemet
 			errMap[key] = fmt.Sprintf("设备 %s 不存在", values[0])
 			continue
 		}
-
-		value, err := instance.GetTelemetry(values[1], instance)
+		des := instance.GetDriverDescription()
+		value, err := des.GetTelemetry(values[1], instance)
 		if err != nil {
 			errMap[key] = err.Error()
 			continue

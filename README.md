@@ -132,3 +132,12 @@ https://docs.influxdata.com/influxdb/v2/install/#install-influxdb-as-a-service-w
 ```bash
 sqlite3 db.sqlite3 .dump > init.sql
 ```
+
+
+## 常量生成
+```bash
+go install golang.org/x/tools/cmd/stringer@latest
+# 其他参数：
+## -linecomment 使用注解作为string返回
+## -trimprefix 去除前缀
+```

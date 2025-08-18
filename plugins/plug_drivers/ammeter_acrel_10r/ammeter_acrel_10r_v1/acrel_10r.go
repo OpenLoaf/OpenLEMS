@@ -8,19 +8,22 @@ import (
 )
 
 type sAmmeterAcrel10r struct {
+	*c_base.SDriverDescription
+
 	ctx context.Context
 	p_modbus.IModbusProtocol
-	*c_base.SDescription
 }
 
-func (s *sAmmeterAcrel10r) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+var _ c_base.IDevice = (*sAmmeterAcrel10r)(nil)
+
+func (s *sAmmeterAcrel10r) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
 
 	// 注册
 	s.IModbusProtocol.RegisterRead(s.ctx, GRealtimeInfo, GTotal)
 }
 
-func (s *sAmmeterAcrel10r) Destroy() {
+func (s *sAmmeterAcrel10r) Shutdown() {
 	g.Log().Noticef(s.ctx, "[%s]%s销毁成功", s.GetDeviceConfig().Id, s.GetDeviceConfig().Name)
 }
 

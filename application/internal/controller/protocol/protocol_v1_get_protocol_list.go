@@ -25,7 +25,7 @@ func (c *ControllerV1) GetProtocolList(ctx context.Context, req *v1.GetProtocolL
 		address, port := parseAddressAndPort(protocol.Address)
 
 		protocolActive := false
-		deviceCmd, err := common.GetDeviceCmd()
+		deviceCmd := common.GetDeviceManager()
 		if deviceCmd != nil && err == nil {
 			protocolActive = deviceCmd.IsProtocolActive(protocol.Id)
 		}

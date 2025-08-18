@@ -25,7 +25,7 @@ func CacheValue(ctx context.Context, deviceId string, deviceType c_base.EDeviceT
 		if meta.Trigger != nil {
 			if meta.Trigger(value) {
 				//alarmProvider.TriggerAlarm(meta, value)
-				g.Log().Debugf(ctx, "[%s-%s] 触发[%s]", deviceId, meta.Name, meta.Level.Name())
+				g.Log().Debugf(ctx, "[%s-%s] 触发[%s]", deviceId, meta.Name, meta.Level.String())
 
 				processAlarm(protocol, deviceId, deviceType, meta, true, value)
 			} else {

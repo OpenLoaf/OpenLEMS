@@ -15,11 +15,11 @@ type sPcsEnjoyBasic struct {
 	log                 *glog.Logger
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
-	deviceConfig        *c_base.SDriverConfig
-	*c_base.SDescription
+	deviceConfig        *c_base.SDeviceConfig
+	*c_base.SDriverDescription
 }
 
-func (s *sPcsEnjoyBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+func (s *sPcsEnjoyBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
 	s.deviceConfig = deviceConfig
 
@@ -31,10 +31,10 @@ func (s *sPcsEnjoyBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.SD
 		GroupSetting,
 	)
 
-	g.Log().Noticef(s.ctx, "sPcsEnjoyBasic Init")
+	g.Log().Noticef(s.ctx, "sPcsEnjoyBasic InitDevice")
 }
 
-func (s *sPcsEnjoyBasic) Destroy() {
+func (s *sPcsEnjoyBasic) Shutdown() {
 	_ = s.SetPower(0)
 	_ = s.SetStatus(c_base.EPcsStatusOff)
 	g.Log().Noticef(s.ctx, "[%s]%s销毁成功,设置PCS状态为Off!", s.deviceConfig.Id, s.deviceConfig.Name)

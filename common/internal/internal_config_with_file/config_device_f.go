@@ -18,8 +18,8 @@ func (c *SConfig) GetStorageConfig(ctx context.Context) *c_base.SStorageConfig {
 	return config
 }
 
-func (c *SConfig) GetDriverConfig(ctx context.Context) *c_base.SDriverConfig {
-	config, configPath, err := getConfig[c_base.SDriverConfig](ctx, c.deviceCfgName, "device")
+func (c *SConfig) GetDriverConfig(ctx context.Context) *c_base.SDeviceConfig {
+	config, configPath, err := getConfig[c_base.SDeviceConfig](ctx, c.deviceCfgName, "device")
 	if err != nil {
 		panic(gerror.Newf("解析设备配置文件中的[drivers]失败！配置文件路径: %s 错误原因：%v", configPath, err))
 	}

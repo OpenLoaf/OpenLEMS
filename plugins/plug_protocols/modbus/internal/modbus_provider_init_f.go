@@ -1,18 +1,12 @@
 package internal
 
 import (
-	"common"
 	"modbus/p_modbus"
 )
 
-func (p *ModbusProtocolProvider) Init() {
+func (p *ModbusProtocolProvider) ProtocolListen() {
 	// 只会执行一次监听
 	p.once.Do(func() {
-		device := common.GetRunningDeviceById(p.deviceConfig.Id)
-		if device != nil {
-			p.deviceType = device.GetDriverType()
-		}
-
 		go func(c chan *p_modbus.SModbusTask) {
 			for {
 				select {
@@ -34,8 +28,4 @@ func (p *ModbusProtocolProvider) Init() {
 		}(p.modbusReadChan)
 
 	})
-}
-
-func (p *ModbusProtocolProvider) Close() {
-	//p.cache.Clear(p.ctx)
 }

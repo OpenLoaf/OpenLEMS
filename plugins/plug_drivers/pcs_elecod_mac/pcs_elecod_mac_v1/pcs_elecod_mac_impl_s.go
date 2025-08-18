@@ -14,11 +14,12 @@ type sPcsElecodBasic struct {
 	p_canbus.ICanbusProtocol
 	ctx          context.Context
 	log          *glog.Logger
-	deviceConfig *c_base.SDriverConfig
-	*c_base.SDescription
+	deviceConfig *c_base.SDeviceConfig
+	*c_base.SDriverDescription
 }
 
-func (s *sPcsElecodBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+func (s *sPcsElecodBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
+	s.deviceConfig = deviceConfig
 	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
 
 	for _, task := range analogAllTasks {
@@ -36,8 +37,8 @@ func (s *sPcsElecodBasic) Init(protocol c_base.IProtocol, deviceConfig *c_base.S
 	g.Log().Info(s.ctx, "测试结束！！！！")
 }
 
-func (s *sPcsElecodBasic) Destroy() {
-	g.Log().Info(s.ctx, "Destroy")
+func (s *sPcsElecodBasic) Shutdown() {
+	g.Log().Info(s.ctx, "Shutdown")
 }
 
 func (s *sPcsElecodBasic) GetDriverType() c_base.EDeviceType {

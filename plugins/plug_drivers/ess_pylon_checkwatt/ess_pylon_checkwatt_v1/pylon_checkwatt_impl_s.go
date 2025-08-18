@@ -1,12 +1,10 @@
 package ess_pylon_checkwatt_v1
 
 import (
-	"common"
 	"common/c_base"
 	"common/c_device"
 	"common/c_error"
 	"context"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"time"
 )
@@ -18,8 +16,8 @@ const (
 
 type sPylonCheckwattEss struct {
 	*c_base.SAlarmHandler
-	*c_base.SDescription
-	deviceConfig *c_base.SDriverConfig
+	*c_base.SDriverDescription
+	deviceConfig *c_base.SDeviceConfig
 	ctx          context.Context
 
 	unitId  uint8             // modbus转发的id
@@ -34,15 +32,27 @@ type sPylonCheckwattEss struct {
 	ledFault        c_device.IGpio
 }
 
-func (p *sPylonCheckwattEss) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+func (p *sPylonCheckwattEss) ProtocolListen() {
+
+}
+
+func (p *sPylonCheckwattEss) IsActivate() bool {
+	return true
+}
+
+func (p *sPylonCheckwattEss) GetProtocolConfig() *c_base.SProtocolConfig {
+	return nil
+}
+
+func (p *sPylonCheckwattEss) IsPhysical() bool {
+	return false
+}
+
+func (p *sPylonCheckwattEss) InitDevice(deviceConfig *c_base.SDeviceConfig, _ c_base.IProtocol, childDevice []c_base.IDevice) {
 	p.deviceConfig = deviceConfig
 
 	// 从配置中获取电表、PCS、BMS的配置
-	for _, child := range deviceConfig.DeviceChildren {
-		dv := common.GetRunningDeviceById(child.Id)
-		if dv == nil {
-			panic(gerror.Newf("sPylonCheckwattEss 设备Id: %s 不存在！", child.Id))
-		}
+	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
 			p.ammeter = dv.(c_device.IAmmeter)
 			g.Log().Infof(p.ctx, "sPylonCheckwattEss 电表初始化完毕!")
@@ -70,6 +80,11 @@ func (p *sPylonCheckwattEss) Init(protocol c_base.IProtocol, deviceConfig *c_bas
 	g.Log().Infof(p.ctx, "sPylonCheckwattEss 虚拟储能柜初始化完毕!")
 }
 
+func (p *sPylonCheckwattEss) Shutdown() {
+	_ = p.SetPower(0)
+	_ = p.SetStatus(c_base.EPcsStatusOff)
+}
+
 func (p *sPylonCheckwattEss) Destroy() {
 
 }
@@ -78,7 +93,7 @@ func (p *sPylonCheckwattEss) GetDriverType() c_base.EDeviceType {
 	return c_base.EDeviceEnergyStore
 }
 
-func (p *sPylonCheckwattEss) GetDeviceConfig() *c_base.SDriverConfig {
+func (p *sPylonCheckwattEss) GetDeviceConfig() *c_base.SDeviceConfig {
 	return p.deviceConfig
 }
 

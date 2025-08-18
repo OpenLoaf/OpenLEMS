@@ -11,25 +11,24 @@ import (
 	"net"
 )
 
-// NewCanbusConnect 创建一个canbus接收器
-func NewCanbusConnect(ctx context.Context, protocolConfig *c_base.SProtocolConfig) (<-chan can.Frame, chan<- can.Frame) {
+func NewCanbusConnect(ctx context.Context, protocolConfig *c_base.SProtocolConfig) (<-chan can.Frame, chan<- can.Frame, error) {
 
 	canbusConfig := GetCanbusConfig(protocolConfig)
 
 	// 启动接口
 	canInterface, err := candevice.New(protocolConfig.GetAddress())
 	if err != nil {
-		panic(gerror.Newf("canbus初始化失败！%s", err.Error()))
+		return nil, nil, gerror.Wrapf(err, "canbus初始化失败！%s")
 	}
 	isUp, _ := canInterface.IsUp()
 	if !isUp {
 		err = canInterface.SetBitrate(canbusConfig.BaudRate)
 		if err != nil {
-			panic(gerror.Newf("canbus[%v] 设置波特率为 %v 失败！%s", protocolConfig.GetAddress(), canbusConfig.BaudRate, err.Error()))
+			return nil, nil, gerror.Wrapf(err, "canbus[%v] 设置波特率为 %v 失败！%s", protocolConfig.GetAddress(), canbusConfig.BaudRate)
 		}
 		err = canInterface.SetUp()
 		if err != nil {
-			panic(err)
+			return nil, nil, err
 		}
 	}
 
@@ -51,10 +50,10 @@ func NewCanbusConnect(ctx context.Context, protocolConfig *c_base.SProtocolConfi
 		conn, err = socketcan.DialContext(context.Background(), "udp", protocolConfig.GetAddress())
 		g.Log().Infof(ctx, "canbus udp协议连接[%s]初始化成功！", protocolConfig.GetAddress())
 	default:
-		panic(gerror.Newf("错误的参数传递！%s 进入了canbus协议连接初始化！", protocolConfig.GetProtocol()))
+		return nil, nil, gerror.Newf("错误的参数传递！%s 进入了canbus协议连接初始化！", protocolConfig.GetProtocol())
 	}
 	if err != nil {
-		panic(gerror.Newf("canbus协议连接[%s]初始化失败！%s", protocolConfig.GetAddress(), err.Error()))
+		return nil, nil, gerror.Wrapf(err, "canbus协议连接[%s]初始化失败！%s", protocolConfig.GetAddress())
 	}
 
 	// 初始化 can 接收器
@@ -104,5 +103,5 @@ func NewCanbusConnect(ctx context.Context, protocolConfig *c_base.SProtocolConfi
 		}
 	}()
 
-	return receiverChan, transmitterChan
+	return receiverChan, transmitterChan, nil
 }

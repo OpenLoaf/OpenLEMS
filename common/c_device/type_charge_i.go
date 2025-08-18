@@ -28,6 +28,6 @@ type IChargeBasic interface {
 }
 
 type ICharge interface {
-	c_base.IDriver
+	c_base.IDevice
 	ILoadBasic
 }

@@ -6,7 +6,7 @@ import (
 )
 
 type IGpio interface {
-	c_base.IDriver
+	c_base.IDevice
 
 	RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) // 状态变化处理
 

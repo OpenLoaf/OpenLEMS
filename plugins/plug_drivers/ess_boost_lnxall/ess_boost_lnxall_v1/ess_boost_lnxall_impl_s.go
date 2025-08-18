@@ -1,12 +1,10 @@
 package ess_boost_lnxall_v1
 
 import (
-	"common"
 	"common/c_base"
 	"common/c_device"
 	"common/c_error"
 	"context"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"modbus/p_modbus"
 	"time"
@@ -22,8 +20,8 @@ const (
 
 type sEssBoostLnxallEss struct {
 	p_modbus.IModbusProtocol
-	*c_base.SDescription
-	deviceConfig *c_base.SDriverConfig
+	*c_base.SDriverDescription
+	deviceConfig *c_base.SDeviceConfig
 	ctx          context.Context
 
 	targetPower         int32 // 目标有功功率
@@ -43,16 +41,12 @@ type sEssBoostLnxallEss struct {
 // 必须实现储能柜接口
 var _ c_device.IEnergyStore = (*sEssBoostLnxallEss)(nil)
 
-func (s *sEssBoostLnxallEss) Init(protocol c_base.IProtocol, deviceConfig *c_base.SDriverConfig) {
+func (s *sEssBoostLnxallEss) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
 	s.deviceConfig = deviceConfig
 	// 从配置中获取电表、PCS、BMS的配置
 	// 从配置中获取电表、PCS、BMS的配置
-	for _, child := range deviceConfig.DeviceChildren {
-		dv := common.GetRunningDeviceById(child.Id)
-		if dv == nil {
-			panic(gerror.Newf("EssBoostLnxallEss 设备Id: %s 不存在！", child.Id))
-		}
+	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
 			s.ammeter = dv.(c_device.IAmmeter)
 			g.Log().Infof(s.ctx, "EssBoostLnxallEss 电表初始化完毕!")
@@ -98,7 +92,7 @@ func (s *sEssBoostLnxallEss) Init(protocol c_base.IProtocol, deviceConfig *c_bas
 	g.Log().Infof(s.ctx, "EssBoostLnxallEss 储能柜初始化完毕!")
 }
 
-func (s *sEssBoostLnxallEss) Destroy() {
+func (s *sEssBoostLnxallEss) Shutdown() {
 	err := s.SetPower(0)
 	if err != nil {
 		g.Log().Errorf(s.ctx, "关闭储能柜失败! %v", err)
@@ -172,7 +166,7 @@ func (s *sEssBoostLnxallEss) GetMetaValueList() []*c_base.MetaValueWrapper {
 	return GetMetaValueList(s.ammeter, s.pcs, s.bms, s.buttonCharge, s.buttonDischarge, s.buttonScram, s.ledRunning, s.ledFault)
 }
 
-func GetMetaValueList(driver ...c_base.IDriver) []*c_base.MetaValueWrapper {
+func GetMetaValueList(driver ...c_base.IDevice) []*c_base.MetaValueWrapper {
 	var metaValueList []*c_base.MetaValueWrapper
 	if driver == nil {
 		return nil
@@ -184,10 +178,6 @@ func GetMetaValueList(driver ...c_base.IDriver) []*c_base.MetaValueWrapper {
 		metaValueList = append(metaValueList, d.GetMetaValueList()...)
 	}
 	return metaValueList
-}
-
-func (s *sEssBoostLnxallEss) GetDeviceConfig() *c_base.SDriverConfig {
-	return s.deviceConfig
 }
 
 func (s *sEssBoostLnxallEss) GetCellMinTemp() (float32, error) {
