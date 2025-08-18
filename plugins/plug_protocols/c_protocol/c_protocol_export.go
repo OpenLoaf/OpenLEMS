@@ -4,7 +4,6 @@ import (
 	"c_protocol/internal/internal_meta"
 	"common/c_base"
 	"context"
-	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/os/gcache"
 	"reflect"
 	"time"
@@ -31,7 +30,7 @@ func ReadTypeGetReflectKind(d c_base.EReadType, bitLength uint8) reflect.Kind {
 }
 
 // MetaTransformAndCache 元数据转换并缓存
-func MetaTransformAndCache(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
+func MetaTransformAndCache(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (any, error) {
 	v := internal_meta.MetaProcess(meta, value)
 	return internal_meta.CacheValue(ctx, deviceId, deviceType, protocol, meta, v, cache, lifetime)
 }

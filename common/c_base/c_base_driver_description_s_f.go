@@ -6,9 +6,6 @@ import (
 	"reflect"
 	"strings"
 	"text/tabwriter"
-
-	"github.com/gogf/gf/v2/encoding/gyaml"
-	"github.com/gogf/gf/v2/text/gstr"
 )
 
 // SDriverDescription 驱动的描述内容
@@ -30,13 +27,14 @@ type SDriverDescription struct {
 
 func BuildDescriptionFromYaml(ctx context.Context, yaml []byte) *SDriverDescription {
 	// g.Log().Debugf(ctx, "BuildDescriptionFromYaml: %s", string(yaml))
-	description := &SDriverDescription{}
-	err := gyaml.DecodeTo(yaml, &description)
-	if err != nil {
-		panic(fmt.Errorf("解析版本信息失败！请检查version.yaml文件!%v", err))
-	}
-
-	return description
+	//description := &SDriverDescription{}
+	//err := gyaml.DecodeTo(yaml, &description)
+	//if err != nil {
+	//	panic(fmt.Errorf("解析版本信息失败！请检查version.yaml文件!%v", err))
+	//}
+	//
+	//return description
+	return nil
 }
 
 func (s *SDriverDescription) String() string {
@@ -96,7 +94,7 @@ func (s *SDriverDescription) GetTelemetry(key string, instance any) (any, error)
 
 	// 如果缓冲中不存在，就反射新增
 	if method, ok = s.reflectMethodCache[key]; !ok {
-		functionName := fmt.Sprintf("Get%s", gstr.UcFirst(key))
+		functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
 		method = reflect.ValueOf(instance).MethodByName(functionName)
 		if !method.IsValid() {
 			return 0, fmt.Errorf("method %s not found", key)
@@ -129,4 +127,11 @@ func (s *SDriverDescription) GetAllTelemetry(instance any) map[string]any {
 		telemetryMap[telemetry.Name] = value
 	}
 	return telemetryMap
+}
+
+func capitalizeFirstLetter(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	return strings.ToUpper(s[:1]) + s[1:]
 }

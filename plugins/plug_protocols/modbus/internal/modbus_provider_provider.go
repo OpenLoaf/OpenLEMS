@@ -2,6 +2,7 @@ package internal
 
 import (
 	"common/c_base"
+	p_modbus2 "common/c_modbus"
 	"context"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -10,7 +11,6 @@ import (
 	"github.com/gogf/gf/v2/os/glog"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/torykit/go-modbus"
-	"modbus/p_modbus"
 	"sync"
 	"time"
 )
@@ -21,16 +21,16 @@ type ModbusProtocolProvider struct {
 	once                  sync.Once       // 只执行一次Init方法
 	//deviceId              string                     // 设备名称
 	//unitId                uint8                      // 设备的unitId
-	modbusReadChan     chan *p_modbus.SModbusTask // 查询用的通道
-	client             modbus.Client              // modbus的通讯
-	preQuery           map[string]bool            // 预读
-	cache              *gcache.Cache              // 点位缓存
-	log                *glog.Logger               // 日志
-	modbusRwMutex      sync.RWMutex               // 读写锁
-	lastUpdateTime     *time.Time                 // 最后更新时间
+	modbusReadChan     chan *p_modbus2.SModbusTask // 查询用的通道
+	client             modbus.Client               // modbus的通讯
+	preQuery           map[string]bool             // 预读
+	cache              *gcache.Cache               // 点位缓存
+	log                *glog.Logger                // 日志
+	modbusRwMutex      sync.RWMutex                // 读写锁
+	lastUpdateTime     *time.Time                  // 最后更新时间
 	deviceType         c_base.EDeviceType
 	deviceConfig       *c_base.SDeviceConfig
-	modbusDeviceConfig *p_modbus.SModbusDeviceConfig
+	modbusDeviceConfig *p_modbus2.SModbusDeviceConfig
 	protocolConfig     *c_base.SProtocolConfig
 
 	metricProtocol *sMetricProtocol // 统计协议
@@ -42,14 +42,14 @@ func (p *ModbusProtocolProvider) IsPhysical() bool {
 	return true
 }
 
-func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (p_modbus.IModbusProtocol, error) {
+func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (p_modbus2.IModbusProtocol, error) {
 	if protocolConfig == nil {
 		panic(gerror.Newf("Modbus设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
 	}
 	if deviceConfig == nil {
 		panic(gerror.Newf("modbus协议：%s 的设备配置不能为空！", protocolConfig.Id))
 	}
-	modbusDeviceConfig := &p_modbus.SModbusDeviceConfig{}
+	modbusDeviceConfig := &p_modbus2.SModbusDeviceConfig{}
 	err := gconv.Scan(deviceConfig.Params, modbusDeviceConfig)
 	if err != nil {
 		panic(gerror.Newf("设备[%s]的Param参数配置错误：%v 无法转换为SModbusDeviceConfig", deviceConfig.Id, err))
@@ -65,7 +65,7 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 		deviceConfig:       deviceConfig,
 		protocolConfig:     protocolConfig,
 		modbusDeviceConfig: modbusDeviceConfig,
-		modbusReadChan:     make(chan *p_modbus.SModbusTask),
+		modbusReadChan:     make(chan *p_modbus2.SModbusTask),
 		preQuery:           make(map[string]bool),
 		cache:              gcache.New(),
 		deviceType:         deviceType,
@@ -105,7 +105,7 @@ func (p *ModbusProtocolProvider) GetProtocolConfig() *c_base.SProtocolConfig {
 	return p.protocolConfig
 }
 
-func (p *ModbusProtocolProvider) GetModbusDeviceConfig() *p_modbus.SModbusDeviceConfig {
+func (p *ModbusProtocolProvider) GetModbusDeviceConfig() *p_modbus2.SModbusDeviceConfig {
 	return p.modbusDeviceConfig
 }
 

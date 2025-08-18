@@ -4,7 +4,6 @@ import (
 	"c_protocol"
 	"common/c_base"
 	"fmt"
-	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"math"
@@ -12,13 +11,13 @@ import (
 	"time"
 )
 
-func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr uint16, lifetime time.Duration, result []byte, metas ...*c_base.Meta) ([]*gvar.Var, error) {
+func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr uint16, lifetime time.Duration, result []byte, metas ...*c_base.Meta) ([]any, error) {
 	if metas == nil || len(metas) == 0 || result == nil {
 		return nil, gerror.Newf("[%s] Analysis的查询方法 value或points参数为空！", groupName)
 	}
 
 	var (
-		results    = make([]*gvar.Var, len(metas))
+		results    = make([]any, len(metas))
 		errMessage string
 		err        error
 	)

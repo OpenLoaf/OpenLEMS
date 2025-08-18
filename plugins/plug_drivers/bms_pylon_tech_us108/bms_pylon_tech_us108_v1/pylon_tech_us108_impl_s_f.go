@@ -3,18 +3,18 @@ package bms_pylon_tech_us108_v1
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_modbus"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"math"
-	"modbus/p_modbus"
 	"time"
 )
 
 type sPylonTechUs108Bms struct {
 	ctx context.Context
-	p_modbus.IModbusProtocol
+	c_modbus.IModbusProtocol
 	*c_base.SDriverDescription
 	bmsConfig *PylonTechUs108BmsConfig
 }
@@ -26,7 +26,7 @@ func (p *sPylonTechUs108Bms) GetDriverType() c_base.EDeviceType {
 }
 
 func (p *sPylonTechUs108Bms) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
-	p.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
+	p.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
 
 	bmsConfig := &PylonTechUs108BmsConfig{}
 	err := gconv.Scan(deviceConfig.Params, bmsConfig)

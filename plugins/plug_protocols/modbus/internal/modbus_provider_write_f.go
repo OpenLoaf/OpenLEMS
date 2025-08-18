@@ -3,9 +3,9 @@ package internal
 import (
 	"c_protocol"
 	"common/c_base"
+	"common/c_modbus"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"modbus/p_modbus"
 )
 
 func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value int32) error {
@@ -34,7 +34,7 @@ func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value in
 	return nil
 }
 
-func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *p_modbus.SModbusTask, values []int64) error {
+func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *c_modbus.SModbusTask, values []int64) error {
 	if !p.IsActivate() {
 		return fmt.Errorf("device %s connect is not activated", p.deviceConfig.Id)
 	}

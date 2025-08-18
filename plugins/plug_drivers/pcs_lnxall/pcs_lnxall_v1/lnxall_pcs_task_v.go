@@ -2,16 +2,16 @@ package pcs_lnxall_v1
 
 import (
 	"common/c_base"
-	"modbus/p_modbus"
+	"common/c_modbus"
 	"time"
 )
 
-var GroupAcInfo = &p_modbus.SModbusTask{
+var GroupAcInfo = &c_modbus.SModbusTask{
 	Name:      "GroupAcInfo",
 	Desc:      "交流电流电压功率",
 	Addr:      Ua.Addr,
 	Quantity:  PF.Addr - Ua.Addr + 2,
-	Function:  p_modbus.MqInputRegisters,
+	Function:  c_modbus.MqInputRegisters,
 	CycleMill: 100,
 	Lifetime:  30 * time.Second,
 	Metas: []*c_base.Meta{
@@ -21,12 +21,12 @@ var GroupAcInfo = &p_modbus.SModbusTask{
 	},
 }
 
-var GroupDcInfo = &p_modbus.SModbusTask{
+var GroupDcInfo = &c_modbus.SModbusTask{
 	Name:      "GroupDcInfo",
 	Desc:      "直流信息",
 	Addr:      Vbatt.Addr,
 	Quantity:  Vn.Addr - Vbatt.Addr + 2,
-	Function:  p_modbus.MqInputRegisters,
+	Function:  c_modbus.MqInputRegisters,
 	CycleMill: 0,                // 不需要定时读取，需要的时候读取
 	Lifetime:  30 * time.Second, // 30s后过期
 	Metas: []*c_base.Meta{
@@ -34,12 +34,12 @@ var GroupDcInfo = &p_modbus.SModbusTask{
 	},
 }
 
-var GroupOtherInfo = &p_modbus.SModbusTask{
+var GroupOtherInfo = &c_modbus.SModbusTask{
 	Name:      "GroupOtherInfo",
 	Desc:      "其他信息",
 	Addr:      WorkState.Addr,
 	Quantity:  OnlineState.Addr - WorkState.Addr + 2,
-	Function:  p_modbus.MqInputRegisters,
+	Function:  c_modbus.MqInputRegisters,
 	CycleMill: 1000,
 	Lifetime:  30 * time.Second,
 	Metas: []*c_base.Meta{

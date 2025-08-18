@@ -1,4 +1,4 @@
-package p_modbus
+package c_modbus
 
 type SModbusDeviceConfig struct {
 	UnitId uint8 // 单元ID

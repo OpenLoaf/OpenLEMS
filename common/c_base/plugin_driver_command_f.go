@@ -1,11 +1,6 @@
 package c_base
 
-import (
-	"context"
-	"fmt"
-	"github.com/gogf/gf/v2/os/gcmd"
-)
-
+/*
 func PluginDriverCommand(getDriver func() IDevice) *gcmd.Command {
 	Main := &gcmd.Command{
 		Name: "main",
@@ -61,3 +56,4 @@ func PluginDriverCommand(getDriver func() IDevice) *gcmd.Command {
 	_ = Main.AddCommand(Version, Info, Metas)
 	return Main
 }
+*/

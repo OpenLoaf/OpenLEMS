@@ -2,22 +2,22 @@ package ammeter_acrel_10r_v1
 
 import (
 	"common/c_base"
+	"common/c_modbus"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
-	"modbus/p_modbus"
 )
 
 type sAmmeterAcrel10r struct {
 	*c_base.SDriverDescription
 
 	ctx context.Context
-	p_modbus.IModbusProtocol
+	c_modbus.IModbusProtocol
 }
 
 var _ c_base.IDevice = (*sAmmeterAcrel10r)(nil)
 
 func (s *sAmmeterAcrel10r) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
-	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
+	s.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
 
 	// 注册
 	s.IModbusProtocol.RegisterRead(s.ctx, GRealtimeInfo, GTotal)

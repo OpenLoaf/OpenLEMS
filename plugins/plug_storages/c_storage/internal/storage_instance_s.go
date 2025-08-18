@@ -99,11 +99,11 @@ func (s *SStorageInstance) RegisterDriver(storageIntervalSec int32, driver c_bas
 			dur = time.Duration(storageIntervalSec) * time.Second
 		}
 		//TODO 此处需要能同时监测设备关闭或者存储关闭的情况，需要能自动销毁定时任务。现在只有storage关闭时会销毁定时任务，device如果关闭了，定时任务不会销毁
-		gtimer.SetInterval(s.ctx, dur, func(ctx context.Context) {
-			// 保存数据
-			des := driver.GetDriverDescription()
-			_ = s.IStorage.SaveDevices(driver.GetDeviceConfig().Id, driver.GetDriverType(), des.GetAllTelemetry(driver))
-		})
+		//gtimer.SetInterval(s.ctx, dur, func(ctx context.Context) {
+		//	// 保存数据
+		//	des := driver.GetDriverDescription()
+		//	_ = s.IStorage.SaveDevices(driver.GetDeviceConfig().Id, driver.GetDriverType(), des.GetAllTelemetry(driver))
+		//})
 		g.Log().Infof(s.ctx, "设备[%s]存储间隔：%v", driver.GetDeviceConfig().Name, dur)
 	} else {
 		g.Log().Infof(s.ctx, "设备[%s] 数据不存储！", driver.GetDeviceConfig().Name)

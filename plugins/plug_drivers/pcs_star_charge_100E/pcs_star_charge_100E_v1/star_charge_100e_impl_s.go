@@ -3,14 +3,14 @@ package pcs_star_charge_100E_v1
 import (
 	"common/c_base"
 	"common/c_error"
+	"common/c_modbus"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/glog"
-	"modbus/p_modbus"
 )
 
 type sStarCharge100EPcs struct {
-	p_modbus.IModbusProtocol
+	c_modbus.IModbusProtocol
 	ctx                 context.Context
 	log                 *glog.Logger
 	targetPower         int32 // 目标有功功率
@@ -20,7 +20,7 @@ type sStarCharge100EPcs struct {
 }
 
 func (s *sStarCharge100EPcs) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
-	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
+	s.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
 	s.deviceConfig = deviceConfig
 
 	// 注册

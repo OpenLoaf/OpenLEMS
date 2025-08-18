@@ -3,11 +3,9 @@ package ess_boost_gold_v1
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_modbus"
 	"context"
-	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/util/gconv"
-	"modbus/p_modbus"
+	"fmt"
 )
 
 const (
@@ -19,7 +17,7 @@ const (
 )
 
 type sEssBoostGoldEss struct {
-	p_modbus.IModbusProtocol
+	c_modbus.IModbusProtocol
 	*c_base.SDriverDescription
 	deviceConfig *c_base.SDeviceConfig
 	essConfig    *EssBoostGoldConfig
@@ -34,18 +32,18 @@ type sEssBoostGoldEss struct {
 
 func (s *sEssBoostGoldEss) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.deviceConfig = deviceConfig
-	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
+	s.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
 
 	s.essConfig = &EssBoostGoldConfig{}
-	err := gconv.Scan(deviceConfig.Params, s.essConfig)
+	err := deviceConfig.ScanParams(s.essConfig)
 	if err != nil {
-		panic(gerror.Newf("高特EMS配置解析失败：%s", err.Error()))
+		panic(fmt.Errorf("高特EMS配置解析失败：%s", err.Error()))
 	}
 
 	// 注册点位
 	s.RegisterRead(s.ctx, GroupBasic, GroupController, GroupSetting)
 
-	g.Log().Noticef(s.ctx, "高特EMS初始化完毕！ 配置：%+v", s.essConfig)
+	fmt.Printf("高特EMS初始化完毕！ 配置：%+v\n", s.essConfig)
 }
 
 func (s *sEssBoostGoldEss) Shutdown() {
@@ -152,7 +150,7 @@ func (s *sEssBoostGoldEss) GetStatus() (c_base.EEnergyStoreStatus, error) {
 		}
 	}
 
-	g.Log().Noticef(s.ctx, "获取逆变器状态：%d", status)
+	fmt.Printf("获取逆变器状态：%d\n", status)
 	return c_base.EPcsStatusUnknown, nil
 }
 

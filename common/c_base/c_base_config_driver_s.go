@@ -1,6 +1,7 @@
 package c_base
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -37,4 +38,23 @@ func (s *SDeviceConfig) Check() error {
 func (s *SDeviceConfig) IsVirtual() bool {
 	// 抛弃
 	return s.ProtocolId == ""
+}
+
+func (s *SDeviceConfig) ScanParams(target any) error {
+	if s.Params == nil {
+		return fmt.Errorf("params is nil")
+	}
+
+	// 先将 map[string]string 转换为 JSON 字节
+	jsonBytes, err := json.Marshal(s.Params)
+	if err != nil {
+		return fmt.Errorf("failed to marshal params to json: %v", err)
+	}
+
+	// 再将 JSON 字节转换为目标结构体
+	if err := json.Unmarshal(jsonBytes, target); err != nil {
+		return fmt.Errorf("failed to unmarshal json to target struct: %v", err)
+	}
+
+	return nil
 }

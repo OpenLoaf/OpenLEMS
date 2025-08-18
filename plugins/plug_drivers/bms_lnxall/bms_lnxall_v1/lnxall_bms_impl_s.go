@@ -4,13 +4,13 @@ import (
 	"common/c_base"
 	"common/c_device"
 	"common/c_error"
+	"common/c_modbus"
 	"context"
 	"github.com/gogf/gf/v2/os/glog"
-	"modbus/p_modbus"
 )
 
 type sBmsLnxallBms struct {
-	p_modbus.IModbusProtocol
+	c_modbus.IModbusProtocol
 	ctx          context.Context
 	log          *glog.Logger
 	deviceConfig *c_base.SDeviceConfig
@@ -18,7 +18,7 @@ type sBmsLnxallBms struct {
 }
 
 func (s *sBmsLnxallBms) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
-	s.IModbusProtocol = protocol.(p_modbus.IModbusProtocol)
+	s.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
 
 	// 注册
 	s.IModbusProtocol.RegisterRead(s.ctx,

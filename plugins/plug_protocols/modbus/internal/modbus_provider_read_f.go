@@ -3,16 +3,16 @@ package internal
 import (
 	"c_protocol"
 	"common/c_base"
+	p_modbus2 "common/c_modbus"
 	"fmt"
 	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"modbus/p_modbus"
 	"time"
 )
 
-func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function p_modbus.ModbusReadFunction, lifetime time.Duration, readCache bool) (*gvar.Var, error) {
+func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function p_modbus2.EModbusReadFunction, lifetime time.Duration, readCache bool) (any, error) {
 	var (
-		vr  *gvar.Var
+		vr  any
 		err error
 	)
 	if readCache {
@@ -44,7 +44,7 @@ func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function p_mo
 }
 
 // ReadGroupSync 同步读取
-func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus.SModbusTask, readCache bool, metas ...*c_base.Meta) ([]*gvar.Var, error) {
+func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus2.SModbusTask, readCache bool, metas ...*c_base.Meta) ([]any, error) {
 	returnMetasLength := len(metas)
 	if readCache && metas != nil && returnMetasLength != 0 {
 		vars := make([]*gvar.Var, returnMetasLength)
@@ -97,7 +97,7 @@ func (p *ModbusProtocolProvider) ReadGroupSync(group *p_modbus.SModbusTask, read
 	return vars, nil
 }
 
-func (p *ModbusProtocolProvider) read(name string, addr uint16, quantity uint16, function p_modbus.ModbusReadFunction) ([]byte, error) {
+func (p *ModbusProtocolProvider) read(name string, addr uint16, quantity uint16, function p_modbus2.EModbusReadFunction) ([]byte, error) {
 	var (
 		result []byte
 		err    error
@@ -108,13 +108,13 @@ func (p *ModbusProtocolProvider) read(name string, addr uint16, quantity uint16,
 
 	queryTime := time.Now()
 	switch function {
-	case p_modbus.MqReadCoils:
+	case p_modbus2.MqReadCoils:
 		result, err = p.client.ReadCoils(p.modbusDeviceConfig.UnitId, addr, quantity)
-	case p_modbus.MqDiscreteInputs:
+	case p_modbus2.MqDiscreteInputs:
 		result, err = p.client.ReadDiscreteInputs(p.modbusDeviceConfig.UnitId, addr, quantity)
-	case p_modbus.MqHoldingRegisters:
+	case p_modbus2.MqHoldingRegisters:
 		result, err = p.client.ReadHoldingRegistersBytes(p.modbusDeviceConfig.UnitId, addr, quantity)
-	case p_modbus.MqInputRegisters:
+	case p_modbus2.MqInputRegisters:
 		result, err = p.client.ReadInputRegistersBytes(p.modbusDeviceConfig.UnitId, addr, quantity)
 	}
 	// 累计请求时间
@@ -130,7 +130,7 @@ func (p *ModbusProtocolProvider) read(name string, addr uint16, quantity uint16,
 	return result, err
 }
 
-func (p *ModbusProtocolProvider) readValues(name string, addr, quantity uint16, function p_modbus.ModbusReadFunction) ([]byte, error) {
+func (p *ModbusProtocolProvider) readValues(name string, addr, quantity uint16, function p_modbus2.EModbusReadFunction) ([]byte, error) {
 	p.modbusRwMutex.Lock()
 	defer p.modbusRwMutex.Unlock()
 	result, err := p.read(name, addr, quantity, function)

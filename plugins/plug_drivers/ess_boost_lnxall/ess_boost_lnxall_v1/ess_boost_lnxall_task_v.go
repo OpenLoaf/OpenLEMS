@@ -2,13 +2,13 @@ package ess_boost_lnxall_v1
 
 import (
 	"common/c_base"
-	"modbus/p_modbus"
+	"common/c_modbus"
 )
 
-var GroupController = &p_modbus.SModbusTask{
+var GroupController = &c_modbus.SModbusTask{
 	Name:      "GroupController",
 	Desc:      "状态控制",
-	Function:  p_modbus.MqHoldingRegisters,
+	Function:  c_modbus.MqHoldingRegisters,
 	Addr:      ESS_ON_OFF.Addr,
 	Quantity:  ESS_SET_RP_POWER.Addr - ESS_ON_OFF.Addr + 2,
 	CycleMill: 1000,
@@ -18,10 +18,10 @@ var GroupController = &p_modbus.SModbusTask{
 	},
 }
 
-var GroupDetail = &p_modbus.SModbusTask{
+var GroupDetail = &c_modbus.SModbusTask{
 	Name:      "GroupDetail",
 	Desc:      "详细信息",
-	Function:  p_modbus.MqInputRegisters,
+	Function:  c_modbus.MqInputRegisters,
 	Addr:      LIMIT_ESS_POWER_ENABLE.Addr,
 	Quantity:  ESS_ONLINE_STATUS.Addr - LIMIT_ESS_POWER_ENABLE.Addr + 2,
 	CycleMill: 1000,

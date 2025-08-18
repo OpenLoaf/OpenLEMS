@@ -7,7 +7,7 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
-func (p *ModbusProtocolProvider) GetValue(meta *c_base.Meta) (*gvar.Var, error) {
+func (p *ModbusProtocolProvider) GetValue(meta *c_base.Meta) (any, error) {
 	get, err := p.cache.Get(p.ctx, meta)
 	if err != nil {
 		return &gvar.Var{}, err
@@ -31,7 +31,7 @@ func (p *ModbusProtocolProvider) GetIntValue(meta *c_base.Meta) (int, error) {
 	if get == nil {
 		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
-	return get.Int(), err
+	return get.(*gvar.Var).Int(), err
 }
 func (p *ModbusProtocolProvider) GetInt32Value(meta *c_base.Meta) (int32, error) {
 	get, err := p.GetValue(meta)
@@ -41,7 +41,7 @@ func (p *ModbusProtocolProvider) GetInt32Value(meta *c_base.Meta) (int32, error)
 	if get == nil {
 		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
-	return get.Int32(), err
+	return get.(*gvar.Var).Int32(), err
 }
 func (p *ModbusProtocolProvider) GetBool(meta *c_base.Meta) (bool, error) {
 	get, err := p.GetValue(meta)
@@ -51,7 +51,7 @@ func (p *ModbusProtocolProvider) GetBool(meta *c_base.Meta) (bool, error) {
 	if get == nil {
 		return false, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
-	return get.Bool(), err
+	return get.(*gvar.Var).Bool(), err
 }
 
 func (p *ModbusProtocolProvider) GetUintValue(meta *c_base.Meta) (uint, error) {
@@ -62,7 +62,7 @@ func (p *ModbusProtocolProvider) GetUintValue(meta *c_base.Meta) (uint, error) {
 	if get == nil {
 		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
-	return get.Uint(), err
+	return get.(*gvar.Var).Uint(), err
 }
 
 func (p *ModbusProtocolProvider) GetUint32Value(meta *c_base.Meta) (uint32, error) {
@@ -73,7 +73,7 @@ func (p *ModbusProtocolProvider) GetUint32Value(meta *c_base.Meta) (uint32, erro
 	if get == nil {
 		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
-	return get.Uint32(), err
+	return get.(*gvar.Var).Uint32(), err
 }
 
 func (p *ModbusProtocolProvider) GetFloat32Value(meta *c_base.Meta) (float32, error) {
@@ -86,7 +86,7 @@ func (p *ModbusProtocolProvider) GetFloat32Value(meta *c_base.Meta) (float32, er
 	if get == nil {
 		return 0, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceConfig.Id, meta.Name)
 	}
-	return get.Float32(), err
+	return get.(*gvar.Var).Float32(), err
 }
 
 func (p *ModbusProtocolProvider) GetFloat32Values(metas ...*c_base.Meta) ([]float32, error) {

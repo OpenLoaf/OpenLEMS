@@ -4,14 +4,13 @@ import (
 	"common/c_base"
 	"context"
 	"fmt"
-	"github.com/gogf/gf/v2/container/gvar"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
 	"time"
 )
 
-func CacheValue(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (*gvar.Var, error) {
+func CacheValue(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (any, error) {
 	valueInt64 := gconv.Int64(value)
 	// 范围验证
 	if meta.SystemType != c_base.SBool && meta.Min != meta.Max && (valueInt64 < meta.Min || valueInt64 > meta.Max) {
@@ -42,7 +41,7 @@ func CacheValue(ctx context.Context, deviceId string, deviceType c_base.EDeviceT
 	// 缓存
 	if cache != nil {
 		err := cache.Set(ctx, meta, &c_base.MetaValue{
-			Value:      gvar.New(value),
+			Value:      value,
 			HappenTime: &now,
 		}, lifetime)
 		if err != nil {
@@ -54,5 +53,5 @@ func CacheValue(ctx context.Context, deviceId string, deviceType c_base.EDeviceT
 		g.Log().Debugf(ctx, "[%s-%s] 值: %v", deviceId, meta.Cn, value)
 	}
 
-	return gvar.New(value), nil
+	return value, nil
 }
