@@ -12,7 +12,7 @@ var (
 		Addr:      BATT_VOLTAGE.Addr,
 		Quantity:  BATT_MIN.Addr - BATT_VOLTAGE.Addr + 2,
 		CycleMill: 1000,
-		Function:  c_modbus.MqInputRegisters,
+		Function:  c_modbus.EMqInputRegisters,
 		Lifetime:  c_base.DefaultCacheLifeTime,
 		Metas: []*c_base.Meta{
 			BATT_VOLTAGE, BATT_CURRENT, RACK_SOC, RACK_SOH,
@@ -31,7 +31,7 @@ var (
 		Addr:      BATT_VOLTAGE.Addr,
 		Quantity:  TOTAL_CHARGE_ENERGY.Addr - LINKED_STATUS.Addr + 2,
 		CycleMill: 1000,
-		Function:  c_modbus.MqInputRegisters,
+		Function:  c_modbus.EMqInputRegisters,
 		Lifetime:  c_base.DefaultCacheLifeTime,
 		Metas: []*c_base.Meta{
 			TOTAL_CHARGE_ENERGY, TOTAL_DISCHARGE_ENERGY, SINGLE_CHARGE_ENERGY, SINGLE_DISCHARGE_ENERGY, LINKED_STATUS,

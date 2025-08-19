@@ -8,7 +8,7 @@ import (
 var GroupController = &c_modbus.SModbusTask{
 	Name:      "GroupController",
 	Desc:      "状态控制",
-	Function:  c_modbus.MqHoldingRegisters,
+	Function:  c_modbus.EMqHoldingRegisters,
 	Addr:      ESS_ON_OFF.Addr,
 	Quantity:  ESS_SET_RP_POWER.Addr - ESS_ON_OFF.Addr + 2,
 	CycleMill: 1000,
@@ -21,7 +21,7 @@ var GroupController = &c_modbus.SModbusTask{
 var GroupDetail = &c_modbus.SModbusTask{
 	Name:      "GroupDetail",
 	Desc:      "详细信息",
-	Function:  c_modbus.MqInputRegisters,
+	Function:  c_modbus.EMqInputRegisters,
 	Addr:      LIMIT_ESS_POWER_ENABLE.Addr,
 	Quantity:  ESS_ONLINE_STATUS.Addr - LIMIT_ESS_POWER_ENABLE.Addr + 2,
 	CycleMill: 1000,

@@ -107,13 +107,13 @@ func (p *ModbusProtocolProvider) read(name string, addr uint16, quantity uint16,
 
 	queryTime := time.Now()
 	switch function {
-	case p_modbus2.MqReadCoils:
+	case p_modbus2.EMqReadCoils:
 		result, err = p.client.ReadCoils(p.modbusDeviceConfig.UnitId, addr, quantity)
-	case p_modbus2.MqDiscreteInputs:
+	case p_modbus2.EMqDiscreteInputs:
 		result, err = p.client.ReadDiscreteInputs(p.modbusDeviceConfig.UnitId, addr, quantity)
-	case p_modbus2.MqHoldingRegisters:
+	case p_modbus2.EMqHoldingRegisters:
 		result, err = p.client.ReadHoldingRegistersBytes(p.modbusDeviceConfig.UnitId, addr, quantity)
-	case p_modbus2.MqInputRegisters:
+	case p_modbus2.EMqInputRegisters:
 		result, err = p.client.ReadInputRegistersBytes(p.modbusDeviceConfig.UnitId, addr, quantity)
 	}
 	// 累计请求时间
@@ -138,16 +138,16 @@ func (p *ModbusProtocolProvider) readValues(name string, addr, quantity uint16, 
 			_ = p.client.Close()
 		} else {
 			_ = p.client.Close()
-			p.log.Warningf(p.ctx, "[%v] Modbus任务获取数据失败！unitId:%d 起始地址: 0x%X 寄存器长度: %d 失败原因：%+v", name, p.modbusDeviceConfig.UnitId, addr, quantity, err)
+			p.log.Warningf(p.ctx, "[%v] Modbus Failed！unitId:%d Add: 0x%X Len: %d  Fun: %s ;Cause：%+v", name, p.modbusDeviceConfig.UnitId, addr, quantity, function.String(), err)
 		}
 		return nil, err
 	}
 	if result == nil || len(result) == 0 {
 		_ = p.client.Close()
-		return nil, gerror.Newf("[%v] Modbus任务获取数据为空！", name)
+		return nil, gerror.Newf("[%v] Modbus Task Return Empty！", name)
 	}
 
-	p.log.Debugf(p.ctx, "[%v] Modbus任务获取到数据：[% x]", name, result)
+	p.log.Debugf(p.ctx, "[%v] Modbus Task Return：[% x]", name, result)
 	// 更新最后更新时间
 	now := time.Now()
 	p.lastUpdateTime = &now

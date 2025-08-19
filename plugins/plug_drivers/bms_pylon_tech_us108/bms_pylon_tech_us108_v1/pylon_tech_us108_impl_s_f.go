@@ -34,8 +34,8 @@ func (p *sBmsPylonTechUs108) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 		panic(fmt.Errorf("BMS配置解析失败：内容:%v 原因: %s", deviceConfig.Params, err.Error()))
 	}
 
-	// 注册
-	p.IModbusProtocol.RegisterRead(p.ctx, GroupHeart, GroupInfo, GroupTime, GroupStatistics)
+	// 2025-08-19 删除了GroupTime
+	p.IModbusProtocol.RegisterRead(p.ctx, GroupHeart, GroupInfo, GroupStatistics)
 
 	if bmsConfig.SyncTime {
 		p.writeTime()

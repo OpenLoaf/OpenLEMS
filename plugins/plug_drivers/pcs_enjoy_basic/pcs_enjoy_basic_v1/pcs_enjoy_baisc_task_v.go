@@ -10,7 +10,7 @@ var GroupAcInfo = &c_modbus.SModbusTask{
 	Desc:      "交流信息",
 	Addr:      Ac_history_charge.Addr,
 	Quantity:  Qc.Addr - Ac_history_charge.Addr + 1,
-	Function:  c_modbus.MqHoldingRegisters,
+	Function:  c_modbus.EMqHoldingRegisters,
 	CycleMill: 1000,
 	Lifetime:  c_base.DefaultCacheLifeTime,
 	Metas: []*c_base.Meta{
@@ -24,7 +24,7 @@ var GroupPowerInfo = &c_modbus.SModbusTask{
 	Desc:      "查询功率信息",
 	Addr:      Pt.Addr,
 	Quantity:  Pf.Addr - Pt.Addr + 1,
-	Function:  c_modbus.MqHoldingRegisters,
+	Function:  c_modbus.EMqHoldingRegisters,
 	CycleMill: 100,
 	Lifetime:  c_base.DefaultCacheLifeTime,
 	Metas: []*c_base.Meta{
@@ -40,7 +40,7 @@ var GroupBasicInfo = &c_modbus.SModbusTask{
 	Desc:      "基本信息",
 	Addr:      Pcs_Status.Addr,
 	Quantity:  Env_Temp.Addr - Pcs_Status.Addr + 1,
-	Function:  c_modbus.MqHoldingRegisters,
+	Function:  c_modbus.EMqHoldingRegisters,
 	CycleMill: 1000,
 	Lifetime:  c_base.DefaultCacheLifeTime,
 	Metas: []*c_base.Meta{
@@ -53,7 +53,7 @@ var GroupSetting = &c_modbus.SModbusTask{
 	Desc:      "设置信息",
 	Addr:      Set_Ap.Addr,
 	Quantity:  Set_Qp.Addr - Set_Ap.Addr + 1,
-	Function:  c_modbus.MqHoldingRegisters,
+	Function:  c_modbus.EMqHoldingRegisters,
 	CycleMill: 1000,
 	Lifetime:  c_base.DefaultCacheLifeTime,
 	Metas: []*c_base.Meta{

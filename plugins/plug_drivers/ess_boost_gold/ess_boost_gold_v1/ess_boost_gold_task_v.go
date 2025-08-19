@@ -8,7 +8,7 @@ import (
 var GroupBasic = &c_modbus.SModbusTask{
 	Name:      "GroupBasic",
 	Desc:      "基础信息",
-	Function:  c_modbus.MqInputRegisters,
+	Function:  c_modbus.EMqInputRegisters,
 	Addr:      Pt.Addr,
 	Quantity:  Status.Addr - Pt.Addr + 2,
 	CycleMill: 100,
@@ -21,7 +21,7 @@ var GroupBasic = &c_modbus.SModbusTask{
 var GroupController = &c_modbus.SModbusTask{
 	Name:      "GroupController",
 	Desc:      "状态控制",
-	Function:  c_modbus.MqHoldingRegisters,
+	Function:  c_modbus.EMqHoldingRegisters,
 	Addr:      CONTROL_ON_OFF.Addr,
 	Quantity:  1,
 	CycleMill: 1000,
@@ -34,7 +34,7 @@ var GroupController = &c_modbus.SModbusTask{
 var GroupSetting = &c_modbus.SModbusTask{
 	Name:      "GroupSetting",
 	Desc:      "设置信息",
-	Function:  c_modbus.MqHoldingRegisters,
+	Function:  c_modbus.EMqHoldingRegisters,
 	Addr:      Set_Ap_Power.Addr,
 	Quantity:  2,
 	CycleMill: 500,

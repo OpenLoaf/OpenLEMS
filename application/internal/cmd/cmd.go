@@ -12,6 +12,7 @@ import (
 	"runtime"
 	"s_db"
 	"s_driver"
+	"s_storage"
 	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -71,8 +72,10 @@ var (
 			// 初始化数据库
 			s_db.Init()
 
-			// 初始化存储
-			common.RegisterStorageInstance(pebbledb.NewStorageInstance(ctx))
+			// 初始化存储（默认使用 PebbleDB，无外部配置时采用默认路径与策略）
+			storageInst := pebbledb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_base.EStorageTypePebbledb, Url: "", Params: map[string]string{}})
+			s_storage.RegisterStorageInstance(storageInst)
+			common.RegisterStorageInstance(storageInst)
 
 			common.RegisterDeviceManager(s_driver.GetDriverManager(ctx))
 			if err != nil {

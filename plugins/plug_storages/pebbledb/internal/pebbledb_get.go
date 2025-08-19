@@ -115,7 +115,7 @@ func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, poi
 	switch storageType {
 	case c_base.StorageTypeDevice:
 		// 键名：device/{deviceId}/{timestamp}
-		data, err := GetChartData(p.db.DeviceDb, fmt.Sprintf("%s%s%s", DevicePrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
+		data, err := GetChartData(p.DeviceDb, fmt.Sprintf("%s%s%s", DevicePrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
 		if err != nil {
 			return nil, err
 		}
@@ -125,7 +125,7 @@ func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, poi
 		}, nil
 	case c_base.StorageTypeProtocol:
 		// 键名：protocol/{protocolId}/{timestamp}
-		data, err := GetChartData(p.db.ProtocolDb, fmt.Sprintf("%s%s%s", ProtocolPrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
+		data, err := GetChartData(p.ProtocolDb, fmt.Sprintf("%s%s%s", ProtocolPrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
 		log.Println("data", data)
 		if err != nil {
 			return nil, err
@@ -135,7 +135,7 @@ func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, poi
 		}, nil
 	case c_base.StorageTypeSystem:
 		// 键名：system/{measurement}/{timestamp}
-		data, err := GetChartData(p.db.SystemDb, fmt.Sprintf("%s%s%s", SystemPrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
+		data, err := GetChartData(p.SystemDb, fmt.Sprintf("%s%s%s", SystemPrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
 		if err != nil {
 			return nil, err
 		}

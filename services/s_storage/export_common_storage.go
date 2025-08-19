@@ -2,12 +2,11 @@ package s_storage
 
 import (
 	"common/c_base"
-	"context"
 	"s_storage/internal"
 )
 
-func RegisterStorageInstance(builder func(ctx context.Context) c_base.IStorage) {
-	internal.RegisterInstance(builder)
+func RegisterStorageInstance(storage c_base.IStorage) {
+	internal.RegisterInstance(storage)
 }
 
 func CloseStorage() {
@@ -15,7 +14,11 @@ func CloseStorage() {
 }
 
 func GetStorageInstance() c_base.IStorage {
-	return internal.GetInstance()
+	mgr := internal.GetInstance()
+	if mgr == nil {
+		return nil
+	}
+	return mgr.IStorage
 }
 
 func RegisterStorageDriver(storageIntervalSec int32, driver c_base.IDevice) {

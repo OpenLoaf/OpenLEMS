@@ -11,7 +11,7 @@ var GroupAcInfo = &c_modbus.SModbusTask{
 	Desc:      "交流电流电压功率",
 	Addr:      Ua.Addr,
 	Quantity:  PF.Addr - Ua.Addr + 2,
-	Function:  c_modbus.MqInputRegisters,
+	Function:  c_modbus.EMqInputRegisters,
 	CycleMill: 100,
 	Lifetime:  30 * time.Second,
 	Metas: []*c_base.Meta{
@@ -26,7 +26,7 @@ var GroupDcInfo = &c_modbus.SModbusTask{
 	Desc:      "直流信息",
 	Addr:      Vbatt.Addr,
 	Quantity:  Vn.Addr - Vbatt.Addr + 2,
-	Function:  c_modbus.MqInputRegisters,
+	Function:  c_modbus.EMqInputRegisters,
 	CycleMill: 0,                // 不需要定时读取，需要的时候读取
 	Lifetime:  30 * time.Second, // 30s后过期
 	Metas: []*c_base.Meta{
@@ -39,7 +39,7 @@ var GroupOtherInfo = &c_modbus.SModbusTask{
 	Desc:      "其他信息",
 	Addr:      WorkState.Addr,
 	Quantity:  OnlineState.Addr - WorkState.Addr + 2,
-	Function:  c_modbus.MqInputRegisters,
+	Function:  c_modbus.EMqInputRegisters,
 	CycleMill: 1000,
 	Lifetime:  30 * time.Second,
 	Metas: []*c_base.Meta{

@@ -6,6 +6,6 @@ import (
 	"pebbledb/internal"
 )
 
-func NewStorageInstance(ctx context.Context) c_base.IStorage {
-	return internal.NewPebbledb(ctx)
+func NewStorageInstance(ctx context.Context, storageConfig *c_base.SStorageConfig) c_base.IStorage {
+	return internal.NewPebbledb(ctx, storageConfig)
 }

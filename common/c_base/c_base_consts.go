@@ -5,6 +5,7 @@ const (
 	ConstCtxDeviceManager   = "DeviceManager"
 	ConstCtxKeyProtocolId   = "ProtocolId"
 	ConstCtxKeyDeviceId     = "DeviceId"
+	ConstCtxKeyDeviceName   = "DeviceName"
 	ConstCtxKeyDeviceDetail = "DeviceDetail"
 
 	ConstNewPluginFunctionName = "NewPlugin"
