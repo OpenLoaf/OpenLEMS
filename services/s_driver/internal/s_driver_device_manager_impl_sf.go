@@ -19,11 +19,22 @@ type SDeviceManager struct {
 	state      c_base.EServerState // 状态
 
 	protocolClientCache map[string]any // 协议客户端缓存
-	deviceWrapper       *gtree.AVLTree // c_base.IDeviceWrapper 设备树
+	deviceWrapperTree   *gtree.AVLTree // c_base.IDeviceWrapper 设备树
+}
+
+func (d *SDeviceManager) IteratorAssAllDevicesWrapper(process func(deviceWrapper c_base.IDeviceWrapper)) {
+	if d.deviceWrapperTree == nil {
+	}
+	d.deviceWrapperTree.IteratorAsc(func(key, value any) bool {
+		if v, ok := value.(c_base.IDeviceWrapper); ok {
+			process(v)
+		}
+		return true
+	})
 }
 
 func (d *SDeviceManager) GetDeviceById(deviceId string) c_base.IDevice {
-	dw := d.deviceWrapper.Get(deviceId)
+	dw := d.deviceWrapperTree.Get(deviceId)
 	if dw == nil {
 		return nil
 	}
@@ -34,7 +45,7 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 	d.ctx, d.cancelFunc = context.WithCancel(parentCtx)
 	d.state = c_base.EStateInit
 	d.protocolClientCache = make(map[string]any)
-	d.deviceWrapper = gtree.NewAVLTree(gutil.ComparatorString)
+	d.deviceWrapperTree = gtree.NewAVLTree(gutil.ComparatorString)
 
 	rootDeviceID := s_db.GetDeviceService().GetRootDeviceId()
 	deviceConfigs, err := s_db.GetDeviceService().GetDeviceConfigs(d.ctx, rootDeviceID)
@@ -60,9 +71,13 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 			g.Log().Errorf(d.ctx, "错误的设备[%s]配置，id和pid一致！", deviceConfig.Name)
 			continue
 		}
-		d.deviceWrapper.Set(deviceConfig.Id, &SDeviceWrapper{
+
+		// 更新设备信息
+		driverInfo, _ := GetDriverInfo(d.ctx, deviceConfig.Driver)
+
+		d.deviceWrapperTree.Set(deviceConfig.Id, &SDeviceWrapper{
 			deviceConfig:   deviceConfig,
-			driverInfo:     nil,
+			driverInfo:     driverInfo,
 			protocolConfig: protocolConfigMap[deviceConfig.ProtocolId],
 			instance:       nil,
 			deviceState:    c_base.EStateInit,
@@ -70,7 +85,7 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 	}
 
 	// 反向递归，初始化设备
-	d.deviceWrapper.IteratorDesc(func(k, v any) bool {
+	d.deviceWrapperTree.IteratorDesc(func(k, v any) bool {
 		deviceWrapper := v.(*SDeviceWrapper)
 		deviceConfig := deviceWrapper.deviceConfig
 		protocolConfig := deviceWrapper.protocolConfig
@@ -88,12 +103,7 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 			deviceWrapper.UpdateState(c_base.EStateError)
 			return true
 		}
-		//
-		//if !driver.IsPhysical() {
-		//	g.Log().Noticef(d.parentCtx, "设备[%s]非物理设备，跳过获取协议", deviceConfig.Name)
-		//	deviceWrapper.UpdateState(c_base.EStateStopped)
-		//	return true
-		//}
+		deviceWrapper.instance = driver
 
 		var protocolProvider c_base.IProtocol
 		if deviceConfig.ProtocolId != "" {

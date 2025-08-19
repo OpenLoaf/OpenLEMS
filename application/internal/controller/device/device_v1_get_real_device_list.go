@@ -2,34 +2,28 @@ package device
 
 import (
 	"application/api/device/v1"
+	"application/internal/model/entity"
+	"common"
+	"common/c_base"
 	"context"
 )
 
 func (c *ControllerV1) GetRealDeviceList(ctx context.Context, req *v1.GetRealDeviceListReq) (res *v1.GetRealDeviceListRes, err error) {
-	//var devices = make([]*entity.SDevice, 0)
-	//var isVirtual []bool
-	//switch req.ShowType {
-	//case 1:
-	//	isVirtual = append(isVirtual, false)
-	//case 2:
-	//	isVirtual = append(isVirtual, true)
-	//}
+	var devices = make([]*entity.SDevice, 0)
 
-	//for _, driver := range common.GetRunningDeviceAll(isVirtual...) {
-	//	lastUpdateTime := ""
-	//	if driver.GetLastUpdateTime() != nil {
-	//		lastUpdateTime = driver.GetLastUpdateTime().Format("2006-01-02 15:04:05")
-	//	}
-	//	devices = append(devices, &entity.SDevice{
-	//		DeviceId:       driver.GetDeviceConfig().Id,
-	//		DeviceType:     string(driver.GetDriverType()),
-	//		DeviceName:     driver.GetDeviceConfig().Name,
-	//		LastUpdateTime: lastUpdateTime,
-	//		IsVirtual:      driver.GetDeviceConfig().ProtocolId == "",
-	//		AlarmLevel:     driver.GetAlarmLevel(),
-	//	})
-	//}
-	//
-	//return &v1.GetRealDeviceListRes{Devices: devices}, nil
-	return nil, nil
+	common.GetDeviceManager().IteratorAssAllDevicesWrapper(func(deviceWrapper c_base.IDeviceWrapper) {
+
+		device := &entity.SDevice{
+			DeviceId:   deviceWrapper.GetDeviceConfig().Id,
+			DeviceType: string(deviceWrapper.GetDriverInfo().Type),
+			DeviceName: deviceWrapper.GetDriverInfo().Name,
+			//
+			AlarmLevel:     0,
+			LastUpdateTime: "",
+		}
+
+		devices = append(devices, device)
+	})
+
+	return &v1.GetRealDeviceListRes{Devices: devices}, nil
 }

@@ -18,9 +18,11 @@ func (d *SDeviceManager) IsProtocolActive(protocolId string) bool {
 
 func (d *SDeviceManager) Shutdown() {
 	// 关闭所有client
-	d.deviceWrapper.IteratorDesc(func(key, value any) bool {
+	d.deviceWrapperTree.IteratorDesc(func(key, value any) bool {
 		deviceWrapper := value.(*SDeviceWrapper)
-		deviceWrapper.Shutdown()
+		if deviceWrapper.deviceState == c_base.EStateRunning {
+			deviceWrapper.instance.Shutdown()
+		}
 		return true
 	})
 	d.cancelFunc()
@@ -39,9 +41,9 @@ func (d *SDeviceManager) Status() c_base.EServerState {
 
 func (d *SDeviceManager) GetChildDeviceInstance(pid string) []c_base.IDevice {
 	var deviceInstances = make([]c_base.IDevice, 0)
-	d.deviceWrapper.IteratorAsc(func(k, v any) bool {
+	d.deviceWrapperTree.IteratorAsc(func(k, v any) bool {
 		deviceWrapper := v.(*SDeviceWrapper)
-		if deviceWrapper.deviceConfig.Pid == pid && deviceWrapper.instance != nil {
+		if deviceWrapper.deviceConfig.Pid == pid && deviceWrapper != nil {
 			deviceInstances = append(deviceInstances, deviceWrapper.instance)
 		}
 		return true
