@@ -2,27 +2,29 @@ package device
 
 import (
 	"application/api/device/v1"
-	"application/internal/model/entity"
 	"common"
 	"common/c_base"
 	"context"
 )
 
 func (c *ControllerV1) GetRealDeviceList(ctx context.Context, req *v1.GetRealDeviceListReq) (res *v1.GetRealDeviceListRes, err error) {
-	var devices = make([]*entity.SDevice, 0)
+	var devices = make([]*c_base.SDeviceDetail, 0)
 
 	common.GetDeviceManager().IteratorAssAllDevicesWrapper(func(deviceWrapper c_base.IDeviceWrapper) {
+		deviceDetail := deviceWrapper.GetDeviceDetail()
 
-		device := &entity.SDevice{
-			DeviceId:   deviceWrapper.GetDeviceConfig().Id,
-			DeviceType: string(deviceWrapper.GetDriverInfo().Type),
-			DeviceName: deviceWrapper.GetDriverInfo().Name,
-			//
-			AlarmLevel:     0,
-			LastUpdateTime: "",
+		switch req.ShowType {
+		case 1:
+			if deviceDetail.IsPhysics {
+				devices = append(devices, deviceDetail)
+			}
+		case 2:
+			if !deviceDetail.IsPhysics {
+				devices = append(devices, deviceDetail)
+			}
+		default:
+			devices = append(devices, deviceDetail)
 		}
-
-		devices = append(devices, device)
 	})
 
 	return &v1.GetRealDeviceListRes{Devices: devices}, nil

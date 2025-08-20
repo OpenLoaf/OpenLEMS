@@ -6,7 +6,8 @@ import (
 )
 
 type SDeviceWrapper struct {
-	ctx            context.Context
+	ctx context.Context
+
 	deviceConfig   *c_base.SDeviceConfig
 	driverInfo     *c_base.SDriverInfo
 	protocolConfig *c_base.SProtocolConfig
@@ -24,6 +25,10 @@ func (s *SDeviceWrapper) GetDriverInfo() *c_base.SDriverInfo {
 
 func (s *SDeviceWrapper) GetProtocolConfig() *c_base.SProtocolConfig {
 	return s.protocolConfig
+}
+
+func (s *SDeviceWrapper) GetDeviceDetail() *c_base.SDeviceDetail {
+	return c_base.NewDeviceDetail(s.deviceConfig, s.driverInfo, s.protocolConfig, s.instance, s.deviceState)
 }
 
 func (s *SDeviceWrapper) GetDeviceInstance() c_base.IDevice {

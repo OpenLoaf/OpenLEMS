@@ -12,9 +12,11 @@ type IDevice interface {
 }
 
 type IDeviceWrapper interface {
-	GetDeviceConfig() *SDeviceConfig
-	GetDriverInfo() *SDriverInfo
-	GetProtocolConfig() *SProtocolConfig
+	GetDeviceDetail() *SDeviceDetail
+
+	//GetDeviceConfig() *SDeviceConfig
+	//GetDriverInfo() *SDriverInfo
+	//GetProtocolConfig() *SProtocolConfig
 
 	GetDeviceInstance() IDevice
 

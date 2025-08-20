@@ -33,12 +33,12 @@ func (d *SDeviceManager) IteratorAssAllDevicesWrapper(process func(deviceWrapper
 	})
 }
 
-func (d *SDeviceManager) GetDeviceById(deviceId string) c_base.IDevice {
+func (d *SDeviceManager) GetDeviceById(deviceId string) c_base.IDeviceWrapper {
 	dw := d.deviceWrapperTree.Get(deviceId)
 	if dw == nil {
 		return nil
 	}
-	return dw.(c_base.IDeviceWrapper).GetDeviceInstance()
+	return dw.(c_base.IDeviceWrapper)
 }
 
 func (d *SDeviceManager) Start(parentCtx context.Context) {
@@ -97,7 +97,7 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 			return true
 		}
 
-		driver := getDriver(ctx, deviceConfig)
+		driver := getDriver(ctx, deviceWrapper.deviceConfig.Driver)
 		if driver == nil {
 			g.Log().Errorf(d.ctx, "设备[%s]驱动加载失败！", deviceConfig.Name)
 			deviceWrapper.UpdateState(c_base.EStateError)

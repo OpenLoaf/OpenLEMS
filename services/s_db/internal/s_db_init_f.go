@@ -71,7 +71,7 @@ func initConfigDatabase() {
 	_, err = g.DB().Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS device (
 			id VARCHAR(255) PRIMARY KEY ,
-			pid VARCHAR(255) NOT NULL,
+			pid VARCHAR(255) NOT NULL DEFAULT '0',
 			protocol_id VARCHAR(255),
 			name VARCHAR(255) NOT NULL,
 			driver VARCHAR(255),

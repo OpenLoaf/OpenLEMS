@@ -144,22 +144,19 @@ func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []c_ba
 	return filteredDrivers
 }
 
-func getDriver(ctx context.Context, deviceConfig *c_base.SDeviceConfig) c_base.IDevice {
-	if deviceConfig.Driver == "" {
-		panic(gerror.Newf("设备[%s]%s驱动名称为空！", deviceConfig.Id, deviceConfig.Name))
+func getDriver(ctx context.Context, driver string) c_base.IDevice {
+	if driver == "" {
+		return nil
 	}
-
-	//ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
-
 	// 获取驱动的类型
-	driverGroups := strings.Split(deviceConfig.Driver, "_")
+	driverGroups := strings.Split(driver, "_")
 	if driverGroups == nil || len(driverGroups) == 0 {
-		panic(gerror.Newf("驱动名称错误！%s", deviceConfig.Driver))
+		panic(gerror.Newf("驱动名称错误！%s", driver))
 	}
 
-	pluginNewMethod := pluginNewMethodCache[deviceConfig.Driver]
+	pluginNewMethod := pluginNewMethodCache[driver]
 	if pluginNewMethod == nil {
-		panic(gerror.Newf("未找到驱动插件[%s]的NewPlugin方法！请检查pluginNewMethodCache或配置文件", deviceConfig.Driver))
+		panic(gerror.Newf("未找到驱动插件[%s]的NewPlugin方法！请检查pluginNewMethodCache或配置文件", driver))
 	}
 
 	// 准备参数
@@ -169,10 +166,10 @@ func getDriver(ctx context.Context, deviceConfig *c_base.SDeviceConfig) c_base.I
 
 	if dv, ok := results[0].Interface().(c_base.IDevice); ok {
 		if dv.GetDriverType() != c_base.EDeviceType(driverGroups[0]) {
-			panic(gerror.Newf("%s 中驱动类型不匹配！期望类型：%s, 实际类型：%s", deviceConfig.Driver, dv.GetDriverType(), driverGroups[0]))
+			panic(gerror.Newf("%s 中驱动类型不匹配！期望类型：%s, 实际类型：%s", driver, dv.GetDriverType(), driverGroups[0]))
 		}
 		return dv
 	} else {
-		panic(gerror.Newf("加载插件[%s]失败！原因：未找到函数：%s", deviceConfig.Driver, c_base.ConstNewPluginFunctionName))
+		panic(gerror.Newf("加载插件[%s]失败！原因：未找到函数：%s", driver, c_base.ConstNewPluginFunctionName))
 	}
 }
