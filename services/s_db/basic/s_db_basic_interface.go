@@ -8,9 +8,11 @@ import (
 
 // IDeviceService 设备服务
 type IDeviceService interface {
-	GetDeviceConfigs(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) // 获取所有设备列表
-	GetRootDeviceId() string                                                                // 获取根设备ID
+	GetEnableDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) // 获取所有设备列表
+	GetRootDeviceId() string                                                                                   // 获取根设备ID
 	//GetDeviceById(ctx context.Context, deviceId string) *model.SDeviceModel
+
+	UpdateDevice(ctx context.Context, deviceId string, data map[string]interface{}) error
 }
 
 type ISettingService interface {

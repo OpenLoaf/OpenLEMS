@@ -17,7 +17,7 @@ func (c *ControllerV2) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeR
 	}
 
 	// 从数据库中获取设备列表
-	deviceList, err := s_db.GetDeviceService().GetDeviceConfigs(ctx, parentId)
+	deviceList, err := s_db.GetDeviceService().GetEnableDeviceConfigsWithRecursion(ctx, parentId)
 	if err != nil {
 		return nil, err
 	}
@@ -34,11 +34,10 @@ func BuildDeviceTree(devices []*c_base.SDeviceConfig) []*entity.SDeviceTree {
 	deviceMap := make(map[string]*entity.SDeviceTree, len(devices))
 	var allKeys = make([]string, 0, len(devices))
 	for _, d := range devices {
-
-		device := common.GetDeviceManager().GetDeviceById(d.Id)
 		var deviceTree = &entity.SDeviceTree{
 			Children: make([]*entity.SDeviceTree, 0),
 		}
+		device := common.GetDeviceManager().GetDeviceById(d.Id)
 		if device != nil {
 			deviceTree.SDeviceDetail = device.GetDeviceDetail()
 		} else {

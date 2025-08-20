@@ -33,6 +33,8 @@ const (
 	ArgProfile            = "profile"               // 配置profile: default/dev/prod等
 )
 
+var MainCtx context.Context
+
 var (
 	Main = gcmd.Command{
 		Name:  "Start",
@@ -49,8 +51,9 @@ var (
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			// 初始化context
-			ctx, cancelFunc := context.WithCancel(context.Background())
 			ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Main")
+			MainCtx = ctx
+			ctx, cancelFunc := context.WithCancel(context.Background())
 
 			// 注入系统日志（GoFrame）
 			c_log.SetSystemLogger(applog.NewGoFrameLoggerAdapter(g.Log()))
@@ -74,10 +77,10 @@ var (
 
 			// 初始化存储（默认使用 PebbleDB，无外部配置时采用默认路径与策略）
 			storageInst := pebbledb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_base.EStorageTypePebbledb, Url: "", Params: map[string]string{}})
-			s_storage.RegisterStorageInstance(storageInst)
+			s_storage.NewSingleStorageManager(nil, storageInst)
 			common.RegisterStorageInstance(storageInst)
 
-			common.RegisterDeviceManager(s_driver.GetDriverManager(ctx))
+			common.RegisterDeviceManager(s_driver.NewDriverManagerImpl(ctx))
 			if err != nil {
 				panic(err)
 			}
@@ -86,7 +89,7 @@ var (
 
 			// 启动设备
 			go func() {
-				common.GetDeviceManager().Start(ctx)
+				common.GetDeviceManager().Start()
 				g.Log().Infof(ctx, "DeviceManger State : %s", common.GetDeviceManager().Status())
 			}()
 

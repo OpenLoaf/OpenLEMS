@@ -14,6 +14,7 @@ import (
 
 // SDeviceManager 通用驱动管理器实现
 type SDeviceManager struct {
+	parentCtx  context.Context
 	ctx        context.Context
 	cancelFunc context.CancelFunc
 	state      c_base.EServerState // 状态
@@ -41,14 +42,14 @@ func (d *SDeviceManager) GetDeviceById(deviceId string) c_base.IDeviceWrapper {
 	return dw.(c_base.IDeviceWrapper)
 }
 
-func (d *SDeviceManager) Start(parentCtx context.Context) {
-	d.ctx, d.cancelFunc = context.WithCancel(parentCtx)
+func (d *SDeviceManager) Start() {
+	d.ctx, d.cancelFunc = context.WithCancel(d.parentCtx)
 	d.state = c_base.EStateInit
 	d.protocolClientCache = make(map[string]any)
 	d.deviceWrapperTree = gtree.NewAVLTree(gutil.ComparatorString)
 
 	rootDeviceID := s_db.GetDeviceService().GetRootDeviceId()
-	deviceConfigs, err := s_db.GetDeviceService().GetDeviceConfigs(d.ctx, rootDeviceID)
+	deviceConfigs, err := s_db.GetDeviceService().GetEnableDeviceConfigsWithRecursion(d.ctx, rootDeviceID)
 	if err != nil {
 		d.state = c_base.EStateError
 		g.Log().Errorf(d.ctx, "初始化失败！获取设备配置失败！%v", err)
@@ -88,6 +89,7 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 	d.deviceWrapperTree.IteratorDesc(func(k, v any) bool {
 		deviceWrapper := v.(*SDeviceWrapper)
 		deviceConfig := deviceWrapper.deviceConfig
+
 		protocolConfig := deviceWrapper.protocolConfig
 		ctx := context.WithValue(d.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Name)
 
@@ -141,11 +143,11 @@ var (
 	driverManagerInitOnce sync.Once
 )
 
-// GetDriverManager 创建驱动管理器
-func GetDriverManager() *SDeviceManager {
+// NewSingleDriverManager 创建驱动管理器
+func NewSingleDriverManager(parentCtx context.Context) *SDeviceManager {
 	driverManagerInitOnce.Do(func() {
 		driverManagerInstance = &SDeviceManager{
-			//protocolClientCache: make(map[string]any),
+			parentCtx: parentCtx,
 		}
 	})
 	return driverManagerInstance

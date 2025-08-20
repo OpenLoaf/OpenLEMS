@@ -14,12 +14,11 @@ const (
 	TableDevice = "device"
 
 	// 字段名
-	FieldPid           = "pid"
-	FieldProtocolId    = "protocol_id"
-	FieldDriver        = "driver"
-	FieldLogLevel      = "log_level"
-	FieldParams        = "params"
-	FieldRetentionDays = "retention_days"
+	FieldPid        = "pid"
+	FieldProtocolId = "protocol_id"
+	FieldDriver     = "driver"
+	FieldLogLevel   = "log_level"
+	FieldParams     = "params"
 )
 
 // 设备表结构
@@ -30,9 +29,9 @@ type SDeviceModel struct {
 	Name               string `json:"name" orm:"name"`
 	ProtocolId         string `json:"protocol_id" orm:"protocol_id"`
 	Driver             string `json:"driver" orm:"driver"`
-	LogLevel           string `json:"log_level" orm:"log_level"`
+	LogLevel           string `json:"logLevel" orm:"log_level"`
 	Strategy           string `json:"strategy,omitempty" orm:"strategy"`             // 	策略名称
-	StorageEnable      bool   `json:"StorageEnable" orm:"storage_enable"`            // 是否存储
+	StorageEnable      bool   `json:"storageEnable" orm:"storage_enable"`            // 是否存储
 	StorageIntervalSec int32  `json:"storageIntervalSec" orm:"storage_interval_sec"` // 存储间隔(秒),0代表默认1分钟，负数代表不存储
 	Sort               int    `json:"sort" orm:"sort"`
 	Enabled            bool   `json:"enabled" orm:"enabled"`

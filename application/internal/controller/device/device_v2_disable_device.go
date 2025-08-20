@@ -2,18 +2,24 @@ package device
 
 import (
 	v2 "application/api/device/v2"
+	"common"
+	"common/c_log"
 	"context"
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"s_db"
 )
 
 func (c *ControllerV2) DisableDevice(ctx context.Context, req *v2.DisableDeviceReq) (res *v2.DisableDeviceRes, err error) {
-	// TODO: 实现停用设备的业务逻辑
-	// 1. 验证设备是否存在
-	// 2. 检查设备当前状态
-	// 3. 执行停用操作
-	// 4. 更新设备状态
+	data := make(map[string]interface{})
+	data["enabled"] = false
+	err = s_db.GetDeviceService().UpdateDevice(ctx, req.DeviceId, data)
+	if err != nil {
+		c_log.Error(ctx, "Update Device Error", err)
+		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
+	}
+	common.GetDeviceManager().Shutdown()
+	common.GetDeviceManager().Start()
 
-	s_db.GetDeviceService()
-
-	return &v2.DisableDeviceRes{}, nil
+	return &v2.DisableDeviceRes{}, err
 }

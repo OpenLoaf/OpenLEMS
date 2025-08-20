@@ -13,8 +13,10 @@ import (
 func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error) {
 
 	deviceWrapper := common.GetDeviceManager().GetDeviceById(req.DeviceId)
+	if deviceWrapper == nil {
+		return nil, gerror.NewCode(gcode.CodeNotFound)
+	}
 	deviceInstance := deviceWrapper.GetDeviceInstance()
-
 	if deviceInstance == nil {
 		return nil, gerror.NewCode(gcode.CodeNotFound)
 	}

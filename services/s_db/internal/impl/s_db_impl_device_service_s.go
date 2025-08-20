@@ -33,7 +33,39 @@ func GetDeviceService() basic.IDeviceService {
 	return deviceManageInstance
 }
 
-func (s *sDeviceServiceImpl) GetDeviceConfigs(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) {
+func (s *sDeviceServiceImpl) UpdateDevice(ctx context.Context, deviceId string, data map[string]interface{}) error {
+	device := &model.SDeviceModel{}
+	err := device.GetById(ctx, deviceId)
+	if err != nil {
+		return err
+	}
+
+	if value, ok := data["value"].(string); ok {
+		device.Name = value
+	}
+	if value, ok := data[model.FieldParams].(string); ok {
+		device.Params = value
+	}
+	if value, ok := data["storageEnable"].(bool); ok {
+		device.StorageEnable = value
+	}
+	if value, ok := data["storageIntervalSec"].(int32); ok {
+		device.StorageIntervalSec = value
+	}
+	if value, ok := data["sort"].(int); ok {
+		device.Sort = value
+	}
+	if value, ok := data["enabled"].(bool); ok {
+		device.Enabled = value
+	}
+	if value, ok := data["logLevel"].(string); ok {
+		device.LogLevel = value
+	}
+
+	return device.Update(ctx)
+}
+
+func (s *sDeviceServiceImpl) GetEnableDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) {
 
 	// devices, err := s.GetAllDevicesOrderBySortAndEnable(ctx, true)
 

@@ -1,15 +1,14 @@
 package driver
 
 import (
-	"context"
-	"s_driver"
-
 	v1 "application/api/driver/v1"
 	"application/internal/model/entity"
+	"common"
+	"context"
 )
 
 func (c *ControllerV1) GetDriver(ctx context.Context, req *v1.GetDriverReq) (res *v1.GetDriverRes, err error) {
-	driverManager := s_driver.GetDriverManager(ctx)
+	driverManager := common.GetDeviceManager()
 	info, err := driverManager.GetDriverInfo(ctx, req.DriverName)
 	if err != nil {
 		return nil, err

@@ -1,4 +1,4 @@
-//go:generate stringer -type=EReadType -output=c_base_meta_read_type_e_string.go
+//go:generate stringer -type=EReadType -trimprefix=R -output=c_base_meta_read_type_e_string.go
 package c_base
 
 type (
