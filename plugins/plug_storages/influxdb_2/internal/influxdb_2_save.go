@@ -2,6 +2,7 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_chart"
 	"context"
 	"fmt"
 	"strings"
@@ -186,6 +187,6 @@ func (i *Influxdb2) getOrganization() *domain.Organization {
 	return organization
 }
 
-func (i *Influxdb2) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) (map[string]any, error) {
+func (i *Influxdb2) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error) {
 	return nil, nil
 }

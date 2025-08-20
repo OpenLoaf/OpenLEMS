@@ -2,6 +2,7 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_chart"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -30,18 +31,6 @@ const (
 	MetricsTag = "metrics" // 指标标签
 )
 
-// 图表相关常量
-const (
-	ChartTypeCategory = "category" // 图表X轴类型
-	ChartTypeLine     = "line"     // 图表系列类型
-)
-
-// 分页相关常量
-const (
-	DefaultPage     = 1  // 默认页码
-	DefaultPageSize = 10 // 默认页面大小
-)
-
 // 其他常量
 const (
 	KeySeparator   = "/" // 键分隔符
@@ -50,60 +39,6 @@ const (
 	ZeroTimestamp  = 0   // 零时间戳
 )
 
-// XAxis 表示图表X轴配置
-type XAxis struct {
-	Type string   `json:"type"`
-	Data []string `json:"data"`
-}
-
-// Series 表示图表数据系列
-type Series struct {
-	Name string   `json:"name"`
-	Type string   `json:"type"`
-	Data []string `json:"data"`
-}
-
-// NewSeries 创建新的数据系列
-func NewSeries(name, seriesType string, capacity int) *Series {
-	return &Series{
-		Name: name,
-		Type: seriesType,
-		Data: make([]string, 0, capacity),
-	}
-}
-
-// AppendData 向系列添加数据
-func (s *Series) AppendData(value string) {
-	s.Data = append(s.Data, value)
-}
-
-// ChartData 表示完整的图表数据
-type ChartData struct {
-	XAxis  XAxis    `json:"xAxis"`
-	Series []Series `json:"series"`
-}
-
-// NewChartData 创建新的图表数据
-func NewChartData(pointCount int) *ChartData {
-	return &ChartData{
-		XAxis: XAxis{
-			Type: ChartTypeCategory,
-			Data: make([]string, 0),
-		},
-		Series: make([]Series, 0, pointCount),
-	}
-}
-
-// AddTimestamp 向X轴添加时间戳
-func (c *ChartData) AddTimestamp(timestamp int64) {
-	c.XAxis.Data = append(c.XAxis.Data, fmt.Sprintf("%d", timestamp))
-}
-
-// AddSeries 添加数据系列
-func (c *ChartData) AddSeries(series Series) {
-	c.Series = append(c.Series, series)
-}
-
 // PebbleItem 表示单个数据项
 type PebbleItem struct {
 	Key       string `json:"key"`
@@ -111,7 +46,7 @@ type PebbleItem struct {
 	Timestamp int64  `json:"timestamp"` // 使用int64避免时间戳溢出
 }
 
-func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) (map[string]any, error) {
+func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error) {
 	switch storageType {
 	case c_base.StorageTypeDevice:
 		// 键名：device/{deviceId}/{timestamp}
@@ -120,9 +55,7 @@ func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, poi
 			return nil, err
 		}
 
-		return map[string]any{
-			"data": data,
-		}, nil
+		return data, nil
 	case c_base.StorageTypeProtocol:
 		// 键名：protocol/{protocolId}/{timestamp}
 		data, err := GetChartData(p.ProtocolDb, fmt.Sprintf("%s%s%s", ProtocolPrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
@@ -130,18 +63,14 @@ func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, poi
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{
-			"data": data,
-		}, nil
+		return data, nil
 	case c_base.StorageTypeSystem:
 		// 键名：system/{measurement}/{timestamp}
 		data, err := GetChartData(p.SystemDb, fmt.Sprintf("%s%s%s", SystemPrefix, KeySeparator, id), pointKey, startTime, endTime, step, MetricsTag)
 		if err != nil {
 			return nil, err
 		}
-		return map[string]any{
-			"data": data,
-		}, nil
+		return data, nil
 	default:
 		return nil, nil
 	}
@@ -164,11 +93,11 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 		needPaging = false
 	} else {
 		// 如果传了分页参数，则设置默认值
-		if page < DefaultPage {
-			page = DefaultPage
+		if page < c_chart.DefaultPage {
+			page = c_chart.DefaultPage
 		}
-		if pageSize < DefaultPage {
-			pageSize = DefaultPageSize
+		if pageSize < c_chart.DefaultPage {
+			pageSize = c_chart.DefaultPageSize
 		}
 	}
 
@@ -360,7 +289,7 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 // step: 时间间隔（毫秒），如60000表示按分钟查询，<=0表示不按间隔过滤
 // tag: 标签， 获取到数据后，根据tag过滤数据
 // 返回分页结果和总数
-func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTime *int, step int, tag string) (*ChartData, error) {
+func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTime *int, step int, tag string) (*c_chart.ChartData, error) {
 
 	// 构造查询范围的边界
 	var lowerBound, upperBound []byte
@@ -413,12 +342,12 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 	defer iter.Close()
 
 	// 收集所有匹配的数据
-	chartData := NewChartData(len(points))
+	chartData := c_chart.NewChartData(len(points))
 
 	// 创建数据系列映射，用于数据收集过程
-	seriesMap := make(map[string]*Series)
+	seriesMap := make(map[string]*c_chart.Series)
 	for _, point := range points {
-		series := NewSeries(point, ChartTypeLine, 0) // 容量设为0，让其自动扩容
+		series := c_chart.NewSeries(point, c_chart.ChartTypeLine, 0) // 容量设为0，让其自动扩容
 		seriesMap[point] = series
 	}
 

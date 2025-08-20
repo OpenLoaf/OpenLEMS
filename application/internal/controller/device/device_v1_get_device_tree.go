@@ -1,7 +1,7 @@
 package device
 
 import (
-	v2 "application/api/device/v2"
+	v2 "application/api/device/v1"
 	"application/internal/model/entity"
 	"common"
 	"common/c_base"

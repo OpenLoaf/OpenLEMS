@@ -1,7 +1,7 @@
 package device
 
 import (
-	v2 "application/api/device/v2"
+	v2 "application/api/device/v1"
 	"common"
 	"common/c_log"
 	"context"
@@ -10,17 +10,16 @@ import (
 	"s_db"
 )
 
-func (c *ControllerV2) EnableDevice(ctx context.Context, req *v2.EnableDeviceReq) (res *v2.EnableDeviceRes, err error) {
+func (c *ControllerV2) DisableDevice(ctx context.Context, req *v2.DisableDeviceReq) (res *v2.DisableDeviceRes, err error) {
 	data := make(map[string]interface{})
-	data["enabled"] = true
+	data["enabled"] = false
 	err = s_db.GetDeviceService().UpdateDevice(ctx, req.DeviceId, data)
 	if err != nil {
 		c_log.Error(ctx, "Update Device Error", err)
 		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
-
 	common.GetDeviceManager().Shutdown()
 	common.GetDeviceManager().Start()
 
-	return &v2.EnableDeviceRes{}, err
+	return &v2.DisableDeviceRes{}, err
 }

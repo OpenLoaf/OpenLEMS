@@ -2,6 +2,7 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_chart"
 	"context"
 	"fmt"
 	"time"
@@ -206,6 +207,6 @@ func (i *Influxdb1) createDatabaseIfNotExists() error {
 	return nil
 }
 
-func (i *Influxdb1) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) (map[string]any, error) {
+func (i *Influxdb1) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error) {
 	return nil, nil
 }

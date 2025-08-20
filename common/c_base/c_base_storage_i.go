@@ -1,6 +1,8 @@
 // //go:generate mockgen -source=storage_i.go -package=mock_c_base -destination=mock_c_base/storage_i.mock.go
 package c_base
 
+import "common/c_chart"
+
 type StorageType string
 
 const (
@@ -21,7 +23,7 @@ type IStorage interface {
 	SaveSystemMetrics(measurement string, tags map[string]string, metrics map[string]any) error
 
 	// GetStorageData 获取存储数据
-	GetStorageData(storageType StorageType, id string, pointKey []string, startTime, endTime *int, page, pageSize int, sortOrder string, step int) (map[string]any, error)
+	GetStorageData(storageType StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error)
 
 	// Close 关闭数据库
 	Close()
