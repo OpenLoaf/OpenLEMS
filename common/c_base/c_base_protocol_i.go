@@ -1,20 +1,11 @@
 package c_base
 
-import (
-	"time"
-)
-
 type IProtocol interface {
-	IAlarm
-	ProtocolListen() // 协议监听
+	IAlarm             // 告警
+	IDeviceRuntimeInfo // 设备运行信息
 
-	IsActivate() bool // 是否有效，无效一般是连接断了
-
-	GetMetaValueList() []*MetaValueWrapper // 获取所有缓存的数据列表
-	GetLastUpdateTime() *time.Time         // 获取最后更新时间
-
-	GetDeviceConfig() *SDeviceConfig     // 获取设备配置
+	ProtocolListen()                     // 协议监听
+	IsActivate() bool                    // 是否有效，无效一般是连接断了
 	GetProtocolConfig() *SProtocolConfig // 获取协议配置
 
-	IsPhysical() bool
 }

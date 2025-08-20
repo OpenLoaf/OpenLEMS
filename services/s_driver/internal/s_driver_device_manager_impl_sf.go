@@ -118,7 +118,7 @@ func (d *SDeviceManager) Start(parentCtx context.Context) {
 		// 初始化设备
 		driver.InitDevice(deviceConfig, protocolProvider, d.GetChildDeviceInstance(deviceConfig.Id))
 		// 协议监听
-		driver.ProtocolListen()
+		protocolProvider.ProtocolListen()
 
 		if deviceConfig.StorageEnable {
 			//common.GetStorageInstance().

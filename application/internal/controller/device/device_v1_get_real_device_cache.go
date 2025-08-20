@@ -2,40 +2,32 @@ package device
 
 import (
 	v1 "application/api/device/v1"
+	"application/internal/model/entity"
+	"common"
 	"context"
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error) {
-	//device := common.GetStorageInstance().GetDeviceById(req.DeviceId)
-	//if device == nil {
-	//	return nil, gerror.NewCode(gcode.CodeInvalidParameter, req.DeviceId, "设备不存在")
-	//}
-	//lastUpdateTime := ""
-	//if device.GetLastUpdateTime() != nil {
-	//	lastUpdateTime = device.GetLastUpdateTime().Format("2006-01-02 15:04:05")
-	//}
-	//res = &v1.GetRealDeviceCacheRes{
-	//	DeviceId:       device.GetDeviceConfig().Id,
-	//	DeviceType:     device.GetDriverType(),
-	//	DeviceName:     device.GetDeviceConfig().Name,
-	//	LastUpdateTime: lastUpdateTime,
-	//}
-	//var _ = make([]*entity.SSingleDeviceValue, 0)
-	//
-	//for _, wrapper := range device.GetMetaValueList() {
-	//	if len(req.TelemetryKeyList) != 0 && c_util.Contains(req.TelemetryKeyList, wrapper.Meta.Name) == false {
-	//		continue
-	//	}
-	//
-	//	values = append(values, &entity.SSingleDeviceValue{
-	//		DeviceId:   wrapper.DeviceId,
-	//		DeviceType: wrapper.DeviceType,
-	//		Meta:       wrapper.Meta,
-	//		Value:      wrapper.Meta.ValueToString(wrapper.Value),
-	//		HappenTime: wrapper.HappenTime.Format("2006-01-02 15:04:05"),
-	//	})
-	//}
-	//
-	//res.Values = values
+
+	deviceWrapper := common.GetDeviceManager().GetDeviceById(req.DeviceId)
+	deviceInstance := deviceWrapper.GetDeviceInstance()
+
+	if deviceInstance == nil {
+		return nil, gerror.NewCode(gcode.CodeNotFound)
+	}
+	res = &v1.GetRealDeviceCacheRes{}
+	res.LastUpdateTime = deviceInstance.GetLastUpdateTime()
+
+	res.Values = make([]*entity.SSingleDeviceValue, 0)
+
+	for _, v := range deviceInstance.GetMetaValueList() {
+		d := &entity.SSingleDeviceValue{}
+		_ = gconv.Scan(v, d)
+		res.Values = append(res.Values, d)
+	}
+
 	return res, nil
 }
