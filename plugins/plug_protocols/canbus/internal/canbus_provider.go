@@ -4,6 +4,7 @@ import (
 	"canbus/p_canbus"
 	"common/c_base"
 	"context"
+	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
@@ -50,8 +51,60 @@ func (c *CanbusProtocolProvider) IsActivate() bool {
 }
 
 func (c *CanbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
-	//TODO implement me
-	panic("implement me")
+	// TODO 此处和其他的合并到一个处理方法中
+	// 排序
+	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
+		v1Meta := v1.(*c_base.MetaValueWrapper).Meta
+		v2Meta := v2.(*c_base.MetaValueWrapper).Meta
+
+		if v1Meta.Addr > v2Meta.Addr {
+			return 1
+		} else {
+			if v1Meta.Addr == v2Meta.Addr {
+				// 比对别的
+				if v1Meta.ReadType > v2Meta.ReadType {
+					return 1
+				}
+			}
+
+			return -1
+		}
+	})
+
+	metas, err := c.cache.Keys(c.Ctx)
+	if err != nil {
+		return nil
+	}
+
+	for _, meta := range metas {
+		_varValue, err := c.cache.Get(c.Ctx, meta) // MetaValue类型
+		if err != nil {
+			continue
+		}
+
+		metaValue := &c_base.MetaValue{}
+		err = _varValue.Structs(metaValue)
+		if err != nil {
+			g.Log().Errorf(c.ctx, "解析缓存值失败：%v", err)
+			continue
+		}
+
+		_sortValues.Add(&c_base.MetaValueWrapper{
+			DeviceId:   c.deviceConfig.Id,
+			DeviceType: c.deviceType,
+			Meta:       meta.(*c_base.Meta),
+			Value:      metaValue.Value,
+			HappenTime: metaValue.HappenTime,
+		})
+	}
+	//_sortValues = _sortValues.Sort()
+
+	result := make([]*c_base.MetaValueWrapper, _sortValues.Len())
+	for i, v := range _sortValues.Slice() {
+		result[i] = v.(*c_base.MetaValueWrapper)
+	}
+
+	return result
 }
 
 func (c *CanbusProtocolProvider) GetLastUpdateTime() *time.Time {

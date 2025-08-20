@@ -13,6 +13,7 @@ type GetRealDeviceCacheReq struct {
 }
 
 type GetRealDeviceCacheRes struct {
-	LastUpdateTime *time.Time                   `json:"lastUpdateTime" dc:"数据最后更新时间"`
-	Values         []*entity.SSingleDeviceValue `json:"values" dc:"数值"`
+	DeviceServerState string                       `json:"deviceServerState,omitempty" dc:"设备服务状态"`
+	LastUpdateTime    *time.Time                   `json:"lastUpdateTime" dc:"数据最后更新时间"`
+	Values            []*entity.SSingleDeviceValue `json:"values" dc:"数值"`
 }

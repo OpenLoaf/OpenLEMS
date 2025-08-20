@@ -49,3 +49,5 @@ type IBms interface {
 	c_base.IDevice
 	IBmsBasic
 }
+
+//type Bms

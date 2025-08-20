@@ -21,8 +21,18 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	if deviceInstance == nil {
 		return nil, gerror.NewCode(gcode.CodeNotFound)
 	}
-	res = &v1.GetRealDeviceCacheRes{}
+	res = &v1.GetRealDeviceCacheRes{
+		DeviceServerState: deviceWrapper.GetDeviceState().String(),
+	}
 	res.LastUpdateTime = deviceInstance.GetLastUpdateTime()
+
+	//driverDescription := deviceInstance.GetDriverDescription()
+
+	//for _, t := range driverDescription.Telemetry {
+	//
+	//}
+	//
+	//driverDescription.GetAllTelemetry(deviceInstance)
 
 	res.Values = make([]*entity.SSingleDeviceValue, 0)
 
@@ -32,6 +42,9 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		_ = gconv.Scan(v, d)
 		if v.Meta.SystemType == c_base.SUseReadType {
 			d.Meta.SystemType = d.Meta.ReadType
+		}
+		if v.Meta.StatusExplain != nil {
+			d.StatueExplain = v.Meta.StatusExplain(v.Value)
 		}
 
 		res.Values = append(res.Values, d)

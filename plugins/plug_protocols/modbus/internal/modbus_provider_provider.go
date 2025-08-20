@@ -120,10 +120,19 @@ func (p *ModbusProtocolProvider) IsActivate() bool {
 func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 	// 排序
 	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
+		v1Meta := v1.(*c_base.MetaValueWrapper).Meta
+		v2Meta := v2.(*c_base.MetaValueWrapper).Meta
 
-		if v1.(*c_base.MetaValueWrapper).Meta.Addr > v2.(*c_base.MetaValueWrapper).Meta.Addr {
+		if v1Meta.Addr > v2Meta.Addr {
 			return 1
 		} else {
+			if v1Meta.Addr == v2Meta.Addr {
+				// 比对别的
+				if v1Meta.ReadType > v2Meta.ReadType {
+					return 1
+				}
+			}
+
 			return -1
 		}
 	})

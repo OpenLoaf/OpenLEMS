@@ -5,9 +5,10 @@ import (
 )
 
 type SSingleDeviceValue struct {
-	Meta       *SSingleDeviceMeta `json:"meta,omitempty"`
-	Value      string             `json:"value,omitempty"`
-	HappenTime *time.Time         `json:"happenTime,omitempty"`
+	Meta          *SSingleDeviceMeta `json:"meta,omitempty"`
+	Value         string             `json:"value,omitempty"`
+	StatueExplain string             `json:"statueExplain,omitempty"`
+	HappenTime    *time.Time         `json:"happenTime,omitempty"`
 }
 
 // Meta 点位元数据
