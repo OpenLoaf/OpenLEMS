@@ -43,7 +43,7 @@ var pluginNewMethodCache = map[string]any{
 	"pcs_lnxall_v1.0.0":           pcs_lnxall_v1.NewPlugin,
 	"bms_lnxall_v1.0.0":           bms_lnxall_v1.NewPlugin,
 	"fire_control_v1.0.0":         fire_control_v1.NewPlugin,
-	"pcs_elecod_mac_v1":           pcs_elecod_mac_v1.NewPlugin,
+	"pcs_elecod_mac_v1.0.0":       pcs_elecod_mac_v1.NewPlugin,
 }
 
 func GetAllDriverNames() []string {

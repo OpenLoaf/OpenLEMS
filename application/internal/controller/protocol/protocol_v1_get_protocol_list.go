@@ -1,8 +1,11 @@
 package protocol
 
 import (
+	"application/internal/model/entity"
+	"common"
 	"context"
 	"net"
+	"s_db"
 	"strconv"
 	"strings"
 
@@ -10,42 +13,37 @@ import (
 )
 
 func (c *ControllerV1) GetProtocolList(ctx context.Context, req *v1.GetProtocolListReq) (res *v1.GetProtocolListRes, err error) {
-	//protocols, err := s_db.GetProtocolService().GetProtocolList(ctx, req.Type)
-	//if err != nil {
-	//	return nil, err
-	//}
-	//
-	//// 转换为 entity.SProtocol 类型
-	//var entityProtocols []*entity.SProtocol
-	//for _, protocol := range protocols {
-	//	// 安全地解析地址和端口
-	//	address, port := parseAddressAndPort(protocol.Address)
-	//
-	//	protocolActive := false
-	//	deviceCmd := common.GetStorageInstance()
-	//	if deviceCmd != nil && err == nil {
-	//		protocolActive = deviceCmd.IsProtocolActive(protocol.Id)
-	//	}
-	//
-	//	entityProtocols = append(entityProtocols, &entity.SProtocol{
-	//		ProtocolId:       protocol.Id,
-	//		ProtocolName:     protocol.Name,
-	//		ProtocolType:     protocol.Type,
-	//		ProtocolAddress:  address,
-	//		ProtocolPort:     port,
-	//		ProtocolTimeout:  int(protocol.Timeout),
-	//		ProtocolLogLevel: protocol.LogLevel,
-	//		ProtocolParams:   protocol.Params,
-	//		ProtocolActive:   protocolActive,
-	//	})
-	//}
-	//
-	//res = &v1.GetProtocolListRes{
-	//	ProtocolList: entityProtocols,
-	//	Total:        len(entityProtocols),
-	//}
-	//return res, nil
-	return nil, nil
+	protocols, err := s_db.GetProtocolService().GetProtocolList(ctx, req.Type)
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换为 entity.SProtocol 类型
+	var entityProtocols []*entity.SProtocol
+	for _, protocol := range protocols {
+		// 安全地解析地址和端口
+		address, port := parseAddressAndPort(protocol.Address)
+
+		protocolActive := common.GetDeviceManager().IsProtocolActive(protocol.Id)
+
+		entityProtocols = append(entityProtocols, &entity.SProtocol{
+			ProtocolId:       protocol.Id,
+			ProtocolName:     protocol.Name,
+			ProtocolType:     protocol.Type,
+			ProtocolAddress:  address,
+			ProtocolPort:     port,
+			ProtocolTimeout:  int(protocol.Timeout),
+			ProtocolLogLevel: protocol.LogLevel,
+			ProtocolParams:   protocol.Params,
+			ProtocolActive:   protocolActive,
+		})
+	}
+
+	res = &v1.GetProtocolListRes{
+		ProtocolList: entityProtocols,
+		Total:        len(entityProtocols),
+	}
+	return res, nil
 }
 
 // parseAddressAndPort 安全地解析地址和端口

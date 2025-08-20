@@ -15,3 +15,19 @@ type GetDeviceTreeReq struct {
 type GetDeviceTreeRes struct {
 	DeviceTree []*entity.SDeviceTree `json:"deviceTree" dc:"设备树"`
 }
+
+type DisableDeviceReq struct {
+	g.Meta   `path:"/device/disable" method:"post" tags:"设备相关" summary:"停用设备"`
+	DeviceId string `json:"deviceId" v:"required" dc:"设备ID"`
+}
+
+type DisableDeviceRes struct {
+}
+
+type EnableDeviceReq struct {
+	g.Meta   `path:"/device/enable" method:"post" tags:"设备相关" summary:"启用设备"`
+	DeviceId string `json:"deviceId" v:"required" dc:"设备ID"`
+}
+
+type EnableDeviceRes struct {
+}
