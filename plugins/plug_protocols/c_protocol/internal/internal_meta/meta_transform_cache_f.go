@@ -10,13 +10,14 @@ func MetaProcess(meta *c_base.Meta, value any) any {
 }
 
 func processAlarm(protocol c_base.IProtocol, deviceId string, deviceType c_base.EDeviceType, meta *c_base.Meta, IsTrigger bool, value any) {
+	now := time.Now()
 	protocol.TriggerAlarm(&c_base.SAlarmDetail{
 		DeviceId:   deviceId,
 		DeviceType: deviceType,
 		Level:      meta.Level,
 		Meta:       meta,
 		IsTrigger:  IsTrigger,
-		HappenTime: time.Now(),
+		HappenTime: &now,
 		Value:      value,
 	})
 }

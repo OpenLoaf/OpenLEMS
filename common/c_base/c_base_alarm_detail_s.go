@@ -10,7 +10,7 @@ type SAlarmDetail struct {
 	DeviceType EDeviceType `json:"deviceType" dc:"设备类型"`
 	Level      EAlarmLevel `json:"level" dc:"告警级别"`
 	Meta       *Meta       `json:"meta" dc:"告警元数据"`
-	HappenTime time.Time   `json:"happenTime" dc:"发生时间"`
+	HappenTime *time.Time  `json:"happenTime" dc:"发生时间"`
 	IsTrigger  bool        `json:"isTrigger" dc:"是否触发"`
 	Value      any         `json:"value" dc:"数值"`
 }

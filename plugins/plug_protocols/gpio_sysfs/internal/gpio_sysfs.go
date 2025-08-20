@@ -252,7 +252,7 @@ func (s *SGpioSysfsProvider) process(status bool) {
 				DeviceType: c_base.EDeviceGpio,
 				Level:      s.deviceGpioConfig.Level,
 				Meta:       s.meta,
-				HappenTime: now,
+				HappenTime: &now,
 				IsTrigger:  status,
 				Value:      status,
 			})
