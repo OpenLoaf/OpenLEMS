@@ -4,7 +4,9 @@ package c_base
 type Meta struct {
 	Debug bool `json:"-"` // 调试打印
 	// TODO 这里再加一个系统点位类型
-	Name       string        `json:"name"`                 // 名称
+	Name  string    `json:"name"` // 名称
+	Group MetaGroup `json:"group" dc:"分组"`
+
 	Cn         string        `json:"cn"`                   // 中文名称, TODO 以后改成I18N
 	Addr       uint16        `json:"addr"`                 // 地址，索引
 	BitLength  uint8         `json:"bitLength,omitempty"`  // 位长度, 可以和ReadType一起使用，表示位读取。 比如 RBit5，BigLength=3 代表读取第5位到第7位。0时忽略该参数！
@@ -22,4 +24,10 @@ type Meta struct {
 
 	StatusExplain func(value any) string `json:"-"` // 状态解释，如果有的话就翻译一下状态
 	Trigger       func(any) bool         `json:"-"` // 触发告警警告故障信息
+}
+
+type MetaGroup struct {
+	GroupName string `json:"groupName" dc:"组名称"`
+	GroupSort string `json:"groupSort" dc:"组排序"`
+	Display   bool   `json:"display" dc:"是否显示"`
 }

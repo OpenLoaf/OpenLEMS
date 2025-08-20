@@ -21,8 +21,17 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	if deviceInstance == nil {
 		return nil, gerror.NewCode(gcode.CodeNotFound)
 	}
+
+	var alarmLevel = c_base.ENone
+	if deviceWrapper.GetDeviceState() != c_base.EStateError &&
+		deviceWrapper.GetDeviceState() != c_base.EStateInit {
+		// todo 修改
+		alarmLevel = deviceInstance.GetAlarmLevel()
+	}
+
 	res = &v1.GetRealDeviceCacheRes{
 		DeviceServerState: deviceWrapper.GetDeviceState().String(),
+		AlarmLevel:        alarmLevel.String(),
 	}
 	res.LastUpdateTime = deviceInstance.GetLastUpdateTime()
 
