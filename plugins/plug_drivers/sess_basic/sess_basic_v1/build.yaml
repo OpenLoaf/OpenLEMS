@@ -1,7 +1,7 @@
 brand: Basic
 model: "Station Energy Store"
 version: v1.0.0
-author: "dynamicoct@qq.com"
+author: "zz@hexems.com"
 create: "2024-09-07"
 remark: "场站级驱动:储能组"
 protocolType: "virtual"

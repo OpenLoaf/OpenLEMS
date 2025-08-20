@@ -12,6 +12,7 @@ use (
 	./plugins/plug_drivers/fire_control
 	./plugins/plug_drivers/gpio_basic
 	./plugins/plug_drivers/pcs_elecod_mac
+	./plugins/plug_drivers/pcs_elecod_mdc
 	./plugins/plug_drivers/pcs_enjoy_basic
 	./plugins/plug_drivers/pcs_lnxall
 	./plugins/plug_drivers/pcs_star_charge_100E

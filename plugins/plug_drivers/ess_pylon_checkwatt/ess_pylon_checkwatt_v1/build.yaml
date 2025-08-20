@@ -1,7 +1,7 @@
 brand: Pylon
 model: Checkwatt
 version: v1.0.0
-author: "dynamicoct@qq.com"
+author: "zz@hexems.com"
 create: "2024-09-07"
 remark: "虚拟派能柜，整合PCS与BMS"
 protocolType: "virtual"

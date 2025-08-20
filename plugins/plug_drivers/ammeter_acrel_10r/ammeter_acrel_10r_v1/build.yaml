@@ -1,7 +1,7 @@
 brand: Acrel
 model: 10R
 version: v1.0.1
-author: "dynamicoct@qq.com"
+author: "zz@hexems.com"
 create: "2024-09-07"
 remark: "安科瑞三相电表"
 protocolType: "modbus"
