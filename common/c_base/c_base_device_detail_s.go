@@ -1,6 +1,8 @@
 package c_base
 
-import "time"
+import (
+	"time"
+)
 
 type SDeviceDetail struct {
 	Id   string `json:"id,omitempty" `   // 设备ID
@@ -15,10 +17,9 @@ type SDeviceDetail struct {
 	Enabled            bool           `json:"enabled" `          // 是否启用
 	Params             map[string]any `json:"params,omitempty" ` // 额外参数
 
-	Driver            string              `json:"driver,omitempty" `     // 驱动名
-	DriverName        string              `json:"driverName,omitempty" ` // 驱动名称
-	DriverType        EDeviceType         `json:"type"`                  // 驱动类型
-	DriverDescription *SDriverDescription `json:"description"`           // 驱动描述
+	Driver            string              `json:"driver,omitempty" ` // 驱动名
+	DriverType        EDeviceType         `json:"type"`              // 驱动类型
+	DriverDescription *SDriverDescription `json:"description"`       // 驱动描述
 
 	ProtocolId      string         `json:"protocolId,omitempty" `   // 协议配置ID,如果配置了肯定是实体设备
 	ProtocolType    EProtocolType  `json:"protocolType,omitempty" ` // 协议
@@ -28,11 +29,11 @@ type SDeviceDetail struct {
 	ProtocolEnable  bool           `json:"protocolEnable" ` // 协议是否启动
 
 	/* 二次计算后的值 */
-	IsPhysics         bool         `json:"isPhysics,omitempty" ` // 是否是物理设备
-	HasChildDevice    bool         `json:"hasChildDevice" dc:"是否有子设备"`
-	AlarmLevel        EAlarmLevel  `json:"alarmLevel" dc:"告警级别"`
-	LastUpdateTime    *time.Time   `json:"lastUpdateTime" dc:"最后更新时间"`
-	DeviceServerState EServerState `json:"deviceServerState,omitempty"` // 设备服务状态
+	IsPhysics         bool       `json:"isPhysics,omitempty" ` // 是否是物理设备
+	HasChildDevice    bool       `json:"hasChildDevice" dc:"是否有子设备"`
+	AlarmLevel        string     `json:"alarmLevel" dc:"告警级别"`
+	LastUpdateTime    *time.Time `json:"lastUpdateTime" dc:"最后更新时间"`
+	DeviceServerState string     `json:"deviceServerState,omitempty"` // 设备服务状态
 }
 
 func NewDeviceDetailNoInstance(deviceConfig *SDeviceConfig, driverInfo *SDriverInfo, protocolConfig *SProtocolConfig) *SDeviceDetail {
@@ -59,15 +60,10 @@ func NewDeviceDetail(deviceConfig *SDeviceConfig, driverInfo *SDriverInfo, proto
 	}
 
 	if driverInfo != nil {
-		deviceDetail.DriverName = driverInfo.Name
-		if deviceDetail.DriverName == "" {
-			deviceDetail.DriverName = deviceConfig.Driver
-		}
 		deviceDetail.DriverType = driverInfo.Type
 		deviceDetail.DriverDescription = driverInfo.Description
 	}
 	if protocolConfig != nil {
-
 		deviceDetail.ProtocolName = protocolConfig.Name
 		deviceDetail.ProtocolAddress = protocolConfig.Address
 		deviceDetail.ProtocolType = protocolConfig.Type
@@ -79,11 +75,11 @@ func NewDeviceDetail(deviceConfig *SDeviceConfig, driverInfo *SDriverInfo, proto
 
 	if instance != nil {
 		if deviceServerState != EStateError && deviceServerState != EStateInit {
-			deviceDetail.AlarmLevel = instance.GetAlarmLevel()
+			deviceDetail.AlarmLevel = instance.GetAlarmLevel().String()
 			deviceDetail.LastUpdateTime = instance.GetLastUpdateTime()
 			deviceDetail.IsPhysics = instance.IsPhysical()
 		}
-		deviceDetail.DeviceServerState = deviceServerState
+		deviceDetail.DeviceServerState = deviceServerState.String()
 	}
 
 	return deviceDetail

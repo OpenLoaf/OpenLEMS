@@ -1,7 +1,6 @@
 package c_base
 
 import (
-	"context"
 	"fmt"
 	"reflect"
 	"strings"
@@ -27,7 +26,7 @@ type SDriverDescription struct {
 	reflectMethodCache map[string]reflect.Value // 反射方法缓存
 }
 
-func BuildDescriptionFromYaml(ctx context.Context, yamlData []byte) *SDriverDescription {
+func BuildDescriptionFromYaml(yamlData []byte) *SDriverDescription {
 	description := &SDriverDescription{}
 	err := yaml.Unmarshal(yamlData, description)
 	if err != nil {

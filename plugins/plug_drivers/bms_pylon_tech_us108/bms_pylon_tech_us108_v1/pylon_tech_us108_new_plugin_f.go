@@ -12,6 +12,6 @@ var buildYaml []byte
 func NewPlugin(ctx context.Context) c_base.IDevice {
 	return &sBmsPylonTechUs108{
 		ctx:                ctx,
-		SDriverDescription: c_base.BuildDescriptionFromYaml(ctx, buildYaml),
+		SDriverDescription: c_base.BuildDescriptionFromYaml(buildYaml),
 	}
 }

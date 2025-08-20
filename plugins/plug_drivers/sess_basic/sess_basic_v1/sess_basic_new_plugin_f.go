@@ -14,7 +14,7 @@ func NewPlugin(ctx context.Context) c_device.IStationEnergyStore {
 	instance := &sStationEnergyStore{
 		SAlarmHandler:      &c_base.SAlarmHandler{},
 		ctx:                ctx,
-		SDriverDescription: c_base.BuildDescriptionFromYaml(ctx, buildYaml),
+		SDriverDescription: c_base.BuildDescriptionFromYaml(buildYaml),
 	}
 
 	return instance
