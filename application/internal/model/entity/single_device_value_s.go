@@ -4,6 +4,12 @@ import (
 	"time"
 )
 
+type SSingleDeviceGroup struct {
+	GroupName string `json:"groupName" dc:"组名称"`
+	GroupSort int    `json:"groupSort" dc:"组排序"`
+	Values    []*SSingleDeviceValue
+}
+
 type SSingleDeviceValue struct {
 	Meta          *SSingleDeviceMeta `json:"meta,omitempty"`
 	Value         string             `json:"value,omitempty"`

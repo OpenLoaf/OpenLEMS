@@ -9,6 +9,7 @@ import (
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
+	"sort"
 )
 
 func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error) {
@@ -43,11 +44,24 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	//
 	//driverDescription.GetAllTelemetry(deviceInstance)
 
-	res.Values = make([]*entity.SSingleDeviceValue, 0)
+	groupCacheMap := make(map[string]*entity.SSingleDeviceGroup)
 
 	for _, v := range deviceInstance.GetMetaValueList() {
+		// 缓存group
+		group, exist := groupCacheMap[v.Meta.Group.GroupName]
+		if !exist {
+			sort := v.Meta.Group.GroupSort
+			if v.Meta.Group.GroupName == "" {
+				sort = 9999999
+			}
+			group = &entity.SSingleDeviceGroup{
+				GroupName: v.Meta.Group.GroupName,
+				GroupSort: sort,
+				Values:    make([]*entity.SSingleDeviceValue, 0),
+			}
+			groupCacheMap[v.Meta.Group.GroupName] = group
+		}
 		d := &entity.SSingleDeviceValue{}
-
 		_ = gconv.Scan(v, d)
 		if v.Meta.SystemType == c_base.SUseReadType {
 			d.Meta.SystemType = d.Meta.ReadType
@@ -55,9 +69,18 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		if v.Meta.StatusExplain != nil {
 			d.StatueExplain = v.Meta.StatusExplain(v.Value)
 		}
-
-		res.Values = append(res.Values, d)
+		group.Values = append(group.Values, d)
 	}
 
+	// 排序
+	groups := make([]*entity.SSingleDeviceGroup, 0, len(groupCacheMap))
+	for _, group := range groupCacheMap {
+		groups = append(groups, group)
+	}
+	sort.Slice(groups, func(i, j int) bool {
+		return groups[i].GroupSort < groups[j].GroupSort
+	})
+
+	res.Values = groups
 	return res, nil
 }
