@@ -5,6 +5,10 @@ import (
 	"common/c_util"
 )
 
+var (
+	StatusGroup = &c_base.MetaGroup{GroupName: "状态", GroupSort: 1}
+)
+
 // 设备信息
 var (
 // Pylon            = &c_base.Meta{Id: "Pylon", Addr: 0x1000, BitSize: 16 * 5, SystemType: c_base.SString, Desc: "设备信息"}
@@ -50,18 +54,18 @@ var (
 		}
 		return "未知"
 	}}
-	SystemErrorProtection     = &c_base.Meta{Name: "SystemErrorProtection", Cn: "系统故障保护", Addr: 0x1100, ReadType: c_base.RBit3, Level: c_base.EError, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
-	CurrentProtection         = &c_base.Meta{Name: "CurrentProtection", Cn: "电流保护", Addr: 0x1100, ReadType: c_base.RBit4, Level: c_base.EError, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
-	VoltageProtection         = &c_base.Meta{Name: "VoltageProtection", Cn: "电压保护", Addr: 0x1100, ReadType: c_base.RBit5, Level: c_base.EError, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
-	TemperatureProtection     = &c_base.Meta{Name: "TemperatureProtection", Cn: "温度保护", Addr: 0x1100, ReadType: c_base.RBit6, Level: c_base.EError, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
-	VoltageAlarm              = &c_base.Meta{Name: "VoltageAlarm", Cn: "电压警告", Addr: 0x1100, ReadType: c_base.RBit7, Level: c_base.EAlarm, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
-	CurrentAlarm              = &c_base.Meta{Name: "VoltageAlarm", Cn: "电流警告", Addr: 0x1100, ReadType: c_base.RBit8, Level: c_base.EAlarm, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
-	TemperatureAlarm          = &c_base.Meta{Name: "VoltageAlarm", Cn: "温度警告", Addr: 0x1100, ReadType: c_base.RBit9, Level: c_base.EAlarm, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
-	PileSystemIdleStatus      = &c_base.Meta{Name: "PileSystemIdleStatus", Cn: "电池组搁置状态", Addr: 0x1100, ReadType: c_base.RBit10, Level: c_base.EAlarm, Desc: "0-否，1-搁置"}
-	PileSystemChargeStatus    = &c_base.Meta{Name: "PileSystemChargeStatus", Cn: "电池组充电状态", Addr: 0x1100, ReadType: c_base.RBit11, Level: c_base.EAlarm, Desc: "0-否，1-充电"}
-	PileSystemDischargeStatus = &c_base.Meta{Name: "PileSystemDischargeStatus", Cn: "电池组放电状态", Addr: 0x1100, ReadType: c_base.RBit12, Level: c_base.EAlarm, Desc: "0-否，1-充电"}
-	PileSystemSleepStatus     = &c_base.Meta{Name: "PileSystemSleepStatus", Cn: "电池组休眠状态", Addr: 0x1100, ReadType: c_base.RBit13, Level: c_base.EAlarm, Desc: "0-否，1-休眠"}
-	FanWarn                   = &c_base.Meta{Name: "FanWarn", Cn: "电池组休眠状态", Addr: 0x1100, ReadType: c_base.RBit14, Level: c_base.EAlarm, Desc: "0-否，1-有异常"}
+	SystemErrorProtection     = &c_base.Meta{Name: "SystemErrorProtection", Group: StatusGroup, Cn: "系统故障保护", Addr: 0x1100, ReadType: c_base.RBit3, Level: c_base.EError, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
+	CurrentProtection         = &c_base.Meta{Name: "CurrentProtection", Group: StatusGroup, Cn: "电流保护", Addr: 0x1100, ReadType: c_base.RBit4, Level: c_base.EError, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
+	VoltageProtection         = &c_base.Meta{Name: "VoltageProtection", Group: StatusGroup, Cn: "电压保护", Addr: 0x1100, ReadType: c_base.RBit5, Level: c_base.EError, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
+	TemperatureProtection     = &c_base.Meta{Name: "TemperatureProtection", Group: StatusGroup, Cn: "温度保护", Addr: 0x1100, ReadType: c_base.RBit6, Level: c_base.EError, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
+	VoltageAlarm              = &c_base.Meta{Name: "VoltageAlarm", Group: StatusGroup, Cn: "电压警告", Addr: 0x1100, ReadType: c_base.RBit7, Level: c_base.EAlarm, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
+	CurrentAlarm              = &c_base.Meta{Name: "VoltageAlarm", Group: StatusGroup, Cn: "电流警告", Addr: 0x1100, ReadType: c_base.RBit8, Level: c_base.EAlarm, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
+	TemperatureAlarm          = &c_base.Meta{Name: "VoltageAlarm", Group: StatusGroup, Cn: "温度警告", Addr: 0x1100, ReadType: c_base.RBit9, Level: c_base.EAlarm, Desc: "0-正常；1-保护", StatusExplain: c_base.StatusExplainProtectFunc}
+	PileSystemIdleStatus      = &c_base.Meta{Name: "PileSystemIdleStatus", Group: StatusGroup, Cn: "电池组搁置状态", Addr: 0x1100, ReadType: c_base.RBit10, Level: c_base.EAlarm, Desc: "0-否，1-搁置"}
+	PileSystemChargeStatus    = &c_base.Meta{Name: "PileSystemChargeStatus", Group: StatusGroup, Cn: "电池组充电状态", Addr: 0x1100, ReadType: c_base.RBit11, Level: c_base.EAlarm, Desc: "0-否，1-充电"}
+	PileSystemDischargeStatus = &c_base.Meta{Name: "PileSystemDischargeStatus", Group: StatusGroup, Cn: "电池组放电状态", Addr: 0x1100, ReadType: c_base.RBit12, Level: c_base.EAlarm, Desc: "0-否，1-充电"}
+	PileSystemSleepStatus     = &c_base.Meta{Name: "PileSystemSleepStatus", Group: StatusGroup, Cn: "电池组休眠状态", Addr: 0x1100, ReadType: c_base.RBit13, Level: c_base.EAlarm, Desc: "0-否，1-休眠"}
+	FanWarn                   = &c_base.Meta{Name: "FanWarn", Group: StatusGroup, Cn: "电池组休眠状态", Addr: 0x1100, ReadType: c_base.RBit14, Level: c_base.EAlarm, Desc: "0-否，1-有异常"}
 
 	Protection                  = &c_base.Meta{Name: "Protection", Addr: 0x1101, ReadType: c_base.RInt16, Desc: "保护状态"}
 	AlarmStatus1                = &c_base.Meta{Name: "AlarmStatus1", Addr: 0x1102, ReadType: c_base.RInt16, Desc: "告警状态1", Trigger: c_base.IsNotZero}

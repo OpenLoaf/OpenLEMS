@@ -47,19 +47,25 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	groupCacheMap := make(map[string]*entity.SSingleDeviceGroup)
 
 	for _, v := range deviceInstance.GetMetaValueList() {
+		groupName := ""
+		if v.Meta.Group != nil {
+			groupName = v.Meta.Group.GroupName
+		}
+
 		// 缓存group
-		group, exist := groupCacheMap[v.Meta.Group.GroupName]
+		group, exist := groupCacheMap[groupName]
 		if !exist {
-			sort := v.Meta.Group.GroupSort
-			if v.Meta.Group.GroupName == "" {
-				sort = 9999999
+			groupSort := 99999
+			if v.Meta.Group != nil {
+				groupSort = v.Meta.Group.GroupSort
 			}
+
 			group = &entity.SSingleDeviceGroup{
-				GroupName: v.Meta.Group.GroupName,
-				GroupSort: sort,
+				GroupName: groupName,
+				GroupSort: groupSort,
 				Values:    make([]*entity.SSingleDeviceValue, 0),
 			}
-			groupCacheMap[v.Meta.Group.GroupName] = group
+			groupCacheMap[groupName] = group
 		}
 		d := &entity.SSingleDeviceValue{}
 		_ = gconv.Scan(v, d)
