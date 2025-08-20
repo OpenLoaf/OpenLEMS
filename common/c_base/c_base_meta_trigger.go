@@ -20,7 +20,7 @@ var StatusExplainEnableFunc = func(value any) string {
 			return "status_disable" // 关闭
 		}
 	}
-	return "status_unknown"
+	return "status_undefined"
 }
 
 var StatusExplainProtectFunc = func(value any) string {
@@ -33,7 +33,7 @@ var StatusExplainProtectFunc = func(value any) string {
 			return "status_normal" // 正常
 		}
 	}
-	return "status_unknown"
+	return "status_undefined"
 }
 
 var StatusExplainIsNotFunc = func(value any) string {
@@ -46,7 +46,7 @@ var StatusExplainIsNotFunc = func(value any) string {
 			return "status_not" // 否
 		}
 	}
-	return "status_unknown"
+	return "status_undefined"
 }
 
 var StatusExplainErrorFunc = func(value any) string {
@@ -59,5 +59,5 @@ var StatusExplainErrorFunc = func(value any) string {
 			return "status_normal" // 正常
 		}
 	}
-	return "status_unknown"
+	return "status_undefined"
 }
