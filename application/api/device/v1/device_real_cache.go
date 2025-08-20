@@ -16,5 +16,5 @@ type GetRealDeviceCacheRes struct {
 	AlarmLevel        string                       `json:"alarmLevel" dc:"告警级别"`
 	DeviceServerState string                       `json:"deviceServerState,omitempty" dc:"设备服务状态"`
 	LastUpdateTime    *time.Time                   `json:"lastUpdateTime" dc:"数据最后更新时间"`
-	Values            []*entity.SSingleDeviceGroup `json:"values" dc:"数值"`
+	Groups            []*entity.SSingleDeviceGroup `json:"groups" dc:"数值"`
 }

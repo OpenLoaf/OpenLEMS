@@ -81,6 +81,6 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		return groups[i].GroupSort < groups[j].GroupSort
 	})
 
-	res.Values = groups
+	res.Groups = groups
 	return res, nil
 }
