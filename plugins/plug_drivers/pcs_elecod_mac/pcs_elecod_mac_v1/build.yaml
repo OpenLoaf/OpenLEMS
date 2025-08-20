@@ -7,12 +7,12 @@ remark: "亿兰科MAC协议"
 protocolType: "canbus"
 
 customService:
-   - name: "gi18n:shutdown"
+   - name: "g18n:shutdown"
      functionName: CustomShutdownService
      description: "关机指令"
-   - name: "gi18n:startup"
+   - name: "g18n:startup"
      functionName: CustomStartupService
      description: ""
-   - name: "gi18n:standby"
+   - name: "g18n:standby"
      functionName: CustomStandbyService
      description: ""

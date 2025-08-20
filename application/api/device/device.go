@@ -14,6 +14,7 @@ import (
 type IDeviceV1 interface {
 	GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error)
 	GetRealDeviceList(ctx context.Context, req *v1.GetRealDeviceListReq) (res *v1.GetRealDeviceListRes, err error)
+	GetDeviceHistory(ctx context.Context, req *v1.GetDeviceHistoryReq) (res *v1.GetDeviceHistoryRes, err error)
 }
 
 type IDeviceV2 interface {
