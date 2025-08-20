@@ -2,6 +2,8 @@ package c_base
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 )
 
 type STelemetry struct {
@@ -17,4 +19,61 @@ func (s *STelemetry) String() string {
 		i18nKey = s.NationalizationName
 	}
 	return fmt.Sprintf("%s\t%s\t%s\t%s\t", s.Name, i18nKey, s.Unit, s.Remark)
+}
+
+// GetTelemetry 反射获取遥测信息 用于实现IDriver接口
+func (s *SDriverDescription) GetTelemetry(key string, instance any) (any, error) {
+
+	// 反射前先判断缓存中是否存在
+	if s.reflectMethodCache == nil {
+		s.reflectMethodCache = make(map[string]reflect.Value)
+	}
+
+	var (
+		method reflect.Value
+		ok     bool
+	)
+
+	// 如果缓冲中不存在，就反射新增
+	if method, ok = s.reflectMethodCache[key]; !ok {
+		functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
+		method = reflect.ValueOf(instance).MethodByName(functionName)
+		if !method.IsValid() {
+			return 0, fmt.Errorf("method %s not found", key)
+		}
+		s.reflectMethodCache[key] = method
+	}
+
+	// 空参数调用
+	value := method.Call(nil)
+	if len(value) == 1 {
+		return value[0].Interface(), nil
+	}
+
+	if len(value) != 2 {
+		return 0, fmt.Errorf("function %s return value length is not 2", key)
+	}
+	if value[1].Interface() != nil {
+		return 0, value[1].Interface().(error)
+	}
+	return value[0].Interface(), nil
+}
+
+func (s *SDriverDescription) GetAllTelemetry(instance any) map[string]any {
+	telemetryMap := make(map[string]any, len(s.Telemetry))
+	for _, telemetry := range s.Telemetry {
+		value, err := s.GetTelemetry(telemetry.Name, instance)
+		if err != nil {
+			continue
+		}
+		telemetryMap[telemetry.Name] = value
+	}
+	return telemetryMap
+}
+
+func capitalizeFirstLetter(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	return strings.ToUpper(s[:1]) + s[1:]
 }

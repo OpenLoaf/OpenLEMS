@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"pcs_elecod/pcs_elecod_mac_v1"
+	"pcs_elecod/elecod_canbus"
 )
 
 func main() {
@@ -37,7 +37,7 @@ func main() {
 	fmt.Println("CANbus 帧解析结果:")
 	fmt.Println("================================================================================")
 	for _, id := range testIDs {
-		pcs_elecod_mac_v1.PrintCANbusID(id)
+		elecod_canbus.PrintCANbusID(id)
 	}
 
 	//// 演示单独解析数据帧的功能

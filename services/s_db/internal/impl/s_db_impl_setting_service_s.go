@@ -24,6 +24,58 @@ func GetSettingService() basic.ISettingService {
 	return configManageInstance
 }
 
+// 获取设置配置通过名称
+func (s *sSettingServiceImpl) GetSettingValueByKey(ctx context.Context, key string, defaultValue ...string) string {
+	setting := &model.SSettingModel{}
+	// 通过 key 获取设置，如果设置不存在，则返回空字符串
+	err := setting.GetById(ctx, key)
+
+	df := ""
+	if len(defaultValue) > 0 {
+		df = defaultValue[0]
+	}
+
+	if err != nil {
+		g.Log().Warningf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", key, err)
+		setting.SDatabaseBasic = model.SDatabaseBasic{
+			Id:        key,
+			CreatedAt: gtime.Now(),
+			UpdatedAt: gtime.Now(),
+		}
+		setting.Value = df
+		setting.Enabled = true
+		setting.Sort = 999
+
+		err = setting.Create(ctx)
+		if err != nil {
+			g.Log().Errorf(ctx, "保存设置失败！设置名称：%s，值：%v 错误：%v", key, df, err)
+		}
+		g.Log().Infof(ctx, "保存默认设置成功！设置名称：%s，值：%s", key, df)
+		return df
+	}
+
+	// 检查设置是否启用
+	if !setting.Enabled {
+		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", key)
+		return df
+	}
+
+	return setting.GetValue()
+}
+
+// 设置设置值通过名称
+func (s *sSettingServiceImpl) SetSettingValueByName(ctx context.Context, name string, value string) error {
+	setting := &model.SSettingModel{}
+	err := setting.GetById(ctx, name)
+	if err != nil {
+		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", name, err)
+		return err
+	}
+	setting.SetValue(value)
+	_ = setting.Update(ctx)
+	return nil
+}
+
 /*func (s *sSettingServiceImpl) GetProtocolsConfigList(ctx context.Context) []*c_base.SProtocolConfig {
 	protocols, err := GetProtocolService().GetAllProtocols(ctx)
 	if err != nil {
@@ -77,58 +129,6 @@ func GetSettingService() basic.ISettingService {
 	}
 	return protocolConfigs
 }*/
-
-// 获取设置配置通过名称
-func (s *sSettingServiceImpl) GetSettingValueByKey(ctx context.Context, key string, defaultValue ...string) string {
-	setting := &model.SSettingModel{}
-	// 通过 key 获取设置，如果设置不存在，则返回空字符串
-	err := setting.GetById(ctx, key)
-
-	df := ""
-	if len(defaultValue) > 0 {
-		df = defaultValue[0]
-	}
-
-	if err != nil {
-		g.Log().Warningf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", key, err)
-		setting.SDatabaseBasic = model.SDatabaseBasic{
-			Id:        key,
-			CreatedAt: gtime.Now(),
-			UpdatedAt: gtime.Now(),
-		}
-		setting.Value = df
-		setting.Enabled = true
-		setting.Sort = 999
-
-		err = setting.Create(ctx)
-		if err != nil {
-			g.Log().Errorf(ctx, "保存设置失败！设置名称：%s，值：%v 错误：%v", key, df, err)
-		}
-		g.Log().Infof(ctx, "保存默认设置成功！设置名称：%s，值：%s", key, df)
-		return df
-	}
-
-	// 检查设置是否启用
-	if !setting.Enabled {
-		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", key)
-		return df
-	}
-
-	return setting.GetValue()
-}
-
-// 设置设置值通过名称
-func (s *sSettingServiceImpl) SetSettingValueByName(ctx context.Context, name string, value string) error {
-	setting := &model.SSettingModel{}
-	err := setting.GetById(ctx, name)
-	if err != nil {
-		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", name, err)
-		return err
-	}
-	setting.SetValue(value)
-	_ = setting.Update(ctx)
-	return nil
-}
 
 /*
 // BuildDeviceTree 递归构建设备树结构

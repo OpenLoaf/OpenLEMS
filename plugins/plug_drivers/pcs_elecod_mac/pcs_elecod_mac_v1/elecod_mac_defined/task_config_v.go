@@ -1,12 +1,13 @@
-package pcs_elecod_mac_v1
+package elecod_mac_defined
 
 import (
 	"canbus/p_canbus"
 	"common/c_base"
+	elecod_canbus "pcs_elecod/elecod_canbus"
 )
 
 var (
-	configAllTasks = []*p_canbus.SCanbusTask{
+	ConfigAllTasks = []*p_canbus.SCanbusTask{
 		&configTotalPowerInfo,
 		&configPhasePowerInfo,
 		&configPhaseReactiveFreqInfo,
@@ -33,10 +34,10 @@ var (
 )
 
 // isConfig returns true if the CANFrameInfo is a config frame
-func isConfig(info CANFrameInfo) bool {
-	return (info.SourceDeviceType == DeviceTypeMAC || info.SourceDeviceType == DeviceTypeScreen) &&
-		(info.TargetDeviceType == DeviceTypeMAC || info.TargetDeviceType == DeviceTypeScreen) &&
-		info.MessageType == MessageTypeConfig
+func isConfig(info elecod_canbus.CANFrameInfo) bool {
+	return (info.SourceDeviceType == elecod_canbus.DeviceTypeMAC || info.SourceDeviceType == elecod_canbus.DeviceTypeScreen) &&
+		(info.TargetDeviceType == elecod_canbus.DeviceTypeMAC || info.TargetDeviceType == elecod_canbus.DeviceTypeScreen) &&
+		info.MessageType == elecod_canbus.MessageTypeConfig
 }
 
 var (
@@ -46,10 +47,10 @@ var (
 			confTotalActivePower, confTotalReactivePower, confTotalPowerFactor, confRatedPower,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x01
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -62,10 +63,10 @@ var (
 			confActivePowerA, confActivePowerB, confActivePowerC, confRatedPhaseVoltage,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x02
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -78,10 +79,10 @@ var (
 			confReactivePowerA, confReactivePowerB, confReactivePowerC, confRatedFrequency,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x03
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -94,10 +95,10 @@ var (
 			confPowerFactorA, confPowerFactorB, confPowerFactorC, confActivePowerChangeRate,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x04
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -110,10 +111,10 @@ var (
 			confControlBit1, confControlBit2, confControlBit3, confBatteryType,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x05
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -126,10 +127,10 @@ var (
 			confBatteryUndervoltProtect, confBatteryUndervoltRecover, confBatteryOvervoltProtect, confBatteryOvervoltRecover,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x06
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -142,10 +143,10 @@ var (
 			confBatteryChargeLimit, confBatteryDischargeLimit, confBatteryFloatVoltage, confBatteryEqualizeVoltage,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x07
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -158,10 +159,10 @@ var (
 			confInsulationImpedanceThreshold, confGridOvervoltLevel1_2, confGridOvervoltLevel3_4, confGridOvervoltLevel5_Recover,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x08
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -174,10 +175,10 @@ var (
 			confGridUndervoltLevel1_2, confGridUndervoltLevel3_4, confGridUndervoltLevel5_Recover, confGridOverfreqLevel1,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x09
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -190,10 +191,10 @@ var (
 			confGridOverfreqLevel2, confGridOverfreqLevel3, confGridOverfreqLevel4, confGridOverfreqLevel5,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x0A
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -206,10 +207,10 @@ var (
 			confGridOverfreqRecover, confGridUnderfreqLevel1, confGridUnderfreqLevel2, confGridUnderfreqLevel3,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x0B
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -222,10 +223,10 @@ var (
 			confGridUnderfreqLevel4, confGridUnderfreqLevel5, confGridUnderfreqRecover, confDcBusVoltageRef,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x0C
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -238,10 +239,10 @@ var (
 			confGridOvervolt1TimeH_L, confGridOvervolt2TimeH_L, confGridOvervolt3TimeH_L, confGridOvervolt4TimeH_L,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x0D
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -254,10 +255,10 @@ var (
 			confGridOvervolt5TimeH_L, confGridRecoverConfirmTimeH_L, confGridUndervolt1TimeH_L, confGridUndervolt2TimeH_L,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x0E
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -270,10 +271,10 @@ var (
 			confGridUndervolt3TimeH_L, confGridUndervolt4TimeH_L, confGridUndervolt5TimeH_L, confGridOverfreq1TimeH_L,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x0F
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -286,10 +287,10 @@ var (
 			confGridOverfreq2TimeH_L, confGridOverfreq3TimeH_L, confGridOverfreq4TimeH_L, confGridOverfreq5TimeH_L,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x10
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -302,10 +303,10 @@ var (
 			confGridUnderfreq1TimeH_L, confGridUnderfreq2TimeH_L, confGridUnderfreq3TimeH_L, confGridUnderfreq4TimeH_L,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x11
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -318,10 +319,10 @@ var (
 			confGridUnderfreq5TimeH_L, confHighPenetrationReactive, confHighPenetrationActive, confLowPenetrationReactive,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x12
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -334,10 +335,10 @@ var (
 			confLowPenetrationActiveCurrent, confLowPenetrationActiveRecover, confDcBusOvervoltPoint, confAuthorizedCapacity,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x13
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -350,10 +351,10 @@ var (
 			confInertiaTimeConstant, confDampingCoefficient, confActiveFreqRegulationCoeff,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x14
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -366,10 +367,10 @@ var (
 			confFreqRegulationDeadZone, confFreqRegulationActiveUpper, confFreqRegulationActiveLower, confReactiveVoltRegulationCoeff,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x15
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -382,10 +383,10 @@ var (
 			confVoltRegulationDeadZone, confVoltRegulationReactiveUpper, confVoltRegulationReactiveLower,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
+			info := elecod_canbus.ParseCANbusID(id)
 			match := isConfig(info) && info.ServiceCode == 0x16
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false

@@ -6,6 +6,7 @@ import (
 	"common/c_log"
 	"common/c_timer"
 	"context"
+	"pcs_elecod/pcs_elecod_mac_v1/elecod_mac_defined"
 	"time"
 )
 
@@ -20,10 +21,10 @@ func (s *sPcsElecodBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protoco
 	s.deviceConfig = deviceConfig
 	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
 
-	for _, task := range analogAllTasks {
+	for _, task := range elecod_mac_defined.AnalogAllTasks {
 		s.RegisterRead(task)
 	}
-	for _, task := range configAllTasks {
+	for _, task := range elecod_mac_defined.ConfigAllTasks {
 		s.RegisterRead(task)
 	}
 

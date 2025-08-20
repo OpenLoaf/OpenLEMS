@@ -1,4 +1,4 @@
-package pcs_elecod_mac_v1
+package elecod_mac_defined
 
 import (
 	"canbus/p_canbus"

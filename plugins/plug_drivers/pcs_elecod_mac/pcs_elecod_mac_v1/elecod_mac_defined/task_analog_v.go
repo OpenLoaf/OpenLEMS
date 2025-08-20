@@ -1,12 +1,13 @@
-package pcs_elecod_mac_v1
+package elecod_mac_defined
 
 import (
 	"canbus/p_canbus"
 	"common/c_base"
+	elecod_canbus "pcs_elecod/elecod_canbus"
 )
 
 var (
-	analogAllTasks = []*p_canbus.SCanbusTask{
+	AnalogAllTasks = []*p_canbus.SCanbusTask{
 		&analogDCInfo,
 		&analogGridVoltageInfo,
 		&analogGridCurrentInfo,
@@ -23,16 +24,16 @@ var (
 			analogDcVoltage, analogDcCurrent, analogDcPower, analogBusVoltage,
 		},
 		GetCanbusID: func(params map[string]any) uint32 {
-			return buildCANbusID(&CANFrameInfo{})
+			return elecod_canbus.BuildCANbusID(&elecod_canbus.CANFrameInfo{})
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x01
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -45,13 +46,13 @@ var (
 			analogGridVoltageA, analogGridVoltageB, analogGridVoltageC, analogPowerTubeTemp,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x02
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -64,13 +65,13 @@ var (
 			analogGridCurrentA, analogGridCurrentB, analogGridCurrentC, analogBridgeTemp,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x03
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -83,13 +84,13 @@ var (
 			analogGridFrequencyA, analogGridFrequencyB, analogGridFrequencyC, analogAmbientTemp,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x04
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -102,13 +103,13 @@ var (
 			analogActivePowerA, analogActivePowerB, analogActivePowerC, analogTotalActivePower,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x05
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -121,13 +122,13 @@ var (
 			analogReactivePowerA, analogReactivePowerB, analogReactivePowerC, analogTotalReactivePower,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x06
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -140,13 +141,13 @@ var (
 			analogPowerFactorA, analogPowerFactorB, analogPowerFactorC, analogTotalPowerFactor,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x07
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -159,13 +160,13 @@ var (
 			analogApparentPowerA, analogApparentPowerB, analogApparentPowerC, analogTotalApparentPower,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x08
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -178,13 +179,13 @@ var (
 			analogInverterVoltageA, analogInverterVoltageB, analogInverterVoltageC,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x09
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -197,13 +198,13 @@ var (
 			analogPositiveGroundImpedance, analogNegativeGroundImpedance, analogLeakageCurrent, analogConverterEfficiency,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x0A
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -216,13 +217,13 @@ var (
 			analogTotalChargeL, analogTotalChargeH, analogTotalDischargeL, analogTotalDischargeH,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x0B
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false
@@ -235,13 +236,13 @@ var (
 			analogPositiveBusVoltage, analogNegativeBusVoltage, analogGroundNegativeVoltage,
 		},
 		IDMatch: func(id uint32) bool {
-			info := parseCANbusID(id)
-			match := info.TargetDeviceType == DeviceTypeScreen &&
-				info.SourceDeviceType == DeviceTypeMAC &&
-				info.MessageType == MessageTypeAnalog &&
+			info := elecod_canbus.ParseCANbusID(id)
+			match := info.TargetDeviceType == elecod_canbus.DeviceTypeScreen &&
+				info.SourceDeviceType == elecod_canbus.DeviceTypeMAC &&
+				info.MessageType == elecod_canbus.MessageTypeAnalog &&
 				info.ServiceCode == 0x0C
 			if match {
-				PrintCanFrame(id, info)
+				elecod_canbus.PrintCanFrame(id, info)
 				return true
 			}
 			return false

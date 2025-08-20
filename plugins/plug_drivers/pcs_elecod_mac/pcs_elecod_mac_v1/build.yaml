@@ -5,3 +5,14 @@ author: "zz@hexems.com"
 create: "2025-08-10"
 remark: "亿兰科MAC协议"
 protocolType: "canbus"
+
+customService:
+   - name: "gi18n:shutdown"
+     functionName: CustomShutdownService
+     description: "关机指令"
+   - name: "gi18n:startup"
+     functionName: CustomStartupService
+     description: ""
+   - name: "gi18n:standby"
+     functionName: CustomStandbyService
+     description: ""

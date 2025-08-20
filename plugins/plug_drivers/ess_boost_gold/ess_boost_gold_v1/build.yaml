@@ -29,3 +29,16 @@ telemetry:
     nationalizationName: todayOutgoingQuantity
     unit: "kWh"
     remark: "当日放电量"
+
+
+
+customService:
+  - name: "gi18n:shutdown"
+    functionName: CustomShutdownService
+    description: "关机指令"
+  - name: "gi18n:startup"
+    functionName: CustomStartupService
+    description: ""
+  - name: "gi18n:standby"
+    functionName: CustomStandbyService
+    description: ""

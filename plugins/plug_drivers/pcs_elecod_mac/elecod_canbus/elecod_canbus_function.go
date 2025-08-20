@@ -1,4 +1,4 @@
-package pcs_elecod_mac_v1
+package elecod_canbus
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ var (
 )
 
 // 解析CANbus ID
-func parseCANbusID(id uint32) CANFrameInfo {
+func ParseCANbusID(id uint32) CANFrameInfo {
 	// 首先尝试从缓存读取
 	cacheLock.RLock()
 	if info, exists := cache[id]; exists {
@@ -42,7 +42,7 @@ func parseCANbusID(id uint32) CANFrameInfo {
 }
 
 // 构建CANbus ID
-func buildCANbusID(info *CANFrameInfo) uint32 {
+func BuildCANbusID(info *CANFrameInfo) uint32 {
 	var id uint32
 
 	// 按照解析时的位操作进行反向操作
@@ -74,7 +74,7 @@ func parseDataFrame(data [8]byte) {
 
 // 打印解析结果
 func PrintCANbusID(id uint32) {
-	info := parseCANbusID(id)
+	info := ParseCANbusID(id)
 
 	PrintCanFrame(id, info)
 }

@@ -6,7 +6,6 @@ import (
 	"pcs_elecod/pcs_elecod_mac_v1"
 )
 
-// 通过构建脚本自动注入
 var (
 	buildTime  string
 	commitHash string
@@ -15,6 +14,7 @@ var (
 // NewPlugin 必须的方法，不能取消。修改实现只需修改此方法
 func NewPlugin(ctx context.Context) c_base.IDevice {
 	plugin := pcs_elecod_mac_v1.NewPlugin(ctx)
+	// 通过构建脚本自动注入
 	plugin.GetDriverDescription().BuildTime = buildTime
 	plugin.GetDriverDescription().CommitHash = commitHash
 	return plugin

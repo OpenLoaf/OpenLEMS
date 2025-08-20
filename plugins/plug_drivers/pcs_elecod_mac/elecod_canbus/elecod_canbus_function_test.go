@@ -1,4 +1,4 @@
-package pcs_elecod_mac_v1
+package elecod_canbus
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func Test_buildCANbusID(t *testing.T) {
 		ServiceCode:      0x01,
 	}
 
-	fmt.Printf("待机: 0x%X\n", buildCANbusID(standby))
+	fmt.Printf("待机: 0x%X\n", BuildCANbusID(standby))
 
 	start := &CANFrameInfo{
 		TargetDeviceType: DeviceTypeMAC,
@@ -32,7 +32,7 @@ func Test_buildCANbusID(t *testing.T) {
 		MessageType:      MessageTypeControl,
 		ServiceCode:      0x02,
 	}
-	fmt.Printf("启动: 0x%X\n", buildCANbusID(start))
+	fmt.Printf("启动: 0x%X\n", BuildCANbusID(start))
 
 	stop := &CANFrameInfo{
 		TargetDeviceType: DeviceTypeMAC,
@@ -42,5 +42,5 @@ func Test_buildCANbusID(t *testing.T) {
 		MessageType:      MessageTypeControl,
 		ServiceCode:      0x03,
 	}
-	fmt.Printf("停止: 0x%X\n", buildCANbusID(stop))
+	fmt.Printf("停止: 0x%X\n", BuildCANbusID(stop))
 }
