@@ -347,7 +347,7 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 	// 创建数据系列映射，用于数据收集过程
 	seriesMap := make(map[string]*c_chart.Series)
 	for _, point := range points {
-		series := c_chart.NewSeries(point, c_chart.ChartTypeLine, 0) // 容量设为0，让其自动扩容
+		series := c_chart.NewSeries(point, c_chart.ChartTypeLine, "", 0) // 容量设为0，让其自动扩容
 		seriesMap[point] = series
 	}
 

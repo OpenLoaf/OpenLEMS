@@ -4,6 +4,7 @@ package c_chart
 type Series struct {
 	Name string   `json:"name"`
 	Type string   `json:"type"`
+	Unit string   `json:"unit"`
 	Data []string `json:"data"`
 }
 
@@ -13,10 +14,11 @@ func (s *Series) AppendData(value string) {
 }
 
 // NewSeries 创建新的数据系列
-func NewSeries(name, seriesType string, capacity int) *Series {
+func NewSeries(name string, seriesType string, unit string, capacity int) *Series {
 	return &Series{
 		Name: name,
 		Type: seriesType,
+		Unit: unit,
 		Data: make([]string, 0, capacity),
 	}
 }
