@@ -4,6 +4,7 @@ import (
 	v1 "application/api/device/v1"
 	"application/internal/model/entity"
 	"common"
+	"common/c_base"
 	"context"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -27,7 +28,12 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 
 	for _, v := range deviceInstance.GetMetaValueList() {
 		d := &entity.SSingleDeviceValue{}
+
 		_ = gconv.Scan(v, d)
+		if v.Meta.SystemType == c_base.SUseReadType {
+			d.Meta.SystemType = d.Meta.ReadType
+		}
+
 		res.Values = append(res.Values, d)
 	}
 
