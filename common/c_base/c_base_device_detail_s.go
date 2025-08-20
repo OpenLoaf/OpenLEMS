@@ -3,24 +3,26 @@ package c_base
 import "time"
 
 type SDeviceDetail struct {
-	Id                 string         `json:"id,omitempty" `         // 设备ID
-	Pid                string         `json:"pid,omitempty" `        // 父设备Id
-	Name               string         `json:"name,omitempty" `       // 设备名称
-	ProtocolId         string         `json:"protocolId,omitempty" ` // 协议配置ID,如果配置了肯定是实体设备
-	Driver             string         `json:"driver,omitempty" `     // 驱动名称
-	LogLevel           string         `json:"logLevel,omitempty" `   // 日志等级
-	Strategy           string         `json:"strategy,omitempty" `   // 	策略名称
-	StorageEnable      bool           `json:"StorageEnable" `        // 是否存储
-	StorageIntervalSec int32          `json:"storageIntervalSec" `   // 存储间隔(秒),0代表默认1分钟，负数代表不存储
+	Id   string `json:"id,omitempty" `   // 设备ID
+	Pid  string `json:"pid,omitempty" `  // 父设备Id
+	Name string `json:"name,omitempty" ` // 设备名称
+
+	LogLevel           string         `json:"logLevel,omitempty" ` // 日志等级
+	Strategy           string         `json:"strategy,omitempty" ` // 	策略名称
+	StorageEnable      bool           `json:"StorageEnable" `      // 是否存储
+	StorageIntervalSec int32          `json:"storageIntervalSec" ` // 存储间隔(秒),0代表默认1分钟，负数代表不存储
 	Sort               int            `json:"sort" `
 	Enabled            bool           `json:"enabled" `          // 是否启用
 	Params             map[string]any `json:"params,omitempty" ` // 额外参数
-	DriverName         string         `json:"driverName"`        // 驱动名称
 
-	DriverType        EDeviceType         `json:"type"`                    // 驱动类型
-	DriverDescription *SDriverDescription `json:"description"`             // 驱动描述
-	ProtocolType      EProtocolType       `json:"protocolType,omitempty" ` // 协议
+	Driver            string              `json:"driver,omitempty" `     // 驱动名
+	DriverName        string              `json:"driverName,omitempty" ` // 驱动名称
+	DriverType        EDeviceType         `json:"type"`                  // 驱动类型
+	DriverDescription *SDriverDescription `json:"description"`           // 驱动描述
 
+	ProtocolId      string         `json:"protocolId,omitempty" `   // 协议配置ID,如果配置了肯定是实体设备
+	ProtocolType    EProtocolType  `json:"protocolType,omitempty" ` // 协议
+	ProtocolName    string         `json:"protocolName,omitempty" `
 	ProtocolAddress string         `json:"address,omitempty" ` // 地址
 	ProtocolParams  map[string]any `json:"protocolParams,omitempty" `
 	ProtocolEnable  bool           `json:"protocolEnable" ` // 协议是否启动
@@ -58,10 +60,15 @@ func NewDeviceDetail(deviceConfig *SDeviceConfig, driverInfo *SDriverInfo, proto
 
 	if driverInfo != nil {
 		deviceDetail.DriverName = driverInfo.Name
+		if deviceDetail.DriverName == "" {
+			deviceDetail.DriverName = deviceConfig.Driver
+		}
 		deviceDetail.DriverType = driverInfo.Type
 		deviceDetail.DriverDescription = driverInfo.Description
 	}
 	if protocolConfig != nil {
+
+		deviceDetail.ProtocolName = protocolConfig.Name
 		deviceDetail.ProtocolAddress = protocolConfig.Address
 		deviceDetail.ProtocolType = protocolConfig.Type
 		deviceDetail.ProtocolParams = protocolConfig.Params
@@ -71,9 +78,11 @@ func NewDeviceDetail(deviceConfig *SDeviceConfig, driverInfo *SDriverInfo, proto
 	}
 
 	if instance != nil {
-		deviceDetail.AlarmLevel = instance.GetAlarmLevel()
-		deviceDetail.LastUpdateTime = instance.GetLastUpdateTime()
-		deviceDetail.IsPhysics = instance.IsPhysical()
+		if deviceServerState != EStateError && deviceServerState != EStateInit {
+			deviceDetail.AlarmLevel = instance.GetAlarmLevel()
+			deviceDetail.LastUpdateTime = instance.GetLastUpdateTime()
+			deviceDetail.IsPhysics = instance.IsPhysical()
+		}
 		deviceDetail.DeviceServerState = deviceServerState
 	}
 

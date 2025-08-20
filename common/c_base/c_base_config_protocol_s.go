@@ -4,7 +4,8 @@ import "fmt"
 
 // SProtocolConfig 基础协议配置
 type SProtocolConfig struct {
-	Id       string         `json:"id,omitempty" orm:"id"`             // 协议Id
+	Id       string         `json:"id,omitempty" orm:"id"` // 协议Id
+	Name     string         `json:"name,omitempty" orm:"name"`
 	Type     EProtocolType  `json:"type,omitempty" orm:"type"`         // 协议
 	Address  string         `json:"address,omitempty" orm:"address"`   // 地址
 	Timeout  int64          `json:"timeout,omitempty" orm:"timeout"`   // 超时时间
