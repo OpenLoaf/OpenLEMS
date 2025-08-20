@@ -175,7 +175,7 @@ var (
 	analogInverterVoltageInfo = p_canbus.SCanbusTask{
 		Name: "逆变电压",
 		Metas: []*c_base.Meta{
-			analogInverterVoltageA, analogInverterVoltageB, analogInverterVoltageC, analogReserved1,
+			analogInverterVoltageA, analogInverterVoltageB, analogInverterVoltageC,
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)
@@ -232,7 +232,7 @@ var (
 	analogBusVoltageInfo = p_canbus.SCanbusTask{
 		Name: "母线电压",
 		Metas: []*c_base.Meta{
-			analogPositiveBusVoltage, analogNegativeBusVoltage, analogGroundNegativeVoltage, analogReserved2,
+			analogPositiveBusVoltage, analogNegativeBusVoltage, analogGroundNegativeVoltage,
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)

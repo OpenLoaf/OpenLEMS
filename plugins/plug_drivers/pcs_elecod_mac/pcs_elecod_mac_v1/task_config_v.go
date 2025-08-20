@@ -347,7 +347,7 @@ var (
 	configCapacityInertiaDampingInfo = p_canbus.SCanbusTask{
 		Name: "授权容量和预留",
 		Metas: []*c_base.Meta{
-			confInertiaTimeConstant, confDampingCoefficient, confReserved3, confActiveFreqRegulationCoeff,
+			confInertiaTimeConstant, confDampingCoefficient, confActiveFreqRegulationCoeff,
 		},
 		IDMatch: func(id uint32) bool {
 			info := parseCANbusID(id)

@@ -28,7 +28,7 @@ gfcli:
 
 database:
   default:
-    link: "sqlite::@file(out/db.sqlite3)"
+    link: "sqlite::@file(out/data)"
     timezone: "Local"
     
 
