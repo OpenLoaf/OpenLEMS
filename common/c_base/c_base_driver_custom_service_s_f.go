@@ -17,6 +17,18 @@ func (s *SDriverDescription) ExecuteCustomService(functionName string, instance 
 		return fmt.Errorf("custom service instance is nil")
 	}
 
+	// 判断一下是否允许这个方法调用
+	functionExist := false
+	for _, v := range s.CustomService {
+		if v.Name == functionName {
+			functionExist = true
+			break
+		}
+	}
+	if !functionExist {
+		return fmt.Errorf("custom service %s not support", functionName)
+	}
+
 	// 反射前先判断缓存中是否存在
 	if s.reflectMethodCache == nil {
 		s.reflectMethodCache = make(map[string]reflect.Value)
