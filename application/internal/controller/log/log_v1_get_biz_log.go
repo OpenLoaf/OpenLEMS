@@ -57,6 +57,116 @@ func (c *ControllerV1) GetBizLog(ctx g.Ctx, req *apiv1.GetBizLogReq) (res *apiv1
 	return &apiv1.GetBizLogRes{Total: total, Lines: structuredLines}, nil
 }
 
+func (c *ControllerV1) GetAllBizLog(ctx g.Ctx, req *apiv1.GetAllBizLogReq) (res *apiv1.GetAllBizLogRes, err error) {
+	// 处理默认日期
+	if req.Date == "" {
+		req.Date = time.Now().Format("20060102")
+	}
+
+	// 获取所有类型的日志
+	allLines := make([]apiv1.AllLogLine, 0)
+	total := 0
+
+	// 遍历所有日志类型
+	logTypes := []struct {
+		typeName  string
+		configKey string
+	}{
+		{"ems", "biz_ems"},
+		{"device", "biz_device"},
+		{"protocol", "biz_protocol"},
+		{"policy", "biz_policy"},
+	}
+
+	for _, logType := range logTypes {
+		// 获取该类型的基础路径
+		basePath, filePattern, err := resolveBase(ctx, logType.typeName)
+		if err != nil {
+			g.Log().Warningf(ctx, "获取日志类型 %s 配置失败: %v", logType.typeName, err)
+			continue
+		}
+
+		// 构造文件名
+		name := filePattern
+		if name == "" {
+			name = "{Ymd}.log"
+		}
+		name = replaceYmd(name, req.Date)
+
+		if logType.typeName == "ems" {
+			// EMS日志是单文件
+			fpath := filepath.Join(basePath, name)
+			lines, _, e := readAllFileLines(fpath)
+			if e != nil {
+				g.Log().Debugf(ctx, "读取EMS日志文件失败: %v", e)
+				continue
+			}
+
+			// 解析并添加类型信息
+			for _, line := range lines {
+				parsed := parseLogLine(line)
+				allLines = append(allLines, apiv1.AllLogLine{
+					Type:      logType.typeName,
+					Id:        "",
+					Timestamp: parsed.Timestamp,
+					Level:     parsed.Level,
+					Content:   parsed.Content,
+				})
+				total++
+			}
+		} else {
+			// 其他类型需要遍历子目录
+			entries, err := os.ReadDir(basePath)
+			if err != nil {
+				g.Log().Debugf(ctx, "读取目录 %s 失败: %v", basePath, err)
+				continue
+			}
+
+			for _, entry := range entries {
+				if entry.IsDir() {
+					id := entry.Name()
+					fpath := filepath.Join(basePath, id, name)
+					lines, _, e := readAllFileLines(fpath)
+					if e != nil {
+						g.Log().Debugf(ctx, "读取日志文件 %s 失败: %v", fpath, e)
+						continue
+					}
+
+					// 解析并添加类型信息
+					for _, line := range lines {
+						parsed := parseLogLine(line)
+						allLines = append(allLines, apiv1.AllLogLine{
+							Type:      logType.typeName,
+							Id:        id,
+							Timestamp: parsed.Timestamp,
+							Level:     parsed.Level,
+							Content:   parsed.Content,
+						})
+						total++
+					}
+				}
+			}
+		}
+	}
+
+	// 按时间戳倒序排序
+	sort.Slice(allLines, func(i, j int) bool {
+		return allLines[i].Timestamp > allLines[j].Timestamp
+	})
+
+	// 分页处理
+	start := (req.Page - 1) * req.PageSize
+	end := start + req.PageSize
+	if start >= len(allLines) {
+		return &apiv1.GetAllBizLogRes{Total: total, Lines: []apiv1.AllLogLine{}}, nil
+	}
+	if end > len(allLines) {
+		end = len(allLines)
+	}
+
+	return &apiv1.GetAllBizLogRes{Total: total, Lines: allLines[start:end]}, nil
+}
+
 // parseLogLines 解析日志行为结构化数据
 func parseLogLines(rawLines []string) []apiv1.LogLine {
 	var result []apiv1.LogLine
@@ -86,6 +196,54 @@ func parseLogLines(rawLines []string) []apiv1.LogLine {
 	}
 
 	return result
+}
+
+// parseLogLine 解析单行日志
+func parseLogLine(line string) apiv1.LogLine {
+	// GoFrame日志格式正则：支持多种时间格式
+	logPattern := regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:\d{2})?)\s+\[(\w+)\]\s+(.+)$`)
+
+	matches := logPattern.FindStringSubmatch(line)
+	if len(matches) == 4 {
+		// 成功解析
+		return apiv1.LogLine{
+			Timestamp: matches[1],
+			Level:     matches[2],
+			Content:   matches[3],
+		}
+	} else {
+		// 无法解析的日志行，作为纯内容处理
+		return apiv1.LogLine{
+			Timestamp: "",
+			Level:     "UNKNOWN",
+			Content:   line,
+		}
+	}
+}
+
+// readAllFileLines 读取文件的所有行
+func readAllFileLines(path string) ([]string, int, error) {
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer f.Close()
+
+	var lines []string
+	s := bufio.NewScanner(f)
+	buf := make([]byte, 0, 1024*1024)
+	s.Buffer(buf, 1024*1024)
+	for s.Scan() {
+		line := strings.TrimSpace(s.Text())
+		if line != "" {
+			lines = append(lines, line)
+		}
+	}
+	if err := s.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return lines, len(lines), nil
 }
 
 // resolveBase 读取配置里 logger.<key> 的路径与文件名

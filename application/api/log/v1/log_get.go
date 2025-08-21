@@ -22,3 +22,24 @@ type GetBizLogRes struct {
 	Total int       `json:"total" dc:"总行数"`
 	Lines []LogLine `json:"lines" dc:"日志行列表(倒序)"`
 }
+
+type GetAllBizLogReq struct {
+	g.Meta   `path:"/log/all" method:"get" tags:"日志" summary:"读取某天所有类型业务日志（倒序分页）"`
+	Date     string `json:"date"   dc:"日期，格式：20060102，默认为今天"`
+	Page     int    `json:"page"   d:"1" dc:"页码，从1开始"`
+	PageSize int    `json:"pageSize" d:"100" dc:"每页条数(最大1000)"`
+}
+
+// AllLogLine 包含日志类型的结构化日志行
+type AllLogLine struct {
+	Type      string `json:"type"      dc:"日志类型：ems,device,protocol,policy"`
+	Id        string `json:"id"        dc:"相关ID，ems类型为空"`
+	Timestamp string `json:"timestamp" dc:"时间戳"`
+	Level     string `json:"level"     dc:"日志等级"`
+	Content   string `json:"content"   dc:"日志内容"`
+}
+
+type GetAllBizLogRes struct {
+	Total int          `json:"total" dc:"总行数"`
+	Lines []AllLogLine `json:"lines" dc:"日志行列表(倒序)"`
+}
