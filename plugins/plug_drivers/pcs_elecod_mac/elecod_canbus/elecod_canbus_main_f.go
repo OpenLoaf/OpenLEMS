@@ -1,18 +1,19 @@
 package elecod_canbus
 
 import (
+	"common/c_util"
 	"fmt"
 	"sync"
 )
 
 // 全局缓存相关变量
 var (
-	cache     = make(map[uint32]CANFrameInfo)
+	cache     = make(map[uint32]SCANFrameInfo)
 	cacheLock sync.RWMutex
 )
 
 // 解析CANbus ID
-func ParseCANbusID(id uint32) CANFrameInfo {
+func ParseCANbusID(id uint32) SCANFrameInfo {
 	// 首先尝试从缓存读取
 	cacheLock.RLock()
 	if info, exists := cache[id]; exists {
@@ -23,7 +24,7 @@ func ParseCANbusID(id uint32) CANFrameInfo {
 	cacheLock.RUnlock()
 
 	// 缓存未命中，进行解析
-	info := CANFrameInfo{
+	info := SCANFrameInfo{
 		TargetDeviceType: DeviceType((id >> 26) & 0x07),
 		TargetDeviceAddr: (id >> 22) & 0x0F,
 		SourceDeviceType: DeviceType((id >> 19) & 0x07),
@@ -41,8 +42,51 @@ func ParseCANbusID(id uint32) CANFrameInfo {
 	return info
 }
 
+func BuildScreenToMapCanbus(messageType MessageType, serviceCode uint32, params map[string]any) *uint32 {
+	selfAddress, err := c_util.ToUint32(params["SelfAddress"])
+	if err != nil {
+		return nil
+	}
+	macAddress, err := c_util.ToUint32(params["MacAddress"])
+	if err != nil {
+		return nil
+	}
+	return BuildCanbusID(&SCANFrameInfo{
+		TargetDeviceType: DeviceTypeMAC,
+		TargetDeviceAddr: macAddress,
+		SourceDeviceType: DeviceTypeScreen,
+		SourceDeviceAddr: selfAddress,
+		MessageType:      messageType,
+		ServiceCode:      serviceCode,
+	})
+}
+
+func BuildMacToScreenCanbusID(messageType MessageType, serviceCode uint32, params map[string]any) *uint32 {
+	selfAddress, err := c_util.ToUint32(params["SelfAddress"])
+	if err != nil {
+		return nil
+	}
+	macAddress, err := c_util.ToUint32(params["MacAddress"])
+	if err != nil {
+		return nil
+	}
+
+	return BuildCanbusID(&SCANFrameInfo{
+		TargetDeviceType: DeviceTypeScreen,
+		TargetDeviceAddr: selfAddress,
+		SourceDeviceType: DeviceTypeMAC,
+		SourceDeviceAddr: macAddress,
+		MessageType:      messageType,
+		ServiceCode:      serviceCode,
+	})
+}
+
 // 构建CANbus ID
-func BuildCANbusID(info *CANFrameInfo) uint32 {
+func BuildCanbusID(info *SCANFrameInfo) *uint32 {
+	if info == nil || info.TargetDeviceAddr == 0 || info.SourceDeviceAddr == 0 {
+		return nil
+	}
+
 	var id uint32
 
 	// 按照解析时的位操作进行反向操作
@@ -54,7 +98,7 @@ func BuildCANbusID(info *CANFrameInfo) uint32 {
 	id |= (info.ServiceCode & 0xFF) << 3               // ServiceCode: bits 3-10
 	id |= info.Reserved & 0x07                         // Reserved: bits 0-2
 
-	return id
+	return &id
 }
 
 // 解析数据帧
@@ -79,7 +123,7 @@ func PrintCANbusID(id uint32) {
 	PrintCanFrame(id, info)
 }
 
-func PrintCanFrame(id uint32, info CANFrameInfo) {
+func PrintCanFrame(id uint32, info SCANFrameInfo) {
 	fmt.Printf("ID: 0x%X (%029b)\t源=%s(%d) -> 目标=%s(%d)\t信息类型=%s(%d)\t服务码=0x%X\t\n",
 		id,
 		id,
@@ -102,6 +146,6 @@ func PrintCANbusFrame(id uint32, data [8]byte) {
 // ClearCache 清空缓存（可选，用于测试或内存管理）
 func ClearCache() {
 	cacheLock.Lock()
-	cache = make(map[uint32]CANFrameInfo)
+	cache = make(map[uint32]SCANFrameInfo)
 	cacheLock.Unlock()
 }

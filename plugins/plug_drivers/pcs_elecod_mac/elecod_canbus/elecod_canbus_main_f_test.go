@@ -13,7 +13,7 @@ const (
 // Test_buildCANbusID 生成CANbusID
 func Test_buildCANbusID(t *testing.T) {
 
-	standby := &CANFrameInfo{
+	standby := &SCANFrameInfo{
 		TargetDeviceType: DeviceTypeMAC,
 		TargetDeviceAddr: MacAddress,
 		SourceDeviceType: DeviceTypeScreen,
@@ -22,9 +22,9 @@ func Test_buildCANbusID(t *testing.T) {
 		ServiceCode:      0x01,
 	}
 
-	fmt.Printf("待机: 0x%X\n", BuildCANbusID(standby))
+	fmt.Printf("待机: 0x%X\n", BuildCanbusID(standby))
 
-	start := &CANFrameInfo{
+	start := &SCANFrameInfo{
 		TargetDeviceType: DeviceTypeMAC,
 		TargetDeviceAddr: MacAddress,
 		SourceDeviceType: DeviceTypeScreen,
@@ -32,9 +32,9 @@ func Test_buildCANbusID(t *testing.T) {
 		MessageType:      MessageTypeControl,
 		ServiceCode:      0x02,
 	}
-	fmt.Printf("启动: 0x%X\n", BuildCANbusID(start))
+	fmt.Printf("启动: 0x%X\n", BuildCanbusID(start))
 
-	stop := &CANFrameInfo{
+	stop := &SCANFrameInfo{
 		TargetDeviceType: DeviceTypeMAC,
 		TargetDeviceAddr: MacAddress,
 		SourceDeviceType: DeviceTypeScreen,
@@ -42,5 +42,5 @@ func Test_buildCANbusID(t *testing.T) {
 		MessageType:      MessageTypeControl,
 		ServiceCode:      0x03,
 	}
-	fmt.Printf("停止: 0x%X\n", BuildCANbusID(stop))
+	fmt.Printf("停止: 0x%X\n", BuildCanbusID(stop))
 }
