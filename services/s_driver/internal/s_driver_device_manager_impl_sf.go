@@ -92,7 +92,8 @@ func (d *SDeviceManager) Start() {
 		deviceConfig := deviceWrapper.deviceConfig
 
 		protocolConfig := deviceWrapper.protocolConfig
-		ctx := context.WithValue(d.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Name)
+		ctx := context.WithValue(d.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
+		ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceName, deviceConfig.Name)
 
 		if deviceConfig.Enabled == false {
 			g.Log().Noticef(d.ctx, "设备[%s]未启用！", deviceConfig.Name)

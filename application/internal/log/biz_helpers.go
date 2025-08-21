@@ -65,6 +65,8 @@ func buildSubLogger(ctx context.Context, baseKey, id string) *glog.Logger {
 		"path":  filepath.Join(basePath, id),
 		"async": true,
 	})
+	// 删除CtxKeys，不需要保存设备的这些信息了
+	delete(subCfg, "CtxKeys")
 	l := glog.New()
 	_ = l.SetConfigWithMap(subCfg)
 	return l

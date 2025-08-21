@@ -3,7 +3,7 @@ logger:
   Level:   "all"
   Stdout:  true
   file: "{Ymd}.log"
-  CtxKeys: ["GroupName","ProtocolId","DeviceId","DeviceDetail"]
+  CtxKeys: ["GroupName","ProtocolId","DeviceId","DeviceName","DeviceDetail"]
   path:    "out/logs/app"        # 应用日志文件目录，建议使用绝对路径于生产环境
   writerColorEnable: true  # 日志文件是否带上颜色。默认false，表示不带颜色
   async: true              # 启用异步输出，提高性能
