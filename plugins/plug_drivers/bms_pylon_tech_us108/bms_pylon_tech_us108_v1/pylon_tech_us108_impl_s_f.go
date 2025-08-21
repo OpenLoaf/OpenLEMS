@@ -4,7 +4,7 @@ import (
 	"common/c_base"
 	"common/c_device"
 	"common/c_log"
-	"common/c_modbus"
+	"common/c_proto"
 	"common/c_util"
 	"context"
 	"fmt"
@@ -14,7 +14,7 @@ import (
 
 type sBmsPylonTechUs108 struct {
 	ctx context.Context
-	c_modbus.IModbusProtocol
+	c_proto.IModbusProtocol
 	*c_base.SDriverDescription
 	bmsConfig *PylonTechUs108BmsConfig
 }
@@ -26,7 +26,7 @@ func (p *sBmsPylonTechUs108) GetDriverType() c_base.EDeviceType {
 }
 
 func (p *sBmsPylonTechUs108) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
-	p.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
+	p.IModbusProtocol = protocol.(c_proto.IModbusProtocol)
 
 	bmsConfig := &PylonTechUs108BmsConfig{}
 	err := deviceConfig.ScanParams(bmsConfig)

@@ -1,4 +1,4 @@
-package c_modbus
+package c_proto
 
 import (
 	"common/c_base"

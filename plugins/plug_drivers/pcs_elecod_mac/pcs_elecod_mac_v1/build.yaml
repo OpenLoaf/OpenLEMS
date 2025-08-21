@@ -5,6 +5,21 @@ author: "zz@hexems.com"
 create: "2025-08-10"
 remark: "亿兰科MAC协议"
 protocolType: "canbus"
+telemetry:
+  - name: power
+    unit: "kW"
+    remark: "功率"
+  - name: targetPower
+    unit: "kW"
+    remark: "目标功率"
+  - name: apparentPower
+    nationalizationName: todayIncomingQuantity
+    unit: "kWh"
+    remark: "当日充电量"
+  - name: todayOutgoingQuantity
+    nationalizationName: todayOutgoingQuantity
+    unit: "kWh"
+    remark: "当日放电量"
 
 customService:
    - name: "g18n:shutdown"

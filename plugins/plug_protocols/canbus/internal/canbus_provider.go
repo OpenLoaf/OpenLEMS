@@ -1,8 +1,10 @@
 package internal
 
 import (
+	"c_protocol"
 	"canbus/p_canbus"
 	"common/c_base"
+	"common/c_proto"
 	"context"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -20,6 +22,8 @@ type CanbusProtocolProvider struct {
 	*c_base.SAlarmHandler                 // 告警
 	ctx                   context.Context // 上下文
 	once                  sync.Once
+
+	c_proto.IGetProtocolCacheValue
 
 	connect         net.Conn         // 链接
 	receiverChan    <-chan can.Frame // 接收通道
@@ -41,6 +45,43 @@ type CanbusProtocolProvider struct {
 }
 
 var _ c_base.IProtocol = (*CanbusProtocolProvider)(nil)
+
+func NewCanbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, receiverChan <-chan can.Frame, transmitterChan chan<- can.Frame) (p_canbus.ICanbusProtocol, error) {
+	if protocolConfig == nil {
+		return nil, gerror.Newf("Canbus协议：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name)
+	}
+	if deviceConfig == nil {
+		return nil, gerror.Newf("Canbus协议：%s 的设备配置不能为空！", protocolConfig.Id)
+	}
+	canbusDeviceConfig := &p_canbus.SCanbusDeviceConfig{}
+	err := gconv.Scan(deviceConfig.Params, canbusDeviceConfig)
+	if err != nil {
+		return nil, gerror.Wrapf(err, "设备[%s]的Param参数配置错误：%v 无法转换为SCanbusDeviceConfig", deviceConfig.Id)
+	}
+
+	cache := gcache.New()
+	provider := &CanbusProtocolProvider{
+		once:               sync.Once{},
+		ctx:                ctx,
+		deviceType:         deviceType,
+		deviceConfig:       deviceConfig,
+		protocolConfig:     protocolConfig,
+		canbusDeviceConfig: canbusDeviceConfig,
+		receiverChan:       receiverChan,
+		transmitterChan:    transmitterChan,
+		//canTaskMap:         make(map[uint32]*p_canbus.SCanbusTask),
+		canTaskList: make([]*p_canbus.SCanbusTask, 0),
+		cache:       cache,
+		SAlarmHandler: &c_base.SAlarmHandler{
+			Ctx: ctx,
+		},
+		log:                    g.Log(deviceConfig.Id),
+		IGetProtocolCacheValue: c_protocol.NewGetProtocolCacheValue(ctx, deviceConfig.Id, cache),
+		//metricProtocol: newMetricProtocol(ctx, protocolConfig, deviceConfig),
+	}
+
+	return provider, nil
+}
 
 func (c *CanbusProtocolProvider) IsPhysical() bool {
 	return true
@@ -121,39 +162,4 @@ func (c *CanbusProtocolProvider) GetProtocolConfig() *c_base.SProtocolConfig {
 
 func (c *CanbusProtocolProvider) GetCanbusDeviceConfig() *p_canbus.SCanbusDeviceConfig {
 	return c.canbusDeviceConfig
-}
-
-func NewCanbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, receiverChan <-chan can.Frame, transmitterChan chan<- can.Frame) (p_canbus.ICanbusProtocol, error) {
-	if protocolConfig == nil {
-		return nil, gerror.Newf("Canbus协议：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name)
-	}
-	if deviceConfig == nil {
-		return nil, gerror.Newf("Canbus协议：%s 的设备配置不能为空！", protocolConfig.Id)
-	}
-	canbusDeviceConfig := &p_canbus.SCanbusDeviceConfig{}
-	err := gconv.Scan(deviceConfig.Params, canbusDeviceConfig)
-	if err != nil {
-		return nil, gerror.Wrapf(err, "设备[%s]的Param参数配置错误：%v 无法转换为SCanbusDeviceConfig", deviceConfig.Id)
-	}
-
-	provider := &CanbusProtocolProvider{
-		once:               sync.Once{},
-		ctx:                ctx,
-		deviceType:         deviceType,
-		deviceConfig:       deviceConfig,
-		protocolConfig:     protocolConfig,
-		canbusDeviceConfig: canbusDeviceConfig,
-		receiverChan:       receiverChan,
-		transmitterChan:    transmitterChan,
-		//canTaskMap:         make(map[uint32]*p_canbus.SCanbusTask),
-		canTaskList: make([]*p_canbus.SCanbusTask, 0),
-		cache:       gcache.New(),
-		SAlarmHandler: &c_base.SAlarmHandler{
-			Ctx: ctx,
-		},
-		log: g.Log(deviceConfig.Id),
-		//metricProtocol: newMetricProtocol(ctx, protocolConfig, deviceConfig),
-	}
-
-	return provider, nil
 }

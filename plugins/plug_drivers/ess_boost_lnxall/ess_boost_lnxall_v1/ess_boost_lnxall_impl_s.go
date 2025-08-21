@@ -5,7 +5,7 @@ import (
 	"common/c_device"
 	"common/c_error"
 	"common/c_log"
-	"common/c_modbus"
+	"common/c_proto"
 	"context"
 	"time"
 )
@@ -19,7 +19,7 @@ const (
 )
 
 type sEssBoostLnxallEss struct {
-	c_modbus.IModbusProtocol
+	c_proto.IModbusProtocol
 	*c_base.SDriverDescription
 	deviceConfig *c_base.SDeviceConfig
 	ctx          context.Context
@@ -42,7 +42,7 @@ type sEssBoostLnxallEss struct {
 var _ c_device.IEnergyStore = (*sEssBoostLnxallEss)(nil)
 
 func (s *sEssBoostLnxallEss) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
-	s.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
+	s.IModbusProtocol = protocol.(c_proto.IModbusProtocol)
 	s.deviceConfig = deviceConfig
 	// 从配置中获取电表、PCS、BMS的配置
 	// 从配置中获取电表、PCS、BMS的配置

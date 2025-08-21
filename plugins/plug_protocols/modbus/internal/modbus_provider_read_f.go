@@ -3,7 +3,7 @@ package internal
 import (
 	"c_protocol"
 	"common/c_base"
-	p_modbus2 "common/c_modbus"
+	p_modbus2 "common/c_proto"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"time"

@@ -1,9 +1,9 @@
 package bms_pylon_tech_us108_v1
 
-import "common/c_modbus"
+import "common/c_proto"
 
 type PylonTechUs108BmsConfig struct {
-	c_modbus.SModbusDeviceConfig
+	c_proto.SModbusDeviceConfig
 	SyncTime       bool   // 是否同步时间
 	RatedPower     int32  // 额定功率
 	Capacity       uint32 // 容量

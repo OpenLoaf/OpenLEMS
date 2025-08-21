@@ -1,5 +1,5 @@
 //go:generate stringer -type=EModbusReadFunction -trimprefix=EMq -output=c_modbus_read_function_e_string.go
-package c_modbus
+package c_proto
 
 type EModbusReadFunction uint8
 

@@ -81,6 +81,18 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		g.Log().Warningf(ctx, "Web 静态资源初始化失败: %v", err)
 	} else {
 		fileServer := http.FileServer(http.FS(webfs))
+
+		// 静态资源路径 - 优先处理静态资源
+		s.BindHandler("GET:/assets/*", func(r *ghttp.Request) {
+			fileServer.ServeHTTP(r.Response.Writer, r.Request)
+		})
+		s.BindHandler("GET:/images/*", func(r *ghttp.Request) {
+			fileServer.ServeHTTP(r.Response.Writer, r.Request)
+		})
+		s.BindHandler("GET:/favicon.ico", func(r *ghttp.Request) {
+			fileServer.ServeHTTP(r.Response.Writer, r.Request)
+		})
+
 		// 根路径：直接输出 index.html
 		s.BindHandler("GET:/", func(r *ghttp.Request) {
 			f, err := webfs.Open("index.html")
@@ -95,12 +107,31 @@ func startWeb(ctx context.Context) *ghttp.Server {
 				g.Log().Warningf(ctx, "写入 index.html 失败: %v", err)
 			}
 		})
-		// 静态资源路径
-		s.BindHandler("GET:/assets/*", func(r *ghttp.Request) {
-			fileServer.ServeHTTP(r.Response.Writer, r.Request)
-		})
-		s.BindHandler("GET:/images/*", func(r *ghttp.Request) {
-			fileServer.ServeHTTP(r.Response.Writer, r.Request)
+
+		// 支持Vue history模式：所有其他GET请求都返回index.html
+		s.BindHandler("GET:/*", func(r *ghttp.Request) {
+			// 跳过API路由
+			if strings.HasPrefix(r.URL.Path, "/api/") {
+				r.Response.WriteStatus(http.StatusNotFound)
+				return
+			}
+			// 跳过WebSocket路由
+			if strings.HasPrefix(r.URL.Path, "/station") || strings.HasPrefix(r.URL.Path, "/telemetry") {
+				r.Response.WriteStatus(http.StatusNotFound)
+				return
+			}
+
+			f, err := webfs.Open("index.html")
+			if err != nil {
+				r.Response.WriteStatus(http.StatusNotFound)
+				return
+			}
+			defer f.Close()
+			// 明确 Content-Type
+			r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+			if _, err := io.Copy(r.Response.Writer, f); err != nil {
+				g.Log().Warningf(ctx, "写入 index.html 失败: %v", err)
+			}
 		})
 	}
 	// Just run the server.
@@ -171,6 +202,10 @@ func MiddlewareAccessLog(r *ghttp.Request) {
 		return
 	}
 	if status == http.StatusSwitchingProtocols {
+		return
+	}
+	// 跳过API路由和WebSocket路由的访问日志
+	if strings.HasPrefix(path, "/api/") || strings.HasPrefix(path, "/station") || strings.HasPrefix(path, "/telemetry") {
 		return
 	}
 

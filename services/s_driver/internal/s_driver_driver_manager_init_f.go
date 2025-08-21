@@ -75,6 +75,7 @@ func (d *SDeviceManager) getProtocolProvider(ctx context.Context, deviceType c_b
 				return nil, err
 			}
 			client = c
+			d.protocolClientCache[protocolConfig.Id] = client
 		}
 
 		modbusProvider, err := protocolModbus.NewModbusProvider(ctx, deviceType, protocolConfig, deviceConfig, client)
@@ -102,6 +103,8 @@ func (d *SDeviceManager) getProtocolProvider(ctx context.Context, deviceType c_b
 			}
 			receiverChan = r
 			transmitterChan = t
+			d.protocolClientCache[protocolConfig.Id+"_receiverChan"] = receiverChan
+			d.protocolClientCache[protocolConfig.Id+"_transmitterChan"] = transmitterChan
 		}
 
 		canbusProvider, err := protocolCanbus.NewCanbusProvider(ctx, deviceType, protocolConfig, deviceConfig, receiverChan, transmitterChan)

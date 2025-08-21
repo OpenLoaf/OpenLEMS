@@ -10,7 +10,7 @@ import (
 var buildYaml []byte
 
 func NewPlugin(ctx context.Context) c_base.IDevice {
-	return &sPcsElecodBasic{
+	return &sPcsElecodMac{
 		ctx:                ctx,
 		SDriverDescription: c_base.BuildDescriptionFromYaml(buildYaml),
 	}

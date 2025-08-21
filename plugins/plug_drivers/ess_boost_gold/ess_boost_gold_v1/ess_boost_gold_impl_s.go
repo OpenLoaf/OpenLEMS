@@ -3,7 +3,7 @@ package ess_boost_gold_v1
 import (
 	"common/c_base"
 	"common/c_device"
-	"common/c_modbus"
+	"common/c_proto"
 	"context"
 	"fmt"
 )
@@ -17,7 +17,7 @@ const (
 )
 
 type sEssBoostGoldEss struct {
-	c_modbus.IModbusProtocol
+	c_proto.IModbusProtocol
 	*c_base.SDriverDescription
 	deviceConfig *c_base.SDeviceConfig
 	essConfig    *EssBoostGoldConfig
@@ -32,7 +32,7 @@ type sEssBoostGoldEss struct {
 
 func (s *sEssBoostGoldEss) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.deviceConfig = deviceConfig
-	s.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
+	s.IModbusProtocol = protocol.(c_proto.IModbusProtocol)
 
 	s.essConfig = &EssBoostGoldConfig{}
 	err := deviceConfig.ScanParams(s.essConfig)

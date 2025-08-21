@@ -1,13 +1,13 @@
 package internal
 
 import (
-	"common/c_modbus"
+	"common/c_proto"
 )
 
 func (p *ModbusProtocolProvider) ProtocolListen() {
 	// 只会执行一次监听
 	p.once.Do(func() {
-		go func(c chan *c_modbus.SModbusTask) {
+		go func(c chan *c_proto.SModbusTask) {
 			for {
 				select {
 				case <-p.ctx.Done():

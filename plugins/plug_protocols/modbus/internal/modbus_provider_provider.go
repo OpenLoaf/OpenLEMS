@@ -1,8 +1,9 @@
 package internal
 
 import (
+	"c_protocol"
 	"common/c_base"
-	p_modbus2 "common/c_modbus"
+	"common/c_proto"
 	"context"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -19,18 +20,20 @@ type ModbusProtocolProvider struct {
 	*c_base.SAlarmHandler                 // 告警
 	ctx                   context.Context // 上下文
 	once                  sync.Once       // 只执行一次Init方法
+
+	c_proto.IGetProtocolCacheValue
 	//deviceId              string                     // 设备名称
 	//unitId                uint8                      // 设备的unitId
-	modbusReadChan     chan *p_modbus2.SModbusTask // 查询用的通道
-	client             modbus.Client               // modbus的通讯
-	preQuery           map[string]bool             // 预读
-	cache              *gcache.Cache               // 点位缓存
-	log                *glog.Logger                // 日志
-	modbusRwMutex      sync.RWMutex                // 读写锁
-	lastUpdateTime     *time.Time                  // 最后更新时间
+	modbusReadChan     chan *c_proto.SModbusTask // 查询用的通道
+	client             modbus.Client             // modbus的通讯
+	preQuery           map[string]bool           // 预读
+	cache              *gcache.Cache             // 点位缓存
+	log                *glog.Logger              // 日志
+	modbusRwMutex      sync.RWMutex              // 读写锁
+	lastUpdateTime     *time.Time                // 最后更新时间
 	deviceType         c_base.EDeviceType
 	deviceConfig       *c_base.SDeviceConfig
-	modbusDeviceConfig *p_modbus2.SModbusDeviceConfig
+	modbusDeviceConfig *c_proto.SModbusDeviceConfig
 	protocolConfig     *c_base.SProtocolConfig
 
 	metricProtocol *sMetricProtocol // 统计协议
@@ -42,14 +45,14 @@ func (p *ModbusProtocolProvider) IsPhysical() bool {
 	return true
 }
 
-func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (p_modbus2.IModbusProtocol, error) {
+func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
 	if protocolConfig == nil {
 		panic(gerror.Newf("Modbus设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
 	}
 	if deviceConfig == nil {
 		panic(gerror.Newf("modbus协议：%s 的设备配置不能为空！", protocolConfig.Id))
 	}
-	modbusDeviceConfig := &p_modbus2.SModbusDeviceConfig{}
+	modbusDeviceConfig := &c_proto.SModbusDeviceConfig{}
 	err := gconv.Scan(deviceConfig.Params, modbusDeviceConfig)
 	if err != nil {
 		panic(gerror.Newf("设备[%s]的Param参数配置错误：%v 无法转换为SModbusDeviceConfig", deviceConfig.Id, err))
@@ -58,22 +61,23 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 		// unitId默认禁止为0
 		panic(gerror.Newf("Modbus设备[%s]的UnitId不能为0", deviceConfig.Id))
 	}
-
+	cache := gcache.New()
 	provider := &ModbusProtocolProvider{
 		once:               sync.Once{},
 		ctx:                ctx,
 		deviceConfig:       deviceConfig,
 		protocolConfig:     protocolConfig,
 		modbusDeviceConfig: modbusDeviceConfig,
-		modbusReadChan:     make(chan *p_modbus2.SModbusTask),
+		modbusReadChan:     make(chan *c_proto.SModbusTask),
 		preQuery:           make(map[string]bool),
-		cache:              gcache.New(),
+		cache:              cache,
 		deviceType:         deviceType,
 		SAlarmHandler: &c_base.SAlarmHandler{
 			Ctx: ctx,
 		},
-		log:            g.Log(deviceConfig.Id),
-		metricProtocol: newMetricProtocol(ctx, protocolConfig, deviceConfig),
+		log:                    g.Log(deviceConfig.Id),
+		metricProtocol:         newMetricProtocol(ctx, protocolConfig, deviceConfig),
+		IGetProtocolCacheValue: c_protocol.NewGetProtocolCacheValue(ctx, deviceConfig.Id, cache),
 	}
 	if client != nil {
 		provider.client = client.(modbus.Client)
@@ -105,7 +109,7 @@ func (p *ModbusProtocolProvider) GetProtocolConfig() *c_base.SProtocolConfig {
 	return p.protocolConfig
 }
 
-func (p *ModbusProtocolProvider) GetModbusDeviceConfig() *p_modbus2.SModbusDeviceConfig {
+func (p *ModbusProtocolProvider) GetModbusDeviceConfig() *c_proto.SModbusDeviceConfig {
 	return p.modbusDeviceConfig
 }
 

@@ -4,13 +4,13 @@ import (
 	"common/c_base"
 	"common/c_error"
 	"common/c_log"
-	"common/c_modbus"
+	"common/c_proto"
 	"common/c_util"
 	"context"
 )
 
 type sPcsStarCharge100E struct {
-	c_modbus.IModbusProtocol
+	c_proto.IModbusProtocol
 	ctx                 context.Context
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
@@ -19,7 +19,7 @@ type sPcsStarCharge100E struct {
 }
 
 func (s *sPcsStarCharge100E) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
-	s.IModbusProtocol = protocol.(c_modbus.IModbusProtocol)
+	s.IModbusProtocol = protocol.(c_proto.IModbusProtocol)
 	s.deviceConfig = deviceConfig
 
 	// 注册

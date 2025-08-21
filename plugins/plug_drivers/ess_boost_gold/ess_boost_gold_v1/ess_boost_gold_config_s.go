@@ -1,9 +1,9 @@
 package ess_boost_gold_v1
 
-import "common/c_modbus"
+import "common/c_proto"
 
 type EssBoostGoldConfig struct {
-	c_modbus.SModbusDeviceConfig
+	c_proto.SModbusDeviceConfig
 	RatedPower     int32  // 额定功率
 	Capacity       uint32 // 容量
 	MaxInputPower  uint32 // 最大输入功率

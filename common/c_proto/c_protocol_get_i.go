@@ -1,14 +1,8 @@
-package p_canbus
+package c_proto
 
-import (
-	"common/c_base"
-)
+import "common/c_base"
 
-type ICanbusProtocol interface {
-	c_base.IProtocol
-
-	RegisterRead(group *SCanbusTask, gs ...*SCanbusTask)
-
+type IGetProtocolCacheValue interface {
 	GetValue(meta *c_base.Meta) (any, error)
 	GetBool(meta *c_base.Meta) (bool, error)
 	GetIntValue(meta *c_base.Meta) (int, error)
@@ -19,7 +13,4 @@ type ICanbusProtocol interface {
 	GetFloat32Values(metas ...*c_base.Meta) ([]float32, error)
 	GetFloat64Value(meta *c_base.Meta) (float64, error)
 	GetFloat64Values(meta ...*c_base.Meta) ([]float64, error)
-	GetCanbusDeviceConfig() *SCanbusDeviceConfig
-
-	SendMessage(task *SCanbusTask, values []int64) error
 }

@@ -10,14 +10,14 @@ import (
 	"time"
 )
 
-type sPcsElecodBasic struct {
+type sPcsElecodMac struct {
 	p_canbus.ICanbusProtocol
 	ctx          context.Context
 	deviceConfig *c_base.SDeviceConfig
 	*c_base.SDriverDescription
 }
 
-func (s *sPcsElecodBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
+func (s *sPcsElecodMac) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.deviceConfig = deviceConfig
 	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
 
@@ -37,115 +37,115 @@ func (s *sPcsElecodBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protoco
 	c_log.Info(s.ctx, "测试结束！！！！")
 }
 
-func (s *sPcsElecodBasic) Shutdown() {
+func (s *sPcsElecodMac) Shutdown() {
 	c_log.Info(s.ctx, "Shutdown")
 }
 
-func (s *sPcsElecodBasic) GetDriverType() c_base.EDeviceType {
+func (s *sPcsElecodMac) GetDriverType() c_base.EDeviceType {
 	return c_base.EDevicePcs
 }
 
-func (s *sPcsElecodBasic) SetReset() error {
+func (s *sPcsElecodMac) SetReset() error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) SetStatus(status c_base.EEnergyStoreStatus) error {
+func (s *sPcsElecodMac) SetStatus(status c_base.EEnergyStoreStatus) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) SetGridMode(mode c_base.EGridMode) error {
+func (s *sPcsElecodMac) SetGridMode(mode c_base.EGridMode) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetStatus() (c_base.EEnergyStoreStatus, error) {
+func (s *sPcsElecodMac) GetStatus() (c_base.EEnergyStoreStatus, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetGridMode() (c_base.EGridMode, error) {
+func (s *sPcsElecodMac) GetGridMode() (c_base.EGridMode, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) SetPower(power int32) error {
+func (s *sPcsElecodMac) SetPower(power int32) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) SetReactivePower(power int32) error {
+func (s *sPcsElecodMac) SetReactivePower(power int32) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) SetPowerFactor(factor float32) error {
+func (s *sPcsElecodMac) SetPowerFactor(factor float32) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetTargetPower() int32 {
+func (s *sPcsElecodMac) GetTargetPower() int32 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetTargetReactivePower() int32 {
+func (s *sPcsElecodMac) GetTargetReactivePower() int32 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetTargetPowerFactor() float32 {
+func (s *sPcsElecodMac) GetTargetPowerFactor() float32 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetPower() (float64, error) {
+func (s *sPcsElecodMac) GetPower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetApparentPower() (float64, error) {
+func (s *sPcsElecodMac) GetApparentPower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetReactivePower() (float64, error) {
+func (s *sPcsElecodMac) GetReactivePower() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetRatedPower() int32 {
+func (s *sPcsElecodMac) GetRatedPower() int32 {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetMaxInputPower() (float32, error) {
+func (s *sPcsElecodMac) GetMaxInputPower() (float32, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetMaxOutputPower() (float32, error) {
+func (s *sPcsElecodMac) GetMaxOutputPower() (float32, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetTodayIncomingQuantity() (float64, error) {
+func (s *sPcsElecodMac) GetTodayIncomingQuantity() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetHistoryIncomingQuantity() (float64, error) {
+func (s *sPcsElecodMac) GetHistoryIncomingQuantity() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetTodayOutgoingQuantity() (float64, error) {
+func (s *sPcsElecodMac) GetTodayOutgoingQuantity() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s *sPcsElecodBasic) GetHistoryOutgoingQuantity() (float64, error) {
+func (s *sPcsElecodMac) GetHistoryOutgoingQuantity() (float64, error) {
 	//TODO implement me
 	panic("implement me")
 }

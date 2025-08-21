@@ -39,7 +39,7 @@ func (s *SDriverDescription) GetTelemetry(key string, instance any) (any, error)
 		functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
 		method = reflect.ValueOf(instance).MethodByName(functionName)
 		if !method.IsValid() {
-			return 0, fmt.Errorf("method %s not found", key)
+			return nil, fmt.Errorf("method %s not found", key)
 		}
 		s.reflectMethodCache[key] = method
 	}
@@ -51,10 +51,10 @@ func (s *SDriverDescription) GetTelemetry(key string, instance any) (any, error)
 	}
 
 	if len(value) != 2 {
-		return 0, fmt.Errorf("function %s return value length is not 2", key)
+		return nil, fmt.Errorf("function %s return value length is not 2", key)
 	}
 	if value[1].Interface() != nil {
-		return 0, value[1].Interface().(error)
+		return nil, value[1].Interface().(error)
 	}
 	return value[0].Interface(), nil
 }

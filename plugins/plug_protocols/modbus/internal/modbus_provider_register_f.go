@@ -2,13 +2,13 @@ package internal
 
 import (
 	"common/c_base"
-	"common/c_modbus"
+	"common/c_proto"
 	"context"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"time"
 )
 
-func (p *ModbusProtocolProvider) RegisterRead(ctx context.Context, group *c_modbus.SModbusTask, gps ...*c_modbus.SModbusTask) {
+func (p *ModbusProtocolProvider) RegisterRead(ctx context.Context, group *c_proto.SModbusTask, gps ...*c_proto.SModbusTask) {
 	if group == nil {
 		return
 	}
@@ -21,7 +21,7 @@ func (p *ModbusProtocolProvider) RegisterRead(ctx context.Context, group *c_modb
 	}
 }
 
-func (p *ModbusProtocolProvider) registerReadOne(ctx context.Context, group *c_modbus.SModbusTask) {
+func (p *ModbusProtocolProvider) registerReadOne(ctx context.Context, group *c_proto.SModbusTask) {
 	if group.Name == "" {
 		panic(gerror.Newf("[%v-%v] 参数错误！modbusQuery的name为空！%+v", p.deviceConfig.Id, group.Name, group))
 	}
@@ -103,7 +103,7 @@ func (p *ModbusProtocolProvider) registerReadOne(ctx context.Context, group *c_m
 }
 
 // setDefaultValue 检查点位是否规范
-func setDefaultValue(group *c_modbus.SModbusTask) {
+func setDefaultValue(group *c_proto.SModbusTask) {
 	for _, meta := range group.Metas {
 		// 如果倍率没有设置，就默认为1
 		if meta.Factor == 0 {
