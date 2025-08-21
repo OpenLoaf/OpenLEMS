@@ -10,35 +10,35 @@ var (
 )
 
 var (
+	// 有功功率 (0x05) - 调整到最前面
+	analogActivePowerA     = &c_base.Meta{Name: "AnalogActivePowerA", Group: AnalogAcGroup, Cn: "有功功率A", Addr: 0, Sort: 1, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
+	analogActivePowerB     = &c_base.Meta{Name: "AnalogActivePowerB", Group: AnalogAcGroup, Cn: "有功功率B", Addr: 2, Sort: 2, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
+	analogActivePowerC     = &c_base.Meta{Name: "AnalogActivePowerC", Group: AnalogAcGroup, Cn: "有功功率C", Addr: 4, Sort: 3, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
+	AnalogTotalActivePower = &c_base.Meta{Name: "AnalogTotalActivePower", Group: AnalogAcGroup, Cn: "总有功功率", Debug: true, Addr: 6, Sort: 4, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
+
 	// 直流参数 (0x01)
-	analogDcVoltage  = &c_base.Meta{Name: "AnalogDcVoltage", Group: AnalogDcGroup, Cn: "直流电压", Addr: 0, Sort: 1, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
-	analogDcCurrent  = &c_base.Meta{Name: "AnalogDcCurrent", Group: AnalogDcGroup, Cn: "直流电流", Addr: 2, Sort: 2, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "A"}
-	analogDcPower    = &c_base.Meta{Name: "AnalogDcPower", Group: AnalogDcGroup, Cn: "直流功率", Addr: 4, Sort: 3, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
-	analogBusVoltage = &c_base.Meta{Name: "AnalogBusVoltage", Group: AnalogDcGroup, Cn: "直流母线电压", Addr: 6, Sort: 4, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
+	analogDcVoltage  = &c_base.Meta{Name: "AnalogDcVoltage", Group: AnalogDcGroup, Cn: "直流电压", Addr: 0, Sort: 5, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
+	analogDcCurrent  = &c_base.Meta{Name: "AnalogDcCurrent", Group: AnalogDcGroup, Cn: "直流电流", Addr: 2, Sort: 6, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "A"}
+	analogDcPower    = &c_base.Meta{Name: "AnalogDcPower", Group: AnalogDcGroup, Cn: "直流功率", Addr: 4, Sort: 7, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
+	analogBusVoltage = &c_base.Meta{Name: "AnalogBusVoltage", Group: AnalogDcGroup, Cn: "直流母线电压", Addr: 6, Sort: 8, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
 
 	// 电网电压 (0x02)
-	analogGridVoltageA  = &c_base.Meta{Name: "AnalogGridVoltageA", Group: AnalogAcGroup, Cn: "电网电压A(AB)", Addr: 0, Sort: 5, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
-	analogGridVoltageB  = &c_base.Meta{Name: "AnalogGridVoltageB", Group: AnalogAcGroup, Cn: "电网电压B(BC)", Addr: 2, Sort: 6, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
-	analogGridVoltageC  = &c_base.Meta{Name: "AnalogGridVoltageC", Group: AnalogAcGroup, Cn: "电网电压C(CA)", Addr: 4, Sort: 7, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
-	analogPowerTubeTemp = &c_base.Meta{Name: "AnalogPowerTubeTemp", Group: AnalogAcGroup, Cn: "功率管温度", Addr: 6, Sort: 8, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 1, Unit: "℃"}
+	analogGridVoltageA  = &c_base.Meta{Name: "AnalogGridVoltageA", Group: AnalogAcGroup, Cn: "电网电压A(AB)", Addr: 0, Sort: 9, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
+	analogGridVoltageB  = &c_base.Meta{Name: "AnalogGridVoltageB", Group: AnalogAcGroup, Cn: "电网电压B(BC)", Addr: 2, Sort: 10, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
+	analogGridVoltageC  = &c_base.Meta{Name: "AnalogGridVoltageC", Group: AnalogAcGroup, Cn: "电网电压C(CA)", Addr: 4, Sort: 11, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}
+	analogPowerTubeTemp = &c_base.Meta{Name: "AnalogPowerTubeTemp", Group: AnalogAcGroup, Cn: "功率管温度", Addr: 6, Sort: 12, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 1, Unit: "℃"}
 
 	// 电网电流 (0x03)
-	analogGridCurrentA = &c_base.Meta{Name: "AnalogGridCurrentA", Group: AnalogAcGroup, Cn: "电网电流A", Addr: 0, Sort: 9, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "A"}
-	analogGridCurrentB = &c_base.Meta{Name: "AnalogGridCurrentB", Group: AnalogAcGroup, Cn: "电网电流B", Addr: 2, Sort: 10, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "A"}
-	analogGridCurrentC = &c_base.Meta{Name: "AnalogGridCurrentC", Group: AnalogAcGroup, Cn: "电网电流C", Addr: 4, Sort: 11, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "A"}
-	analogBridgeTemp   = &c_base.Meta{Name: "AnalogBridgeTemp", Group: AnalogAcGroup, Cn: "平衡桥温度", Addr: 6, Sort: 12, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 1, Unit: "℃"}
+	analogGridCurrentA = &c_base.Meta{Name: "AnalogGridCurrentA", Group: AnalogAcGroup, Cn: "电网电流A", Addr: 0, Sort: 13, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "A"}
+	analogGridCurrentB = &c_base.Meta{Name: "AnalogGridCurrentB", Group: AnalogAcGroup, Cn: "电网电流B", Addr: 2, Sort: 14, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "A"}
+	analogGridCurrentC = &c_base.Meta{Name: "AnalogGridCurrentC", Group: AnalogAcGroup, Cn: "电网电流C", Addr: 4, Sort: 15, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "A"}
+	analogBridgeTemp   = &c_base.Meta{Name: "AnalogBridgeTemp", Group: AnalogAcGroup, Cn: "平衡桥温度", Addr: 6, Sort: 16, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 1, Unit: "℃"}
 
 	// 电网频率 (0x04)
-	analogGridFrequencyA = &c_base.Meta{Name: "AnalogGridFrequencyA", Group: AnalogAcGroup, Cn: "电网频率A", Addr: 0, Sort: 13, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.01, Unit: "Hz"}
-	analogGridFrequencyB = &c_base.Meta{Name: "AnalogGridFrequencyB", Group: AnalogAcGroup, Cn: "电网频率B", Addr: 2, Sort: 14, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.01, Unit: "Hz"}
-	analogGridFrequencyC = &c_base.Meta{Name: "AnalogGridFrequencyC", Group: AnalogAcGroup, Cn: "电网频率C", Addr: 4, Sort: 15, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.01, Unit: "Hz"}
-	analogAmbientTemp    = &c_base.Meta{Name: "AnalogAmbientTemp", Group: AnalogAcGroup, Cn: "环境温度", Addr: 6, Sort: 16, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 1, Unit: "℃"}
-
-	// 有功功率 (0x05)
-	analogActivePowerA     = &c_base.Meta{Name: "AnalogActivePowerA", Group: AnalogAcGroup, Cn: "有功功率A", Addr: 0, Sort: 17, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
-	analogActivePowerB     = &c_base.Meta{Name: "AnalogActivePowerB", Group: AnalogAcGroup, Cn: "有功功率B", Addr: 2, Sort: 18, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
-	analogActivePowerC     = &c_base.Meta{Name: "AnalogActivePowerC", Group: AnalogAcGroup, Cn: "有功功率C", Addr: 4, Sort: 19, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
-	AnalogTotalActivePower = &c_base.Meta{Name: "AnalogTotalActivePower", Group: AnalogAcGroup, Cn: "总有功功率", Debug: true, Addr: 6, Sort: 20, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
+	analogGridFrequencyA = &c_base.Meta{Name: "AnalogGridFrequencyA", Group: AnalogAcGroup, Cn: "电网频率A", Addr: 0, Sort: 17, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.01, Unit: "Hz"}
+	analogGridFrequencyB = &c_base.Meta{Name: "AnalogGridFrequencyB", Group: AnalogAcGroup, Cn: "电网频率B", Addr: 2, Sort: 18, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.01, Unit: "Hz"}
+	analogGridFrequencyC = &c_base.Meta{Name: "AnalogGridFrequencyC", Group: AnalogAcGroup, Cn: "电网频率C", Addr: 4, Sort: 19, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.01, Unit: "Hz"}
+	analogAmbientTemp    = &c_base.Meta{Name: "AnalogAmbientTemp", Group: AnalogAcGroup, Cn: "环境温度", Addr: 6, Sort: 20, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 1, Unit: "℃"}
 
 	// 无功功率 (0x06)
 	analogReactivePowerA     = &c_base.Meta{Name: "AnalogReactivePowerA", Group: AnalogAcGroup, Cn: "无功功率A", Addr: 0, Sort: 21, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kvar"}
