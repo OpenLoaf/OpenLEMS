@@ -57,9 +57,14 @@ var (
 
 			// 注入系统日志（GoFrame）
 			c_log.SetSystemLogger(applog.NewGoFrameLoggerAdapter(g.Log()))
-			// 注入业务日志（GoFrame打印 + DB占位保存）
-			bizSaver := applog.NewBizLogNoopSaver(g.Log())
-			c_log.SetBusinessLogger(applog.NewBizLoggerAdapter(g.Log(), bizSaver))
+			// 注入业务日志（基于上下文路由到不同类型与ID文件）
+			c_log.SetBusinessLogger(applog.NewBizRouterLoggerAdapter())
+			// 启用异步日志输出提高性能（系统与业务多实例）
+			g.Log().SetAsync(true)
+			g.Log("biz_ems").SetAsync(true)
+			g.Log("biz_device").SetAsync(true)
+			g.Log("biz_protocol").SetAsync(true)
+			g.Log("biz_policy").SetAsync(true)
 
 			// 优先加载嵌入式配置，支持 --profile 或 APP_PROFILE 环境变量
 			profile := parser.GetOpt(ArgProfile, os.Getenv("APP_PROFILE")).String()

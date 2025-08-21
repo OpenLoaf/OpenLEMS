@@ -37,7 +37,7 @@ customService:
   - name: CustomDcOffService
     displayName: "g18n:dc-off"
     description: "电池下电指令"
-  - name:  CustomStandbyService
+  - name:  CustomDcOnService
     displayName: "g18n:dc-on"
     description: "电池上电指令"
   - name: CustomSyncTimeService
