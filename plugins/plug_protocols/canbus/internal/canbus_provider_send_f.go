@@ -30,7 +30,7 @@ func (c *CanbusProtocolProvider) SendMessage(task *p_canbus.SCanbusTask, values 
 	}
 
 	frame := can.Frame{
-		ID:         task.GetCanbusID(c.deviceConfig.Params),
+		ID:         *task.GetCanbusID(c.deviceConfig.Params),
 		Length:     uint8(len(values)),
 		Data:       can.Data(bytes),
 		IsRemote:   task.IsRemote,

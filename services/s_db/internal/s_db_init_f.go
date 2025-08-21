@@ -30,21 +30,9 @@ func initConfigDatabase() {
 		g.Log().Infof(ctx, "创建数据库目录: %s", dbDir)
 	}
 
-	// 检查数据库文件是否存在
-	dbExists := true
-	if _, err := os.Stat(dbPath); os.IsNotExist(err) {
-		dbExists = false
-		g.Log().Infof(ctx, "数据库文件不存在，将创建新的数据库文件: %s", dbPath)
-	}
-
 	// 测试数据库连接（如果文件不存在，SQLite会自动创建）
 	if _, err := g.DB().Exec(ctx, "SELECT 1"); err != nil {
 		g.Log().Fatalf(ctx, "数据库连接失败: %v", err)
-	}
-
-	// 如果是新创建的数据库，记录日志
-	if !dbExists {
-		g.Log().Infof(ctx, "成功创建新的数据库文件: %s", dbPath)
 	}
 
 	// 创建协议表

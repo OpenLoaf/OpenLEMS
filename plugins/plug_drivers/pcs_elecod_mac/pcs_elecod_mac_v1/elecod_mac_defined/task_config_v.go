@@ -33,8 +33,12 @@ var (
 	}
 )
 
-// isConfig returns true if the CANFrameInfo is a config frame
-func isConfig(info elecod_canbus.CANFrameInfo) bool {
+const (
+	configMessageType = elecod_canbus.MessageTypeConfig
+)
+
+// isConfig returns true if the SCANFrameInfo is a config frame
+func isConfig(info elecod_canbus.SCANFrameInfo) bool {
 	return (info.SourceDeviceType == elecod_canbus.DeviceTypeMAC || info.SourceDeviceType == elecod_canbus.DeviceTypeScreen) &&
 		(info.TargetDeviceType == elecod_canbus.DeviceTypeMAC || info.TargetDeviceType == elecod_canbus.DeviceTypeScreen) &&
 		info.MessageType == elecod_canbus.MessageTypeConfig
@@ -46,14 +50,8 @@ var (
 		Metas: []*c_base.Meta{
 			confTotalActivePower, confTotalReactivePower, confTotalPowerFactor, confRatedPower,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x01
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x01, params)
 		},
 	}
 
@@ -62,14 +60,8 @@ var (
 		Metas: []*c_base.Meta{
 			confActivePowerA, confActivePowerB, confActivePowerC, confRatedPhaseVoltage,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x02
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x02, params)
 		},
 	}
 
@@ -78,14 +70,8 @@ var (
 		Metas: []*c_base.Meta{
 			confReactivePowerA, confReactivePowerB, confReactivePowerC, confRatedFrequency,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x03
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x03, params)
 		},
 	}
 
@@ -94,14 +80,8 @@ var (
 		Metas: []*c_base.Meta{
 			confPowerFactorA, confPowerFactorB, confPowerFactorC, confActivePowerChangeRate,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x04
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x04, params)
 		},
 	}
 
@@ -110,14 +90,8 @@ var (
 		Metas: []*c_base.Meta{
 			confControlBit1, confControlBit2, confControlBit3, confBatteryType,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x05
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x05, params)
 		},
 	}
 
@@ -126,14 +100,8 @@ var (
 		Metas: []*c_base.Meta{
 			confBatteryUndervoltProtect, confBatteryUndervoltRecover, confBatteryOvervoltProtect, confBatteryOvervoltRecover,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x06
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x06, params)
 		},
 	}
 
@@ -142,14 +110,8 @@ var (
 		Metas: []*c_base.Meta{
 			confBatteryChargeLimit, confBatteryDischargeLimit, confBatteryFloatVoltage, confBatteryEqualizeVoltage,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x07
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x07, params)
 		},
 	}
 
@@ -158,14 +120,8 @@ var (
 		Metas: []*c_base.Meta{
 			confInsulationImpedanceThreshold, confGridOvervoltLevel1_2, confGridOvervoltLevel3_4, confGridOvervoltLevel5_Recover,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x08
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x08, params)
 		},
 	}
 
@@ -174,14 +130,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridUndervoltLevel1_2, confGridUndervoltLevel3_4, confGridUndervoltLevel5_Recover, confGridOverfreqLevel1,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x09
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x09, params)
 		},
 	}
 
@@ -190,14 +140,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridOverfreqLevel2, confGridOverfreqLevel3, confGridOverfreqLevel4, confGridOverfreqLevel5,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x0A
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x0A, params)
 		},
 	}
 
@@ -206,14 +150,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridOverfreqRecover, confGridUnderfreqLevel1, confGridUnderfreqLevel2, confGridUnderfreqLevel3,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x0B
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x0B, params)
 		},
 	}
 
@@ -222,14 +160,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridUnderfreqLevel4, confGridUnderfreqLevel5, confGridUnderfreqRecover, confDcBusVoltageRef,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x0C
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x0C, params)
 		},
 	}
 
@@ -238,14 +170,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridOvervolt1TimeH_L, confGridOvervolt2TimeH_L, confGridOvervolt3TimeH_L, confGridOvervolt4TimeH_L,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x0D
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x0D, params)
 		},
 	}
 
@@ -254,14 +180,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridOvervolt5TimeH_L, confGridRecoverConfirmTimeH_L, confGridUndervolt1TimeH_L, confGridUndervolt2TimeH_L,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x0E
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x0E, params)
 		},
 	}
 
@@ -270,14 +190,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridUndervolt3TimeH_L, confGridUndervolt4TimeH_L, confGridUndervolt5TimeH_L, confGridOverfreq1TimeH_L,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x0F
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x0F, params)
 		},
 	}
 
@@ -286,14 +200,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridOverfreq2TimeH_L, confGridOverfreq3TimeH_L, confGridOverfreq4TimeH_L, confGridOverfreq5TimeH_L,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x10
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x10, params)
 		},
 	}
 
@@ -302,14 +210,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridUnderfreq1TimeH_L, confGridUnderfreq2TimeH_L, confGridUnderfreq3TimeH_L, confGridUnderfreq4TimeH_L,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x11
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x11, params)
 		},
 	}
 
@@ -318,14 +220,8 @@ var (
 		Metas: []*c_base.Meta{
 			confGridUnderfreq5TimeH_L, confHighPenetrationReactive, confHighPenetrationActive, confLowPenetrationReactive,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x12
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x12, params)
 		},
 	}
 
@@ -334,14 +230,8 @@ var (
 		Metas: []*c_base.Meta{
 			confLowPenetrationActiveCurrent, confLowPenetrationActiveRecover, confDcBusOvervoltPoint, confAuthorizedCapacity,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x13
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x13, params)
 		},
 	}
 
@@ -350,14 +240,8 @@ var (
 		Metas: []*c_base.Meta{
 			confInertiaTimeConstant, confDampingCoefficient, confActiveFreqRegulationCoeff,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x14
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x14, params)
 		},
 	}
 
@@ -366,14 +250,8 @@ var (
 		Metas: []*c_base.Meta{
 			confFreqRegulationDeadZone, confFreqRegulationActiveUpper, confFreqRegulationActiveLower, confReactiveVoltRegulationCoeff,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x15
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x15, params)
 		},
 	}
 
@@ -382,14 +260,8 @@ var (
 		Metas: []*c_base.Meta{
 			confVoltRegulationDeadZone, confVoltRegulationReactiveUpper, confVoltRegulationReactiveLower,
 		},
-		IDMatch: func(id uint32) bool {
-			info := elecod_canbus.ParseCANbusID(id)
-			match := isConfig(info) && info.ServiceCode == 0x16
-			if match {
-				elecod_canbus.PrintCanFrame(id, info)
-				return true
-			}
-			return false
+		GetCanbusID: func(params map[string]any) *uint32 {
+			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x16, params)
 		},
 	}
 )

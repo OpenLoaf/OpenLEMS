@@ -7,13 +7,19 @@ import (
 
 var (
 	AlarmAndFault = p_canbus.SCanbusTask{
-		Name:        "AlarmAndFault",
-		GetCanbusID: func(map[string]any) uint32 { return 0x1C000109 },
-		Metas:       []*c_base.Meta{DetectorNumber, TemperatureAlarm, SmokeAlarm, COAlarm, H2Alarm, VOCAlarm, Level1Alarm, Level2Alarm, DetectorFault, GasCapsuleHardwareFault, MainCircuitVoltageFault, ReportNumber},
+		Name: "AlarmAndFault",
+		GetCanbusID: func(map[string]any) *uint32 {
+			//v := 0x1C000109
+			return nil
+		},
+		Metas: []*c_base.Meta{DetectorNumber, TemperatureAlarm, SmokeAlarm, COAlarm, H2Alarm, VOCAlarm, Level1Alarm, Level2Alarm, DetectorFault, GasCapsuleHardwareFault, MainCircuitVoltageFault, ReportNumber},
 	}
 	Detail = p_canbus.SCanbusTask{
-		Name:        "Detail",
-		GetCanbusID: func(map[string]any) uint32 { return 0x1C00010A },
-		Metas:       []*c_base.Meta{DetectorNumber_V2, AlarmLevel, COConcentration, TemperatureData, SmokeAlarm_V2, DetectorOfflineFault, SensorFault, VOCAlarm_V2, H2Alarm_V2, ReportNumber_V2},
+		Name: "Detail",
+		GetCanbusID: func(map[string]any) *uint32 {
+			//return 0x1C00010A
+			return nil
+		},
+		Metas: []*c_base.Meta{DetectorNumber_V2, AlarmLevel, COConcentration, TemperatureData, SmokeAlarm_V2, DetectorOfflineFault, SensorFault, VOCAlarm_V2, H2Alarm_V2, ReportNumber_V2},
 	}
 )

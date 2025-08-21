@@ -1,6 +1,7 @@
 package c_util
 
 import (
+	"encoding/json"
 	"fmt"
 	"reflect"
 	"strconv"
@@ -18,6 +19,16 @@ func ToBool(val any) (bool, error) {
 		return reflect.ValueOf(val).Float() != 0, nil
 	case string:
 		return strconv.ParseBool(v)
+	case json.Number:
+		// 尝试转换为 int64
+		if intVal, err := v.Int64(); err == nil {
+			return intVal != 0, nil
+		}
+		// 尝试转换为 float64
+		if floatVal, err := v.Float64(); err == nil {
+			return floatVal != 0, nil
+		}
+		return false, fmt.Errorf("cannot convert json.Number %s to bool", string(v))
 	default:
 		return false, fmt.Errorf("cannot convert %T to bool", val)
 	}
@@ -81,6 +92,17 @@ func ToInt64(val any) (int64, error) {
 		return 0, nil
 	case string:
 		return strconv.ParseInt(v, 10, 64)
+	case json.Number:
+		// 首先尝试转换为 int64
+		if intVal, err := v.Int64(); err == nil {
+			return intVal, nil
+		}
+		// 如果失败，尝试转换为 float64 然后转为 int64
+		if floatVal, err := v.Float64(); err == nil {
+			return int64(floatVal), nil
+		}
+		// 最后尝试直接解析字符串
+		return strconv.ParseInt(string(v), 10, 64)
 	default:
 		return 0, fmt.Errorf("cannot convert %T to int64", val)
 	}
@@ -144,6 +166,17 @@ func ToUint64(val any) (uint64, error) {
 		return 0, nil
 	case string:
 		return strconv.ParseUint(v, 10, 64)
+	case json.Number:
+		// 首先尝试转换为 int64，然后转为 uint64
+		if intVal, err := v.Int64(); err == nil {
+			return uint64(intVal), nil
+		}
+		// 如果 int64 转换失败，尝试转换为 float64 然后转为 uint64
+		if floatVal, err := v.Float64(); err == nil {
+			return uint64(floatVal), nil
+		}
+		// 最后尝试直接解析字符串为 uint64
+		return strconv.ParseUint(string(v), 10, 64)
 	default:
 		return 0, fmt.Errorf("cannot convert %T to uint64", val)
 	}
@@ -189,6 +222,8 @@ func ToFloat64(val any) (float64, error) {
 		return 0, nil
 	case string:
 		return strconv.ParseFloat(v, 64)
+	case json.Number:
+		return v.Float64()
 	default:
 		return 0, fmt.Errorf("cannot convert %T to float64", val)
 	}
@@ -211,6 +246,8 @@ func ToString(val any) (string, error) {
 		return v.String(), nil
 	case error:
 		return v.Error(), nil
+	case json.Number:
+		return string(v), nil
 	case fmt.Stringer:
 		return v.String(), nil
 	default:

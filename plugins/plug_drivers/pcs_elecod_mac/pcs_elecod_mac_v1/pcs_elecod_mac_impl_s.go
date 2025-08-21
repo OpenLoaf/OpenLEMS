@@ -35,15 +35,20 @@ func (s *sPcsElecodMac) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol 
 
 	for _, task := range elecod_mac_defined.AnalogAllTasks {
 		s.RegisterRead(task)
+		c_log.Log().Infof(s.ctx, "注册%v", task)
 	}
 	for _, task := range elecod_mac_defined.ConfigAllTasks {
 		s.RegisterRead(task)
+		c_log.Log().Infof(s.ctx, "注册%v", task)
 	}
 
 	// 使用自研定时器，监听 ctx
 	c_timer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
-		c_log.Debugf(s.ctx, "测试发送数据")
-		// _ = s.SendMessage(sandBy, nil)
+		c_log.Debugf(s.ctx, "定时发送心跳数据")
+		e := s.SendMessage(elecod_mac_defined.CmdStandby, nil)
+		if e != nil {
+			c_log.Errorf(ctx, "发送心跳失败！ %v", e.Error())
+		}
 	})
 
 	c_log.Info(s.ctx, "测试结束！！！！")
@@ -108,13 +113,11 @@ func (s *sPcsElecodMac) GetTargetReactivePower() int32 {
 }
 
 func (s *sPcsElecodMac) GetTargetPowerFactor() float32 {
-	//TODO implement me
-	panic("implement me")
+	return 0
 }
 
 func (s *sPcsElecodMac) GetPower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFloat64Value(elecod_mac_defined.AnalogTotalActivePower)
 }
 
 func (s *sPcsElecodMac) GetApparentPower() (float64, error) {

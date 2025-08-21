@@ -34,6 +34,7 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		DeviceServerState: deviceWrapper.GetDeviceState().String(),
 		AlarmLevel:        alarmLevel.String(),
 	}
+	// todo
 	res.LastUpdateTime = deviceInstance.GetLastUpdateTime()
 
 	//driverDescription := deviceInstance.GetDriverDescription()

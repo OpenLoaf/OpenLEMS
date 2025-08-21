@@ -105,6 +105,11 @@ func (s *SStorageManager) RegisterDriver(storageIntervalSec int32, driver c_base
 		} else {
 			dur = time.Duration(storageIntervalSec) * time.Second
 		}
+
+		//  开机立即保存数据
+		des := driver.GetDriverDescription()
+		_ = s.IStorage.SaveDevices(driver.GetDeviceConfig().Id, driver.GetDriverType(), des.GetAllTelemetry(driver))
+
 		// TODO: 同时监测设备关闭或者存储关闭的情况，自动销毁定时任务
 		gtimer.SetInterval(s.ctx, dur, func(ctx context.Context) {
 			// 保存数据

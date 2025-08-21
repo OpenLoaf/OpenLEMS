@@ -94,7 +94,7 @@ func PrintBinary(b []byte, append ...string) {
 }
 
 func Float64ToString(value float64, pre int) string {
-	if value == math.NaN() {
+	if math.IsNaN(value) {
 		return ""
 	}
 	return big.NewFloat(value).Text('f', pre)

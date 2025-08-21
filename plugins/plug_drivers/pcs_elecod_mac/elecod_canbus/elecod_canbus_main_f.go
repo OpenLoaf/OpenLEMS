@@ -43,11 +43,11 @@ func ParseCANbusID(id uint32) SCANFrameInfo {
 }
 
 func BuildScreenToMapCanbus(messageType MessageType, serviceCode uint32, params map[string]any) *uint32 {
-	selfAddress, err := c_util.ToUint32(params["SelfAddress"])
+	selfAddress, err := c_util.ToUint32(params["selfAddress"])
 	if err != nil {
 		return nil
 	}
-	macAddress, err := c_util.ToUint32(params["MacAddress"])
+	macAddress, err := c_util.ToUint32(params["macAddress"])
 	if err != nil {
 		return nil
 	}
@@ -62,16 +62,19 @@ func BuildScreenToMapCanbus(messageType MessageType, serviceCode uint32, params 
 }
 
 func BuildMacToScreenCanbusID(messageType MessageType, serviceCode uint32, params map[string]any) *uint32 {
-	selfAddress, err := c_util.ToUint32(params["SelfAddress"])
+
+	selfAddress, err := c_util.ToUint32(params["selfAddress"])
 	if err != nil {
+		fmt.Println("1build scan canbus id error:", err)
 		return nil
 	}
-	macAddress, err := c_util.ToUint32(params["MacAddress"])
+	macAddress, err := c_util.ToUint32(params["macAddress"])
 	if err != nil {
+		fmt.Println("2build scan canbus id error:", err)
 		return nil
 	}
 
-	return BuildCanbusID(&SCANFrameInfo{
+	id := BuildCanbusID(&SCANFrameInfo{
 		TargetDeviceType: DeviceTypeScreen,
 		TargetDeviceAddr: selfAddress,
 		SourceDeviceType: DeviceTypeMAC,
@@ -79,11 +82,12 @@ func BuildMacToScreenCanbusID(messageType MessageType, serviceCode uint32, param
 		MessageType:      messageType,
 		ServiceCode:      serviceCode,
 	})
+	return id
 }
 
 // 构建CANbus ID
 func BuildCanbusID(info *SCANFrameInfo) *uint32 {
-	if info == nil || info.TargetDeviceAddr == 0 || info.SourceDeviceAddr == 0 {
+	if info == nil {
 		return nil
 	}
 

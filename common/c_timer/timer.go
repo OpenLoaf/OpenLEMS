@@ -55,9 +55,9 @@ func (h *taskHeap) Pop() any {
 }
 
 type scheduler struct {
+	nextID       uint64 // 64位字段放在前面以确保8字节对齐
 	mu           sync.Mutex
 	h            taskHeap
-	nextID       uint64
 	newTaskCh    chan *scheduledTask
 	cancelTaskCh chan uint64
 }
