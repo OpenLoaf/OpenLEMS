@@ -132,7 +132,7 @@ func (c *EssHandler) HandleInputRegisters(req *modbus.InputRegistersRequest) (re
 	//res = append(res, 0x1230)
 
 	wg.Wait()
-	c_log.Debugf(c.Ctx, "Req: Address:%v,点位:%v,数量:%v Res: %v", req.ClientAddr, req.Addr, req.Quantity, res)
+	c_log.Debugf(c.Ctx, "Req: SourceAddress:%v,点位:%v,数量:%v Res: %v", req.ClientAddr, req.Addr, req.Quantity, res)
 
 	return
 }

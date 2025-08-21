@@ -3,6 +3,7 @@ package internal
 import (
 	"common"
 	"common/c_base"
+	"common/c_log"
 	"context"
 	"github.com/gogf/gf/v2/container/gtree"
 	"github.com/gogf/gf/v2/frame/g"
@@ -113,6 +114,7 @@ func (d *SDeviceManager) Start() {
 			protocolProvider, err = d.getProtocolProvider(ctx, driver.GetDriverType(), deviceConfig, protocolConfig)
 			if protocolProvider == nil || err != nil {
 				// todo 添加日志，创建连接失败了
+				c_log.Errorf(ctx, "创建协议实例失败! 协议ID: %s Error: %v", deviceConfig.ProtocolId, err.Error())
 				deviceWrapper.UpdateState(c_base.EStateError)
 				return true
 			}

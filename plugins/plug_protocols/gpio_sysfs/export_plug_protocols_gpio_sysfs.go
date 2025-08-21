@@ -32,7 +32,7 @@ func (m *sMain) Start(ctx context.Context, config sInput) (*sOutput, error) {
 	provider, err := internal.NewGpioSysfsProvider(context.TODO(), &c_base.SProtocolConfig{
 		Id:           "",
 		Type:       "",
-		Address:        "",
+		SourceAddress:        "",
 		Timeout:        0,
 		LogLevel:       "INFO",
 		Params:         nil,

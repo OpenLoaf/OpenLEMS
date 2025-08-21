@@ -233,7 +233,7 @@ func getInterfacesFromSystemProfiler(req *v1.GetNetworkInterfaceListReq, dnsServ
 
 		// MAC
 		if it.Ethernet != nil {
-			if macVal, ok := it.Ethernet["MAC Address"].(string); ok {
+			if macVal, ok := it.Ethernet["MAC SourceAddress"].(string); ok {
 				item.MAC = macVal
 			}
 		}

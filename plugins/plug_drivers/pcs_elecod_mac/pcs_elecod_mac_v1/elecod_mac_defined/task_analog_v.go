@@ -24,7 +24,12 @@ var (
 			analogDcVoltage, analogDcCurrent, analogDcPower, analogBusVoltage,
 		},
 		GetCanbusID: func(params map[string]any) uint32 {
-			return elecod_canbus.BuildCANbusID(&elecod_canbus.CANFrameInfo{})
+			return elecod_canbus.BuildCANbusID(&elecod_canbus.CANFrameInfo{
+				TargetDeviceType: elecod_canbus.DeviceTypeScreen,
+				SourceDeviceType: elecod_canbus.DeviceTypeMAC,
+				MessageType:      elecod_canbus.MessageTypeAnalog,
+				ServiceCode:      0x01,
+			})
 		},
 		IDMatch: func(id uint32) bool {
 			info := elecod_canbus.ParseCANbusID(id)

@@ -101,7 +101,7 @@ func (s *sSettingServiceImpl) SetSettingValueByName(ctx context.Context, name st
 		protocolConfig := &c_base.SProtocolConfig{
 			Id:       protocol.Id,
 			Type:     c_base.EProtocolType(protocol.Type),
-			Address:  protocol.Address,
+			SourceAddress:  protocol.SourceAddress,
 			Timeout:  protocol.Timeout,
 			LogLevel: protocol.LogLevel,
 			Params:   params,

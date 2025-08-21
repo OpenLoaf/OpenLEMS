@@ -6,6 +6,7 @@ import (
 	"common/c_log"
 	"common/c_timer"
 	"context"
+	"fmt"
 	"pcs_elecod/pcs_elecod_mac_v1/elecod_mac_defined"
 	"time"
 )
@@ -14,12 +15,23 @@ type sPcsElecodMac struct {
 	p_canbus.ICanbusProtocol
 	ctx          context.Context
 	deviceConfig *c_base.SDeviceConfig
+	pcsConfig    *sPcsElecodMacConfig
 	*c_base.SDriverDescription
 }
 
 func (s *sPcsElecodMac) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.deviceConfig = deviceConfig
 	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
+
+	s.pcsConfig = &sPcsElecodMacConfig{}
+	err := deviceConfig.ScanParams(s.pcsConfig)
+	if err != nil {
+		panic(fmt.Errorf("PcsElecodMac配置解析失败：内容:%v 原因: %s", deviceConfig.Params, err.Error()))
+	}
+
+	if s.pcsConfig.MacAddress == nil || s.pcsConfig.SelfAddress == nil {
+		panic(fmt.Errorf("PcsElecodMac配置解析失败：缺少配置项！当前配置：%v", deviceConfig.Params))
+	}
 
 	for _, task := range elecod_mac_defined.AnalogAllTasks {
 		s.RegisterRead(task)

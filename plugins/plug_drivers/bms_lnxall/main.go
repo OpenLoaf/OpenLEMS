@@ -49,7 +49,7 @@ func main() {
 			}, []*c_base.SProtocolConfig{{
 				Id:       "test_modbus",
 				Type:     "modbus_tcp",
-				Address:  "127.0.0.1:2509",
+				SourceAddress:  "127.0.0.1:2509",
 				Timeout:  30,
 				LogLevel: "DEBUG",
 				Params:   nil,

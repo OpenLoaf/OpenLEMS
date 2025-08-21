@@ -47,7 +47,7 @@ func main() {
 			//		},
 			//		DeviceChildren: nil,
 			//	}, []*c_base.SProtocolConfig{
-			//		{Id: "192.168.0.100:5000", Type: c_base.EModbusTcp, Address: "192.168.0.100:5000", Timeout: 30, LogLevel: "DEBUG", Params: nil},
+			//		{Id: "192.168.0.100:5000", Type: c_base.EModbusTcp, SourceAddress: "192.168.0.100:5000", Timeout: 30, LogLevel: "DEBUG", Params: nil},
 			//	})
 			//
 			//	cmd.Block()

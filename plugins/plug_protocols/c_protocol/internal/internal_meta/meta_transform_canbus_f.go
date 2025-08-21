@@ -63,7 +63,7 @@ func ParseCanbusData(canData []byte, meta *c_base.Meta) (any, error) {
 
 	// 检查 Meta.Addr 是否超出 canData 范围（对于单字节读取类型）
 	if int(meta.Addr) >= len(canData) && !(meta.ReadType >= c_base.RBit0 && meta.ReadType <= c_base.RBit15) {
-		return nil, fmt.Errorf("Address %d out of bounds for data length %d for non-bit read type", meta.Addr, len(canData))
+		return nil, fmt.Errorf("SourceAddress %d out of bounds for data length %d for non-bit read type", meta.Addr, len(canData))
 	}
 
 	switch meta.ReadType {

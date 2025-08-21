@@ -47,7 +47,7 @@ func main() {
 			}, []*c_base.SProtocolConfig{{
 				Id:       "test_canbus",
 				Type:     "canbus",
-				Address:  "can0",
+				SourceAddress:  "can0",
 				Timeout:  30,
 				LogLevel: "DEBUG",
 				Params: map[string]string{

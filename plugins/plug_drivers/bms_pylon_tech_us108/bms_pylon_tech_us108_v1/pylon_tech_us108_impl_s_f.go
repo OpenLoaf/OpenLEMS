@@ -28,8 +28,8 @@ func (p *sBmsPylonTechUs108) GetDriverType() c_base.EDeviceType {
 func (p *sBmsPylonTechUs108) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	p.IModbusProtocol = protocol.(c_proto.IModbusProtocol)
 
-	bmsConfig := &PylonTechUs108BmsConfig{}
-	err := deviceConfig.ScanParams(bmsConfig)
+	p.bmsConfig = &PylonTechUs108BmsConfig{}
+	err := deviceConfig.ScanParams(p.bmsConfig)
 	if err != nil {
 		panic(fmt.Errorf("BMS配置解析失败：内容:%v 原因: %s", deviceConfig.Params, err.Error()))
 	}
@@ -37,7 +37,7 @@ func (p *sBmsPylonTechUs108) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 	// 2025-08-19 删除了GroupTime
 	p.IModbusProtocol.RegisterRead(p.ctx, GroupHeart, GroupInfo, GroupStatistics)
 
-	if bmsConfig.SyncTime {
+	if p.bmsConfig.SyncTime {
 		p.writeTime()
 		c_log.Infof(p.ctx, "syncTime配置为：true！同步时间已开启！")
 	} else {
