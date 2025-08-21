@@ -2,8 +2,9 @@ package s_storage
 
 import (
 	"common/c_base"
-	"golang.org/x/net/context"
 	"s_storage/internal"
+
+	"golang.org/x/net/context"
 )
 
 func NewSingleStorageManager(parentCtx context.Context, storage c_base.IStorage) {

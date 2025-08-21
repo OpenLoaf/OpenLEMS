@@ -22,10 +22,10 @@ telemetry:
     unit: "kVar"
     remark: "无功功率"
   - name: todayIncomingQuantity
-    nationalizationName: todayIncomingQuantity
+    displayName: todayIncomingQuantity
     unit: "kWh"
     remark: "当日充电量"
   - name: todayOutgoingQuantity
-    nationalizationName: todayOutgoingQuantity
+    displayName: todayOutgoingQuantity
     unit: "kWh"
     remark: "当日放电量"

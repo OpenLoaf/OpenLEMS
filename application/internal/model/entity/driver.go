@@ -38,8 +38,8 @@ type SDriver struct {
 
 // DriverTelemetry 与 `common/c_base.STelemetry` 字段对齐的轻量实体定义
 type DriverTelemetry struct {
-	Name                string `json:"name" dc:"遥测名称"`
-	NationalizationName string `json:"nationalizationName" dc:"国际化名称"`
-	Unit                string `json:"unit" dc:"单位"`
-	Remark              string `json:"remark" dc:"备注"`
+	Name        string `json:"name" dc:"遥测名称"`
+	DisplayName string `json:"displayName" dc:"国际化名称"`
+	Unit        string `json:"unit" dc:"单位"`
+	Remark      string `json:"remark" dc:"备注"`
 }

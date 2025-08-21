@@ -7,15 +7,15 @@ import (
 )
 
 func STelemetryToI18n(ctx context.Context, s *c_base.STelemetry) *c_base.STelemetry {
-	key := g.I18n().T(ctx, s.NationalizationName)
+	key := g.I18n().T(ctx, s.DisplayName)
 	if key == "" {
 		key = s.Remark
 	}
 	return &c_base.STelemetry{
-		Name:                s.Name,
-		NationalizationName: key,
-		Unit:                s.Unit,
-		Remark:              s.Remark,
+		Name:        s.Name,
+		DisplayName: key,
+		Unit:        s.Unit,
+		Remark:      s.Remark,
 	}
 }
 

@@ -22,18 +22,18 @@ telemetry:
       unit: "kVar"
       remark: "无功功率"
     - name: todayIncomingQuantity
-      nationalizationName: "essTodayCharge"
+      displayName: "essTodayCharge"
       unit: "kWh"
       remark: "当日充电量"
     - name: todayOutgoingQuantity
-      nationalizationName: "essTodayDischarge"
+      displayName: "essTodayDischarge"
       unit: "kWh"
       remark: "当日放电量"
     - name: historyIncomingQuantity
-      nationalizationName: "essHistoryCharge"
+      displayName: "essHistoryCharge"
       unit: "kWh"
       remark: "历史充电量"
     - name: historyOutgoingQuantity
-      nationalizationName: "essHistoryDischarge"
+      displayName: "essHistoryDischarge"
       unit: "kWh"
       remark: "历史放电量"

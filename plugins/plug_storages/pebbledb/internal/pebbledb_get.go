@@ -207,20 +207,7 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 			inRange = false
 		}
 
-		// 检查时间间隔步长
-		if inRange && step > 0 {
-			// 如果设置了起始时间，从起始时间开始按step间隔过滤
-			if startTime != nil && *startTime != ZeroTimestamp {
-				if (timestamp-*startTime)%step != 0 {
-					inRange = false
-				}
-			} else {
-				// 如果没有设置起始时间，则按时间戳对step取模
-				if timestamp%step != 0 {
-					inRange = false
-				}
-			}
-		}
+		// 步长过滤改为在排序之后进行，避免与起始时间对齐导致的误筛
 
 		if inRange {
 			key := make([]byte, len(iter.Key()))
@@ -254,11 +241,35 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 		})
 	}
 
+	// 基于第一条数据的时间戳进行步长筛选
+	if step > 0 && len(allData) > 0 {
+		var filtered []PebbleItem
+		lastTs := allData[0].Timestamp
+		filtered = append(filtered, allData[0])
+		step64 := int64(step)
+		if sortOrder == SortOrderAsc {
+			for i := 1; i < len(allData); i++ {
+				if allData[i].Timestamp >= lastTs+step64 {
+					filtered = append(filtered, allData[i])
+					lastTs = allData[i].Timestamp
+				}
+			}
+		} else { // 降序
+			for i := 1; i < len(allData); i++ {
+				if allData[i].Timestamp <= lastTs-step64 {
+					filtered = append(filtered, allData[i])
+					lastTs = allData[i].Timestamp
+				}
+			}
+		}
+		allData = filtered
+	}
+
 	// 计算分页
 	total := len(allData)
 
 	if !needPaging {
-		// 不分页，返回所有数据
+		// 不分页，返回所有数据（已应用步长筛选）
 		return allData, total, nil
 	}
 

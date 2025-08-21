@@ -2,7 +2,6 @@ package telemetry
 
 import (
 	"application/api/telemetry/v1"
-	"application/internal/model/convert"
 	"application/internal/model/entity"
 	"common/c_device"
 	"context"
@@ -29,14 +28,14 @@ func makeResponse(ctx context.Context, stationEnergyStore c_device.IStationEnerg
 	stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
 		DeviceId:      stationEnergyStore.GetDeviceConfig().Id,
 		I8nName:       stationEnergyStore.GetDeviceConfig().Name,
-		TelemetryKeys: convert.TelemetryListI18n(ctx, stationEnergyStore.GetDriverDescription().Telemetry),
+		TelemetryKeys: stationEnergyStore.GetDriverDescription().Telemetry,
 	})
 	children := stationEnergyStore.(c_device.IStationEnergyStore).GetChildren()
 	for _, child := range children {
 		stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
 			DeviceId:      child.GetDeviceConfig().Id,
 			I8nName:       child.GetDeviceConfig().Name,
-			TelemetryKeys: convert.TelemetryListI18n(ctx, child.GetDriverDescription().Telemetry),
+			TelemetryKeys: child.GetDriverDescription().Telemetry,
 		})
 	}
 

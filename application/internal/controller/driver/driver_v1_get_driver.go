@@ -35,10 +35,10 @@ func (c *ControllerV1) GetDriver(ctx context.Context, req *v1.GetDriverReq) (res
 			telemetry := make([]*entity.DriverTelemetry, 0, len(info.Description.Telemetry))
 			for _, t := range info.Description.Telemetry {
 				telemetry = append(telemetry, &entity.DriverTelemetry{
-					Name:                t.Name,
-					NationalizationName: t.NationalizationName,
-					Unit:                t.Unit,
-					Remark:              t.Remark,
+					Name:        t.Name,
+					DisplayName: t.DisplayName,
+					Unit:        t.Unit,
+					Remark:      t.Remark,
 				})
 			}
 			sDriver.Telemetry = telemetry
