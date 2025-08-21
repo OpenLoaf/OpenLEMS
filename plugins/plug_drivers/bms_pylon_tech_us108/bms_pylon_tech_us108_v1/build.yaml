@@ -9,24 +9,27 @@ telemetry:
     - name: soc
       unit: "%"
       displayName: "SOC"
-    - name: power
-      unit: "kW"
-      displayName: "功率"
+    - name: capacity
+      unit: "kWh"
+      displayName: "电池容量"
     - name: targetPower
       unit: "kW"
       displayName: "目标功率"
-    - name: apparentPower
-      unit: "kVA"
-      displayName: "视在功率"
-    - name: reactivePower
-      unit: "kVar"
-      displayName: "无功功率"
-    - name: todayIncomingQuantity
-      displayName: "当日充电量"
+    - name: dcPower
+      unit: "kW"
+      displayName: "直流功率"
+    - name: dcVoltage
+      unit: "V"
+      displayName: "直流电压"
+    - name: dcCurrent
+      unit: "A"
+      displayName: "直流电流"
+    - name: historyIncomingQuantity
       unit: "kWh"
-    - name: todayOutgoingQuantity
-      displayName: "当日放电量"
+      displayName: "充电量"
+    - name: historyOutgoingQuantity
       unit: "kWh"
+      displayName: "放电量"
 
 
 

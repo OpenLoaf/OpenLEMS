@@ -30,7 +30,7 @@ use (
 	./plugins/plug_policy/basic_ess_policy
 	./plugins/plug_policy/basic_microgrid_policy
 	./services/s_db
-
+	./services/s_log
 	./services/s_driver
 	./services/s_storage
 

@@ -289,7 +289,7 @@ func (p *Pebbledb) SaveDevices(deviceId string, deviceType c_base.EDeviceType, f
 		return gerror.Wrapf(err, "写入设备数据失败, deviceId: %s", deviceId)
 	}
 
-	g.Log().Debugf(p.ctx, "设备数据写入成功, deviceId: %s, key: %s", deviceId, key)
+	g.Log().Debugf(p.ctx, "设备数据写入成功, deviceId: %s, key: %s fileds: %v", deviceId, key, fields)
 	return nil
 }
 

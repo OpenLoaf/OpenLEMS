@@ -13,18 +13,18 @@ telemetry:
 #    unit: "kW"
 #    remark: "目标功率"
 #  - name: apparentPower
-#    displayName: todayIncomingQuantity
+#    displayName: "当日充电量"
 #    unit: "kWh"
 #    remark: "当日充电量"
 #  - name: todayOutgoingQuantity
-#    displayName: todayOutgoingQuantity
+#    displayName: "当日放电量"
 #    unit: "kWh"
 #    remark: "当日放电量"
 
 customService:
   - name: CustomShutdownService
-    displayName: "关机"
+    displayName: "g18n:shutdown"
   - name:  CustomStartupService
-    displayName: "开机"
+    displayName: "g18:startup"
   - name: CustomStandbyService
-    displayName: "待机"
+    displayName: "g18:standby"

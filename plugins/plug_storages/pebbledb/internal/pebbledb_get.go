@@ -46,6 +46,42 @@ type PebbleItem struct {
 	Timestamp int64  `json:"timestamp"` // 使用int64避免时间戳溢出
 }
 
+// StepFilter 基于首条数据时间锚点的步长过滤器
+// 规则：
+// - 第1条数据总是通过，并将 nextAllowedTimestamp 设为 (firstTs + step)
+// - 后续仅当 ts >= nextAllowedTimestamp 时通过，并将 nextAllowedTimestamp 更新为 (ts + step)
+type StepFilter struct {
+	enabled              bool
+	step                 int
+	hasAnchor            bool
+	nextAllowedTimestamp int
+}
+
+func NewStepFilter(step int) *StepFilter {
+	return &StepFilter{
+		enabled: step > 0,
+		step:    step,
+	}
+}
+
+// Allow 判断给定时间戳是否满足步长过滤条件
+func (sf *StepFilter) Allow(ts int) bool {
+	if !sf.enabled {
+		return true
+	}
+	if !sf.hasAnchor {
+		sf.hasAnchor = true
+		sf.nextAllowedTimestamp = ts + sf.step
+		return true
+	}
+	if ts >= sf.nextAllowedTimestamp {
+		// 出现大间隔时，直接以当前 ts 为新锚点
+		sf.nextAllowedTimestamp = ts + sf.step
+		return true
+	}
+	return false
+}
+
 func (p *Pebbledb) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error) {
 	switch storageType {
 	case c_base.StorageTypeDevice:
@@ -157,6 +193,7 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 
 	// 收集所有匹配的数据
 	var allData []PebbleItem
+	stepFilter := NewStepFilter(step)
 
 	for iter.First(); iter.Valid(); iter.Next() {
 		keyStr := string(iter.Key())
@@ -207,7 +244,10 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 			inRange = false
 		}
 
-		// 步长过滤改为在排序之后进行，避免与起始时间对齐导致的误筛
+		// 步长过滤：以首条数据时间为锚点
+		if inRange && !stepFilter.Allow(timestamp) {
+			inRange = false
+		}
 
 		if inRange {
 			key := make([]byte, len(iter.Key()))
@@ -241,35 +281,11 @@ func GetPagesByTimeRange(p *pebble.DB, prefix string, startTime, endTime *int, p
 		})
 	}
 
-	// 基于第一条数据的时间戳进行步长筛选
-	if step > 0 && len(allData) > 0 {
-		var filtered []PebbleItem
-		lastTs := allData[0].Timestamp
-		filtered = append(filtered, allData[0])
-		step64 := int64(step)
-		if sortOrder == SortOrderAsc {
-			for i := 1; i < len(allData); i++ {
-				if allData[i].Timestamp >= lastTs+step64 {
-					filtered = append(filtered, allData[i])
-					lastTs = allData[i].Timestamp
-				}
-			}
-		} else { // 降序
-			for i := 1; i < len(allData); i++ {
-				if allData[i].Timestamp <= lastTs-step64 {
-					filtered = append(filtered, allData[i])
-					lastTs = allData[i].Timestamp
-				}
-			}
-		}
-		allData = filtered
-	}
-
 	// 计算分页
 	total := len(allData)
 
 	if !needPaging {
-		// 不分页，返回所有数据（已应用步长筛选）
+		// 不分页，返回所有数据
 		return allData, total, nil
 	}
 
@@ -354,6 +370,7 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 
 	// 收集所有匹配的数据
 	chartData := c_chart.NewChartData(len(points))
+	stepFilter := NewStepFilter(step)
 
 	// 创建数据系列映射，用于数据收集过程
 	seriesMap := make(map[string]*c_chart.Series)
@@ -411,19 +428,9 @@ func GetChartData(p *pebble.DB, prefix string, points []string, startTime, endTi
 			inRange = false
 		}
 
-		// 检查时间间隔步长
-		if inRange && step > 0 {
-			// 如果设置了起始时间，从起始时间开始按step间隔过滤
-			if startTime != nil && *startTime != ZeroTimestamp {
-				if (timestamp-*startTime)%step != 0 {
-					inRange = false
-				}
-			} else {
-				// 如果没有设置起始时间，则按时间戳对step取模
-				if timestamp%step != 0 {
-					inRange = false
-				}
-			}
+		// 步长过滤：以首条数据时间为锚点
+		if inRange && !stepFilter.Allow(timestamp) {
+			inRange = false
 		}
 
 		if inRange {
