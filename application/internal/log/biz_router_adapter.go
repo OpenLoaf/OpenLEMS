@@ -20,18 +20,18 @@ func (b *BizRouterLoggerAdapter) pick(ctx context.Context) *glog.Logger {
 	}
 	if v := ctx.Value(c_base.ConstCtxKeyDeviceId); v != nil {
 		if s, ok := v.(string); ok && s != "" {
-			return BizDevice(s)
+			return BizDevice(ctx, s)
 		}
 	}
 	if v := ctx.Value(c_base.ConstCtxKeyProtocolId); v != nil {
 		if s, ok := v.(string); ok && s != "" {
-			return BizProtocol(s)
+			return BizProtocol(ctx, s)
 		}
 	}
 	// PolicyId 未在 c_base 中定义上下文常量，这里用约定键名做兜底
 	if v := ctx.Value("PolicyId"); v != nil {
 		if s, ok := v.(string); ok && s != "" {
-			return BizPolicy(s)
+			return BizPolicy(ctx, s)
 		}
 	}
 	return BizEMS()

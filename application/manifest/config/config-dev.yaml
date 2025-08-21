@@ -8,3 +8,20 @@ server:
   dumpRouterMap: true
   accessLogEnabled: true
 
+logger:
+  biz_ems:
+    path: "out/logs/biz/ems"
+    level: "all"
+    stdout: true
+  biz_device:
+    path: "out/logs/biz/device"
+    level: "all"
+    stdout: true
+  biz_protocol:
+    path: "out/logs/biz/protocol"
+    level: "all"
+    stdout: true
+  biz_policy:
+    path: "out/logs/biz/policy"
+    level: "all"
+    stdout: true
