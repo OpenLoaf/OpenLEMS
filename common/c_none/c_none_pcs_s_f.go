@@ -30,35 +30,35 @@ func (s *sNonePcs) GetDriverDescription() *c_base.SDriverDescription {
 }
 
 func (s *sNonePcs) SetReset() error {
-	return noneErr
+	return NoneErr
 }
 
 func (s *sNonePcs) SetStatus(status c_base.EEnergyStoreStatus) error {
-	return noneErr
+	return NoneErr
 }
 
 func (s *sNonePcs) SetGridMode(mode c_base.EGridMode) error {
-	return noneErr
+	return NoneErr
 }
 
 func (s *sNonePcs) GetStatus() (c_base.EEnergyStoreStatus, error) {
-	return c_base.EPcsStatusUnknown, noneErr
+	return c_base.EPcsStatusUnknown, NoneErr
 }
 
 func (s *sNonePcs) GetGridMode() (c_base.EGridMode, error) {
-	return c_base.EGridUnknown, noneErr
+	return c_base.EGridUnknown, NoneErr
 }
 
 func (s *sNonePcs) SetPower(power int32) error {
-	return noneErr
+	return NoneErr
 }
 
 func (s *sNonePcs) SetReactivePower(power int32) error {
-	return noneErr
+	return NoneErr
 }
 
 func (s *sNonePcs) SetPowerFactor(factor float32) error {
-	return noneErr
+	return NoneErr
 }
 
 func (s *sNonePcs) GetTargetPower() int32 {
@@ -74,15 +74,15 @@ func (s *sNonePcs) GetTargetPowerFactor() float32 {
 }
 
 func (s *sNonePcs) GetPower() (float64, error) {
-	return 0, noneErr
+	return 0, NoneErr
 }
 
 func (s *sNonePcs) GetApparentPower() (float64, error) {
-	return 0, noneErr
+	return 0, NoneErr
 }
 
 func (s *sNonePcs) GetReactivePower() (float64, error) {
-	return 0, noneErr
+	return 0, NoneErr
 }
 
 func (s *sNonePcs) GetRatedPower() int32 {
@@ -90,25 +90,25 @@ func (s *sNonePcs) GetRatedPower() int32 {
 }
 
 func (s *sNonePcs) GetMaxInputPower() (float32, error) {
-	return 0, noneErr
+	return 0, NoneErr
 }
 
 func (s *sNonePcs) GetMaxOutputPower() (float32, error) {
-	return 0, noneErr
+	return 0, NoneErr
 }
 
 func (s *sNonePcs) GetTodayIncomingQuantity() (float64, error) {
-	return 0, noneErr
+	return 0, NoneErr
 }
 
 func (s *sNonePcs) GetHistoryIncomingQuantity() (float64, error) {
-	return 0, noneErr
+	return 0, NoneErr
 }
 
 func (s *sNonePcs) GetTodayOutgoingQuantity() (float64, error) {
-	return 0, noneErr
+	return 0, NoneErr
 }
 
 func (s *sNonePcs) GetHistoryOutgoingQuantity() (float64, error) {
-	return 0, noneErr
+	return 0, NoneErr
 }

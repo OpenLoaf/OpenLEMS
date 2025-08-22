@@ -10,7 +10,8 @@ server:
 
 logger:
   biz_ems:
-    path: "out/logs/biz/ems"
+    path: "out/logs/biz"
+    file: "{Ymd}.log"
     level: "all"
     stdout: true
   biz_device:

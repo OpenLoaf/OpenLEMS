@@ -10,19 +10,7 @@ logger:
 
   # 业务日志多实例配置（不同类型分文件夹，ID分文件）
   biz_ems:
-    path:   "out/logs/biz/ems"
-    file: "{Ymd}.log"
-    level:  "all"
-  biz_device:
-    path:   "out/logs/biz/device"
-    file: "{Ymd}.log"
-    level:  "all"
-  biz_protocol:
-    path:   "out/logs/biz/protocol"
-    file: "{Ymd}.log"
-    level:  "all"
-  biz_policy:
-    path:   "out/logs/biz/policy"
+    path:   "out/logs/biz"
     file: "{Ymd}.log"
     level:  "all"
 
@@ -113,7 +101,7 @@ server:
   # 此配置主要影响server（ghttp模块）日志，如web服务监听端口号、web服务路由，不会对 g.Log 产生影响
   logger:
 #    path:                  "/var/log/"           # 日志文件路径。默认为空，表示关闭，仅输出到终端
-#    file:                  "{Y-m-d}.log"         # 日志文件格式。默认为"{Y-m-d}.log"
+    file:                  "{Ymd}.log"         # 日志文件格式。默认为"{Y-m-d}.log"
 #    prefix:                ""                    # 日志内容输出前缀。默认为空
     level:                 "all"                 # 日志输出级别
 #    timeFormat:            "2006-01-02T15:04:05" # 自定义日志输出的时间格式，使用Golang标准的时间格式配置

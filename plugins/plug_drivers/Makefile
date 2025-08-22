@@ -1,4 +1,4 @@
-OutDir?=/Users/zhao/Documents/01.Code/Hex/ems-plan/application/resources/drivers
+OutDir?=/Users/zhao/Documents/01.Code/Hex/ems-plan/application/out/drivers
 
 # 检查 TARGET 是否为空
 ifeq ($(Project),)
