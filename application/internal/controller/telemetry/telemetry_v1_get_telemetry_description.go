@@ -3,7 +3,7 @@ package telemetry
 import (
 	"application/api/telemetry/v1"
 	"application/internal/model/entity"
-	"common/c_device"
+	"common/c_type"
 	"context"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -21,7 +21,7 @@ func (c *ControllerV1) GetTelemetryDescription(ctx context.Context, req *v1.GetT
 	return nil, gerror.NewCode(gcode.CodeNotImplemented)
 }
 
-func makeResponse(ctx context.Context, stationEnergyStore c_device.IStationEnergyStore) *v1.TelemetryDescriptionObj {
+func makeResponse(ctx context.Context, stationEnergyStore c_type.IStationEnergyStore) *v1.TelemetryDescriptionObj {
 
 	var stationTelemetryList []*entity.DeviceTelemetry
 	//var stationTelemetryList
@@ -30,7 +30,7 @@ func makeResponse(ctx context.Context, stationEnergyStore c_device.IStationEnerg
 		I8nName:       stationEnergyStore.GetDeviceConfig().Name,
 		TelemetryKeys: stationEnergyStore.GetDriverDescription().Telemetry,
 	})
-	children := stationEnergyStore.(c_device.IStationEnergyStore).GetChildren()
+	children := stationEnergyStore.(c_type.IStationEnergyStore).GetChildren()
 	for _, child := range children {
 		stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
 			DeviceId:      child.GetDeviceConfig().Id,

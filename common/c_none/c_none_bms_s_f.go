@@ -2,7 +2,7 @@ package c_none
 
 import (
 	"common/c_base"
-	"common/c_device"
+	"common/c_type"
 )
 
 type sNoneBms struct {
@@ -35,7 +35,7 @@ func (s *sNoneBms) SetReset() error {
 	return NoneErr
 }
 
-func (s *sNoneBms) SetBmsStatus(status c_device.EBmsStatus) error {
+func (s *sNoneBms) SetBmsStatus(status c_type.EBmsStatus) error {
 	return NoneErr
 }
 
@@ -63,8 +63,8 @@ func (s *sNoneBms) GetCellAvgVoltage() (float32, error) {
 	return 0, NoneErr
 }
 
-func (s *sNoneBms) GetBmsStatus() (c_device.EBmsStatus, error) {
-	return c_device.EBmsStatusUnknown, NoneErr
+func (s *sNoneBms) GetBmsStatus() (c_type.EBmsStatus, error) {
+	return c_type.EBmsStatusUnknown, NoneErr
 }
 
 func (s *sNoneBms) GetSoc() (float32, error) {

@@ -14,7 +14,7 @@ var (
 	analogActivePowerA     = &c_base.Meta{Name: "AnalogActivePowerA", Group: AnalogAcGroup, Cn: "有功功率A", Addr: 0, Sort: 1, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
 	analogActivePowerB     = &c_base.Meta{Name: "AnalogActivePowerB", Group: AnalogAcGroup, Cn: "有功功率B", Addr: 2, Sort: 2, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
 	analogActivePowerC     = &c_base.Meta{Name: "AnalogActivePowerC", Group: AnalogAcGroup, Cn: "有功功率C", Addr: 4, Sort: 3, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
-	AnalogTotalActivePower = &c_base.Meta{Name: "AnalogTotalActivePower", Group: AnalogAcGroup, Cn: "总有功功率", Debug: true, Addr: 6, Sort: 4, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
+	AnalogTotalActivePower = &c_base.Meta{Name: "AnalogTotalActivePower", Group: AnalogAcGroup, Cn: "总有功功率", Debug: false, Addr: 6, Sort: 4, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "kW"}
 
 	// 直流参数 (0x01)
 	analogDcVoltage  = &c_base.Meta{Name: "AnalogDcVoltage", Group: AnalogDcGroup, Cn: "直流电压", Addr: 0, Sort: 5, Endianness: c_base.EMiddleEndian, ReadType: c_base.RInt16, SystemType: c_base.SInt16, Factor: 0.1, Unit: "V"}

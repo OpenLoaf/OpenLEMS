@@ -2,9 +2,9 @@ package ess_pylon_checkwatt_v1
 
 import (
 	"common/c_base"
-	"common/c_device"
 	"common/c_error"
 	"common/c_log"
+	"common/c_type"
 	"context"
 	"time"
 )
@@ -20,16 +20,16 @@ type sEssPylonCheckwatt struct {
 	deviceConfig *c_base.SDeviceConfig
 	ctx          context.Context
 
-	unitId  uint8             // modbus转发的id
-	ammeter c_device.IAmmeter // 电表
-	bms     c_device.IBms     // 电池
-	pcs     c_device.IPcs     // 逆变器
+	unitId  uint8           // modbus转发的id
+	ammeter c_type.IAmmeter // 电表
+	bms     c_type.IBms     // 电池
+	pcs     c_type.IPcs     // 逆变器
 
-	buttonScram     c_device.IGpio
-	buttonDischarge c_device.IGpio
-	buttonCharge    c_device.IGpio
-	ledRunning      c_device.IGpio
-	ledFault        c_device.IGpio
+	buttonScram     c_type.IGpio
+	buttonDischarge c_type.IGpio
+	buttonCharge    c_type.IGpio
+	ledRunning      c_type.IGpio
+	ledFault        c_type.IGpio
 }
 
 func (p *sEssPylonCheckwatt) ProtocolListen() {
@@ -50,24 +50,24 @@ func (p *sEssPylonCheckwatt) InitDevice(deviceConfig *c_base.SDeviceConfig, _ c_
 	// 从配置中获取电表、PCS、BMS的配置
 	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
-			p.ammeter = dv.(c_device.IAmmeter)
+			p.ammeter = dv.(c_type.IAmmeter)
 			c_log.Infof(p.ctx, "sEssPylonCheckwatt 电表初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceBms {
-			p.bms = dv.(c_device.IBms)
+			p.bms = dv.(c_type.IBms)
 			c_log.Infof(p.ctx, "sEssPylonCheckwatt 电池初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDevicePcs {
-			p.pcs = dv.(c_device.IPcs)
+			p.pcs = dv.(c_type.IPcs)
 			c_log.Infof(p.ctx, "sEssPylonCheckwatt 逆变器初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceGpio {
 			if dv.GetDeviceConfig().Id == IdButtonDischarge {
-				p.buttonDischarge = dv.(c_device.IGpio)
+				p.buttonDischarge = dv.(c_type.IGpio)
 				c_log.Infof(p.ctx, "sEssPylonCheckwatt 放电按钮初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdButtonCharge {
-				p.buttonCharge = dv.(c_device.IGpio)
+				p.buttonCharge = dv.(c_type.IGpio)
 				c_log.Infof(p.ctx, "sEssPylonCheckwatt 充电按钮初始化完毕!")
 			}
 		}
@@ -153,11 +153,11 @@ func (p *sEssPylonCheckwatt) SetReset() error {
 	return c_error.NonSupportError
 }
 
-func (p *sEssPylonCheckwatt) SetBmsStatus(status c_device.EBmsStatus) error {
+func (p *sEssPylonCheckwatt) SetBmsStatus(status c_type.EBmsStatus) error {
 	return c_error.NonSupportError
 }
 
-func (p *sEssPylonCheckwatt) GetBmsStatus() (c_device.EBmsStatus, error) {
+func (p *sEssPylonCheckwatt) GetBmsStatus() (c_type.EBmsStatus, error) {
 	return p.bms.GetBmsStatus()
 }
 

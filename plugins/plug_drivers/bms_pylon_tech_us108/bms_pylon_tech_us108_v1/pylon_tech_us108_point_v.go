@@ -2,7 +2,7 @@ package bms_pylon_tech_us108_v1
 
 import (
 	"common/c_base"
-	"common/c_util"
+	"github.com/shockerli/cvt"
 )
 
 var (
@@ -40,7 +40,7 @@ var (
 var (
 	//BasicStatus   = &c_base.Meta{Id: "BasicStatus", Cn: "基本状态", Addr: 0x1100, ReadType: c_base.RInt16, Desc: "基本状态"}
 	BasicStatus = &c_base.Meta{Name: "BasicStatus", Cn: "基本状态", Addr: 0x1100, ReadType: c_base.RBit0, BitLength: 2, Desc: "基本状态:00：休眠 01：充电 02：放电 03：搁置", StatusExplain: func(value any) string {
-		if v, err := c_util.ToInt8(value); err == nil {
+		if v, err := cvt.Int8E(value); err == nil {
 			switch v {
 			case 0:
 				return "休眠"

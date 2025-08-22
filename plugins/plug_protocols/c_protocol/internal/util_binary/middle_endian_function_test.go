@@ -1,7 +1,6 @@
 package util_binary
 
 import (
-	"common/c_util"
 	"fmt"
 	"github.com/gogf/gf/v2/test/gtest"
 	"math"
@@ -108,6 +107,5 @@ func TestFuncRMEBinary(t *testing.T) {
 	}
 	fmt.Println(u)
 
-	size := MeFillUpSize(bytes, 8)
-	c_util.PrintHex(size)
+	_ = MeFillUpSize(bytes, 8)
 }

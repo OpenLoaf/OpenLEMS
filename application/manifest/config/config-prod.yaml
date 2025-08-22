@@ -1,3 +1,5 @@
+
+
 database:
   default:
     debug: false
@@ -8,7 +10,9 @@ server:
   dumpRouterMap: false
   accessLogEnabled: false
 
+# 日志组件配置
 logger:
+  Level:   "INFO"
   biz_ems:
     path: "out/logs/biz"
     file: "{Ymd}.log"

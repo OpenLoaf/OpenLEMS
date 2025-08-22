@@ -2,7 +2,8 @@ package elecod_mac_defined
 
 import (
 	"canbus/p_canbus"
-	"common/c_util"
+
+	"github.com/shockerli/cvt"
 	"pcs_elecod/elecod_canbus"
 )
 
@@ -10,7 +11,7 @@ var (
 	CmdStandby = &p_canbus.SCanbusTask{
 		Name: "待机",
 		GetCanbusID: func(params map[string]any) *uint32 {
-			macAddress, err := c_util.ToUint32(params["macAddress"])
+			macAddress, err := cvt.Uint32E(params["macAddress"])
 			if err != nil {
 				return nil
 			}
@@ -23,7 +24,7 @@ var (
 	CmdStart = &p_canbus.SCanbusTask{
 		Name: "开机",
 		GetCanbusID: func(params map[string]any) *uint32 {
-			macAddress, err := c_util.ToUint32(params["macAddress"])
+			macAddress, err := cvt.Uint32E(params["macAddress"])
 			if err != nil {
 				return nil
 			}
@@ -36,7 +37,7 @@ var (
 	CmdShutdown = &p_canbus.SCanbusTask{
 		Name: "关机",
 		GetCanbusID: func(params map[string]any) *uint32 {
-			macAddress, err := c_util.ToUint32(params["macAddress"])
+			macAddress, err := cvt.Uint32E(params["macAddress"])
 			if err != nil {
 				return nil
 			}
@@ -57,7 +58,7 @@ var (
 )
 
 func buildControlCanbusId(targetType elecod_canbus.DeviceType, targetAddr uint32, messageType elecod_canbus.MessageType, serviceCode uint32, params map[string]any) *uint32 {
-	selfAddress, err := c_util.ToUint32(params["selfAddress"])
+	selfAddress, err := cvt.Uint32E(params["selfAddress"])
 	if err != nil {
 		return nil
 	}

@@ -2,7 +2,7 @@ package sess_basic_v1
 
 import (
 	"common/c_base"
-	"common/c_device"
+	"common/c_type"
 	"context"
 	_ "embed"
 )
@@ -10,7 +10,7 @@ import (
 //go:embed build.yaml
 var buildYaml []byte
 
-func NewPlugin(ctx context.Context) c_device.IStationEnergyStore {
+func NewPlugin(ctx context.Context) c_type.IStationEnergyStore {
 	instance := &sStationEnergyStore{
 		SAlarmHandler:      &c_base.SAlarmHandler{},
 		ctx:                ctx,

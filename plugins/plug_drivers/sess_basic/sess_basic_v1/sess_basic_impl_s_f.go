@@ -2,11 +2,11 @@ package sess_basic_v1
 
 import (
 	"common/c_base"
-	"common/c_device"
 	"common/c_error"
-	"common/c_gpio"
 	"common/c_log"
+	"common/c_proto"
 	"common/c_timer"
+	"common/c_type"
 	"context"
 	_ "embed"
 	"fmt"
@@ -22,20 +22,20 @@ type sStationEnergyStore struct {
 	sessConfig   *sSessBaseConfig
 
 	ctx          context.Context
-	rootAmmeter  c_device.IAmmeter       // 储能总电表
-	energyStores []c_device.IEnergyStore // 储能列表
+	rootAmmeter  c_type.IAmmeter       // 储能总电表
+	energyStores []c_type.IEnergyStore // 储能列表
 
 	targetPower         int32   // 目标功率
 	targetReactivePower int32   // 目标无功功率
 	targetPowerFactor   float32 // 目标功率因数
 
-	ledRunning  c_device.IGpio // 运行灯
-	ledFault    c_device.IGpio // 故障灯
-	buttonScram c_device.IGpio // 急停按钮
+	ledRunning  c_type.IGpio // 运行灯
+	ledFault    c_type.IGpio // 故障灯
+	buttonScram c_type.IGpio // 急停按钮
 }
 
 // 必须实现储能柜接口
-var _ c_device.IStationEnergyStore = (*sStationEnergyStore)(nil)
+var _ c_type.IStationEnergyStore = (*sStationEnergyStore)(nil)
 
 func (s *sStationEnergyStore) ProtocolListen() {
 }
@@ -59,16 +59,16 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 
 	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
-			s.rootAmmeter = dv.(c_device.IAmmeter)
+			s.rootAmmeter = dv.(c_type.IAmmeter)
 			c_log.Infof(s.ctx, "注册总电表成功！")
 		}
 		if dv.GetDriverType() == c_base.EDeviceEnergyStore {
-			s.energyStores = append(s.energyStores, dv.(c_device.IEnergyStore))
+			s.energyStores = append(s.energyStores, dv.(c_type.IEnergyStore))
 			c_log.Infof(s.ctx, "注册储能柜 %s 到 % s成功！", dv.GetDeviceConfig().Name, s.deviceConfig.Name)
 		}
 
-		if dv.GetDeviceConfig().Id == c_gpio.IdLedFault && dv.GetDriverType() == c_base.EDeviceGpio {
-			s.ledFault = dv.(c_device.IGpio)
+		if dv.GetDeviceConfig().Id == c_proto.IdLedFault && dv.GetDriverType() == c_base.EDeviceGpio {
+			s.ledFault = dv.(c_type.IGpio)
 
 			c_timer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
 				status, err := s.GetStatus()
@@ -83,8 +83,8 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 			})
 			c_log.Infof(s.ctx, "注册故障灯成功！")
 		}
-		if dv.GetDeviceConfig().Id == c_gpio.IdLedRunning && dv.GetDriverType() == c_base.EDeviceGpio {
-			s.ledRunning = dv.(c_device.IGpio)
+		if dv.GetDeviceConfig().Id == c_proto.IdLedRunning && dv.GetDriverType() == c_base.EDeviceGpio {
+			s.ledRunning = dv.(c_type.IGpio)
 
 			c_timer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
 				// 如果功率大于5，就亮灯
@@ -99,8 +99,8 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 			c_log.Infof(s.ctx, "注册运行灯成功！")
 		}
 
-		if dv.GetDeviceConfig().Id == c_gpio.IdButtonScram {
-			gpioDv := dv.(c_device.IGpio)
+		if dv.GetDeviceConfig().Id == c_proto.IdButtonScram {
+			gpioDv := dv.(c_type.IGpio)
 			gpioDv.RegisterHandler(func(ctx context.Context, status bool, isChange bool) {
 				if status {
 					// 设置pcs状态为停机
@@ -138,7 +138,7 @@ func (s *sStationEnergyStore) Shutdown() {
 	panic("implement me")
 }
 
-func (s *sStationEnergyStore) getValue(getValueFunc func(store c_device.IEnergyStore) (float32, error), needUpdate func(value, temp float32) bool) (float32, error) {
+func (s *sStationEnergyStore) getValue(getValueFunc func(store c_type.IEnergyStore) (float32, error), needUpdate func(value, temp float32) bool) (float32, error) {
 	var minTemp float32
 	for _, ess := range s.energyStores {
 		value, err := getValueFunc(ess)
@@ -154,7 +154,7 @@ func (s *sStationEnergyStore) getValue(getValueFunc func(store c_device.IEnergyS
 }
 
 func (s *sStationEnergyStore) GetCellMinTemp() (float32, error) {
-	return s.getValue(func(store c_device.IEnergyStore) (float32, error) {
+	return s.getValue(func(store c_type.IEnergyStore) (float32, error) {
 		return store.GetCellMinTemp()
 	}, func(value, temp float32) bool {
 		return value < temp
@@ -162,7 +162,7 @@ func (s *sStationEnergyStore) GetCellMinTemp() (float32, error) {
 }
 
 func (s *sStationEnergyStore) GetCellMaxTemp() (float32, error) {
-	return s.getValue(func(store c_device.IEnergyStore) (float32, error) {
+	return s.getValue(func(store c_type.IEnergyStore) (float32, error) {
 		return store.GetCellMaxTemp()
 	}, func(value, temp float32) bool {
 		return value > temp
@@ -190,7 +190,7 @@ func (s *sStationEnergyStore) GetCellAvgTemp() (float32, error) {
 }
 
 func (s *sStationEnergyStore) GetCellMinVoltage() (float32, error) {
-	return s.getValue(func(store c_device.IEnergyStore) (float32, error) {
+	return s.getValue(func(store c_type.IEnergyStore) (float32, error) {
 		return store.GetCellMinVoltage()
 	}, func(value, temp float32) bool {
 		return value < temp
@@ -198,7 +198,7 @@ func (s *sStationEnergyStore) GetCellMinVoltage() (float32, error) {
 }
 
 func (s *sStationEnergyStore) GetCellMaxVoltage() (float32, error) {
-	return s.getValue(func(store c_device.IEnergyStore) (float32, error) {
+	return s.getValue(func(store c_type.IEnergyStore) (float32, error) {
 		return store.GetCellMinVoltage()
 	}, func(value, temp float32) bool {
 		return value > temp

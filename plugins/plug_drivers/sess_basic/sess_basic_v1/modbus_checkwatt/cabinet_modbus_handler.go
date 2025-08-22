@@ -2,9 +2,8 @@ package modbus_checkwatt
 
 import (
 	"common/c_base"
-	"common/c_device"
 	"common/c_log"
-	"common/c_util"
+	"common/c_type"
 	"context"
 	"encoding/binary"
 	"github.com/simonvetter/modbus"
@@ -13,7 +12,7 @@ import (
 
 type EssHandler struct {
 	Ctx context.Context
-	c_device.IStationEnergyStore
+	c_type.IStationEnergyStore
 }
 
 func (c *EssHandler) HandleCoils(req *modbus.CoilsRequest) (res []bool, err error) {
@@ -136,7 +135,7 @@ func (c *EssHandler) HandleInputRegisters(req *modbus.InputRegistersRequest) (re
 
 	return
 }
-func updateValue[T c_util.Number](index uint16, result []uint16, wg *sync.WaitGroup, factor, offset T, fc func() (T, error)) {
+func updateValue[T c_base.Number](index uint16, result []uint16, wg *sync.WaitGroup, factor, offset T, fc func() (T, error)) {
 	updateUint16(index, result, wg, func() uint16 {
 		value, err := fc()
 		if err != nil {
@@ -146,7 +145,7 @@ func updateValue[T c_util.Number](index uint16, result []uint16, wg *sync.WaitGr
 	})
 }
 
-func updateDoubleValue[T c_util.Number](index uint16, result []uint16, wg *sync.WaitGroup, factor, offset T, fc func() (T, error)) {
+func updateDoubleValue[T c_base.Number](index uint16, result []uint16, wg *sync.WaitGroup, factor, offset T, fc func() (T, error)) {
 	updateUint32(index, result, wg, func() uint32 {
 		value, err := fc()
 		if err != nil {

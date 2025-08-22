@@ -2,10 +2,10 @@ package ess_boost_lnxall_v1
 
 import (
 	"common/c_base"
-	"common/c_device"
 	"common/c_error"
 	"common/c_log"
 	"common/c_proto"
+	"common/c_type"
 	"context"
 	"time"
 )
@@ -27,19 +27,19 @@ type sEssBoostLnxallEss struct {
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
 
-	ammeter c_device.IAmmeter // 电表
-	bms     c_device.IBms     // 电池
-	pcs     c_device.IPcs     // 逆变器
+	ammeter c_type.IAmmeter // 电表
+	bms     c_type.IBms     // 电池
+	pcs     c_type.IPcs     // 逆变器
 
-	buttonScram     c_device.IGpio
-	buttonDischarge c_device.IGpio
-	buttonCharge    c_device.IGpio
-	ledRunning      c_device.IGpio
-	ledFault        c_device.IGpio
+	buttonScram     c_type.IGpio
+	buttonDischarge c_type.IGpio
+	buttonCharge    c_type.IGpio
+	ledRunning      c_type.IGpio
+	ledFault        c_type.IGpio
 }
 
 // 必须实现储能柜接口
-var _ c_device.IEnergyStore = (*sEssBoostLnxallEss)(nil)
+var _ c_type.IEnergyStore = (*sEssBoostLnxallEss)(nil)
 
 func (s *sEssBoostLnxallEss) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.IModbusProtocol = protocol.(c_proto.IModbusProtocol)
@@ -48,36 +48,36 @@ func (s *sEssBoostLnxallEss) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 	// 从配置中获取电表、PCS、BMS的配置
 	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
-			s.ammeter = dv.(c_device.IAmmeter)
+			s.ammeter = dv.(c_type.IAmmeter)
 			c_log.Infof(s.ctx, "EssBoostLnxallEss 电表初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceBms {
-			s.bms = dv.(c_device.IBms)
+			s.bms = dv.(c_type.IBms)
 			c_log.Infof(s.ctx, "EssBoostLnxallEss 电池初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDevicePcs {
-			s.pcs = dv.(c_device.IPcs)
+			s.pcs = dv.(c_type.IPcs)
 			c_log.Infof(s.ctx, "EssBoostLnxallEss 逆变器初始化完毕!")
 		}
 		if dv.GetDriverType() == c_base.EDeviceGpio {
 			if dv.GetDeviceConfig().Id == IdButtonDischarge {
-				s.buttonDischarge = dv.(c_device.IGpio)
+				s.buttonDischarge = dv.(c_type.IGpio)
 				c_log.Infof(s.ctx, "EssBoostLnxallEss 放电按钮初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdButtonCharge {
-				s.buttonCharge = dv.(c_device.IGpio)
+				s.buttonCharge = dv.(c_type.IGpio)
 				c_log.Infof(s.ctx, "EssBoostLnxallEss 充电按钮初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdButtonScram {
-				s.buttonScram = dv.(c_device.IGpio)
+				s.buttonScram = dv.(c_type.IGpio)
 				c_log.Infof(s.ctx, "EssBoostLnxallEss 急停按钮初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdLedRunning {
-				s.ledRunning = dv.(c_device.IGpio)
+				s.ledRunning = dv.(c_type.IGpio)
 				c_log.Infof(s.ctx, "EssBoostLnxallEss 运行指示灯初始化完毕!")
 			}
 			if dv.GetDeviceConfig().Id == IdLedFault {
-				s.ledFault = dv.(c_device.IGpio)
+				s.ledFault = dv.(c_type.IGpio)
 				c_log.Infof(s.ctx, "EssBoostLnxallEss 故障指示灯初始化完毕!")
 			}
 		}

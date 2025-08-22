@@ -1,4 +1,4 @@
-package c_gpio
+package c_proto
 
 import (
 	"common/c_base"

@@ -192,7 +192,7 @@ build-single:
 			EXE_SIZE=$$(ls -lh bin/$$FileName | awk '{print $$5}'); \
 			echo "  文件: $(CYAN)$(project)/bin/$$FileName$(NC) ($$EXE_SIZE)"; \
 		else \
-			EXE_ERROR=$$(cd $(project) && go build \
+			EXE_ERROR=$$(go build \
 				-ldflags "-s -w -X 'main.buildTime=\"$(BUILD_TIME)\"' -X 'main.commitHash=$(COMMIT_HASH)'" \
 				-o bin/$$FileName \
 				main.go 2>&1 | head -3); \

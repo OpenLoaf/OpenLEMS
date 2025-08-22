@@ -1,4 +1,4 @@
-package c_gpio
+package c_proto
 
 const (
 	IdLedRunning  = "led-running"  // 运行指示灯

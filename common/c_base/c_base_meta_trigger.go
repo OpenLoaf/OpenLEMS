@@ -1,6 +1,8 @@
 package c_base
 
-import "common/c_util"
+import (
+	"github.com/shockerli/cvt"
+)
 
 var IsNotZero = func(value any) bool {
 	return value.(int) != 0
@@ -11,7 +13,7 @@ var IsZero = func(value any) bool {
 }
 
 var StatusExplainEnableFunc = func(value any) string {
-	if v, err := c_util.ToBool(value); err == nil {
+	if v, err := cvt.BoolE(value); err == nil {
 		if v {
 			// 1 或者 trues
 			return "g18n:status_enable" // 启动
@@ -24,7 +26,7 @@ var StatusExplainEnableFunc = func(value any) string {
 }
 
 var StatusExplainProtectFunc = func(value any) string {
-	if v, err := c_util.ToBool(value); err == nil {
+	if v, err := cvt.BoolE(value); err == nil {
 		if v {
 			// 1 或者 trues
 			return "g18n:status_protect" // 保护
@@ -37,7 +39,7 @@ var StatusExplainProtectFunc = func(value any) string {
 }
 
 var StatusExplainIsNotFunc = func(value any) string {
-	if v, err := c_util.ToBool(value); err == nil {
+	if v, err := cvt.BoolE(value); err == nil {
 		if v {
 			// 1 或者 trues
 			return "g18n:status_is" // 是
@@ -50,7 +52,7 @@ var StatusExplainIsNotFunc = func(value any) string {
 }
 
 var StatusExplainErrorFunc = func(value any) string {
-	if v, err := c_util.ToBool(value); err == nil {
+	if v, err := cvt.BoolE(value); err == nil {
 		if v {
 			// 1 或者 trues
 			return "g18n:status_error" // 异常

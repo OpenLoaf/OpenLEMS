@@ -1,4 +1,4 @@
-package c_device
+package c_type
 
 import (
 	"common/c_base"

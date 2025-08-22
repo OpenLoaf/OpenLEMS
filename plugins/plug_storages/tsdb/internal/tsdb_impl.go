@@ -4,10 +4,10 @@ import (
 	"common/c_base"
 	"common/c_chart"
 	"common/c_log"
-	"common/c_util"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/shockerli/cvt"
 	"path/filepath"
 	"sort"
 	"sync"
@@ -163,7 +163,7 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 	ts := time.Now().UnixMilli()
 	app := p.db.Appender()
 	for field, v := range metrics {
-		val, err := c_util.ToFloat64(v)
+		val, err := cvt.Float64E(v)
 		if err != nil {
 			// 同 SaveDevices 的处理
 			b, _ := json.Marshal(v)
@@ -210,7 +210,7 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 	ts := time.Now().UnixMilli()
 	app := p.db.Appender()
 	for field, v := range metrics {
-		val, err := c_util.ToFloat64(v)
+		val, err := cvt.Float64E(v)
 		if err != nil {
 			b, _ := json.Marshal(v)
 			_, err := app.Add(labels.FromMap(map[string]string{

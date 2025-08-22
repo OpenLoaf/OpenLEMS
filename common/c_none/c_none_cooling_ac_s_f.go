@@ -2,7 +2,7 @@ package c_none
 
 import (
 	"common/c_base"
-	"common/c_device"
+	"common/c_type"
 )
 
 type sNoneCoolingAc struct {
@@ -31,6 +31,6 @@ func (s *sNoneCoolingAc) GetDriverDescription() *c_base.SDriverDescription {
 	return nil
 }
 
-func (s *sNoneCoolingAc) GetCoolingAcStatus() (c_device.ECoolingStatus, error) {
-	return c_device.ECoolingStatusStop, NoneErr
+func (s *sNoneCoolingAc) GetCoolingAcStatus() (c_type.ECoolingStatus, error) {
+	return c_type.ECoolingStatusStop, NoneErr
 }

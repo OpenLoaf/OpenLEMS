@@ -5,8 +5,8 @@ import (
 	"common/c_error"
 	"common/c_log"
 	"common/c_proto"
-	"common/c_util"
 	"context"
+	"github.com/shockerli/cvt"
 )
 
 type sPcsStarCharge100E struct {
@@ -159,7 +159,7 @@ func (s *sPcsStarCharge100E) GetTodayIncomingQuantity() (float64, error) {
 		return 0, err
 	}
 	//return read[0].Float64(), nil
-	return c_util.ToFloat64First(read)
+	return cvt.Float64E(read[0])
 }
 
 func (s *sPcsStarCharge100E) GetHistoryIncomingQuantity() (float64, error) {
@@ -167,8 +167,7 @@ func (s *sPcsStarCharge100E) GetHistoryIncomingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	//return read[0].Float64(), nil
-	return c_util.ToFloat64First(read)
+	return cvt.Float64E(read[0])
 }
 
 func (s *sPcsStarCharge100E) GetTodayOutgoingQuantity() (float64, error) {
@@ -176,8 +175,7 @@ func (s *sPcsStarCharge100E) GetTodayOutgoingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	//return read[0].Float64(), nil
-	return c_util.ToFloat64First(read)
+	return cvt.Float64E(read[0])
 }
 
 func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (float64, error) {
@@ -185,6 +183,5 @@ func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	//return read[0].Float64(), nil
-	return c_util.ToFloat64First(read)
+	return cvt.Float64E(read[0])
 }

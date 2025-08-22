@@ -1,8 +1,8 @@
 package elecod_canbus
 
 import (
-	"common/c_util"
 	"fmt"
+	"github.com/shockerli/cvt"
 	"sync"
 )
 
@@ -43,11 +43,11 @@ func ParseCANbusID(id uint32) SCANFrameInfo {
 }
 
 func BuildScreenToMapCanbus(messageType MessageType, serviceCode uint32, params map[string]any) *uint32 {
-	selfAddress, err := c_util.ToUint32(params["selfAddress"])
+	selfAddress, err := cvt.Uint32E(params["selfAddress"])
 	if err != nil {
 		return nil
 	}
-	macAddress, err := c_util.ToUint32(params["macAddress"])
+	macAddress, err := cvt.Uint32E(params["macAddress"])
 	if err != nil {
 		return nil
 	}
@@ -63,12 +63,12 @@ func BuildScreenToMapCanbus(messageType MessageType, serviceCode uint32, params 
 
 func BuildMacToScreenCanbusID(messageType MessageType, serviceCode uint32, params map[string]any) *uint32 {
 
-	selfAddress, err := c_util.ToUint32(params["selfAddress"])
+	selfAddress, err := cvt.Uint32E(params["selfAddress"])
 	if err != nil {
 		fmt.Println("1build scan canbus id error:", err)
 		return nil
 	}
-	macAddress, err := c_util.ToUint32(params["macAddress"])
+	macAddress, err := cvt.Uint32E(params["macAddress"])
 	if err != nil {
 		fmt.Println("2build scan canbus id error:", err)
 		return nil

@@ -2,12 +2,12 @@ package bms_pylon_tech_us108_v1
 
 import (
 	"common/c_base"
-	"common/c_device"
 	"common/c_log"
 	"common/c_proto"
-	"common/c_util"
+	"common/c_type"
 	"context"
 	"fmt"
+	"github.com/shockerli/cvt"
 	"math"
 	"time"
 )
@@ -19,7 +19,7 @@ type sBmsPylonTechUs108 struct {
 	bmsConfig *PylonTechUs108BmsConfig
 }
 
-var _ c_device.IBms = (*sBmsPylonTechUs108)(nil)
+var _ c_type.IBms = (*sBmsPylonTechUs108)(nil)
 
 func (p *sBmsPylonTechUs108) GetDriverType() c_base.EDeviceType {
 	return c_base.EDeviceBms
@@ -94,12 +94,12 @@ func (p *sBmsPylonTechUs108) GetMaxOutputPower() (float32, error) {
 	return power, nil
 }
 
-func (p *sBmsPylonTechUs108) SetBmsStatus(status c_device.EBmsStatus) error {
+func (p *sBmsPylonTechUs108) SetBmsStatus(status c_type.EBmsStatus) error {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (p *sBmsPylonTechUs108) GetBmsStatus() (c_device.EBmsStatus, error) {
+func (p *sBmsPylonTechUs108) GetBmsStatus() (c_type.EBmsStatus, error) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -182,7 +182,7 @@ func (p *sBmsPylonTechUs108) GetTodayIncomingQuantity() (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return c_util.ToFloat64First(read)
+	return cvt.Float64E(read[0])
 }
 
 func (p *sBmsPylonTechUs108) GetTodayOutgoingQuantity() (float64, error) {
@@ -191,7 +191,7 @@ func (p *sBmsPylonTechUs108) GetTodayOutgoingQuantity() (float64, error) {
 		return 0, err
 	}
 	//return read[0].Float64(), nil
-	return c_util.ToFloat64First(read)
+	return cvt.Float64E(read[0])
 }
 
 func (p *sBmsPylonTechUs108) GetHistoryIncomingQuantity() (float64, error) {
@@ -200,7 +200,7 @@ func (p *sBmsPylonTechUs108) GetHistoryIncomingQuantity() (float64, error) {
 		return 0, err
 	}
 	//return read[0].Float64(), nil
-	return c_util.ToFloat64First(read)
+	return cvt.Float64E(read[0])
 }
 
 func (p *sBmsPylonTechUs108) GetHistoryOutgoingQuantity() (float64, error) {
@@ -209,7 +209,7 @@ func (p *sBmsPylonTechUs108) GetHistoryOutgoingQuantity() (float64, error) {
 		return 0, err
 	}
 	//return read[0].Float64(), nil
-	return c_util.ToFloat64First(read)
+	return cvt.Float64E(read[0])
 }
 
 func (p *sBmsPylonTechUs108) GetCapacity() (uint32, error) {

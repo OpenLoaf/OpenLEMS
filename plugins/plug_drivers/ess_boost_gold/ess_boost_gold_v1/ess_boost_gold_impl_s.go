@@ -2,8 +2,8 @@ package ess_boost_gold_v1
 
 import (
 	"common/c_base"
-	"common/c_device"
 	"common/c_proto"
+	"common/c_type"
 	"context"
 	"fmt"
 )
@@ -26,7 +26,7 @@ type sEssBoostGoldEss struct {
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
 
-	pcs c_device.IPcs // 逆变器
+	pcs c_type.IPcs // 逆变器
 
 }
 

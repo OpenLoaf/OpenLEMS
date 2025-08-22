@@ -208,7 +208,7 @@ var (
 	configGridUnderfreqTime1Info = p_canbus.SCanbusTask{
 		Name: "电网欠频一级保护时间",
 		Metas: []*c_base.Meta{
-			confGridUnderfreq1TimeH_L, confGridUnderfreq2TimeH_L, confGridUnderfreq3TimeH_L, confGridUnderfreq4TimeH_L,
+			confGridUnderfreq1TimeH_L, confGridUnderfreq2TimeH_L, confGridUnderfreq3TimeH_L,
 		},
 		GetCanbusID: func(params map[string]any) *uint32 {
 			return elecod_canbus.BuildMacToScreenCanbusID(configMessageType, 0x11, params)

@@ -22,8 +22,6 @@ type ModbusProtocolProvider struct {
 	once                  sync.Once       // 只执行一次Init方法
 
 	c_proto.IGetProtocolCacheValue
-	//deviceId              string                     // 设备名称
-	//unitId                uint8                      // 设备的unitId
 	modbusReadChan     chan *c_proto.SModbusTask // 查询用的通道
 	client             modbus.Client             // modbus的通讯
 	preQuery           map[string]bool           // 预读

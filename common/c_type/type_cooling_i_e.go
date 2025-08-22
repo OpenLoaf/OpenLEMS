@@ -1,4 +1,4 @@
-package c_device
+package c_type
 
 type ECoolingStatus int
 

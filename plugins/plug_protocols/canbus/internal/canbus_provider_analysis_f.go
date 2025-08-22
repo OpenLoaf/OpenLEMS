@@ -35,7 +35,7 @@ func (c *CanbusProtocolProvider) analysisSingleCanbusMeta(meta *c_base.Meta, fra
 	v, err := c_protocol.MetaTransformCanbus(c.ctx, c.deviceConfig.Id, c.deviceType, c, meta, frameData[:], c.cache, lifeTime)
 
 	if err != nil {
-		g.Log().Errorf(c.ctx, "解析数据失败：%v", err)
+		g.Log().Errorf(c.ctx, "解析CAN: %v 数据失败 meta:%s ：%s", frameData, meta.Name, err.Error())
 		return
 	}
 	g.Log().Debugf(c.ctx, "解析数据成功：%s : %v", meta.Cn, v)

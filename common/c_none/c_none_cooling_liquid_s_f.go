@@ -2,7 +2,7 @@ package c_none
 
 import (
 	"common/c_base"
-	"common/c_device"
+	"common/c_type"
 )
 
 type sNoneCoolingLiquid struct {
@@ -31,8 +31,8 @@ func (s *sNoneCoolingLiquid) GetDriverDescription() *c_base.SDriverDescription {
 	return nil
 }
 
-func (s *sNoneCoolingLiquid) GetLiquidCoolingStatus() (c_device.ECoolingStatus, error) {
-	return c_device.ECoolingStatusStop, NoneErr
+func (s *sNoneCoolingLiquid) GetLiquidCoolingStatus() (c_type.ECoolingStatus, error) {
+	return c_type.ECoolingStatusStop, NoneErr
 }
 
 func (s *sNoneCoolingLiquid) GetInputWaterPressure() (float32, error) {

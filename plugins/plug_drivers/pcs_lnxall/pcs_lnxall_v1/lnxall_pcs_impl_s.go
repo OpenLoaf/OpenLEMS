@@ -2,9 +2,9 @@ package pcs_lnxall_v1
 
 import (
 	"common/c_base"
-	"common/c_device"
 	"common/c_log"
 	"common/c_proto"
+	"common/c_type"
 	"context"
 )
 
@@ -15,7 +15,7 @@ type sPcsLnxallPcs struct {
 	*c_base.SDriverDescription
 }
 
-var _ c_device.IPcs = (*sPcsLnxallPcs)(nil)
+var _ c_type.IPcs = (*sPcsLnxallPcs)(nil)
 
 func (s *sPcsLnxallPcs) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.IModbusProtocol = protocol.(c_proto.IModbusProtocol)

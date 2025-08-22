@@ -2,9 +2,9 @@ package bms_lnxall_v1
 
 import (
 	"common/c_base"
-	"common/c_device"
 	"common/c_error"
 	"common/c_proto"
+	"common/c_type"
 	"context"
 )
 
@@ -38,7 +38,7 @@ func (s *sBmsLnxallBms) SetReset() error {
 	return c_error.NonSupportError
 }
 
-func (s *sBmsLnxallBms) SetBmsStatus(status c_device.EBmsStatus) error {
+func (s *sBmsLnxallBms) SetBmsStatus(status c_type.EBmsStatus) error {
 	return c_error.NonSupportError
 }
 
@@ -66,20 +66,20 @@ func (s *sBmsLnxallBms) GetCellAvgVoltage() (float32, error) {
 	return s.GetFloat32Value(BATT_AVG)
 }
 
-func (s *sBmsLnxallBms) GetBmsStatus() (c_device.EBmsStatus, error) {
+func (s *sBmsLnxallBms) GetBmsStatus() (c_type.EBmsStatus, error) {
 	value, err := s.GetUintValue(RACK_STATUS)
 	if err != nil {
-		return c_device.EBmsStatusUnknown, err
+		return c_type.EBmsStatusUnknown, err
 	}
 	switch value {
 	case 1:
-		return c_device.EBmsStatusCharge, nil
+		return c_type.EBmsStatusCharge, nil
 	case 2:
-		return c_device.EBmsStatusDischarge, nil
+		return c_type.EBmsStatusDischarge, nil
 	case 3:
-		return c_device.EBmsStatusFault, nil
+		return c_type.EBmsStatusFault, nil
 	default:
-		return c_device.EBmsStatusUnknown, nil
+		return c_type.EBmsStatusUnknown, nil
 	}
 
 }
