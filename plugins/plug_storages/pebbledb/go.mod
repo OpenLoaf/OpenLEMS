@@ -40,7 +40,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.12.0 // indirect
-	github.com/prometheus/client_model v0.2.1-0.20210607210712-147c58e9608a // indirect
+	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.32.1 // indirect
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect

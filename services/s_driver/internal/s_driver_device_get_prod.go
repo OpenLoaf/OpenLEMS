@@ -4,22 +4,73 @@
 package internal
 
 import (
-	"common"
 	"common/c_base"
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
+	"plugin"
 	"strings"
+	"sync"
+
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/gogf/gf/v2/os/gfile"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 )
 
+type SConfig struct {
+	driverPath string // 驱动存放路径
+}
+
+var (
+	configInitOnce = sync.Once{}
+	ConfigInstance *SConfig
+)
+
 func init() {
-	//g.Log().Noticef(context.Background(), "当前环境为生产环境，从driver文件中获取驱动！")
+	gcmd.GetOptWithEnv("device")
+}
+
+func NewConfigInstance(deviceCfgName, driverPath string) *SConfig {
+	if deviceCfgName == "" {
+		deviceCfgName = "device"
+	}
+	if driverPath == "" {
+		driverPath = "out/drivers"
+	}
+	configInitOnce.Do(func() {
+		ConfigInstance = &SConfig{
+			driverPath: driverPath,
+		}
+	})
+	return ConfigInstance
+}
+
+func (c *SConfig) OpenPlugin(ctx context.Context, path string, symName ...string) (plugin.Symbol, string, error) {
+	functionName := c_base.ConstNewPluginFunctionName
+	if len(symName) != 0 {
+		functionName = symName[0]
+	}
+	//return openPlugin(ctx, gfile.Join(c.driverPath, path), functionName)
+
+	fullPath := gfile.Join(c.driverPath, path)
+	if !gfile.Exists(fullPath) {
+		panic(gerror.Newf("插件%s不存在", fullPath))
+	}
+	g.Log().Infof(ctx, "加载插件：%s", fullPath)
+	// 打开插件
+	p, err := plugin.Open(fullPath)
+	if err != nil {
+		panic(gerror.Newf("打开插件%s失败,symName%s。失败原因：%v", path, symName, err))
+	}
+
+	// 查找并使用结构体和函数
+	symbol, err := p.Lookup(functionName)
+	return symbol, fullPath, nil
 }
 
 // GetAllDriverNames 获取所有驱动名称
@@ -27,7 +78,7 @@ func GetAllDriverNames() []string {
 	var driverNames []string
 
 	// 扫描当前目录下的所有.driver文件
-	files, err := ioutil.ReadDir(".")
+	files, err := os.ReadDir(".")
 	if err != nil {
 		return driverNames
 	}
@@ -65,7 +116,8 @@ func GetAllDriversInfo(ctx context.Context) []c_base.SDriverInfo {
 				}
 			}()
 
-			pluginSymbol, fullPath, err := common.OpenPlugin(ctx, driverPath)
+			config := NewConfigInstance("", "")
+			pluginSymbol, fullPath, err := config.OpenPlugin(ctx, driverPath)
 			if err != nil {
 				driverInfo.Available = false
 				return
@@ -109,7 +161,7 @@ func GetDriverInfo(ctx context.Context, driverName string) (*c_base.SDriverInfo,
 	driverPath := fmt.Sprintf("%s.driver", driverName)
 
 	// 检查驱动文件是否存在
-	if _, err := ioutil.ReadFile(driverPath); err != nil {
+	if _, err := os.ReadFile(driverPath); err != nil {
 		return nil, gerror.Newf("未找到驱动文件[%s]", driverPath)
 	}
 
@@ -124,7 +176,8 @@ func GetDriverInfo(ctx context.Context, driverName string) (*c_base.SDriverInfo,
 		}
 	}()
 
-	pluginSymbol, fullPath, err := common.OpenPlugin(ctx, driverPath)
+	config := NewConfigInstance("", "")
+	pluginSymbol, fullPath, err := config.OpenPlugin(ctx, driverPath)
 	if err != nil {
 		return nil, gerror.Newf("加载驱动[%s]失败: %v", driverPath, err)
 	}
@@ -171,23 +224,24 @@ func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []c_ba
 }
 
 // 生产环境下使用驱动加载的方式进行加载
-func getDriver(ctx context.Context, deviceConfig *c_base.SDeviceConfig) c_base.IDevice {
-	if deviceConfig.Driver == "" {
-		panic(gerror.Newf("设备[%s]%s驱动名称为空！", deviceConfig.Id, deviceConfig.Name))
+func getDriver(ctx context.Context, driver string) c_base.IDevice {
+	if driver == "" {
+		panic(gerror.Newf("驱动名称为空！"))
 	}
 
 	// 获取最新的驱动文件路径
-	latestDriverPath := fmt.Sprintf("%s.driver", deviceConfig.Driver)
+	latestDriverPath := fmt.Sprintf("%s.driver", driver)
 
 	// 获取驱动的类型
-	driverGroups := strings.Split(deviceConfig.Driver, "_")
+	driverGroups := strings.Split(driver, "_")
 	if driverGroups == nil || len(driverGroups) == 0 {
-		panic(gerror.Newf("驱动名称错误！%s", deviceConfig.Driver))
+		panic(gerror.Newf("驱动名称错误！%s", driver))
 	}
 
 	//ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
 
-	pluginSymbol, _, err := common.OpenPlugin(ctx, latestDriverPath)
+	config := NewConfigInstance("", "")
+	pluginSymbol, _, err := config.OpenPlugin(ctx, latestDriverPath)
 	if err != nil {
 		panic(gerror.Newf("加载插件[%s]失败！原因：%v", latestDriverPath, err))
 	}
@@ -197,7 +251,7 @@ func getDriver(ctx context.Context, deviceConfig *c_base.SDeviceConfig) c_base.I
 		dv = driverNewFunction(ctx)
 
 		if dv.GetDriverType() != c_base.EDeviceType(driverGroups[0]) {
-			panic(gerror.Newf("%s 中驱动类型不匹配！期望类型：%s, 实际类型：%s", deviceConfig.Driver, dv.GetDriverType(), driverGroups[0]))
+			panic(gerror.Newf("%s 中驱动类型不匹配！期望类型：%s, 实际类型：%s", driver, dv.GetDriverType(), driverGroups[0]))
 		}
 	} else {
 		panic(gerror.Newf("加载插件[%s]失败！原因：未找到函数：%s", latestDriverPath, c_base.ConstNewPluginFunctionName))

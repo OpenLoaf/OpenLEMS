@@ -39,7 +39,8 @@ func (c *ControllerV1) GetBizLog(ctx g.Ctx, req *apiv1.GetBizLogReq) (res *apiv1
 	// 为确保过滤后分页准确，读取全部再按需过滤+分页
 	lines, _, e := readAllFileLines(fpath)
 	if e != nil {
-		return nil, e
+		// 文件不存在或读取失败时返回空数组
+		return &apiv1.GetBizLogRes{Total: 0, Lines: []apiv1.LogLine{}}, nil
 	}
 
 	filtered := make([]apiv1.LogLine, 0)

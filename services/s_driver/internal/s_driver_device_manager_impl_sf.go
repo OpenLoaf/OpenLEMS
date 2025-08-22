@@ -5,12 +5,13 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"context"
-	"github.com/gogf/gf/v2/container/gtree"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/util/gutil"
 	"s_db"
 	"s_storage"
 	"sync"
+
+	"github.com/gogf/gf/v2/container/gtree"
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/util/gutil"
 )
 
 // SDeviceManager 通用驱动管理器实现
@@ -101,7 +102,7 @@ func (d *SDeviceManager) Start() {
 			return true
 		}
 
-		driver := getDriver(ctx, deviceWrapper.deviceConfig.Driver)
+		driver := getDriver(ctx, deviceConfig.Driver)
 		if driver == nil {
 			g.Log().Errorf(d.ctx, "设备[%s]驱动加载失败！", deviceConfig.Name)
 			deviceWrapper.UpdateState(c_base.EStateError)

@@ -25,13 +25,13 @@ gfcli:
   build:
     name:     "ems"
     path:     "./out"
-    arch:     "arm,amd64"
+    arch:     "arm"
     system:   "linux,darwin"
     # output: "./bin/ems"
     mod:      "none"
     packSrc:  "manifest"
     version:  "v1.0.0"
-    extra:    "-tags=dev"
+#    extra:    "-tags=dev"
     dumpEnv: true
 
 database:
