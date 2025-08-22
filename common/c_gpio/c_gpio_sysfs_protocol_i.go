@@ -10,10 +10,9 @@ type IGpioSysfsProtocol interface {
 
 	RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) // 状态变化处理
 
-	GetStatus() bool // 获取状态
+	GetStatus() *bool // 获取状态
 
 	SetHigh() error // 设置为高电平
 	SetLow() error  // 设置为低电平
 
-	GetGpioDeviceConfig() *SDeviceGpioConfig
 }

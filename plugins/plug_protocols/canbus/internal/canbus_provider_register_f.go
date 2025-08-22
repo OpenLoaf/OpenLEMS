@@ -5,7 +5,7 @@ import (
 	"github.com/gogf/gf/v2/errors/gerror"
 )
 
-func (c *CanbusProtocolProvider) RegisterRead(group *p_canbus.SCanbusTask, gs ...*p_canbus.SCanbusTask) {
+func (c *CanbusProtocolProvider) RegisterCanbusTask(group *p_canbus.SCanbusTask, gs ...*p_canbus.SCanbusTask) {
 	if group == nil {
 		return
 	}

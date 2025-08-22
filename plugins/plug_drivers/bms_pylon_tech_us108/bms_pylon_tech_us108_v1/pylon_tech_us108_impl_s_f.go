@@ -35,7 +35,7 @@ func (p *sBmsPylonTechUs108) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 	}
 
 	// 2025-08-19 删除了GroupTime
-	p.IModbusProtocol.RegisterRead(p.ctx, GroupHeart, GroupInfo, GroupStatistics)
+	p.IModbusProtocol.RegisterReadTask(p.ctx, GroupHeart, GroupInfo, GroupStatistics)
 
 	if p.bmsConfig.SyncTime {
 		p.writeTime()

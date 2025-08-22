@@ -19,7 +19,7 @@ func (s *sBmsLnxallBms) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol 
 	s.IModbusProtocol = protocol.(c_proto.IModbusProtocol)
 
 	// 注册
-	s.IModbusProtocol.RegisterRead(s.ctx,
+	s.IModbusProtocol.RegisterReadTask(s.ctx,
 		GroupBasic,
 		//GroupStatistic,
 	)

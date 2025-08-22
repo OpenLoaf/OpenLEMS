@@ -40,10 +40,6 @@ func (p *sEssPylonCheckwatt) IsActivate() bool {
 	return true
 }
 
-func (p *sEssPylonCheckwatt) GetProtocolConfig() *c_base.SProtocolConfig {
-	return nil
-}
-
 func (p *sEssPylonCheckwatt) IsPhysical() bool {
 	return false
 }

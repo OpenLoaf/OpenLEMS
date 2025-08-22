@@ -27,6 +27,7 @@ use (
 	./plugins/plug_storages/influxdb_1
 	./plugins/plug_storages/influxdb_2
 	./plugins/plug_storages/pebbledb
+	./plugins/plug_storages/tsdb
 	./plugins/plug_policy/basic_ess_policy
 	./plugins/plug_policy/basic_microgrid_policy
 	./services/s_db

@@ -32,11 +32,11 @@ func (s *sPcsElecodMac) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol 
 	}
 
 	for _, task := range elecod_mac_defined.AnalogAllTasks {
-		s.RegisterRead(task)
+		s.RegisterCanbusTask(task)
 		c_log.Log().Infof(s.ctx, "注册%v", task)
 	}
 	for _, task := range elecod_mac_defined.ConfigAllTasks {
-		s.RegisterRead(task)
+		s.RegisterCanbusTask(task)
 		c_log.Log().Infof(s.ctx, "注册%v", task)
 	}
 

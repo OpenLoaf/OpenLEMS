@@ -124,10 +124,6 @@ func (s *SGpioSysfsProvider) GetDeviceConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
-func (s *SGpioSysfsProvider) GetProtocolConfig() *c_base.SProtocolConfig {
-	return s.protocolConfig
-}
-
 func (s *SGpioSysfsProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 	return []*c_base.MetaValueWrapper{{
 		DeviceId:   s.deviceConfig.Id,
@@ -206,24 +202,26 @@ func (s *SGpioSysfsProvider) GetLastUpdateTime() *time.Time {
 	return s.lastUpdateTime
 }
 
-func (s *SGpioSysfsProvider) GetStatus() bool {
+func (s *SGpioSysfsProvider) GetStatus() *bool {
 	// 如果缓存中的数据获取时间大于1秒或者，或者缓存中无值就force获取
 	if s.lastUpdateTime == nil || time.Now().Sub(*s.lastUpdateTime) > time.Second {
 		return s.isHighForce()
 	}
-	return s.status
+	return &s.status
 }
 
-func (s *SGpioSysfsProvider) isHighForce() bool {
+func (s *SGpioSysfsProvider) isHighForce() *bool {
 	value := gfile.GetContents(s.gpioValuePath)
 
+	status := false
 	if gstr.Trim(value) == "1" {
 		s.process(true)
-		return true
+		status = true
 	} else {
 		s.process(false)
-		return false
+		status = false
 	}
+	return &status
 }
 
 func (s *SGpioSysfsProvider) process(status bool) {
@@ -278,8 +276,4 @@ func (s *SGpioSysfsProvider) setValue(value string) error {
 		return nil
 	}
 	return gfile.PutContents(s.gpioValuePath, value)
-}
-
-func (s *SGpioSysfsProvider) GetGpioDeviceConfig() *c_gpio.SDeviceGpioConfig {
-	return s.deviceGpioConfig
 }

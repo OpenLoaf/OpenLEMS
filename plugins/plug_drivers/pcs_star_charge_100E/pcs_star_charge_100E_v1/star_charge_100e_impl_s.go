@@ -23,7 +23,7 @@ func (s *sPcsStarCharge100E) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 	s.deviceConfig = deviceConfig
 
 	// 注册
-	s.RegisterRead(s.ctx,
+	s.RegisterReadTask(s.ctx,
 		GroupCommand,
 		GroupPowerInfo,
 		//GroupPhase,

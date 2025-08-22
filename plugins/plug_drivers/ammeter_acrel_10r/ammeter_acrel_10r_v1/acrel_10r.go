@@ -19,7 +19,7 @@ func (s *sAmmeterAcrel10r) InitDevice(deviceConfig *c_base.SDeviceConfig, protoc
 	s.IModbusProtocol = protocol.(c_proto.IModbusProtocol)
 
 	// 注册
-	s.IModbusProtocol.RegisterRead(s.ctx, GRealtimeInfo, GTotal)
+	s.IModbusProtocol.RegisterReadTask(s.ctx, GRealtimeInfo, GTotal)
 }
 
 func (s *sAmmeterAcrel10r) Shutdown() {

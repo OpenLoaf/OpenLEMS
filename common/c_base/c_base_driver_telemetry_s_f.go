@@ -1,6 +1,8 @@
 package c_base
 
 import (
+	"common/c_log"
+	"context"
 	"fmt"
 	"reflect"
 	"strings"
@@ -43,6 +45,12 @@ func (s *SDriverDescription) GetTelemetry(key string, instance any) (any, error)
 		}
 		s.reflectMethodCache[key] = method
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			c_log.Errorf(context.Background(), "GetTelemetry Painc! key: %s Error: %v\n", s, r)
+		}
+	}()
 
 	// 空参数调用
 	value := method.Call(nil)

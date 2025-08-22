@@ -22,7 +22,7 @@ func (s *sPcsEnjoyBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol
 	s.deviceConfig = deviceConfig
 
 	// 注册
-	s.RegisterRead(s.ctx,
+	s.RegisterReadTask(s.ctx,
 		GroupAcInfo,
 		GroupPowerInfo,
 		GroupBasicInfo,

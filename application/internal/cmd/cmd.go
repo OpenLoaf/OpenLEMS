@@ -8,12 +8,12 @@ import (
 	"common/c_log"
 	"context"
 	"os"
-	"pebbledb"
 	"runtime"
 	"s_db"
 	"s_driver"
 	"s_storage"
 	"time"
+	"tsdb"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/i18n/gi18n"
@@ -59,12 +59,8 @@ var (
 			c_log.SetSystemLogger(applog.NewGoFrameLoggerAdapter(g.Log()))
 			// 注入业务日志（基于上下文路由到不同类型与ID文件）
 			c_log.SetBusinessLogger(applog.NewBizRouterLoggerAdapter())
-			// 启用异步日志输出提高性能（系统与业务多实例）
+			// 启用异步日志输出提高性能
 			g.Log().SetAsync(true)
-			g.Log("biz_ems").SetAsync(true)
-			g.Log("biz_device").SetAsync(true)
-			g.Log("biz_protocol").SetAsync(true)
-			g.Log("biz_policy").SetAsync(true)
 
 			// 优先加载嵌入式配置，支持 --profile 或 APP_PROFILE 环境变量
 			profile := parser.GetOpt(ArgProfile, os.Getenv("APP_PROFILE")).String()
@@ -80,8 +76,8 @@ var (
 			// 初始化数据库
 			s_db.Init()
 
-			// 初始化存储（默认使用 PebbleDB，无外部配置时采用默认路径与策略）
-			storageInst := pebbledb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_base.EStorageTypePebbledb, Url: "", Params: map[string]string{}})
+			// 初始化存储（切换为 TSDB，无外部配置时采用默认路径与策略）
+			storageInst := tsdb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_base.EStorageTypePebbledb, Url: "", Params: map[string]string{}})
 			s_storage.NewSingleStorageManager(nil, storageInst)
 			common.RegisterStorageInstance(storageInst)
 

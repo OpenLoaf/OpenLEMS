@@ -123,15 +123,24 @@ func (d *SDeviceManager) Start() {
 		// 初始化设备
 		driver.InitDevice(deviceConfig, protocolProvider, d.GetChildDeviceInstance(deviceConfig.Id))
 		// 协议监听
-		protocolProvider.ProtocolListen()
-
-		if deviceConfig.StorageEnable {
-			//common.GetStorageInstance().
-			s_storage.RegisterStorageDriver(deviceConfig.StorageIntervalSec, driver)
+		if protocolProvider != nil {
+			protocolProvider.ProtocolListen()
 		}
 
 		deviceWrapper.UpdateState(c_base.EStateRunning)
 		g.Log().Noticef(ctx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", deviceConfig.Name, driver.GetDriverDescription())
+		return true
+	})
+
+	// 反向递归，启动定时数据存储
+	d.deviceWrapperTree.IteratorDesc(func(k, v any) bool {
+		deviceWrapper := v.(*SDeviceWrapper)
+		deviceConfig := deviceWrapper.deviceConfig
+		instance := deviceWrapper.GetDeviceInstance()
+
+		if deviceConfig.StorageEnable && instance != nil {
+			s_storage.RegisterStorageDriver(deviceConfig.StorageIntervalSec, instance)
+		}
 		return true
 	})
 

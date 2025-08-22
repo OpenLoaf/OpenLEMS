@@ -105,14 +105,6 @@ func (p *ModbusProtocolProvider) GetDeviceConfig() *c_base.SDeviceConfig {
 	return p.deviceConfig
 }
 
-func (p *ModbusProtocolProvider) GetProtocolConfig() *c_base.SProtocolConfig {
-	return p.protocolConfig
-}
-
-func (p *ModbusProtocolProvider) GetModbusDeviceConfig() *c_proto.SModbusDeviceConfig {
-	return p.modbusDeviceConfig
-}
-
 func (p *ModbusProtocolProvider) GetLastUpdateTime() *time.Time {
 	return p.lastUpdateTime
 }

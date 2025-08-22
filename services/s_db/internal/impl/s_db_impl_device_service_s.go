@@ -101,7 +101,7 @@ func (s *sDeviceServiceImpl) DeleteDeviceById(ctx context.Context, id string) er
 	return err
 }
 
-// GetAll 获取所有设备记录
+// GetAllDevices 获取所有设备记录
 func (s *sDeviceServiceImpl) GetAllDevices(ctx context.Context) ([]*model.SDeviceModel, error) {
 	var devices []*model.SDeviceModel
 	err := g.Model(s.deviceModel).Ctx(ctx).Scan(&devices)

@@ -41,7 +41,7 @@ func (s *sEssBoostGoldEss) InitDevice(deviceConfig *c_base.SDeviceConfig, protoc
 	}
 
 	// 注册点位
-	s.RegisterRead(s.ctx, GroupBasic, GroupController, GroupSetting)
+	s.RegisterReadTask(s.ctx, GroupBasic, GroupController, GroupSetting)
 
 	fmt.Printf("高特EMS初始化完毕！ 配置：%+v\n", s.essConfig)
 }

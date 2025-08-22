@@ -22,7 +22,7 @@ func (s *sPcsLnxallPcs) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol 
 	s.deviceConfig = deviceConfig
 
 	// 注册轮询
-	s.RegisterRead(s.ctx,
+	s.RegisterReadTask(s.ctx,
 		GroupAcInfo, GroupOtherInfo,
 	)
 }

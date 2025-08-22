@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (p *ModbusProtocolProvider) RegisterRead(ctx context.Context, group *c_proto.SModbusTask, gps ...*c_proto.SModbusTask) {
+func (p *ModbusProtocolProvider) RegisterReadTask(ctx context.Context, group *c_proto.SModbusTask, gps ...*c_proto.SModbusTask) {
 	if group == nil {
 		return
 	}

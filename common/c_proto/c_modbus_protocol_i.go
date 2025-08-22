@@ -9,7 +9,7 @@ import (
 type IModbusProtocol interface {
 	c_base.IProtocol
 
-	RegisterRead(ctx context.Context, group *SModbusTask, gs ...*SModbusTask) // 注册group后，系统将自动解析group的查询后，读取数据并缓存
+	RegisterReadTask(ctx context.Context, group *SModbusTask, gs ...*SModbusTask) // 注册group后，系统将自动解析group的查询后，读取数据并缓存
 
 	ReadSingleSync(meta *c_base.Meta, function EModbusReadFunction, lifetime time.Duration, readCache bool) (any, error) // lifetime 为0时候永不过期，为负数时候不缓存并删除缓存的值
 	ReadGroupSync(group *SModbusTask, readCache bool, metas ...*c_base.Meta) ([]any, error)                              // 同步读取,第二个参数为幻读,先从缓存中取，如果有值直接返回，无值再去执行查询方法
@@ -24,7 +24,6 @@ type IModbusProtocol interface {
 	GetFloat32Values(metas ...*c_base.Meta) ([]float32, error)
 	GetFloat64Value(meta *c_base.Meta) (float64, error)
 	GetFloat64Values(meta ...*c_base.Meta) ([]float64, error)
-	GetModbusDeviceConfig() *SModbusDeviceConfig
 
 	WriteSingleRegister(meta *c_base.Meta, value int32) error
 	WriteMultipleRegisters(group *SModbusTask, values []int64) error

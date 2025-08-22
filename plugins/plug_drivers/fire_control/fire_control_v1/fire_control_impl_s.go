@@ -17,7 +17,7 @@ type sFireControlBasic struct {
 func (s *sFireControlBasic) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
 	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
 
-	s.RegisterRead(&Detail)
+	s.RegisterCanbusTask(&Detail)
 }
 
 func (s *sFireControlBasic) Shutdown() {

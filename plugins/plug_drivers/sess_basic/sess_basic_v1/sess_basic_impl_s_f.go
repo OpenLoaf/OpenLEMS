@@ -44,10 +44,6 @@ func (s *sStationEnergyStore) IsActivate() bool {
 	return true
 }
 
-func (s *sStationEnergyStore) GetProtocolConfig() *c_base.SProtocolConfig {
-	return nil
-}
-
 func (s *sStationEnergyStore) IsPhysical() bool {
 	return false
 }

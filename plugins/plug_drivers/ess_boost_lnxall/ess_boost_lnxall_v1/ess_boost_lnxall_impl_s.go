@@ -85,7 +85,7 @@ func (s *sEssBoostLnxallEss) InitDevice(deviceConfig *c_base.SDeviceConfig, prot
 
 	//s.Register
 
-	s.RegisterRead(s.ctx,
+	s.RegisterReadTask(s.ctx,
 		GroupController, GroupDetail,
 	)
 

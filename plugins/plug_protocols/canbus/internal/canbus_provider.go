@@ -163,11 +163,3 @@ func (c *CanbusProtocolProvider) GetLastUpdateTime() *time.Time {
 func (c *CanbusProtocolProvider) GetDeviceConfig() *c_base.SDeviceConfig {
 	return c.deviceConfig
 }
-
-func (c *CanbusProtocolProvider) GetProtocolConfig() *c_base.SProtocolConfig {
-	return c.protocolConfig
-}
-
-func (c *CanbusProtocolProvider) GetCanbusDeviceConfig() *p_canbus.SCanbusDeviceConfig {
-	return c.canbusDeviceConfig
-}
