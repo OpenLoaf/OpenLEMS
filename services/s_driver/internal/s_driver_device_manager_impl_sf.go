@@ -88,9 +88,11 @@ func (d *SDeviceManager) Start() {
 	}
 
 	// 反向递归，初始化设备
-	d.deviceWrapperTree.IteratorDesc(func(k, v any) bool {
+	d.deviceWrapperTree.IteratorAsc(func(k, v any) bool {
 		deviceWrapper := v.(*SDeviceWrapper)
 		deviceConfig := deviceWrapper.deviceConfig
+
+		c_log.BizInfof(d.ctx, "加载设备：%s 准备初始化！", deviceConfig.Name)
 
 		protocolConfig := deviceWrapper.protocolConfig
 		deviceCtx := context.WithValue(d.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
@@ -134,7 +136,7 @@ func (d *SDeviceManager) Start() {
 	})
 
 	// 反向递归，启动定时数据存储
-	d.deviceWrapperTree.IteratorDesc(func(k, v any) bool {
+	d.deviceWrapperTree.IteratorAsc(func(k, v any) bool {
 		deviceWrapper := v.(*SDeviceWrapper)
 		deviceConfig := deviceWrapper.deviceConfig
 		instance := deviceWrapper.GetDeviceInstance()

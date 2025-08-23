@@ -91,7 +91,7 @@ var (
 			// 启动设备
 			go func() {
 				common.GetDeviceManager().Start()
-				c_log.BizInfof(ctx, "EMS系统启动！")
+				c_log.BizInfof(ctx, "EMS系统启动成功！")
 				g.Log().Infof(ctx, "DeviceManger State : %s", common.GetDeviceManager().Status())
 			}()
 

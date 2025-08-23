@@ -60,11 +60,11 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 	for _, dv := range childDevice {
 		if dv.GetDriverType() == c_base.EDeviceAmmeter {
 			s.rootAmmeter = dv.(c_type.IAmmeter)
-			c_log.Infof(s.ctx, "注册总电表成功！")
+			c_log.BizInfof(s.ctx, "注册总电表成功！")
 		}
 		if dv.GetDriverType() == c_base.EDeviceEnergyStore {
 			s.energyStores = append(s.energyStores, dv.(c_type.IEnergyStore))
-			c_log.Infof(s.ctx, "注册储能柜 %s 到 % s成功！", dv.GetDeviceConfig().Name, s.deviceConfig.Name)
+			c_log.BizInfof(s.ctx, "注册储能柜 %s 到 % s成功！", dv.GetDeviceConfig().Name, s.deviceConfig.Name)
 		}
 
 		if dv.GetDeviceConfig().Id == c_proto.IdLedFault && dv.GetDriverType() == c_base.EDeviceGpio {
@@ -81,7 +81,7 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 					}
 				}
 			})
-			c_log.Infof(s.ctx, "注册故障灯成功！")
+			c_log.BizInfof(s.ctx, "注册故障灯成功！")
 		}
 		if dv.GetDeviceConfig().Id == c_proto.IdLedRunning && dv.GetDriverType() == c_base.EDeviceGpio {
 			s.ledRunning = dv.(c_type.IGpio)
@@ -96,7 +96,7 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 				}
 			})
 
-			c_log.Infof(s.ctx, "注册运行灯成功！")
+			c_log.BizInfof(s.ctx, "注册运行灯成功！")
 		}
 
 		if dv.GetDeviceConfig().Id == c_proto.IdButtonScram {
@@ -117,7 +117,7 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 
 			})
 			s.buttonScram = gpioDv
-			c_log.Infof(s.ctx, "场站注册急停按钮成功！")
+			c_log.BizInfof(s.ctx, "场站注册急停按钮成功！")
 		}
 	}
 	//if len(s.energyStores) == 0 {
@@ -130,7 +130,7 @@ func (s *sStationEnergyStore) InitDevice(deviceConfig *c_base.SDeviceConfig, pro
 		IStationEnergyStore: s,
 	}, deviceConfig)
 
-	c_log.Noticef(s.ctx, "场站储能初始化成功！")
+	c_log.BizInfof(s.ctx, "场站储能初始化成功！")
 }
 
 func (s *sStationEnergyStore) Shutdown() {

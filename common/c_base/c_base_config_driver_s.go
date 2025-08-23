@@ -21,6 +21,8 @@ type SDeviceConfig struct {
 	Params             map[string]any `json:"params,omitempty" orm:"params"` // 额外参数
 	CreatedAt          string         `json:"created_at" orm:"created_at"`
 	UpdatedAt          string         `json:"updated_at" orm:"updated_at"`
+
+	ProtocolConfig *SProtocolConfig `json:"protocolConfig,omitempty" orm:"protocol_config"` // todo 协议配置
 }
 
 func (s *SDeviceConfig) Check() error {
