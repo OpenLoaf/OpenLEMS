@@ -6,13 +6,16 @@ logger:
   CtxKeys: ["GroupName","ProtocolId","DeviceId","DeviceName","DeviceDetail"]
   path:    "out/logs/app"        # 应用日志文件目录，建议使用绝对路径于生产环境
   writerColorEnable: true  # 日志文件是否带上颜色。默认false，表示不带颜色
-  async: true              # 启用异步输出，提高性能
+  rotateSize: 5242880            # 按照日志文件大小对文件进行滚动切分。5MB = 5*1024*1024 = 5242880字节
+  rotateBackupLimit: 100         # 按照切分的文件数量清理切分文件。100个文件*5MB = 500MB
 
   # 业务日志多实例配置（不同类型分文件夹，ID分文件）
   biz_ems:
     path:   "out/logs/biz"
     file: "{Ymd}.log"
     level:  "all"
+    rotateSize: 5242880          # 按照日志文件大小对文件进行滚动切分。5MB = 5*1024*1024 = 5242880字节
+    rotateBackupLimit: 100       # 按照切分的文件数量清理切分文件。100个文件*5MB = 500MB
 
 gfcli:
   run:
@@ -108,9 +111,9 @@ server:
     ctxKeys:               ["GroupName","ProtocolId","DeviceId","DeviceDetail","RequestId"]  # 透传常用上下文字段
     header:                true                  # 是否打印日志的头信息。默认true
     stdout:                true                  # 日志是否同时输出到终端。默认true
-    rotateSize:            0                     # 按照日志文件大小对文件进行滚动切分。默认为0，表示关闭滚动切分特性
+    rotateSize:            5242880               # 按照日志文件大小对文件进行滚动切分。5MB = 5*1024*1024 = 5242880字节
     rotateExpire:          0                     # 按照日志文件时间间隔对文件滚动切分。默认为0，表示关闭滚动切分特性
-    rotateBackupLimit:     0                     # 按照切分的文件数量清理切分文件，当滚动切分特性开启时有效。默认为0，表示不备份，切分则删除
+    rotateBackupLimit:     100                   # 按照切分的文件数量清理切分文件，当滚动切分特性开启时有效。100个文件*5MB = 500MB
     rotateBackupExpire:    0                     # 按照切分的文件有效期清理切分文件，当滚动切分特性开启时有效。默认为0，表示不备份，切分则删除
     rotateBackupCompress:  0                     # 滚动切分文件的压缩比（0-9）。默认为0，表示不压缩
     rotateCheckInterval:   "1h"                  # 滚动切分的时间检测间隔，一般不需要设置。默认为1小时

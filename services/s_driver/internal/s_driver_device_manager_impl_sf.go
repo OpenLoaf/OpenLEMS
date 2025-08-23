@@ -93,8 +93,8 @@ func (d *SDeviceManager) Start() {
 		deviceConfig := deviceWrapper.deviceConfig
 
 		protocolConfig := deviceWrapper.protocolConfig
-		ctx := context.WithValue(d.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
-		ctx = context.WithValue(ctx, c_base.ConstCtxKeyDeviceName, deviceConfig.Name)
+		deviceCtx := context.WithValue(d.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
+		deviceCtx = context.WithValue(deviceCtx, c_base.ConstCtxKeyDeviceName, deviceConfig.Name)
 
 		if deviceConfig.Enabled == false {
 			g.Log().Noticef(d.ctx, "设备[%s]未启用！", deviceConfig.Name)
@@ -102,9 +102,9 @@ func (d *SDeviceManager) Start() {
 			return true
 		}
 
-		driver := getDriver(ctx, deviceConfig.Driver)
+		driver := getDriver(deviceCtx, deviceConfig.Driver)
 		if driver == nil {
-			g.Log().Errorf(d.ctx, "设备[%s]驱动加载失败！", deviceConfig.Name)
+			c_log.BizErrorf(d.ctx, "设备[%s]驱动加载失败！", deviceConfig.Name)
 			deviceWrapper.UpdateState(c_base.EStateError)
 			return true
 		}
@@ -113,10 +113,10 @@ func (d *SDeviceManager) Start() {
 		var protocolProvider c_base.IProtocol
 		if deviceConfig.ProtocolId != "" {
 			// 创建协议provider
-			protocolProvider, err = d.getProtocolProvider(ctx, driver.GetDriverType(), deviceConfig, protocolConfig)
+			protocolProvider, err = d.getProtocolProvider(deviceCtx, driver.GetDriverType(), deviceConfig, protocolConfig)
 			if protocolProvider == nil || err != nil {
 				// todo 添加日志，创建连接失败了
-				c_log.Errorf(ctx, "创建协议实例失败! 协议ID: %s Error: %v", deviceConfig.ProtocolId, err.Error())
+				c_log.BizErrorf(deviceCtx, "创建协议实例失败! 协议ID: %s Error: %v", deviceConfig.ProtocolId, err.Error())
 				deviceWrapper.UpdateState(c_base.EStateError)
 				return true
 			}
@@ -127,9 +127,9 @@ func (d *SDeviceManager) Start() {
 		if protocolProvider != nil {
 			protocolProvider.ProtocolListen()
 		}
-
+		c_log.BizInfof(deviceCtx, "设备启动成功！")
 		deviceWrapper.UpdateState(c_base.EStateRunning)
-		g.Log().Noticef(ctx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", deviceConfig.Name, driver.GetDriverDescription())
+		g.Log().Noticef(deviceCtx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", deviceConfig.Name, driver.GetDriverDescription())
 		return true
 	})
 

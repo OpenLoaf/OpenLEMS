@@ -9,7 +9,7 @@ import (
 	"s_db"
 )
 
-func (c *ControllerV2) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeReq) (res *v2.GetDeviceTreeRes, err error) {
+func (c *ControllerV1) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeReq) (res *v2.GetDeviceTreeRes, err error) {
 
 	parentId := "0"
 	if req.ActiveRootOnly {

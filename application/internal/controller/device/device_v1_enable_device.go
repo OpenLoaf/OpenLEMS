@@ -1,7 +1,7 @@
 package device
 
 import (
-	v2 "application/api/device/v1"
+	v1 "application/api/device/v1"
 	"common"
 	"common/c_log"
 	"context"
@@ -10,7 +10,7 @@ import (
 	"s_db"
 )
 
-func (c *ControllerV2) EnableDevice(ctx context.Context, req *v2.EnableDeviceReq) (res *v2.EnableDeviceRes, err error) {
+func (c *ControllerV1) EnableDevice(ctx context.Context, req *v1.EnableDeviceReq) (res *v1.EnableDeviceRes, err error) {
 	data := make(map[string]interface{})
 	data["enabled"] = true
 	err = s_db.GetDeviceService().UpdateDevice(ctx, req.DeviceId, data)
@@ -22,5 +22,5 @@ func (c *ControllerV2) EnableDevice(ctx context.Context, req *v2.EnableDeviceReq
 	common.GetDeviceManager().Shutdown()
 	common.GetDeviceManager().Start()
 
-	return &v2.EnableDeviceRes{}, err
+	return &v1.EnableDeviceRes{}, err
 }

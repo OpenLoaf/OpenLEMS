@@ -3,6 +3,7 @@ package internal
 import (
 	"common"
 	"common/c_base"
+	"common/c_log"
 	"context"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtimer"
@@ -49,7 +50,7 @@ func newMetricProtocol(ctx context.Context, protocolConfig *c_base.SProtocolConf
 
 		err := storage.SaveProtocolMetrics(protocolConfig, deviceConfig, result)
 		if err != nil {
-			g.Log().Errorf(ctx, "保存协议[%s]的统计数据失败！统计结果为：%+v", protocolConfig.Id, result)
+			c_log.BizErrorf(ctx, "保存协议[%s]的统计数据失败！统计结果为：%+v 异常原因：%v", protocolConfig.Id, result, err)
 		} else {
 			g.Log().Debugf(ctx, "保存协议[%s]的统计数据成功！统计结果为：%+v", protocolConfig.Id, result)
 		}

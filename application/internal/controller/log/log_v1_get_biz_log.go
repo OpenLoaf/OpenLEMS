@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 	"time"
 
@@ -50,15 +49,11 @@ func (c *ControllerV1) GetBizLog(ctx g.Ctx, req *apiv1.GetBizLogReq) (res *apiv1
 		if ok, jl := tryParseBizJson(line); ok {
 			// JSON 行包含 type/id，按需过滤
 			if matchTypeAndId(req.Type, req.Id, jl.Type, jl.Id) {
-				filtered = append(filtered, apiv1.LogLine{Timestamp: jl.Time, Level: jl.Level, Content: jl.Content})
+				filtered = append(filtered, apiv1.LogLine{Timestamp: jl.Time, Level: jl.Level, Content: jl.Content, Id: jl.Id, Type: jl.Type})
 			}
 			continue
 		}
-		// 旧格式：当请求为空/all/ems时纳入
-		if req.Type == "" || strings.EqualFold(req.Type, "all") || req.Type == "ems" {
-			pl := parseLogLine(line)
-			filtered = append(filtered, pl)
-		}
+
 	}
 
 	total := len(filtered)
@@ -152,20 +147,6 @@ func resolveBase(ctx g.Ctx, _ string) (basePath string, filePattern string, err 
 func replaceYmd(pattern, ymd string) string {
 	// 简化：仅替换 {Ymd}
 	return strings.ReplaceAll(pattern, "{Ymd}", ymd)
-}
-
-// parseLogLine 解析旧格式单行日志（时间 等级 内容）
-func parseLogLine(line string) apiv1.LogLine {
-	logPattern := regexp.MustCompile(`^(\d{4}-\d{2}-\d{2}[T\s]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:[+-]\d{2}:\d{2})?)\s+\[(\w+)\]\s+(.+)$`)
-	matches := logPattern.FindStringSubmatch(line)
-	if len(matches) == 4 {
-		return apiv1.LogLine{
-			Timestamp: matches[1],
-			Level:     matches[2],
-			Content:   matches[3],
-		}
-	}
-	return apiv1.LogLine{Timestamp: "", Level: "UNKNOWN", Content: line}
 }
 
 func init() {

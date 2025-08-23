@@ -81,11 +81,11 @@ func (p *ModbusProtocolProvider) registerReadOne(ctx context.Context, group *c_p
 				select {
 				case <-ctx.Done():
 					delete(p.preQuery, name)
-					p.log.Noticef(ctx, "ctx取消,关闭超时的Goroutine")
+					p.log.Debugf(ctx, "ctx取消,关闭超时的Goroutine")
 					return
 				case <-lifetime:
 					delete(p.preQuery, name)
-					p.log.Noticef(ctx, "预读自动过期,关闭Goroutine")
+					p.log.Debugf(ctx, "预读自动过期,关闭Goroutine")
 					return
 				case <-tk.C:
 					// 这里等待一个周期(也就是跳过一个周期)exit

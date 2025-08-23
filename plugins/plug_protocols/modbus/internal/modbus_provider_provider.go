@@ -117,6 +117,14 @@ func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 		v1Meta := v1.(*c_base.MetaValueWrapper).Meta
 		v2Meta := v2.(*c_base.MetaValueWrapper).Meta
 
+		// 先比较 Sort
+		if v1Meta.Sort > v2Meta.Sort {
+			return 1
+		} else if v1Meta.Sort < v2Meta.Sort {
+			return -1
+		}
+
+		// Sort 相等时，再比较 Addr
 		if v1Meta.Addr > v2Meta.Addr {
 			return 1
 		} else {

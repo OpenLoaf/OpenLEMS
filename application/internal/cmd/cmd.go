@@ -91,21 +91,46 @@ var (
 			// 启动设备
 			go func() {
 				common.GetDeviceManager().Start()
+				c_log.BizInfof(ctx, "EMS系统启动！")
 				g.Log().Infof(ctx, "DeviceManger State : %s", common.GetDeviceManager().Status())
 			}()
 
 			gproc.AddSigHandlerShutdown(func(sig os.Signal) {
 				g.Log().Infof(ctx, "接收到关闭服务信号：%s", sig.String())
+				common.GetDeviceManager().Shutdown()
 				cancelFunc()
 				time.Sleep(1 * time.Second)
 				g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())
+				c_log.BizInfof(ctx, "EMS系统关闭！")
 			})
 
 			if parser.GetOpt(ArgEnableWeb).Bool() {
 				g.Log().Infof(ctx, "启动web服务！")
 				var web *ghttp.Server
 				web = startWeb(ctx)
+
+				// 获取服务器地址信息
+				serverAddress := g.Config().MustGet(ctx, "server.address").String()
+				if serverAddress == "" {
+					serverAddress = ":80" // 默认端口
+				}
+
+				// 启动服务器（GoFrame会自动打印路由信息）
+				go func() {
+					// 延迟一点时间，确保GoFrame先打印完路由信息
+					time.Sleep(100 * time.Millisecond)
+
+					// 打印服务器访问地址
+					g.Log().Infof(ctx, "==========================================")
+					g.Log().Infof(ctx, "🚀 EMS Web服务已启动！")
+					g.Log().Infof(ctx, "📡 服务器地址: http://localhost%s", serverAddress)
+					g.Log().Infof(ctx, "📖 API文档: http://localhost%s/api.json", serverAddress)
+					g.Log().Infof(ctx, "🔧 调试工具: http://localhost%s/debug", serverAddress)
+					g.Log().Infof(ctx, "==========================================")
+				}()
+
 				web.Run()
+
 			} else {
 				g.Log().Infof(ctx, "未启动web服务！")
 				gproc.Listen()

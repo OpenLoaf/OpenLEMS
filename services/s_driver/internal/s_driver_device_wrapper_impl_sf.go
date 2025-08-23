@@ -2,6 +2,7 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_log"
 	"context"
 )
 
@@ -42,6 +43,7 @@ func (s *SDeviceWrapper) GetDeviceState() c_base.EServerState {
 func (s *SDeviceWrapper) Shutdown() {
 	if s.instance != nil {
 		s.instance.Shutdown()
+		c_log.BizInfof(s.ctx, "设备关闭成功！")
 	}
 }
 

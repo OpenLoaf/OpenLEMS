@@ -3,6 +3,7 @@ package internal
 import (
 	"c_protocol"
 	"common/c_base"
+	"common/c_log"
 	p_modbus2 "common/c_proto"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -138,7 +139,7 @@ func (p *ModbusProtocolProvider) readValues(name string, addr, quantity uint16, 
 			_ = p.client.Close()
 		} else {
 			_ = p.client.Close()
-			p.log.Warningf(p.ctx, "[%v] Modbus Failed！unitId:%d Add: 0x%X Len: %d  Fun: %s ;Cause：%+v", name, p.modbusDeviceConfig.UnitId, addr, quantity, function.String(), err)
+			c_log.BizWarningf(p.ctx, "[%v] Modbus Failed！unitId:%d Add: 0x%X Len: %d  Fun: %s ;Cause：%+v", name, p.modbusDeviceConfig.UnitId, addr, quantity, function.String(), err)
 		}
 		return nil, err
 	}

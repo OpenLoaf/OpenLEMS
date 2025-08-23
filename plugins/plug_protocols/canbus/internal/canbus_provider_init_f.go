@@ -2,6 +2,7 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_log"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -11,6 +12,7 @@ func (c *CanbusProtocolProvider) ProtocolListen() {
 			for {
 				select {
 				case <-c.ctx.Done():
+					c_log.BizInfof(c.ctx, "设备关闭！")
 					return
 
 				case frame := <-c.receiverChan: // 接收canbus数据

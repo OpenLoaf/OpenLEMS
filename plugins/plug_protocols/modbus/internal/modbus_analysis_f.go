@@ -43,7 +43,7 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr uint16, l
 
 		value, err := c_protocol.ReadTypeReadValue(meta.ReadType, result[index:], meta.BitLength, meta.Endianness)
 		if err != nil {
-			message := fmt.Sprintf("[%s-%s] %v;", groupName, meta.Name, err)
+			message := fmt.Sprintf("[%s-%s] %v;", groupName, meta.Name, err.Error())
 			g.Log().Errorf(p.ctx, message)
 			errMessage += message
 			continue

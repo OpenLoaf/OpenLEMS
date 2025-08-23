@@ -11,7 +11,6 @@ import (
 	"application/internal/controller/station_ess"
 	"application/internal/controller/system"
 	"application/internal/controller/telemetry"
-	"application/internal/ws"
 	"application/manifest"
 	"common/c_base"
 	"context"
@@ -63,7 +62,6 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		group.Bind(telemetry.NewV1())
 		group.Bind(station_ess.NewV1())
 		group.Bind(device.NewV1())
-		group.Bind(device.NewV2())
 		group.Bind(driver.NewV1())
 		group.Bind(network.NewV1())
 		group.Bind(system.NewV1())
@@ -71,9 +69,6 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		group.Bind(control.NewV1())
 		group.Bind(log.NewV1())
 	})
-
-	s.BindObject("/station", ws.NewStationWebsocket())
-	s.BindObject("/telemetry", ws.NewTelemetryWebsocket())
 
 	// Custom enhance API document.
 	enhanceOpenAPIDoc(s)

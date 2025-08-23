@@ -2,6 +2,11 @@ package ammeter_acrel_10r_v1
 
 import "common/c_base"
 
+var (
+	AcMetaGroup     = &c_base.MetaGroup{GroupName: "交流信息", GroupSort: 0}
+	EnergyMetaGroup = &c_base.MetaGroup{GroupName: "电能信息", GroupSort: 10}
+)
+
 // 时间
 var (
 	Year   = &c_base.Meta{Name: "Year", Cn: "年", Addr: 128, ReadType: c_base.RBcd16, SystemType: c_base.SUint16, Desc: "年 BCD码表示"}
@@ -14,40 +19,40 @@ var (
 
 // 电能数据
 var (
-	Ua  = &c_base.Meta{Name: "Ua", Cn: "A相电压", Addr: 8192, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "A 相电压 UA 一次侧，单位 V"}
-	Ub  = &c_base.Meta{Name: "Ub", Cn: "B相电压", Addr: 8194, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "B 相电压 UB 一次侧，单位 V"}
-	Uc  = &c_base.Meta{Name: "Uc", Cn: "C相电压", Addr: 8196, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "C 相电压 UC 一次侧，单位 V"}
-	Uab = &c_base.Meta{Name: "Uab", Cn: "AB线电压", Addr: 8198, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "AB 线电压 UAB 一次侧，单位 V"}
-	Ubc = &c_base.Meta{Name: "Ubc", Cn: "BC线电压", Addr: 8200, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "BC 线电压 UBC 一次侧，单位 V"}
-	Uca = &c_base.Meta{Name: "Uca", Cn: "CA线电压", Addr: 8202, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "CA 线电压 UCA 一次侧，单位 V"}
-	Ia  = &c_base.Meta{Name: "Ia", Cn: "A相电流", Addr: 8204, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "A", Desc: "A 相电流 IA 一次侧，单位 A"}
-	Ib  = &c_base.Meta{Name: "Ib", Cn: "B相电流", Addr: 8206, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "A", Desc: "B 相电流 IB 一次侧，单位 A"}
-	Ic  = &c_base.Meta{Name: "Ic", Cn: "C相电流", Addr: 8208, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "A", Desc: "C 相电流 IC 一次侧，单位 A"}
-	Pa  = &c_base.Meta{Name: "Pa", Cn: "A相有功功率", Addr: 8212, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kw", Desc: "A 相有功功率 PA 一次侧功率，单位Kw"}
-	Pb  = &c_base.Meta{Name: "Pb", Cn: "B相有功功率", Addr: 8214, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kw", Desc: "B 相有功功率 PB 一次侧功率，单位Kw"}
-	Pc  = &c_base.Meta{Name: "Pc", Cn: "C相有功功率", Addr: 8216, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kw", Desc: "C 相有功功率 PC 一次侧功率，单位Kw"}
-	Pt  = &c_base.Meta{Name: "Pt", Cn: "总有功功率", Addr: 8218, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kw", Desc: "总有功功率 PT"}
-	Qa  = &c_base.Meta{Name: "Qa", Cn: "A相无功功率", Addr: 8220, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kvar", Desc: "A 相无功功率 QA"}
-	Qb  = &c_base.Meta{Name: "Qb", Cn: "B相无功功率", Addr: 8222, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kvar", Desc: "B 相无功功率 QB"}
-	Qc  = &c_base.Meta{Name: "Qc", Cn: "C相无功功率", Addr: 8224, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kvar", Desc: "C 相无功功率 QC"}
-	Qt  = &c_base.Meta{Name: "Qt", Cn: "总无功功率", Addr: 8226, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kvar", Desc: "总无功功率 QT"}
-	Sa  = &c_base.Meta{Name: "Sa", Cn: "A相视在功率", Addr: 8228, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kva", Desc: "A 相视在功率 SA"}
-	Sb  = &c_base.Meta{Name: "Sb", Cn: "B相视在功率", Addr: 8230, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kva", Desc: "B 相视在功率 SB"}
-	Sc  = &c_base.Meta{Name: "Sc", Cn: "C相视在功率", Addr: 8232, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kva", Desc: "C 相视在功率 SC"}
-	St  = &c_base.Meta{Name: "St", Cn: "总视在功率", Addr: 8234, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kva", Desc: "总视在功率 ST"}
-	Pfa = &c_base.Meta{Name: "Pfa", Cn: "A相功率因数", Addr: 8236, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Desc: "A 相功率因数 PFA"}
-	Pfb = &c_base.Meta{Name: "Pfb", Cn: "B相功率因数", Addr: 8238, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Desc: "B 相功率因数 PFB"}
-	Pfc = &c_base.Meta{Name: "Pfc", Cn: "C相功率因数", Addr: 8240, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Desc: "C 相功率因数 PFC"}
-	Pft = &c_base.Meta{Name: "Pft", Cn: "总功率因数", Addr: 8242, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Desc: "总功率因数 PFT"}
-	F   = &c_base.Meta{Name: "F", Cn: "频率", Addr: 8244, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Hz", Desc: "频率 F"}
+	Ua  = &c_base.Meta{Name: "Ua", Cn: "A相电压", Group: AcMetaGroup, Addr: 8192, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "A 相电压 UA 一次侧，单位 V"}
+	Ub  = &c_base.Meta{Name: "Ub", Cn: "B相电压", Group: AcMetaGroup, Addr: 8194, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "B 相电压 UB 一次侧，单位 V"}
+	Uc  = &c_base.Meta{Name: "Uc", Cn: "C相电压", Group: AcMetaGroup, Addr: 8196, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "C 相电压 UC 一次侧，单位 V"}
+	Uab = &c_base.Meta{Name: "Uab", Cn: "AB线电压", Group: AcMetaGroup, Addr: 8198, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "AB 线电压 UAB 一次侧，单位 V"}
+	Ubc = &c_base.Meta{Name: "Ubc", Cn: "BC线电压", Group: AcMetaGroup, Addr: 8200, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "BC 线电压 UBC 一次侧，单位 V"}
+	Uca = &c_base.Meta{Name: "Uca", Cn: "CA线电压", Group: AcMetaGroup, Addr: 8202, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "V", Desc: "CA 线电压 UCA 一次侧，单位 V"}
+	Ia  = &c_base.Meta{Name: "Ia", Cn: "A相电流", Group: AcMetaGroup, Addr: 8204, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "A", Desc: "A 相电流 IA 一次侧，单位 A"}
+	Ib  = &c_base.Meta{Name: "Ib", Cn: "B相电流", Group: AcMetaGroup, Addr: 8206, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "A", Desc: "B 相电流 IB 一次侧，单位 A"}
+	Ic  = &c_base.Meta{Name: "Ic", Cn: "C相电流", Group: AcMetaGroup, Addr: 8208, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "A", Desc: "C 相电流 IC 一次侧，单位 A"}
+	Pa  = &c_base.Meta{Name: "Pa", Cn: "A相有功功率", Group: AcMetaGroup, Addr: 8212, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kw", Desc: "A 相有功功率 PA 一次侧功率，单位Kw"}
+	Pb  = &c_base.Meta{Name: "Pb", Cn: "B相有功功率", Group: AcMetaGroup, Addr: 8214, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kw", Desc: "B 相有功功率 PB 一次侧功率，单位Kw"}
+	Pc  = &c_base.Meta{Name: "Pc", Cn: "C相有功功率", Group: AcMetaGroup, Addr: 8216, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kw", Desc: "C 相有功功率 PC 一次侧功率，单位Kw"}
+	Pt  = &c_base.Meta{Name: "Pt", Cn: "总有功功率", Group: AcMetaGroup, Addr: 8218, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kw", Desc: "总有功功率 PT"}
+	Qa  = &c_base.Meta{Name: "Qa", Cn: "A相无功功率", Group: AcMetaGroup, Addr: 8220, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kvar", Desc: "A 相无功功率 QA"}
+	Qb  = &c_base.Meta{Name: "Qb", Cn: "B相无功功率", Group: AcMetaGroup, Addr: 8222, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kvar", Desc: "B 相无功功率 QB"}
+	Qc  = &c_base.Meta{Name: "Qc", Cn: "C相无功功率", Group: AcMetaGroup, Addr: 8224, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kvar", Desc: "C 相无功功率 QC"}
+	Qt  = &c_base.Meta{Name: "Qt", Cn: "总无功功率", Group: AcMetaGroup, Addr: 8226, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kvar", Desc: "总无功功率 QT"}
+	Sa  = &c_base.Meta{Name: "Sa", Cn: "A相视在功率", Group: AcMetaGroup, Addr: 8228, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kva", Desc: "A 相视在功率 SA"}
+	Sb  = &c_base.Meta{Name: "Sb", Cn: "B相视在功率", Group: AcMetaGroup, Addr: 8230, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kva", Desc: "B 相视在功率 SB"}
+	Sc  = &c_base.Meta{Name: "Sc", Cn: "C相视在功率", Group: AcMetaGroup, Addr: 8232, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kva", Desc: "C 相视在功率 SC"}
+	St  = &c_base.Meta{Name: "St", Cn: "总视在功率", Group: AcMetaGroup, Addr: 8234, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Kva", Desc: "总视在功率 ST"}
+	Pfa = &c_base.Meta{Name: "Pfa", Cn: "A相功率因数", Group: AcMetaGroup, Addr: 8236, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Desc: "A 相功率因数 PFA"}
+	Pfb = &c_base.Meta{Name: "Pfb", Cn: "B相功率因数", Group: AcMetaGroup, Addr: 8238, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Desc: "B 相功率因数 PFB"}
+	Pfc = &c_base.Meta{Name: "Pfc", Cn: "C相功率因数", Group: AcMetaGroup, Addr: 8240, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Desc: "C 相功率因数 PFC"}
+	Pft = &c_base.Meta{Name: "Pft", Cn: "总功率因数", Group: AcMetaGroup, Addr: 8242, Sort: -9, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Desc: "总功率因数 PFT"}
+	F   = &c_base.Meta{Name: "F", Cn: "频率", Group: AcMetaGroup, Addr: 8244, Sort: -10, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Unit: "Hz", Desc: "频率 F"}
 )
 
 // 总电能
 var (
-	Epi = &c_base.Meta{Name: "Epi", Cn: "总正向有功电能", Addr: 12418, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001, Unit: "Kwh", Desc: "正向有功电能 Epi"}
-	Eqe = &c_base.Meta{Name: "Eqe", Cn: "总反向有功电能", Addr: 12420, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001, Unit: "Kwh", Desc: "正向无功电能 Eqi"}
-	Eql = &c_base.Meta{Name: "Eql", Cn: "总正向无功电能", Addr: 12424, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001, Unit: "Kwh", Desc: "反向有功电能 Eqe"}
-	Eqc = &c_base.Meta{Name: "Eqc", Cn: "总反向无功电能", Addr: 12426, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001, Unit: "Kwh", Desc: "反向无功电能 Eql"}
+	Epi = &c_base.Meta{Name: "Epi", Cn: "总正向有功电能", Group: EnergyMetaGroup, Addr: 12418, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001, Unit: "Kwh", Desc: "正向有功电能 Epi"}
+	Eqe = &c_base.Meta{Name: "Eqe", Cn: "总反向有功电能", Group: EnergyMetaGroup, Addr: 12420, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001, Unit: "Kwh", Desc: "正向无功电能 Eqi"}
+	Eql = &c_base.Meta{Name: "Eql", Cn: "总正向无功电能", Group: EnergyMetaGroup, Addr: 12424, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001, Unit: "Kwh", Desc: "反向有功电能 Eqe"}
+	Eqc = &c_base.Meta{Name: "Eqc", Cn: "总反向无功电能", Group: EnergyMetaGroup, Addr: 12426, ReadType: c_base.RFloat32, SystemType: c_base.SFloat32, Factor: 0.001, Unit: "Kwh", Desc: "反向无功电能 Eql"}
 )
 
 // 开关量输入

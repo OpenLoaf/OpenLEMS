@@ -3,6 +3,7 @@ package internal
 import (
 	"c_protocol"
 	"common/c_base"
+	"common/c_log"
 	"common/c_proto"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -63,7 +64,7 @@ func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *c_proto.SModbusTa
 
 	err := p.client.WriteMultipleRegistersBytes(p.modbusDeviceConfig.UnitId, group.Addr, dataLength, bytes)
 	if err != nil {
-		p.log.Warningf(p.ctx, "WriteMultipleRegisters失败！StationType: [%s] Error: [%v]", group.Name, err)
+		c_log.BizWarningf(p.ctx, "WriteMultipleRegisters失败！StationType: [%s] Error: [%v]", group.Name, err)
 		return err
 	}
 	return nil

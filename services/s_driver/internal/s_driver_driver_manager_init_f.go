@@ -21,7 +21,7 @@ func (d *SDeviceManager) Shutdown() {
 	d.deviceWrapperTree.IteratorDesc(func(key, value any) bool {
 		deviceWrapper := value.(*SDeviceWrapper)
 		if deviceWrapper.deviceState == c_base.EStateRunning {
-			deviceWrapper.instance.Shutdown()
+			deviceWrapper.Shutdown()
 		}
 		return true
 	})
@@ -44,7 +44,9 @@ func (d *SDeviceManager) GetChildDeviceInstance(pid string) []c_base.IDevice {
 	d.deviceWrapperTree.IteratorAsc(func(k, v any) bool {
 		deviceWrapper := v.(*SDeviceWrapper)
 		if deviceWrapper.deviceConfig.Pid == pid && deviceWrapper != nil {
-			deviceInstances = append(deviceInstances, deviceWrapper.instance)
+			if deviceWrapper.instance != nil {
+				deviceInstances = append(deviceInstances, deviceWrapper.instance)
+			}
 		}
 		return true
 	})

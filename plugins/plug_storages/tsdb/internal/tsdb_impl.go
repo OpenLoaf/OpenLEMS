@@ -7,22 +7,24 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/shockerli/cvt"
 	"path/filepath"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/shockerli/cvt"
 
 	"github.com/prometheus/prometheus/pkg/labels"
 	promtsdb "github.com/prometheus/prometheus/tsdb"
 )
 
 const (
-	DefaultDBPath   = "./out/ptdb"
-	LabelNameMetric = "__name__"
-	LabelNameType   = "type" // device/protocol/system
-	LabelNameID     = "id"   // deviceId/protocolId/measurement
-	LabelNameField  = "field"
+	DefaultDBPath     = "./out/ptdb"
+	LabelNameMetric   = "__name__"
+	LabelNameType     = "type" // device/protocol/system
+	LabelNameID       = "id"   // deviceId/protocolId/measurement
+	LabelNameField    = "field"
+	LabelNameDeviceID = "device_id" // 设备ID
 )
 
 type promDB struct {
@@ -58,7 +60,7 @@ func NewPromTSDB(ctx context.Context, storageConfig *c_base.SStorageConfig) c_ba
 		}
 
 		instance = &promDB{ctx: ctx, db: db}
-		c_log.BizInfof(ctx, "启动时序数据库")
+		c_log.BizInfof(ctx, "启动时序数据库！")
 	})
 	return instance
 }
@@ -168,20 +170,22 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 			// 同 SaveDevices 的处理
 			b, _ := json.Marshal(v)
 			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric_text",
-				LabelNameType:   string(c_base.StorageTypeProtocol),
-				LabelNameID:     protocolConfig.Id,
-				LabelNameField:  field,
+				LabelNameMetric:   "ems_metric_text",
+				LabelNameType:     string(c_base.StorageTypeProtocol),
+				LabelNameID:       protocolConfig.Id,
+				LabelNameField:    field,
+				LabelNameDeviceID: deviceConfig.Id,
 			}), ts, 1)
 			if err != nil {
 				_ = app.Rollback()
 				return err
 			}
 			_, err = app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric_text_len",
-				LabelNameType:   string(c_base.StorageTypeProtocol),
-				LabelNameID:     protocolConfig.Id,
-				LabelNameField:  field,
+				LabelNameMetric:   "ems_metric_text_len",
+				LabelNameType:     string(c_base.StorageTypeProtocol),
+				LabelNameID:       protocolConfig.Id,
+				LabelNameField:    field,
+				LabelNameDeviceID: deviceConfig.Id,
 			}), ts, float64(len(b)))
 			if err != nil {
 				_ = app.Rollback()
@@ -190,10 +194,11 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 			continue
 		}
 		_, err = app.Add(labels.FromMap(map[string]string{
-			LabelNameMetric: "ems_metric",
-			LabelNameType:   string(c_base.StorageTypeProtocol),
-			LabelNameID:     protocolConfig.Id,
-			LabelNameField:  field,
+			LabelNameMetric:   "ems_metric",
+			LabelNameType:     string(c_base.StorageTypeProtocol),
+			LabelNameID:       protocolConfig.Id,
+			LabelNameField:    field,
+			LabelNameDeviceID: deviceConfig.Id,
 		}), ts, val)
 		if err != nil {
 			_ = app.Rollback()
@@ -349,6 +354,6 @@ func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, point
 func (p *promDB) Close() {
 	if p.db != nil {
 		_ = p.db.Close()
-		c_log.BizInfof(p.ctx, "关闭时序数据库")
+		c_log.BizInfof(p.ctx, "关闭时序数据库！")
 	}
 }
