@@ -22,6 +22,12 @@ type SDeviceConfig struct {
 	CreatedAt          string         `json:"created_at" orm:"created_at"`
 	UpdatedAt          string         `json:"updated_at" orm:"updated_at"`
 
+	// IsVirtual bool
+	//DeviceHealth   string
+	//DeviceStatus   string
+	// lastUpdate     time.Time
+	//childTypes     map[DeviceType][]IDevice
+	DriverInfo     *SDriverInfo     `json:"driverInfo,omitempty" orm:"driver_info"`         // 驱动信息
 	ProtocolConfig *SProtocolConfig `json:"protocolConfig,omitempty" orm:"protocol_config"` // todo 协议配置
 }
 

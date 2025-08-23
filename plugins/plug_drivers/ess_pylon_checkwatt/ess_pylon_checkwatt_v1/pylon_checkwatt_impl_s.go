@@ -49,25 +49,25 @@ func (p *sEssPylonCheckwatt) InitDevice(deviceConfig *c_base.SDeviceConfig, _ c_
 
 	// 从配置中获取电表、PCS、BMS的配置
 	for _, dv := range childDevice {
-		if dv.GetDriverType() == c_base.EDeviceAmmeter {
-			p.ammeter = dv.(c_type.IAmmeter)
+		if dv, ok := dv.(c_type.IAmmeter); ok {
+			p.ammeter = dv
 			c_log.BizInfof(p.ctx, "[%s] 电表初始化完毕!", dv.GetDeviceConfig().Name)
 		}
-		if dv.GetDriverType() == c_base.EDeviceBms {
-			p.bms = dv.(c_type.IBms)
+		if dv, ok := dv.(c_type.IBms); ok {
+			p.bms = dv
 			c_log.BizInfof(p.ctx, "[%s] 电池初始化完毕!", dv.GetDeviceConfig().Name)
 		}
-		if dv.GetDriverType() == c_base.EDevicePcs {
-			p.pcs = dv.(c_type.IPcs)
+		if dv, ok := dv.(c_type.IPcs); ok {
+			p.pcs = dv
 			c_log.BizInfof(p.ctx, "[%s] 逆变器初始化完毕!", dv.GetDeviceConfig().Name)
 		}
-		if dv.GetDriverType() == c_base.EDeviceGpio {
+		if dv, ok := dv.(c_type.IGpio); ok {
 			if dv.GetDeviceConfig().Id == IdButtonDischarge {
-				p.buttonDischarge = dv.(c_type.IGpio)
+				p.buttonDischarge = dv
 				c_log.BizInfof(p.ctx, "[%s] 放电按钮初始化完毕!", dv.GetDeviceConfig().Name)
 			}
 			if dv.GetDeviceConfig().Id == IdButtonCharge {
-				p.buttonCharge = dv.(c_type.IGpio)
+				p.buttonCharge = dv
 				c_log.BizInfof(p.ctx, "[%s] 充电按钮初始化完毕!", dv.GetDeviceConfig().Name)
 			}
 		}

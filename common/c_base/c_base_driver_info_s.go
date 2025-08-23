@@ -10,4 +10,5 @@ type SDriverInfo struct {
 	Path         string              `json:"path"`         // 路径
 	HashCode     string              `json:"hashCode"`     // 哈希码
 	FileSizeByte int64               `json:"fileSizeByte"` // 文件大小
+	// AllowChildDeviceType []
 }
