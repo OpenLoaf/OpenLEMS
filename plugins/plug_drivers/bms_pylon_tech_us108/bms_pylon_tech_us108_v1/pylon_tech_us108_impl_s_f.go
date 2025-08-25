@@ -1,115 +1,167 @@
 package bms_pylon_tech_us108_v1
 
 import (
-	"common/c_base"
+	"common/c_device"
+	"common/c_error"
 	"common/c_log"
 	"common/c_proto"
 	"common/c_type"
-	"context"
-	"fmt"
-	"github.com/shockerli/cvt"
 	"math"
 	"time"
+
+	"common/c_base"
+
+	"github.com/shockerli/cvt"
 )
 
 type sBmsPylonTechUs108 struct {
-	ctx context.Context
-	c_proto.IModbusProtocol
-	*c_base.SDriverDescription
-	bmsConfig *PylonTechUs108BmsConfig
+	*c_device.SRealDevice[c_proto.IModbusProtocol]
+	bmsConfig *sPylonTechUs108BmsConfig
 }
 
-var _ c_type.IBms = (*sBmsPylonTechUs108)(nil)
-
-func (p *sBmsPylonTechUs108) GetDriverType() c_base.EDeviceType {
-	return c_base.EDeviceBms
-}
-
-func (p *sBmsPylonTechUs108) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
-	p.IModbusProtocol = protocol.(c_proto.IModbusProtocol)
-
-	p.bmsConfig = &PylonTechUs108BmsConfig{}
-	err := deviceConfig.ScanParams(p.bmsConfig)
+func (p *sBmsPylonTechUs108) Init() error {
+	p.bmsConfig = &sPylonTechUs108BmsConfig{}
+	err := p.GetConfig().ScanParams(p.bmsConfig)
 	if err != nil {
-		panic(fmt.Errorf("BMS配置解析失败：内容:%v 原因: %s", deviceConfig.Params, err.Error()))
+		return err
 	}
 
 	// 2025-08-19 删除了GroupTime
-	p.IModbusProtocol.RegisterReadTask(p.ctx, GroupHeart, GroupInfo, GroupStatistics)
+	p.RegisterTask(GroupHeart, GroupInfo, GroupStatistics)
 
 	if p.bmsConfig.SyncTime {
-		p.writeTime()
-		c_log.Infof(p.ctx, "syncTime配置为：true！同步时间已开启！")
+		p.startWriteTimeTask()
+		c_log.BizInfof(p.DeviceCtx, "syncTime配置为：true！同步时间已开启！")
 	} else {
-		c_log.Infof(p.ctx, "syncTime配置为：false！时间不同步！")
+		c_log.BizInfof(p.DeviceCtx, "syncTime配置为：false！时间同步任务未启动！")
 	}
+
+	p.RegisterAlarmHandler(func(maxAlarm c_base.EAlarmLevel, nowAlarm *c_base.SAlarmDetail) {
+		c_log.BizWarningf(p.DeviceCtx, "触发设备告警[%s]", nowAlarm.Meta.Name)
+	})
+
+	return nil
 }
+
+var _ c_type.IBms = (*sBmsPylonTechUs108)(nil)
 
 func (p *sBmsPylonTechUs108) Shutdown() {
 
 }
 
-func (p *sBmsPylonTechUs108) GetRatedPower() int32 {
-	return p.bmsConfig.RatedPower
+func (p *sBmsPylonTechUs108) GetRatedPower() (uint32, error) {
+	if p.bmsConfig.RatedPower == nil {
+		return 0, c_error.ErrorParam
+	}
+	return *p.bmsConfig.RatedPower, nil
 }
 
 func (p *sBmsPylonTechUs108) GetMaxInputPower() (float32, error) {
-	chargeForbiddenMark, err := p.GetBool(ChargeForbiddenMark)
-	if err != nil && chargeForbiddenMark {
-		// 禁止充电
-		return 0, nil
-	}
-	// 通过电压和电流来计算功率
-	values, err := p.GetFloat32Values(PileMaxV, PileMaxI)
-	if err != nil {
-		return 0, err
-	}
-	power := values[0] * values[1]
-	c_log.Debugf(p.ctx, "最大充电 电压：%f, 电流：%f, 功率：%f", values[0], values[1], power)
+	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
+		chargeForbiddenMark, err := protocol.GetBool(ChargeForbiddenMark)
+		if err != nil && chargeForbiddenMark {
+			// 禁止充电
+			return 0, nil
+		}
 
-	if p.bmsConfig.MaxInputPower != 0 && power < float32(p.bmsConfig.MaxInputPower) {
-		return float32(p.bmsConfig.MaxInputPower), nil
-	}
-	return power, nil
+		// 通过电压和电流来计算功率
+		values, err := protocol.GetFloat32Values(PileMaxV, PileMaxI)
+		if err != nil {
+			return 0, err
+		}
+		power := values[0] * values[1]
+		c_log.Debugf(p.DeviceCtx, "最大充电 电压：%f, 电流：%f, 功率：%f", values[0], values[1], power)
+
+		v := p.bmsConfig.getMaxInputPower(power)
+		if v != nil {
+			return v, nil
+		}
+		return power, nil
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetMaxOutputPower() (float32, error) {
-	dischargeForbiddenMark, err := p.GetBool(DischargeForbiddenMark)
-	if err != nil && dischargeForbiddenMark {
-		// 禁止放电
-		return 0, nil
-	}
-	// 通过电压和电流来计算功率
-	values, err := p.GetFloat32Values(PileMinV, PileMaxDI)
-	if err != nil {
-		return 0, nil
-	}
-	power := values[0] * values[1]
-	power = float32(math.Abs(float64(power)))
+	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
+		dischargeForbiddenMark, err := protocol.GetBool(DischargeForbiddenMark)
+		if err != nil && dischargeForbiddenMark {
+			// 禁止放电
+			return 0, nil
+		}
+		// 通过电压和电流来计算功率
+		values, err := protocol.GetFloat32Values(PileMinV, PileMaxDI)
+		if err != nil {
+			return 0, nil
+		}
+		power := values[0] * values[1]
+		power = float32(math.Abs(float64(power)))
 
-	if p.bmsConfig.MaxOutputPower != 0 && power < float32(p.bmsConfig.MaxOutputPower) {
-		return float32(p.bmsConfig.MaxOutputPower), nil
-	}
-	c_log.Debugf(p.ctx, "最大放电 电压：%f, 电流：%f, 功率：%f, 配置功率：%f", values[0], values[1], power, p.bmsConfig.MaxOutputPower)
-	return power, nil
-}
+		v := p.bmsConfig.getMaxOutputPower(power)
+		if v != nil {
+			return v, nil
+		}
 
-func (p *sBmsPylonTechUs108) SetBmsStatus(status c_type.EBmsStatus) error {
-	//TODO implement me
-	panic("implement me")
+		c_log.Debugf(p.DeviceCtx, "最大放电 电压：%f, 电流：%f, 功率：%f, 配置功率：%f", values[0], values[1], power, p.bmsConfig.MaxOutputPower)
+		return power, nil
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetBmsStatus() (c_type.EBmsStatus, error) {
-	//TODO implement me
-	panic("implement me")
+	status, err := p.GetFromProtocolUint8(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetIntValue(BasicStatus)
+	})
+	if err != nil {
+		return c_type.EBmsStatusUnknown, err
+	}
+	switch status {
+	case 0:
+		return c_type.EBmsStatusOff, nil
+	case 1:
+		return c_type.EBmsStatusCharge, nil
+	case 2:
+		return c_type.EBmsStatusDischarge, nil
+	case 3:
+		return c_type.EBmsStatusStandby, nil
+	}
+	return c_type.EBmsStatusUnknown, nil
+}
+
+func (p *sBmsPylonTechUs108) SetBmsStatus(status c_type.EBmsStatus) error {
+	var err error
+	return p.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
+		switch status {
+		case c_type.EBmsStatusOff:
+			err = protocol.WriteSingleRegister(BasicStatus, 0) // 确保可以休眠
+		case c_type.EBmsStatusUnknown:
+			err = c_error.ErrorParam
+		case c_type.EBmsStatusStandby:
+			err = protocol.WriteSingleRegister(BasicStatus, 3) // 确保可以待机
+		case c_type.EBmsStatusCharge:
+		case c_type.EBmsStatusDischarge:
+		case c_type.EBmsStatusFault:
+			// 这些虽然不支持，但是不会返回错误。确保其他的服务调用的时候能够正常
+		}
+
+		if err != nil {
+			return err
+		}
+
+		// 阻塞3秒，等待上电
+		time.Sleep(3 * time.Second)
+
+		return nil
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetSoc() (float32, error) {
-	return p.GetFloat32Value(SOC)
+	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetValue(SOC)
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetSoh() (float32, error) {
-	return p.GetFloat32Value(SOH)
+	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetValue(SOH)
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetDcPower() (float64, error) {
@@ -126,19 +178,27 @@ func (p *sBmsPylonTechUs108) GetDcPower() (float64, error) {
 }
 
 func (p *sBmsPylonTechUs108) GetDcVoltage() (float64, error) {
-	return p.GetFloat64Value(DCVoltage)
+	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetFloat64Value(DCVoltage)
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetDcCurrent() (float64, error) {
-	return p.GetFloat64Value(DCCurrent)
+	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetFloat64Value(DCCurrent)
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetCellMinTemp() (float32, error) {
-	return p.GetFloat32Value(BatteryCellMinTemp)
+	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetValue(BatteryCellMinTemp)
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetCellMaxTemp() (float32, error) {
-	return p.GetFloat32Value(BatteryCellMaxTemp)
+	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetValue(BatteryCellMaxTemp)
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetCellAvgTemp() (float32, error) {
@@ -154,11 +214,15 @@ func (p *sBmsPylonTechUs108) GetCellAvgTemp() (float32, error) {
 }
 
 func (p *sBmsPylonTechUs108) GetCellMinVoltage() (float32, error) {
-	return p.GetFloat32Value(BatteryCellMinVoltage)
+	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetValue(BatteryCellMinVoltage)
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetCellMaxVoltage() (float32, error) {
-	return p.GetFloat32Value(BatteryCellMaxVoltage)
+	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetValue(BatteryCellMaxVoltage)
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetCellAvgVoltage() (float32, error) {
@@ -174,64 +238,62 @@ func (p *sBmsPylonTechUs108) GetCellAvgVoltage() (float32, error) {
 }
 
 func (p *sBmsPylonTechUs108) GetCycleCount() (uint, error) {
-	return p.GetUintValue(CycleCount)
+	return p.GetFromProtocolUint(func(protocol c_proto.IModbusProtocol) (any, error) {
+		return protocol.GetValue(CycleCount)
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetTodayIncomingQuantity() (float64, error) {
-	read, err := p.ReadGroupSync(GroupStatistics, true, TodayCharge)
-	if err != nil {
-		return 0, err
-	}
-	return cvt.Float64E(read[0])
+	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
+		v, err := protocol.ReadSingleSync(TodayCharge, c_proto.EMqHoldingRegisters, 3*time.Second, true)
+		return cvt.Float64(v), err
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetTodayOutgoingQuantity() (float64, error) {
-	read, err := p.ReadGroupSync(GroupStatistics, true, TodayDischarge)
-	if err != nil {
-		return 0, err
-	}
-	//return read[0].Float64(), nil
-	return cvt.Float64E(read[0])
+	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
+		v, err := protocol.ReadSingleSync(TodayDischarge, c_proto.EMqHoldingRegisters, 3*time.Second, true)
+		return cvt.Float64(v), err
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetHistoryIncomingQuantity() (float64, error) {
-	read, err := p.ReadGroupSync(GroupStatistics, true, HistoryCharge)
-	if err != nil {
-		return 0, err
-	}
-	//return read[0].Float64(), nil
-	return cvt.Float64E(read[0])
+	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
+		v, err := protocol.ReadSingleSync(HistoryCharge, c_proto.EMqHoldingRegisters, 3*time.Second, true)
+		return cvt.Float64(v), err
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetHistoryOutgoingQuantity() (float64, error) {
-	read, err := p.ReadGroupSync(GroupStatistics, true, HistoryDischarge)
-	if err != nil {
-		return 0, err
-	}
-	//return read[0].Float64(), nil
-	return cvt.Float64E(read[0])
+	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
+		v, err := protocol.ReadSingleSync(HistoryDischarge, c_proto.EMqHoldingRegisters, 3*time.Second, true)
+		return cvt.Float64(v), err
+	})
 }
 
 func (p *sBmsPylonTechUs108) GetCapacity() (uint32, error) {
-	return p.bmsConfig.Capacity, nil
+	if p.bmsConfig.Capacity == nil {
+		return 0, c_error.NonSupportError
+	}
+	return *p.bmsConfig.Capacity, nil
 }
 
 func (p *sBmsPylonTechUs108) SetReset() error {
 	return nil
 }
 
-func (p *sBmsPylonTechUs108) writeTime() {
+func (p *sBmsPylonTechUs108) startWriteTimeTask() {
 	_ = p._syncTime()
 	go func() {
 		ticker := time.NewTicker(12 * time.Hour)
 		defer ticker.Stop()
 		for {
 			select {
-			case <-p.ctx.Done():
-				c_log.Noticef(p.ctx, "writeTime() 关闭!")
+			case <-p.DeviceCtx.Done():
+				c_log.Noticef(p.DeviceCtx, "startWriteTimeTask() 关闭!")
 				return
 			case <-ticker.C:
-				if !p.IsActivate() {
+				if p.GetStatus() != c_base.EProtocolConnected {
 					continue
 				}
 				_ = p._syncTime()
@@ -242,16 +304,14 @@ func (p *sBmsPylonTechUs108) writeTime() {
 }
 
 func (p *sBmsPylonTechUs108) _syncTime() error {
-	if !p.IsActivate() {
-		return fmt.Errorf("modbus client is not activate")
-	}
-	now := time.Now()
-
-	err := p.WriteMultipleRegisters(GroupTime, []int64{int64(now.Year() - 2000), int64(now.Month()),
-		int64(now.Day()), int64(now.Hour()), int64(now.Minute()), int64(now.Second())})
-	if err != nil {
-		return err
-	}
-	c_log.Infof(p.ctx, "同步时间成功！")
-	return nil
+	return p.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
+		now := time.Now()
+		err := protocol.WriteMultipleRegisters(GroupTime, []int64{int64(now.Year() - 2000), int64(now.Month()),
+			int64(now.Day()), int64(now.Hour()), int64(now.Minute()), int64(now.Second())})
+		if err != nil {
+			return err
+		}
+		c_log.Infof(p.DeviceCtx, "同步时间成功！")
+		return nil
+	})
 }

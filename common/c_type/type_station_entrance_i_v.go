@@ -5,7 +5,7 @@ import (
 )
 
 type IStationEntrance interface {
-	c_base.IDevice
+	c_base.IDriver
 	GetGridFrequency() (float32, error) // 电网频率
 	GetUa() (float32, error)            // A相电压
 	GetUb() (float32, error)            // B相电压
@@ -41,5 +41,4 @@ type IStationEntrance interface {
 	GetCurrent() (float32, float32, float32, error) // 三相电流
 
 	GetAllowControl() bool // 是否允许控制
-	GetChildren() []c_base.IDevice
 }

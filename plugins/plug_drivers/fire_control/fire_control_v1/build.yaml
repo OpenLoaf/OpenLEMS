@@ -1,9 +1,0 @@
-brand: Basic
-model: fire
-version: v1.0.0
-author: "zz@hexems.com"
-create: "2025-07-28"
-remark: "消防基础协议"
-protocolType: "canbus"
-
-

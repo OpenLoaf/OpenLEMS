@@ -5,7 +5,7 @@ type EAlarmLevel int
 
 const (
 	ENone  EAlarmLevel = iota // 默认非告警
-	EWarn                     // 警告，系统正常工作
-	EAlarm                    // 警报，系统降低功率
-	EError                    // 故障，一旦有一个系统全部停机
+	EWarn                     // 警告，不影响系统
+	EAlarm                    // 警报，系统会限制功能
+	EError                    // 故障，系统会使得设备停机
 )

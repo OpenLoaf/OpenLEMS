@@ -23,6 +23,6 @@ type IEnergyStoreBasic interface { // 储能系统
 }
 
 type IEnergyStore interface {
-	c_base.IDevice
+	c_base.IDriver
 	IEnergyStoreBasic
 }

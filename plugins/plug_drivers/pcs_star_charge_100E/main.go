@@ -1,11 +1,8 @@
-//go:generate ../build.sh
 package main
 
 import (
 	"common/c_base"
-	"context"
-	_ "embed"
-	"starCharge100E_v1/pcs_star_charge_100E_v1"
+	driver "starCharge100E_v1/pcs_star_charge_100E_v1" // 修改此处
 )
 
 // 通过构建脚本自动注入
@@ -15,12 +12,15 @@ var (
 )
 
 // NewPlugin 必须的方法，不能取消。修改实现只需修改此方法
-func NewPlugin(ctx context.Context) c_base.IDevice {
-	plugin := pcs_star_charge_100E_v1.NewPlugin(ctx)
+func NewPlugin(device c_base.IDevice) c_base.IDevice {
+	return driver.NewPlugin(device)
+}
 
-	plugin.GetDriverDescription().BuildTime = buildTime
-	plugin.GetDriverDescription().CommitHash = commitHash
-	return plugin
+func GetDriverInfo() *c_base.SDriverInfo {
+	info := driver.GetDriverInfo()
+	info.BuildTime = buildTime
+	info.CommitHash = commitHash
+	return info
 }
 
 //

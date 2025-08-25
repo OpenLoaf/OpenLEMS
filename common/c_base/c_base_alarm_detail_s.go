@@ -1,7 +1,6 @@
 package c_base
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -15,10 +14,26 @@ type SAlarmDetail struct {
 	Value      any         `json:"value" dc:"数值"`
 }
 
-func (s *SAlarmDetail) ToString() string {
-	if s.IsTrigger {
-		return fmt.Sprintf("++ 触发 ID：%s [%s], 点位: %s(%s),发生时间: %s,数值: %v", s.DeviceId, s.Level.String(), s.Meta.Name, s.Meta.Cn, s.HappenTime.Format("2006-01-02 15:04:05"), s.Value)
-	} else {
-		return fmt.Sprintf("-- 解除 ID：%s [%s], 点位: %s(%s),发生时间: %s,数值: %v", s.DeviceId, s.Level.String(), s.Meta.Name, s.Meta.Cn, s.HappenTime.Format("2006-01-02 15:04:05"), s.Value)
+type sAlarm struct {
+	notifyChan chan<- *SAlarmDetail
+	cache      []*SAlarmDetail
+}
+
+func NewAlarm(notifyChan chan<- *SAlarmDetail) IAlarm {
+	return &sAlarm{
+		notifyChan: notifyChan,
+		cache:      make([]*SAlarmDetail, 0),
 	}
+}
+
+func (s *sAlarm) ResetAlarm() {
+	s.cache = make([]*SAlarmDetail, 0)
+}
+
+func (s *sAlarm) GetLevel() EAlarmLevel {
+	return EAlarm
+}
+
+func (s *sAlarm) GetAlarmDetails() []*SAlarmDetail {
+	return s.cache
 }

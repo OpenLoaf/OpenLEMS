@@ -1,13 +1,13 @@
 package c_error
 
 import (
-	"fmt"
+	"errors"
 )
 
 var (
-	NoData          = fmt.Errorf("数据不存在")
-	NonSupportError = fmt.Errorf("不支持的操作")
-	ErrorParam      = fmt.Errorf("参数错误")
-
-	OverLimitError = fmt.Errorf("数值超过限制")
+	NoData          = errors.New("数据不存在")
+	NonSupportError = errors.New("不支持的操作") // 不支持的操作不会显示到页面上
+	ErrorParam      = errors.New("参数错误")
+	OverLimitError  = errors.New("数值超过限制")
+	TypeError       = errors.New("类型不匹配")
 )

@@ -9,6 +9,6 @@ type IFireBasic interface {
 }
 
 type IFire interface {
-	c_base.IDevice
+	c_base.IDriver
 	IFireBasic
 }

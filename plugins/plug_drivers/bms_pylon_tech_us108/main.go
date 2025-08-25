@@ -1,10 +1,9 @@
-//go:generate ../build.sh
 package main
 
 import (
+	"bms_pylon_tech_us108/bms_pylon_tech_us108_v1"
 	"common/c_base"
-	"context"
-	"pylonTechUs108_v1/bms_pylon_tech_us108_v1"
+	"fmt"
 )
 
 // 通过构建脚本自动注入
@@ -14,11 +13,19 @@ var (
 )
 
 // NewPlugin 必须的方法，不能取消。修改实现只需修改此方法
-func NewPlugin(ctx context.Context) c_base.IDevice {
-	plugin := bms_pylon_tech_us108_v1.NewPlugin(ctx)
-	plugin.GetDriverDescription().BuildTime = buildTime
-	plugin.GetDriverDescription().CommitHash = commitHash
-	return plugin
+func NewPlugin(device c_base.IDevice) c_base.IDevice {
+	return bms_pylon_tech_us108_v1.NewPlugin(device)
+}
+
+func GetDriverInfo() *c_base.SDriverInfo {
+	info := bms_pylon_tech_us108_v1.GetDriverInfo()
+	info.BuildTime = buildTime
+	info.CommitHash = commitHash
+	return info
+}
+
+func main() {
+	fmt.Println(GetDriverInfo())
 }
 
 /*

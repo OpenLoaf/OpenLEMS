@@ -15,12 +15,7 @@ func (c *ControllerV1) GetCustomServices(ctx context.Context, req *v1.GetCustomS
 		return nil, gerror.NewCode(gcode.CodeNotFound, "device not found")
 	}
 
-	driverDescription := deviceWrapper.GetDeviceDetail().DriverDescription
-	if driverDescription == nil {
-		return nil, gerror.NewCode(gcode.CodeNotFound, "driver description not found")
-	}
-
 	return &v1.GetCustomServicesRes{
-		Services: driverDescription.CustomService,
+		//Services: deviceWrapper.GetServices(), // todo 完善
 	}, nil
 }

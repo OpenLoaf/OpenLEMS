@@ -11,6 +11,6 @@ func NewSingleStorageManager(parentCtx context.Context, storage c_base.IStorage)
 	internal.NewSingleInstance(parentCtx, storage)
 }
 
-func RegisterStorageDriver(storageIntervalSec int32, driver c_base.IDevice) {
-	internal.StorageManagerInstance.RegisterDriver(storageIntervalSec, driver)
+func RegisterStorageDriver(deviceConfig *c_base.SDeviceConfig) {
+	internal.StorageManagerInstance.RegisterDriver(deviceConfig)
 }

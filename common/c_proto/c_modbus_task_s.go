@@ -2,9 +2,13 @@ package c_proto
 
 import (
 	"common/c_base"
-	"fmt"
+	"common/c_log"
+	"context"
+	"errors"
 	"time"
 )
+
+const DefaultCacheLifeTime = 3 * time.Second
 
 type SModbusTask struct {
 	Name           string
@@ -19,12 +23,31 @@ type SModbusTask struct {
 	Metas          []*c_base.Meta
 }
 
-func (m *SModbusTask) Check() {
-	var pointNameMap = make(map[string]struct{})
+func (m *SModbusTask) GetName() string {
+	return m.Name
+}
+
+func (m *SModbusTask) GetDescription() string {
+	return m.Desc
+}
+
+func (m *SModbusTask) GetMetas() []*c_base.Meta {
+	return m.Metas
+}
+
+func (m *SModbusTask) GetLifeTime() time.Duration {
+	return m.Lifetime
+}
+
+func (m *SModbusTask) Check(ctx context.Context) error {
+	var pointNameMap = make(map[string]any)
+	var err error
 	for _, p := range m.Metas {
 		if _, exist := pointNameMap[p.Name]; exist {
-			panic(fmt.Errorf("SModbusTask[%s] has duplicate point name: %s", m.Name, p.Name))
+			c_log.BizErrorf(ctx, "SModbusTask[%s] has duplicate point name: %s", m.Name, p.Name)
+			err = errors.New("duplicate point name")
 		}
-		pointNameMap[p.Name] = struct{}{}
+		pointNameMap[p.Name] = p
 	}
+	return err
 }

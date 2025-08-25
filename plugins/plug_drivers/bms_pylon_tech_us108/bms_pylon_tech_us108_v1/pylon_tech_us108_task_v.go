@@ -14,7 +14,7 @@ var (
 		Quantity:  5,
 		Function:  c_proto.EMqHoldingRegisters,
 		CycleMill: 1000,
-		Lifetime:  c_base.DefaultCacheLifeTime,
+		Lifetime:  c_proto.DefaultCacheLifeTime,
 		Metas:     []*c_base.Meta{ChargeForbiddenMark, DischargeForbiddenMark, SOC30Flag, SOE, HeartbeatSignal},
 	}
 
@@ -25,9 +25,9 @@ var (
 		Quantity:  Switching.Addr - BasicStatus.Addr + 1,
 		Function:  c_proto.EMqHoldingRegisters,
 		CycleMill: 1000,
-		Lifetime:  c_base.DefaultCacheLifeTime,
+		Lifetime:  c_proto.DefaultCacheLifeTime,
 		Metas: []*c_base.Meta{BasicStatus, SystemErrorProtection, CurrentProtection, VoltageProtection,
-			TemperatureProtection, VoltageProtection, VoltageAlarm, CurrentAlarm, TemperatureAlarm,
+			TemperatureProtection, VoltageAlarm, CurrentAlarm, TemperatureAlarm,
 			PileSystemIdleStatus, PileSystemChargeStatus, PileSystemDischargeStatus, PileSystemSleepStatus, FanWarn,
 			Protection, AlarmStatus1, DCVoltage, DCCurrent, Temperature, SOC, CycleCount,
 			PileMaxV, PileMaxI, PileMinV, PileMaxDI, Switching,
@@ -41,7 +41,7 @@ var (
 		Quantity:  Second.Addr - Year.Addr + 1,
 		Function:  c_proto.EMqHoldingRegisters,
 		CycleMill: 1000, //TODO 0
-		Lifetime:  c_base.DefaultCacheLifeTime,
+		Lifetime:  c_proto.DefaultCacheLifeTime,
 		Metas:     []*c_base.Meta{Year, Month, Day, Hour, Minute, Second},
 	}
 

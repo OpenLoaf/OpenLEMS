@@ -3,15 +3,16 @@ package internal
 import (
 	"common"
 	"common/c_base"
+	"common/c_device"
 	"common/c_log"
+	"common/c_proto"
 	"context"
 	"s_db"
 	"s_storage"
+	"sort"
 	"sync"
 
-	"github.com/gogf/gf/v2/container/gtree"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/util/gutil"
 )
 
 // SDeviceManager 通用驱动管理器实现
@@ -22,33 +23,76 @@ type SDeviceManager struct {
 	state      c_base.EServerState // 状态
 
 	protocolClientCache map[string]any // 协议客户端缓存
-	deviceWrapperTree   *gtree.AVLTree // c_base.IDeviceWrapper 设备树
+
+	deviceConfig      []*c_base.SDeviceConfig
+	deviceInstanceMap map[string]c_base.IDevice // 设备实例
 }
 
-func (d *SDeviceManager) IteratorAssAllDevicesWrapper(process func(deviceWrapper c_base.IDeviceWrapper)) {
-	if d.deviceWrapperTree == nil {
-	}
-	d.deviceWrapperTree.IteratorAsc(func(key, value any) bool {
-		if v, ok := value.(c_base.IDeviceWrapper); ok {
-			process(v)
+var (
+	// 编译期断言内部实现满足对外接口
+	_ common.IDeviceManager = (*SDeviceManager)(nil)
+
+	driverManagerInstance *SDeviceManager
+	driverManagerInitOnce sync.Once
+)
+
+// NewSingleDriverManager 创建驱动管理器
+func NewSingleDriverManager(parentCtx context.Context) *SDeviceManager {
+	driverManagerInitOnce.Do(func() {
+		driverManagerInstance = &SDeviceManager{
+			parentCtx: parentCtx,
 		}
-		return true
 	})
+	return driverManagerInstance
 }
 
-func (d *SDeviceManager) GetDeviceById(deviceId string) c_base.IDeviceWrapper {
-	dw := d.deviceWrapperTree.Get(deviceId)
-	if dw == nil {
-		return nil
+func (d *SDeviceManager) GetDeviceById(deviceId string) c_base.IDevice {
+	if dw, exist := d.deviceInstanceMap[deviceId]; exist {
+		return dw
 	}
-	return dw.(c_base.IDeviceWrapper)
+	return nil
+}
+
+func (d *SDeviceManager) GetDeviceConfigById(deviceId string) *c_base.SDeviceConfig {
+	return d.FindDevice(deviceId)
+}
+
+func (d *SDeviceManager) GetAllDriversInfo() []*c_base.SDriverInfo {
+	allDriversMap := GetAllDriversInfo()
+
+	// 将map转换为切片
+	var drivers []*c_base.SDriverInfo
+	for _, driver := range allDriversMap {
+		drivers = append(drivers, driver)
+	}
+
+	// 按名称排序
+	sort.Slice(drivers, func(i, j int) bool {
+		return drivers[i].Name < drivers[j].Name
+	})
+
+	return drivers
+}
+
+func (d *SDeviceManager) IteratorAssAllDevicesWrapper(deviceWrapper func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
+	flatList := d.GetFlatList()
+	for _, config := range flatList {
+		if !deviceWrapper(config, d.deviceInstanceMap[config.Id]) {
+			break
+		}
+	}
 }
 
 func (d *SDeviceManager) Start() {
+	if d.state == c_base.EStateRunning {
+		c_log.BizErrorf(d.ctx, "服务启动失败，服务已经在运行状态中了")
+		return
+	}
+
 	d.ctx, d.cancelFunc = context.WithCancel(d.parentCtx)
 	d.state = c_base.EStateInit
 	d.protocolClientCache = make(map[string]any)
-	d.deviceWrapperTree = gtree.NewAVLTree(gutil.ComparatorString)
+	d.deviceInstanceMap = make(map[string]c_base.IDevice)
 
 	rootDeviceID := s_db.GetDeviceService().GetRootDeviceId()
 	deviceConfigs, err := s_db.GetDeviceService().GetEnableDeviceConfigsWithRecursion(d.ctx, rootDeviceID)
@@ -74,162 +118,111 @@ func (d *SDeviceManager) Start() {
 			g.Log().Errorf(d.ctx, "错误的设备[%s]配置，id和pid一致！", deviceConfig.Name)
 			continue
 		}
-
-		// 更新设备信息
-		driverInfo, _ := GetDriverInfo(d.ctx, deviceConfig.Driver)
-
-		d.deviceWrapperTree.Set(deviceConfig.Id, &SDeviceWrapper{
-			deviceConfig:   deviceConfig,
-			driverInfo:     driverInfo,
-			protocolConfig: protocolConfigMap[deviceConfig.ProtocolId],
-			instance:       nil,
-			deviceState:    c_base.EStateInit,
-		})
+		// 设置协议配置
+		deviceConfig.ProtocolConfig = protocolConfigMap[deviceConfig.ProtocolId]
+		// 添加驱动信息
+		deviceConfig.DriverInfo, _ = GetDriverInfo(deviceConfig.Driver)
 	}
 
-	// 反向递归，初始化设备
-	d.deviceWrapperTree.IteratorAsc(func(k, v any) bool {
-		deviceWrapper := v.(*SDeviceWrapper)
-		deviceConfig := deviceWrapper.deviceConfig
+	// 构建树形结构
+	d.deviceConfig = d.BuildTree(deviceConfigs)
 
-		c_log.BizInfof(d.ctx, "加载设备：%s 准备初始化！", deviceConfig.Name)
+	// 从底部开始初始化设备
+	d.ExecuteFromBottom(func(deviceConfig *c_base.SDeviceConfig) {
+		c_log.BizInfof(d.ctx, "加载设备：[%s] 准备初始化！", deviceConfig.Name)
 
-		protocolConfig := deviceWrapper.protocolConfig
+		if deviceConfig.Enabled == false {
+			c_log.BizInfof(d.ctx, "设备[%s]未启用！", deviceConfig.Name)
+			return
+		}
+		if deviceConfig.DriverInfo == nil {
+			c_log.BizInfof(d.ctx, "设备[%s]驱动未找到！", deviceConfig.Name)
+			// todo 虚拟节点启动失败的话，子节点都需要关机 （可以做成全局参数）
+			return
+		}
+
 		deviceCtx := context.WithValue(d.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
 		deviceCtx = context.WithValue(deviceCtx, c_base.ConstCtxKeyDeviceName, deviceConfig.Name)
 
-		if deviceConfig.Enabled == false {
-			g.Log().Noticef(d.ctx, "设备[%s]未启用！", deviceConfig.Name)
-			deviceWrapper.UpdateState(c_base.EStateStopped)
-			return true
-		}
+		if deviceConfig.ProtocolConfig == nil {
+			// 虚拟设备，创建不会失败
+			device := c_device.NewVirtualDevice(deviceCtx, deviceConfig)
+			// 物理设备
+			driver, err := getDriver(deviceConfig.Driver, device)
+			if driver == nil || err != nil {
+				c_log.BizErrorf(d.ctx, "虚拟设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
+				return
+			}
+			err = driver.Init()
+			if err != nil {
+				c_log.BizErrorf(d.ctx, "虚拟设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
+				return
+			}
+			d.deviceInstanceMap[deviceConfig.Id] = driver
+			c_log.BizInfof(d.ctx, "虚拟设备[%s]初始化成功！", deviceConfig.Name)
+		} else {
 
-		driver := getDriver(deviceCtx, deviceConfig.Driver)
-		if driver == nil {
-			c_log.BizErrorf(d.ctx, "设备[%s]驱动加载失败！", deviceConfig.Name)
-			deviceWrapper.UpdateState(c_base.EStateError)
-			return true
-		}
-		deviceWrapper.instance = driver
-
-		var protocolProvider c_base.IProtocol
-		if deviceConfig.ProtocolId != "" {
-			// 创建协议provider
-			protocolProvider, err = d.getProtocolProvider(deviceCtx, driver.GetDriverType(), deviceConfig, protocolConfig)
+			protocolProvider, err := d.getProtocolProvider(deviceCtx, deviceConfig)
 			if protocolProvider == nil || err != nil {
 				// todo 添加日志，创建连接失败了
-				c_log.BizErrorf(deviceCtx, "创建协议实例失败! 协议ID: %s Error: %v", deviceConfig.ProtocolId, err.Error())
-				deviceWrapper.UpdateState(c_base.EStateError)
-				return true
+				c_log.BizErrorf(deviceCtx, "创建协议实例失败! 协议ID: %s 原因：%s", deviceConfig.ProtocolId, err.Error())
+				d.state = c_base.EStateError
+				return
 			}
+			device, err := c_device.NewRealDevice(deviceCtx, deviceConfig, protocolProvider.(c_proto.IModbusProtocol))
+			if err != nil {
+				c_log.BizErrorf(d.ctx, "设备[%s] 初始化失败！原因：%s", deviceConfig.Name, err.Error())
+				return
+			}
+
+			// 物理设备
+			driver, err := getDriver(deviceConfig.Driver, device)
+			if driver == nil || err != nil {
+				c_log.BizErrorf(d.ctx, "设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
+				return
+			}
+			err = driver.Init()
+			if err != nil {
+				c_log.BizErrorf(d.ctx, "设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
+				return
+			}
+			protocolProvider.ProtocolListen() // 启动监听
+
+			d.deviceInstanceMap[deviceConfig.Id] = driver
+			c_log.BizInfof(d.ctx, "设备[%s]初始化成功！", deviceConfig.Name)
 		}
-		// 初始化设备
-		driver.InitDevice(deviceConfig, protocolProvider, d.GetChildDeviceInstance(deviceConfig.Id))
-		// 协议监听
-		if protocolProvider != nil {
-			protocolProvider.ProtocolListen()
-		}
-		c_log.BizInfof(deviceCtx, "设备启动成功！")
-		deviceWrapper.UpdateState(c_base.EStateRunning)
-		g.Log().Noticef(deviceCtx, "设备[%s]驱动加载初始化完毕！\n  设备信息: %s", deviceConfig.Name, driver.GetDriverDescription())
-		return true
 	})
 
-	// 反向递归，启动定时数据存储
-	d.deviceWrapperTree.IteratorAsc(func(k, v any) bool {
-		deviceWrapper := v.(*SDeviceWrapper)
-		deviceConfig := deviceWrapper.deviceConfig
-		instance := deviceWrapper.GetDeviceInstance()
-
-		if deviceConfig.StorageEnable && instance != nil {
-			s_storage.RegisterStorageDriver(deviceConfig.StorageIntervalSec, instance)
+	// 从底部开始注册存储驱动
+	d.ExecuteFromBottom(func(deviceConfig *c_base.SDeviceConfig) {
+		if deviceConfig.StorageEnable {
+			s_storage.RegisterStorageDriver(deviceConfig)
 		}
-		return true
 	})
+
+	c_log.BizInfof(d.ctx, "全部设备启动成功！")
+	d.state = c_base.EStateRunning
 
 	d.state = c_base.EStateRunning
 }
 
-var (
-	// 编译期断言内部实现满足对外接口
-	_ common.IDeviceManager = (*SDeviceManager)(nil)
-
-	driverManagerInstance *SDeviceManager
-	driverManagerInitOnce sync.Once
-)
-
-// NewSingleDriverManager 创建驱动管理器
-func NewSingleDriverManager(parentCtx context.Context) *SDeviceManager {
-	driverManagerInitOnce.Do(func() {
-		driverManagerInstance = &SDeviceManager{
-			parentCtx: parentCtx,
-		}
-	})
-	return driverManagerInstance
-}
-
-// GetAllDriverNames 获取所有驱动名称
-func (d *SDeviceManager) GetAllDriverNames() []string {
-	return GetAllDriverNames()
-}
-
-// GetAllDriversInfo 获取所有驱动的详细信息
-func (d *SDeviceManager) GetAllDriversInfo(ctx context.Context) []c_base.SDriverInfo {
-	return GetAllDriversInfo(ctx)
-}
-
 // GetDriverInfo 获取指定驱动的详细信息
-func (d *SDeviceManager) GetDriverInfo(ctx context.Context, driverName string) (*c_base.SDriverInfo, error) {
-	return GetDriverInfo(ctx, driverName)
+func (d *SDeviceManager) GetDriverInfo(driverName string) (*c_base.SDriverInfo, error) {
+	return GetDriverInfo(driverName)
 }
 
 // GetDriversByType 根据设备类型获取驱动信息
-func (d *SDeviceManager) GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []c_base.SDriverInfo {
+func (d *SDeviceManager) GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []*c_base.SDriverInfo {
 	return GetDriversByType(ctx, deviceType)
-}
-
-//// CreateDriver 创建驱动实例
-//func (d *SDeviceManager) CreateDriver(ctx context.Context, deviceConfig *c_base.SDeviceConfig) (c_base.IDevice, error) {
-//	defer func() {
-//		if r := recover(); r != nil {
-//			// 将panic转换为error
-//			if err, ok := r.(error); ok {
-//				panic(err)
-//			} else {
-//				panic(r)
-//			}
-//		}
-//	}()
-//
-//	driver := getDriver(ctx, deviceConfig)
-//	return driver, nil
-//}
-
-// IsDriverAvailable 检查驱动是否可用
-func (d *SDeviceManager) IsDriverAvailable(ctx context.Context, driverName string) bool {
-	driverInfo, err := d.GetDriverInfo(ctx, driverName)
-	if err != nil {
-		return false
-	}
-	return driverInfo.Available
-}
-
-// GetDriverDescription 获取驱动描述信息
-func (d *SDeviceManager) GetDriverDescription(ctx context.Context, driverName string) (*c_base.SDriverDescription, error) {
-	driverInfo, err := d.GetDriverInfo(ctx, driverName)
-	if err != nil {
-		return nil, err
-	}
-	return driverInfo.Description, nil
 }
 
 // GetSupportedDeviceTypes 获取支持的设备类型列表
 func (d *SDeviceManager) GetSupportedDeviceTypes(ctx context.Context) []c_base.EDeviceType {
-	driversInfo := d.GetAllDriversInfo(ctx)
+	driversInfo := d.GetAllDriversInfo()
 	typeMap := make(map[c_base.EDeviceType]bool)
 
 	for _, driver := range driversInfo {
-		if driver.Available && driver.Type != "" {
+		if driver.Enabled && driver.Type != "" {
 			typeMap[driver.Type] = true
 		}
 	}

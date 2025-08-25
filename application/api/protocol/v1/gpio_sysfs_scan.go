@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"gpio_sysfs/p_gpio_sysfs"
+	//"gpio_sysfs/p_gpio_sysfs"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -13,9 +13,9 @@ type GetGpioSysfsScanReq struct {
 
 // GetGpioSysfsScanResItem 单个根目录的扫描结果
 type GetGpioSysfsScanResItem struct {
-	Root  string                        `json:"root" dc:"扫描根目录(协议Address)"`
-	Chips []*p_gpio_sysfs.SGpioChipInfo `json:"chips"`
-	Gpios []*p_gpio_sysfs.SGpioInfo     `json:"gpios"`
+	Root string `json:"root" dc:"扫描根目录(协议Address)"`
+	//Chips []*p_gpio_sysfs.SGpioChipInfo `json:"chips"`
+	//Gpios []*p_gpio_sysfs.SGpioInfo     `json:"gpios"`
 }
 
 // GetGpioSysfsScanRes 响应：多根目录扫描结果

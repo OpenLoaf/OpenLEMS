@@ -2,24 +2,24 @@ package common
 
 import (
 	"common/c_base"
-	"context"
 )
 
 type IDeviceManager interface {
-	IManager
+	Start()                      // 启动服务
+	Shutdown()                   // 停止管理器（释放资源、退出 goroutine）
+	Cleanup() error              // 清理过期/无效资源（定时调用）
+	Status() c_base.EServerState // 运行状态
 
-	//\(deviceId string) bool
-	GetDeviceById(deviceId string) c_base.IDeviceWrapper // 通过设备ID获取设备
+	GetDeviceById(deviceId string) c_base.IDevice              // 通过设备ID获取设备
+	GetDeviceConfigById(deviceId string) *c_base.SDeviceConfig //获取指定驱动的详细信息
 
-	IteratorAssAllDevicesWrapper(deviceWrapper func(device c_base.IDeviceWrapper))
+	IteratorAssAllDevicesWrapper(deviceWrapper func(config *c_base.SDeviceConfig, device c_base.IDevice) bool)
 
-	GetAllDriverNames() []string                                // 获取所有驱动名称
-	GetAllDriversInfo(ctx context.Context) []c_base.SDriverInfo // 获取所有驱动的详细信息
+	GetAllDriversInfo() []*c_base.SDriverInfo // 获取所有驱动的详细信息
+	GetDriverInfo(driverName string) (*c_base.SDriverInfo, error)
 
-	GetDriverInfo(ctx context.Context, driverName string) (*c_base.SDriverInfo, error) //获取指定驱动的详细信息
-
-	IsProtocolActive(protocolId string) bool                       // 协议是否激活
-	IsDriverAvailable(ctx context.Context, driverName string) bool // 检查驱动是否可用
+	//IsProtocolActive(protocolId string) bool // 协议是否激活
+	//IsDriverAvailable(ctx context.Context, driverName string) bool // 检查驱动是否可用
 }
 
 var deviceManager IDeviceManager

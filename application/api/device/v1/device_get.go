@@ -1,8 +1,7 @@
 package v1
 
 import (
-	"application/internal/model/entity"
-
+	"common/c_base"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -13,7 +12,8 @@ type GetDeviceTreeReq struct {
 }
 
 type GetDeviceTreeRes struct {
-	DeviceTree []*entity.SDeviceTree `json:"deviceTree" dc:"设备树"`
+	//DeviceTree []*entity.SDeviceTree `json:"deviceTree" dc:"设备树"`
+	DeviceTree []*c_base.SDeviceConfig `json:"deviceTree"`
 }
 
 type DisableDeviceReq struct {

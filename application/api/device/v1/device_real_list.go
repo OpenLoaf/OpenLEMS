@@ -11,5 +11,5 @@ type GetRealDeviceListReq struct {
 }
 
 type GetRealDeviceListRes struct {
-	Devices []*c_base.SDeviceDetail `json:"devices" dc:"设备详情"`
+	Devices []*c_base.SDeviceConfig `json:"devices" dc:"设备详情"`
 }

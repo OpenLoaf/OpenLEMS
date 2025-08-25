@@ -14,7 +14,8 @@ const (
 )
 
 type IBmsBasic interface {
-	SetReset() error                      // 复位
+	SetReset() error // 复位
+
 	SetBmsStatus(status EBmsStatus) error // 设置BMS状态
 
 	GetCellMinTemp() (float32, error)    // 电芯最低温度
@@ -30,7 +31,7 @@ type IBmsBasic interface {
 	GetCapacity() (uint32, error)      // 电池容量kWh
 	GetCycleCount() (uint, error)      // 循环次数
 
-	GetRatedPower() int32                // 额定功率， -1代表未知
+	GetRatedPower() (uint32, error)      // 额定功率
 	GetMaxInputPower() (float32, error)  // 最大充电功率、最大输入功率限制
 	GetMaxOutputPower() (float32, error) // 最大放电功率、最大输出功率限制
 
@@ -46,7 +47,7 @@ type IBmsBasic interface {
 }
 
 type IBms interface {
-	c_base.IDevice
+	c_base.IDriver
 	IBmsBasic
 }
 

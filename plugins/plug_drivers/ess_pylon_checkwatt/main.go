@@ -1,10 +1,8 @@
-//go:generate ../build.sh
 package main
 
 import (
 	"common/c_base"
-	"context"
-	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
+	driver "pylon_checkwatt_v1/ess_pylon_checkwatt_v1" // 修改此处
 )
 
 // 通过构建脚本自动注入
@@ -14,11 +12,15 @@ var (
 )
 
 // NewPlugin 必须的方法，不能取消。修改实现只需修改此方法
-func NewPlugin(ctx context.Context) c_base.IDevice {
-	plugin := ess_pylon_checkwatt_v1.NewPlugin(ctx)
-	plugin.GetDriverDescription().BuildTime = buildTime
-	plugin.GetDriverDescription().CommitHash = commitHash
-	return plugin
+func NewPlugin(device c_base.IDevice) c_base.IDevice {
+	return driver.NewPlugin(device)
+}
+
+func GetDriverInfo() *c_base.SDriverInfo {
+	info := driver.GetDriverInfo()
+	info.BuildTime = buildTime
+	info.CommitHash = commitHash
+	return info
 }
 
 /*

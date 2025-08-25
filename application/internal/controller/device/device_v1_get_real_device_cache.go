@@ -14,28 +14,24 @@ import (
 
 func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error) {
 
-	deviceWrapper := common.GetDeviceManager().GetDeviceById(req.DeviceId)
-	if deviceWrapper == nil {
-		return nil, gerror.NewCode(gcode.CodeNotFound)
-	}
-	deviceInstance := deviceWrapper.GetDeviceInstance()
-	if deviceInstance == nil {
+	device := common.GetDeviceManager().GetDeviceById(req.DeviceId)
+	if device == nil {
 		return nil, gerror.NewCode(gcode.CodeNotFound)
 	}
 
 	var alarmLevel = c_base.ENone
-	if deviceWrapper.GetDeviceState() != c_base.EStateError &&
-		deviceWrapper.GetDeviceState() != c_base.EStateInit {
-		// todo 修改
-		alarmLevel = deviceInstance.GetAlarmLevel()
-	}
+	//if device.GetDeviceState() != c_base.EStateError &&
+	//	device.GetDeviceState() != c_base.EStateInit {
+	//	// todo 修改
+	//	alarmLevel = deviceInstance.GetAlarmLevel()
+	//}
 
 	res = &v1.GetRealDeviceCacheRes{
-		DeviceServerState: deviceWrapper.GetDeviceState().String(),
-		AlarmLevel:        alarmLevel.String(),
+		//DeviceServerState: device.GetDeviceState().String(),
+		AlarmLevel: alarmLevel.String(),
 	}
 	// todo
-	res.LastUpdateTime = deviceInstance.GetLastUpdateTime()
+	res.LastUpdateTime = device.GetLastUpdateTime()
 
 	//driverDescription := deviceInstance.GetDriverDescription()
 
@@ -46,8 +42,9 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	//driverDescription.GetAllTelemetry(deviceInstance)
 
 	groupCacheMap := make(map[string]*entity.SSingleDeviceGroup)
-
-	for _, v := range deviceInstance.GetMetaValueList() {
+	list := device.GetMetaValueList()
+	for _, v := range list {
+		// todo 修改为：虚拟设备，显示设备名称+组名称
 		groupName := ""
 		if v.Meta.Group != nil {
 			groupName = v.Meta.Group.GroupName

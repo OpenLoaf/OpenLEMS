@@ -14,9 +14,9 @@ func (s *sPcsStarCharge100E) writeTime() {
 		scheduleDaily3AM := func() {}
 		scheduleDaily3AM = func() {
 			d := next3AMDuration(time.Now())
-			c_timer.SetTimeout(s.ctx, d, func(ctx context.Context) {
+			c_timer.SetTimeout(s.DeviceCtx, d, func(ctx context.Context) {
 				if e := s._syncTime(); e == nil {
-					c_log.Infof(s.ctx, "_syncTime() success (daily)")
+					c_log.Infof(s.DeviceCtx, "_syncTime() success (daily)")
 				}
 				// 继续安排下一次
 				scheduleDaily3AM()
@@ -26,9 +26,9 @@ func (s *sPcsStarCharge100E) writeTime() {
 
 		// 失败后每5秒重试，成功后取消
 		var cancelRetry func()
-		cancelRetry = c_timer.SetInterval(s.ctx, 5*time.Second, func(ctx context.Context) {
+		cancelRetry = c_timer.SetInterval(s.DeviceCtx, 5*time.Second, func(ctx context.Context) {
 			if e := s._syncTime(); e == nil {
-				c_log.Infof(s.ctx, "_syncTime() success (retry)")
+				c_log.Infof(s.DeviceCtx, "_syncTime() success (retry)")
 				cancelRetry()
 			}
 		})

@@ -31,12 +31,12 @@ type IGeneratorBasic interface {
 	GetTodayOutgoingQuantity() (float64, error)   // 反向有功, 今日放电量
 	GetHistoryOutgoingQuantity() (float64, error) // 反向有功, 放电量
 
-	GetRatedPower() uint32               // 额定功率， -1代表未知
+	GetRatedPower() (uint32, error)      // 额定功率， -1代表未知
 	GetMaxInputPower() (float64, error)  // 最大充电功率、最大输入功率限制
 	GetMaxOutputPower() (float64, error) // 最大放电功率、最大输出功率限制
 }
 
 type IGenerator interface {
-	c_base.IDevice
+	c_base.IDriver
 	IGeneratorBasic
 }

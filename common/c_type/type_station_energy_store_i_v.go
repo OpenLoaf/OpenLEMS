@@ -5,9 +5,8 @@ import (
 )
 
 type IStationEnergyStore interface {
-	c_base.IDevice
+	c_base.IDriver
 	IEnergyStoreBasic
 
 	GetAllowControl() bool // 是否允许控制
-	GetChildren() []c_base.IDevice
 }

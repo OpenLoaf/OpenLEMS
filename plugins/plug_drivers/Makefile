@@ -1,5 +1,5 @@
 # 输出目录配置
-OutDir?=/Users/zhao/Documents/01.Code/Hex/ems-plan/application/out/drivers
+OutDir?=../../application/out/drivers
 
 # 自定义输出目录参数
 ifneq ($(outdir),)

@@ -2,12 +2,9 @@ package telemetry
 
 import (
 	"application/api/telemetry/v1"
-	"application/internal/model/entity"
-	"common/c_type"
 	"context"
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 func (c *ControllerV1) GetTelemetryDescription(ctx context.Context, req *v1.GetTelemetryDescriptionReq) (res *v1.GetTelemetryDescriptionRes, err error) {
@@ -21,34 +18,35 @@ func (c *ControllerV1) GetTelemetryDescription(ctx context.Context, req *v1.GetT
 	return nil, gerror.NewCode(gcode.CodeNotImplemented)
 }
 
-func makeResponse(ctx context.Context, stationEnergyStore c_type.IStationEnergyStore) *v1.TelemetryDescriptionObj {
-
-	var stationTelemetryList []*entity.DeviceTelemetry
-	//var stationTelemetryList
-	stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
-		DeviceId:      stationEnergyStore.GetDeviceConfig().Id,
-		I8nName:       stationEnergyStore.GetDeviceConfig().Name,
-		TelemetryKeys: stationEnergyStore.GetDriverDescription().Telemetry,
-	})
-	children := stationEnergyStore.(c_type.IStationEnergyStore).GetChildren()
-	for _, child := range children {
-		stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
-			DeviceId:      child.GetDeviceConfig().Id,
-			I8nName:       child.GetDeviceConfig().Name,
-			TelemetryKeys: child.GetDriverDescription().Telemetry,
-		})
-	}
-
-	// TODO 添加排序
-
-	//garray.NewSortedArray(func(v1, v2 interface{}) int {
-	//	if v1.(*entity.DeviceTelemetry).I8nName > v2.(*entity.DeviceTelemetry).I8nName {
-	//		return 1
-	//	}
-	//})
-
-	return &v1.TelemetryDescriptionObj{
-		Name:     g.I18n().T(ctx, stationEnergyStore.GetDeviceConfig().Name),
-		Children: stationTelemetryList,
-	}
-}
+//
+//func makeResponse(ctx context.Context, stationEnergyStore c_type.IStationEnergyStore) *v1.TelemetryDescriptionObj {
+//
+//	var stationTelemetryList []*entity.DeviceTelemetry
+//	//var stationTelemetryList
+//	stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
+//		DeviceId:      stationEnergyStore.GetDeviceConfig().Id,
+//		I8nName:       stationEnergyStore.GetDeviceConfig().Name,
+//		TelemetryKeys: stationEnergyStore.GetDriverDescription().Telemetry,
+//	})
+//	children := stationEnergyStore.(c_type.IStationEnergyStore).GetChildren()
+//	for _, child := range children {
+//		stationTelemetryList = append(stationTelemetryList, &entity.DeviceTelemetry{
+//			DeviceId:      child.GetDeviceConfig().Id,
+//			I8nName:       child.GetDeviceConfig().Name,
+//			TelemetryKeys: child.GetDriverDescription().Telemetry,
+//		})
+//	}
+//
+//	// TODO 添加排序
+//
+//	//garray.NewSortedArray(func(v1, v2 interface{}) int {
+//	//	if v1.(*entity.DeviceTelemetry).I8nName > v2.(*entity.DeviceTelemetry).I8nName {
+//	//		return 1
+//	//	}
+//	//})
+//
+//	return &v1.TelemetryDescriptionObj{
+//		Name:     g.I18n().T(ctx, stationEnergyStore.GetDeviceConfig().Name),
+//		Children: stationTelemetryList,
+//	}
+//}

@@ -97,7 +97,7 @@ var (
 
 			gproc.AddSigHandlerShutdown(func(sig os.Signal) {
 				g.Log().Infof(ctx, "接收到关闭服务信号：%s", sig.String())
-				common.GetDeviceManager().Shutdown()
+				//common.GetDeviceManager().Shutdown()
 				cancelFunc()
 				time.Sleep(1 * time.Second)
 				g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())

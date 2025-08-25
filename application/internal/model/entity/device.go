@@ -24,6 +24,6 @@ type SDeviceTree struct {
 	//IsRunning      bool           `json:"isRunning" dc:"是否运行中"`
 	//LastUpdateTime string         `json:"lastUpdateTime" dc:"最后通讯时间"`
 	//Sort           int            `json:"sort" dc:"排序"`
-	*c_base.SDeviceDetail
+	*c_base.SDeviceConfig
 	Children []*SDeviceTree `json:"deviceChildren" dc:"子设备列表"`
 }

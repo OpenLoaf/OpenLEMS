@@ -4,22 +4,14 @@
 package internal
 
 import (
-	"ammeter_acrel_10r_v1/ammeter_acrel_10r_v1"
-	"basic_v1/gpio_basic_v1"
-	"bms_lnxall/bms_lnxall_v1"
+	"bms_pylon_tech_us108/bms_pylon_tech_us108_v1"
 	"common/c_base"
+	"common/c_log"
 	"context"
-	"ess_boost_gold/ess_boost_gold_v1"
-	"ess_lnxall/ess_boost_lnxall_v1"
-	"fire_control/fire_control_v1"
-	"pcs_elecod/pcs_elecod_mac_v1"
-	"pcs_enjoy/pcs_enjoy_basic_v1"
-	"pcs_lnxall/pcs_lnxall_v1"
-	"pylonTechUs108_v1/bms_pylon_tech_us108_v1"
+	"gopkg.in/errgo.v2/fmt/errors"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
 	"starCharge100E_v1/pcs_star_charge_100E_v1"
-	"station_energy_store/sess_basic_v1"
 	"strings"
 
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -33,107 +25,30 @@ func init() {
 var pluginNewMethodCache = map[string]any{
 	"bms_pylon_tech_us108_v1.0.0": bms_pylon_tech_us108_v1.NewPlugin,
 	"ess_pylon_checkwatt_v1.0.0":  ess_pylon_checkwatt_v1.NewPlugin,
-	"ess_boost_gold_v1.0.0":       ess_boost_gold_v1.NewPlugin,
-	"ess_boost_lnxall_v1.0.0":     ess_boost_lnxall_v1.NewPlugin,
-	"gpio_basic_v1.0.0":           gpio_basic_v1.NewPlugin,
 	"pcs_star_charge_100E_v1.0.0": pcs_star_charge_100E_v1.NewPlugin,
-	"pcs_enjoy_basic_v1.0.0":      pcs_enjoy_basic_v1.NewPlugin,
-	"sess_basic_v1.0.0":           sess_basic_v1.NewPlugin,
-	"ammeter_acrel_10r_v1.0.0":    ammeter_acrel_10r_v1.NewPlugin,
-	"pcs_lnxall_v1.0.0":           pcs_lnxall_v1.NewPlugin,
-	"bms_lnxall_v1.0.0":           bms_lnxall_v1.NewPlugin,
-	"fire_control_v1.0.0":         fire_control_v1.NewPlugin,
-	"pcs_elecod_mac_v1.0.0":       pcs_elecod_mac_v1.NewPlugin,
+}
+var pluginDriverInfo = map[string]*c_base.SDriverInfo{
+	"bms_pylon_tech_us108_v1.0.0": bms_pylon_tech_us108_v1.GetDriverInfo(),
+	"ess_pylon_checkwatt_v1.0.0":  ess_pylon_checkwatt_v1.GetDriverInfo(),
+	"pcs_star_charge_100E_v1.0.0": pcs_star_charge_100E_v1.GetDriverInfo(),
 }
 
-func GetAllDriverNames() []string {
-	var driverNames []string
-	for driverName := range pluginNewMethodCache {
-		driverNames = append(driverNames, driverName)
-	}
-	return driverNames
-}
-
-// GetAllDriversInfo 获取所有驱动的详细信息
-func GetAllDriversInfo(ctx context.Context) []c_base.SDriverInfo {
-	var driversInfo []c_base.SDriverInfo
-
-	for driverName, newMethod := range pluginNewMethodCache {
-		driverInfo := c_base.SDriverInfo{
-			Name:      driverName,
-			Available: newMethod != nil,
-			Embedded:  true,
-		}
-
-		// 尝试创建驱动实例获取详细信息
-		if newMethod != nil {
-			func() {
-				defer func() {
-					if r := recover(); r != nil {
-						// 如果创建驱动失败，标记为不可用
-						driverInfo.Available = false
-						g.Log().Warningf(ctx, "创建驱动[%s]失败: %v", driverName, r)
-					}
-				}()
-
-				// 调用NewPlugin方法创建驱动实例
-				args := []reflect.Value{reflect.ValueOf(ctx)}
-				results := reflect.ValueOf(newMethod).Call(args)
-
-				if len(results) > 0 {
-					if driver, ok := results[0].Interface().(c_base.IDevice); ok {
-						driverInfo.Type = driver.GetDriverType()
-						driverInfo.Description = driver.GetDriverDescription()
-					}
-				}
-			}()
-		}
-
-		driversInfo = append(driversInfo, driverInfo)
-	}
-
-	return driversInfo
+func GetAllDriversInfo() map[string]*c_base.SDriverInfo {
+	return pluginDriverInfo
 }
 
 // GetDriverInfo 获取指定驱动的详细信息
-func GetDriverInfo(ctx context.Context, driverName string) (*c_base.SDriverInfo, error) {
-	newMethod, exists := pluginNewMethodCache[driverName]
-	if !exists {
-		return nil, gerror.Newf("未找到驱动[%s]", driverName)
+func GetDriverInfo(driverName string) (*c_base.SDriverInfo, error) {
+	if driverInfo, ok := pluginDriverInfo[driverName]; ok {
+		return driverInfo, nil
 	}
-
-	driverInfo := &c_base.SDriverInfo{
-		Name:      driverName,
-		Available: newMethod != nil,
-	}
-
-	if newMethod != nil {
-		defer func() {
-			if r := recover(); r != nil {
-				driverInfo.Available = false
-				g.Log().Warningf(ctx, "创建驱动[%s]失败: %v", driverName, r)
-			}
-		}()
-
-		// 调用NewPlugin方法创建驱动实例
-		args := []reflect.Value{reflect.ValueOf(ctx)}
-		results := reflect.ValueOf(newMethod).Call(args)
-
-		if len(results) > 0 {
-			if driver, ok := results[0].Interface().(c_base.IDevice); ok {
-				driverInfo.Type = driver.GetDriverType()
-				driverInfo.Description = driver.GetDriverDescription()
-			}
-		}
-	}
-
-	return driverInfo, nil
+	return nil, errors.Newf("未找到驱动[%s]", driverName)
 }
 
 // GetDriversByType 根据设备类型获取驱动信息
-func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []c_base.SDriverInfo {
-	allDrivers := GetAllDriversInfo(ctx)
-	var filteredDrivers []c_base.SDriverInfo
+func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []*c_base.SDriverInfo {
+	allDrivers := GetAllDriversInfo()
+	var filteredDrivers []*c_base.SDriverInfo
 
 	for _, driver := range allDrivers {
 		if driver.Type == deviceType {
@@ -144,32 +59,39 @@ func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []c_ba
 	return filteredDrivers
 }
 
-func getDriver(ctx context.Context, driver string) c_base.IDevice {
-	if driver == "" {
-		return nil
+func getDriver(driverName string, device c_base.IDevice) (d c_base.IDriver, err error) {
+	if driverName == "" {
+		return nil, errors.Newf("驱动未设置")
 	}
 	// 获取驱动的类型
-	driverGroups := strings.Split(driver, "_")
+	driverGroups := strings.Split(driverName, "_")
 	if driverGroups == nil || len(driverGroups) == 0 {
-		panic(gerror.Newf("驱动名称错误！%s", driver))
+		return nil, gerror.Newf("驱动名称错误！%s", driverName)
 	}
 
-	pluginNewMethod := pluginNewMethodCache[driver]
+	pluginNewMethod := pluginNewMethodCache[driverName]
 	if pluginNewMethod == nil {
-		panic(gerror.Newf("未找到驱动插件[%s]的NewPlugin方法！请检查pluginNewMethodCache或配置文件", driver))
+		return nil, gerror.Newf("未找到驱动插件[%s]的NewPlugin方法！请检查pluginNewMethodCache或配置文件", driverName)
 	}
+
+	defer func() {
+		if r := recover(); r != nil {
+			err = gerror.Newf("执行[%s]驱动New方法失败! 原因请查看控制台日志", driverName)
+			c_log.Errorf(context.Background(), "执行[%s]驱动New方法失败！原因：%s", driverName, r.(error).Error())
+		}
+	}()
 
 	// 准备参数
-	args := []reflect.Value{reflect.ValueOf(ctx)}
+	args := []reflect.Value{reflect.ValueOf(device)}
 	// 调用函数并获取结果
 	results := reflect.ValueOf(pluginNewMethod).Call(args)
 
-	if dv, ok := results[0].Interface().(c_base.IDevice); ok {
-		if dv.GetDriverType() != c_base.EDeviceType(driverGroups[0]) {
-			panic(gerror.Newf("%s 中驱动类型不匹配！期望类型：%s, 实际类型：%s", driver, dv.GetDriverType(), driverGroups[0]))
-		}
-		return dv
+	if dv, ok := results[0].Interface().(c_base.IDriver); ok {
+		//if dv.GetDriverType() != c_base.EDeviceType(driverGroups[0]) {
+		//	panic(gerror.Newf("%s 中驱动类型不匹配！期望类型：%s, 实际类型：%s", driverName, dv.GetDriverType(), driverGroups[0]))
+		//}
+		return dv, nil
 	} else {
-		panic(gerror.Newf("加载插件[%s]失败！原因：未找到函数：%s", driver, c_base.ConstNewPluginFunctionName))
+		return nil, gerror.Newf("加载插件[%s]失败！原因：未找到函数：%s", driverName, c_base.ConstNewPluginFunctionName)
 	}
 }

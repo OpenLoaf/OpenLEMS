@@ -40,6 +40,6 @@ type IAmmeterBasic interface {
 }
 
 type IAmmeter interface {
-	c_base.IDevice
+	c_base.IDriver
 	IAmmeterBasic
 }

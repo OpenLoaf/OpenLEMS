@@ -22,5 +22,5 @@ type GetCustomServicesReq struct {
 }
 
 type GetCustomServicesRes struct {
-	Services []*c_base.SCustomService `json:"services" dc:"自定义服务列表"`
+	Services []*c_base.SDriverService `json:"services" dc:"自定义服务列表"`
 }
