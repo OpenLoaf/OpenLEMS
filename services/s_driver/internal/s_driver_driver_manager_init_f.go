@@ -9,39 +9,39 @@ import (
 	"github.com/torykit/go-modbus"
 )
 
-func (d *SDeviceManager) IsProtocolActive(protocolId string) bool {
-	return d.protocolClientCache[protocolId] != nil
+func (m *SDeviceManager) IsProtocolActive(protocolId string) bool {
+	return m.protocolClientCache[protocolId] != nil
 }
 
-func (d *SDeviceManager) Shutdown() {
+func (m *SDeviceManager) Shutdown() {
 	// 关闭所有client
-	//d.deviceConfigTree.IteratorDesc(func(key, value any) bool {
+	//m.deviceConfigTree.IteratorDesc(func(key, value any) bool {
 	//	deviceWrapper := value.(*SDeviceWrapper)
 	//	if deviceWrapper.deviceState == c_base.EStateRunning {
 	//		deviceWrapper.Shutdown()
 	//	}
 	//	return true
 	//})
-	d.cancelFunc()
-	d.state = c_base.EStateStopped
+	m.cancelFunc()
+	m.state = c_base.EStateStopped
 	return
 }
 
-func (d *SDeviceManager) Cleanup() error {
+func (m *SDeviceManager) Cleanup() error {
 	// 定时清理无用连接
 	return nil
 }
 
-func (d *SDeviceManager) Status() c_base.EServerState {
-	return d.state
+func (m *SDeviceManager) Status() c_base.EServerState {
+	return m.state
 }
 
-func (d *SDeviceManager) GetChildDeviceInstance(pid string) []c_base.IDevice {
+func (m *SDeviceManager) GetChildDeviceInstance(pid string) []c_base.IDevice {
 	var deviceInstances = make([]c_base.IDevice, 0)
-	flatList := d.GetFlatList()
+	flatList := m.GetFlatList()
 	for _, deviceConfig := range flatList {
 		if deviceConfig != nil && deviceConfig.Pid == pid {
-			if instance, exist := d.deviceInstanceMap[deviceConfig.Id]; exist {
+			if instance, exist := m.deviceInstanceMap[deviceConfig.Id]; exist {
 				deviceInstances = append(deviceInstances, instance)
 			}
 		}
@@ -53,7 +53,7 @@ func (d *SDeviceManager) GetChildDeviceInstance(pid string) []c_base.IDevice {
 //
 //}
 
-func (d *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *c_base.SDeviceConfig) (c_base.IProtocol, error) {
+func (m *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *c_base.SDeviceConfig) (c_base.IProtocol, error) {
 	// 从配置中获取协议
 	protocolConfig := deviceConfig.ProtocolConfig
 	if protocolConfig == nil {
@@ -68,7 +68,7 @@ func (d *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 	case c_base.EModbusRtu, c_base.EModbusTcp:
 		// 从缓存中获取client，如果没有就新建后放入缓存
 		var client modbus.Client
-		if _client, exist := d.protocolClientCache[protocolConfig.Id]; exist {
+		if _client, exist := m.protocolClientCache[protocolConfig.Id]; exist {
 			client = _client.(modbus.Client)
 		} else {
 			// 创建client
@@ -77,7 +77,7 @@ func (d *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 				return nil, err
 			}
 			client = c
-			d.protocolClientCache[protocolConfig.Id] = client
+			m.protocolClientCache[protocolConfig.Id] = client
 		}
 		modbusProvider, err := p_modbus.NewModbusProvider(ctx, deviceConfig.GetType(), protocolConfig, deviceConfig, client)
 		if err != nil {
@@ -90,10 +90,10 @@ func (d *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 		//	receiverChan    <-chan can.Frame
 		//	transmitterChan chan<- can.Frame
 		//)
-		//if _receiverChan, exist := d.protocolClientCache[protocolConfig.Id+"_receiverChan"]; exist {
+		//if _receiverChan, exist := m.protocolClientCache[protocolConfig.Id+"_receiverChan"]; exist {
 		//	receiverChan = _receiverChan.(chan can.Frame)
 		//}
-		//if _transmitterChan, exist := d.protocolClientCache[protocolConfig.Id+"_transmitterChan"]; exist {
+		//if _transmitterChan, exist := m.protocolClientCache[protocolConfig.Id+"_transmitterChan"]; exist {
 		//	transmitterChan = _transmitterChan.(chan<- can.Frame)
 		//}
 		//
@@ -104,8 +104,8 @@ func (d *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 		//	}
 		//	receiverChan = r
 		//	transmitterChan = t
-		//	d.protocolClientCache[protocolConfig.Id+"_receiverChan"] = receiverChan
-		//	d.protocolClientCache[protocolConfig.Id+"_transmitterChan"] = transmitterChan
+		//	m.protocolClientCache[protocolConfig.Id+"_receiverChan"] = receiverChan
+		//	m.protocolClientCache[protocolConfig.Id+"_transmitterChan"] = transmitterChan
 		//}
 		//
 		//canbusProvider, err := protocolCanbus.NewCanbusProvider(ctx, deviceType, protocolConfig, deviceConfig, receiverChan, transmitterChan)
