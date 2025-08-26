@@ -40,6 +40,7 @@ func GetAllDriversInfo() map[string]*c_base.SDriverInfo {
 // GetDriverInfo 获取指定驱动的详细信息
 func GetDriverInfo(driverName string) (*c_base.SDriverInfo, error) {
 	if driverInfo, ok := pluginDriverInfo[driverName]; ok {
+		driverInfo.Name = driverName
 		return driverInfo, nil
 	}
 	return nil, errors.Newf("未找到驱动[%s]", driverName)

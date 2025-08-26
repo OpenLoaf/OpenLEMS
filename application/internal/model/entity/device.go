@@ -33,6 +33,7 @@ type SDeviceTree struct {
 	CreatedAt          string         `json:"created_at" dc:"创建时间"`
 	UpdatedAt          string         `json:"updated_at" dc:"更新时间"`
 
+	DriverType      string                   `json:"driverType" dc:"驱动类型"`
 	DriverBrand     string                   `json:"driverBrand,omitempty" dc:"驱动品牌"`
 	DriverModel     string                   `json:"driverModel" yaml:"model" dc:"驱动型号"`
 	DriverVersion   string                   `json:"driverVersion" yaml:"version" v:"required" dc:"驱动版本"`
@@ -72,6 +73,7 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			t.DriverVersion = driverInfo.Version
 			t.DriverTelemetry = driverInfo.Telemetry
 			t.DriverService = driverInfo.Service
+			t.DriverType = string(driverInfo.Type)
 		}
 		protocolConfig := record.ProtocolConfig
 		if protocolConfig != nil {
