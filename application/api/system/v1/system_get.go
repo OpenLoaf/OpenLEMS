@@ -114,3 +114,18 @@ type SysInfo struct {
 	OSVersion string `json:"osVersion" dc:"系统版本号"`
 	Kernel    string `json:"kernel" dc:"内核版本号"`
 }
+
+type GetSettingReq struct {
+	g.Meta `path:"/system/setting" method:"post" tags:"系统相关" summary:"获取设置信息"`
+}
+type GetSettingRes struct {
+	Settings map[string]string `json:"settings" dc:"设置信息映射，key为设置ID，value为设置值"`
+}
+
+type UpdateStorageTimeReq struct {
+	g.Meta              `path:"/system/storage-time" method:"post" tags:"系统相关" summary:"更新存储时间参数"`
+	DeviceRetentionDays int `json:"deviceRetentionDays" v:"min:1#设备数据保留天数必须大于0" dc:"设备数据保留天数"`
+	SystemRetentionDays int `json:"systemRetentionDays" v:"min:1#系统数据保留天数必须大于0" dc:"系统数据保留天数"`
+	LogRetentionDays    int `json:"logRetentionDays" v:"min:1#日志数据保留天数必须大于0" dc:"日志数据保留天数"`
+}
+type UpdateStorageTimeRes struct{}

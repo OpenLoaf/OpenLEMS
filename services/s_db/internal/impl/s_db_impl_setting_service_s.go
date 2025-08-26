@@ -2,31 +2,44 @@ package impl
 
 import (
 	"context"
+	"s_db/s_db_basic"
+	"s_db/s_db_model"
+	"sync"
+
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
-	"s_db/basic"
-	"s_db/model"
-	"sync"
 )
 
 type sSettingServiceImpl struct {
 }
 
 var (
-	configManageInstance basic.ISettingService
+	configManageInstance s_db_basic.ISettingService
 	configManageOnce     sync.Once
 )
 
-func GetSettingService() basic.ISettingService {
+func GetSettingService() s_db_basic.ISettingService {
 	configManageOnce.Do(func() {
 		configManageInstance = &sSettingServiceImpl{}
 	})
 	return configManageInstance
 }
 
+func (s *sSettingServiceImpl) GetAllSettings(ctx context.Context) ([]*s_db_model.SSettingModel, error) {
+	// 调用模型层的 GetAllSettings 方法获取所有设置
+	settings, err := s_db_model.GetAllSettings(ctx)
+	if err != nil {
+		g.Log().Errorf(ctx, "获取所有设置失败 - 错误: %v", err)
+		return nil, err
+	}
+
+	g.Log().Infof(ctx, "成功获取所有设置，共 %d 条记录", len(settings))
+	return settings, nil
+}
+
 // 获取设置配置通过名称
 func (s *sSettingServiceImpl) GetSettingValueByKey(ctx context.Context, key string, defaultValue ...string) string {
-	setting := &model.SSettingModel{}
+	setting := &s_db_model.SSettingModel{}
 	// 通过 key 获取设置，如果设置不存在，则返回空字符串
 	err := setting.GetById(ctx, key)
 
@@ -37,7 +50,7 @@ func (s *sSettingServiceImpl) GetSettingValueByKey(ctx context.Context, key stri
 
 	if err != nil {
 		g.Log().Warningf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", key, err)
-		setting.SDatabaseBasic = model.SDatabaseBasic{
+		setting.SDatabaseBasic = s_db_model.SDatabaseBasic{
 			Id:        key,
 			CreatedAt: gtime.Now(),
 			UpdatedAt: gtime.Now(),
@@ -65,7 +78,7 @@ func (s *sSettingServiceImpl) GetSettingValueByKey(ctx context.Context, key stri
 
 // 设置设置值通过名称
 func (s *sSettingServiceImpl) SetSettingValueByName(ctx context.Context, name string, value string) error {
-	setting := &model.SSettingModel{}
+	setting := &s_db_model.SSettingModel{}
 	err := setting.GetById(ctx, name)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", name, err)

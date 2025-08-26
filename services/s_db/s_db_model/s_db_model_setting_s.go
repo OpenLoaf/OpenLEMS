@@ -1,4 +1,4 @@
-package model
+package s_db_model
 
 import (
 	"context"

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os/exec"
 	"runtime"
+	"s_db"
+	"s_db/s_db_basic"
 	"strings"
 	"time"
 
@@ -259,4 +261,59 @@ func (c *ControllerV1) RebootExecute(ctx context.Context, req *v1.RebootExecuteR
 	// 清空令牌
 	rebootApplyExpireAt = time.Time{}
 	return &v1.RebootExecuteRes{}, nil
+}
+
+func (c *ControllerV1) GetSetting(ctx context.Context, req *v1.GetSettingReq) (res *v1.GetSettingRes, err error) {
+	// 获取所有设置信息
+	settings, err := s_db.GetSettingService().GetAllSettings(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 构建设置映射
+	settingsMap := make(map[string]string)
+	for _, setting := range settings {
+		// 只返回启用的设置
+		if setting.Enabled {
+			settingsMap[setting.Id] = setting.Value
+		}
+	}
+
+	// 设置默认值
+	if _, exist := settingsMap[s_db_basic.SettingDeviceRetentionDays]; !exist {
+		settingsMap[s_db_basic.SettingDeviceRetentionDays] = s_db_basic.DefaultDeviceRetentionDays
+	}
+	if _, exist := settingsMap[s_db_basic.SettingSystemRetentionDays]; !exist {
+		settingsMap[s_db_basic.SettingSystemRetentionDays] = s_db_basic.DefaultSystemRetentionDays
+	}
+	if _, exist := settingsMap[s_db_basic.SettingLogRetentionDays]; !exist {
+		settingsMap[s_db_basic.SettingLogRetentionDays] = s_db_basic.DefaultLogRetentionDays
+	}
+
+	res = &v1.GetSettingRes{
+		Settings: settingsMap,
+	}
+	return
+}
+
+func (c *ControllerV1) UpdateStorageTime(ctx context.Context, req *v1.UpdateStorageTimeReq) (res *v1.UpdateStorageTimeRes, err error) {
+	// 更新设备数据保留天数
+	err = s_db.GetSettingService().SetSettingValueByName(ctx, s_db_basic.SettingDeviceRetentionDays, fmt.Sprintf("%d", req.DeviceRetentionDays))
+	if err != nil {
+		return nil, fmt.Errorf("更新设备数据保留天数失败: %v", err)
+	}
+
+	// 更新系统数据保留天数
+	err = s_db.GetSettingService().SetSettingValueByName(ctx, s_db_basic.SettingSystemRetentionDays, fmt.Sprintf("%d", req.SystemRetentionDays))
+	if err != nil {
+		return nil, fmt.Errorf("更新系统数据保留天数失败: %v", err)
+	}
+
+	// 更新日志数据保留天数
+	err = s_db.GetSettingService().SetSettingValueByName(ctx, s_db_basic.SettingLogRetentionDays, fmt.Sprintf("%d", req.LogRetentionDays))
+	if err != nil {
+		return nil, fmt.Errorf("更新日志数据保留天数失败: %v", err)
+	}
+
+	return &v1.UpdateStorageTimeRes{}, nil
 }

@@ -3,28 +3,28 @@ package impl
 import (
 	"common/c_base"
 	"context"
-	"s_db/basic"
-	"s_db/model"
+	"s_db/s_db_basic"
+	"s_db/s_db_model"
 	"sync"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
 
 type sDeviceServiceImpl struct {
-	deviceModel *model.SDeviceModel
+	deviceModel *s_db_model.SDeviceModel
 	ctx         context.Context
 }
 
 func (s *sDeviceServiceImpl) GetRootDeviceId() string {
-	return GetSettingService().GetSettingValueByKey(s.ctx, basic.ActiveDeviceRootId, basic.DefaultActiveDeviceRootId)
+	return GetSettingService().GetSettingValueByKey(s.ctx, s_db_basic.SettingActiveDeviceRootIdKey, s_db_basic.DefaultActiveDeviceRootId)
 }
 
 var (
-	deviceManageInstance basic.IDeviceService
+	deviceManageInstance s_db_basic.IDeviceService
 	deviceManageOnce     sync.Once
 )
 
-func GetDeviceService() basic.IDeviceService {
+func GetDeviceService() s_db_basic.IDeviceService {
 	deviceManageOnce.Do(func() {
 		deviceManageInstance = &sDeviceServiceImpl{
 			ctx: context.Background(),
@@ -34,7 +34,7 @@ func GetDeviceService() basic.IDeviceService {
 }
 
 func (s *sDeviceServiceImpl) UpdateDevice(ctx context.Context, deviceId string, data map[string]interface{}) error {
-	device := &model.SDeviceModel{}
+	device := &s_db_model.SDeviceModel{}
 	err := device.GetById(ctx, deviceId)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (s *sDeviceServiceImpl) UpdateDevice(ctx context.Context, deviceId string, 
 	if value, ok := data["value"].(string); ok {
 		device.Name = value
 	}
-	if value, ok := data[model.FieldParams].(string); ok {
+	if value, ok := data[s_db_model.FieldParams].(string); ok {
 		device.Params = value
 	}
 	if value, ok := data["storageEnable"].(bool); ok {
@@ -97,27 +97,27 @@ func (s *sDeviceServiceImpl) GetEnableDeviceConfigsWithRecursion(ctx context.Con
 
 // DeleteById 根据ID删除设备记录
 func (s *sDeviceServiceImpl) DeleteDeviceById(ctx context.Context, id string) error {
-	_, err := g.Model(s.deviceModel).Ctx(ctx).Where(model.FieldId, id).Delete()
+	_, err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldId, id).Delete()
 	return err
 }
 
 // GetAllDevices 获取所有设备记录
-func (s *sDeviceServiceImpl) GetAllDevices(ctx context.Context) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
+func (s *sDeviceServiceImpl) GetAllDevices(ctx context.Context) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
 	err := g.Model(s.deviceModel).Ctx(ctx).Scan(&devices)
 	return devices, err
 }
 
 // GetByCondition 根据条件获取设备记录
-func (s *sDeviceServiceImpl) GetDevicesByCondition(ctx context.Context, condition g.Map) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
+func (s *sDeviceServiceImpl) GetDevicesByCondition(ctx context.Context, condition g.Map) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
 	err := g.Model(s.deviceModel).Ctx(ctx).Where(condition).Scan(&devices)
 	return devices, err
 }
 
-func (s *sDeviceServiceImpl) GetRecursiveDevicesByPid(ctx context.Context, pid string) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(model.FieldPid, pid).Scan(&devices)
+func (s *sDeviceServiceImpl) GetRecursiveDevicesByPid(ctx context.Context, pid string) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldPid, pid).Scan(&devices)
 	if err != nil {
 		return nil, err
 	}
@@ -134,30 +134,30 @@ func (s *sDeviceServiceImpl) GetRecursiveDevicesByPid(ctx context.Context, pid s
 }
 
 // GetDevicesById 根据ID获取设备记录
-func (s *sDeviceServiceImpl) GetDeviceById(ctx context.Context, id string) (*model.SDeviceModel, error) {
-	var device *model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(model.FieldId, id).Scan(&device)
+func (s *sDeviceServiceImpl) GetDeviceById(ctx context.Context, id string) (*s_db_model.SDeviceModel, error) {
+	var device *s_db_model.SDeviceModel
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldId, id).Scan(&device)
 	return device, err
 }
 
 // GetDevicesByPid 根据父设备ID获取子设备列表
-func (s *sDeviceServiceImpl) GetDevicesByPid(ctx context.Context, pid string) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(model.FieldPid, pid).Scan(&devices)
+func (s *sDeviceServiceImpl) GetDevicesByPid(ctx context.Context, pid string) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldPid, pid).Scan(&devices)
 	return devices, err
 }
 
 // GetByProtocolId 根据协议ID获取设备列表
-func (s *sDeviceServiceImpl) GetDevicesByProtocolId(ctx context.Context, protocolId string) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(model.FieldProtocolId, protocolId).Scan(&devices)
+func (s *sDeviceServiceImpl) GetDevicesByProtocolId(ctx context.Context, protocolId string) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldProtocolId, protocolId).Scan(&devices)
 	return devices, err
 }
 
 // GetEnabledDevices 获取所有启用的设备
-func (s *sDeviceServiceImpl) GetEnabledDevices(ctx context.Context) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(model.FieldEnable, true).Scan(&devices)
+func (s *sDeviceServiceImpl) GetEnabledDevices(ctx context.Context) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldEnable, true).Scan(&devices)
 	return devices, err
 }
 
@@ -174,29 +174,29 @@ func (s *sDeviceServiceImpl) CountDevicesByCondition(ctx context.Context, condit
 }
 
 // Paginate 分页获取设备列表
-func (s *sDeviceServiceImpl) PaginateDevices(ctx context.Context, page, pageSize int) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
+func (s *sDeviceServiceImpl) PaginateDevices(ctx context.Context, page, pageSize int) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
 	err := g.Model(s.deviceModel).Ctx(ctx).Page(page, pageSize).Scan(&devices)
 	return devices, err
 }
 
 // GetAllDevicesOrderBySort 获取所有设备记录，按sort字段排序
-func (s *sDeviceServiceImpl) GetAllDevicesOrderBySort(ctx context.Context) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Order(model.FieldSort).Scan(&devices)
+func (s *sDeviceServiceImpl) GetAllDevicesOrderBySort(ctx context.Context) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
+	err := g.Model(s.deviceModel).Ctx(ctx).Order(s_db_model.FieldSort).Scan(&devices)
 	return devices, err
 }
 
 // GetAllDevicesOrderBySortAndEnable 获取所有设备记录，按sort字段排序，enable参数控制是否只获取启用的设备
-func (s *sDeviceServiceImpl) GetAllDevicesOrderBySortAndEnable(ctx context.Context, enable bool) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(model.FieldEnable, enable).Order(model.FieldSort).Scan(&devices)
+func (s *sDeviceServiceImpl) GetAllDevicesOrderBySortAndEnable(ctx context.Context, enable bool) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldEnable, enable).Order(s_db_model.FieldSort).Scan(&devices)
 	return devices, err
 }
 
 // GetDevicesByPidOrderBySort 根据父设备ID获取子设备列表，按sort字段排序
-func (s *sDeviceServiceImpl) GetDevicesByPidOrderBySort(ctx context.Context, pid string) ([]*model.SDeviceModel, error) {
-	var devices []*model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(model.FieldPid, pid).Order(model.FieldSort).Scan(&devices)
+func (s *sDeviceServiceImpl) GetDevicesByPidOrderBySort(ctx context.Context, pid string) ([]*s_db_model.SDeviceModel, error) {
+	var devices []*s_db_model.SDeviceModel
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldPid, pid).Order(s_db_model.FieldSort).Scan(&devices)
 	return devices, err
 }

@@ -7,31 +7,31 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/gogf/gf/v2/util/gconv"
-	"s_db/basic"
-	"s_db/model"
+	"s_db/s_db_basic"
+	"s_db/s_db_model"
 	"sync"
 
 	"github.com/google/uuid"
 )
 
 type sProtocolServiceImpl struct {
-	tableProtocol *model.SProtocolModel
+	tableProtocol *s_db_model.SProtocolModel
 }
 
 var (
-	protocolManageInstance basic.IProtocolService
+	protocolManageInstance s_db_basic.IProtocolService
 	protocolManageOnce     sync.Once
 )
 
-func GetProtocolService() basic.IProtocolService {
+func GetProtocolService() s_db_basic.IProtocolService {
 	protocolManageOnce.Do(func() {
 		protocolManageInstance = &sProtocolServiceImpl{}
 	})
 	return protocolManageInstance
 }
 
-func (s *sProtocolServiceImpl) GetProtocolList(ctx context.Context, type_ string) ([]*model.SProtocolModel, error) {
-	protocols, err := (&model.SProtocolModel{}).GetByType(ctx, type_)
+func (s *sProtocolServiceImpl) GetProtocolList(ctx context.Context, type_ string) ([]*s_db_model.SProtocolModel, error) {
+	protocols, err := (&s_db_model.SProtocolModel{}).GetByType(ctx, type_)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (s *sProtocolServiceImpl) GetProtocolList(ctx context.Context, type_ string
 }
 
 func (s *sProtocolServiceImpl) UpdateProtocol(ctx context.Context, protocolId string, data map[string]interface{}) error {
-	protocol := &model.SProtocolModel{}
+	protocol := &s_db_model.SProtocolModel{}
 	// 先根据ID获取协议对象
 	err := protocol.GetById(ctx, protocolId)
 	if err != nil {
@@ -108,8 +108,8 @@ func (s *sProtocolServiceImpl) CreateProtocol(ctx context.Context, data map[stri
 	}
 
 	// 创建协议对象
-	protocol := &model.SProtocolModel{
-		SDatabaseBasic: model.SDatabaseBasic{
+	protocol := &s_db_model.SProtocolModel{
+		SDatabaseBasic: s_db_model.SDatabaseBasic{
 			Id:        protocolId,
 			CreatedAt: gtime.Now(),
 			UpdatedAt: gtime.Now(),
@@ -133,7 +133,7 @@ func (s *sProtocolServiceImpl) CreateProtocol(ctx context.Context, data map[stri
 
 func (s *sProtocolServiceImpl) DeleteProtocol(ctx context.Context, protocolId string) error {
 	// 先检查协议是否存在
-	protocol := &model.SProtocolModel{}
+	protocol := &s_db_model.SProtocolModel{}
 	err := protocol.GetById(ctx, protocolId)
 	if err != nil {
 		return err
@@ -145,7 +145,7 @@ func (s *sProtocolServiceImpl) DeleteProtocol(ctx context.Context, protocolId st
 
 // DeleteProtocolById 根据ID删除协议记录
 func (s *sProtocolServiceImpl) DeleteProtocolById(ctx context.Context, id string) error {
-	_, err := g.Model(s.tableProtocol).Ctx(ctx).Where(model.FieldId, id).Delete()
+	_, err := g.Model(s.tableProtocol).Ctx(ctx).Where(s_db_model.FieldId, id).Delete()
 	return err
 }
 
