@@ -1,10 +1,12 @@
 package c_base
 
 type STelemetry struct {
-	Name        string `json:"name,omitempty" yaml:"name"`     // 遥测名称
-	DisplayName string `json:"displayName" yaml:"displayName"` // 遥测名称的国际化覆盖
-	Unit        string `json:"unit,omitempty" yaml:"unit"`     // 单位
-	Remark      string `json:"remark,omitempty" yaml:"remark"` // 备注
+	Name        string            `json:"name,omitempty" yaml:"name"`     // 遥测名称
+	DisplayName string            `json:"displayName" yaml:"displayName"` // 遥测名称的国际化覆盖
+	Unit        string            `json:"unit,omitempty" yaml:"unit"`     // 单位
+	Remark      string            `json:"remark,omitempty" yaml:"remark"` // 备注
+	Type        string            `json:"type,omitempty" yaml:"type"`
+	Mapping     map[string]string `json:"mapping,omitempty" yaml:"mapping"`
 }
 
 type SDriverService struct {

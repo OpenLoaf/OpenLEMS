@@ -31,17 +31,7 @@ func (c *ControllerV1) GetDriver(ctx context.Context, req *v1.GetDriverReq) (res
 	sDriver.BuildTime = driverInfo.BuildTime
 	sDriver.CommitHash = driverInfo.CommitHash
 	sDriver.Author = driverInfo.Author
-	if len(driverInfo.Telemetry) > 0 {
-		telemetry := make([]*entity.DriverTelemetry, 0, len(driverInfo.Telemetry))
-		for _, t := range driverInfo.Telemetry {
-			telemetry = append(telemetry, &entity.DriverTelemetry{
-				Name:        t.Name,
-				DisplayName: t.DisplayName,
-				Unit:        t.Unit,
-				Remark:      t.Remark,
-			})
-		}
-		sDriver.Telemetry = telemetry
-	}
+	sDriver.Telemetry = driverInfo.Telemetry
+
 	return &v1.GetDriverRes{Driver: sDriver}, nil
 }

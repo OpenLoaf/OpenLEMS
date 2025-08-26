@@ -1,5 +1,7 @@
 package entity
 
+import "common/c_base"
+
 type SDriver struct {
 	DriverName         string `json:"driverName" dc:"驱动名称"`
 	DriverVersion      string `json:"driverVersion" dc:"版本号"`
@@ -16,13 +18,13 @@ type SDriver struct {
 	ProtocolType string `json:"protocolType" dc:"协议类型"`
 
 	// 扩展字段（参考 common/c_base/driver_description_s_f.go 与 driver_info_s.go）
-	Brand      string             `json:"brand" dc:"品牌"`
-	Model      string             `json:"model" dc:"型号"`
-	BuildTime  string             `json:"buildTime" dc:"编译时间"`
-	CommitHash string             `json:"commitHash" dc:"提交哈希"`
-	Remark     string             `json:"remark" dc:"备注"`
-	Author     string             `json:"author" dc:"作者"`
-	Telemetry  []*DriverTelemetry `json:"telemetry" dc:"遥测描述列表"`
+	Brand      string               `json:"brand" dc:"品牌"`
+	Model      string               `json:"model" dc:"型号"`
+	BuildTime  string               `json:"buildTime" dc:"编译时间"`
+	CommitHash string               `json:"commitHash" dc:"提交哈希"`
+	Remark     string               `json:"remark" dc:"备注"`
+	Author     string               `json:"author" dc:"作者"`
+	Telemetry  []*c_base.STelemetry `json:"telemetry" dc:"遥测描述列表"`
 }
 
 // type SDriverDetail struct {
@@ -35,11 +37,3 @@ type SDriver struct {
 // 	ProtocolType      string `json:"protocolType" dc:"协议类型"`
 
 // }
-
-// DriverTelemetry 与 `common/c_base.STelemetry` 字段对齐的轻量实体定义
-type DriverTelemetry struct {
-	Name        string `json:"name" dc:"遥测名称"`
-	DisplayName string `json:"displayName" dc:"国际化名称"`
-	Unit        string `json:"unit" dc:"单位"`
-	Remark      string `json:"remark" dc:"备注"`
-}
