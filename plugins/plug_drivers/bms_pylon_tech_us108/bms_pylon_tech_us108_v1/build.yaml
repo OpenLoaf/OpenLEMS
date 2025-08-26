@@ -7,6 +7,8 @@ create: "2024-09-07"
 remark: "派能108kWh风冷电池MBMS"
 protocolType: "modbus"
 telemetry:
+    - name: bmsStatus
+      displayName: "电池状态"
     - name: soc
       unit: "%"
       displayName: "SOC"
