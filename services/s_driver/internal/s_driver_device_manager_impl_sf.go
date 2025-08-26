@@ -149,51 +149,9 @@ func (m *SDeviceManager) Start() {
 		deviceCtx = context.WithValue(deviceCtx, c_base.ConstCtxKeyDeviceName, deviceConfig.Name)
 
 		if deviceConfig.ProtocolConfig == nil {
-			// 虚拟设备，创建不会失败
-			device := c_device.NewVirtualDevice(deviceCtx, deviceConfig)
-			// 物理设备
-			driver, err := getDriver(deviceConfig.Driver, device)
-			if driver == nil || err != nil {
-				c_log.BizErrorf(m.ctx, "虚拟设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
-				return
-			}
-			err = driver.Init()
-			if err != nil {
-				c_log.BizErrorf(m.ctx, "虚拟设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
-				return
-			}
-			m.deviceInstanceMap[deviceConfig.Id] = driver
-			c_log.BizInfof(m.ctx, "虚拟设备[%s]初始化成功！", deviceConfig.Name)
+			m.BuildVirtualDevice(deviceCtx, deviceConfig)
 		} else {
-
-			protocolProvider, err := m.getProtocolProvider(deviceCtx, deviceConfig)
-			if protocolProvider == nil || err != nil {
-				// todo 添加日志，创建连接失败了
-				c_log.BizErrorf(deviceCtx, "创建协议实例失败! 协议ID: %s 原因：%s", deviceConfig.ProtocolId, err.Error())
-				m.state = c_base.EStateError
-				return
-			}
-			device, err := c_device.NewRealDevice(deviceCtx, deviceConfig, protocolProvider.(c_proto.IModbusProtocol))
-			if err != nil {
-				c_log.BizErrorf(m.ctx, "设备[%s] 初始化失败！原因：%s", deviceConfig.Name, err.Error())
-				return
-			}
-
-			// 物理设备
-			driver, err := getDriver(deviceConfig.Driver, device)
-			if driver == nil || err != nil {
-				c_log.BizErrorf(m.ctx, "设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
-				return
-			}
-			err = driver.Init()
-			if err != nil {
-				c_log.BizErrorf(m.ctx, "设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
-				return
-			}
-			protocolProvider.ProtocolListen() // 启动监听
-
-			m.deviceInstanceMap[deviceConfig.Id] = driver
-			c_log.BizInfof(m.ctx, "设备[%s]初始化成功！", deviceConfig.Name)
+			m.BuildRealDevice(deviceCtx, deviceConfig)
 		}
 	})
 
@@ -204,10 +162,58 @@ func (m *SDeviceManager) Start() {
 		}
 	})
 
-	c_log.BizInfof(m.ctx, "全部设备启动成功！")
 	m.state = c_base.EStateRunning
+}
 
-	m.state = c_base.EStateRunning
+// BuildVirtualDevice 创建虚拟设备
+func (m *SDeviceManager) BuildVirtualDevice(deviceCtx context.Context, deviceConfig *c_base.SDeviceConfig) {
+	// 虚拟设备，创建不会失败
+	device := c_device.NewVirtualDevice(deviceCtx, deviceConfig)
+	// 物理设备
+	driver, err := getDriver(deviceConfig.Driver, device)
+	if driver == nil || err != nil {
+		c_log.BizErrorf(m.ctx, "虚拟设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
+		return
+	}
+	err = driver.Init()
+	if err != nil {
+		c_log.BizErrorf(m.ctx, "虚拟设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
+		return
+	}
+	m.deviceInstanceMap[deviceConfig.Id] = driver
+	c_log.BizInfof(m.ctx, "虚拟设备[%s]初始化成功！", deviceConfig.Name)
+}
+
+// BuildRealDevice 创建物理设备连接
+func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig *c_base.SDeviceConfig) {
+	protocolProvider, err := m.getProtocolProvider(deviceCtx, deviceConfig)
+	if protocolProvider == nil || err != nil {
+		// todo 添加日志，创建连接失败了
+		c_log.BizErrorf(deviceCtx, "创建协议实例失败! 协议ID: %s 原因：%s", deviceConfig.ProtocolId, err.Error())
+		m.state = c_base.EStateError
+		return
+	}
+	device, err := c_device.NewRealDevice(deviceCtx, deviceConfig, protocolProvider.(c_proto.IModbusProtocol))
+	if err != nil {
+		c_log.BizErrorf(m.ctx, "设备[%s] 初始化失败！原因：%s", deviceConfig.Name, err.Error())
+		return
+	}
+
+	// 物理设备
+	driver, err := getDriver(deviceConfig.Driver, device)
+	if driver == nil || err != nil {
+		c_log.BizErrorf(m.ctx, "设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
+		return
+	}
+	err = driver.Init()
+	if err != nil {
+		c_log.BizErrorf(m.ctx, "设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
+		return
+	}
+	protocolProvider.ProtocolListen() // 启动监听
+
+	m.deviceInstanceMap[deviceConfig.Id] = driver
+	c_log.BizInfof(m.ctx, "设备[%s]初始化成功！", deviceConfig.Name)
 }
 
 // GetDriverInfo 获取指定驱动的详细信息
