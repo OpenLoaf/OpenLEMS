@@ -10,27 +10,25 @@ protocolType: "virtual"
 telemetry:
   - name: soc
     unit: "%"
-    remark: "SOC"
+    displayName: "SOC"
   - name: power
     unit: "kW"
-    remark: "功率"
+    displayName: "功率"
   - name: targetPower
     unit: "kW"
-    remark: "目标功率"
+    displayName: "目标功率"
   - name: apparentPower
     unit: "kVA"
-    remark: "视在功率"
+    displayName: "视在功率"
   - name: reactivePower
     unit: "kVar"
-    remark: "无功功率"
+    displayName: "无功功率"
   - name: todayIncomingQuantity
-    displayName: todayIncomingQuantity
     unit: "kWh"
-    remark: "当日充电量"
+    displayName: "当日充电量"
   - name: todayOutgoingQuantity
-    displayName: todayOutgoingQuantity
+    displayName: "当日放电量"
     unit: "kWh"
-    remark: "当日放电量"
 #  - name: historyIncomingQuantity
 #    displayName: historyIncomingQuantity
 #    unit: "kWh"

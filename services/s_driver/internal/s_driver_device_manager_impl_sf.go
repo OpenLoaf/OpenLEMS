@@ -46,7 +46,7 @@ func NewSingleDriverManager(parentCtx context.Context) *SDeviceManager {
 	return driverManagerInstance
 }
 
-func (m *SDeviceManager) GetAllDeviceConfigs() []*c_base.SDeviceConfig {
+func (m *SDeviceManager) GetTopDeviceConfigs() []*c_base.SDeviceConfig {
 	return m.deviceConfig
 }
 

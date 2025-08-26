@@ -15,8 +15,8 @@ type IDeviceManager interface {
 
 	IteratorAssAllDevicesWrapper(deviceWrapper func(config *c_base.SDeviceConfig, device c_base.IDevice) bool)
 
-	GetAllDeviceConfigs() []*c_base.SDeviceConfig
-	GetAllDriversInfo() []*c_base.SDriverInfo // 获取所有驱动的详细信息
+	GetTopDeviceConfigs() []*c_base.SDeviceConfig // 获取顶层的设备列表
+	GetAllDriversInfo() []*c_base.SDriverInfo     // 获取所有驱动的详细信息
 	GetDriverInfo(driverName string) (*c_base.SDriverInfo, error)
 
 	//IsProtocolActive(protocolId string) bool // 协议是否激活

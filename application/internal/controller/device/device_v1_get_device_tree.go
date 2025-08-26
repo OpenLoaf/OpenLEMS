@@ -9,7 +9,7 @@ import (
 )
 
 func (c *ControllerV1) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeReq) (res *v2.GetDeviceTreeRes, err error) {
-	deviceConfigs := common.GetDeviceManager().GetAllDeviceConfigs()
+	deviceConfigs := common.GetDeviceManager().GetTopDeviceConfigs()
 
 	var deviceTree = make([]*entity.SDeviceTree, 0)
 	_ = gconv.Scan(deviceConfigs, &deviceTree)
