@@ -47,10 +47,6 @@ func Info(ctx context.Context, v ...interface{}) { systemLogger.Info(ctx, v...) 
 func Infof(ctx context.Context, format string, v ...interface{}) {
 	systemLogger.Infof(ctx, format, v...)
 }
-func Notice(ctx context.Context, v ...interface{}) { systemLogger.Notice(ctx, v...) }
-func Noticef(ctx context.Context, format string, v ...interface{}) {
-	systemLogger.Noticef(ctx, format, v...)
-}
 func Warning(ctx context.Context, v ...interface{}) { systemLogger.Warning(ctx, v...) }
 func Warningf(ctx context.Context, format string, v ...interface{}) {
 	systemLogger.Warningf(ctx, format, v...)
@@ -58,18 +54,6 @@ func Warningf(ctx context.Context, format string, v ...interface{}) {
 func Error(ctx context.Context, v ...interface{}) { systemLogger.Error(ctx, v...) }
 func Errorf(ctx context.Context, format string, v ...interface{}) {
 	systemLogger.Errorf(ctx, format, v...)
-}
-func Critical(ctx context.Context, v ...interface{}) { systemLogger.Critical(ctx, v...) }
-func Criticalf(ctx context.Context, format string, v ...interface{}) {
-	systemLogger.Criticalf(ctx, format, v...)
-}
-func Panic(ctx context.Context, v ...interface{}) { systemLogger.Panic(ctx, v...) }
-func Panicf(ctx context.Context, format string, v ...interface{}) {
-	systemLogger.Panicf(ctx, format, v...)
-}
-func Fatal(ctx context.Context, v ...interface{}) { systemLogger.Fatal(ctx, v...) }
-func Fatalf(ctx context.Context, format string, v ...interface{}) {
-	systemLogger.Fatalf(ctx, format, v...)
 }
 
 // ---- 顶层方法（业务日志，仅四种级别）----

@@ -290,7 +290,7 @@ func (p *sBmsPylonTechUs108) startWriteTimeTask() {
 		for {
 			select {
 			case <-p.DeviceCtx.Done():
-				c_log.Noticef(p.DeviceCtx, "startWriteTimeTask() 关闭!")
+				c_log.Debugf(p.DeviceCtx, "startWriteTimeTask() 关闭!")
 				return
 			case <-ticker.C:
 				if p.GetStatus() != c_base.EProtocolConnected {

@@ -74,7 +74,7 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 				select {
 				case <-ctx.Done():
 					delete(p.preQuery, name)
-					c_log.Noticef(ctx, "关闭永久触发查询指令的Goroutine")
+					c_log.Debugf(ctx, "关闭永久触发查询指令的Goroutine")
 					return
 				case <-tk.C:
 					// 如果没有连接，就延迟3秒后再执行下个周期

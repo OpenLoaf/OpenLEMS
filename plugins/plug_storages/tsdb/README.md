@@ -82,3 +82,4 @@ prometheus --config.file=ptdb.yaml --storage.tsdb.path=ptdb/
 - 时间戳过旧或乱序的写入可能被 TSDB 拒绝（参见 Prometheus TSDB usage）。
 
 
+

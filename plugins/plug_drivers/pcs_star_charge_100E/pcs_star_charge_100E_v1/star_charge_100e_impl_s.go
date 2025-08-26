@@ -35,7 +35,7 @@ func (s *sPcsStarCharge100E) GetDriverType() c_base.EDeviceType {
 func (s *sPcsStarCharge100E) Shutdown() {
 	_ = s.SetPower(0)
 	_ = s.SetStatus(c_base.EPcsStatusOff)
-	c_log.Noticef(s.DeviceCtx, "销毁成功,设置PCS状态为Off!")
+	c_log.Infof(s.DeviceCtx, "销毁成功,设置PCS状态为Off!")
 }
 
 func (s *sPcsStarCharge100E) GetFunctionList() []*c_base.STelemetry {

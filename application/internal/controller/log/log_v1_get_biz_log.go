@@ -48,7 +48,7 @@ func (c *ControllerV1) GetBizLog(ctx g.Ctx, req *apiv1.GetBizLogReq) (res *apiv1
 		line := lines[i]
 		if ok, jl := tryParseBizJson(line); ok {
 			// JSON 行包含 type/id，按需过滤
-			if matchTypeAndId(req.Type, req.Id, jl.Type, jl.Id) {
+			if matchTypeAndId(req.Type, req.Id, jl.Type, jl.Id) && matchLevel(req.Level, jl.Level) && !isExcludedLevel(jl.Level) {
 				filtered = append(filtered, apiv1.LogLine{Timestamp: jl.Time, Level: jl.Level, Content: jl.Content, Id: jl.Id, Type: jl.Type})
 			}
 			continue
@@ -101,6 +101,35 @@ func matchTypeAndId(reqType, reqId, lineType, lineId string) bool {
 		return lineType == reqType && lineId == reqId
 	}
 	return false
+}
+
+func matchLevel(reqLevel, lineLevel string) bool {
+	// 空或 all 不做过滤
+	if reqLevel == "" || strings.EqualFold(reqLevel, "all") {
+		return true
+	}
+	rl := normalizeLevel(reqLevel)
+	ll := normalizeLevel(lineLevel)
+	return rl == ll
+}
+
+func normalizeLevel(s string) string {
+	v := strings.ToLower(strings.TrimSpace(s))
+	switch v {
+	case "warning":
+		return "warn"
+	}
+	return v
+}
+
+func isExcludedLevel(level string) bool {
+	l := strings.ToLower(strings.TrimSpace(level))
+	switch l {
+	case "critical", "panic", "fatal", "notice":
+		return true
+	default:
+		return false
+	}
 }
 
 // readAllFileLines 读取文件的所有行

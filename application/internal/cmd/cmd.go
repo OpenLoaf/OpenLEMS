@@ -101,7 +101,7 @@ var (
 				cancelFunc()
 				time.Sleep(1 * time.Second)
 				g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())
-				c_log.BizInfof(ctx, "EMS系统关闭！")
+				c_log.BizWarningf(ctx, "EMS系统关闭！")
 			})
 
 			if parser.GetOpt(ArgEnableWeb).Bool() {

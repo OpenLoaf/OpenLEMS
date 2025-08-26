@@ -17,7 +17,7 @@ func (p *ModbusProtocolProvider) ProtocolListen() {
 					if err != nil {
 						c_log.BizErrorf(p.ctx, "关闭modbus client 失败！失败原因：%+v", err)
 					}
-					c_log.Noticef(p.ctx, "关闭消息查询Goroutine")
+					c_log.Debugf(p.ctx, "关闭消息查询Goroutine")
 					return
 				case query := <-c:
 					/*			if !p.client.IsConnected() {
