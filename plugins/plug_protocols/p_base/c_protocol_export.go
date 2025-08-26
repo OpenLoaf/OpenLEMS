@@ -29,10 +29,14 @@ func ReadTypeGetReflectKind(d c_base.EReadType, bitLength uint8) reflect.Kind {
 	return internal_meta.ReadTypeGetReflectKind(d, bitLength)
 }
 
-// MetaTransformAndCache 元数据转换并缓存
-func MetaTransformAndCache(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (any, error) {
-	v := internal_meta.MetaProcess(meta, value)
-	return internal_meta.CacheValue(ctx, deviceId, deviceType, protocol, meta, v, cache, lifetime)
+func CacheValue(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (any, error) {
+	return internal_meta.CacheValue(ctx, deviceId, deviceType, protocol, meta, value, cache, lifetime)
+}
+
+// MetaTransformModbus 元数据转换并缓存
+func MetaTransformModbus(meta *c_base.Meta, value any) any {
+	return internal_meta.MetaProcess(meta, value)
+	//return internal_meta.CacheValue(ctx, deviceId, deviceType, protocol, meta, v, cache, lifetime)
 }
 
 // MetaTransformCanbus 解析can的数据

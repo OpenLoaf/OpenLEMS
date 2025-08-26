@@ -3,7 +3,7 @@ package v1
 import "github.com/gogf/gf/v2/frame/g"
 
 type GetCurrentAlarmsReq struct {
-	g.Meta   `path:"/device/alarms" method:"get" tags:"设备" summary:"获取当前告警列表"`
+	g.Meta   `path:"/device/alarms" method:"get" tags:"设备相关" summary:"获取当前告警列表"`
 	DeviceId string `json:"deviceId" dc:"可选，指定设备ID；为空则查询全部"`
 }
 

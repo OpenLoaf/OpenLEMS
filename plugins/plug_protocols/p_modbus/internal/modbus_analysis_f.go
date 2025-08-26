@@ -53,7 +53,8 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr uint16, l
 		if kind == reflect.Float64 && math.IsNaN(value.(float64)) {
 			panic(gerror.Newf("[%s-%s] 读取到的float64位的值为NaN！请检查字段是否配置正确！\n%+v", groupName, meta.Name, meta))
 		}
-		vars, err := p_base.MetaTransformAndCache(p.ctx, p.deviceId, p.deviceType, p, meta, value, p.cache, lifetime)
+		vars := p_base.MetaTransformModbus(meta, value)
+		vars, err = p_base.CacheValue(p.ctx, p.deviceId, p.deviceType, p, meta, vars, p.cache, lifetime)
 		if err != nil {
 			message := fmt.Sprintf("[%s-%s] %v;", groupName, meta.Name, err)
 			g.Log().Errorf(p.ctx, message)
@@ -64,7 +65,6 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr uint16, l
 	}
 	if errMessage != "" {
 		err = gerror.Newf(errMessage)
-		//g.Log().Errorf(ctx, errMessage)
 	}
 
 	return results, err

@@ -79,6 +79,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 				30 * time.Second, // 第3次
 				60 * time.Second, // 第4次
 				5 * time.Minute,  // 第5次及之后
+				10 * time.Minute, // 第6次及之后
 			}
 
 			reconnectCount := 0

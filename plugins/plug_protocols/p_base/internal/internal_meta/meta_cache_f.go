@@ -4,11 +4,12 @@ import (
 	"common/c_base"
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
 	"gopkg.in/errgo.v2/fmt/errors"
-	"time"
 )
 
 func CacheValue(ctx context.Context, deviceId string, deviceType c_base.EDeviceType, protocol c_base.IProtocol, meta *c_base.Meta, value any, cache *gcache.Cache, lifetime time.Duration) (any, error) {
@@ -58,4 +59,73 @@ func CacheValue(ctx context.Context, deviceId string, deviceType c_base.EDeviceT
 	}
 
 	return value, nil
+}
+
+func ProcessAlarm(ctx context.Context, meta *c_base.Meta, value any, cache *gcache.Cache, tiggerAlarm func(meta *c_base.Meta), removeAlarm func(meta *c_base.Meta)) {
+	// 判断是否是非信息类型，用于触发告警
+	if meta.Level == 0 {
+		return
+	}
+	isTigger := false
+
+	//triggerMessage := fmt.Sprintf("[%s] 触发[%s]告警, 触发值为: %v", meta.Name, meta.Level.String(), value)
+	//removeMessage := fmt.Sprintf("[%s] 消除[%s]告警, 触发值为: %v", meta.Name, meta.Level.String(), value)
+	if meta.Trigger != nil {
+		if meta.Trigger(value) {
+			isTigger = true
+		}
+	} else if gconv.Bool(value) == true {
+		isTigger = true
+	}
+
+	// 先从缓存中判断一下当前点位值是否相等。如果相等说明是重复触发，如果不相等等说明发生变化
+	oldValue, err := cache.Get(ctx, meta)
+	if err != nil {
+		// 缓存获取失败，直接根据当前状态处理告警
+		if isTigger {
+			tiggerAlarm(meta)
+		} else {
+			removeAlarm(meta)
+		}
+		return
+	}
+
+	// 获取缓存中的旧值
+	var oldMetaValue *c_base.MetaValue
+	if oldValue != nil {
+		oldMetaValue = &c_base.MetaValue{}
+		err = oldValue.Structs(oldMetaValue)
+		if err != nil {
+			// 解析缓存值失败，直接根据当前状态处理告警
+			if isTigger {
+				tiggerAlarm(meta)
+			} else {
+				removeAlarm(meta)
+			}
+			return
+		}
+	}
+
+	// 判断旧值是否也触发了告警
+	oldIsTrigger := false
+	if oldMetaValue != nil {
+		if meta.Trigger != nil {
+			oldIsTrigger = meta.Trigger(oldMetaValue.Value)
+		} else {
+			oldIsTrigger = gconv.Bool(oldMetaValue.Value) == true
+		}
+	}
+
+	// 判断告警状态是否发生变化
+	if isTigger != oldIsTrigger {
+		// 告警状态发生变化，执行相应的告警处理
+		if isTigger {
+			// 触发告警
+			tiggerAlarm(meta)
+		} else {
+			// 消除告警
+			removeAlarm(meta)
+		}
+	}
+	// 如果告警状态没有变化，则不执行任何操作（避免重复触发）
 }
