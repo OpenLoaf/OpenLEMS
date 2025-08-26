@@ -266,7 +266,7 @@ func parseBitValue(canData []byte, meta *c_base.Meta) (any, error) {
 
 	// 边界检查
 	if msbStartIndex < 0 || msbEndIndex > totalBitsInReorderedBytes {
-		return nil, errors.Newf("Bit extraction within reordered bits out of bounds. MSB start: %d, MSB end: %d, Total bits: %d", msbStartIndex, msbEndIndex, totalBitsInReorderedBytes)
+		return nil, errors.Newf("Bit extraction within reordered bits out of bounds. MSB start: %d, MSB end: %d, CurrentTotal bits: %d", msbStartIndex, msbEndIndex, totalBitsInReorderedBytes)
 	}
 
 	// 切片 `allBits` 以获取目标比特。

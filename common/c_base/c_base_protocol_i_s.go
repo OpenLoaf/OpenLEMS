@@ -14,6 +14,7 @@ type IProtocol interface {
 	GetLastUpdateTime() *time.Time         // 获取最后更新时间
 	GetMetaValueList() []*MetaValueWrapper // 获取所有缓存的数据列表
 	GetValue(meta *Meta) (any, error)
+
 	RegisterTask(task ITask, tasks ...ITask) // 注册任务
 	ProtocolListen()                         // 启动协议监听
 }

@@ -57,7 +57,7 @@ func NewPromTSDB(ctx context.Context, storageConfig *c_base.SStorageConfig) c_ba
 		// Use default options; caller controls retention via external cleanup or tsdb options if needed
 		db, err := promtsdb.Open(filepath.Clean(basePath), nil, nil, nil)
 		if err != nil {
-			panic(errors.Newf("打开 Prometheus TSDB 失败: %w", err))
+			panic(errors.Newf("打开 Prometheus TSDB 失败: %w", err.Error()))
 		}
 
 		instance = &promDB{ctx: ctx, db: db}

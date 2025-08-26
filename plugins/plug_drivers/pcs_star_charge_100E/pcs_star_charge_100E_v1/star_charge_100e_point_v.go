@@ -57,9 +57,9 @@ var (
 	AverageVoltageBus              = &c_base.Meta{Name: "AverageVoltageBus", Cn: "母线平均电压", Addr: 30350, ReadType: c_base.RUint16, Factor: 0.1, Unit: "V", Desc: "Average voltage of bus"}
 	AverageVoltagePositive         = &c_base.Meta{Name: "AverageVoltagePositive", Cn: "正母线平均电压", Addr: 30351, ReadType: c_base.RUint16, Factor: 0.1, Unit: "V", Desc: "Average voltage of positive bus"}
 	AverageVoltageNegative         = &c_base.Meta{Name: "AverageVoltageNegative", Cn: "负母线平均电压", Addr: 30352, ReadType: c_base.RUint16, Factor: 0.1, Unit: "V", Desc: "Average voltage of negative bus"}
-	TotalActivePowerInverterSide   = &c_base.Meta{Name: "TotalActivePowerInverterSide", Cn: "逆变器侧总有功功率", Addr: 30353, ReadType: c_base.RInt32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.001, Unit: "kW", Desc: "Total active power on the inverter side"}
-	TotalReactivePowerInverterSide = &c_base.Meta{Name: "TotalReactivePowerInverterSide", Cn: "逆变器侧总无功功率", Addr: 30355, ReadType: c_base.RInt32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.001, Unit: "kVar", Desc: "Total reactive power on the inverter side"}
-	TotalApparentPowerInverterSide = &c_base.Meta{Name: "TotalApparentPowerInverterSide", Cn: "逆变器侧总视在功率", Addr: 30357, ReadType: c_base.RInt32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.001, Unit: "kVA", Desc: "Total apparent power on the inverter side"}
+	TotalActivePowerInverterSide   = &c_base.Meta{Name: "TotalActivePowerInverterSide", Cn: "逆变器侧总有功功率", Addr: 30353, ReadType: c_base.RInt32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.001, Unit: "kW", Desc: "CurrentTotal active power on the inverter side"}
+	TotalReactivePowerInverterSide = &c_base.Meta{Name: "TotalReactivePowerInverterSide", Cn: "逆变器侧总无功功率", Addr: 30355, ReadType: c_base.RInt32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.001, Unit: "kVar", Desc: "CurrentTotal reactive power on the inverter side"}
+	TotalApparentPowerInverterSide = &c_base.Meta{Name: "TotalApparentPowerInverterSide", Cn: "逆变器侧总视在功率", Addr: 30357, ReadType: c_base.RInt32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.001, Unit: "kVA", Desc: "CurrentTotal apparent power on the inverter side"}
 
 	BatterySideVoltage      = &c_base.Meta{Name: "BatterySideVoltage", Cn: "电池侧电压", Addr: 30359, ReadType: c_base.RUint16, Factor: 0.1, Unit: "V", Desc: "Battery side voltage"}
 	BatterySideCurrent      = &c_base.Meta{Name: "BatterySideCurrent", Cn: "电池侧电流", Addr: 30360, ReadType: c_base.RUint16, Factor: 0.1, Unit: "A", Desc: "Battery side current"}
@@ -99,9 +99,9 @@ var (
 	RunTime = &c_base.Meta{Name: "RunTime", Cn: "运行时间", Addr: 31278, ReadType: c_base.RUint32, Endianness: c_base.EMiddleEndian, Desc: "Run time (seconds) query"}
 
 	DailyBatteryChargeEnergy    = &c_base.Meta{Name: "DailyBatteryChargeEnergy", Cn: "每日电池充电能量", Addr: 31284, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.0001, Unit: "kWh", Desc: "Daily battery charge energy"}
-	TotalBatteryChargeEnergy    = &c_base.Meta{Name: "TotalBatteryChargeEnergy", Cn: "总电池充电能量", Addr: 31286, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.0001, Unit: "kWh", Desc: "Total battery charge energy"}
+	TotalBatteryChargeEnergy    = &c_base.Meta{Name: "TotalBatteryChargeEnergy", Cn: "总电池充电能量", Addr: 31286, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.0001, Unit: "kWh", Desc: "CurrentTotal battery charge energy"}
 	DailyBatteryDischargeEnergy = &c_base.Meta{Name: "DailyBatteryDischargeEnergy", Cn: "每日电池放电能量", Addr: 31288, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.0001, Unit: "kWh", Desc: "Daily battery discharge energy"}
-	TotalBatteryDischargeEnergy = &c_base.Meta{Name: "TotalBatteryDischargeEnergy", Cn: "总电池放电能量", Addr: 31290, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.0001, Unit: "kWh", Desc: "Total battery discharge energy"}
+	TotalBatteryDischargeEnergy = &c_base.Meta{Name: "TotalBatteryDischargeEnergy", Cn: "总电池放电能量", Addr: 31290, ReadType: c_base.RUint32, SystemType: c_base.SFloat32, Endianness: c_base.EMiddleEndian, Factor: 0.0001, Unit: "kWh", Desc: "CurrentTotal battery discharge energy"}
 
 	AuxiliaryPowerOnStatus = &c_base.Meta{Name: "AuxiliaryPowerOnStatus", Cn: "辅助电源开启状态", Addr: 32000, ReadType: c_base.RUint16, Desc: "Auxiliary power on status：1-yes， 0-no"}
 

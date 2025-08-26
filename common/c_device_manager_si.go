@@ -19,7 +19,7 @@ type IDeviceManager interface {
 	GetAllDriversInfo() []*c_base.SDriverInfo     // 获取所有驱动的详细信息
 	GetDriverInfo(driverName string) (*c_base.SDriverInfo, error)
 
-	//IsProtocolActive(protocolId string) bool // 协议是否激活
+	IsProtocolActive(protocolId string) bool // 协议是否激活
 	//IsDriverAvailable(ctx context.Context, driverName string) bool // 检查驱动是否可用
 }
 

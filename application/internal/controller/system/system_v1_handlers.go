@@ -279,17 +279,6 @@ func (c *ControllerV1) GetSetting(ctx context.Context, req *v1.GetSettingReq) (r
 		}
 	}
 
-	// 设置默认值
-	if _, exist := settingsMap[s_db_basic.SettingDeviceRetentionDays]; !exist {
-		settingsMap[s_db_basic.SettingDeviceRetentionDays] = s_db_basic.DefaultDeviceRetentionDays
-	}
-	if _, exist := settingsMap[s_db_basic.SettingSystemRetentionDays]; !exist {
-		settingsMap[s_db_basic.SettingSystemRetentionDays] = s_db_basic.DefaultSystemRetentionDays
-	}
-	if _, exist := settingsMap[s_db_basic.SettingLogRetentionDays]; !exist {
-		settingsMap[s_db_basic.SettingLogRetentionDays] = s_db_basic.DefaultLogRetentionDays
-	}
-
 	res = &v1.GetSettingRes{
 		Settings: settingsMap,
 	}

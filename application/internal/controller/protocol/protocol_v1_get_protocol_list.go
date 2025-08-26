@@ -2,6 +2,7 @@ package protocol
 
 import (
 	"application/internal/model/entity"
+	"common"
 	"context"
 	"net"
 	"s_db"
@@ -23,7 +24,7 @@ func (c *ControllerV1) GetProtocolList(ctx context.Context, req *v1.GetProtocolL
 		// 安全地解析地址和端口
 		address, port := parseAddressAndPort(protocol.Address)
 
-		//protocolActive := common.GetDeviceManager().IsProtocolActive(protocol.Id)
+		protocolActive := common.GetDeviceManager().IsProtocolActive(protocol.Id)
 
 		entityProtocols = append(entityProtocols, &entity.SProtocol{
 			ProtocolId:       protocol.Id,
@@ -34,7 +35,7 @@ func (c *ControllerV1) GetProtocolList(ctx context.Context, req *v1.GetProtocolL
 			ProtocolTimeout:  int(protocol.Timeout),
 			ProtocolLogLevel: protocol.LogLevel,
 			ProtocolParams:   protocol.Params,
-			ProtocolActive:   true, // todo 完善
+			ProtocolActive:   protocolActive,
 		})
 	}
 

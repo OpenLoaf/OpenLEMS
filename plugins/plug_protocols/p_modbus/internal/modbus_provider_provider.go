@@ -21,14 +21,15 @@ type ModbusProtocolProvider struct {
 	ctx  context.Context // 上下文
 	once sync.Once       // 只执行一次Init方法
 
-	deviceId           string
+	deviceId   string
+	deviceType c_base.EDeviceType
+
 	modbusReadChan     chan *c_proto.SModbusTask // 查询用的通道
 	client             modbus.Client             // modbus的通讯
 	preQuery           map[string]bool           // 预读
 	cache              *gcache.Cache             // 点位缓存
 	modbusRwMutex      sync.RWMutex              // 读写锁
 	lastUpdateTime     *time.Time                // 最后更新时间
-	deviceType         c_base.EDeviceType
 	modbusDeviceConfig *c_proto.SModbusDeviceConfig
 	protocolConfig     *c_base.SProtocolConfig
 
