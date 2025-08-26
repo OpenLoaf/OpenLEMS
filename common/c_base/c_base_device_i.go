@@ -3,7 +3,8 @@ package c_base
 import "time"
 
 type IDevice interface {
-	IAlarm
+	IAlarm // 告警
+	//IPolicy // 策略
 	GetConfig() *SDeviceConfig
 
 	GetMetaValueList() []*MetaValueWrapper // 获取所有缓存的数据列表

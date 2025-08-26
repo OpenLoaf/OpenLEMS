@@ -6,3 +6,19 @@ author: "zz@hexems.com"
 create: "2024-09-07"
 remark: "星星充电100E PCS"
 protocolType: "modbus"
+telemetry:
+  - name: status
+    displayName: "状态"
+    type: label
+    mapping:
+      0: "未知|#FF5D5D"
+      1: "关机|#9CBF30"
+      2: "待机|#6967EE"
+      3: "充电中|#29A634"
+      4: "放电中|#0098FA"
+      5: "故障|#FF5D5D"
+      6: "同步中|#FF5D5D"
+      7: "启动中|#FF5D5D"
+  - name: power
+    unit: "kW"
+    displayName: "功率"

@@ -15,6 +15,8 @@ type sEssPylonCheckwatt struct {
 	*c_device.SVirtualDevice
 	essConfig *sEssPylonCheckwattConfig
 
+	//*c_base.SPolicyManager
+
 	targetPower         int32
 	targetReactivePower int32
 	targetPowerFactor   float32

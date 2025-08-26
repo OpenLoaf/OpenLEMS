@@ -42,10 +42,10 @@ telemetry:
     displayName: "当日放电量"
     unit: "kWh"
   - name: historyIncomingQuantity
-    displayName: historyIncomingQuantity
+    displayName: "历史充电量"
     unit: "kWh"
     remark: "历史充电量"
   - name: historyOutgoingQuantity
-    displayName: historyOutgoingQuantity
+    displayName: "历史放电量"
     unit: "kWh"
     remark: "历史放电量"

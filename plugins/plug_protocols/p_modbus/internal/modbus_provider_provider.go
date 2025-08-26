@@ -65,10 +65,6 @@ func (p *ModbusProtocolProvider) GetValue(meta *c_base.Meta) (any, error) {
 
 var _ c_base.IProtocol = (*ModbusProtocolProvider)(nil)
 
-func (p *ModbusProtocolProvider) IsPhysical() bool {
-	return true
-}
-
 func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
 	if protocolConfig == nil {
 		panic(gerror.Newf("Modbus设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))

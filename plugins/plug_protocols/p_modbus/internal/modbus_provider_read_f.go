@@ -4,6 +4,7 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"common/c_proto"
+	"errors"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"p_base"
@@ -25,6 +26,11 @@ func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function c_pr
 	if vr != nil {
 		return vr, nil
 	}
+
+	if p.GetStatus() != c_base.EProtocolConnected {
+		return nil, errors.New("当前连接未连接，无法查询数据")
+	}
+
 	name := fmt.Sprintf("SingleRead:%s", meta.Name)
 	result, err := p.readValues(name, meta.Addr, p_base.ReadTypeRegisterSize(meta.ReadType), function)
 	if err != nil {

@@ -10,9 +10,11 @@ type IPolicy interface {
 }
 
 type SPolicyMonitor struct {
-	duration    *time.Duration
-	triggerFunc func(mode EPolicyMode) bool
-	handleFunc  func()
+	Name        string
+	Duration    *time.Duration // 时间周期
+	Modes       []EPolicyMode  // 哪些模式下触发
+	TriggerFunc func() bool    // 触发条件
+	HandleFunc  func()         // 执行方法
 }
 
 type EPolicyMode int

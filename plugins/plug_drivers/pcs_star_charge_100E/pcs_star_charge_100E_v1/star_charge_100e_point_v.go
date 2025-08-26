@@ -1,6 +1,9 @@
 package pcs_star_charge_100E_v1
 
-import "common/c_base"
+import (
+	"common/c_base"
+	"github.com/shockerli/cvt"
+)
 
 // 年月日，可写
 var (
@@ -13,7 +16,18 @@ var (
 )
 
 var (
-	OnOffCommand         = &c_base.Meta{Name: "OnOffCommand", Cn: "开关机指令", Addr: 30314, ReadType: c_base.RUint16, Desc: "On/off command: 0- Shutdown, 1- Startup, 2- Standby"}
+	OnOffCommand = &c_base.Meta{Name: "OnOffCommand", Cn: "开关机指令", Addr: 30314, ReadType: c_base.RUint16,
+		StatusExplain: func(value any) string {
+			switch cvt.Int8(value) {
+			case 0:
+				return "关机"
+			case 1:
+				return "已启动"
+			case 2:
+				return "待机"
+			}
+			return "未知值:" + cvt.String(value)
+		}, Desc: "On/off command: 0- Shutdown, 1- Startup, 2- Standby"}
 	ActivePowerSetting   = &c_base.Meta{Debug: false, Name: "ActivePowerSetting", Cn: "有功功率设置", Addr: 30315, ReadType: c_base.RInt32, Endianness: c_base.EMiddleEndian, Factor: 0.001, Desc: "Inverter active power setting, Positive power represents battery discharge, with power from the DC side to the AC side, Negative power represents battery charging, with power from the AC side to the DC side"}
 	ReactivePowerSetting = &c_base.Meta{Name: "ReactivePowerSetting", Cn: "无功功率设置", Addr: 30317, ReadType: c_base.RInt32, Endianness: c_base.EMiddleEndian, Factor: 0.001, Desc: "Inverter reactive power setting"}
 )
@@ -50,7 +64,23 @@ var (
 	BatterySideVoltage      = &c_base.Meta{Name: "BatterySideVoltage", Cn: "电池侧电压", Addr: 30359, ReadType: c_base.RUint16, Factor: 0.1, Unit: "V", Desc: "Battery side voltage"}
 	BatterySideCurrent      = &c_base.Meta{Name: "BatterySideCurrent", Cn: "电池侧电流", Addr: 30360, ReadType: c_base.RUint16, Factor: 0.1, Unit: "A", Desc: "Battery side current"}
 	BatterySidePower        = &c_base.Meta{Name: "BatterySidePower", Cn: "电池侧功率", Addr: 30361, ReadType: c_base.RUint16, Factor: 0.01, Unit: "kW", Desc: "Battery side power"}
-	InverterOperationStatus = &c_base.Meta{Name: "InverterOperationStatus", Cn: "逆变器运行状态", Addr: 30374, ReadType: c_base.RUint16, Desc: "Inverter operation status: 0 - Waiting for the machine to start, 1 - Power on self check, 2 - Grid connected operation, 3 - Off grid operation, 4 - Reserved, 5 - General error"}
+	InverterOperationStatus = &c_base.Meta{Name: "InverterOperationStatus", Cn: "逆变器运行状态", Addr: 30374, ReadType: c_base.RUint16, StatusExplain: func(value any) string {
+		switch cvt.Int8(value) {
+		case 0:
+			return "等待设备启动"
+		case 1:
+			return "上电自检"
+		case 2:
+			return "并网运行"
+		case 3:
+			return "离网运行"
+		case 4:
+			return "保留"
+		case 5:
+			return "异常"
+		}
+		return "未知值:" + cvt.String(value)
+	}, Desc: "Inverter operation status: 0 - Waiting for the machine to start, 1 - Power on self check, 2 - Grid connected operation, 3 - Off grid operation, 4 - Reserved, 5 - General error"}
 
 	SerialNumber1 = &c_base.Meta{Name: "SerialNumber1", Cn: "序列号1", Addr: 30407, ReadType: c_base.RUint32, Endianness: c_base.EMiddleEndian, Desc: "Serial number 1/5"}
 	SerialNumber2 = &c_base.Meta{Name: "SerialNumber2", Cn: "序列号2", Addr: 30409, ReadType: c_base.RUint32, Endianness: c_base.EMiddleEndian, Desc: "Serial number 2/5"}
