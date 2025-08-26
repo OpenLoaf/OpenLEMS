@@ -46,6 +46,10 @@ func NewSingleDriverManager(parentCtx context.Context) *SDeviceManager {
 	return driverManagerInstance
 }
 
+func (m *SDeviceManager) GetAllDeviceConfigs() []*c_base.SDeviceConfig {
+	return m.deviceConfig
+}
+
 func (m *SDeviceManager) GetDeviceById(deviceId string) c_base.IDevice {
 	if dw, exist := m.deviceInstanceMap[deviceId]; exist {
 		return dw

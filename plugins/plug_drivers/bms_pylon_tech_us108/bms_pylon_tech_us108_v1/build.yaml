@@ -33,8 +33,7 @@ telemetry:
       displayName: "放电量"
 
 
-
-customService:
+service:
   - name: CustomDcOffService
     displayName: "g18n:dc-off"
     description: "电池下电指令"

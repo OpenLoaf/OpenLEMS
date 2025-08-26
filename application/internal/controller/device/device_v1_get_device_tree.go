@@ -2,26 +2,17 @@ package device
 
 import (
 	v2 "application/api/device/v1"
+	"application/internal/model/entity"
 	"common"
-	"common/c_base"
 	"context"
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 func (c *ControllerV1) GetDeviceTree(ctx context.Context, req *v2.GetDeviceTreeReq) (res *v2.GetDeviceTreeRes, err error) {
-	var (
-		pid        string
-		deviceTree = make([]*c_base.SDeviceConfig, 0)
-	)
+	deviceConfigs := common.GetDeviceManager().GetAllDeviceConfigs()
 
-	common.GetDeviceManager().IteratorAssAllDevicesWrapper(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
-		if pid == "" {
-			pid = config.Pid
-		} else if pid != config.Pid {
-			return false
-		}
-		deviceTree = append(deviceTree, config)
-		return true
-	})
+	var deviceTree = make([]*entity.SDeviceTree, 0)
+	_ = gconv.Scan(deviceConfigs, &deviceTree)
 	return &v2.GetDeviceTreeRes{
 		DeviceTree: deviceTree,
 	}, nil
