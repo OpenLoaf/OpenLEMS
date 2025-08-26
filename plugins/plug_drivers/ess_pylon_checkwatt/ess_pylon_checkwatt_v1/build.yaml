@@ -1,5 +1,6 @@
 brand: Pylon
 model: Checkwatt
+type: ess
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2024-09-07"

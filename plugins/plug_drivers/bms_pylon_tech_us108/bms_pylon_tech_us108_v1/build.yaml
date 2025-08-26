@@ -1,5 +1,6 @@
 brand: Pylon
 model: TechUs108
+type: bms
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2024-09-07"

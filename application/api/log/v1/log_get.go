@@ -9,7 +9,7 @@ type GetBizLogReq struct {
 	Date     string `json:"date"   dc:"日期，格式：20060102，默认为今天"`
 	Page     int    `json:"page"   d:"1" dc:"页码，从1开始"`
 	PageSize int    `json:"pageSize" d:"100" dc:"每页条数(最大1000)"`
-	Level    string `json:"level"  v:"in:debug,info,warn,error,all" dc:"日志等级(可空/为all返回全部；不支持: critical/panic/fatal/notice)"`
+	Level    string `json:"level"  v:"in:DEBUG,INFO,WARN,ERROR,ALL" dc:"日志等级(可空/为ALL返回全部；仅支持: DEBUG/INFO/WARN/ERROR)"`
 }
 
 // LogLine 结构化日志行
