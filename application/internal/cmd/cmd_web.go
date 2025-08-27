@@ -88,6 +88,9 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		s.BindHandler("GET:/favicon.ico", func(r *ghttp.Request) {
 			fileServer.ServeHTTP(r.Response.Writer, r.Request)
 		})
+		s.BindHandler("GET:/config/*", func(r *ghttp.Request) {
+			fileServer.ServeHTTP(r.Response.Writer, r.Request)
+		})
 
 		// 根路径：直接输出 index.html
 		s.BindHandler("GET:/", func(r *ghttp.Request) {
