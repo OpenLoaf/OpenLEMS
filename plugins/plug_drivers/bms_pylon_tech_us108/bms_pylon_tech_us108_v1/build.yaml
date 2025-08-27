@@ -25,9 +25,6 @@ telemetry:
     - name: capacity
       unit: "kWh"
       displayName: "电池容量"
-    - name: targetPower
-      unit: "kW"
-      displayName: "目标功率"
     - name: dcPower
       unit: "kW"
       displayName: "直流功率"

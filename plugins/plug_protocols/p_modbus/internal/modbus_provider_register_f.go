@@ -5,7 +5,7 @@ import (
 	"common/c_log"
 	"common/c_proto"
 	"context"
-	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -38,7 +38,7 @@ func (p *ModbusProtocolProvider) RegisterTask(task c_base.ITask, tasks ...c_base
 
 func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 	if group.Name == "" {
-		panic(gerror.Newf("[%v-%v] 参数错误！modbusQuery的name为空！%+v", p.deviceId, group.Name, group))
+		panic(errors.Errorf("[%v-%v] 参数错误！modbusQuery的name为空！%+v", p.deviceId, group.Name, group))
 	}
 
 	var (

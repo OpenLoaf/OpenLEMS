@@ -14,7 +14,6 @@ import (
 	"starCharge100E_v1/pcs_star_charge_100E_v1"
 	"strings"
 
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -67,17 +66,17 @@ func getDriver(driverName string, device c_base.IDevice) (d c_base.IDriver, err 
 	// 获取驱动的类型
 	driverGroups := strings.Split(driverName, "_")
 	if driverGroups == nil || len(driverGroups) == 0 {
-		return nil, gerror.Newf("驱动名称错误！%s", driverName)
+		return nil, errors.Errorf("驱动名称错误！%s", driverName)
 	}
 
 	pluginNewMethod := pluginNewMethodCache[driverName]
 	if pluginNewMethod == nil {
-		return nil, gerror.Newf("未找到驱动插件[%s]的NewPlugin方法！请检查pluginNewMethodCache或配置文件", driverName)
+		return nil, errors.Errorf("未找到驱动插件[%s]的NewPlugin方法！请检查pluginNewMethodCache或配置文件", driverName)
 	}
 
 	defer func() {
 		if r := recover(); r != nil {
-			err = gerror.Newf("执行[%s]驱动New方法失败! 原因请查看控制台日志", driverName)
+			err = errors.Errorf("执行[%s]驱动New方法失败! 原因请查看控制台日志", driverName)
 			c_log.Errorf(context.Background(), "执行[%s]驱动New方法失败！原因：%s", driverName, r.(error).Error())
 		}
 	}()
@@ -89,10 +88,10 @@ func getDriver(driverName string, device c_base.IDevice) (d c_base.IDriver, err 
 
 	if dv, ok := results[0].Interface().(c_base.IDriver); ok {
 		//if dv.GetDriverType() != c_base.EDeviceType(driverGroups[0]) {
-		//	panic(gerror.Newf("%s 中驱动类型不匹配！期望类型：%s, 实际类型：%s", driverName, dv.GetDriverType(), driverGroups[0]))
+		//	panic(errors.Errorf("%s 中驱动类型不匹配！期望类型：%s, 实际类型：%s", driverName, dv.GetDriverType(), driverGroups[0]))
 		//}
 		return dv, nil
 	} else {
-		return nil, gerror.Newf("加载插件[%s]失败！原因：未找到函数：%s", driverName, c_base.ConstNewPluginFunctionName)
+		return nil, errors.Errorf("加载插件[%s]失败！原因：未找到函数：%s", driverName, c_base.ConstNewPluginFunctionName)
 	}
 }

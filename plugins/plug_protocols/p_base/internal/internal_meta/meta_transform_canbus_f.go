@@ -22,7 +22,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/gogf/gf/v2/encoding/gbinary"
-	"github.com/gogf/gf/v2/errors/gerror"
 )
 
 // ParseCanbusData 根据 Meta 定义解析 CANbus 原始数据。
@@ -53,7 +52,7 @@ import (
 //	result, err := ParseCanbusData([]byte{0x01, 0x00, 0x07}, meta)
 func ParseCanbusData(canData []byte, meta *c_base.Meta) (any, error) {
 	if meta == nil {
-		return nil, gerror.New("Meta cannot be nil")
+		return nil, errors.Errorf("Meta cannot be nil")
 	}
 
 	// 确保 Factor 不为 0，以避免除零或意外清零
@@ -342,24 +341,24 @@ func convertBitsToUint(dataBytes []byte, bitLength int, endianness c_base.ECharS
 	switch {
 	case bitLength <= 8:
 		if len(dataBytes) == 0 {
-			return nil, gerror.New("Not enough bytes for Uint8 conversion after bit encoding")
+			return nil, errors.Errorf("Not enough bytes for Uint8 conversion after bit encoding")
 		}
 		// 假设 gbinary.DecodeToUint8 接收 []byte 并进行转换。
 		// 如果它只接收一个 byte 类型，则需要 dataBytes[0]。
 		val = gbinary.DecodeToUint8(dataBytes)
 	case bitLength <= 16:
 		if len(dataBytes) < 2 {
-			return nil, gerror.New("Not enough bytes for Uint16 conversion after bit encoding")
+			return nil, errors.Errorf("Not enough bytes for Uint16 conversion after bit encoding")
 		}
 		val = gbinary.DecodeToUint16(dataBytes)
 	case bitLength <= 32:
 		if len(dataBytes) < 4 {
-			return nil, gerror.New("Not enough bytes for Uint32 conversion after bit encoding")
+			return nil, errors.Errorf("Not enough bytes for Uint32 conversion after bit encoding")
 		}
 		val = gbinary.DecodeToUint32(dataBytes)
 	case bitLength <= 64:
 		if len(dataBytes) < 8 {
-			return nil, gerror.New("Not enough bytes for Uint64 conversion after bit encoding")
+			return nil, errors.Errorf("Not enough bytes for Uint64 conversion after bit encoding")
 		}
 		val = gbinary.DecodeToUint64(dataBytes)
 	default:

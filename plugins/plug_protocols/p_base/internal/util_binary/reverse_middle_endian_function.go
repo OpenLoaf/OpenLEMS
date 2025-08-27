@@ -5,8 +5,8 @@ import (
 	"context"
 	"encoding/binary"
 	"fmt"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/pkg/errors"
 	"math"
 )
 
@@ -75,7 +75,7 @@ func RmeDecode(b []byte, values ...interface{}) error {
 	)
 	for i := 0; i < len(values); i++ {
 		if err = binary.Read(buf, _ReverseMiddleEndian, values[i]); err != nil {
-			err = gerror.Wrap(err, `binary.Read failed`)
+			err = errors.Wrap(err, "binary.Read failed")
 			return err
 		}
 	}

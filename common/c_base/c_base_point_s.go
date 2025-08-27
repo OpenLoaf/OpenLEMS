@@ -50,7 +50,6 @@ type MetaGroup struct {
 	Display   bool   `json:"display" dc:"是否显示"`
 }
 
-// Deprecated: 准备替换成MetaValueWrapper
 type MetaValue struct {
 	Value      any        `json:"value,omitempty" dc:"数值"`
 	HappenTime *time.Time `json:"happenTime,omitempty" dc:"发生时间"`

@@ -5,7 +5,7 @@ import (
 	"context"
 	"p_modbus"
 
-	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/pkg/errors"
 	"github.com/torykit/go-modbus"
 )
 
@@ -57,10 +57,10 @@ func (m *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 	// 从配置中获取协议
 	protocolConfig := deviceConfig.ProtocolConfig
 	if protocolConfig == nil {
-		return nil, gerror.Newf("协议Id: %s 配置信息不存在！", deviceConfig.ProtocolId)
+		return nil, errors.Errorf("协议Id: %s 配置信息不存在！", deviceConfig.ProtocolId)
 	}
 	if err := protocolConfig.Check(); err != nil {
-		return nil, gerror.Wrapf(err, "检查协议配置失败，格式异常！")
+		return nil, errors.Wrapf(err, "检查协议配置失败，格式异常！")
 	}
 
 	// 初始化协议
@@ -122,5 +122,5 @@ func (m *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 		//return gpioSysfsProtocol, nil
 	}
 
-	return nil, gerror.Newf("未知的协议类型：%s", protocolConfig.GetProtocol())
+	return nil, errors.Errorf("未知的协议类型：%s", protocolConfig.GetProtocol())
 }

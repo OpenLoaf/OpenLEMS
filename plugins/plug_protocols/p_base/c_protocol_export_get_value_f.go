@@ -3,10 +3,10 @@ package p_base
 import (
 	"common/c_base"
 	"context"
-	"github.com/gogf/gf/v2/container/gvar"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/pkg/errors"
+	"github.com/shockerli/cvt"
 )
 
 type SGetProtocolCacheValueImpl struct {
@@ -24,21 +24,24 @@ func NewGetProtocolCacheValue(ctx context.Context, id string, cache *gcache.Cach
 }
 
 func (s *SGetProtocolCacheValueImpl) GetValue(meta *c_base.Meta) (any, error) {
-	get, err := s.cache.Get(s.ctx, meta)
+	cacheValue, err := s.cache.Get(s.ctx, meta)
 	if err != nil {
 		return nil, err
 	}
+	if cacheValue == nil {
+		return nil, nil
+	}
 	metaValue := &c_base.MetaValue{}
-	err = get.Structs(metaValue)
+	err = cacheValue.Structs(metaValue)
 	if err != nil {
 		return nil, err
 	}
 	if metaValue.Value == nil {
-		return nil, gerror.Newf("[%v-%s] 获取的值为空！", s.id, meta.Name)
+		return nil, errors.Errorf("[%v-%s] 获取的值为空！", s.id, meta.Name)
 	}
 	// todo 添加数据过期逻辑，比如超过3秒，数据过期，返回数据过期
 
-	return gvar.New(metaValue.Value), err
+	return metaValue.Value, err
 }
 
 func (s *SGetProtocolCacheValueImpl) GetBool(meta *c_base.Meta) (bool, error) {
@@ -47,9 +50,9 @@ func (s *SGetProtocolCacheValueImpl) GetBool(meta *c_base.Meta) (bool, error) {
 		return false, err
 	}
 	if get == nil {
-		return false, gerror.Newf("[%v-%s] 获取的值为空！", s.id, meta.Name)
+		return false, errors.Errorf("[%v-%s] 获取的值为空！", s.id, meta.Name)
 	}
-	return get.(*gvar.Var).Bool(), err
+	return cvt.BoolE(get)
 }
 
 func (s *SGetProtocolCacheValueImpl) GetIntValue(meta *c_base.Meta) (int, error) {
@@ -58,9 +61,9 @@ func (s *SGetProtocolCacheValueImpl) GetIntValue(meta *c_base.Meta) (int, error)
 		return 0, err
 	}
 	if get == nil {
-		return 0, gerror.Newf("[%v-%s] 获取的值为空！", s.id, meta.Name)
+		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.id, meta.Name)
 	}
-	return get.(*gvar.Var).Int(), err
+	return cvt.IntE(get)
 }
 
 func (s *SGetProtocolCacheValueImpl) GetInt32Value(meta *c_base.Meta) (int32, error) {
@@ -69,9 +72,9 @@ func (s *SGetProtocolCacheValueImpl) GetInt32Value(meta *c_base.Meta) (int32, er
 		return 0, err
 	}
 	if get == nil {
-		return 0, gerror.Newf("[%v-%s] 获取的值为空！", s.id, meta.Name)
+		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.id, meta.Name)
 	}
-	return get.(*gvar.Var).Int32(), err
+	return cvt.Int32E(get)
 }
 
 func (s *SGetProtocolCacheValueImpl) GetUintValue(meta *c_base.Meta) (uint, error) {
@@ -80,9 +83,9 @@ func (s *SGetProtocolCacheValueImpl) GetUintValue(meta *c_base.Meta) (uint, erro
 		return 0, err
 	}
 	if get == nil {
-		return 0, gerror.Newf("[%v-%s] 获取的值为空！", s.id, meta.Name)
+		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.id, meta.Name)
 	}
-	return get.(*gvar.Var).Uint(), err
+	return cvt.UintE(get)
 }
 
 func (s *SGetProtocolCacheValueImpl) GetUint32Value(meta *c_base.Meta) (uint32, error) {
@@ -91,9 +94,9 @@ func (s *SGetProtocolCacheValueImpl) GetUint32Value(meta *c_base.Meta) (uint32, 
 		return 0, err
 	}
 	if get == nil {
-		return 0, gerror.Newf("[%v-%s] 获取的值为空！", s.id, meta.Name)
+		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.id, meta.Name)
 	}
-	return get.(*gvar.Var).Uint32(), err
+	return cvt.Uint32E(get)
 }
 
 func (s *SGetProtocolCacheValueImpl) GetFloat32Value(meta *c_base.Meta) (float32, error) {
@@ -102,10 +105,10 @@ func (s *SGetProtocolCacheValueImpl) GetFloat32Value(meta *c_base.Meta) (float32
 		return 0, err
 	}
 	if get == nil {
-		return 0, gerror.Newf("[%v-%s] 获取的值为空！", s.id, meta.Name)
+		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.id, meta.Name)
 	}
 
-	return get.(*gvar.Var).Float32(), err
+	return cvt.Float32E(get)
 }
 
 func (s *SGetProtocolCacheValueImpl) GetFloat32Values(metas ...*c_base.Meta) ([]float32, error) {

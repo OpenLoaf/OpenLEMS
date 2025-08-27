@@ -4,7 +4,6 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"common/c_proto"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/pkg/errors"
 	"p_base"
 )
@@ -42,7 +41,7 @@ func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *c_proto.SModbusTa
 	}
 	dataLength := group.Quantity
 	if len(group.Metas) != len(values) {
-		panic(gerror.Newf("点位数量与值数量不一致！点位数量：%d, 值数量：%d", len(group.Metas), dataLength))
+		panic(errors.Errorf("点位数量与值数量不一致！点位数量：%d, 值数量：%d", len(group.Metas), dataLength))
 	}
 	bytes := make([]byte, dataLength*2)
 
@@ -54,7 +53,7 @@ func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *c_proto.SModbusTa
 		} else {
 
 			if meta.Addr != (metaIndex + p_base.ReadTypeRegisterSize(meta.ReadType)) {
-				panic(gerror.Newf("点位的顺序不正确！点位：%s, 地址：%d，实际地址应该为: %d", meta.Name, meta.Addr, metaIndex+p_base.ReadTypeRegisterSize(meta.ReadType)))
+				panic(errors.Errorf("点位的顺序不正确！点位：%s, 地址：%d，实际地址应该为: %d", meta.Name, meta.Addr, metaIndex+p_base.ReadTypeRegisterSize(meta.ReadType)))
 			}
 			metaIndex = meta.Addr
 		}

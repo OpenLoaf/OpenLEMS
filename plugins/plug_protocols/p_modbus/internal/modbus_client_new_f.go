@@ -7,9 +7,9 @@ import (
 	"time"
 
 	"github.com/goburrow/serial"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/pkg/errors"
 	"github.com/torykit/go-modbus"
 )
 
@@ -34,8 +34,8 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		rtuConfig := &ModbusRtuProtocolConfig{}
 		err := gconv.Scan(protocolConfig.Params, rtuConfig)
 		if err != nil {
-			//panic(gerror.New("modbus rtu配置文件解析失败"))
-			return nil, gerror.Wrap(err, `modbus rtu配置文件解析失败`)
+			//panic(errors.Errorf("modbus rtu配置文件解析失败"))
+			return nil, errors.Wrap(err, `modbus rtu配置文件解析失败`)
 		}
 
 		var option []modbus.ClientProviderOption
@@ -54,15 +54,15 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		p := modbus.NewRTUClientProvider(option...)
 		client = modbus.NewClient(p)
 	default:
-		//panic(gerror.New("不支持的modbus协议！"))
-		return nil, gerror.New("不支持的modbus协议！")
+		//panic(errors.Errorf("不支持的modbus协议！"))
+		return nil, errors.Errorf("不支持的modbus协议！")
 	}
 
 	err := client.Connect()
 	if err != nil {
 		if protocolConfig.GetProtocol() == c_base.EModbusRtu {
-			//panic(gerror.Newf("modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
-			return nil, gerror.Wrapf(err, "modbus rtu 地址：[%s] 连接失败！", protocolConfig.GetAddress())
+			//panic(errors.Errorf("modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
+			return nil, errors.Wrapf(err, "modbus rtu 地址：[%s] 连接失败！", protocolConfig.GetAddress())
 		}
 		c_log.BizWarningf(ctx, "连接到：modbus地址 %s 失败！等待下一次连接！ %s", protocolConfig.GetAddress(), err.Error())
 	} else {

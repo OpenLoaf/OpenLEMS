@@ -2,12 +2,11 @@ package protocol
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"s_db"
 
-	"github.com/gogf/gf/v2/errors/gcode"
-	"github.com/gogf/gf/v2/errors/gerror"
-
 	v1 "application/api/protocol/v1"
+	"github.com/gogf/gf/v2/errors/gcode"
 )
 
 func (c *ControllerV1) DeleteProtocol(ctx context.Context, req *v1.DeleteProtocolReq) (res *v1.DeleteProtocolRes, err error) {

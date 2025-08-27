@@ -2,12 +2,11 @@ package protocol
 
 import (
 	"context"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"s_db"
 
-	"github.com/gogf/gf/v2/errors/gcode"
-	"github.com/gogf/gf/v2/errors/gerror"
-
 	v1 "application/api/protocol/v1"
+	"github.com/gogf/gf/v2/errors/gcode"
 )
 
 func (c *ControllerV1) CreateProtocol(ctx context.Context, req *v1.CreateProtocolReq) (res *v1.CreateProtocolRes, err error) {

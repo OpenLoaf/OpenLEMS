@@ -5,7 +5,6 @@ import (
 	"common/c_log"
 	"common/c_proto"
 	"fmt"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/pkg/errors"
 	"p_base"
 	"time"
@@ -37,14 +36,14 @@ func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function c_pr
 		return nil, err
 	}
 	if result == nil || len(result) == 0 {
-		return nil, gerror.Newf("读取到的数据为空！")
+		return nil, errors.Errorf("读取到的数据为空！")
 	}
 	values, err := p.analysisModbus(name, meta.Addr, lifetime, result, meta)
 	if err != nil {
 		return nil, err
 	}
 	if len(values) == 0 {
-		return nil, gerror.Newf("获取的值为空！")
+		return nil, errors.Errorf("获取的值为空！")
 	}
 	return values[0], nil
 }
@@ -97,7 +96,7 @@ func (p *ModbusProtocolProvider) ReadGroupSync(group *c_proto.SModbusTask, readC
 	}
 
 	if len(vars) != returnMetasLength {
-		return nil, gerror.Newf("metas数量和结果数量不一样！")
+		return nil, errors.Errorf("metas数量和结果数量不一样！")
 	}
 
 	return vars, nil
@@ -151,7 +150,7 @@ func (p *ModbusProtocolProvider) readValues(name string, addr, quantity uint16, 
 	}
 	if result == nil || len(result) == 0 {
 		_ = p.client.Close()
-		return nil, gerror.Newf("[%s] Modbus Task Return Empty！", name)
+		return nil, errors.Errorf("[%s] Modbus Task Return Empty！", name)
 	}
 
 	c_log.Debugf(p.ctx, "[%v] Modbus Task Return：[% x]", name, result)

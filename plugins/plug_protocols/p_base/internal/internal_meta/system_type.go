@@ -2,8 +2,8 @@ package internal_meta
 
 import (
 	"common/c_base"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
+	"github.com/pkg/errors"
 	"reflect"
 )
 
@@ -72,7 +72,7 @@ func SystemTypeGetReflectKind(s c_base.ESystemType, readType c_base.EReadType, b
 	case c_base.SString:
 		return reflect.String
 	}
-	panic(gerror.New("未知的SystemType类型！"))
+	panic(errors.Errorf("未知的SystemType类型！"))
 }
 
 func Calc[T c_base.Number](result T, factor float32, offset int) T {

@@ -3,7 +3,7 @@ package internal_meta
 import (
 	"common/c_base"
 	"github.com/gogf/gf/v2/encoding/gbinary"
-	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/pkg/errors"
 	"p_base/internal/util_binary"
 )
 
@@ -18,7 +18,7 @@ func ECharSequenceEncodeString(e c_base.ECharSequence, s string) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeString(s)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -33,7 +33,7 @@ func ECharSequenceEncodeInt(e c_base.ECharSequence, i int) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeInt(i)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -48,7 +48,7 @@ func ECharSequenceEncodeUint(e c_base.ECharSequence, u uint) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeUint(u)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -63,7 +63,7 @@ func ECharSequenceEncodeBool(e c_base.ECharSequence, b bool) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeBool(b)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -78,7 +78,7 @@ func ECharSequenceEncodeInt8(e c_base.ECharSequence, i int8) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeInt8(i)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -93,7 +93,7 @@ func ECharSequenceEncodeUint8(e c_base.ECharSequence, u uint8) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeUint8(u)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -108,7 +108,7 @@ func ECharSequenceEncodeInt16(e c_base.ECharSequence, i int16) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeInt16(i)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -123,7 +123,7 @@ func ECharSequenceEncodeUint16(e c_base.ECharSequence, u uint16) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeUint16(u)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -138,7 +138,7 @@ func ECharSequenceEncodeInt32(e c_base.ECharSequence, i int32) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeInt32(i)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -153,7 +153,7 @@ func ECharSequenceEncodeUint32(e c_base.ECharSequence, u uint32) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeUint32(u)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -168,7 +168,7 @@ func ECharSequenceEncodeInt64(e c_base.ECharSequence, i int64) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeInt64(i)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -183,7 +183,7 @@ func ECharSequenceEncodeUint64(e c_base.ECharSequence, u uint64) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeUint64(u)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -198,7 +198,7 @@ func ECharSequenceEncodeFloat32(e c_base.ECharSequence, f float32) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeFloat32(f)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }
 
@@ -213,6 +213,6 @@ func ECharSequenceEncodeFloat64(e c_base.ECharSequence, f float64) []byte {
 	case c_base.EReverseMiddleEndian:
 		return util_binary.RmeEncodeFloat64(f)
 	default:
-		panic(gerror.New("不支持的Endianness类型！"))
+		panic(errors.New("不支持的Endianness类型！"))
 	}
 }

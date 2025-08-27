@@ -47,7 +47,7 @@ func next3AMDuration(now time.Time) time.Duration {
 
 func (s *sPcsStarCharge100E) _syncTime() error {
 	//if !s.client.IsActivate() {
-	//	return gerror.Newf("modbus client is not activate")
+	//	return errors.Errorf("modbus client is not activate")
 	//}
 	//now := time.Now()
 	//

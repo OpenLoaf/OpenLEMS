@@ -2,9 +2,9 @@ package entity
 
 import (
 	"common/c_base"
+	"github.com/pkg/errors"
 	"reflect"
 
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
@@ -89,5 +89,5 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 		}
 		return nil
 	}
-	return gerror.Newf(`unsupported value type for UnmarshalValue: %v`, reflect.TypeOf(value))
+	return errors.Errorf(`unsupported value type for UnmarshalValue: %v`, reflect.TypeOf(value))
 }
