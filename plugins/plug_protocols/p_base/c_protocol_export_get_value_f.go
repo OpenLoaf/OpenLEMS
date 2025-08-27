@@ -36,6 +36,7 @@ func (s *SGetProtocolCacheValueImpl) GetValue(meta *c_base.Meta) (any, error) {
 	if metaValue.Value == nil {
 		return nil, gerror.Newf("[%v-%s] 获取的值为空！", s.id, meta.Name)
 	}
+	// todo 添加数据过期逻辑，比如超过3秒，数据过期，返回数据过期
 
 	return gvar.New(metaValue.Value), err
 }

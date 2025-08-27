@@ -46,24 +46,6 @@ func (p *ModbusProtocolProvider) GetStatus() c_base.EProtocolStatus {
 	return c_base.EProtocolConnecting
 }
 
-func (p *ModbusProtocolProvider) GetValue(meta *c_base.Meta) (any, error) {
-	get, err := p.cache.Get(p.ctx, meta)
-	if err != nil {
-		return nil, err
-	}
-	metaValue := &c_base.MetaValue{}
-	err = get.Structs(metaValue)
-	if err != nil {
-		return nil, err
-	}
-	if metaValue.Value == nil {
-		return nil, gerror.Newf("[%v-%s] 获取的值为空！", p.deviceId, meta.Name)
-	}
-	// todo 添加数据过期逻辑，比如超过3秒，数据过期，返回数据过期
-
-	return metaValue.Value, nil
-}
-
 var _ c_base.IProtocol = (*ModbusProtocolProvider)(nil)
 
 func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {

@@ -7,7 +7,7 @@ import (
 // Meta 点位元数据
 type Meta struct {
 	Debug bool `json:"-"` // 调试打印
-	// TODO 这里再加一个系统点位类型
+	// TODO 这里再加一个系统点位类型? 也可能不用
 	Name  string     `json:"name"` // 名称
 	Group *MetaGroup `json:"group" dc:"分组"`
 

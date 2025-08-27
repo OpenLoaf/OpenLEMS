@@ -21,6 +21,7 @@ type IProtocol interface {
 }
 
 type IGetProtocolCacheValue interface {
+	GetValue(meta *Meta) (any, error)
 	GetBool(meta *Meta) (bool, error)
 	GetIntValue(meta *Meta) (int, error)
 	GetInt32Value(meta *Meta) (int32, error)
