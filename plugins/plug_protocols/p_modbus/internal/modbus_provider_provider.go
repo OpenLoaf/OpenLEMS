@@ -16,6 +16,7 @@ import (
 )
 
 type ModbusProtocolProvider struct {
+	c_base.IAlarm
 	c_base.IGetProtocolCacheValue
 
 	ctx  context.Context // 上下文
@@ -84,6 +85,7 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 	cache := gcache.New()
 	provider := &ModbusProtocolProvider{
 		IGetProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id, cache),
+		IAlarm:                 c_base.NewAlarmImpl(ctx),
 		once:                   sync.Once{},
 		ctx:                    ctx,
 		protocolConfig:         protocolConfig,
@@ -91,8 +93,7 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 		preQuery:               make(map[string]bool),
 		cache:                  cache,
 		deviceType:             deviceType,
-
-		metricProtocol: newMetricProtocol(ctx, protocolConfig, deviceConfig),
+		metricProtocol:         newMetricProtocol(ctx, protocolConfig, deviceConfig),
 	}
 	if client != nil {
 		provider.client = client.(modbus.Client)

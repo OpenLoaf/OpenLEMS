@@ -30,12 +30,27 @@ type Meta struct {
 	Trigger       func(any) bool         `json:"-"`                    // 触发告警警告故障信息
 }
 
+func (m *Meta) GetValueExplain(value any) any {
+	if value == nil {
+		return nil
+	}
+	if m.StatusExplain == nil {
+		return value
+	}
+	explainValue := m.StatusExplain(value)
+	if explainValue == "" {
+		return value
+	}
+	return explainValue
+}
+
 type MetaGroup struct {
 	GroupName string `json:"groupName" dc:"组名称"`
 	GroupSort int    `json:"groupSort" dc:"组排序"`
 	Display   bool   `json:"display" dc:"是否显示"`
 }
 
+// Deprecated: 准备替换成MetaValueWrapper
 type MetaValue struct {
 	Value      any        `json:"value,omitempty" dc:"数值"`
 	HappenTime *time.Time `json:"happenTime,omitempty" dc:"发生时间"`
@@ -44,6 +59,7 @@ type MetaValue struct {
 type MetaValueWrapper struct {
 	DeviceId   string      `json:"deviceId,omitempty" dc:"设备ID"`
 	DeviceType EDeviceType `json:"deviceType,omitempty" dc:"设备类型"`
+	Level      EAlarmLevel `json:"level" dc:"告警级别"`
 	Meta       *Meta       `json:"meta,omitempty" dc:"点位信息"`
 	Value      any         `json:"value,omitempty" dc:"数值"`
 	HappenTime *time.Time  `json:"happenTime,omitempty" dc:"发生时间"`

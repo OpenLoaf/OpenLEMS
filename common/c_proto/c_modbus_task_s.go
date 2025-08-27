@@ -12,6 +12,7 @@ const DefaultCacheLifeTime = 3 * time.Second
 
 type SModbusTask struct {
 	Name           string
+	DisplayName    string
 	Desc           string
 	Addr           uint16
 	Quantity       uint16

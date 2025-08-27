@@ -1,6 +1,7 @@
 package c_func
 
 import (
+	"fmt"
 	"github.com/shockerli/cvt"
 )
 
@@ -62,4 +63,16 @@ var StatusExplainErrorFunc = func(value any) string {
 		}
 	}
 	return "g18n:status_undefined"
+}
+
+// BoolExplain 布尔值解释
+func BoolExplain(value any, trueExplain, falseExplain string) string {
+	if v, err := cvt.BoolE(value); err == nil {
+		if v {
+			return trueExplain
+		} else {
+			return falseExplain
+		}
+	}
+	return fmt.Sprintf("未知值: %v", value)
 }

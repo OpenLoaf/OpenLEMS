@@ -15,9 +15,6 @@ type SRealDeviceImpl[P c_base.IProtocol] struct { // 真实设备
 	protocol     P
 	deviceConfig *c_base.SDeviceConfig // 配置
 
-	notifyChan chan<- *c_base.SAlarmDetail // 告警通知通道
-
-	alarmHandlerList []func(maxAlarm c_base.EAlarmLevel, nowAlarm *c_base.SAlarmDetail)
 }
 
 func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base.SDeviceConfig, protocol P) (*SRealDeviceImpl[P], error) {
@@ -26,30 +23,14 @@ func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base
 		panic(errors.New("deviceConfig is nil"))
 	}
 	deviceCtx, cancel := context.WithCancel(ctx)
-	var notifyChan = make(chan *c_base.SAlarmDetail)
 
 	device := &SRealDeviceImpl[P]{
-		DeviceCtx:        deviceCtx,
-		cancel:           cancel,
-		IAlarm:           c_base.NewAlarm(notifyChan),
-		protocol:         protocol,
-		deviceConfig:     deviceConfig,
-		alarmHandlerList: make([]func(maxAlarm c_base.EAlarmLevel, nowAlarm *c_base.SAlarmDetail), 0),
+		DeviceCtx:    deviceCtx,
+		cancel:       cancel,
+		IAlarm:       c_base.NewAlarmImpl(deviceCtx),
+		protocol:     protocol,
+		deviceConfig: deviceConfig,
 	}
-
-	go func() {
-		for {
-			select {
-			case <-deviceCtx.Done():
-				return
-			case alarm := <-notifyChan:
-				// 这里只解决了当前类的告警等级处理问题。没解决dirver那边如何处理告警
-				for _, handler := range device.alarmHandlerList {
-					go handler(c_base.ENone, alarm)
-				}
-			}
-		}
-	}()
 
 	return device, nil
 }
@@ -77,11 +58,6 @@ func (s *SRealDeviceImpl[P]) RegisterTask(task c_base.ITask, tasks ...c_base.ITa
 
 func (s *SRealDeviceImpl[P]) GetServices() map[string]*c_base.SDriverService {
 	return nil
-}
-
-// 注册告警处理器
-func (s *SRealDeviceImpl[P]) RegisterAlarmHandler(handler func(maxAlarm c_base.EAlarmLevel, nowAlarm *c_base.SAlarmDetail)) {
-	s.alarmHandlerList = append(s.alarmHandlerList, handler)
 }
 
 func (s *SRealDeviceImpl[P]) GetMetaValueList() []*c_base.MetaValueWrapper {

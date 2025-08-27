@@ -117,8 +117,12 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 			}
 		}()
 	}
+	displayName := group.DisplayName
+	if displayName == "" {
+		displayName = group.Name
+	}
 
-	c_log.BizInfof(ctx, "启动Modbus定时读取任务成功！任务名称：[%s] 查询周期: %0.3fs", name, cycle.Seconds())
+	c_log.BizInfof(ctx, "启动Modbus定时读取任务成功！任务名称：[%s] 查询周期: %0.3fs", displayName, cycle.Seconds())
 
 }
 

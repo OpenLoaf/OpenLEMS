@@ -8,10 +8,10 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[ENone-0]
-	_ = x[EWarn-1]
-	_ = x[EAlarm-2]
-	_ = x[EError-3]
+	_ = x[EAlarmLevelNone-0]
+	_ = x[EAlarmLevelWarn-1]
+	_ = x[EAlarmLevelAlarm-2]
+	_ = x[EAlarmLevelError-3]
 }
 
 const _EAlarmLevel_name = "NoneWarnAlarmError"
