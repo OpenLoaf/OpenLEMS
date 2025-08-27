@@ -29,7 +29,7 @@ func (s *sSettingServiceImpl) GetAllSettings(ctx context.Context) ([]*s_db_model
 	// 调用模型层的 GetAllSettings 方法获取所有设置
 	settings, err := s_db_model.GetAllSettings(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取所有设置失败 - 错误: %v", err)
+		g.Log().Errorf(ctx, "获取所有设置失败 - 错误: %+v", err)
 		return nil, err
 	}
 
@@ -92,7 +92,7 @@ func (s *sSettingServiceImpl) SetSettingValueByName(ctx context.Context, name st
 /*func (s *sSettingServiceImpl) GetProtocolsConfigList(ctx context.Context) []*c_base.SProtocolConfig {
 	protocols, err := GetProtocolService().GetAllProtocols(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取协议配置失败 - 错误: %v", err)
+		g.Log().Errorf(ctx, "获取协议配置失败 - 错误: %+v", err)
 		return nil
 	}
 
@@ -126,7 +126,7 @@ func (s *sSettingServiceImpl) SetSettingValueByName(ctx context.Context, name st
 	if len(protocolConfigs) > 0 {
 		protocolsJSON, err := json.MarshalIndent(protocolConfigs, "", "  ")
 		if err != nil {
-			g.Log().Errorf(ctx, "序列化protocolConfigs为JSON失败: %v", err)
+			g.Log().Errorf(ctx, "序列化protocolConfigs为JSON失败: %+v", err)
 		} else {
 			g.Log().Infof(ctx, "协议配置结构:\n%s", string(protocolsJSON))
 		}

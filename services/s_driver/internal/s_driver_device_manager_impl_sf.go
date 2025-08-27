@@ -102,13 +102,13 @@ func (m *SDeviceManager) Start() {
 	deviceConfigs, err := s_db.GetDeviceService().GetEnableDeviceConfigsWithRecursion(m.ctx, rootDeviceID)
 	if err != nil {
 		m.state = c_base.EStateError
-		g.Log().Errorf(m.ctx, "初始化失败！获取设备配置失败！%v", err)
+		g.Log().Errorf(m.ctx, "初始化失败！获取设备配置失败！%+v", err)
 		return
 	}
 	protocolConfigs, err := s_db.GetProtocolService().GetAllProtocolConfigs(m.ctx)
 	if err != nil {
 		m.state = c_base.EStateError
-		g.Log().Errorf(m.ctx, "初始化失败！获取协议配置失败！%v", err)
+		g.Log().Errorf(m.ctx, "初始化失败！获取协议配置失败！%+v", err)
 		return
 	}
 

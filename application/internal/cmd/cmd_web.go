@@ -74,7 +74,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 
 	// 静态站点：将 `application/manifest/web` 打包进可执行文件并作为根路径提供
 	if webfs, err := manifest.WebFS(); err != nil {
-		g.Log().Warningf(ctx, "Web 静态资源初始化失败: %v", err)
+		g.Log().Warningf(ctx, "Web 静态资源初始化失败: %+v", err)
 	} else {
 		fileServer := http.FileServer(http.FS(webfs))
 
@@ -103,7 +103,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 			// 明确 Content-Type
 			r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 			if _, err := io.Copy(r.Response.Writer, f); err != nil {
-				g.Log().Warningf(ctx, "写入 index.html 失败: %v", err)
+				g.Log().Warningf(ctx, "写入 index.html 失败: %+v", err)
 			}
 		})
 
@@ -129,7 +129,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 			// 明确 Content-Type
 			r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 			if _, err := io.Copy(r.Response.Writer, f); err != nil {
-				g.Log().Warningf(ctx, "写入 index.html 失败: %v", err)
+				g.Log().Warningf(ctx, "写入 index.html 失败: %+v", err)
 			}
 		})
 	}

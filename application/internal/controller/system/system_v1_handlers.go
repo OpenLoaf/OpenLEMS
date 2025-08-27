@@ -3,6 +3,7 @@ package system
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"os/exec"
 	"runtime"
 	"s_db"
@@ -190,15 +191,15 @@ func (c *ControllerV1) UpdateHostname(ctx context.Context, req *v1.UpdateHostnam
 	switch runtime.GOOS {
 	case "linux":
 		if out, err := exec.Command("hostnamectl", "set-hostname", req.Hostname).CombinedOutput(); err != nil {
-			return nil, fmt.Errorf("set-hostname failed: %v, %s", err, string(out))
+			return nil, errors.Errorf("set-hostname failed: %v, %s", err, string(out))
 		}
 	case "darwin":
 		args := []string{"-c", fmt.Sprintf("scutil --set HostName '%s'; scutil --set LocalHostName '%s'; scutil --set ComputerName '%s'", req.Hostname, req.Hostname, req.Hostname)}
 		if out, err := exec.Command("sh", args...).CombinedOutput(); err != nil {
-			return nil, fmt.Errorf("set hostname failed: %v, %s", err, string(out))
+			return nil, errors.Errorf("set hostname failed: %v, %s", err, string(out))
 		}
 	default:
-		return nil, fmt.Errorf("unsupported OS")
+		return nil, errors.Errorf("unsupported OS")
 	}
 	return &v1.UpdateHostnameRes{}, nil
 }
@@ -209,11 +210,11 @@ func (c *ControllerV1) UpdateSystemTime(ctx context.Context, req *v1.UpdateSyste
 		switch runtime.GOOS {
 		case "linux":
 			if out, err := exec.Command("timedatectl", "set-timezone", req.Timezone).CombinedOutput(); err != nil {
-				return nil, fmt.Errorf("set-timezone failed: %v, %s", err, string(out))
+				return nil, errors.Errorf("set-timezone failed: %v, %s", err, string(out))
 			}
 		case "darwin":
 			if out, err := exec.Command("systemsetup", "-settimezone", req.Timezone).CombinedOutput(); err != nil {
-				return nil, fmt.Errorf("settimezone failed: %v, %s", err, string(out))
+				return nil, errors.Errorf("settimezone failed: %v, %s", err, string(out))
 			}
 		}
 	}
@@ -222,7 +223,7 @@ func (c *ControllerV1) UpdateSystemTime(ctx context.Context, req *v1.UpdateSyste
 		switch runtime.GOOS {
 		case "linux":
 			if out, err := exec.Command("date", "-s", req.Time).CombinedOutput(); err != nil {
-				return nil, fmt.Errorf("set time failed: %v, %s", err, string(out))
+				return nil, errors.Errorf("set time failed: %v, %s", err, string(out))
 			}
 			// 同步到硬件时钟
 			exec.Command("hwclock", "-w").Run()
@@ -249,7 +250,7 @@ func (c *ControllerV1) RebootApply(ctx context.Context, req *v1.RebootApplyReq) 
 // RebootExecute 若令牌有效则执行重启
 func (c *ControllerV1) RebootExecute(ctx context.Context, req *v1.RebootExecuteReq) (res *v1.RebootExecuteRes, err error) {
 	if time.Now().After(rebootApplyExpireAt) {
-		return nil, fmt.Errorf("reboot token expired or not applied")
+		return nil, errors.Errorf("reboot token expired or not applied")
 	}
 	switch runtime.GOOS {
 	case "linux":
@@ -289,19 +290,19 @@ func (c *ControllerV1) UpdateStorageTime(ctx context.Context, req *v1.UpdateStor
 	// 更新设备数据保留天数
 	err = s_db.GetSettingService().SetSettingValueByName(ctx, s_db_basic.SettingDeviceRetentionDays, fmt.Sprintf("%d", req.DeviceRetentionDays))
 	if err != nil {
-		return nil, fmt.Errorf("更新设备数据保留天数失败: %v", err)
+		return nil, errors.Errorf("更新设备数据保留天数失败: %+v", err)
 	}
 
 	// 更新系统数据保留天数
 	err = s_db.GetSettingService().SetSettingValueByName(ctx, s_db_basic.SettingSystemRetentionDays, fmt.Sprintf("%d", req.SystemRetentionDays))
 	if err != nil {
-		return nil, fmt.Errorf("更新系统数据保留天数失败: %v", err)
+		return nil, errors.Errorf("更新系统数据保留天数失败: %+v", err)
 	}
 
 	// 更新日志数据保留天数
 	err = s_db.GetSettingService().SetSettingValueByName(ctx, s_db_basic.SettingLogRetentionDays, fmt.Sprintf("%d", req.LogRetentionDays))
 	if err != nil {
-		return nil, fmt.Errorf("更新日志数据保留天数失败: %v", err)
+		return nil, errors.Errorf("更新日志数据保留天数失败: %+v", err)
 	}
 
 	return &v1.UpdateStorageTimeRes{}, nil

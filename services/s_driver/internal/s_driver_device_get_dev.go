@@ -8,7 +8,7 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"context"
-	"gopkg.in/errgo.v2/fmt/errors"
+	"github.com/pkg/errors"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
 	"starCharge100E_v1/pcs_star_charge_100E_v1"
@@ -43,7 +43,7 @@ func GetDriverInfo(driverName string) (*c_base.SDriverInfo, error) {
 		driverInfo.Name = driverName
 		return driverInfo, nil
 	}
-	return nil, errors.Newf("未找到驱动[%s]", driverName)
+	return nil, errors.Errorf("未找到驱动[%s]", driverName)
 }
 
 // GetDriversByType 根据设备类型获取驱动信息
@@ -62,7 +62,7 @@ func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []*c_b
 
 func getDriver(driverName string, device c_base.IDevice) (d c_base.IDriver, err error) {
 	if driverName == "" {
-		return nil, errors.Newf("驱动未设置")
+		return nil, errors.Errorf("驱动未设置")
 	}
 	// 获取驱动的类型
 	driverGroups := strings.Split(driverName, "_")

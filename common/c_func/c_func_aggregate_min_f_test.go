@@ -59,7 +59,7 @@ func TestAggregateMinInt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateMinInt(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateMinInt() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateMinInt() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -130,7 +130,7 @@ func TestAggregateMinFloat64(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateMinFloat64(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateMinFloat64() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateMinFloat64() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -171,7 +171,7 @@ func TestAggregateMinInt64(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateMinInt64(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateMinInt64() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateMinInt64() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -224,7 +224,7 @@ func TestAggregateMinUint(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateMinUint(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateMinUint() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateMinUint() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {

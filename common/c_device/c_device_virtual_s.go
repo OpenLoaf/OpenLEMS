@@ -6,7 +6,7 @@ import (
 	"common/c_error"
 	"common/c_type"
 	"context"
-	"gopkg.in/errgo.v2/fmt/errors"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -97,7 +97,7 @@ func (s *SVirtualDeviceImpl) GetFromChildDeviceType(childDeviceType c_base.EDevi
 			child := s.GetChildById(childDevice.Id)
 			if child == nil {
 				// 如果出现有配置，但是无实例。就认为是异常
-				return nil, errors.Newf("设备[%s]未激活，获取数据失败！", childDevice.Name)
+				return nil, errors.Errorf("设备[%s]未激活，获取数据失败！", childDevice.Name)
 			}
 			// 匹配类型
 			res, err := processFunction(child)
@@ -122,12 +122,12 @@ func (s *SVirtualDeviceImpl) GetFromChildAmmeterOrDeviceType(ammeterId string, c
 		// 如果不为空，那么必须是电表实例才行
 		device := s.GetChildById(ammeterId)
 		if device == nil {
-			return nil, errors.Newf("电表ID：[%s]未激活，获取数据失败！", ammeterId)
+			return nil, errors.Errorf("电表ID：[%s]未激活，获取数据失败！", ammeterId)
 		}
 		if ammeter, ok := device.(c_type.IAmmeter); ok {
 			return ammeterProcessFunction(ammeter)
 		} else {
-			return nil, errors.Newf("设备ID：[%s] 并不是电表，获取数据失败！", ammeterId)
+			return nil, errors.Errorf("设备ID：[%s] 并不是电表，获取数据失败！", ammeterId)
 		}
 	}
 

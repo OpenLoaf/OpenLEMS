@@ -4,7 +4,7 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"context"
-	"errors"
+	"github.com/pkg/errors"
 	"time"
 )
 

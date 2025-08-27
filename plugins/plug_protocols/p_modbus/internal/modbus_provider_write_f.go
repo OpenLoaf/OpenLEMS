@@ -5,13 +5,13 @@ import (
 	"common/c_log"
 	"common/c_proto"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"gopkg.in/errgo.v2/fmt/errors"
+	"github.com/pkg/errors"
 	"p_base"
 )
 
 func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value int32) error {
 	if p.GetStatus() != c_base.EProtocolConnected {
-		return errors.Newf("device %s connect is not activated", p.deviceId)
+		return errors.Errorf("device %s connect is not activated", p.deviceId)
 	}
 
 	//result := meta.ReadType.Encoder(int64(value), meta.Factor, meta.Offset, meta.Endianness)
@@ -38,7 +38,7 @@ func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value in
 
 func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *c_proto.SModbusTask, values []int64) error {
 	if p.GetStatus() != c_base.EProtocolConnected {
-		return errors.Newf("device %s connect is not activated", p.deviceId)
+		return errors.Errorf("device %s connect is not activated", p.deviceId)
 	}
 	dataLength := group.Quantity
 	if len(group.Metas) != len(values) {

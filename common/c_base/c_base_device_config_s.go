@@ -2,7 +2,7 @@ package c_base
 
 import (
 	"encoding/json"
-	"gopkg.in/errgo.v2/fmt/errors"
+	"github.com/pkg/errors"
 )
 
 type SDeviceConfig struct { // 设备配置
@@ -41,12 +41,12 @@ func (s *SDeviceConfig) ScanParams(target any) error {
 	// 先将 map[string]string 转换为 JSON 字节
 	jsonBytes, err := json.Marshal(s.Params)
 	if err != nil {
-		return errors.Newf("failed to marshal params to json: %v", err)
+		return errors.Errorf("failed to marshal params to json: %+v", err)
 	}
 
 	// 再将 JSON 字节转换为目标结构体
 	if err := json.Unmarshal(jsonBytes, target); err != nil {
-		return errors.Newf("failed to unmarshal json to target struct: %v", err)
+		return errors.Errorf("failed to unmarshal json to target struct: %+v", err)
 	}
 
 	return nil

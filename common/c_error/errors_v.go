@@ -1,7 +1,7 @@
 package c_error
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 )
 
 var (

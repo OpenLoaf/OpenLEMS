@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/gogf/gf/v2/encoding/gbinary"
 	"github.com/gogf/gf/v2/util/gconv"
-	"gopkg.in/errgo.v2/fmt/errors"
+	"github.com/pkg/errors"
 	"reflect"
 )
 
@@ -47,63 +47,63 @@ func ReadTypeReadValue(d c_base.EReadType, bytes []byte, bitLength uint8, endian
 				return ECharSequenceDecodeToUint64(endianness, gbinary.EncodeBitsToBytes(bits)), nil
 			}
 		}
-		return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+		return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 	case c_base.RInt8:
 		if dataLength < 1 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		//return endianness.DecodeToInt8(bytes[:1]), nil
 		return ECharSequenceDecodeToInt8(endianness, bytes[:1]), nil
 	case c_base.RUint8:
 		if dataLength < 1 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		//return endianness.DecodeToUint8(bytes[:1]), nil
 		return ECharSequenceDecodeToUint8(endianness, bytes[:1]), nil
 	case c_base.RInt16:
 		if dataLength < 2 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		//return endianness.DecodeToInt16(bytes[:2]), nil
 		return ECharSequenceDecodeToInt16(endianness, bytes[:2]), nil
 	case c_base.RUint16:
 		if dataLength < 2 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		//return endianness.DecodeToUint16(bytes[:2]), nil
 		return ECharSequenceDecodeToUint16(endianness, bytes[:2]), nil
 	case c_base.RInt32:
 		if dataLength < 4 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		//return endianness.DecodeToInt32(bytes[:4]), nil
 		return ECharSequenceDecodeToInt32(endianness, bytes[:4]), nil
 	case c_base.RUint32:
 		if dataLength < 4 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		//return endianness.DecodeToUint32(bytes[:4]), nil
 		return ECharSequenceDecodeToUint32(endianness, bytes[:4]), nil
 	case c_base.RInt64:
 		if dataLength < 8 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		//return endianness.DecodeToInt64(bytes[:8]), nil
 		return ECharSequenceDecodeToInt64(endianness, bytes[:8]), nil
 	case c_base.RUint64:
 		if dataLength < 8 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		//return endianness.DecodeToUint64(bytes[:8]), nil
 		return ECharSequenceDecodeToUint64(endianness, bytes[:8]), nil
 	case c_base.RFloat32:
 		if dataLength < 4 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		return ECharSequenceDecodeToFloat32(endianness, bytes[:4]), nil
 	case c_base.RFloat64:
 		if dataLength < 8 {
-			return nil, errors.Newf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
+			return nil, errors.Errorf("ReadValue失败！读取类型:%s 字符序列:%s 获取到的数据为：%s", d, endianness, formatHex(bytes))
 		}
 		return ECharSequenceDecodeToFloat64(endianness, bytes[:8]), nil
 	case c_base.RBcd16:

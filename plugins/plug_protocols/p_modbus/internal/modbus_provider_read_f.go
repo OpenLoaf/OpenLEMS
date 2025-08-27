@@ -4,9 +4,9 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"common/c_proto"
-	"errors"
 	"fmt"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/pkg/errors"
 	"p_base"
 	"time"
 )

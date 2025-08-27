@@ -19,7 +19,7 @@ package internal_meta
 
 import (
 	"common/c_base"
-	"gopkg.in/errgo.v2/fmt/errors"
+	"github.com/pkg/errors"
 
 	"github.com/gogf/gf/v2/encoding/gbinary"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -63,7 +63,7 @@ func ParseCanbusData(canData []byte, meta *c_base.Meta) (any, error) {
 
 	// 检查 Meta.Addr 是否超出 canData 范围（对于单字节读取类型）
 	if int(meta.Addr) >= len(canData) && !(meta.ReadType >= c_base.RBit0 && meta.ReadType <= c_base.RBit15) {
-		return nil, errors.Newf("SourceAddress %d out of bounds for data length %d for non-bit read type", meta.Addr, len(canData))
+		return nil, errors.Errorf("SourceAddress %d out of bounds for data length %d for non-bit read type", meta.Addr, len(canData))
 	}
 
 	switch meta.ReadType {
@@ -77,7 +77,7 @@ func ParseCanbusData(canData []byte, meta *c_base.Meta) (any, error) {
 	case c_base.RBcd16:
 		// BCD 码解析 (假设为 2 字节，即 16 位 BCD)
 		if int(meta.Addr)+2 > len(canData) {
-			return nil, errors.Newf("BCD16 read out of bounds. Addr: %d, Data Len: %d", meta.Addr, len(canData))
+			return nil, errors.Errorf("BCD16 read out of bounds. Addr: %d, Data Len: %d", meta.Addr, len(canData))
 		}
 		dataBytes := canData[meta.Addr : meta.Addr+2]
 
@@ -180,7 +180,7 @@ func ParseCanbusData(canData []byte, meta *c_base.Meta) (any, error) {
 		return float32(v)*float32(meta.Factor) + float32(meta.Offset), nil
 
 	default:
-		return nil, errors.Newf("Unsupported ReadType: %v", meta.ReadType)
+		return nil, errors.Errorf("Unsupported ReadType: %v", meta.ReadType)
 	}
 }
 
@@ -235,7 +235,7 @@ func parseBitValue(canData []byte, meta *c_base.Meta) (any, error) {
 	endByteIndex := (absoluteBitEnd + 7) / 8 // +7 用于向上取整，确保完全覆盖相关比特所需的字节
 
 	if endByteIndex > len(canData) {
-		return nil, errors.Newf("Bit read data range out of bounds. Start byte: %d, End byte (exclusive): %d, Data Len: %d", startByteIndex, endByteIndex, len(canData))
+		return nil, errors.Errorf("Bit read data range out of bounds. Start byte: %d, End byte (exclusive): %d, Data Len: %d", startByteIndex, endByteIndex, len(canData))
 	}
 
 	// 提取相关字节
@@ -266,7 +266,7 @@ func parseBitValue(canData []byte, meta *c_base.Meta) (any, error) {
 
 	// 边界检查
 	if msbStartIndex < 0 || msbEndIndex > totalBitsInReorderedBytes {
-		return nil, errors.Newf("Bit extraction within reordered bits out of bounds. MSB start: %d, MSB end: %d, CurrentTotal bits: %d", msbStartIndex, msbEndIndex, totalBitsInReorderedBytes)
+		return nil, errors.Errorf("Bit extraction within reordered bits out of bounds. MSB start: %d, MSB end: %d, CurrentTotal bits: %d", msbStartIndex, msbEndIndex, totalBitsInReorderedBytes)
 	}
 
 	// 切片 `allBits` 以获取目标比特。
@@ -293,7 +293,7 @@ func parseBitValue(canData []byte, meta *c_base.Meta) (any, error) {
 
 func checkAndGetBytes(canData []byte, meta *c_base.Meta, size int) ([]byte, error) {
 	if int(meta.Addr)+size > len(canData) {
-		return nil, errors.Newf("Read out of bounds for ReadType %v. Addr: %d, Size: %d, Data Len: %d", meta.ReadType, meta.Addr, size, len(canData))
+		return nil, errors.Errorf("Read out of bounds for ReadType %v. Addr: %d, Size: %d, Data Len: %d", meta.ReadType, meta.Addr, size, len(canData))
 	}
 	return canData[meta.Addr : meta.Addr+uint16(size)], nil
 }
@@ -363,7 +363,7 @@ func convertBitsToUint(dataBytes []byte, bitLength int, endianness c_base.ECharS
 		}
 		val = gbinary.DecodeToUint64(dataBytes)
 	default:
-		return nil, errors.Newf("Bit length %d exceeds max supported 64-bit integer", bitLength)
+		return nil, errors.Errorf("Bit length %d exceeds max supported 64-bit integer", bitLength)
 	}
 
 	return val, nil

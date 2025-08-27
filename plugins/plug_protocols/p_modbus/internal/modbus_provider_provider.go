@@ -148,7 +148,7 @@ func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 		metaValue := &c_base.MetaValue{}
 		err = _varValue.Structs(metaValue)
 		if err != nil {
-			g.Log().Errorf(p.ctx, "解析缓存值失败：%v", err)
+			g.Log().Errorf(p.ctx, "解析缓存值失败：%+v", err)
 			continue
 		}
 

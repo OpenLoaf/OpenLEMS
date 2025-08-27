@@ -59,7 +59,7 @@ func TestAggregateSumInt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateSumInt(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateSumInt() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateSumInt() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -130,7 +130,7 @@ func TestAggregateSumFloat64(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateSumFloat64(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateSumFloat64() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateSumFloat64() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -171,7 +171,7 @@ func TestAggregateSumInt64(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateSumInt64(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateSumInt64() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateSumInt64() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -224,7 +224,7 @@ func TestAggregateSumUint(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateSumUint(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateSumUint() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateSumUint() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {

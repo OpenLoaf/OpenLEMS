@@ -4,7 +4,7 @@ import (
 	"common/c_log"
 	"context"
 	"fmt"
-	"gopkg.in/errgo.v2/fmt/errors"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"
 	"reflect"
 	"strings"
@@ -39,7 +39,7 @@ func BuildDescriptionFromYaml(yamlData []byte) *SDriverInfo {
 	description := &SDriverInfo{}
 	err := yaml.Unmarshal(yamlData, description)
 	if err != nil {
-		panic(errors.Newf("解析版本信息失败！请检查version.yaml文件!%v", err))
+		panic(errors.Errorf("解析版本信息失败！请检查version.yaml文件!%+v", err))
 	}
 
 	return description
@@ -63,7 +63,7 @@ func (s *SDriverInfo) GetTelemetry(key string, instance any) (any, error) {
 		functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
 		method = reflect.ValueOf(instance).MethodByName(functionName)
 		if !method.IsValid() {
-			return nil, errors.Newf("method %s not found", key)
+			return nil, errors.Errorf("method %s not found", key)
 		}
 		s.reflectMethodCache[key] = method
 	}
@@ -81,7 +81,7 @@ func (s *SDriverInfo) GetTelemetry(key string, instance any) (any, error) {
 	}
 
 	if len(value) != 2 {
-		return nil, fmt.Errorf("function %s return value length is not 2", key)
+		return nil, errors.Errorf("function %s return value length is not 2", key)
 	}
 	if value[1].Interface() != nil {
 		return nil, value[1].Interface().(error)
@@ -94,7 +94,7 @@ func (s *SDriverInfo) GetAllTelemetry(instance any) map[string]any {
 	for _, telemetry := range s.Telemetry {
 		value, err := s.GetTelemetry(telemetry.Name, instance)
 		if err != nil {
-			c_log.Errorf(context.Background(), "Get telemetry %s error: %v", telemetry.Name, err)
+			c_log.Errorf(context.Background(), "Get telemetry %s error: %+v", telemetry.Name, err)
 			continue
 		}
 		telemetryMap[telemetry.Name] = value

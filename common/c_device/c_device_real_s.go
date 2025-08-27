@@ -3,7 +3,7 @@ package c_device
 import (
 	"common/c_base"
 	"context"
-	"errors"
+	"github.com/pkg/errors"
 	"time"
 )
 

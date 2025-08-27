@@ -72,7 +72,7 @@ func TestAggregateEqual(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateEqual(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateEqual() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateEqual() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if !reflect.DeepEqual(got, tt.want) {
@@ -137,7 +137,7 @@ func TestAggregateEqualInt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateEqualInt(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateEqualInt() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateEqualInt() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -202,7 +202,7 @@ func TestAggregateEqualFloat64(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateEqualFloat64(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateEqualFloat64() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateEqualFloat64() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -243,7 +243,7 @@ func TestAggregateEqualInt64(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateEqualInt64(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateEqualInt64() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateEqualInt64() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {

@@ -16,7 +16,7 @@ func TestControllerV1_GetDeviceNameList(t *testing.T) {
 
 	// 如果数据库连接正常，应该能获取到结果
 	if err != nil {
-		t.Logf("获取设备名称列表失败: %v", err)
+		t.Logf("获取设备名称列表失败: %+v", err)
 	} else {
 		t.Logf("获取设备名称列表成功，设备数量: %d", len(res.DeviceNames))
 		for deviceId, deviceName := range res.DeviceNames {

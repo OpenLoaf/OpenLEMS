@@ -25,14 +25,14 @@ func initConfigDatabase() {
 	dbDir := filepath.Dir(dbPath)
 	if _, err := os.Stat(dbDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(dbDir, 0755); err != nil {
-			g.Log().Fatalf(ctx, "创建数据库目录失败: %v", err)
+			g.Log().Fatalf(ctx, "创建数据库目录失败: %+v", err)
 		}
 		g.Log().Infof(ctx, "创建数据库目录: %s", dbDir)
 	}
 
 	// 测试数据库连接（如果文件不存在，SQLite会自动创建）
 	if _, err := g.DB().Exec(ctx, "SELECT 1"); err != nil {
-		g.Log().Fatalf(ctx, "数据库连接失败: %v", err)
+		g.Log().Fatalf(ctx, "数据库连接失败: %+v", err)
 	}
 
 	// 创建协议表

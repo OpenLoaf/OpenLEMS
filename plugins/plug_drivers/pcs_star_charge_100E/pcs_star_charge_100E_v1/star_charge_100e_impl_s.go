@@ -5,7 +5,7 @@ import (
 	"common/c_device"
 	"common/c_log"
 	"common/c_proto"
-	"gopkg.in/errgo.v2/fmt/errors"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -61,11 +61,11 @@ func (s *sPcsStarCharge100E) SetStatus(status c_base.EEnergyStoreStatus) error {
 			return protocol.WriteSingleRegister(OnOffCommand, 1)
 		})
 	}
-	return errors.Newf("sPcsStarCharge100E SetStatus status not support!")
+	return errors.Errorf("sPcsStarCharge100E SetStatus status not support!")
 }
 
 func (s *sPcsStarCharge100E) SetGridMode(mode c_base.EGridMode) error {
-	return errors.Newf("sPcsStarCharge100E SetGridMode status not support!")
+	return errors.Errorf("sPcsStarCharge100E SetGridMode status not support!")
 }
 
 func (s *sPcsStarCharge100E) GetStatus() (c_base.EEnergyStoreStatus, error) {

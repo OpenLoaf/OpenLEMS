@@ -2,7 +2,7 @@ package c_func
 
 import (
 	"common/c_base"
-	"errors"
+	"github.com/pkg/errors"
 	"reflect"
 
 	"github.com/shockerli/cvt"

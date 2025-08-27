@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -13,7 +14,7 @@ import (
 // UpdateDNS 单独更新系统 DNS
 func (c *ControllerV1) UpdateDNS(ctx context.Context, req *v1.UpdateDNSReq) (res *v1.UpdateDNSRes, err error) {
 	if len(req.DNS) == 0 {
-		return nil, fmt.Errorf("DNS不能为空")
+		return nil, errors.Errorf("DNS不能为空")
 	}
 	switch runtime.GOOS {
 	case "linux":
@@ -23,7 +24,7 @@ func (c *ControllerV1) UpdateDNS(ctx context.Context, req *v1.UpdateDNSReq) (res
 		}
 		content := strings.Join(lines, "\n") + "\n"
 		if out, err := exec.Command("sh", "-c", fmt.Sprintf("echo '%s' > /etc/resolv.conf", content)).CombinedOutput(); err != nil {
-			return nil, fmt.Errorf("write resolv.conf failed: %v, %s", err, string(out))
+			return nil, errors.Errorf("write resolv.conf failed: %v, %s", err, string(out))
 		}
 	case "darwin":
 		// macOS 需要针对每个服务设置；这里使用 networksetup -setdnsservers for all 'en*'. 简化方案：en0/en1/en2...
@@ -33,7 +34,7 @@ func (c *ControllerV1) UpdateDNS(ctx context.Context, req *v1.UpdateDNSReq) (res
 			exec.Command("networksetup", args...).CombinedOutput()
 		}
 	default:
-		return nil, fmt.Errorf("unsupported OS")
+		return nil, errors.Errorf("unsupported OS")
 	}
 	return &v1.UpdateDNSRes{}, nil
 }

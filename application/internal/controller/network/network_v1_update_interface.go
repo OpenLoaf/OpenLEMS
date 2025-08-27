@@ -2,8 +2,8 @@ package network
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"net"
 	"os/exec"
 	"runtime"
@@ -18,13 +18,13 @@ import (
 func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.UpdateNetworkInterfaceReq) (res *v1.UpdateNetworkInterfaceRes, err error) {
 	// 1) 基础校验（GoFrame 已做格式校验，这里做互斥/逻辑校验）
 	if net.ParseIP(req.IP) == nil {
-		return nil, fmt.Errorf("IP地址格式不正确")
+		return nil, errors.Errorf("IP地址格式不正确")
 	}
 	if _, ipnet, perr := net.ParseCIDR(req.IP + "/24"); ipnet == nil || perr != nil { // 仅用于快速触发解析
 		// 忽略
 	}
 	if req.Gateway != "" && net.ParseIP(req.Gateway) == nil {
-		return nil, fmt.Errorf("网关地址格式不正确")
+		return nil, errors.Errorf("网关地址格式不正确")
 	}
 	// DNS 已移出本接口
 
@@ -33,12 +33,12 @@ func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.Updat
 	switch runtime.GOOS {
 	case "linux":
 		if err = applyLinux(req); err != nil {
-			g.Log().Errorf(ctx, "应用Linux网络配置失败: %v", err)
+			g.Log().Errorf(ctx, "应用Linux网络配置失败: %+v", err)
 			return nil, err
 		}
 	case "darwin":
 		if err = applyDarwin(req); err != nil {
-			g.Log().Errorf(ctx, "应用Darwin网络配置失败: %v", err)
+			g.Log().Errorf(ctx, "应用Darwin网络配置失败: %+v", err)
 			return nil, err
 		}
 	default:
@@ -49,7 +49,7 @@ func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.Updat
 	ok, verifyMsg := verifyInterface(req)
 	g.Log().Infof(ctx, "应用完成，验证结果: ok=%v msg=%s", ok, verifyMsg)
 	if !ok {
-		return nil, fmt.Errorf(verifyMsg)
+		return nil, errors.Errorf(verifyMsg)
 	}
 	return &v1.UpdateNetworkInterfaceRes{}, nil
 }
@@ -69,7 +69,7 @@ func applyLinux(req *v1.UpdateNetworkInterfaceReq) error {
 	}
 	for _, c := range cmds {
 		if out, err := exec.Command(c[0], c[1:]...).CombinedOutput(); err != nil {
-			return fmt.Errorf("%s failed: %v, %s", strings.Join(c, " "), err, string(out))
+			return errors.Errorf("%s failed: %v, %s", strings.Join(c, " "), err, string(out))
 		}
 	}
 	// DNS 不在此接口更新
@@ -79,7 +79,7 @@ func applyLinux(req *v1.UpdateNetworkInterfaceReq) error {
 func applyDarwin(req *v1.UpdateNetworkInterfaceReq) error {
 	// networksetup -setmanual <device> <ip> <subnet> <router>
 	if out, err := exec.Command("networksetup", "-setmanual", req.Name, req.IP, req.Netmask, req.Gateway).CombinedOutput(); err != nil {
-		return fmt.Errorf("setmanual failed: %v, %s", err, string(out))
+		return errors.Errorf("setmanual failed: %v, %s", err, string(out))
 	}
 	// DNS 不在此接口更新
 	return nil
@@ -111,11 +111,11 @@ func verifyInterface(req *v1.UpdateNetworkInterfaceReq) (bool, string) {
 func maskToPrefix(mask string) (int, error) {
 	ip := net.ParseIP(mask)
 	if ip == nil {
-		return 0, fmt.Errorf("子网掩码格式不正确")
+		return 0, errors.Errorf("子网掩码格式不正确")
 	}
 	ip = ip.To4()
 	if ip == nil {
-		return 0, fmt.Errorf("子网掩码格式不正确")
+		return 0, errors.Errorf("子网掩码格式不正确")
 	}
 	ones := 0
 	for _, b := range []byte{ip[0], ip[1], ip[2], ip[3]} {

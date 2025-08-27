@@ -1,7 +1,7 @@
 package c_base
 
 import (
-	"gopkg.in/errgo.v2/fmt/errors"
+	"github.com/pkg/errors"
 )
 
 // SProtocolConfig 基础协议配置
@@ -41,10 +41,10 @@ func (b *SProtocolConfig) GetLogLevel() string {
 
 func (b *SProtocolConfig) Check() error {
 	if b.Id == "" {
-		return errors.Newf("协议ID不能为空")
+		return errors.Errorf("协议ID不能为空")
 	}
 	if b.Type == "" {
-		return errors.Newf("协议类型不能为空")
+		return errors.Errorf("协议类型不能为空")
 	}
 
 	return nil

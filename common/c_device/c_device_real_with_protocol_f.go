@@ -1,14 +1,15 @@
 package c_device
 
 import (
-	"gopkg.in/errgo.v2/fmt/errors"
+	"fmt"
+	"github.com/pkg/errors"
 
 	"github.com/shockerli/cvt"
 )
 
 func (s *SRealDeviceImpl[P]) GetFromProtocol(fc func(protocol P) (any, error)) (any, error) {
 	if s.isProtocolNil() {
-		return nil, errors.Newf("protocol is nil")
+		return nil, errors.Errorf("protocol is nil")
 	}
 	//device.protocol.GetValue()
 	v, err := fc(s.protocol)
@@ -114,7 +115,11 @@ func (s *SRealDeviceImpl[P]) GetFromProtocolFloat32(fc func(protocol P) (any, er
 	if err != nil {
 		return 0, err
 	}
-	return cvt.Float32E(v)
+	f, err := cvt.Float32E(v)
+	if err != nil {
+		return 0, errors.Wrap(err, fmt.Sprintf("异常！！！！Get float32 fail, %v", v))
+	}
+	return f, nil
 }
 
 func (s *SRealDeviceImpl[P]) GetFromProtocolFloat64(fc func(protocol P) (any, error)) (float64, error) {

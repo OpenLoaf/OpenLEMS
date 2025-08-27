@@ -4,12 +4,12 @@ use (
 	./application
 	./application-gui
 	./common
+	./plugins/plug_drivers/bms_pylon_tech_us108
+	./plugins/plug_drivers/ess_pylon_checkwatt
+	./plugins/plug_drivers/pcs_star_charge_100E
 	./plugins/plug_protocols/p_base
 	./plugins/plug_protocols/p_canbus
 	./plugins/plug_protocols/p_modbus
-	./plugins/plug_drivers/bms_pylon_tech_us108
-	./plugins/plug_drivers/pcs_star_charge_100E
-	./plugins/plug_drivers/ess_pylon_checkwatt
 
 	./plugins/plug_storages/c_storage
 	./plugins/plug_storages/tsdb

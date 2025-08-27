@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"net"
 	"os"
 	"os/exec"
@@ -190,7 +191,7 @@ func getInterfacesFromSystemProfiler(req *v1.GetNetworkInterfaceListReq, dnsServ
 	cmd := exec.Command("system_profiler", "SPNetworkDataType", "-json")
 	out, err := cmd.Output()
 	if err != nil {
-		return nil, fmt.Errorf("system_profiler failed: %v", err)
+		return nil, errors.Errorf("system_profiler failed: %+v", err)
 	}
 
 	// 只解析我们关心的字段
@@ -207,7 +208,7 @@ func getInterfacesFromSystemProfiler(req *v1.GetNetworkInterfaceListReq, dnsServ
 		} `json:"SPNetworkDataType"`
 	}
 	if err := json.Unmarshal(out, &sp); err != nil {
-		return nil, fmt.Errorf("parse system_profiler json failed: %v", err)
+		return nil, errors.Errorf("parse system_profiler json failed: %+v", err)
 	}
 
 	var list []*entity.SNetworkInterface

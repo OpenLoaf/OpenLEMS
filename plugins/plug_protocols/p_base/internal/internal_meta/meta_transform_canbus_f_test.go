@@ -196,7 +196,7 @@ func TestParseInteger(t *testing.T) {
 	// 将十六进制字符串解码为字节
 	data, err := hex.DecodeString(candata)
 	if err != nil {
-		t.Fatalf("Failed to decode hex string: %v", err)
+		t.Fatalf("Failed to decode hex string: %+v", err)
 	}
 
 	// 定义测试用的元数据

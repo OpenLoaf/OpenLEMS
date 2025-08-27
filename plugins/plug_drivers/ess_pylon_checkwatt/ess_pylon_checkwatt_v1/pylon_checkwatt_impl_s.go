@@ -7,8 +7,8 @@ import (
 	"common/c_func"
 	"common/c_log"
 	"common/c_type"
+	"github.com/pkg/errors"
 	"github.com/shockerli/cvt"
-	"gopkg.in/errgo.v2/fmt/errors"
 )
 
 type sEssPylonCheckwatt struct {
@@ -176,7 +176,7 @@ func (p *sEssPylonCheckwatt) GetAmmeterOrPcsSumData(ammeterProcessFunction func(
 			if pcs, ok := device.(c_type.IPcs); ok {
 				return pcsProcessFunc(pcs)
 			}
-			return nil, errors.Newf("设备[%s]不是pcs类型!", device.GetConfig().Name)
+			return nil, errors.Errorf("设备[%s]不是pcs类型!", device.GetConfig().Name)
 		}, func(values []any) (any, error) {
 			// 聚合
 			return c_func.AggregateSumFloat64(values)
@@ -226,7 +226,7 @@ func (p *sEssPylonCheckwatt) SetStatus(status c_base.EEnergyStoreStatus) error {
 	}
 	bmsStatus, err := p.GetBmsStatus()
 	if err != nil {
-		return errors.Newf("获取BMS状态失败! 错误原因：%s", err.Error())
+		return errors.Errorf("获取BMS状态失败! 错误原因：%s", err.Error())
 	}
 
 	if bmsStatus == c_type.EBmsStatusOff {
@@ -235,12 +235,12 @@ func (p *sEssPylonCheckwatt) SetStatus(status c_base.EEnergyStoreStatus) error {
 			return device.SetBmsStatus(c_type.EBmsStatusStandby) // 设为待机
 		})
 		if err != nil {
-			return errors.Newf("设置BMS状态失败！错误原因: %s", err.Error())
+			return errors.Errorf("设置BMS状态失败！错误原因: %s", err.Error())
 		}
 
 		bmsStatus, err = p.GetBmsStatus()
 		if err != nil {
-			return errors.Newf("设置BMS状态为开机后，仍然失败。指令[%s]放弃 原因:%s", status.String(), err.Error())
+			return errors.Errorf("设置BMS状态为开机后，仍然失败。指令[%s]放弃 原因:%s", status.String(), err.Error())
 		}
 	}
 	// 设置PCS状态

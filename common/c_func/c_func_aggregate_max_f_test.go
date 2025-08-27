@@ -59,7 +59,7 @@ func TestAggregateMaxInt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateMaxInt(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateMaxInt() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateMaxInt() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -130,7 +130,7 @@ func TestAggregateMaxFloat64(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateMaxFloat64(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateMaxFloat64() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateMaxFloat64() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -171,7 +171,7 @@ func TestAggregateMaxInt64(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateMaxInt64(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateMaxInt64() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateMaxInt64() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
@@ -224,7 +224,7 @@ func TestAggregateMaxUint(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := AggregateMaxUint(tt.values)
 			if (err != nil) != tt.wantErr {
-				t.Errorf("AggregateMaxUint() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("AggregateMaxUint() error = %v, wantErr %+v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {

@@ -6,6 +6,7 @@ import (
 	"common/c_log"
 	"context"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/shockerli/cvt"
 	"sort"
 	"strings"
@@ -223,35 +224,35 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 // validateAlarmInput 验证告警输入参数
 func (s *sAlarmImpl) validateAlarmInput(alarm *c_base.MetaValueWrapper) error {
 	if alarm == nil {
-		return fmt.Errorf("alarm参数不能为空")
+		return errors.Errorf("alarm参数不能为空")
 	}
 
 	// 注意：Level验证已在UpdateAlarm方法中提前处理，这里不再重复验证
 
 	if alarm.Value == nil {
-		return fmt.Errorf("告警值不能为空")
+		return errors.Errorf("告警值不能为空")
 	}
 
 	if alarm.Meta == nil {
-		return fmt.Errorf("告警元数据不能为空")
+		return errors.Errorf("告警元数据不能为空")
 	}
 
 	if strings.TrimSpace(alarm.DeviceId) == "" {
-		return fmt.Errorf("设备ID不能为空")
+		return errors.Errorf("设备ID不能为空")
 	}
 
 	if strings.TrimSpace(alarm.Meta.Name) == "" {
-		return fmt.Errorf("点位名称不能为空")
+		return errors.Errorf("点位名称不能为空")
 	}
 
 	// 验证设备ID长度，防止过长的ID导致内存问题
 	if len(alarm.DeviceId) > 256 {
-		return fmt.Errorf("设备ID长度不能超过256字符")
+		return errors.Errorf("设备ID长度不能超过256字符")
 	}
 
 	// 验证点位名称长度
 	if len(alarm.Meta.Name) > 256 {
-		return fmt.Errorf("点位名称长度不能超过256字符")
+		return errors.Errorf("点位名称长度不能超过256字符")
 	}
 
 	return nil

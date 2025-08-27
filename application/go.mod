@@ -5,7 +5,7 @@ go 1.24.4
 require (
 	common v0.0.0-00010101000000-000000000000
 	github.com/gogf/gf/v2 v2.9.0
-	github.com/gorilla/websocket v1.5.3
+	github.com/pkg/errors v0.9.1
 	github.com/shirou/gopsutil/v4 v4.25.7
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -23,6 +23,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grokify/html-strip-tags-go v0.1.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20250317134145-8bc96cf8fc35 // indirect
 	github.com/magiconair/properties v1.8.10 // indirect
@@ -32,6 +33,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	github.com/shockerli/cvt v0.2.8 // indirect
 	github.com/tklauser/go-sysconf v0.3.15 // indirect
 	github.com/tklauser/numcpus v0.10.0 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
