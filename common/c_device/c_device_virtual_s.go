@@ -3,7 +3,6 @@ package c_device
 import (
 	"common"
 	"common/c_base"
-	"common/c_error"
 	"common/c_type"
 	"context"
 	"github.com/pkg/errors"
@@ -82,7 +81,7 @@ func (s *SVirtualDeviceImpl) GetConfig() *c_base.SDeviceConfig {
 func (s *SVirtualDeviceImpl) GetFromChildDeviceId(childDeviceId string, processFunction func(device c_base.IDevice) (any, error)) (any, error) {
 	child := s.GetChildById(childDeviceId)
 	if child == nil {
-		return nil, c_error.NoData
+		return nil, errors.New("数据不存在")
 	}
 	return processFunction(child)
 }
@@ -108,7 +107,7 @@ func (s *SVirtualDeviceImpl) GetFromChildDeviceType(childDeviceType c_base.EDevi
 		}
 	}
 	if len(results) == 0 {
-		return nil, c_error.NoData
+		return nil, errors.New("数据不存在")
 	}
 	return aggregateFunction(results)
 }

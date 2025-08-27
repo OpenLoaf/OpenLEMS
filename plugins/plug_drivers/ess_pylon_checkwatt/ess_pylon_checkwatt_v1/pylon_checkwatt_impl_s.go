@@ -3,7 +3,6 @@ package ess_pylon_checkwatt_v1
 import (
 	"common/c_base"
 	"common/c_device"
-	"common/c_error"
 	"common/c_func"
 	"common/c_log"
 	"common/c_type"
@@ -222,7 +221,7 @@ func (p *sEssPylonCheckwatt) GetHistoryOutgoingQuantity() (float64, error) {
 
 func (p *sEssPylonCheckwatt) SetStatus(status c_base.EEnergyStoreStatus) error {
 	if status == c_base.EPcsStatusUnknown || status == c_base.EPcsStatusSync || status == c_base.EPcsStatusFault {
-		return c_error.ErrorParam
+		return errors.New("参数错误")
 	}
 	bmsStatus, err := p.GetBmsStatus()
 	if err != nil {
@@ -288,7 +287,7 @@ func (p *sEssPylonCheckwatt) SetPower(power int32) error {
 			return err
 		}
 		if power > int32(maxOutputPower) {
-			return c_error.OverLimitError
+			return errors.New("数值超过限制")
 		}
 	} else {
 		maxInputPower, err := p.GetMaxInputPower()
@@ -296,7 +295,7 @@ func (p *sEssPylonCheckwatt) SetPower(power int32) error {
 			return err
 		}
 		if power < int32(-maxInputPower) {
-			return c_error.OverLimitError
+			return errors.New("数值超过限制")
 		}
 	}
 	//return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) error {
@@ -355,13 +354,13 @@ func (p *sEssPylonCheckwatt) GetReactivePower() (float64, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetFireEnvTemperature() (float64, error) {
-	return -1, c_error.NonSupportError
+	return -1, errors.New("不支持的操作")
 }
 
 func (p *sEssPylonCheckwatt) GetCarbonMonoxideConcentration() (float64, error) {
-	return -1, c_error.NonSupportError
+	return -1, errors.New("不支持的操作")
 }
 
 func (p *sEssPylonCheckwatt) HasSmoke() (bool, error) {
-	return false, c_error.NonSupportError
+	return false, errors.New("不支持的操作")
 }

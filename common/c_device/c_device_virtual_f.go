@@ -2,7 +2,6 @@ package c_device
 
 import (
 	"common/c_base"
-	"common/c_error"
 	"common/c_log"
 	"github.com/pkg/errors"
 )
@@ -31,7 +30,7 @@ func VirtualGetDataWithChildDeviceType[T c_base.IDriver, V any](s *SVirtualDevic
 		}
 	}
 	if len(results) == 0 {
-		return zero, c_error.NoData
+		return zero, errors.New("数据不存在")
 	}
 	return aggregateFunction(results)
 }

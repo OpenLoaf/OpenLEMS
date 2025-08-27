@@ -2,10 +2,10 @@ package bms_pylon_tech_us108_v1
 
 import (
 	"common/c_device"
-	"common/c_error"
 	"common/c_log"
 	"common/c_proto"
 	"common/c_type"
+	"github.com/pkg/errors"
 	"math"
 	"time"
 
@@ -51,7 +51,7 @@ func (p *sBmsPylonTechUs108) Shutdown() {
 
 func (p *sBmsPylonTechUs108) GetRatedPower() (uint32, error) {
 	if p.bmsConfig.RatedPower == nil {
-		return 0, c_error.ErrorParam
+		return 0, errors.New("参数错误")
 	}
 	return *p.bmsConfig.RatedPower, nil
 }
@@ -132,7 +132,7 @@ func (p *sBmsPylonTechUs108) SetBmsStatus(status c_type.EBmsStatus) error {
 		case c_type.EBmsStatusOff:
 			err = protocol.WriteSingleRegister(BasicStatus, 0) // 确保可以休眠
 		case c_type.EBmsStatusUnknown:
-			err = c_error.ErrorParam
+			err = errors.New("参数错误")
 		case c_type.EBmsStatusStandby:
 			err = protocol.WriteSingleRegister(BasicStatus, 3) // 确保可以待机
 		case c_type.EBmsStatusCharge:
@@ -273,7 +273,7 @@ func (p *sBmsPylonTechUs108) GetHistoryOutgoingQuantity() (float64, error) {
 
 func (p *sBmsPylonTechUs108) GetCapacity() (uint32, error) {
 	if p.bmsConfig.Capacity == nil {
-		return 0, c_error.NonSupportError
+		return 0, errors.New("不支持的操作")
 	}
 	return *p.bmsConfig.Capacity, nil
 }

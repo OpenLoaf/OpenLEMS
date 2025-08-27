@@ -63,7 +63,7 @@ func (s *SDriverInfo) GetTelemetry(key string, instance any) (any, error) {
 		functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
 		method = reflect.ValueOf(instance).MethodByName(functionName)
 		if !method.IsValid() {
-			return nil, errors.Errorf("method %s not found", key)
+			return nil, errors.Errorf("TelemetryKey: [%s] method [%s] not found", key, functionName)
 		}
 		s.reflectMethodCache[key] = method
 	}
