@@ -68,15 +68,17 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 	cache := gcache.New()
 	provider := &ModbusProtocolProvider{
 		IGetProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id, cache),
-		IAlarm:                 c_device.NewAlarmImpl(ctx, deviceConfig.Pid),
-		once:                   sync.Once{},
-		ctx:                    ctx,
-		protocolConfig:         protocolConfig,
-		modbusDeviceConfig:     modbusDeviceConfig,
-		preQuery:               make(map[string]bool),
-		cache:                  cache,
+		IAlarm:                 c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
+		deviceId:               deviceConfig.Id,
 		deviceType:             deviceType,
-		metricProtocol:         newMetricProtocol(ctx, protocolConfig, deviceConfig),
+
+		once:               sync.Once{},
+		ctx:                ctx,
+		protocolConfig:     protocolConfig,
+		modbusDeviceConfig: modbusDeviceConfig,
+		preQuery:           make(map[string]bool),
+		cache:              cache,
+		metricProtocol:     newMetricProtocol(ctx, protocolConfig, deviceConfig),
 	}
 	if client != nil {
 		provider.client = client.(modbus.Client)

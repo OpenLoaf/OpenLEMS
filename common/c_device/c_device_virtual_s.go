@@ -23,7 +23,7 @@ func NewVirtualDevice(ctx context.Context, deviceConfig *c_base.SDeviceConfig) *
 	deviceCtx, cancel := context.WithCancel(ctx)
 
 	return &SVirtualDeviceImpl{
-		IAlarm:       NewAlarmImpl(deviceCtx, deviceConfig.Pid),
+		IAlarm:       NewAlarmImpl(deviceCtx, deviceConfig.Id, deviceConfig.Pid),
 		DeviceCtx:    deviceCtx,
 		cancel:       cancel,
 		deviceConfig: deviceConfig,

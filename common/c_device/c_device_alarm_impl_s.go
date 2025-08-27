@@ -22,16 +22,18 @@ type sAlarmHandler struct {
 type sAlarmImpl struct {
 	ctx              context.Context
 	rwMutex          sync.RWMutex
+	deviceId         string                              // 当前设备的ID
 	parentDeviceId   string                              // 父设备ID
 	maxLevel         c_base.EAlarmLevel                  // 最高等级
 	cache            map[string]*c_base.MetaValueWrapper // 缓存
 	alarmHandlerList []*sAlarmHandler                    // 告警处理器列表
 }
 
-func NewAlarmImpl(ctx context.Context, parentDeviceId string) c_base.IAlarm {
+func NewAlarmImpl(ctx context.Context, deviceId string, parentDeviceId string) c_base.IAlarm {
 	return &sAlarmImpl{
 		ctx:              ctx,
 		rwMutex:          sync.RWMutex{},
+		deviceId:         deviceId,
 		parentDeviceId:   parentDeviceId,
 		maxLevel:         c_base.EAlarmLevelNone,
 		cache:            make(map[string]*c_base.MetaValueWrapper),
@@ -124,6 +126,15 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	var alarmAction c_base.EAlarmAction
 	var alarm *c_base.MetaValueWrapper
 
+	deviceName := ""
+	if deviceId != s.deviceId {
+		// 说明是从下级设备处传递过来的
+		deviceConfig := common.GetDeviceManager().GetDeviceConfigById(deviceId)
+		if deviceConfig != nil {
+			deviceName = deviceConfig.Name
+		}
+	}
+
 	if isCurrentlyTriggered {
 		// 当前需要触发告警
 		alarm = &c_base.MetaValueWrapper{
@@ -145,11 +156,11 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 			// 记录触发日志
 			switch alarm.Level {
 			case c_base.EAlarmLevelWarn:
-				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发[%s]警告！值为: %v", alarm.Meta.Cn, value))
+				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]警告！值为: %v", deviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelAlarm:
-				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发[%s]警报！值为: %v", alarm.Meta.Cn, value))
+				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]警报！值为: %v", deviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelError:
-				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发[%s]故障！值为: %v", alarm.Meta.Cn, value))
+				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]故障！值为: %v", deviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelNone:
 			}
 		} else {
@@ -172,11 +183,11 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 			// 记录清除日志
 			switch alarm.Level {
 			case c_base.EAlarmLevelWarn:
-				c_log.BizInfof(s.ctx, fmt.Sprintf("清除[%s]警告！值为: %v", alarm.Meta.Cn, value))
+				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]警告！值为: %v", deviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelAlarm:
-				c_log.BizInfof(s.ctx, fmt.Sprintf("清除[%s]警报！值为: %v", alarm.Meta.Cn, value))
+				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]警报！值为: %v", deviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelError:
-				c_log.BizInfof(s.ctx, fmt.Sprintf("清除[%s]故障！值为: %v", alarm.Meta.Cn, value))
+				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]故障！值为: %v", deviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelNone:
 			}
 		} else {

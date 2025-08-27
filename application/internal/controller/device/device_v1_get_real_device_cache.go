@@ -19,27 +19,11 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		return nil, gerror.NewCode(gcode.CodeNotFound)
 	}
 
-	var alarmLevel = c_base.EAlarmLevelNone
-	//if device.GetDeviceState() != c_base.EStateError &&
-	//	device.GetDeviceState() != c_base.EStateInit {
-	//	// todo 修改
-	//	alarmLevel = deviceInstance.GetAlarmLevel()
-	//}
-
 	res = &v1.GetRealDeviceCacheRes{
 		//DeviceServerState: device.GetDeviceState().String(),
-		AlarmLevel: alarmLevel.String(),
+		AlarmLevel: device.GetAlarmLevel().String(),
 	}
-	// todo
 	res.LastUpdateTime = device.GetLastUpdateTime()
-
-	//driverDescription := deviceInstance.GetDriverDescription()
-
-	//for _, t := range driverDescription.Telemetry {
-	//
-	//}
-	//
-	//driverDescription.GetAllTelemetry(deviceInstance)
 
 	groupCacheMap := make(map[string]*entity.SSingleDeviceGroup)
 	list := device.GetMetaValueList()
