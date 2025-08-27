@@ -63,7 +63,7 @@ func (s *SDriverInfo) GetTelemetry(key string, instance any) (any, error) {
 		functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
 		method = reflect.ValueOf(instance).MethodByName(functionName)
 		if !method.IsValid() {
-			return nil, fmt.Errorf("method %s not found", key)
+			return nil, errors.Newf("method %s not found", key)
 		}
 		s.reflectMethodCache[key] = method
 	}
@@ -94,6 +94,7 @@ func (s *SDriverInfo) GetAllTelemetry(instance any) map[string]any {
 	for _, telemetry := range s.Telemetry {
 		value, err := s.GetTelemetry(telemetry.Name, instance)
 		if err != nil {
+			c_log.Errorf(context.Background(), "Get telemetry %s error: %v", telemetry.Name, err)
 			continue
 		}
 		telemetryMap[telemetry.Name] = value
