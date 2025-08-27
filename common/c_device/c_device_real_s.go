@@ -4,18 +4,17 @@ import (
 	"common/c_base"
 	"context"
 	"errors"
-	"reflect"
 	"time"
 )
 
 type SRealDeviceImpl[P c_base.IProtocol] struct { // 真实设备
-	c_base.IAlarm
 	DeviceCtx    context.Context
 	cancel       context.CancelFunc
 	protocol     P
 	deviceConfig *c_base.SDeviceConfig // 配置
-
 }
+
+var _ c_base.IDevice = (*SRealDeviceImpl)(nil)
 
 func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base.SDeviceConfig, protocol P) (*SRealDeviceImpl[P], error) {
 	if deviceConfig == nil {
@@ -27,7 +26,6 @@ func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base
 	device := &SRealDeviceImpl[P]{
 		DeviceCtx:    deviceCtx,
 		cancel:       cancel,
-		IAlarm:       c_base.NewAlarmImpl(deviceCtx),
 		protocol:     protocol,
 		deviceConfig: deviceConfig,
 	}
@@ -35,22 +33,57 @@ func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base
 	return device, nil
 }
 
+func (s *SRealDeviceImpl[P]) GetAlarmLevel() c_base.EAlarmLevel {
+	if s.isProtocolNil() {
+		return c_base.EAlarmLevelError
+	}
+	return s.protocol.GetAlarmLevel()
+}
+
+func (s *SRealDeviceImpl[P]) GetAlarmList() []*c_base.MetaValueWrapper {
+	if s.isProtocolNil() {
+		return nil
+	}
+	return s.protocol.GetAlarmList()
+}
+
+func (s *SRealDeviceImpl[P]) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType, meta *c_base.Meta, value any) {
+	if s.isProtocolNil() {
+		return
+	}
+	s.protocol.UpdateAlarm(deviceId, deviceType, meta, value)
+}
+
+func (s *SRealDeviceImpl[P]) ResetAlarm() {
+	if s.isProtocolNil() {
+		return
+	}
+	s.protocol.ResetAlarm()
+}
+
+func (s *SRealDeviceImpl[P]) RegisterAlarmHandlerFunc(alarmAction c_base.EAlarmAction, handler func(alarm *c_base.MetaValueWrapper, currentMaxAlarmLevel c_base.EAlarmLevel, isFirstHandler bool), sortValue ...int) {
+	if s.isProtocolNil() {
+		return
+	}
+	s.protocol.RegisterAlarmHandlerFunc(alarmAction, handler)
+}
+
 func (s *SRealDeviceImpl[P]) GetStatus() c_base.EProtocolStatus {
-	if reflect.ValueOf(s.protocol).IsNil() {
+	if s.isProtocolNil() {
 		return c_base.EProtocolDisconnected
 	}
 	return s.protocol.GetStatus()
 }
 
 func (s *SRealDeviceImpl[P]) GetLastUpdateTime() *time.Time {
-	if reflect.ValueOf(s.protocol).IsNil() {
+	if s.isProtocolNil() {
 		return nil
 	}
 	return s.protocol.GetLastUpdateTime()
 }
 
 func (s *SRealDeviceImpl[P]) RegisterTask(task c_base.ITask, tasks ...c_base.ITask) {
-	if reflect.ValueOf(s.protocol).IsNil() {
+	if s.isProtocolNil() {
 		return
 	}
 	s.protocol.RegisterTask(task, tasks...)

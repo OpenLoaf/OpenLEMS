@@ -17,6 +17,8 @@ type SVirtualDeviceImpl struct { // 虚拟设备
 	deviceConfig *c_base.SDeviceConfig
 }
 
+var _ c_base.IDevice = (*SVirtualDeviceImpl)(nil)
+
 func NewVirtualDevice(ctx context.Context, deviceConfig *c_base.SDeviceConfig) *SVirtualDeviceImpl {
 	deviceCtx, cancel := context.WithCancel(ctx)
 	return &SVirtualDeviceImpl{
