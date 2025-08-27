@@ -89,7 +89,11 @@ func (s *SDriverInfo) GetTelemetry(key string, instance any) (any, error) {
 	return value[0].Interface(), nil
 }
 
-func (s *SDriverInfo) GetAllTelemetry(instance any) map[string]any {
+func (s *SDriverInfo) GetAllTelemetry(instance IDevice) map[string]any {
+	if instance == nil || instance.GetProtocolStatus() != EProtocolConnected { // 如果实例不是连接成功的，就不要返回数据了
+		return nil
+	}
+
 	telemetryMap := make(map[string]any, len(s.Telemetry))
 	for _, telemetry := range s.Telemetry {
 		value, err := s.GetTelemetry(telemetry.Name, instance)

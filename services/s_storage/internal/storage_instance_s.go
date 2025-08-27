@@ -90,25 +90,20 @@ func (s *SStorageManager) RegisterDriver(deviceConfig *c_base.SDeviceConfig) {
 			dur = time.Duration(deviceConfig.StorageIntervalSec) * time.Second
 		}
 
-		//  开机立即保存数据
-
-		driverInfo := deviceConfig.DriverInfo
-		instance := common.GetDeviceManager().GetDeviceById(deviceConfig.Id)
-		if instance == nil {
-			c_log.BizErrorf(s.ctx, "设备历史数据存储服务启动失败，设备[%s]未找到实例", deviceConfig.Id)
-			return
-		}
-		_ = s.IStorage.SaveDevices(deviceConfig.Id, deviceConfig.GetType(), driverInfo.GetAllTelemetry(instance))
-
+		deviceId := deviceConfig.Id
 		// TODO: 同时监测设备关闭或者存储关闭的情况，自动销毁定时任务
 		gtimer.SetInterval(s.ctx, dur, func(ctx context.Context) {
 			// 保存数据
-			instance = common.GetDeviceManager().GetDeviceById(deviceConfig.Id)
+			instance := common.GetDeviceManager().GetDeviceById(deviceId)
 			if instance == nil {
-				c_log.BizErrorf(s.ctx, "设备历史数据存储服务启动失败，设备[%s]未找到实例", deviceConfig.Id)
+				c_log.BizErrorf(s.ctx, "设备历史数据存储服务启动失败，设备[%s]未找到实例", deviceId)
 				return
 			}
-			_ = s.IStorage.SaveDevices(deviceConfig.Id, deviceConfig.GetType(), driverInfo.GetAllTelemetry(instance))
+			dc := common.GetDeviceManager().GetDeviceConfigById(deviceId)
+			if dc.DriverInfo == nil {
+				return
+			}
+			_ = s.IStorage.SaveDevices(dc.Id, dc.GetType(), dc.DriverInfo.GetAllTelemetry(instance))
 		})
 		g.Log().Infof(s.ctx, "设备[%s]存储间隔：%v", deviceConfig.Name, dur)
 	} else {

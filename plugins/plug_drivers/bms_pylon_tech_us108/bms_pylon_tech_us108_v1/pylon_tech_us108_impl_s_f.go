@@ -293,7 +293,7 @@ func (p *sBmsPylonTechUs108) startWriteTimeTask() {
 				c_log.Debugf(p.DeviceCtx, "startWriteTimeTask() 关闭!")
 				return
 			case <-ticker.C:
-				if p.GetStatus() != c_base.EProtocolConnected {
+				if p.GetProtocolStatus() != c_base.EProtocolConnected {
 					continue
 				}
 				_ = p._syncTime()

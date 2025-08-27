@@ -68,7 +68,7 @@ func (s *SRealDeviceImpl[P]) RegisterAlarmHandlerFunc(alarmAction c_base.EAlarmA
 	s.protocol.RegisterAlarmHandlerFunc(alarmAction, handler)
 }
 
-func (s *SRealDeviceImpl[P]) GetStatus() c_base.EProtocolStatus {
+func (s *SRealDeviceImpl[P]) GetProtocolStatus() c_base.EProtocolStatus {
 	if s.isProtocolNil() {
 		return c_base.EProtocolDisconnected
 	}

@@ -39,6 +39,10 @@ func (s *SVirtualDeviceImpl) Reset() error {
 	return nil
 }
 
+func (s *SVirtualDeviceImpl) GetProtocolStatus() c_base.EProtocolStatus {
+	return c_base.EProtocolConnected
+}
+
 func (s *SVirtualDeviceImpl) GetMetaValueList() []*c_base.MetaValueWrapper {
 	var list = make([]*c_base.MetaValueWrapper, 0)
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
