@@ -62,9 +62,9 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 	if err != nil {
 		if protocolConfig.GetProtocol() == c_base.EModbusRtu {
 			//panic(gerror.Newf("modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
-			return nil, gerror.Wrapf(err, "modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress())
+			return nil, gerror.Wrapf(err, "modbus rtu 地址：[%s] 连接失败！", protocolConfig.GetAddress())
 		}
-		c_log.BizWarningf(ctx, "连接到：modbus地址 %s 失败！等待下一次连接！ %v", protocolConfig.GetAddress(), err)
+		c_log.BizWarningf(ctx, "连接到：modbus地址 %s 失败！等待下一次连接！ %s", protocolConfig.GetAddress(), err.Error())
 	} else {
 		c_log.BizInfof(ctx, "modbus协议连接到：%s 成功！", protocolConfig.GetAddress())
 	}

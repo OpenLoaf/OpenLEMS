@@ -1,7 +1,6 @@
 package c_device
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
 
 	"github.com/shockerli/cvt"
@@ -115,11 +114,7 @@ func (s *SRealDeviceImpl[P]) GetFromProtocolFloat32(fc func(protocol P) (any, er
 	if err != nil {
 		return 0, err
 	}
-	f, err := cvt.Float32E(v)
-	if err != nil {
-		return 0, errors.Wrap(err, fmt.Sprintf("异常！！！！Get float32 fail, %v", v))
-	}
-	return f, nil
+	return cvt.Float32E(v)
 }
 
 func (s *SRealDeviceImpl[P]) GetFromProtocolFloat64(fc func(protocol P) (any, error)) (float64, error) {

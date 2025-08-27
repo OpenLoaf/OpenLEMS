@@ -70,7 +70,7 @@ func (s *SDriverInfo) GetTelemetry(key string, instance any) (any, error) {
 
 	defer func() {
 		if r := recover(); r != nil {
-			c_log.Errorf(context.Background(), "GetTelemetry Painc! key: %s Error: %v\n", s, r)
+			c_log.Errorf(context.Background(), "GetTelemetry Painc! key: %s Error: %+v\n", s, r)
 		}
 	}()
 

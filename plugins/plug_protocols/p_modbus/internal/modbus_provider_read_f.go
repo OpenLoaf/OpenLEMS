@@ -145,13 +145,13 @@ func (p *ModbusProtocolProvider) readValues(name string, addr, quantity uint16, 
 			_ = p.client.Close()
 		} else {
 			_ = p.client.Close()
-			c_log.BizWarningf(p.ctx, "[%v] Modbus Failed！unitId:%d Add: 0x%X Len: %d  Fun: %s ;Cause：%+v", name, p.modbusDeviceConfig.UnitId, addr, quantity, function.String(), err)
+			c_log.BizWarningf(p.ctx, "[%s] Modbus Failed！unitId:%d Add: 0x%X Len: %d  Fun: %s ;Cause：%+v", name, p.modbusDeviceConfig.UnitId, addr, quantity, function.String(), err)
 		}
 		return nil, err
 	}
 	if result == nil || len(result) == 0 {
 		_ = p.client.Close()
-		return nil, gerror.Newf("[%v] Modbus Task Return Empty！", name)
+		return nil, gerror.Newf("[%s] Modbus Task Return Empty！", name)
 	}
 
 	c_log.Debugf(p.ctx, "[%v] Modbus Task Return：[% x]", name, result)
