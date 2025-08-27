@@ -14,7 +14,7 @@ type SRealDeviceImpl[P c_base.IProtocol] struct { // 真实设备
 	deviceConfig *c_base.SDeviceConfig // 配置
 }
 
-var _ c_base.IDevice = (*SRealDeviceImpl)(nil)
+var _ c_base.IDevice = (*SRealDeviceImpl[c_base.IProtocol])(nil)
 
 func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base.SDeviceConfig, protocol P) (*SRealDeviceImpl[P], error) {
 	if deviceConfig == nil {

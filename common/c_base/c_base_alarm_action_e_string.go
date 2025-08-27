@@ -8,18 +8,19 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[EAlarmActionLevelUp-0]
-	_ = x[EAlarmActionLevelDown-1]
-	_ = x[EAlarmActionFirstTrigger-2]
-	_ = x[EAlarmActionFirstClear-3]
-	_ = x[EAlarmActionNotFirstTrigger-4]
-	_ = x[EAlarmActionNotFirstClear-5]
-	_ = x[EAlarmActionReset-6]
+	_ = x[EAlarmActionEvery-0]
+	_ = x[EAlarmActionLevelUp-1]
+	_ = x[EAlarmActionLevelDown-2]
+	_ = x[EAlarmActionFirstTrigger-3]
+	_ = x[EAlarmActionFirstClear-4]
+	_ = x[EAlarmActionNotFirstTrigger-5]
+	_ = x[EAlarmActionNotFirstClear-6]
+	_ = x[EAlarmActionReset-7]
 }
 
-const _EAlarmAction_name = "LevelUpLevelDownFirstTriggerFirstClearNotFirstTriggerNotFirstClearReset"
+const _EAlarmAction_name = "EveryLevelUpLevelDownFirstTriggerFirstClearNotFirstTriggerNotFirstClearReset"
 
-var _EAlarmAction_index = [...]uint8{0, 7, 16, 28, 38, 53, 66, 71}
+var _EAlarmAction_index = [...]uint8{0, 5, 12, 21, 33, 43, 58, 71, 76}
 
 func (i EAlarmAction) String() string {
 	if i < 0 || i >= EAlarmAction(len(_EAlarmAction_index)-1) {

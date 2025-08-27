@@ -2,6 +2,7 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_device"
 	"common/c_proto"
 	"context"
 	"github.com/gogf/gf/v2/container/garray"
@@ -67,7 +68,7 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 	cache := gcache.New()
 	provider := &ModbusProtocolProvider{
 		IGetProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id, cache),
-		IAlarm:                 c_base.NewAlarmImpl(ctx),
+		IAlarm:                 c_device.NewAlarmImpl(ctx, deviceConfig.Pid),
 		once:                   sync.Once{},
 		ctx:                    ctx,
 		protocolConfig:         protocolConfig,

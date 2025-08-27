@@ -4,7 +4,8 @@ package c_base
 type EAlarmAction int
 
 const (
-	EAlarmActionLevelUp         EAlarmAction = iota // 告警等级上升了
+	EAlarmActionEvery           EAlarmAction = iota // 不管如何都执行
+	EAlarmActionLevelUp                             // 告警等级上升了
 	EAlarmActionLevelDown                           // 告警等级下降了
 	EAlarmActionFirstTrigger                        // 首次触发告警
 	EAlarmActionFirstClear                          // 首次触发告警消除

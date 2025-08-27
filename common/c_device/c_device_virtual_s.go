@@ -21,12 +21,12 @@ var _ c_base.IDevice = (*SVirtualDeviceImpl)(nil)
 
 func NewVirtualDevice(ctx context.Context, deviceConfig *c_base.SDeviceConfig) *SVirtualDeviceImpl {
 	deviceCtx, cancel := context.WithCancel(ctx)
+
 	return &SVirtualDeviceImpl{
+		IAlarm:       NewAlarmImpl(deviceCtx, deviceConfig.Pid),
 		DeviceCtx:    deviceCtx,
 		cancel:       cancel,
-		IAlarm:       nil,
 		deviceConfig: deviceConfig,
-		//ChildDevice:  make([]c_base.IDevice, 0),
 	}
 }
 
