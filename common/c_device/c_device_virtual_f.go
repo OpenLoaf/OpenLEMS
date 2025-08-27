@@ -8,7 +8,7 @@ import (
 )
 
 // VirtualGetDataWithChildDeviceType 通过范型来获取数据 和 GetFromChildDeviceType 的区别在于这个是number
-func VirtualGetDataWithChildDeviceType[T c_base.IDriver, V any](s *SVirtualDevice,
+func VirtualGetDataWithChildDeviceType[T c_base.IDriver, V any](s *SVirtualDeviceImpl,
 	processFunction func(device T) (V, error),
 	aggregateFunction func(values []any) (V, error)) (V, error) {
 	var results = make([]any, 0)
@@ -37,7 +37,7 @@ func VirtualGetDataWithChildDeviceType[T c_base.IDriver, V any](s *SVirtualDevic
 }
 
 // VirtualExecuteWithChildDeviceId 获取某个id的设备，并执行方法. 只能是虚拟设备才能使用。
-func VirtualExecuteWithChildDeviceId[T c_base.IDriver, R c_base.Number](s *SVirtualDevice, id string, fc func(T) (R, error)) (R, error) {
+func VirtualExecuteWithChildDeviceId[T c_base.IDriver, R c_base.Number](s *SVirtualDeviceImpl, id string, fc func(T) (R, error)) (R, error) {
 	c := s.GetChildById(id)
 	if c == nil {
 		var zero R
@@ -52,12 +52,12 @@ func VirtualExecuteWithChildDeviceId[T c_base.IDriver, R c_base.Number](s *SVirt
 }
 
 // VirtualExecuteWithChildDeviceType 执行某个类型的所有子设备的方法
-func VirtualExecuteWithChildDeviceType[T c_base.IDriver](s *SVirtualDevice, fc func(device T) error) error {
+func VirtualExecuteWithChildDeviceType[T c_base.IDriver](s *SVirtualDeviceImpl, fc func(device T) error) error {
 	return VirtualExecuteAndRollbackWithChildDeviceType(s, fc, nil)
 }
 
 // VirtualExecuteAndRollbackWithChildDeviceType 执行某个类型的所有子设备的方法，如果执行失败了，一个个回滚
-func VirtualExecuteAndRollbackWithChildDeviceType[T c_base.IDriver](s *SVirtualDevice, fc func(device T) error, rollbackFc func(device T) error) error {
+func VirtualExecuteAndRollbackWithChildDeviceType[T c_base.IDriver](s *SVirtualDeviceImpl, fc func(device T) error, rollbackFc func(device T) error) error {
 	if fc == nil {
 		return errors.Newf("VirtualExecuteAndRollbackWithChildDeviceType 方法参数错误！")
 	}

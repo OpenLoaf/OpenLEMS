@@ -11,7 +11,7 @@ var buildYaml []byte
 
 func NewPlugin(device c_base.IDevice) c_base.IDevice {
 	return &sEssPylonCheckwatt{
-		SVirtualDevice: device.(*c_device.SVirtualDevice),
+		SVirtualDeviceImpl: device.(*c_device.SVirtualDeviceImpl),
 	}
 }
 

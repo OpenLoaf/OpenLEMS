@@ -12,7 +12,7 @@ import (
 )
 
 type sEssPylonCheckwatt struct {
-	*c_device.SVirtualDevice
+	*c_device.SVirtualDeviceImpl
 	essConfig *sEssPylonCheckwattConfig
 
 	//*c_base.SPolicyManager
@@ -56,7 +56,7 @@ func (p *sEssPylonCheckwatt) SetReset() error {
 }
 
 func (p *sEssPylonCheckwatt) GetSoc() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (float32, error) {
 		return device.GetSoc()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateAvgFloat32(values)
@@ -64,7 +64,7 @@ func (p *sEssPylonCheckwatt) GetSoc() (float32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetSoh() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (float32, error) {
 		return device.GetSoh()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateAvgFloat32(values)
@@ -72,7 +72,7 @@ func (p *sEssPylonCheckwatt) GetSoh() (float32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetCapacity() (uint32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (uint32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (uint32, error) {
 		return device.GetCapacity()
 	}, func(values []any) (uint32, error) {
 		return c_func.AggregateSumUint32(values)
@@ -80,7 +80,7 @@ func (p *sEssPylonCheckwatt) GetCapacity() (uint32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetCycleCount() (uint, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (uint, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (uint, error) {
 		return device.GetCycleCount()
 	}, func(values []any) (uint, error) {
 		return c_func.AggregateSumUint(values)
@@ -88,7 +88,7 @@ func (p *sEssPylonCheckwatt) GetCycleCount() (uint, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetRatedPower() (uint32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IPcs) (uint32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (uint32, error) {
 		return device.GetRatedPower()
 	}, func(values []any) (uint32, error) {
 		return c_func.AggregateSumUint32(values)
@@ -96,7 +96,7 @@ func (p *sEssPylonCheckwatt) GetRatedPower() (uint32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetMaxInputPower() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IPcs) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (float32, error) {
 		return device.GetMaxInputPower()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateSumFloat32(values)
@@ -104,7 +104,7 @@ func (p *sEssPylonCheckwatt) GetMaxInputPower() (float32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetMaxOutputPower() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IPcs) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (float32, error) {
 		return device.GetMaxOutputPower()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateSumFloat32(values)
@@ -112,7 +112,7 @@ func (p *sEssPylonCheckwatt) GetMaxOutputPower() (float32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetDcPower() (float64, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (float64, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (float64, error) {
 		return device.GetDcPower()
 	}, func(values []any) (float64, error) {
 		return c_func.AggregateSumFloat64(values)
@@ -120,7 +120,7 @@ func (p *sEssPylonCheckwatt) GetDcPower() (float64, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetCellMinTemp() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (float32, error) {
 		return device.GetCellMinTemp()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateMinFloat32(values)
@@ -128,7 +128,7 @@ func (p *sEssPylonCheckwatt) GetCellMinTemp() (float32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetCellMaxTemp() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (float32, error) {
 		return device.GetCellMaxTemp()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateMaxFloat32(values)
@@ -136,7 +136,7 @@ func (p *sEssPylonCheckwatt) GetCellMaxTemp() (float32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetCellAvgTemp() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (float32, error) {
 		return device.GetCellAvgTemp()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateAvgFloat32(values)
@@ -144,7 +144,7 @@ func (p *sEssPylonCheckwatt) GetCellAvgTemp() (float32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetCellMinVoltage() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (float32, error) {
 		return device.GetCellMinVoltage()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateMinFloat32(values)
@@ -152,7 +152,7 @@ func (p *sEssPylonCheckwatt) GetCellMinVoltage() (float32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetCellMaxVoltage() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (float32, error) {
 		return device.GetCellMaxVoltage()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateMaxFloat32(values)
@@ -160,7 +160,7 @@ func (p *sEssPylonCheckwatt) GetCellMaxVoltage() (float32, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetCellAvgVoltage() (float32, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (float32, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (float32, error) {
 		return device.GetCellAvgVoltage()
 	}, func(values []any) (float32, error) {
 		return c_func.AggregateAvgFloat32(values)
@@ -231,7 +231,7 @@ func (p *sEssPylonCheckwatt) SetStatus(status c_base.EEnergyStoreStatus) error {
 
 	if bmsStatus == c_type.EBmsStatusOff {
 		// 先去开机
-		err = c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) error {
+		err = c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) error {
 			return device.SetBmsStatus(c_type.EBmsStatusStandby) // 设为待机
 		})
 		if err != nil {
@@ -244,14 +244,14 @@ func (p *sEssPylonCheckwatt) SetStatus(status c_base.EEnergyStoreStatus) error {
 		}
 	}
 	// 设置PCS状态
-	return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDevice, func(device c_type.IPcs) error {
+	return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) error {
 		return device.SetStatus(status)
 	})
 }
 
 func (p *sEssPylonCheckwatt) GetBmsStatus() (c_type.EBmsStatus, error) {
 	// 判断电池是否上电，如果没有就先上电
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IBms) (c_type.EBmsStatus, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (c_type.EBmsStatus, error) {
 		return device.GetBmsStatus()
 	}, func(values []any) (c_type.EBmsStatus, error) {
 		return c_func.EqualAggregate[c_type.EBmsStatus](values)
@@ -259,13 +259,13 @@ func (p *sEssPylonCheckwatt) GetBmsStatus() (c_type.EBmsStatus, error) {
 }
 
 func (p *sEssPylonCheckwatt) SetGridMode(mode c_base.EGridMode) error {
-	return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDevice, func(device c_type.IPcs) error {
+	return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) error {
 		return device.SetGridMode(mode)
 	})
 }
 
 func (p *sEssPylonCheckwatt) GetStatus() (c_base.EEnergyStoreStatus, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IPcs) (c_base.EEnergyStoreStatus, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (c_base.EEnergyStoreStatus, error) {
 		return device.GetStatus()
 	}, func(values []any) (c_base.EEnergyStoreStatus, error) {
 		return c_func.EqualAggregate[c_base.EEnergyStoreStatus](values)
@@ -273,7 +273,7 @@ func (p *sEssPylonCheckwatt) GetStatus() (c_base.EEnergyStoreStatus, error) {
 }
 
 func (p *sEssPylonCheckwatt) GetGridMode() (c_base.EGridMode, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDevice, func(device c_type.IPcs) (c_base.EGridMode, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (c_base.EGridMode, error) {
 		return device.GetGridMode()
 	}, func(values []any) (c_base.EGridMode, error) {
 		return c_func.EqualAggregate[c_base.EGridMode](values)
@@ -299,7 +299,7 @@ func (p *sEssPylonCheckwatt) SetPower(power int32) error {
 			return c_error.OverLimitError
 		}
 	}
-	//return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDevice, func(device c_type.IPcs) error {
+	//return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) error {
 	//	return device.SetPower(power)
 	//})
 
@@ -313,7 +313,7 @@ func (p *sEssPylonCheckwatt) SetReactivePower(power int32) error {
 }
 
 func (p *sEssPylonCheckwatt) SetPowerFactor(factor float32) error {
-	return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDevice, func(device c_type.IPcs) error {
+	return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) error {
 		return device.SetPowerFactor(factor)
 	})
 }

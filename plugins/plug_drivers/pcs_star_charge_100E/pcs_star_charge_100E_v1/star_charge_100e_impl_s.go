@@ -10,7 +10,7 @@ import (
 )
 
 type sPcsStarCharge100E struct {
-	*c_device.SRealDevice[c_proto.IModbusProtocol]
+	*c_device.SRealDeviceImpl[c_proto.IModbusProtocol]
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
 }

@@ -95,6 +95,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 				default:
 					// 检查连接状态
 					if client.IsConnected() {
+
 						// 连接正常，重置重连计数
 						if reconnectCount > 0 {
 							c_log.BizInfof(ctx, "连接恢复正常，重置重连计数")

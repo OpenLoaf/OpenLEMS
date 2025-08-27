@@ -6,7 +6,7 @@ import (
 	"github.com/shockerli/cvt"
 )
 
-func (s *SRealDevice[P]) GetFromProtocol(fc func(protocol P) (any, error)) (any, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocol(fc func(protocol P) (any, error)) (any, error) {
 	if s.isProtocolNil() {
 		return nil, errors.Newf("protocol is nil")
 	}
@@ -18,7 +18,7 @@ func (s *SRealDevice[P]) GetFromProtocol(fc func(protocol P) (any, error)) (any,
 	return v, nil
 }
 
-func (s *SRealDevice[P]) GetFromProtocolBool(fc func(protocol P) (any, error)) (bool, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolBool(fc func(protocol P) (any, error)) (bool, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return false, err
@@ -27,7 +27,7 @@ func (s *SRealDevice[P]) GetFromProtocolBool(fc func(protocol P) (any, error)) (
 }
 
 // 整数类型函数
-func (s *SRealDevice[P]) GetFromProtocolInt(fc func(protocol P) (any, error)) (int, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolInt(fc func(protocol P) (any, error)) (int, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -35,7 +35,7 @@ func (s *SRealDevice[P]) GetFromProtocolInt(fc func(protocol P) (any, error)) (i
 	return cvt.IntE(v)
 }
 
-func (s *SRealDevice[P]) GetFromProtocolInt8(fc func(protocol P) (any, error)) (int8, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolInt8(fc func(protocol P) (any, error)) (int8, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -43,7 +43,7 @@ func (s *SRealDevice[P]) GetFromProtocolInt8(fc func(protocol P) (any, error)) (
 	return cvt.Int8E(v)
 }
 
-func (s *SRealDevice[P]) GetFromProtocolInt16(fc func(protocol P) (any, error)) (int16, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolInt16(fc func(protocol P) (any, error)) (int16, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -51,7 +51,7 @@ func (s *SRealDevice[P]) GetFromProtocolInt16(fc func(protocol P) (any, error)) 
 	return cvt.Int16E(v)
 }
 
-func (s *SRealDevice[P]) GetFromProtocolInt32(fc func(protocol P) (any, error)) (int32, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolInt32(fc func(protocol P) (any, error)) (int32, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -59,7 +59,7 @@ func (s *SRealDevice[P]) GetFromProtocolInt32(fc func(protocol P) (any, error)) 
 	return cvt.Int32E(v)
 }
 
-func (s *SRealDevice[P]) GetFromProtocolInt64(fc func(protocol P) (any, error)) (int64, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolInt64(fc func(protocol P) (any, error)) (int64, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -68,7 +68,7 @@ func (s *SRealDevice[P]) GetFromProtocolInt64(fc func(protocol P) (any, error)) 
 }
 
 // 无符号整数类型函数
-func (s *SRealDevice[P]) GetFromProtocolUint(fc func(protocol P) (any, error)) (uint, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolUint(fc func(protocol P) (any, error)) (uint, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -76,7 +76,7 @@ func (s *SRealDevice[P]) GetFromProtocolUint(fc func(protocol P) (any, error)) (
 	return cvt.UintE(v)
 }
 
-func (s *SRealDevice[P]) GetFromProtocolUint8(fc func(protocol P) (any, error)) (uint8, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolUint8(fc func(protocol P) (any, error)) (uint8, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -84,7 +84,7 @@ func (s *SRealDevice[P]) GetFromProtocolUint8(fc func(protocol P) (any, error)) 
 	return cvt.Uint8E(v)
 }
 
-func (s *SRealDevice[P]) GetFromProtocolUint16(fc func(protocol P) (any, error)) (uint16, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolUint16(fc func(protocol P) (any, error)) (uint16, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -92,7 +92,7 @@ func (s *SRealDevice[P]) GetFromProtocolUint16(fc func(protocol P) (any, error))
 	return cvt.Uint16E(v)
 }
 
-func (s *SRealDevice[P]) GetFromProtocolUint32(fc func(protocol P) (any, error)) (uint32, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolUint32(fc func(protocol P) (any, error)) (uint32, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -100,7 +100,7 @@ func (s *SRealDevice[P]) GetFromProtocolUint32(fc func(protocol P) (any, error))
 	return cvt.Uint32E(v)
 }
 
-func (s *SRealDevice[P]) GetFromProtocolUint64(fc func(protocol P) (any, error)) (uint64, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolUint64(fc func(protocol P) (any, error)) (uint64, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -109,7 +109,7 @@ func (s *SRealDevice[P]) GetFromProtocolUint64(fc func(protocol P) (any, error))
 }
 
 // 浮点数类型函数
-func (s *SRealDevice[P]) GetFromProtocolFloat32(fc func(protocol P) (any, error)) (float32, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolFloat32(fc func(protocol P) (any, error)) (float32, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err
@@ -117,7 +117,7 @@ func (s *SRealDevice[P]) GetFromProtocolFloat32(fc func(protocol P) (any, error)
 	return cvt.Float32E(v)
 }
 
-func (s *SRealDevice[P]) GetFromProtocolFloat64(fc func(protocol P) (any, error)) (float64, error) {
+func (s *SRealDeviceImpl[P]) GetFromProtocolFloat64(fc func(protocol P) (any, error)) (float64, error) {
 	v, err := s.GetFromProtocol(fc)
 	if err != nil {
 		return 0, err

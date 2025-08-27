@@ -15,7 +15,7 @@ import (
 )
 
 type sBmsPylonTechUs108 struct {
-	*c_device.SRealDevice[c_proto.IModbusProtocol]
+	*c_device.SRealDeviceImpl[c_proto.IModbusProtocol]
 	bmsConfig *sPylonTechUs108BmsConfig
 }
 

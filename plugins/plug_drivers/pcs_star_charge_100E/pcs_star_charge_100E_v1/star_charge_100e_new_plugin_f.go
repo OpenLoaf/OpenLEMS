@@ -12,7 +12,7 @@ var buildYaml []byte
 
 func NewPlugin(device c_base.IDevice) c_base.IDevice {
 	return &sPcsStarCharge100E{
-		SRealDevice: device.(*c_device.SRealDevice[c_proto.IModbusProtocol]),
+		SRealDeviceImpl: device.(*c_device.SRealDeviceImpl[c_proto.IModbusProtocol]),
 	}
 }
 

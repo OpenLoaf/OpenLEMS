@@ -10,16 +10,16 @@ import (
 	"time"
 )
 
-type SVirtualDevice struct { // 虚拟设备
+type SVirtualDeviceImpl struct { // 虚拟设备
 	c_base.IAlarm
 	DeviceCtx    context.Context
 	cancel       context.CancelFunc
 	deviceConfig *c_base.SDeviceConfig
 }
 
-func NewVirtualDevice(ctx context.Context, deviceConfig *c_base.SDeviceConfig) *SVirtualDevice {
+func NewVirtualDevice(ctx context.Context, deviceConfig *c_base.SDeviceConfig) *SVirtualDeviceImpl {
 	deviceCtx, cancel := context.WithCancel(ctx)
-	return &SVirtualDevice{
+	return &SVirtualDeviceImpl{
 		DeviceCtx:    deviceCtx,
 		cancel:       cancel,
 		IAlarm:       nil,
@@ -28,7 +28,7 @@ func NewVirtualDevice(ctx context.Context, deviceConfig *c_base.SDeviceConfig) *
 	}
 }
 
-func (s *SVirtualDevice) Reset() error {
+func (s *SVirtualDeviceImpl) Reset() error {
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
 		d := common.GetDeviceManager().GetDeviceById(childDevice.Id)
 		if d != nil {
@@ -38,7 +38,7 @@ func (s *SVirtualDevice) Reset() error {
 	return nil
 }
 
-func (s *SVirtualDevice) GetMetaValueList() []*c_base.MetaValueWrapper {
+func (s *SVirtualDeviceImpl) GetMetaValueList() []*c_base.MetaValueWrapper {
 	var list = make([]*c_base.MetaValueWrapper, 0)
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
 		child := common.GetDeviceManager().GetDeviceById(childDevice.Id)
@@ -53,7 +53,7 @@ func (s *SVirtualDevice) GetMetaValueList() []*c_base.MetaValueWrapper {
 	return list
 }
 
-func (s *SVirtualDevice) GetLastUpdateTime() *time.Time {
+func (s *SVirtualDeviceImpl) GetLastUpdateTime() *time.Time {
 	var lastUpdateTime *time.Time
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
 		child := s.GetChildById(childDevice.Id)
@@ -69,15 +69,15 @@ func (s *SVirtualDevice) GetLastUpdateTime() *time.Time {
 	return lastUpdateTime
 }
 
-func (s *SVirtualDevice) GetChildById(childDeviceId string) c_base.IDevice {
+func (s *SVirtualDeviceImpl) GetChildById(childDeviceId string) c_base.IDevice {
 	return common.GetDeviceManager().GetDeviceById(childDeviceId)
 }
 
-func (s *SVirtualDevice) GetConfig() *c_base.SDeviceConfig {
+func (s *SVirtualDeviceImpl) GetConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
-func (s *SVirtualDevice) GetFromChildDeviceId(childDeviceId string, processFunction func(device c_base.IDevice) (any, error)) (any, error) {
+func (s *SVirtualDeviceImpl) GetFromChildDeviceId(childDeviceId string, processFunction func(device c_base.IDevice) (any, error)) (any, error) {
 	child := s.GetChildById(childDeviceId)
 	if child == nil {
 		return nil, c_error.NoData
@@ -86,7 +86,7 @@ func (s *SVirtualDevice) GetFromChildDeviceId(childDeviceId string, processFunct
 }
 
 // GetFromChildDeviceType 使用设备类型来获取数据，和VirtualDataFromChildDeviceType的区别在于，这个方法能处理所有类型，而VirtualDataFromChildDeviceType 只能处理数字
-func (s *SVirtualDevice) GetFromChildDeviceType(childDeviceType c_base.EDeviceType,
+func (s *SVirtualDeviceImpl) GetFromChildDeviceType(childDeviceType c_base.EDeviceType,
 	processFunction func(device c_base.IDevice) (any, error), // 处理函数
 	aggregateFunction func(values []any) (any, error)) (any, error) { // 聚合函数
 	var results = make([]any, 0)
@@ -112,7 +112,7 @@ func (s *SVirtualDevice) GetFromChildDeviceType(childDeviceType c_base.EDeviceTy
 }
 
 // GetFromChildAmmeterOrDeviceType 根据电表id或者设备类型来获取数据，优先使用电表，如果电表id为空，才会使用type
-func (s *SVirtualDevice) GetFromChildAmmeterOrDeviceType(ammeterId string, childDeviceType c_base.EDeviceType,
+func (s *SVirtualDeviceImpl) GetFromChildAmmeterOrDeviceType(ammeterId string, childDeviceType c_base.EDeviceType,
 	ammeterProcessFunction func(ammeter c_type.IAmmeter) (any, error),
 	processFunction func(device c_base.IDevice) (any, error),
 	aggregateFunction func(values []any) (any, error)) (any, error) {

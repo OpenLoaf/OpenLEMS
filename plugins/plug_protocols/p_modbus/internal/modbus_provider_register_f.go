@@ -78,11 +78,12 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 					return
 				case <-tk.C:
 					// 如果没有连接，就延迟3秒后再执行下个周期
-					if !p.client.IsConnected() {
+					if p.GetStatus() != c_base.EProtocolConnected {
 						time.Sleep(3 * time.Second)
 						continue
 					}
-					p.modbusReadChan <- group
+					//p.modbusReadChan <- group
+					_, _ = p.ReadGroupSync(group, false)
 				}
 			}
 		}()
@@ -106,11 +107,12 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 					// 这里等待一个周期(也就是跳过一个周期)exit
 					//time.Sleep(cycle)
 					// 如果没有连接，就延迟3秒后再执行下个周期
-					if !p.client.IsConnected() {
+					if p.GetStatus() != c_base.EProtocolConnected {
 						time.Sleep(3 * time.Second)
 						continue
 					}
-					p.modbusReadChan <- group
+					//p.modbusReadChan <- group
+					_, _ = p.ReadGroupSync(group, false)
 				}
 			}
 		}()

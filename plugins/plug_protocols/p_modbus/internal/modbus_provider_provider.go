@@ -24,12 +24,11 @@ type ModbusProtocolProvider struct {
 	deviceId   string
 	deviceType c_base.EDeviceType
 
-	modbusReadChan     chan *c_proto.SModbusTask // 查询用的通道
-	client             modbus.Client             // modbus的通讯
-	preQuery           map[string]bool           // 预读
-	cache              *gcache.Cache             // 点位缓存
-	modbusRwMutex      sync.RWMutex              // 读写锁
-	lastUpdateTime     *time.Time                // 最后更新时间
+	client             modbus.Client   // modbus的通讯
+	preQuery           map[string]bool // 预读
+	cache              *gcache.Cache   // 点位缓存
+	modbusRwMutex      sync.RWMutex    // 读写锁
+	lastUpdateTime     *time.Time      // 最后更新时间
 	modbusDeviceConfig *c_proto.SModbusDeviceConfig
 	protocolConfig     *c_base.SProtocolConfig
 
@@ -43,7 +42,7 @@ func (p *ModbusProtocolProvider) GetStatus() c_base.EProtocolStatus {
 	if p.client.IsConnected() {
 		return c_base.EProtocolConnected
 	}
-	return c_base.EProtocolDisconnected
+	return c_base.EProtocolConnecting
 }
 
 func (p *ModbusProtocolProvider) GetValue(meta *c_base.Meta) (any, error) {
@@ -89,7 +88,6 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 		ctx:                    ctx,
 		protocolConfig:         protocolConfig,
 		modbusDeviceConfig:     modbusDeviceConfig,
-		modbusReadChan:         make(chan *c_proto.SModbusTask),
 		preQuery:               make(map[string]bool),
 		cache:                  cache,
 		deviceType:             deviceType,

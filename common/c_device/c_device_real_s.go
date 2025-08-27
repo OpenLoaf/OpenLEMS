@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-type SRealDevice[P c_base.IProtocol] struct { // 真实设备
+type SRealDeviceImpl[P c_base.IProtocol] struct { // 真实设备
 	c_base.IAlarm
 	DeviceCtx    context.Context
 	cancel       context.CancelFunc
@@ -20,7 +20,7 @@ type SRealDevice[P c_base.IProtocol] struct { // 真实设备
 	alarmHandlerList []func(maxAlarm c_base.EAlarmLevel, nowAlarm *c_base.SAlarmDetail)
 }
 
-func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base.SDeviceConfig, protocol P) (*SRealDevice[P], error) {
+func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base.SDeviceConfig, protocol P) (*SRealDeviceImpl[P], error) {
 	if deviceConfig == nil {
 		// 必须有设备配置
 		panic(errors.New("deviceConfig is nil"))
@@ -28,7 +28,7 @@ func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base
 	deviceCtx, cancel := context.WithCancel(ctx)
 	var notifyChan = make(chan *c_base.SAlarmDetail)
 
-	device := &SRealDevice[P]{
+	device := &SRealDeviceImpl[P]{
 		DeviceCtx:        deviceCtx,
 		cancel:           cancel,
 		IAlarm:           c_base.NewAlarm(notifyChan),
@@ -54,49 +54,49 @@ func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base
 	return device, nil
 }
 
-func (s *SRealDevice[P]) GetStatus() c_base.EProtocolStatus {
+func (s *SRealDeviceImpl[P]) GetStatus() c_base.EProtocolStatus {
 	if reflect.ValueOf(s.protocol).IsNil() {
 		return c_base.EProtocolDisconnected
 	}
 	return s.protocol.GetStatus()
 }
 
-func (s *SRealDevice[P]) GetLastUpdateTime() *time.Time {
+func (s *SRealDeviceImpl[P]) GetLastUpdateTime() *time.Time {
 	if reflect.ValueOf(s.protocol).IsNil() {
 		return nil
 	}
 	return s.protocol.GetLastUpdateTime()
 }
 
-func (s *SRealDevice[P]) RegisterTask(task c_base.ITask, tasks ...c_base.ITask) {
+func (s *SRealDeviceImpl[P]) RegisterTask(task c_base.ITask, tasks ...c_base.ITask) {
 	if reflect.ValueOf(s.protocol).IsNil() {
 		return
 	}
 	s.protocol.RegisterTask(task, tasks...)
 }
 
-func (s *SRealDevice[P]) GetServices() map[string]*c_base.SDriverService {
+func (s *SRealDeviceImpl[P]) GetServices() map[string]*c_base.SDriverService {
 	return nil
 }
 
 // 注册告警处理器
-func (s *SRealDevice[P]) RegisterAlarmHandler(handler func(maxAlarm c_base.EAlarmLevel, nowAlarm *c_base.SAlarmDetail)) {
+func (s *SRealDeviceImpl[P]) RegisterAlarmHandler(handler func(maxAlarm c_base.EAlarmLevel, nowAlarm *c_base.SAlarmDetail)) {
 	s.alarmHandlerList = append(s.alarmHandlerList, handler)
 }
 
-func (s *SRealDevice[P]) GetMetaValueList() []*c_base.MetaValueWrapper {
+func (s *SRealDeviceImpl[P]) GetMetaValueList() []*c_base.MetaValueWrapper {
 	return s.protocol.GetMetaValueList()
 }
 
-func (s *SRealDevice[P]) GetConfig() *c_base.SDeviceConfig {
+func (s *SRealDeviceImpl[P]) GetConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
-func (s *SRealDevice[P]) isProtocolNil() bool {
+func (s *SRealDeviceImpl[P]) isProtocolNil() bool {
 	return any(s.protocol) == nil
 }
 
-func (s *SRealDevice[P]) ExecuteProtocolMethod(method func(protocol P) error) error {
+func (s *SRealDeviceImpl[P]) ExecuteProtocolMethod(method func(protocol P) error) error {
 	// 闭包执行协议方法，协议不存在将不会执行方法
 	if s.isProtocolNil() {
 		return errors.New("ExecuteProtocolMethod failed  protocol is nil")
