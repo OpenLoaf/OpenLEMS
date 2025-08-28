@@ -30,8 +30,10 @@ type CurrentAlarmItem struct {
 }
 
 type GetCurrentAlarmsRes struct {
-	Total int                 `json:"total" dc:"总记录数"`
-	Items []*CurrentAlarmItem `json:"items" dc:"当前告警列表"`
+	Total        int                 `json:"total" dc:"总记录数"`
+	IgnoreTotal  int                 `json:"ignoreTotal" dc:"过滤总数"`
+	HistoryTotal int                 `json:"historyTotal" dc:"历史总数"`
+	Items        []*CurrentAlarmItem `json:"items" dc:"当前告警列表"`
 }
 
 // ==================== 历史告警分页查询 ====================

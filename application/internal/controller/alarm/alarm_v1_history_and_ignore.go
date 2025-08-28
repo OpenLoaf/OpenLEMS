@@ -64,7 +64,7 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 
 // CreateAlarmIgnore 创建忽略告警
 func (c *ControllerV1) CreateAlarmIgnore(ctx context.Context, req *v1.CreateAlarmIgnoreReq) (res *v1.CreateAlarmIgnoreRes, err error) {
-	if strings.TrimSpace(req.DeviceId) == "" {
+	if strings.TrimSpace(req.DeviceId) == "" || strings.TrimSpace(req.SourceDeviceId) == "" {
 		return nil, gerror.NewCode(gcode.CodeInvalidParameter)
 	}
 	if strings.TrimSpace(req.Point) == "" {
@@ -72,23 +72,22 @@ func (c *ControllerV1) CreateAlarmIgnore(ctx context.Context, req *v1.CreateAlar
 	}
 
 	svc := s_db.GetAlarmService()
-	ignored, err := svc.IsAlarmIgnored(ctx, req.DeviceId, req.Point)
+	ignored, err := svc.IsAlarmIgnored(ctx, req.DeviceId, req.SourceDeviceId, req.Point)
 	if err != nil {
 		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
 	if ignored {
 		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
-	if err := svc.CreateAlarmIgnore(ctx, req.DeviceId, req.Point); err != nil {
+	if err := svc.CreateAlarmIgnore(ctx, req.DeviceId, req.SourceDeviceId, req.Point); err != nil {
 		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
 
-	// 清除原来的告警
 	common.GetDeviceManager().IteratorParentDevicesById(req.DeviceId, func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
 		if device == nil {
 			return true
 		}
-		device.ResetAlarm()
+		device.IgnoreClearAlarm(req.SourceDeviceId, req.Point)
 		return true
 	})
 
@@ -105,13 +104,6 @@ func (c *ControllerV1) DeleteAlarmIgnore(ctx context.Context, req *v1.DeleteAlar
 	}
 
 	svc := s_db.GetAlarmService()
-	ignored, err := svc.IsAlarmIgnored(ctx, req.DeviceId, req.Point)
-	if err != nil {
-		return nil, gerror.NewCode(gcode.CodeInternalError)
-	}
-	if !ignored {
-		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
-	}
 	if err := svc.DeleteAlarmIgnoreByDeviceIdAndPoint(ctx, req.DeviceId, req.Point); err != nil {
 		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}

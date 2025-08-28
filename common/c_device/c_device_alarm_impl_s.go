@@ -130,7 +130,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	}
 
 	// 判断一下这个点位是否被忽略，忽略的不用触发
-	if isAlarmIgnore, err := c_alarm.GetAlarmManager().IsAlarmIgnored(s.ctx, deviceId, meta.Name); err == nil && isAlarmIgnore {
+	if isAlarmIgnore, err := c_alarm.GetAlarmManager().IsAlarmIgnored(s.ctx, s.deviceId, deviceId, meta.Name); err == nil && isAlarmIgnore {
 		c_log.Debugf(s.ctx, "忽略设备[%s]的告警[%s]", deviceId, meta.Name)
 		return
 	}

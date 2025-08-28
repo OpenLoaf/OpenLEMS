@@ -9,9 +9,10 @@ import (
 // ==================== 创建忽略告警 ====================
 
 type CreateAlarmIgnoreReq struct {
-	g.Meta   `path:"/alarm/ignore" method:"post" tags:"告警" summary:"创建忽略告警"`
-	DeviceId string `json:"deviceId" v:"required" dc:"设备ID"`
-	Point    string `json:"point" v:"required" dc:"告警点位名称"`
+	g.Meta         `path:"/alarm/ignore" method:"post" tags:"告警" summary:"创建忽略告警"`
+	DeviceId       string `json:"deviceId" v:"required" dc:"设备ID"`
+	SourceDeviceId string `json:"sourceDeviceId" dc:"源设备ID"`
+	Point          string `json:"point" v:"required" dc:"告警点位名称"`
 }
 
 type CreateAlarmIgnoreRes struct{}

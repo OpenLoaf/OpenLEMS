@@ -11,5 +11,5 @@ type IAlarmManager interface {
 	CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId, point, level, title, detail string, triggerAt *time.Time) error
 
 	// IsAlarmIgnored 检查告警是否被忽略
-	IsAlarmIgnored(ctx context.Context, deviceId, point string) (bool, error)
+	IsAlarmIgnored(ctx context.Context, deviceId, sourceDeviceId, point string) (bool, error)
 }

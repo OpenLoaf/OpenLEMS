@@ -13,6 +13,11 @@ const (
 	TableAlarmIgnore = "alarm_ignore"
 )
 
+// 字段名
+const (
+	FieldSourceDeviceId = "source_device_id"
+)
+
 // 告警忽略表结构
 type SAlarmIgnoreModel struct {
 	g.Meta         `orm:"table:alarm_ignore"`
@@ -47,9 +52,12 @@ func (a *SAlarmIgnoreModel) GetByDeviceIdAndPoint(ctx context.Context, deviceId,
 	return g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldDeviceId, deviceId).Where(FieldPoint, point).Scan(a)
 }
 
-// IsIgnored 检查是否被忽略
-func (a *SAlarmIgnoreModel) IsIgnored(ctx context.Context, deviceId, point string) (bool, error) {
-	count, err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldDeviceId, deviceId).Where(FieldPoint, point).Count()
+// IsIgnored 检查是否被忽略（设备+源设备+点位）
+func (a *SAlarmIgnoreModel) IsIgnored(ctx context.Context, deviceId, sourceDeviceId, point string) (bool, error) {
+	count, err := g.Model(TableAlarmIgnore).Ctx(ctx).
+		Where(FieldDeviceId, deviceId).
+		Where(FieldSourceDeviceId, sourceDeviceId).
+		Where(FieldPoint, point).Count()
 	return count > 0, err
 }
 
@@ -123,4 +131,13 @@ func (a *SAlarmIgnoreModel) GetPage(ctx context.Context, page, pageSize int, fil
 	}
 
 	return records, total, nil
+}
+
+// GetCount 获取告警忽略表记录总数
+func (a *SAlarmIgnoreModel) GetCount(ctx context.Context) (int, error) {
+	count, err := g.Model(TableAlarmIgnore).Ctx(ctx).Count()
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }
