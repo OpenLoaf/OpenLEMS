@@ -12,6 +12,7 @@ const (
 	EAlarmActionNotFirstTrigger                     // 非首次触发告警
 	EAlarmActionNotFirstClear                       // 非首次触发告警消除
 	EAlarmActionReset                               // 告警重置
+	EAlarmActionIgnore                              //  告警忽略
 )
 
 // IsLevelChange 判断是否是告警等级发生变化

@@ -65,6 +65,13 @@ func (s *SRealDeviceImpl[P]) ResetAlarm() {
 	s.protocol.ResetAlarm()
 }
 
+func (s *SRealDeviceImpl[P]) IgnoreClearAlarm(deviceId string, point string) {
+	if s.isProtocolNil() {
+		return
+	}
+	s.protocol.IgnoreClearAlarm(deviceId, point)
+}
+
 func (s *SRealDeviceImpl[P]) RegisterAlarmHandlerFunc(alarmAction c_base.EAlarmAction, handler func(alarm *c_base.MetaValueWrapper, currentMaxAlarmLevel c_base.EAlarmLevel, isFirstHandler bool), sortValue ...int) {
 	if s.isProtocolNil() {
 		return

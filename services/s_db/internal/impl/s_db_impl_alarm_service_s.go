@@ -93,19 +93,20 @@ func (s *sAlarmServiceImpl) clearDeviceCache(deviceId string) {
 // ==================== 告警历史相关方法 ====================
 
 // CreateAlarmHistory 创建告警历史记录
-func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, point, level, title, detail string, triggerAt *time.Time) error {
+func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId, point, level, title, detail string, triggerAt *time.Time) error {
 	if triggerAt == nil {
 		return errors.Errorf("deviceId:%s point:%s level:%s title:%s detail:%s 创建告警记录失败，createAt为空", deviceId, point, level, title, detail)
 	}
 	now := time.Now()
 	alarmHistory := &s_db_model.SAlarmHistoryModel{
-		DeviceId:  deviceId,
-		Point:     point,
-		Level:     level,
-		Title:     title,
-		Detail:    detail,
-		TriggerAt: triggerAt,
-		ClearAt:   &now,
+		DeviceId:       deviceId,
+		SourceDeviceId: sourceDeviceId,
+		Point:          point,
+		Level:          level,
+		Title:          title,
+		Detail:         detail,
+		TriggerAt:      triggerAt,
+		ClearAt:        &now,
 	}
 
 	err := alarmHistory.Create(ctx)
@@ -114,7 +115,6 @@ func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, po
 		return err
 	}
 
-	g.Log().Infof(ctx, "成功创建告警历史记录 - 设备ID: %s, 点位: %s, 等级: %s", deviceId, point, level)
 	return nil
 }
 
@@ -127,7 +127,6 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryByDeviceId(ctx context.Context, devic
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取告警历史记录 - 设备ID: %s, 共 %d 条记录", deviceId, len(records))
 	return records, nil
 }
 
@@ -140,7 +139,6 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryByDeviceIdAndPoint(ctx context.Contex
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取告警历史记录 - 设备ID: %s, 点位: %s, 共 %d 条记录", deviceId, point, len(records))
 	return records, nil
 }
 
@@ -166,7 +164,6 @@ func (s *sAlarmServiceImpl) GetAllAlarmHistory(ctx context.Context) ([]*s_db_mod
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取所有告警历史记录，共 %d 条记录", len(records))
 	return records, nil
 }
 
@@ -205,7 +202,6 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryCount(ctx context.Context) (int, erro
 		return 0, err
 	}
 
-	g.Log().Infof(ctx, "成功获取告警历史表记录总数: %d", count)
 	return count, nil
 }
 
@@ -229,7 +225,6 @@ func (s *sAlarmServiceImpl) CreateAlarmIgnore(ctx context.Context, deviceId, poi
 	// 清除相关缓存，确保下次查询能获取到最新状态
 	s.clearDeviceCache(deviceId)
 
-	g.Log().Infof(ctx, "成功创建告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
 	return nil
 }
 
@@ -242,7 +237,6 @@ func (s *sAlarmServiceImpl) GetAlarmIgnoreByDeviceId(ctx context.Context, device
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取告警忽略记录 - 设备ID: %s, 共 %d 条记录", deviceId, len(records))
 	return records, nil
 }
 
@@ -327,6 +321,5 @@ func (s *sAlarmServiceImpl) GetAlarmIgnorePage(ctx context.Context, page, pageSi
 		return nil, 0, err
 	}
 
-	g.Log().Infof(ctx, "成功分页获取告警忽略记录 - 页码: %d, 页大小: %d, 总数: %d, 当前页记录数: %d, 过滤条件: %+v", page, pageSize, total, len(records), filters)
 	return records, total, nil
 }

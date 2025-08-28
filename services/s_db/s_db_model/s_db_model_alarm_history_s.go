@@ -22,15 +22,16 @@ const (
 
 // 告警历史表结构
 type SAlarmHistoryModel struct {
-	g.Meta    `orm:"table:alarm_history"`
-	Id        int        `json:"id" orm:"id,primary,auto_increment"`
-	DeviceId  string     `json:"device_id" orm:"device_id"`
-	Point     string     `json:"point" orm:"point"`
-	Level     string     `json:"level" orm:"level"`
-	Title     string     `json:"title" orm:"title"`
-	Detail    string     `json:"detail" orm:"detail"`
-	TriggerAt *time.Time `json:"trigger_at" orm:"trigger_at"`
-	ClearAt   *time.Time `json:"clear_at" orm:"clear_at,auto_now_add"`
+	g.Meta         `orm:"table:alarm_history"`
+	Id             int        `json:"id" orm:"id,primary,auto_increment"`
+	DeviceId       string     `json:"device_id" orm:"device_id"`
+	SourceDeviceId string     `json:"source_device_id" orm:"source_device_id"` // 原设备ID
+	Point          string     `json:"point" orm:"point"`
+	Level          string     `json:"level" orm:"level"`
+	Title          string     `json:"title" orm:"title"`
+	Detail         string     `json:"detail" orm:"detail"`
+	TriggerAt      *time.Time `json:"trigger_at" orm:"trigger_at"`
+	ClearAt        *time.Time `json:"clear_at" orm:"clear_at,auto_now_add"`
 }
 
 // Create 创建告警历史记录

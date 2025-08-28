@@ -93,6 +93,31 @@ func (s *sAlarmImpl) RegisterAlarmHandlerFunc(alarmAction c_base.EAlarmAction, h
 	})
 }
 
+func (s *sAlarmImpl) IgnoreClearAlarm(deviceId string, point string) {
+	key := s.GetAlarmKey(deviceId, point)
+	s.rwMutex.Lock()
+	defer s.rwMutex.Unlock()
+
+	if oldKey, ok := s.cache[key]; ok {
+		delete(s.cache, key)
+		s.updateMaxLevel()
+		now := time.Now()
+
+		meta := &c_base.MetaValueWrapper{
+			DeviceId:   deviceId,
+			DeviceType: oldKey.DeviceType,
+			Level:      oldKey.Level,
+			Meta:       oldKey.Meta,
+			Value:      oldKey.Value,
+			HappenTime: &now,
+		}
+
+		// 执行告警忽略
+		s.callHandlers(meta, s.maxLevel, c_base.EAlarmActionIgnore)
+
+	}
+}
+
 func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType, meta *c_base.Meta, value any) {
 	if meta == nil {
 		c_log.Errorf(s.ctx, "告警元数据不能为空")
@@ -104,6 +129,13 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 		return
 	}
 
+	// 判断一下这个点位是否被忽略，忽略的不用触发
+	if isAlarmIgnore, err := c_alarm.GetAlarmManager().IsAlarmIgnored(s.ctx, deviceId, meta.Name); err != nil {
+		if isAlarmIgnore {
+			return
+		}
+	}
+
 	// 先获取当前Trigger的返回值，true代表触发，false代表清除
 	var isCurrentlyTriggered bool
 	if meta.Trigger != nil {
@@ -111,17 +143,6 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	} else {
 		// 如果没有Trigger函数，默认根据布尔值判断
 		isCurrentlyTriggered = value != nil && cvt.Bool(value) != false
-	}
-
-	if isCurrentlyTriggered {
-		// 如果触发了，就判断一下这个点位是否被忽略，忽略的不用触发
-		isAlarmIgnore, err := c_alarm.GetAlarmManager().IsAlarmIgnored(s.ctx, deviceId, meta.Name)
-		if err != nil {
-			c_log.Errorf(s.ctx, "IsAlarmIgnored err:%v", err)
-		}
-		if isAlarmIgnore {
-			return
-		}
 	}
 
 	s.rwMutex.Lock()
@@ -140,21 +161,12 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	var alarmAction c_base.EAlarmAction
 	var alarm *c_base.MetaValueWrapper
 
-	alarmDeviceId := deviceId // 告警的设备ID，如果是父设备收到子设备的，那么alarmDeviceId应该是父设备
-	alarmDeviceName := ""
-	if deviceId != s.deviceId {
-		// 说明是从下级设备处传递过来的
-		deviceConfig := common.GetDeviceManager().GetDeviceConfigById(deviceId)
-		if deviceConfig != nil {
-			alarmDeviceId = s.deviceId // 使用当前设备的ID
-			alarmDeviceName = deviceConfig.Name
-		}
-	}
+	alarmDeviceName := common.GetDeviceManager().GetDeviceNameById(deviceId)
 
 	if isCurrentlyTriggered {
 		// 当前需要触发告警
 		alarm = &c_base.MetaValueWrapper{
-			DeviceId:   alarmDeviceId,
+			DeviceId:   deviceId,
 			DeviceType: deviceType,
 			Level:      meta.Level,
 			Meta:       meta,
@@ -194,7 +206,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 			alarm = oldAlarm // 使用旧的告警信息用于日志和处理器
 
 			historyMessage := fmt.Sprintf("触发于:%s，触发值为:%v，告警清除后值为:%v", oldAlarm.HappenTime.Format("2006-01-02 15:04:05.000"), oldAlarm.Value, value)
-			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, alarmDeviceId, meta.Name, s.maxLevel.String(), meta.Cn, historyMessage, oldAlarm.HappenTime)
+			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, meta.Name, s.maxLevel.String(), meta.Cn, historyMessage, oldAlarm.HappenTime)
 			if err != nil {
 				c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
 			}
@@ -236,8 +248,8 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	// 触发父设备告警
 	parentDevice := common.GetDeviceManager().GetDeviceById(s.parentDeviceId)
 	if parentDevice != nil {
-		// 新开一个协程去通知父节点告警
-		go parentDevice.UpdateAlarm(alarmDeviceId, deviceType, meta, value)
+		// 新开一个协程去通知父节点告警, 注意这里传递的还是告警设备的deviceId
+		go parentDevice.UpdateAlarm(deviceId, deviceType, meta, value)
 	}
 
 }

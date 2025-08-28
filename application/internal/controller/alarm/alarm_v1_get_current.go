@@ -58,13 +58,15 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 
 			// 收集当前页数据
 			items = append(items, &v1.CurrentAlarmItem{
-				DeviceId:   alarm.DeviceId,
-				DeviceName: config.Name,
-				Point:      alarm.Meta.Name,
-				Level:      alarm.Level.String(),
-				Title:      alarm.Meta.Cn,
-				Detail:     fmt.Sprintf("[%s]触发！值为: %v", alarm.Meta.Cn, alarm.Value),
-				CreatedAt:  alarm.HappenTime,
+				DeviceId:         config.Id,
+				DeviceName:       config.Name,
+				SourceDeviceId:   alarm.DeviceId,
+				SourceDeviceName: config.Name,
+				Point:            alarm.Meta.Name,
+				Level:            alarm.Level.String(),
+				Title:            alarm.Meta.Cn,
+				Detail:           fmt.Sprintf("[%s]触发！值为: %v", alarm.Meta.Cn, alarm.Value),
+				CreatedAt:        alarm.HappenTime,
 			})
 		}
 		return true

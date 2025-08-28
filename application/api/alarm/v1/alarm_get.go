@@ -18,13 +18,15 @@ type GetCurrentAlarmsReq struct {
 }
 
 type CurrentAlarmItem struct {
-	DeviceId   string     `json:"deviceId" dc:"设备ID"`
-	DeviceName string     `json:"deviceName" dc:"设备名称"`
-	Point      string     `json:"point" dc:"告警点位名称"`
-	Level      string     `json:"level" dc:"告警级别"`
-	Title      string     `json:"title" dc:"告警标题"`
-	Detail     string     `json:"detail" dc:"告警详情"`
-	CreatedAt  *time.Time `json:"createdAt" dc:"创建时间"`
+	SourceDeviceId   string     `json:"sourceDeviceId" dc:"源告警设备ID"`
+	SourceDeviceName string     `json:"sourceDeviceName" dc:"源设备名称"`
+	DeviceId         string     `json:"deviceId" dc:"设备ID"`
+	DeviceName       string     `json:"deviceName" dc:"设备名称"`
+	Point            string     `json:"point" dc:"告警点位名称"`
+	Level            string     `json:"level" dc:"告警级别"`
+	Title            string     `json:"title" dc:"告警标题"`
+	Detail           string     `json:"detail" dc:"告警详情"`
+	CreatedAt        *time.Time `json:"createdAt" dc:"创建时间"`
 }
 
 type GetCurrentAlarmsRes struct {
@@ -46,15 +48,17 @@ type GetHistoryAlarmsReq struct {
 }
 
 type HistoryAlarmItem struct {
-	Id         int        `json:"id" dc:"告警ID"`
-	DeviceId   string     `json:"deviceId" dc:"设备ID"`
-	DeviceName string     `json:"deviceName" dc:"设备名称"`
-	Point      string     `json:"point" dc:"告警点位名称"`
-	Level      string     `json:"level" dc:"告警级别"`
-	Title      string     `json:"title" dc:"告警标题"`
-	Detail     string     `json:"detail" dc:"告警详情"`
-	TriggerAt  *time.Time `json:"triggerAt" dc:"触发时间"`
-	ClearAt    *time.Time `json:"clearAt" dc:"清除时间"`
+	Id               int        `json:"id" dc:"告警ID"`
+	DeviceId         string     `json:"deviceId" dc:"设备ID"`
+	DeviceName       string     `json:"deviceName" dc:"设备名称"`
+	SourceDeviceId   string     `json:"sourceDeviceId" dc:"源告警设备ID"`
+	SourceDeviceName string     `json:"sourceDeviceName" dc:"源设备名称"`
+	Point            string     `json:"point" dc:"告警点位名称"`
+	Level            string     `json:"level" dc:"告警级别"`
+	Title            string     `json:"title" dc:"告警标题"`
+	Detail           string     `json:"detail" dc:"告警详情"`
+	TriggerAt        *time.Time `json:"triggerAt" dc:"触发时间"`
+	ClearAt          *time.Time `json:"clearAt" dc:"清除时间"`
 }
 
 type GetHistoryAlarmsRes struct {

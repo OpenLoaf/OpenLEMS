@@ -96,7 +96,7 @@ func (m *SDeviceManager) IteratorAllDevices(deviceWrapper func(config *c_base.SD
 }
 
 // IteratorDevicesById 按设备ID遍历该设备及所有子设备
-func (m *SDeviceManager) IteratorDevicesById(deviceId string, iterator func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
+func (m *SDeviceManager) IteratorChildDevicesById(deviceId string, iterator func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
 	if deviceId == "" || iterator == nil {
 		return
 	}
@@ -121,6 +121,31 @@ func (m *SDeviceManager) IteratorDevicesById(deviceId string, iterator func(conf
 		return true
 	}
 	_ = walk(start)
+}
+
+func (m *SDeviceManager) IteratorParentDevicesById(deviceId string, iterator func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
+	if deviceId == "" || iterator == nil {
+		return
+	}
+	current := m.GetDeviceConfigById(deviceId)
+	if current == nil {
+		return
+	}
+	visited := make(map[string]bool)
+	for current != nil {
+		// 防止异常配置导致的循环
+		if visited[current.Id] {
+			break
+		}
+		visited[current.Id] = true
+		if cont := iterator(current, m.deviceInstanceMap[current.Id]); !cont {
+			break
+		}
+		if current.Pid == "" || current.Pid == current.Id {
+			break
+		}
+		current = m.GetDeviceConfigById(current.Pid)
+	}
 }
 
 func (m *SDeviceManager) Start() {

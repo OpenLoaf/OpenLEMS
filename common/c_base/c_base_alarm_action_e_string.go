@@ -16,11 +16,12 @@ func _() {
 	_ = x[EAlarmActionNotFirstTrigger-5]
 	_ = x[EAlarmActionNotFirstClear-6]
 	_ = x[EAlarmActionReset-7]
+	_ = x[EAlarmActionIgnore-8]
 }
 
-const _EAlarmAction_name = "EveryLevelUpLevelDownFirstTriggerFirstClearNotFirstTriggerNotFirstClearReset"
+const _EAlarmAction_name = "EveryLevelUpLevelDownFirstTriggerFirstClearNotFirstTriggerNotFirstClearResetIgnore"
 
-var _EAlarmAction_index = [...]uint8{0, 5, 12, 21, 33, 43, 58, 71, 76}
+var _EAlarmAction_index = [...]uint8{0, 5, 12, 21, 33, 43, 58, 71, 76, 82}
 
 func (i EAlarmAction) String() string {
 	if i < 0 || i >= EAlarmAction(len(_EAlarmAction_index)-1) {

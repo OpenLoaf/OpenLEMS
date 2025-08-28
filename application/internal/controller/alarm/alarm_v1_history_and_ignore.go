@@ -3,6 +3,7 @@ package alarm
 import (
 	v1 "application/api/alarm/v1"
 	"common"
+	"common/c_base"
 	"context"
 	"s_db"
 	"strings"
@@ -45,15 +46,17 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 	items := make([]v1.HistoryAlarmItem, 0, len(records))
 	for _, r := range records {
 		items = append(items, v1.HistoryAlarmItem{
-			Id:         r.Id,
-			DeviceId:   r.DeviceId,
-			DeviceName: common.GetDeviceManager().GetDeviceNameById(r.DeviceId),
-			Point:      r.Point,
-			Level:      r.Level,
-			Title:      r.Title,
-			Detail:     r.Detail,
-			TriggerAt:  r.TriggerAt,
-			ClearAt:    r.ClearAt,
+			Id:               r.Id,
+			DeviceId:         r.DeviceId,
+			DeviceName:       common.GetDeviceManager().GetDeviceNameById(r.DeviceId),
+			SourceDeviceId:   r.SourceDeviceId,
+			SourceDeviceName: common.GetDeviceManager().GetDeviceNameById(r.SourceDeviceId),
+			Point:            r.Point,
+			Level:            r.Level,
+			Title:            r.Title,
+			Detail:           r.Detail,
+			TriggerAt:        r.TriggerAt,
+			ClearAt:          r.ClearAt,
 		})
 	}
 	return &v1.GetHistoryAlarmsRes{Total: total, Items: items}, nil
@@ -79,6 +82,16 @@ func (c *ControllerV1) CreateAlarmIgnore(ctx context.Context, req *v1.CreateAlar
 	if err := svc.CreateAlarmIgnore(ctx, req.DeviceId, req.Point); err != nil {
 		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
+
+	// 清除原来的告警
+	common.GetDeviceManager().IteratorParentDevicesById(req.DeviceId, func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
+		if device == nil {
+			return true
+		}
+		device.ResetAlarm()
+		return true
+	})
+
 	return &v1.CreateAlarmIgnoreRes{}, nil
 }
 
