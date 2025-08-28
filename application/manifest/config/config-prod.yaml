@@ -3,7 +3,7 @@
 database:
   default:
     debug: false
-
+#    link: "sqlite::@file(data)"
 server:
   address: ":80"
   pprofEnabled: false
@@ -18,3 +18,5 @@ logger:
     file: "{Ymd}.log"
     level: "all"
     stdout: false
+
+
