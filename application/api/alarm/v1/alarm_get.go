@@ -1,0 +1,57 @@
+package v1
+
+import "github.com/gogf/gf/v2/frame/g"
+
+// ==================== 当前告警分页查询 ====================
+
+type GetCurrentAlarmsReq struct {
+	g.Meta   `path:"/alarm/current" method:"get" tags:"告警" summary:"获取当前告警分页列表"`
+	DeviceId string `json:"deviceId" dc:"可选，指定设备ID；为空则查询全部"`
+	Level    string `json:"level" v:"in:LOW,MEDIUM,HIGH,CRITICAL,ALL" dc:"告警级别过滤(可空/为ALL返回全部)"`
+	Point    string `json:"point" dc:"可选，告警点位名称过滤"`
+	Page     int    `json:"page" d:"1" dc:"页码，从1开始"`
+	PageSize int    `json:"pageSize" d:"20" dc:"每页条数(最大100)"`
+}
+
+type CurrentAlarmItem struct {
+	Id        int    `json:"id" dc:"告警ID"`
+	DeviceId  string `json:"deviceId" dc:"设备ID"`
+	Point     string `json:"point" dc:"告警点位名称"`
+	Level     string `json:"level" dc:"告警级别"`
+	Title     string `json:"title" dc:"告警标题"`
+	Detail    string `json:"detail" dc:"告警详情"`
+	CreatedAt string `json:"createdAt" dc:"创建时间"`
+}
+
+type GetCurrentAlarmsRes struct {
+	Total int                `json:"total" dc:"总记录数"`
+	Items []CurrentAlarmItem `json:"items" dc:"当前告警列表"`
+}
+
+// ==================== 历史告警分页查询 ====================
+
+type GetHistoryAlarmsReq struct {
+	g.Meta   `path:"/alarm/history" method:"get" tags:"告警" summary:"获取历史告警分页列表"`
+	DeviceId string `json:"deviceId" dc:"可选，指定设备ID；为空则查询全部"`
+	Level    string `json:"level" v:"in:LOW,MEDIUM,HIGH,CRITICAL,ALL" dc:"告警级别过滤(可空/为ALL返回全部)"`
+	Point    string `json:"point" dc:"可选，告警点位名称过滤"`
+	Title    string `json:"title" dc:"可选，告警标题模糊搜索"`
+	Date     string `json:"date" dc:"可选，日期过滤，格式：2006-01-02"`
+	Page     int    `json:"page" d:"1" dc:"页码，从1开始"`
+	PageSize int    `json:"pageSize" d:"20" dc:"每页条数(最大100)"`
+}
+
+type HistoryAlarmItem struct {
+	Id        int    `json:"id" dc:"告警ID"`
+	DeviceId  string `json:"deviceId" dc:"设备ID"`
+	Point     string `json:"point" dc:"告警点位名称"`
+	Level     string `json:"level" dc:"告警级别"`
+	Title     string `json:"title" dc:"告警标题"`
+	Detail    string `json:"detail" dc:"告警详情"`
+	CreatedAt string `json:"createdAt" dc:"创建时间"`
+}
+
+type GetHistoryAlarmsRes struct {
+	Total int                `json:"total" dc:"总记录数"`
+	Items []HistoryAlarmItem `json:"items" dc:"历史告警列表"`
+}

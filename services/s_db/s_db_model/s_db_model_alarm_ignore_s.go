@@ -15,15 +15,16 @@ const (
 // 告警忽略表结构
 type SAlarmIgnoreModel struct {
 	g.Meta    `orm:"table:alarm_ignore"`
-	Id        int    `json:"id" orm:"id"`
+	Id        int    `json:"id" orm:"id,primary,auto_increment"`
 	DeviceId  string `json:"device_id" orm:"device_id"`
 	Point     string `json:"point" orm:"point"`
-	CreatedAt string `json:"created_at" orm:"created_at"`
+	CreatedAt string `json:"created_at" orm:"created_at,auto_now_add"`
 }
 
 // Create 创建告警忽略记录
 func (a *SAlarmIgnoreModel) Create(ctx context.Context) error {
-	_, err := g.Model(TableAlarmIgnore).Ctx(ctx).Insert(a)
+	// 排除ID字段，让数据库自动生成
+	_, err := g.Model(TableAlarmIgnore).Ctx(ctx).FieldsEx("id").Insert(a)
 	return err
 }
 

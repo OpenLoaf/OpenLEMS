@@ -7,12 +7,13 @@ import (
 	"common/c_log"
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/shockerli/cvt"
 	"sort"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
+	"github.com/shockerli/cvt"
 )
 
 type sAlarmHandler struct {
@@ -190,6 +191,12 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 			alarmAction = c_base.EAlarmActionFirstClear
 			alarm = oldAlarm // 使用旧的告警信息用于日志和处理器
 
+			historyMessage := fmt.Sprintf("触发于:%s，触发值为:%v，告警清除后值为:%v", oldAlarm.HappenTime.Format("2006-01-02 15:04:05.000"), oldAlarm.Value, value)
+			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, meta.Name, s.maxLevel.String(), meta.Cn, historyMessage)
+			if err != nil {
+				c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
+			}
+
 			// 从缓存中删除告警
 			delete(s.cache, alarmKey)
 
@@ -212,13 +219,16 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	// 更新最高告警级别
 	s.updateMaxLevel()
 
+	// 调用注册的处理器
+	s.callHandlers(alarm, s.maxLevel, alarmAction)
+
 	// 基于maxLevel的变化判断告警级别上升或下降
 	if s.maxLevel > oldMaxLevel {
 		// 告警级别上升
-		alarmAction = c_base.EAlarmActionLevelUp
+		s.callHandlers(alarm, s.maxLevel, c_base.EAlarmActionLevelUp)
 	} else if s.maxLevel < oldMaxLevel {
 		// 告警级别下降
-		alarmAction = c_base.EAlarmActionLevelDown
+		s.callHandlers(alarm, s.maxLevel, c_base.EAlarmActionLevelDown)
 	}
 
 	// 触发父设备告警
@@ -227,18 +237,6 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 		// 新开一个协程去通知父节点告警
 		go parentDevice.UpdateAlarm(deviceId, deviceType, meta, value)
 	}
-
-	// 如果是首次清除，记录到告警历史表中
-	if alarmAction == c_base.EAlarmActionFirstClear {
-		historyMessage := fmt.Sprintf("触发于:%s，触发值为:%v，告警清除后值为:%v", oldAlarm.HappenTime, oldAlarm.Value, value)
-		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, meta.Name, s.maxLevel.String(), meta.Cn, historyMessage)
-		if err != nil {
-			c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
-		}
-	}
-
-	// 调用注册的处理器
-	s.callHandlers(alarm, s.maxLevel, alarmAction)
 
 }
 

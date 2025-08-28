@@ -39,7 +39,7 @@ func (s *sLogServiceImpl) CreateLog(ctx context.Context, logType, deviceId, leve
 		return err
 	}
 
-	g.Log().Infof(ctx, "成功创建日志记录 - 类型: %s, 设备ID: %s, 等级: %s", logType, deviceId, level)
+	g.Log().Debugf(ctx, "成功创建日志记录 - 类型: %s, 设备ID: %s, 等级: %s", logType, deviceId, level)
 	return nil
 }
 

@@ -2,13 +2,7 @@ package log
 
 import (
 	apiv1 "application/api/log/v1"
-	applog "application/internal/log"
-	"bufio"
-	"encoding/json"
-	"os"
-	"path/filepath"
-	"strings"
-	"time"
+	"common/c_log"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -17,174 +11,36 @@ import (
 // func New() *ControllerV1 { return &ControllerV1{} }
 
 func (c *ControllerV1) GetBizLog(ctx g.Ctx, req *apiv1.GetBizLogReq) (res *apiv1.GetBizLogRes, err error) {
-	// 处理默认日期
-	if req.Date == "" {
-		req.Date = time.Now().Format("20060102")
+	// 构建查询参数
+	params := c_log.LogQueryParams{
+		Type:     req.Type,
+		Id:       req.Id,
+		Date:     req.Date,
+		Page:     req.Page,
+		PageSize: req.PageSize,
+		Level:    req.Level,
 	}
 
-	// 统一读取 EMS 业务日志单文件
-	basePath, filePattern, err := resolveBase(ctx, "ems")
+	// 使用业务日志查询接口
+	result, err := c_log.BizQueryLogs(ctx, params)
 	if err != nil {
 		return nil, err
 	}
-	// 文件模式：优先使用 pattern，否则默认 {Ymd}.log
-	name := filePattern
-	if name == "" {
-		name = "{Ymd}.log"
-	}
-	name = replaceYmd(name, req.Date)
-	fpath := filepath.Join(basePath, name)
 
-	// 为确保过滤后分页准确，读取全部再按需过滤+分页
-	lines, _, e := readAllFileLines(fpath)
-	if e != nil {
-		// 文件不存在或读取失败时返回空数组
-		return &apiv1.GetBizLogRes{Total: 0, Lines: []apiv1.LogLine{}}, nil
+	// 转换为API响应格式
+	lines := make([]apiv1.LogLine, 0, len(result.Lines))
+	for _, line := range result.Lines {
+		lines = append(lines, apiv1.LogLine{
+			Timestamp: line.Timestamp,
+			Id:        line.Id,
+			Type:      line.Type,
+			Level:     line.Level,
+			Content:   line.Content,
+		})
 	}
 
-	filtered := make([]apiv1.LogLine, 0)
-	// 倒序遍历，保证最新在前
-	for i := len(lines) - 1; i >= 0; i-- {
-		line := lines[i]
-		if ok, jl := tryParseBizJson(line); ok {
-			// JSON 行包含 type/id，按需过滤
-			if matchTypeAndId(req.Type, req.Id, jl.Type, jl.Id) && matchLevel(req.Level, jl.Level) && isAllowedLevel(jl.Level) {
-				filtered = append(filtered, apiv1.LogLine{Timestamp: jl.Time, Level: toUpperNormalized(jl.Level), Content: jl.Content, Id: jl.Id, Type: jl.Type})
-			}
-			continue
-		}
-
-	}
-
-	total := len(filtered)
-	start := (req.Page - 1) * req.PageSize
-	end := start + req.PageSize
-	if start >= total {
-		return &apiv1.GetBizLogRes{Total: total, Lines: []apiv1.LogLine{}}, nil
-	}
-	if end > total {
-		end = total
-	}
-
-	return &apiv1.GetBizLogRes{Total: total, Lines: filtered[start:end]}, nil
-}
-
-// BizJsonLine 统一的业务JSON日志结构
-type BizJsonLine struct {
-	Time    string `json:"time"`
-	Level   string `json:"level"`
-	Content string `json:"content"`
-	Type    string `json:"type"`
-	Id      string `json:"id"`
-}
-
-// 解析JSON业务日志
-func tryParseBizJson(line string) (bool, BizJsonLine) {
-	var jl BizJsonLine
-	if err := json.Unmarshal([]byte(line), &jl); err == nil && (jl.Time != "" || jl.Content != "") {
-		return true, jl
-	}
-	return false, jl
-}
-
-func matchTypeAndId(reqType, reqId, lineType, lineId string) bool {
-	if reqType == "" || strings.EqualFold(reqType, "all") {
-		return true
-	}
-	if reqType == "ems" {
-		return lineType == "ems"
-	}
-	if reqType == "device" || reqType == "protocol" || reqType == "policy" {
-		if reqId == "" {
-			return false
-		}
-		return lineType == reqType && lineId == reqId
-	}
-	return false
-}
-
-func matchLevel(reqLevel, lineLevel string) bool {
-	// 空或 all 不做过滤
-	if reqLevel == "" || strings.EqualFold(reqLevel, "all") {
-		return true
-	}
-	rl := normalizeLevel(reqLevel)
-	ll := normalizeLevel(lineLevel)
-	return rl == ll
-}
-
-func normalizeLevel(s string) string {
-	v := strings.ToLower(strings.TrimSpace(s))
-	switch v {
-	case "warning":
-		return "warn"
-	}
-	return v
-}
-
-func toUpperNormalized(s string) string {
-	return strings.ToUpper(normalizeLevel(s))
-}
-
-func isAllowedLevel(level string) bool {
-	l := normalizeLevel(level)
-	switch l {
-	case "debug", "info", "warn", "error":
-		return true
-	default:
-		return false
-	}
-}
-
-// 其余等级（如 critical/panic/fatal/notice）均不返回
-
-// readAllFileLines 读取文件的所有行
-func readAllFileLines(path string) ([]string, int, error) {
-	f, err := os.Open(path)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer f.Close()
-
-	var lines []string
-	s := bufio.NewScanner(f)
-	buf := make([]byte, 0, 1024*1024)
-	s.Buffer(buf, 1024*1024)
-	for s.Scan() {
-		line := strings.TrimSpace(s.Text())
-		if line != "" {
-			lines = append(lines, line)
-		}
-	}
-	if err := s.Err(); err != nil {
-		return nil, 0, err
-	}
-
-	return lines, len(lines), nil
-}
-
-// resolveBase 读取配置里 logger.biz_ems 的路径与文件名（已合并单文件）
-func resolveBase(ctx g.Ctx, _ string) (basePath string, filePattern string, err error) {
-	m := g.Cfg().MustGet(ctx, "logger.biz_ems").Map()
-	if v, ok := m["path"].(string); ok {
-		basePath = v
-	}
-	if v, ok := m["file"].(string); ok {
-		filePattern = v
-	}
-	// 兜底路径，与 helpers 中一致
-	if basePath == "" {
-		basePath = filepath.Join("logs", "biz")
-	}
-	return
-}
-
-func replaceYmd(pattern, ymd string) string {
-	// 简化：仅替换 {Ymd}
-	return strings.ReplaceAll(pattern, "{Ymd}", ymd)
-}
-
-func init() {
-	// 引用 applog 防止编译器移除
-	_ = applog.BizEMS
+	return &apiv1.GetBizLogRes{
+		Total: result.Total,
+		Lines: lines,
+	}, nil
 }

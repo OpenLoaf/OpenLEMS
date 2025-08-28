@@ -56,9 +56,9 @@ var (
 			ctx, cancelFunc := context.WithCancel(context.Background())
 
 			// 注入系统日志（GoFrame）
-			c_log.SetSystemLogger(applog.NewGoFrameLoggerAdapter(g.Log()))
-			// 注入业务日志（基于上下文路由到不同类型与ID文件）
-			c_log.SetBusinessLogger(applog.NewBizRouterLoggerAdapter())
+			c_log.SetSystemLogger(applog.NewSystemAdapter(g.Log()))
+			// 注入业务日志（输出到数据库）
+			c_log.SetBusinessLogger(applog.NewDatabaseAdapter())
 			// 启用异步日志输出提高性能
 			g.Log().SetAsync(true)
 

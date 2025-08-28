@@ -12,7 +12,7 @@ import (
 
 type BizRouterLoggerAdapter struct{}
 
-func NewBizRouterLoggerAdapter() c_log.ILogger { return &BizRouterLoggerAdapter{} }
+func NewFileAdapter() c_log.ILogger { return &BizRouterLoggerAdapter{} }
 
 func (b *BizRouterLoggerAdapter) pick(ctx context.Context) *glog.Logger {
 	return BizEMS()
@@ -42,4 +42,8 @@ func (b *BizRouterLoggerAdapter) Error(ctx context.Context, v ...interface{}) {
 }
 func (b *BizRouterLoggerAdapter) Errorf(ctx context.Context, format string, v ...interface{}) {
 	b.pick(ctx).Errorf(ctx, format, v...)
+}
+
+func (b *BizRouterLoggerAdapter) QueryLogs(ctx context.Context, params c_log.LogQueryParams) (*c_log.LogQueryResult, error) {
+	return QueryBizLogs(ctx, params)
 }

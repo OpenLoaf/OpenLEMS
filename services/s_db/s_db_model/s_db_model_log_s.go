@@ -18,17 +18,18 @@ const (
 // 日志表结构
 type SLogModel struct {
 	g.Meta    `orm:"table:log"`
-	Id        int    `json:"id" orm:"id"`
+	Id        int    `json:"id" orm:"id,primary,auto_increment"`
 	Type      string `json:"type" orm:"type"`
 	DeviceId  string `json:"device_id" orm:"device_id"`
 	Level     string `json:"level" orm:"level"`
 	Content   string `json:"content" orm:"content"`
-	CreatedAt string `json:"created_at" orm:"created_at"`
+	CreatedAt string `json:"created_at" orm:"created_at,auto_now_add"`
 }
 
 // Create 创建日志记录
 func (l *SLogModel) Create(ctx context.Context) error {
-	_, err := g.Model(TableLog).Ctx(ctx).Insert(l)
+	// 排除ID字段，让数据库自动生成
+	_, err := g.Model(TableLog).Ctx(ctx).FieldsEx("id").Insert(l)
 	return err
 }
 

@@ -74,6 +74,11 @@ func BizErrorf(ctx context.Context, format string, v ...interface{}) {
 	businessLogger.Errorf(ctx, format, v...)
 }
 
+// ---- 业务日志查询方法 ----
+func BizQueryLogs(ctx context.Context, params LogQueryParams) (*LogQueryResult, error) {
+	return businessLogger.QueryLogs(ctx, params)
+}
+
 // 默认日志实现（标准库）
 type defaultLogger struct{}
 
@@ -128,4 +133,9 @@ func (l *defaultLogger) Fatal(ctx context.Context, v ...interface{}) {
 }
 func (l *defaultLogger) Fatalf(ctx context.Context, format string, v ...interface{}) {
 	log.Fatalf("[FATAL] "+format, v...)
+}
+
+func (l *defaultLogger) QueryLogs(ctx context.Context, params LogQueryParams) (*LogQueryResult, error) {
+	log.Printf("[WARNING] 默认日志实现不支持查询功能")
+	return &LogQueryResult{Total: 0, Lines: []LogLine{}}, nil
 }

@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"application/internal/consts"
+	"application/internal/controller/alarm"
 	"application/internal/controller/control"
 	"application/internal/controller/device"
 	"application/internal/controller/driver"
@@ -9,6 +10,7 @@ import (
 	"application/internal/controller/network"
 	"application/internal/controller/protocol"
 	"application/internal/controller/system"
+
 	"github.com/gogf/gf/v2/errors/gerror"
 
 	"application/manifest"
@@ -66,6 +68,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		group.Bind(protocol.NewV1())
 		group.Bind(control.NewV1())
 		group.Bind(log.NewV1())
+		group.Bind(alarm.NewV1())
 
 	})
 

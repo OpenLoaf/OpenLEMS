@@ -22,18 +22,19 @@ const (
 // 告警历史表结构
 type SAlarmHistoryModel struct {
 	g.Meta    `orm:"table:alarm_history"`
-	Id        int    `json:"id" orm:"id"`
+	Id        int    `json:"id" orm:"id,primary,auto_increment"`
 	DeviceId  string `json:"device_id" orm:"device_id"`
 	Point     string `json:"point" orm:"point"`
 	Level     string `json:"level" orm:"level"`
 	Title     string `json:"title" orm:"title"`
 	Detail    string `json:"detail" orm:"detail"`
-	CreatedAt string `json:"created_at" orm:"created_at"`
+	CreatedAt string `json:"created_at" orm:"created_at,auto_now_add"`
 }
 
 // Create 创建告警历史记录
 func (a *SAlarmHistoryModel) Create(ctx context.Context) error {
-	_, err := g.Model(TableAlarmHistory).Ctx(ctx).Insert(a)
+	// 排除ID字段，让数据库自动生成
+	_, err := g.Model(TableAlarmHistory).Ctx(ctx).FieldsEx("id").Insert(a)
 	return err
 }
 

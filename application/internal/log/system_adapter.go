@@ -10,7 +10,7 @@ import (
 // GoFrameLoggerAdapter 系统日志适配器：直接把调用转发给GoFrame
 type GoFrameLoggerAdapter struct{ logger *glog.Logger }
 
-func NewGoFrameLoggerAdapter(logger *glog.Logger) c_log.ILogger {
+func NewSystemAdapter(logger *glog.Logger) c_log.ILogger {
 	return &GoFrameLoggerAdapter{logger: logger}
 }
 
@@ -36,4 +36,9 @@ func (g *GoFrameLoggerAdapter) Error(ctx context.Context, v ...interface{}) {
 }
 func (g *GoFrameLoggerAdapter) Errorf(ctx context.Context, format string, v ...interface{}) {
 	g.logger.Errorf(ctx, format, v...)
+}
+
+func (g *GoFrameLoggerAdapter) QueryLogs(ctx context.Context, params c_log.LogQueryParams) (*c_log.LogQueryResult, error) {
+	g.logger.Warningf(ctx, "GoFrame日志适配器不支持查询功能")
+	return &c_log.LogQueryResult{Total: 0, Lines: []c_log.LogLine{}}, nil
 }
