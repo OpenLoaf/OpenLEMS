@@ -26,7 +26,7 @@ func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function c_pr
 		return vr, nil
 	}
 
-	if p.GetStatus() != c_base.EProtocolConnected {
+	if p.GetProtocolStatus() != c_base.EProtocolConnected {
 		return nil, errors.New("当前连接未连接，无法查询数据")
 	}
 

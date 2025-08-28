@@ -83,7 +83,7 @@ func (s *SRealDeviceImpl[P]) GetProtocolStatus() c_base.EProtocolStatus {
 	if s.isProtocolNil() {
 		return c_base.EProtocolDisconnected
 	}
-	return s.protocol.GetStatus()
+	return s.protocol.GetProtocolStatus()
 }
 
 func (s *SRealDeviceImpl[P]) GetLastUpdateTime() *time.Time {

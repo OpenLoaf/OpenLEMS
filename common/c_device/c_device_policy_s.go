@@ -1,15 +1,19 @@
 package c_device
 
 import (
+	"common"
 	"common/c_base"
+	"context"
 )
 
-type SPolicyManager struct {
+type SBasePolicyImpl[T c_base.IDriver] struct {
+	Ctx          context.Context
 	mode         c_base.EPolicyMode
+	deviceId     string
 	manualAction func()
 }
 
-func (s *SPolicyManager) SetPolicyMode(mode c_base.EPolicyMode) {
+func (s *SBasePolicyImpl[T]) SetPolicyMode(mode c_base.EPolicyMode) {
 	// 执行手动触发方法
 	if s.mode != c_base.EPolicyModeManual && mode == c_base.EPolicyModeManual && s.manualAction != nil {
 		s.manualAction()
@@ -17,26 +21,26 @@ func (s *SPolicyManager) SetPolicyMode(mode c_base.EPolicyMode) {
 	s.mode = mode
 }
 
-func (s *SPolicyManager) GetPolicyMode() c_base.EPolicyMode {
+func (s *SBasePolicyImpl[T]) ExecuteDriverFunc(f func(driver T)) {
+	device := common.GetDeviceManager().GetDeviceById(s.deviceId)
+	if device == nil {
+		return
+	}
+	// 转换类型
+	if driver, ok := device.(T); ok {
+		f(driver)
+	}
+
+}
+
+func (s *SBasePolicyImpl[T]) GetPolicyMode() c_base.EPolicyMode {
 	return s.mode
 }
 
-func (s *SPolicyManager) RegisterMonitor(monitor *c_base.SPolicyMonitor) {
+func (s *SBasePolicyImpl[T]) RegisterMonitor(monitor *c_base.SPolicyMonitor) {
 
 }
 
-func (s *SPolicyManager) RegisterActiveManualAction(f func()) {
+func (s *SBasePolicyImpl[T]) RegisterActiveManualAction(f func()) {
 	s.manualAction = f
-}
-
-func (s *SPolicyManager) Init() {
-
-	//c := &c_base.SPolicyMonitor{
-	//	Name:        "",
-	//	Duration:    nil,
-	//	Modes:       []c_base.EPolicyMode{c_base.EPolicyModeAuto},
-	//	TriggerFunc: nil,
-	//	HandleFunc:  nil,
-	//}
-
 }

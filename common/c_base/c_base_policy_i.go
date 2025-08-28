@@ -2,11 +2,12 @@ package c_base
 
 import "time"
 
-type IPolicy interface {
-	SetPolicyMode(EPolicyMode)         // 设置策略模式
-	GetPolicyMode() EPolicyMode        // 获取策略模式
-	RegisterMonitor(*SPolicyMonitor)   // 注册监听器，定时触发策略
-	RegisterActiveManualAction(func()) // 注册重置指令，当切换到手动模式时，会先触发重置
+type IPolicy[T IDriver] interface {
+	SetPolicyMode(EPolicyMode)       // 设置策略模式
+	GetPolicyMode() EPolicyMode      // 获取策略模式
+	RegisterMonitor(*SPolicyMonitor) // 注册监听器，定时触发策略
+	RegisterActiveManualAction(func())
+	ExecuteDriverFunc(func(driver T)) // 注册重置指令，当切换到手动模式时，会先触发重置
 }
 
 type SPolicyMonitor struct {

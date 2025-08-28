@@ -37,16 +37,6 @@ type ModbusProtocolProvider struct {
 	metricProtocol *sMetricProtocol // 统计协议
 }
 
-func (p *ModbusProtocolProvider) GetStatus() c_base.EProtocolStatus {
-	if p.client == nil {
-		return c_base.EProtocolDisconnected
-	}
-	if p.client.IsConnected() {
-		return c_base.EProtocolConnected
-	}
-	return c_base.EProtocolConnecting
-}
-
 var _ c_base.IProtocol = (*ModbusProtocolProvider)(nil)
 
 func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
@@ -101,7 +91,15 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 
 	return provider, nil
 }
-
+func (p *ModbusProtocolProvider) GetProtocolStatus() c_base.EProtocolStatus {
+	if p.client == nil {
+		return c_base.EProtocolDisconnected
+	}
+	if p.client.IsConnected() {
+		return c_base.EProtocolConnected
+	}
+	return c_base.EProtocolConnecting
+}
 func (p *ModbusProtocolProvider) GetLastUpdateTime() *time.Time {
 	return p.lastUpdateTime
 }
