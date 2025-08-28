@@ -102,13 +102,13 @@ func (d *DbLoggerAdapter) Infof(ctx context.Context, format string, v ...interfa
 // Warning 警告级别日志
 func (d *DbLoggerAdapter) Warning(ctx context.Context, v ...interface{}) {
 	content := fmt.Sprint(v...)
-	d.saveToDb(ctx, "WARNING", content)
+	d.saveToDb(ctx, "WARN", content)
 }
 
 // Warningf 警告级别格式化日志
 func (d *DbLoggerAdapter) Warningf(ctx context.Context, format string, v ...interface{}) {
 	content := fmt.Sprintf(format, v...)
-	d.saveToDb(ctx, "WARNING", content)
+	d.saveToDb(ctx, "WARN", content)
 }
 
 // Error 错误级别日志

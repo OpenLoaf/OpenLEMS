@@ -55,3 +55,5 @@ service:
     displayName: "测试温度告警触发"
   - name: CustomTestClear
     displayName: "测试温度告警消除"
+  - name: CustomNoFunction
+    displayName: "测试不存在服务"
