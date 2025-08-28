@@ -5,11 +5,17 @@ import (
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"sync"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
 
 type sAlarmServiceImpl struct {
+	// 缓存相关字段
+	ignoreCache     map[string]bool // 缓存忽略状态，key: deviceId:point
+	cacheMutex      sync.RWMutex
+	cacheExpireTime time.Duration
+	lastCleanTime   time.Time
 }
 
 var (
@@ -19,9 +25,68 @@ var (
 
 func GetAlarmService() s_db_basic.IAlarmService {
 	alarmServiceOnce.Do(func() {
-		alarmServiceInstance = &sAlarmServiceImpl{}
+		alarmServiceInstance = &sAlarmServiceImpl{
+			ignoreCache:     make(map[string]bool),
+			cacheExpireTime: 5 * time.Minute, // 缓存5分钟
+			lastCleanTime:   time.Now(),
+		}
 	})
 	return alarmServiceInstance
+}
+
+// 生成缓存key
+func (s *sAlarmServiceImpl) getCacheKey(deviceId, point string) string {
+	return deviceId + ":" + point
+}
+
+// 清理过期缓存
+func (s *sAlarmServiceImpl) cleanExpiredCache() {
+	now := time.Now()
+	if now.Sub(s.lastCleanTime) < s.cacheExpireTime {
+		return
+	}
+
+	s.cacheMutex.Lock()
+	defer s.cacheMutex.Unlock()
+
+	// 清理所有缓存（简单策略：定期清理所有缓存）
+	s.ignoreCache = make(map[string]bool)
+	s.lastCleanTime = now
+	g.Log().Debugf(context.Background(), "告警忽略缓存已清理")
+}
+
+// 从缓存获取忽略状态
+func (s *sAlarmServiceImpl) getFromCache(deviceId, point string) (bool, bool) {
+	s.cacheMutex.RLock()
+	defer s.cacheMutex.RUnlock()
+
+	cacheKey := s.getCacheKey(deviceId, point)
+	if isIgnored, exists := s.ignoreCache[cacheKey]; exists {
+		return isIgnored, true
+	}
+	return false, false
+}
+
+// 设置缓存
+func (s *sAlarmServiceImpl) setCache(deviceId, point string, isIgnored bool) {
+	s.cacheMutex.Lock()
+	defer s.cacheMutex.Unlock()
+
+	cacheKey := s.getCacheKey(deviceId, point)
+	s.ignoreCache[cacheKey] = isIgnored
+}
+
+// 清除指定设备的缓存
+func (s *sAlarmServiceImpl) clearDeviceCache(deviceId string) {
+	s.cacheMutex.Lock()
+	defer s.cacheMutex.Unlock()
+
+	prefix := deviceId + ":"
+	for key := range s.ignoreCache {
+		if len(key) > len(prefix) && key[:len(prefix)] == prefix {
+			delete(s.ignoreCache, key)
+		}
+	}
 }
 
 // ==================== 告警历史相关方法 ====================
@@ -152,6 +217,9 @@ func (s *sAlarmServiceImpl) CreateAlarmIgnore(ctx context.Context, deviceId, poi
 		return err
 	}
 
+	// 清除相关缓存，确保下次查询能获取到最新状态
+	s.clearDeviceCache(deviceId)
+
 	g.Log().Infof(ctx, "成功创建告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
 	return nil
 }
@@ -171,6 +239,16 @@ func (s *sAlarmServiceImpl) GetAlarmIgnoreByDeviceId(ctx context.Context, device
 
 // IsAlarmIgnored 检查告警是否被忽略
 func (s *sAlarmServiceImpl) IsAlarmIgnored(ctx context.Context, deviceId, point string) (bool, error) {
+	// 定期清理过期缓存
+	s.cleanExpiredCache()
+
+	// 优先从缓存获取
+	if isIgnored, found := s.getFromCache(deviceId, point); found {
+		g.Log().Debugf(ctx, "从缓存获取告警忽略状态 - 设备ID: %s, 点位: %s, 状态: %t", deviceId, point, isIgnored)
+		return isIgnored, nil
+	}
+
+	// 缓存未命中，从数据库获取
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
 	isIgnored, err := alarmIgnore.IsIgnored(ctx, deviceId, point)
 	if err != nil {
@@ -178,10 +256,13 @@ func (s *sAlarmServiceImpl) IsAlarmIgnored(ctx context.Context, deviceId, point 
 		return false, err
 	}
 
+	// 将结果设置到缓存
+	s.setCache(deviceId, point, isIgnored)
+
 	if isIgnored {
 		g.Log().Infof(ctx, "告警已被忽略 - 设备ID: %s, 点位: %s", deviceId, point)
 	} else {
-		g.Log().Infof(ctx, "告警未被忽略 - 设备ID: %s, 点位: %s", deviceId, point)
+		g.Log().Debugf(ctx, "告警未被忽略 - 设备ID: %s, 点位: %s", deviceId, point)
 	}
 
 	return isIgnored, nil
@@ -197,6 +278,7 @@ func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByDeviceId(ctx context.Context, dev
 	}
 
 	g.Log().Infof(ctx, "成功删除告警忽略记录 - 设备ID: %s", deviceId)
+	s.clearDeviceCache(deviceId) // 清除指定设备的缓存
 	return nil
 }
 
@@ -210,6 +292,7 @@ func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByDeviceIdAndPoint(ctx context.Cont
 	}
 
 	g.Log().Infof(ctx, "成功删除告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
+	s.clearDeviceCache(deviceId) // 清除指定设备的缓存
 	return nil
 }
 

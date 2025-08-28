@@ -2,6 +2,7 @@ package c_device
 
 import (
 	"common"
+	"common/c_alarm"
 	"common/c_base"
 	"common/c_log"
 	"context"
@@ -111,6 +112,17 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 		isCurrentlyTriggered = value != nil && cvt.Bool(value) != false
 	}
 
+	if isCurrentlyTriggered {
+		// 如果触发了，就判断一下这个点位是否被忽略，忽略的不用触发
+		isAlarmIgnore, err := c_alarm.GetAlarmManager().IsAlarmIgnored(s.ctx, deviceId, meta.Name)
+		if err != nil {
+			c_log.Errorf(s.ctx, "IsAlarmIgnored err:%v", err)
+		}
+		if isAlarmIgnore {
+			return
+		}
+	}
+
 	s.rwMutex.Lock()
 	defer s.rwMutex.Unlock()
 
@@ -214,6 +226,15 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	if parentDevice != nil {
 		// 新开一个协程去通知父节点告警
 		go parentDevice.UpdateAlarm(deviceId, deviceType, meta, value)
+	}
+
+	// 如果是首次清除，记录到告警历史表中
+	if alarmAction == c_base.EAlarmActionFirstClear {
+		historyMessage := fmt.Sprintf("触发于:%s，触发值为:%v，告警清除后值为:%v", oldAlarm.HappenTime, oldAlarm.Value, value)
+		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, meta.Name, s.maxLevel.String(), meta.Cn, historyMessage)
+		if err != nil {
+			c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
+		}
 	}
 
 	// 调用注册的处理器
