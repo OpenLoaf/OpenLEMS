@@ -1,11 +1,12 @@
 module s_db
 
-go 1.24
+go 1.25
 
 require (
 	github.com/gogf/gf/contrib/drivers/sqlite/v2 v2.9.0
 	github.com/gogf/gf/v2 v2.9.0
 	github.com/google/uuid v1.6.0
+	github.com/pkg/errors v0.9.1
 )
 
 require (

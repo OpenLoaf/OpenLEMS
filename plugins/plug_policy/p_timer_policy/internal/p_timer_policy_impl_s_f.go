@@ -1,7 +1,12 @@
 package internal
 
+import (
+	"common/c_base"
+	"common/c_type"
+)
+
 type sTimerPolicyImpl struct {
-	//c_base.IPolicy[c_type.IEnergyStore]
+	c_base.IPolicy[c_type.IEnergyStore]
 }
 
 func (s *sTimerPolicyImpl) Init() {

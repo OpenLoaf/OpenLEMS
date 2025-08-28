@@ -1,10 +1,11 @@
 module p_base
 
-go 1.25.0
+go 1.25
 
 require (
 	github.com/gogf/gf/v2 v2.9.0
 	github.com/pkg/errors v0.9.1
+	github.com/shockerli/cvt v0.2.8
 	github.com/stretchr/testify v1.10.0
 )
 

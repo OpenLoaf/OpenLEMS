@@ -1,6 +1,6 @@
 module starCharge100E_v1
 
-go 1.24.4
+go 1.25
 
 require (
 	github.com/pkg/errors v0.9.1
