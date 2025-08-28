@@ -3,13 +3,15 @@ package system
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
+	"os"
 	"os/exec"
 	"runtime"
 	"s_db"
 	"s_db/s_db_basic"
 	"strings"
 	"time"
+
+	"github.com/pkg/errors"
 
 	v1 "application/api/system/v1"
 
@@ -19,6 +21,7 @@ import (
 	"github.com/shirou/gopsutil/v4/load"
 	"github.com/shirou/gopsutil/v4/mem"
 	psnet "github.com/shirou/gopsutil/v4/net"
+	"github.com/shirou/gopsutil/v4/process"
 )
 
 var rebootApplyExpireAt time.Time
@@ -52,7 +55,34 @@ func fetchMemory(ctx context.Context) (v1.MemoryInfo, error) {
 	}
 	toGB := func(b uint64) float64 { return float64(b) / (1024 * 1024 * 1024) }
 	used := v.Total - v.Available
-	return v1.MemoryInfo{Usage: v.UsedPercent, TotalGB: toGB(v.Total), UsedGB: toGB(used), FreeGB: toGB(v.Available)}, nil
+	pm, _ := fetchProcMemory(ctx)
+	return v1.MemoryInfo{Usage: v.UsedPercent, TotalGB: toGB(v.Total), UsedGB: toGB(used), FreeGB: toGB(v.Available), ProcUsage: pm.Usage, ProcRSSMB: pm.RSSMB}, nil
+}
+
+// fetchProcMemory 返回本服务进程内存信息
+func fetchProcMemory(ctx context.Context) (v1.ProcMemoryInfo, error) {
+	p, err := process.NewProcessWithContext(ctx, int32(os.Getpid()))
+	if err != nil {
+		return v1.ProcMemoryInfo{}, err
+	}
+	pm, err := p.MemoryInfoWithContext(ctx)
+	if err != nil {
+		return v1.ProcMemoryInfo{}, err
+	}
+	vm, err := mem.VirtualMemoryWithContext(ctx)
+	if err != nil || vm.Total == 0 {
+		return v1.ProcMemoryInfo{
+			Usage: 0,
+			RSSMB: float64(pm.RSS) / (1024 * 1024),
+			VMSMB: float64(pm.VMS) / (1024 * 1024),
+		}, nil
+	}
+	usage := (float64(pm.RSS) / float64(vm.Total)) * 100
+	return v1.ProcMemoryInfo{
+		Usage: usage,
+		RSSMB: float64(pm.RSS) / (1024 * 1024),
+		VMSMB: float64(pm.VMS) / (1024 * 1024),
+	}, nil
 }
 
 func fetchDisk(ctx context.Context) (v1.DiskInfo, error) {
@@ -179,6 +209,11 @@ func (c *ControllerV1) GetTimeInfo(ctx context.Context, req *v1.GetTimeInfoReq) 
 func (c *ControllerV1) GetSystemInfo(ctx context.Context, req *v1.GetSystemInfoReq) (res *v1.GetSystemInfoRes, err error) {
 	sysI, _ := fetchSys(ctx)
 	return &v1.GetSystemInfoRes{Sys: sysI}, nil
+}
+
+func (c *ControllerV1) GetProcessMemory(ctx context.Context, req *v1.GetProcessMemoryReq) (res *v1.GetProcessMemoryRes, err error) {
+	pm, _ := fetchProcMemory(ctx)
+	return &v1.GetProcessMemoryRes{ProcessMemory: pm}, nil
 }
 
 // GetNow 返回当前系统时间

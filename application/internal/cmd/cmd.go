@@ -125,7 +125,7 @@ var (
 
 					// 打印服务器访问地址
 					g.Log().Infof(ctx, "==========================================")
-					g.Log().Infof(ctx, "🚀 EMS Web服务已启动！")
+					g.Log().Infof(ctx, "🚀 EMS Web服务已启动！PID: %d", os.Getpid())
 					g.Log().Infof(ctx, "📡 服务器地址: http://localhost%s", serverAddress)
 					g.Log().Infof(ctx, "📖 API文档: http://localhost%s/api.json", serverAddress)
 					g.Log().Infof(ctx, "🔧 调试工具: http://localhost%s/debug", serverAddress)

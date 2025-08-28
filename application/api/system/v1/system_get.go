@@ -23,6 +23,13 @@ type GetNetworkTrafficRes struct {
 	Net NetBrief `json:"net" dc:"网络流量信息(累计字节与瞬时速率)"`
 }
 
+type GetProcessMemoryReq struct {
+	g.Meta `path:"/system/process/memory" method:"get" tags:"系统相关" summary:"获取本服务进程内存信息"`
+}
+type GetProcessMemoryRes struct {
+	ProcessMemory ProcMemoryInfo `json:"processMemory" dc:"本服务进程内存信息"`
+}
+
 type GetTimeInfoReq struct {
 	g.Meta `path:"/system/time" method:"get" tags:"系统相关" summary:"时间信息"`
 }
@@ -74,10 +81,18 @@ type CPUInfo struct {
 	Load15 float64 `json:"load15" dc:"15分钟平均负载"`
 }
 type MemoryInfo struct {
-	Usage   float64 `json:"usage" dc:"内存使用率(%)"`
-	TotalGB float64 `json:"totalGB" dc:"内存总计(GiB)"`
-	UsedGB  float64 `json:"usedGB" dc:"已使用(GiB)"`
-	FreeGB  float64 `json:"freeGB" dc:"可用(GiB)"`
+	Usage     float64 `json:"usage" dc:"内存使用率(%)"`
+	TotalGB   float64 `json:"totalGB" dc:"内存总计(GiB)"`
+	UsedGB    float64 `json:"usedGB" dc:"已使用(GiB)"`
+	FreeGB    float64 `json:"freeGB" dc:"可用(GiB)"`
+	ProcUsage float64 `json:"procUsage" dc:"本进程内存使用率(%)"`
+	ProcRSSMB float64 `json:"procRSSMB" dc:"本进程内存使用量RSS(MiB)"`
+}
+
+type ProcMemoryInfo struct {
+	Usage float64 `json:"usage" dc:"本进程占系统内存百分比(%)"`
+	RSSMB float64 `json:"rssMB" dc:"常驻集(物理内存)MiB"`
+	VMSMB float64 `json:"vmsMB" dc:"虚拟内存MiB"`
 }
 type DiskInfo struct {
 	Usage   float64 `json:"usage" dc:"磁盘使用率(%)"`
