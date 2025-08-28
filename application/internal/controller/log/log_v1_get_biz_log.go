@@ -31,11 +31,11 @@ func (c *ControllerV1) GetBizLog(ctx g.Ctx, req *apiv1.GetBizLogReq) (res *apiv1
 	lines := make([]apiv1.LogLine, 0, len(result.Lines))
 	for _, line := range result.Lines {
 		lines = append(lines, apiv1.LogLine{
-			Timestamp: line.Timestamp,
 			Id:        line.Id,
 			Type:      line.Type,
 			Level:     line.Level,
 			Content:   line.Content,
+			CreatedAt: line.CreatedAt,
 		})
 	}
 

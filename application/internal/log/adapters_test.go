@@ -94,7 +94,7 @@ func TestFileAdapterQuery(t *testing.T) {
 		t.Logf("查询成功，总记录数: %d", result.Total)
 		for i, line := range result.Lines {
 			t.Logf("记录 %d: 时间=%s, 级别=%s, 类型=%s, ID=%s, 内容=%s",
-				i+1, line.Timestamp, line.Level, line.Type, line.Id, line.Content)
+				i+1, line.CreatedAt, line.Level, line.Type, line.Id, line.Content)
 		}
 	}
 }
@@ -153,7 +153,7 @@ func TestDatabaseAdapterQuery(t *testing.T) {
 		t.Logf("查询成功，总记录数: %d", result.Total)
 		for i, line := range result.Lines {
 			t.Logf("记录 %d: 时间=%s, 级别=%s, 类型=%s, ID=%s, 内容=%s",
-				i+1, line.Timestamp, line.Level, line.Type, line.Id, line.Content)
+				i+1, line.CreatedAt, line.Level, line.Type, line.Id, line.Content)
 		}
 	}
 }

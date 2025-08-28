@@ -158,11 +158,11 @@ func (d *DbLoggerAdapter) QueryLogs(ctx context.Context, params c_log.LogQueryPa
 	lines := make([]c_log.LogLine, 0, len(logs))
 	for _, log := range logs {
 		lines = append(lines, c_log.LogLine{
-			Timestamp: log.CreatedAt,
 			Id:        log.DeviceId,
 			Type:      log.Type,
 			Level:     log.Level,
 			Content:   log.Content,
+			CreatedAt: log.CreatedAt,
 		})
 	}
 

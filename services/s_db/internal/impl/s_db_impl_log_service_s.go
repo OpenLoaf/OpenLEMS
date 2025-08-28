@@ -5,6 +5,7 @@ import (
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"sync"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -26,11 +27,13 @@ func GetLogService() s_db_basic.ILogService {
 
 // CreateLog 创建日志记录
 func (s *sLogServiceImpl) CreateLog(ctx context.Context, logType, deviceId, level, content string) error {
+	now := time.Now()
 	log := &s_db_model.SLogModel{
-		Type:     logType,
-		DeviceId: deviceId,
-		Level:    level,
-		Content:  content,
+		Type:      logType,
+		DeviceId:  deviceId,
+		Level:     level,
+		Content:   content,
+		CreatedAt: &now,
 	}
 
 	err := log.Create(ctx)

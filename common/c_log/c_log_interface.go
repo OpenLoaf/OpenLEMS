@@ -1,14 +1,17 @@
 package c_log
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // LogLine 结构化日志行
 type LogLine struct {
-	Timestamp string `json:"timestamp" dc:"时间戳"`
-	Id        string `json:"id"`
-	Type      string `json:"type" dc:"日志类型：ems、device、protocol、policy"`
-	Level     string `json:"level"     dc:"日志等级"`
-	Content   string `json:"content"   dc:"日志内容"`
+	CreatedAt *time.Time `json:"createdAt" dc:"时间戳"`
+	Id        string     `json:"id"`
+	Type      string     `json:"type" dc:"日志类型：ems、device、protocol、policy"`
+	Level     string     `json:"level"     dc:"日志等级"`
+	Content   string     `json:"content"   dc:"日志内容"`
 }
 
 // LogQueryParams 日志查询参数

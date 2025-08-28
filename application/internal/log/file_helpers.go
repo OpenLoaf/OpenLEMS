@@ -86,11 +86,11 @@ func BizEMS() *glog.Logger {
 
 // BizJsonLine 统一的业务JSON日志结构
 type BizJsonLine struct {
-	Time    string `json:"time"`
-	Level   string `json:"level"`
-	Content string `json:"content"`
-	Type    string `json:"type"`
-	Id      string `json:"id"`
+	Time    *time.Time `json:"time"`
+	Level   string     `json:"level"`
+	Content string     `json:"content"`
+	Type    string     `json:"type"`
+	Id      string     `json:"id"`
 }
 
 // QueryBizLogs 查询业务日志（从文件）
@@ -130,7 +130,7 @@ func QueryBizLogs(ctx context.Context, params c_log.LogQueryParams) (*c_log.LogQ
 			// JSON 行包含 type/id，按需过滤
 			if matchTypeAndId(params.Type, params.Id, jl.Type, jl.Id) && matchLevel(params.Level, jl.Level) && isAllowedLevel(jl.Level) {
 				filtered = append(filtered, c_log.LogLine{
-					Timestamp: jl.Time,
+					CreatedAt: jl.Time,
 					Level:     toUpperNormalized(jl.Level),
 					Content:   jl.Content,
 					Id:        jl.Id,
@@ -157,7 +157,7 @@ func QueryBizLogs(ctx context.Context, params c_log.LogQueryParams) (*c_log.LogQ
 // 解析JSON业务日志
 func tryParseBizJson(line string) (bool, BizJsonLine) {
 	var jl BizJsonLine
-	if err := json.Unmarshal([]byte(line), &jl); err == nil && (jl.Time != "" || jl.Content != "") {
+	if err := json.Unmarshal([]byte(line), &jl); err == nil && (jl.Time != nil || jl.Content != "") {
 		return true, jl
 	}
 	return false, jl

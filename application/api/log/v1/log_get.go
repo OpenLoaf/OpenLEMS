@@ -1,6 +1,9 @@
 package v1
 
-import "github.com/gogf/gf/v2/frame/g"
+import (
+	"github.com/gogf/gf/v2/frame/g"
+	"time"
+)
 
 type GetBizLogReq struct {
 	g.Meta   `path:"/log/biz" method:"get" tags:"日志" summary:"读取业务日志"`
@@ -14,11 +17,11 @@ type GetBizLogReq struct {
 
 // LogLine 结构化日志行
 type LogLine struct {
-	Timestamp string `json:"timestamp" dc:"时间戳"`
-	Id        string `json:"id"`
-	Type      string `json:"type" dc:"日志类型：ems、device、protocol、policy"`
-	Level     string `json:"level"     dc:"日志等级"`
-	Content   string `json:"content"   dc:"日志内容"`
+	CreatedAt *time.Time `json:"createdAt" dc:"时间"`
+	Id        string     `json:"id"`
+	Type      string     `json:"type" dc:"日志类型：ems、device、protocol、policy"`
+	Level     string     `json:"level"     dc:"日志等级"`
+	Content   string     `json:"content"   dc:"日志内容"`
 }
 
 type GetBizLogRes struct {
