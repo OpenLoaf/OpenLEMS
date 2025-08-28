@@ -24,7 +24,7 @@ type SDeviceManager struct {
 
 	protocolClientCache map[string]any // 协议客户端缓存
 
-	deviceConfig      []*c_base.SDeviceConfig
+	deviceConfigTree  []*c_base.SDeviceConfig   // 设备配置树形节点
 	deviceInstanceMap map[string]c_base.IDevice // 设备实例
 }
 
@@ -54,8 +54,8 @@ func (m *SDeviceManager) GetDeviceNameById(deviceId string) string {
 	return config.Name
 }
 
-func (m *SDeviceManager) GetTopDeviceConfigs() []*c_base.SDeviceConfig {
-	return m.deviceConfig
+func (m *SDeviceManager) GetDeviceConfigTree() []*c_base.SDeviceConfig {
+	return m.deviceConfigTree
 }
 
 func (m *SDeviceManager) GetDeviceById(deviceId string) c_base.IDevice {
@@ -93,6 +93,34 @@ func (m *SDeviceManager) IteratorAllDevices(deviceWrapper func(config *c_base.SD
 			break
 		}
 	}
+}
+
+// IteratorDevicesById 按设备ID遍历该设备及所有子设备
+func (m *SDeviceManager) IteratorDevicesById(deviceId string, iterator func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
+	if deviceId == "" || iterator == nil {
+		return
+	}
+	start := m.GetDeviceConfigById(deviceId)
+	if start == nil {
+		return
+	}
+	// 递归遍历子树（包含起始节点）
+	var walk func(node *c_base.SDeviceConfig) bool
+	walk = func(node *c_base.SDeviceConfig) bool {
+		if node == nil {
+			return true
+		}
+		if cont := iterator(node, m.deviceInstanceMap[node.Id]); !cont {
+			return false
+		}
+		for _, child := range node.ChildDeviceConfig {
+			if !walk(child) {
+				return false
+			}
+		}
+		return true
+	}
+	_ = walk(start)
 }
 
 func (m *SDeviceManager) Start() {
@@ -137,7 +165,7 @@ func (m *SDeviceManager) Start() {
 	}
 
 	// 构建树形结构
-	m.deviceConfig = m.BuildTree(deviceConfigs)
+	m.deviceConfigTree = m.BuildTree(deviceConfigs)
 
 	// 从底部开始初始化设备
 	m.ExecuteFromBottom(func(deviceConfig *c_base.SDeviceConfig) {

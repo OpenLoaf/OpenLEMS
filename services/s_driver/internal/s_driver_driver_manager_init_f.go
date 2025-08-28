@@ -108,14 +108,14 @@ func (m *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 		//	m.protocolClientCache[protocolConfig.Id+"_transmitterChan"] = transmitterChan
 		//}
 		//
-		//canbusProvider, err := protocolCanbus.NewCanbusProvider(ctx, deviceType, protocolConfig, deviceConfig, receiverChan, transmitterChan)
+		//canbusProvider, err := protocolCanbus.NewCanbusProvider(ctx, deviceType, protocolConfig, deviceConfigTree, receiverChan, transmitterChan)
 		//if err != nil {
 		//	return nil, err
 		//}
 		//g.Log().Infof(ctx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
 		//return canbusProvider, nil
 	case c_base.EGpioSysfs:
-		//gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfig)
+		//gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfigTree)
 		//if err != nil {
 		//	return nil, err
 		//}

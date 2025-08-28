@@ -40,7 +40,7 @@ func (m *SDeviceManager) BuildTree(devices []*c_base.SDeviceConfig) []*c_base.SD
 
 // FindDevice 查找设备
 func (m *SDeviceManager) FindDevice(deviceId string) *c_base.SDeviceConfig {
-	return m.findDeviceRecursive(m.deviceConfig, deviceId)
+	return m.findDeviceRecursive(m.deviceConfigTree, deviceId)
 }
 
 // findDeviceRecursive 递归查找设备
@@ -60,7 +60,7 @@ func (m *SDeviceManager) findDeviceRecursive(devices []*c_base.SDeviceConfig, de
 // GetFlatList 获取平面列表
 func (m *SDeviceManager) GetFlatList() []*c_base.SDeviceConfig {
 	var flatList []*c_base.SDeviceConfig
-	m.flattenDevices(m.deviceConfig, &flatList)
+	m.flattenDevices(m.deviceConfigTree, &flatList)
 	return flatList
 }
 
@@ -75,7 +75,7 @@ func (m *SDeviceManager) flattenDevices(devices []*c_base.SDeviceConfig, result 
 
 // PrintTree 打印树形结构（用于调试）
 func (m *SDeviceManager) PrintTree() {
-	m.printTreeRecursive(m.deviceConfig, 0)
+	m.printTreeRecursive(m.deviceConfigTree, 0)
 }
 
 // printTreeRecursive 递归打印树形结构
@@ -91,7 +91,7 @@ func (m *SDeviceManager) printTreeRecursive(devices []*c_base.SDeviceConfig, lev
 
 // ExecuteFromBottom 从最底部的节点开始执行任务
 func (m *SDeviceManager) ExecuteFromBottom(executor func(deviceConfig *c_base.SDeviceConfig)) {
-	m.executeFromBottomRecursive(m.deviceConfig, executor)
+	m.executeFromBottomRecursive(m.deviceConfigTree, executor)
 }
 
 // executeFromBottomRecursive 递归从底部执行任务

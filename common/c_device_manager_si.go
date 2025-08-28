@@ -15,8 +15,9 @@ type IDeviceManager interface {
 	GetDeviceConfigById(deviceId string) *c_base.SDeviceConfig //获取指定驱动的详细信息
 
 	IteratorAllDevices(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool)
+	IteratorDevicesById(deviceId string, iterator func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) //  按设备ID遍历该设备及其所有子设备
 
-	GetTopDeviceConfigs() []*c_base.SDeviceConfig // 获取顶层的设备列表
+	GetDeviceConfigTree() []*c_base.SDeviceConfig // 获取顶层的设备列表
 	GetAllDriversInfo() []*c_base.SDriverInfo     // 获取所有驱动的详细信息
 	GetDriverInfo(driverName string) (*c_base.SDriverInfo, error)
 
@@ -34,4 +35,9 @@ func GetDeviceManager() IDeviceManager {
 		panic("device manager is nil !")
 	}
 	return deviceManager
+}
+
+// IteratorDevicesById 是对全局 DeviceManager 的便捷封装
+func IteratorDevicesById(deviceId string, iterator func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
+	GetDeviceManager().IteratorDevicesById(deviceId, iterator)
 }
