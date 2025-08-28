@@ -138,11 +138,13 @@ func (c *ControllerV1) GetAlarmIgnore(ctx context.Context, req *v1.GetAlarmIgnor
 	items := make([]v1.AlarmIgnoreItem, 0, len(records))
 	for _, r := range records {
 		items = append(items, v1.AlarmIgnoreItem{
-			Id:         r.Id,
-			DeviceId:   r.DeviceId,
-			DeviceName: common.GetDeviceManager().GetDeviceNameById(r.DeviceId),
-			Point:      r.Point,
-			CreatedAt:  r.CreatedAt,
+			Id:               r.Id,
+			DeviceId:         r.DeviceId,
+			DeviceName:       common.GetDeviceManager().GetDeviceNameById(r.DeviceId),
+			SourceDeviceId:   r.SourceDeviceId,
+			SourceDeviceName: common.GetDeviceManager().GetDeviceNameById(r.SourceDeviceId),
+			Point:            r.Point,
+			CreatedAt:        r.CreatedAt,
 		})
 	}
 	return &v1.GetAlarmIgnoreRes{
