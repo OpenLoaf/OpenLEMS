@@ -103,7 +103,7 @@ func (s *sAlarmImpl) IgnoreClearAlarm(deviceId string, point string) {
 		s.updateMaxLevel()
 		now := time.Now()
 
-		meta := &c_base.MetaValueWrapper{
+		oldAlarmWrapper := &c_base.MetaValueWrapper{
 			DeviceId:   deviceId,
 			DeviceType: oldKey.DeviceType,
 			Level:      oldKey.Level,
@@ -113,8 +113,14 @@ func (s *sAlarmImpl) IgnoreClearAlarm(deviceId string, point string) {
 		}
 
 		// 执行告警忽略
-		s.callHandlers(meta, s.maxLevel, c_base.EAlarmActionIgnore)
+		s.callHandlers(oldAlarmWrapper, s.maxLevel, c_base.EAlarmActionIgnore)
 
+		// 保存到告警历史中
+		historyMessage := fmt.Sprintf("触发于:%s，触发值为:%v，已手动屏蔽", oldAlarmWrapper.HappenTime.Format("2006-01-02 15:04:05.000"), oldAlarmWrapper.Value)
+		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, oldAlarmWrapper.Meta.Name, s.maxLevel.String(), oldAlarmWrapper.Meta.Cn, historyMessage, oldAlarmWrapper.HappenTime)
+		if err != nil {
+			c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
+		}
 	}
 }
 
