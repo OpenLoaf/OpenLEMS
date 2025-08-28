@@ -15,11 +15,12 @@ const (
 
 // 告警忽略表结构
 type SAlarmIgnoreModel struct {
-	g.Meta    `orm:"table:alarm_ignore"`
-	Id        int        `json:"id" orm:"id,primary,auto_increment"`
-	DeviceId  string     `json:"device_id" orm:"device_id"`
-	Point     string     `json:"point" orm:"point"`
-	CreatedAt *time.Time `json:"created_at" orm:"created_at,auto_now_add"`
+	g.Meta         `orm:"table:alarm_ignore"`
+	Id             int        `json:"id" orm:"id,primary,auto_increment"`
+	DeviceId       string     `json:"device_id" orm:"device_id"`
+	SourceDeviceId string     `json:"source_device_id" orm:"source_device_id"` // 原设备ID
+	Point          string     `json:"point" orm:"point"`
+	CreatedAt      *time.Time `json:"created_at" orm:"created_at,auto_now_add"`
 }
 
 // Create 创建告警忽略记录

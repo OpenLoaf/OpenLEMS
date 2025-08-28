@@ -120,6 +120,7 @@ func initConfigDatabase() {
 		CREATE TABLE IF NOT EXISTS alarm_ignore (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			device_id VARCHAR(255) NOT NULL,
+			source_device_id VARCHAR(255) NOT NULL,
 			point VARCHAR(255) NOT NULL,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
