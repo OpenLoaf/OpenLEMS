@@ -97,5 +97,49 @@ func initConfigDatabase() {
 		g.Log().Fatal(ctx, err)
 	}
 
+	// 创建告警历史表
+	_, err = g.DB().Exec(ctx, `
+		CREATE TABLE IF NOT EXISTS alarm_history (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			device_id VARCHAR(255) NOT NULL,
+			point VARCHAR(255) NOT NULL,
+			level VARCHAR(255) NOT NULL,
+			title VARCHAR(255) NOT NULL,
+			detail TEXT,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`)
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
+
+	// 创建告警忽略表
+	_, err = g.DB().Exec(ctx, `
+		CREATE TABLE IF NOT EXISTS alarm_ignore (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			device_id VARCHAR(255) NOT NULL,
+			point VARCHAR(255) NOT NULL,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`)
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
+
+	// 创建日志表
+	_, err = g.DB().Exec(ctx, `
+		CREATE TABLE IF NOT EXISTS log (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			type VARCHAR(255) NOT NULL,
+			device_id VARCHAR(255),
+			level VARCHAR(255) NOT NULL,
+			content TEXT,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`)
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
+
 	g.Log().Info(ctx, "Config tables created successfully")
 }

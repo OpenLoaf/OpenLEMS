@@ -30,12 +30,7 @@ func (b *BizRouterLoggerAdapter) Info(ctx context.Context, v ...interface{}) {
 func (b *BizRouterLoggerAdapter) Infof(ctx context.Context, format string, v ...interface{}) {
 	b.pick(ctx).Infof(ctx, format, v...)
 }
-func (b *BizRouterLoggerAdapter) Notice(ctx context.Context, v ...interface{}) {
-	b.pick(ctx).Notice(ctx, v...)
-}
-func (b *BizRouterLoggerAdapter) Noticef(ctx context.Context, format string, v ...interface{}) {
-	b.pick(ctx).Noticef(ctx, format, v...)
-}
+
 func (b *BizRouterLoggerAdapter) Warning(ctx context.Context, v ...interface{}) {
 	b.pick(ctx).Warning(ctx, v...)
 }
@@ -47,22 +42,4 @@ func (b *BizRouterLoggerAdapter) Error(ctx context.Context, v ...interface{}) {
 }
 func (b *BizRouterLoggerAdapter) Errorf(ctx context.Context, format string, v ...interface{}) {
 	b.pick(ctx).Errorf(ctx, format, v...)
-}
-func (b *BizRouterLoggerAdapter) Critical(ctx context.Context, v ...interface{}) {
-	b.pick(ctx).Critical(ctx, v...)
-}
-func (b *BizRouterLoggerAdapter) Criticalf(ctx context.Context, format string, v ...interface{}) {
-	b.pick(ctx).Criticalf(ctx, format, v...)
-}
-func (b *BizRouterLoggerAdapter) Panic(ctx context.Context, v ...interface{}) {
-	b.pick(ctx).Panic(ctx, v...)
-}
-func (b *BizRouterLoggerAdapter) Panicf(ctx context.Context, format string, v ...interface{}) {
-	b.pick(ctx).Panicf(ctx, format, v...)
-}
-func (b *BizRouterLoggerAdapter) Fatal(ctx context.Context, v ...interface{}) {
-	b.pick(ctx).Fatal(ctx, v...)
-}
-func (b *BizRouterLoggerAdapter) Fatalf(ctx context.Context, format string, v ...interface{}) {
-	b.pick(ctx).Fatalf(ctx, format, v...)
 }

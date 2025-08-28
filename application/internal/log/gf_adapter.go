@@ -24,12 +24,7 @@ func (g *GoFrameLoggerAdapter) Info(ctx context.Context, v ...interface{}) { g.l
 func (g *GoFrameLoggerAdapter) Infof(ctx context.Context, format string, v ...interface{}) {
 	g.logger.Infof(ctx, format, v...)
 }
-func (g *GoFrameLoggerAdapter) Notice(ctx context.Context, v ...interface{}) {
-	g.logger.Notice(ctx, v...)
-}
-func (g *GoFrameLoggerAdapter) Noticef(ctx context.Context, format string, v ...interface{}) {
-	g.logger.Noticef(ctx, format, v...)
-}
+
 func (g *GoFrameLoggerAdapter) Warning(ctx context.Context, v ...interface{}) {
 	g.logger.Warning(ctx, v...)
 }
@@ -41,22 +36,4 @@ func (g *GoFrameLoggerAdapter) Error(ctx context.Context, v ...interface{}) {
 }
 func (g *GoFrameLoggerAdapter) Errorf(ctx context.Context, format string, v ...interface{}) {
 	g.logger.Errorf(ctx, format, v...)
-}
-func (g *GoFrameLoggerAdapter) Critical(ctx context.Context, v ...interface{}) {
-	g.logger.Critical(ctx, v...)
-}
-func (g *GoFrameLoggerAdapter) Criticalf(ctx context.Context, format string, v ...interface{}) {
-	g.logger.Criticalf(ctx, format, v...)
-}
-func (g *GoFrameLoggerAdapter) Panic(ctx context.Context, v ...interface{}) {
-	g.logger.Panic(ctx, v...)
-}
-func (g *GoFrameLoggerAdapter) Panicf(ctx context.Context, format string, v ...interface{}) {
-	g.logger.Panicf(ctx, format, v...)
-}
-func (g *GoFrameLoggerAdapter) Fatal(ctx context.Context, v ...interface{}) {
-	g.logger.Fatal(ctx, v...)
-}
-func (g *GoFrameLoggerAdapter) Fatalf(ctx context.Context, format string, v ...interface{}) {
-	g.logger.Fatalf(ctx, format, v...)
 }

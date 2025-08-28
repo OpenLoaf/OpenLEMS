@@ -22,3 +22,13 @@ func GetSettingService() s_db_basic.ISettingService {
 func GetProtocolService() s_db_basic.IProtocolService {
 	return impl.GetProtocolService()
 }
+
+// GetAlarmService 获取告警service对象
+func GetAlarmService() s_db_basic.IAlarmService {
+	return impl.GetAlarmService()
+}
+
+// GetLogService 获取日志service对象
+func GetLogService() s_db_basic.ILogService {
+	return impl.GetLogService()
+}

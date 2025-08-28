@@ -27,3 +27,38 @@ type IProtocolService interface {
 	DeleteProtocol(ctx context.Context, protocolId string) error
 	GetAllProtocolConfigs(ctx context.Context) ([]*c_base.SProtocolConfig, error) // 获取协议列表
 }
+
+type IAlarmService interface {
+	// 告警历史相关方法
+	CreateAlarmHistory(ctx context.Context, deviceId, point, level, title, detail string) error
+	GetAlarmHistoryByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmHistoryModel, error)
+	GetAlarmHistoryByDeviceIdAndPoint(ctx context.Context, deviceId, point string) ([]*s_db_model.SAlarmHistoryModel, error)
+	DeleteAlarmHistoryByDeviceId(ctx context.Context, deviceId string) error
+	GetAllAlarmHistory(ctx context.Context) ([]*s_db_model.SAlarmHistoryModel, error)
+	GetAlarmHistoryPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SAlarmHistoryModel, int, error)
+	ClearAllAlarmHistory(ctx context.Context) error
+	GetAlarmHistoryCount(ctx context.Context) (int, error)
+
+	// 告警忽略相关方法
+	CreateAlarmIgnore(ctx context.Context, deviceId, point string) error
+	GetAlarmIgnoreByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmIgnoreModel, error)
+	IsAlarmIgnored(ctx context.Context, deviceId, point string) (bool, error)
+	DeleteAlarmIgnoreByDeviceId(ctx context.Context, deviceId string) error
+	DeleteAlarmIgnoreByDeviceIdAndPoint(ctx context.Context, deviceId, point string) error
+	GetAllAlarmIgnore(ctx context.Context) ([]*s_db_model.SAlarmIgnoreModel, error)
+	GetAlarmIgnorePage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SAlarmIgnoreModel, int, error)
+}
+
+type ILogService interface {
+	CreateLog(ctx context.Context, logType, deviceId, level, content string) error
+	GetLogByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SLogModel, error)
+	GetLogByType(ctx context.Context, logType string) ([]*s_db_model.SLogModel, error)
+	GetLogByLevel(ctx context.Context, level string) ([]*s_db_model.SLogModel, error)
+	GetLogByDeviceIdAndType(ctx context.Context, deviceId, logType string) ([]*s_db_model.SLogModel, error)
+	DeleteLogByDeviceId(ctx context.Context, deviceId string) error
+	DeleteLogByType(ctx context.Context, logType string) error
+	GetAllLog(ctx context.Context) ([]*s_db_model.SLogModel, error)
+	GetLogPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SLogModel, int, error)
+	ClearAllLog(ctx context.Context) error
+	GetLogCount(ctx context.Context) (int, error)
+}

@@ -86,6 +86,9 @@ var (
 				panic(err)
 			}
 
+			// 注册告警管理器（直接注入 s_db 的告警服务实现，满足 common 的告警接口）
+			common.RegisterAlarmManager(s_db.GetAlarmService())
+
 			g.Log().Infof(ctx, "EMS Start！PID：%d", os.Getpid())
 
 			// 启动设备
