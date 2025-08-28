@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"sync"
@@ -92,13 +93,19 @@ func (s *sAlarmServiceImpl) clearDeviceCache(deviceId string) {
 // ==================== 告警历史相关方法 ====================
 
 // CreateAlarmHistory 创建告警历史记录
-func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, point, level, title, detail string) error {
+func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, point, level, title, detail string, triggerAt *time.Time) error {
+	if triggerAt == nil {
+		return errors.Errorf("deviceId:%s point:%s level:%s title:%s detail:%s 创建告警记录失败，createAt为空", deviceId, point, level, title, detail)
+	}
+	now := time.Now()
 	alarmHistory := &s_db_model.SAlarmHistoryModel{
-		DeviceId: deviceId,
-		Point:    point,
-		Level:    level,
-		Title:    title,
-		Detail:   detail,
+		DeviceId:  deviceId,
+		Point:     point,
+		Level:     level,
+		Title:     title,
+		Detail:    detail,
+		TriggerAt: triggerAt,
+		ClearAt:   &now,
 	}
 
 	err := alarmHistory.Create(ctx)

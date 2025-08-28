@@ -2,8 +2,8 @@ package s_db_model
 
 import (
 	"context"
-
 	"github.com/gogf/gf/v2/frame/g"
+	"time"
 )
 
 // 数据库相关常量
@@ -22,13 +22,14 @@ const (
 // 告警历史表结构
 type SAlarmHistoryModel struct {
 	g.Meta    `orm:"table:alarm_history"`
-	Id        int    `json:"id" orm:"id,primary,auto_increment"`
-	DeviceId  string `json:"device_id" orm:"device_id"`
-	Point     string `json:"point" orm:"point"`
-	Level     string `json:"level" orm:"level"`
-	Title     string `json:"title" orm:"title"`
-	Detail    string `json:"detail" orm:"detail"`
-	CreatedAt string `json:"created_at" orm:"created_at,auto_now_add"`
+	Id        int        `json:"id" orm:"id,primary,auto_increment"`
+	DeviceId  string     `json:"device_id" orm:"device_id"`
+	Point     string     `json:"point" orm:"point"`
+	Level     string     `json:"level" orm:"level"`
+	Title     string     `json:"title" orm:"title"`
+	Detail    string     `json:"detail" orm:"detail"`
+	TriggerAt *time.Time `json:"trigger_at" orm:"trigger_at"`
+	ClearAt   *time.Time `json:"clear_at" orm:"clear_at,auto_now_add"`
 }
 
 // Create 创建告警历史记录
@@ -90,7 +91,7 @@ func (a *SAlarmHistoryModel) GetPage(ctx context.Context, page, pageSize int, fi
 	if filters != nil {
 		// 日期过滤 (yyyy-MM-dd)
 		if date, ok := filters["date"].(string); ok && date != "" {
-			model = model.Where("DATE(created_at) = ?", date)
+			model = model.Where("DATE(trigger_at) = ?", date)
 		}
 
 		// 设备ID过滤
@@ -125,7 +126,7 @@ func (a *SAlarmHistoryModel) GetPage(ctx context.Context, page, pageSize int, fi
 
 	// 分页查询
 	var records []*SAlarmHistoryModel
-	err = model.Order("created_at DESC").Limit(offset, pageSize).Scan(&records)
+	err = model.Order("trigger_at DESC").Limit(offset, pageSize).Scan(&records)
 	if err != nil {
 		return nil, 0, err
 	}

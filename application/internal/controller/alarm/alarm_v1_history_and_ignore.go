@@ -47,7 +47,8 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 			Level:     r.Level,
 			Title:     r.Title,
 			Detail:    r.Detail,
-			CreatedAt: r.CreatedAt,
+			TriggerAt: r.TriggerAt,
+			ClearAt:   r.ClearAt,
 		})
 	}
 	return &v1.GetHistoryAlarmsRes{Total: total, Items: items}, nil
@@ -126,7 +127,7 @@ func (c *ControllerV1) GetAlarmIgnore(ctx context.Context, req *v1.GetAlarmIgnor
 
 	items := make([]v1.AlarmIgnoreItem, 0, len(records))
 	for _, r := range records {
-		items = append(items, v1.AlarmIgnoreItem{Id: r.Id, DeviceId: r.DeviceId, Point: r.Point, CreatedAt: r.CreatedAt})
+		items = append(items, v1.AlarmIgnoreItem{Id: r.Id, DeviceId: r.DeviceId, Point: r.Point, CreatedAt: nil})
 	}
 	return &v1.GetAlarmIgnoreRes{Total: total, Items: items}, nil
 }

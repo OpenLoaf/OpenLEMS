@@ -4,6 +4,7 @@ import (
 	"common/c_base"
 	"context"
 	"s_db/s_db_model"
+	"time"
 )
 
 // IDeviceService 设备服务
@@ -30,7 +31,7 @@ type IProtocolService interface {
 
 type IAlarmService interface {
 	// 告警历史相关方法
-	CreateAlarmHistory(ctx context.Context, deviceId, point, level, title, detail string) error
+	CreateAlarmHistory(ctx context.Context, deviceId, point, level, title, detail string, triggerAt *time.Time) error
 	GetAlarmHistoryByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmHistoryModel, error)
 	GetAlarmHistoryByDeviceIdAndPoint(ctx context.Context, deviceId, point string) ([]*s_db_model.SAlarmHistoryModel, error)
 	DeleteAlarmHistoryByDeviceId(ctx context.Context, deviceId string) error

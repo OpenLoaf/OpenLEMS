@@ -140,19 +140,21 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	var alarmAction c_base.EAlarmAction
 	var alarm *c_base.MetaValueWrapper
 
-	deviceName := ""
+	alarmDeviceId := deviceId // 告警的设备ID，如果是父设备收到子设备的，那么alarmDeviceId应该是父设备
+	alarmDeviceName := ""
 	if deviceId != s.deviceId {
 		// 说明是从下级设备处传递过来的
 		deviceConfig := common.GetDeviceManager().GetDeviceConfigById(deviceId)
 		if deviceConfig != nil {
-			deviceName = deviceConfig.Name
+			alarmDeviceId = s.deviceId // 使用当前设备的ID
+			alarmDeviceName = deviceConfig.Name
 		}
 	}
 
 	if isCurrentlyTriggered {
 		// 当前需要触发告警
 		alarm = &c_base.MetaValueWrapper{
-			DeviceId:   deviceId,
+			DeviceId:   alarmDeviceId,
 			DeviceType: deviceType,
 			Level:      meta.Level,
 			Meta:       meta,
@@ -170,11 +172,11 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 			// 记录触发日志
 			switch alarm.Level {
 			case c_base.EAlarmLevelWarn:
-				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]警告！值为: %v", deviceName, alarm.Meta.Cn, value))
+				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]警告！值为: %v", alarmDeviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelAlarm:
-				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]警报！值为: %v", deviceName, alarm.Meta.Cn, value))
+				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]警报！值为: %v", alarmDeviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelError:
-				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]故障！值为: %v", deviceName, alarm.Meta.Cn, value))
+				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]故障！值为: %v", alarmDeviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelNone:
 			}
 		} else {
@@ -192,7 +194,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 			alarm = oldAlarm // 使用旧的告警信息用于日志和处理器
 
 			historyMessage := fmt.Sprintf("触发于:%s，触发值为:%v，告警清除后值为:%v", oldAlarm.HappenTime.Format("2006-01-02 15:04:05.000"), oldAlarm.Value, value)
-			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, meta.Name, s.maxLevel.String(), meta.Cn, historyMessage)
+			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, alarmDeviceId, meta.Name, s.maxLevel.String(), meta.Cn, historyMessage, oldAlarm.HappenTime)
 			if err != nil {
 				c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
 			}
@@ -203,11 +205,11 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 			// 记录清除日志
 			switch alarm.Level {
 			case c_base.EAlarmLevelWarn:
-				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]警告！值为: %v", deviceName, alarm.Meta.Cn, value))
+				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]警告！值为: %v", alarmDeviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelAlarm:
-				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]警报！值为: %v", deviceName, alarm.Meta.Cn, value))
+				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]警报！值为: %v", alarmDeviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelError:
-				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]故障！值为: %v", deviceName, alarm.Meta.Cn, value))
+				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]故障！值为: %v", alarmDeviceName, alarm.Meta.Cn, value))
 			case c_base.EAlarmLevelNone:
 			}
 		} else {
@@ -235,7 +237,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	parentDevice := common.GetDeviceManager().GetDeviceById(s.parentDeviceId)
 	if parentDevice != nil {
 		// 新开一个协程去通知父节点告警
-		go parentDevice.UpdateAlarm(deviceId, deviceType, meta, value)
+		go parentDevice.UpdateAlarm(alarmDeviceId, deviceType, meta, value)
 	}
 
 }

@@ -35,7 +35,7 @@ type SProtocolModel struct {
 	Params  string `json:"params" orm:"params"`
 	Sort    int    `json:"sort" orm:"sort"`
 	Enabled bool   `json:"enabled" orm:"enabled"`
-	//CreatedAt string `json:"created_at" orm:"created_at"`
+	//TriggerAt string `json:"created_at" orm:"created_at"`
 	//UpdatedAt string `json:"updated_at" orm:"updated_at"`
 }
 

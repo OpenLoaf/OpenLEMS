@@ -106,7 +106,8 @@ func initConfigDatabase() {
 			level VARCHAR(255) NOT NULL,
 			title VARCHAR(255) NOT NULL,
 			detail TEXT,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+			trigger_at DATETIME,
+			clear_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
 	if err != nil {

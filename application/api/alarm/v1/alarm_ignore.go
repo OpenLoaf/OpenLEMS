@@ -1,6 +1,10 @@
 package v1
 
-import "github.com/gogf/gf/v2/frame/g"
+import (
+	"time"
+
+	"github.com/gogf/gf/v2/frame/g"
+)
 
 // ==================== 创建忽略告警 ====================
 
@@ -40,10 +44,10 @@ type GetAlarmIgnoreReq struct {
 }
 
 type AlarmIgnoreItem struct {
-	Id        int    `json:"id" dc:"忽略记录ID"`
-	DeviceId  string `json:"deviceId" dc:"设备ID"`
-	Point     string `json:"point" dc:"告警点位名称"`
-	CreatedAt string `json:"createdAt" dc:"创建时间"`
+	Id        int        `json:"id" dc:"忽略记录ID"`
+	DeviceId  string     `json:"deviceId" dc:"设备ID"`
+	Point     string     `json:"point" dc:"告警点位名称"`
+	CreatedAt *time.Time `json:"createdAt" dc:"创建时间"`
 }
 
 type GetAlarmIgnoreRes struct {
