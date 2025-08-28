@@ -101,10 +101,12 @@ type DiskInfo struct {
 	FreeGB  float64 `json:"freeGB" dc:"可用(GiB)"`
 }
 type UptimeInfo struct {
-	Day      int    `json:"day" dc:"运行天数"`
-	Hour     int    `json:"hour" dc:"运行小时"`
-	Minute   int    `json:"minute" dc:"运行分钟"`
-	BootTime string `json:"bootTime" dc:"开机时间(YYYY-MM-DD HH:mm:ss)"`
+	Day               int    `json:"day" dc:"运行天数"`
+	Hour              int    `json:"hour" dc:"运行小时"`
+	Minute            int    `json:"minute" dc:"运行分钟"`
+	BootTime          string `json:"bootTime" dc:"开机时间(YYYY-MM-DD HH:mm:ss)"`
+	ProcUptimeSeconds int    `json:"procUptimeSeconds" dc:"当前程序运行秒数"`
+	ProcStartTime     string `json:"procStartTime" dc:"程序启动时间(YYYY-MM-DD HH:mm:ss)"`
 }
 type NetBrief struct {
 	UpBytes   uint64  `json:"upBytes" dc:"累计上传字节数"`

@@ -104,7 +104,18 @@ func fetchUptime(ctx context.Context) (v1.UptimeInfo, error) {
 	days := int(dur / (24 * time.Hour))
 	hours := int((dur % (24 * time.Hour)) / time.Hour)
 	minutes := int((dur % time.Hour) / time.Minute)
-	return v1.UptimeInfo{Day: days, Hour: hours, Minute: minutes, BootTime: boot.Format("2006-01-02 15:04:05")}, nil
+	procUptimeSeconds := 0
+	procStartTime := ""
+	if p, err := process.NewProcessWithContext(ctx, int32(os.Getpid())); err == nil {
+		if ctms, err := p.CreateTimeWithContext(ctx); err == nil {
+			start := time.Unix(0, ctms*int64(time.Millisecond))
+			if start.Before(time.Now()) {
+				procUptimeSeconds = int(time.Since(start).Seconds())
+				procStartTime = start.Format("2006-01-02 15:04:05")
+			}
+		}
+	}
+	return v1.UptimeInfo{Day: days, Hour: hours, Minute: minutes, BootTime: boot.Format("2006-01-02 15:04:05"), ProcUptimeSeconds: procUptimeSeconds, ProcStartTime: procStartTime}, nil
 }
 
 func fetchNet(ctx context.Context) (v1.NetBrief, error) {

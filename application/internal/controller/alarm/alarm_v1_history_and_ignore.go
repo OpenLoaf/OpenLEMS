@@ -2,6 +2,7 @@ package alarm
 
 import (
 	v1 "application/api/alarm/v1"
+	"common"
 	"context"
 	"s_db"
 	"strings"
@@ -41,14 +42,15 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 	items := make([]v1.HistoryAlarmItem, 0, len(records))
 	for _, r := range records {
 		items = append(items, v1.HistoryAlarmItem{
-			Id:        r.Id,
-			DeviceId:  r.DeviceId,
-			Point:     r.Point,
-			Level:     r.Level,
-			Title:     r.Title,
-			Detail:    r.Detail,
-			TriggerAt: r.TriggerAt,
-			ClearAt:   r.ClearAt,
+			Id:         r.Id,
+			DeviceId:   r.DeviceId,
+			DeviceName: common.GetDeviceManager().GetDeviceNameById(r.DeviceId),
+			Point:      r.Point,
+			Level:      r.Level,
+			Title:      r.Title,
+			Detail:     r.Detail,
+			TriggerAt:  r.TriggerAt,
+			ClearAt:    r.ClearAt,
 		})
 	}
 	return &v1.GetHistoryAlarmsRes{Total: total, Items: items}, nil
@@ -127,7 +129,10 @@ func (c *ControllerV1) GetAlarmIgnore(ctx context.Context, req *v1.GetAlarmIgnor
 
 	items := make([]v1.AlarmIgnoreItem, 0, len(records))
 	for _, r := range records {
-		items = append(items, v1.AlarmIgnoreItem{Id: r.Id, DeviceId: r.DeviceId, Point: r.Point, CreatedAt: nil})
+		items = append(items, v1.AlarmIgnoreItem{Id: r.Id,
+			DeviceId:   r.DeviceId,
+			DeviceName: common.GetDeviceManager().GetDeviceNameById(r.DeviceId),
+			Point:      r.Point, CreatedAt: nil})
 	}
 	return &v1.GetAlarmIgnoreRes{Total: total, Items: items}, nil
 }
