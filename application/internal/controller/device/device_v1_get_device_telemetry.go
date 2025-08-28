@@ -9,6 +9,7 @@ import (
 
 func (c *ControllerV1) GetDeviceTelemetry(ctx context.Context, req *v1.GetDeviceTelemetryReq) (res *v1.GetDeviceTelemetryRes, err error) {
 	telemetry := make(map[string]*v1.DeviceTelemetryData)
+	alarmLevelMap := make(map[string]string)
 
 	common.GetDeviceManager().IteratorAssAllDevicesWrapper(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
 		deviceId := config.Id
@@ -24,10 +25,14 @@ func (c *ControllerV1) GetDeviceTelemetry(ctx context.Context, req *v1.GetDevice
 			LastUpdateTime:  device.GetLastUpdateTime(),
 			TelemetryValues: config.DriverInfo.GetAllTelemetry(device),
 		}
+
+		alarmLevelMap[deviceId] = device.GetAlarmLevel().String()
+
 		return true
 	})
 
 	return &v1.GetDeviceTelemetryRes{
-		Telemetry: telemetry,
+		AlarmLevelMap: alarmLevelMap,
+		Telemetry:     telemetry,
 	}, nil
 }

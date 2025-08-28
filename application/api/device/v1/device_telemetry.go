@@ -16,6 +16,6 @@ type DeviceTelemetryData struct {
 }
 
 type GetDeviceTelemetryRes struct {
-	AlarmLevel string                          `json:"AlarmLevel,omitempty"`
-	Telemetry  map[string]*DeviceTelemetryData `json:"telemetry" dc:"设备遥测信息" json:"Telemetry,omitempty"`
+	AlarmLevelMap map[string]string               `json:"AlarmLevel,omitempty"`
+	Telemetry     map[string]*DeviceTelemetryData `json:"telemetry" dc:"设备遥测信息" json:"Telemetry,omitempty"`
 }
