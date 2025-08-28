@@ -14,10 +14,7 @@ type CreateAlarmIgnoreReq struct {
 	Point    string `json:"point" v:"required" dc:"告警点位名称"`
 }
 
-type CreateAlarmIgnoreRes struct {
-	Success bool   `json:"success" dc:"操作是否成功"`
-	Message string `json:"message" dc:"操作结果消息"`
-}
+type CreateAlarmIgnoreRes struct{}
 
 // ==================== 删除忽略告警 ====================
 
@@ -27,10 +24,7 @@ type DeleteAlarmIgnoreReq struct {
 	Point    string `json:"point" v:"required" dc:"告警点位名称"`
 }
 
-type DeleteAlarmIgnoreRes struct {
-	Success bool   `json:"success" dc:"操作是否成功"`
-	Message string `json:"message" dc:"操作结果消息"`
-}
+type DeleteAlarmIgnoreRes struct{}
 
 // ==================== 忽略告警分页查询 ====================
 
@@ -52,6 +46,7 @@ type AlarmIgnoreItem struct {
 }
 
 type GetAlarmIgnoreRes struct {
-	Total int               `json:"total" dc:"总记录数"`
+	Total int `json:"total" dc:"总记录数"`
+
 	Items []AlarmIgnoreItem `json:"items" dc:"忽略告警列表"`
 }

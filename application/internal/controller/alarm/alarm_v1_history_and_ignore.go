@@ -6,6 +6,9 @@ import (
 	"context"
 	"s_db"
 	"strings"
+
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
 )
 
 // GetHistoryAlarms 历史告警分页查询
@@ -36,7 +39,7 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 
 	records, total, err := s_db.GetAlarmService().GetAlarmHistoryPage(ctx, req.Page, req.PageSize, filters)
 	if err != nil {
-		return nil, err
+		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
 
 	items := make([]v1.HistoryAlarmItem, 0, len(records))
@@ -59,47 +62,47 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 // CreateAlarmIgnore 创建忽略告警
 func (c *ControllerV1) CreateAlarmIgnore(ctx context.Context, req *v1.CreateAlarmIgnoreReq) (res *v1.CreateAlarmIgnoreRes, err error) {
 	if strings.TrimSpace(req.DeviceId) == "" {
-		return &v1.CreateAlarmIgnoreRes{Success: false, Message: "设备ID不能为空"}, nil
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter)
 	}
 	if strings.TrimSpace(req.Point) == "" {
-		return &v1.CreateAlarmIgnoreRes{Success: false, Message: "告警点位名称不能为空"}, nil
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter)
 	}
 
 	svc := s_db.GetAlarmService()
 	ignored, err := svc.IsAlarmIgnored(ctx, req.DeviceId, req.Point)
 	if err != nil {
-		return &v1.CreateAlarmIgnoreRes{Success: false, Message: "检查告警忽略状态失败"}, nil
+		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
 	if ignored {
-		return &v1.CreateAlarmIgnoreRes{Success: false, Message: "该告警点位已被忽略"}, nil
+		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
 	if err := svc.CreateAlarmIgnore(ctx, req.DeviceId, req.Point); err != nil {
-		return &v1.CreateAlarmIgnoreRes{Success: false, Message: "创建忽略告警失败"}, nil
+		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
-	return &v1.CreateAlarmIgnoreRes{Success: true, Message: "成功创建忽略告警"}, nil
+	return &v1.CreateAlarmIgnoreRes{}, nil
 }
 
 // DeleteAlarmIgnore 删除忽略告警
 func (c *ControllerV1) DeleteAlarmIgnore(ctx context.Context, req *v1.DeleteAlarmIgnoreReq) (res *v1.DeleteAlarmIgnoreRes, err error) {
 	if strings.TrimSpace(req.DeviceId) == "" {
-		return &v1.DeleteAlarmIgnoreRes{Success: false, Message: "设备ID不能为空"}, nil
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter)
 	}
 	if strings.TrimSpace(req.Point) == "" {
-		return &v1.DeleteAlarmIgnoreRes{Success: false, Message: "告警点位名称不能为空"}, nil
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter)
 	}
 
 	svc := s_db.GetAlarmService()
 	ignored, err := svc.IsAlarmIgnored(ctx, req.DeviceId, req.Point)
 	if err != nil {
-		return &v1.DeleteAlarmIgnoreRes{Success: false, Message: "检查告警忽略状态失败"}, nil
+		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
 	if !ignored {
-		return &v1.DeleteAlarmIgnoreRes{Success: false, Message: "该告警点位未被忽略"}, nil
+		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
 	if err := svc.DeleteAlarmIgnoreByDeviceIdAndPoint(ctx, req.DeviceId, req.Point); err != nil {
-		return &v1.DeleteAlarmIgnoreRes{Success: false, Message: "删除忽略告警失败"}, nil
+		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
-	return &v1.DeleteAlarmIgnoreRes{Success: true, Message: "成功删除忽略告警"}, nil
+	return &v1.DeleteAlarmIgnoreRes{}, nil
 }
 
 // GetAlarmIgnore 忽略告警分页查询
@@ -124,15 +127,21 @@ func (c *ControllerV1) GetAlarmIgnore(ctx context.Context, req *v1.GetAlarmIgnor
 
 	records, total, err := s_db.GetAlarmService().GetAlarmIgnorePage(ctx, req.Page, req.PageSize, filters)
 	if err != nil {
-		return nil, err
+		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
 
 	items := make([]v1.AlarmIgnoreItem, 0, len(records))
 	for _, r := range records {
-		items = append(items, v1.AlarmIgnoreItem{Id: r.Id,
+		items = append(items, v1.AlarmIgnoreItem{
+			Id:         r.Id,
 			DeviceId:   r.DeviceId,
 			DeviceName: common.GetDeviceManager().GetDeviceNameById(r.DeviceId),
-			Point:      r.Point, CreatedAt: nil})
+			Point:      r.Point,
+			CreatedAt:  r.CreatedAt,
+		})
 	}
-	return &v1.GetAlarmIgnoreRes{Total: total, Items: items}, nil
+	return &v1.GetAlarmIgnoreRes{
+		Total: total,
+		Items: items,
+	}, nil
 }

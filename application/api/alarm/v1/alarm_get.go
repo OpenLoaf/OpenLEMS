@@ -53,7 +53,7 @@ type HistoryAlarmItem struct {
 	Level      string     `json:"level" dc:"告警级别"`
 	Title      string     `json:"title" dc:"告警标题"`
 	Detail     string     `json:"detail" dc:"告警详情"`
-	TriggerAt  *time.Time `json:"triggerAt" dc:"清除时间"`
+	TriggerAt  *time.Time `json:"triggerAt" dc:"触发时间"`
 	ClearAt    *time.Time `json:"clearAt" dc:"清除时间"`
 }
 
