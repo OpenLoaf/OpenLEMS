@@ -36,10 +36,6 @@ func (p *sBmsPylonTechUs108) Init() error {
 		c_log.BizInfof(p.DeviceCtx, "syncTime配置为：false！时间同步任务未启动！")
 	}
 
-	/*	p.RegisterAlarmHandler(func(maxAlarm c_base.EAlarmLevel, nowAlarm *c_base.SAlarmDetail) {
-		c_log.BizWarningf(p.DeviceCtx, "触发设备告警[%s]", nowAlarm.Meta.Name)
-	})*/
-
 	return nil
 }
 

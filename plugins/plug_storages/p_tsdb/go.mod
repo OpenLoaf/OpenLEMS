@@ -1,4 +1,4 @@
-module tsdb
+module p_tsdb
 
 go 1.24
 

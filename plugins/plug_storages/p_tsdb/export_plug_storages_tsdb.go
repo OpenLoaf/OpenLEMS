@@ -1,9 +1,9 @@
-package tsdb
+package p_tsdb
 
 import (
 	"common/c_base"
 	"context"
-	"tsdb/internal"
+	"p_tsdb/internal"
 )
 
 func NewStorageInstance(ctx context.Context, storageConfig *c_base.SStorageConfig) c_base.IStorage {

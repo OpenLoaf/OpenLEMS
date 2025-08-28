@@ -28,10 +28,6 @@ func (s *sPcsStarCharge100E) Init() error {
 	return nil
 }
 
-func (s *sPcsStarCharge100E) GetDriverType() c_base.EDeviceType {
-	return c_base.EDevicePcs
-}
-
 func (s *sPcsStarCharge100E) Shutdown() {
 	_ = s.SetPower(0)
 	_ = s.SetStatus(c_base.EPcsStatusOff)

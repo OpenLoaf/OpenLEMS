@@ -21,18 +21,6 @@ type sEssPylonCheckwatt struct {
 	targetPowerFactor   float32
 }
 
-func (p *sEssPylonCheckwatt) ProtocolListen() {
-
-}
-
-func (p *sEssPylonCheckwatt) IsActivate() bool {
-	return true
-}
-
-func (p *sEssPylonCheckwatt) IsPhysical() bool {
-	return false
-}
-
 func (p *sEssPylonCheckwatt) Init() error {
 	p.essConfig = &sEssPylonCheckwattConfig{}
 	err := p.GetConfig().ScanParams(p.essConfig)
@@ -41,6 +29,11 @@ func (p *sEssPylonCheckwatt) Init() error {
 	}
 
 	c_log.BizInfof(p.DeviceCtx, "虚拟储能柜初始化完毕!")
+
+	p.RegisterAlarmHandlerFunc(c_base.EAlarmActionLevelUp, func(alarm *c_base.MetaValueWrapper, currentMaxAlarmLevel c_base.EAlarmLevel, isFirstHandler bool) {
+		c_log.BizInfof(p.DeviceCtx, "触发告警")
+	})
+
 	return nil
 }
 

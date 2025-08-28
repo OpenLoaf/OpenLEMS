@@ -8,12 +8,12 @@ import (
 	"common/c_log"
 	"context"
 	"os"
+	"p_tsdb"
 	"runtime"
 	"s_db"
 	"s_driver"
 	"s_storage"
 	"time"
-	"tsdb"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/i18n/gi18n"
@@ -77,7 +77,7 @@ var (
 			s_db.Init()
 
 			// 初始化存储（切换为 TSDB，无外部配置时采用默认路径与策略）
-			storageInst := tsdb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_base.EStorageTypeTsdb, Url: "", Params: map[string]string{}})
+			storageInst := p_tsdb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_base.EStorageTypeTsdb, Url: "", Params: map[string]string{}})
 			s_storage.NewSingleStorageManager(nil, storageInst)
 			common.RegisterStorageInstance(storageInst)
 
