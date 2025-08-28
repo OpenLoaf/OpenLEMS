@@ -112,3 +112,54 @@ func capitalizeFirstLetter(s string) string {
 	}
 	return strings.ToUpper(s[:1]) + s[1:]
 }
+
+func (s *SDriverInfo) ExecuteCustomService(functionName string, instance any, params any) error {
+	// 执行自定义方法
+	if instance == nil {
+		return fmt.Errorf("custom service instance is nil")
+	}
+
+	// 判断一下是否允许这个方法调用
+	functionExist := false
+	for _, v := range s.Service {
+		if v.Name == functionName {
+			functionExist = true
+			break
+		}
+	}
+	if !functionExist {
+		return fmt.Errorf("custom service %s not support", functionName)
+	}
+
+	// 反射前先判断缓存中是否存在
+	if s.reflectMethodCache == nil {
+		s.reflectMethodCache = make(map[string]reflect.Value)
+	}
+
+	var (
+		method reflect.Value
+		ok     bool
+	)
+
+	// 如果缓冲中不存在，就反射新增
+	if method, ok = s.reflectMethodCache[functionName]; !ok {
+		method = reflect.ValueOf(instance).MethodByName(functionName)
+		if !method.IsValid() {
+			return fmt.Errorf("service %s not found", functionName)
+		}
+		s.reflectMethodCache[functionName] = method
+	}
+
+	// 空参数调用
+	values := method.Call(nil)
+	if len(values) == 1 {
+		if err, ok := values[0].Interface().(error); ok {
+			return err
+		}
+		return nil
+	}
+
+	fmt.Printf("当前函数: %s 返回的参数数据不为1 ！返回的内容为: %v", functionName, values)
+
+	return nil
+}

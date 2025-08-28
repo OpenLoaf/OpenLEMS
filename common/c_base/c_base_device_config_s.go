@@ -2,6 +2,8 @@ package c_base
 
 import (
 	"encoding/json"
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/pkg/errors"
 )
 
@@ -57,4 +59,25 @@ func (s *SDeviceConfig) GetType() EDeviceType {
 		return EDeviceNone
 	}
 	return s.DriverInfo.Type
+}
+
+func (s *SDeviceConfig) GetTelemetry(key string, instance any) (any, error) {
+	if s.DriverInfo == nil {
+		return nil, gerror.NewCode(gcode.CodeNotFound, "device not found")
+	}
+	return s.DriverInfo.GetTelemetry(key, instance)
+}
+
+func (s *SDeviceConfig) GetAllTelemetry(instance IDevice) map[string]any {
+	if s.DriverInfo == nil {
+		return nil
+	}
+	return s.DriverInfo.GetAllTelemetry(instance)
+}
+
+func (s *SDeviceConfig) ExecuteCustomService(functionName string, instance any, params any) error {
+	if s.DriverInfo == nil {
+		return nil
+	}
+	return s.DriverInfo.ExecuteCustomService(functionName, instance, params)
 }

@@ -51,3 +51,7 @@ service:
     description: "电池上电指令"
   - name: CustomSyncTimeService
     displayName: "g18n:syncTime"
+  - name: CustomTestTrigger
+    displayName: "测试温度告警触发"
+  - name: CustomTestClear
+    displayName: "测试温度告警消除"

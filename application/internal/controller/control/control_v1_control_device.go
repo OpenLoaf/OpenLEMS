@@ -9,19 +9,18 @@ import (
 )
 
 func (c *ControllerV1) ControlDevice(ctx context.Context, req *v1.ControlDeviceReq) (res *v1.ControlDeviceRes, err error) {
-	deviceConfig := common.GetDeviceManager().GetDeviceById(req.DeviceId)
-	if deviceConfig == nil {
+
+	device := common.GetDeviceManager().GetDeviceById(req.DeviceId)
+	if device == nil {
 		return nil, gerror.NewCode(gcode.CodeNotFound, "device not found")
 	}
 
-	// todo 完善执行命令方法
-	////instance:=deviceConfig.GetDeviceInstance()
-	//driverDescription := deviceConfig.GetDeviceDetail().DriverDescription
-	//if driverDescription == nil {
-	//	return nil, gerror.NewCode(gcode.CodeNotFound, "driver description is nil")
-	//}
-	//
-	//err = driverDescription.ExecuteCustomService(req.CommandName, deviceConfig.GetDeviceInstance(), nil)
+	config := common.GetDeviceManager().GetDeviceConfigById(req.DeviceId)
+	if config == nil {
+		return nil, gerror.NewCode(gcode.CodeNotFound, "device not found")
+	}
+
+	err = config.ExecuteCustomService(req.CommandName, device, req.Parameters)
 
 	return &v1.ControlDeviceRes{}, err
 }
