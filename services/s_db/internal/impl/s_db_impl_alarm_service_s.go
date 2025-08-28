@@ -15,6 +15,9 @@ import (
 type sAlarmServiceImpl struct {
 	// 缓存相关字段
 	ignoreCache     map[string]bool // 缓存忽略状态，key: deviceId:sourceDeviceId:point
+	historyCount    int             // 缓存历史告警总数
+	ignoreCount     int             // 缓存忽略告警总数
+	countCacheTime  time.Time       // 计数缓存时间
 	cacheMutex      sync.RWMutex
 	cacheExpireTime time.Duration
 	lastCleanTime   time.Time
@@ -53,8 +56,11 @@ func (s *sAlarmServiceImpl) cleanExpiredCache() {
 
 	// 清理所有缓存（简单策略：定期清理所有缓存）
 	s.ignoreCache = make(map[string]bool)
+	s.historyCount = 0
+	s.ignoreCount = 0
+	s.countCacheTime = time.Time{} // 重置为零值
 	s.lastCleanTime = now
-	g.Log().Debugf(context.Background(), "告警忽略缓存已清理")
+	g.Log().Debugf(context.Background(), "告警缓存已清理（包括忽略状态和计数）")
 }
 
 // 从缓存获取忽略状态
@@ -76,6 +82,60 @@ func (s *sAlarmServiceImpl) setCache(deviceId, sourceDeviceId, point string, isI
 
 	cacheKey := s.getCacheKey(deviceId, sourceDeviceId, point)
 	s.ignoreCache[cacheKey] = isIgnored
+}
+
+// 从缓存获取历史告警总数
+func (s *sAlarmServiceImpl) getHistoryCountFromCache() (int, bool) {
+	s.cacheMutex.RLock()
+	defer s.cacheMutex.RUnlock()
+
+	// 检查缓存是否过期
+	if time.Since(s.countCacheTime) > s.cacheExpireTime {
+		return 0, false
+	}
+
+	return s.historyCount, true
+}
+
+// 设置历史告警总数缓存
+func (s *sAlarmServiceImpl) setHistoryCountCache(count int) {
+	s.cacheMutex.Lock()
+	defer s.cacheMutex.Unlock()
+
+	s.historyCount = count
+	s.countCacheTime = time.Now()
+}
+
+// 从缓存获取忽略告警总数
+func (s *sAlarmServiceImpl) getIgnoreCountFromCache() (int, bool) {
+	s.cacheMutex.RLock()
+	defer s.cacheMutex.RUnlock()
+
+	// 检查缓存是否过期
+	if time.Since(s.countCacheTime) > s.cacheExpireTime {
+		return 0, false
+	}
+
+	return s.ignoreCount, true
+}
+
+// 设置忽略告警总数缓存
+func (s *sAlarmServiceImpl) setIgnoreCountCache(count int) {
+	s.cacheMutex.Lock()
+	defer s.cacheMutex.Unlock()
+
+	s.ignoreCount = count
+	s.countCacheTime = time.Now()
+}
+
+// 清除计数缓存
+func (s *sAlarmServiceImpl) clearCountCache() {
+	s.cacheMutex.Lock()
+	defer s.cacheMutex.Unlock()
+
+	s.historyCount = 0
+	s.ignoreCount = 0
+	s.countCacheTime = time.Time{} // 重置为零值
 }
 
 // 清除指定设备的缓存（仅按目标设备清除其相关缓存前缀）
@@ -116,6 +176,9 @@ func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, so
 		return err
 	}
 
+	// 清除计数缓存，确保下次查询能获取到最新状态
+	s.clearCountCache()
+
 	return nil
 }
 
@@ -151,6 +214,9 @@ func (s *sAlarmServiceImpl) DeleteAlarmHistoryByDeviceId(ctx context.Context, de
 		g.Log().Errorf(ctx, "删除告警历史记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
 		return err
 	}
+
+	// 清除计数缓存，确保下次查询能获取到最新状态
+	s.clearCountCache()
 
 	g.Log().Infof(ctx, "成功删除告警历史记录 - 设备ID: %s", deviceId)
 	return nil
@@ -189,18 +255,33 @@ func (s *sAlarmServiceImpl) ClearAllAlarmHistory(ctx context.Context) error {
 		return err
 	}
 
+	// 清除计数缓存，确保下次查询能获取到最新状态
+	s.clearCountCache()
+
 	g.Log().Infof(ctx, "成功清除所有告警历史记录并执行VACUUM")
 	return nil
 }
 
 // GetAlarmHistoryCount 获取告警历史表记录总数
 func (s *sAlarmServiceImpl) GetAlarmHistoryCount(ctx context.Context) int {
+	// 优先从缓存获取
+	if count, found := s.getHistoryCountFromCache(); found {
+		g.Log().Debugf(ctx, "从缓存获取告警历史总数 - 总数: %d", count)
+		return count
+	}
+
+	// 缓存未命中，从数据库获取
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	count, err := alarmHistory.GetCount(ctx)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取告警历史表记录总数失败 - 错误: %+v", err)
 		return 0
 	}
+
+	// 将结果设置到缓存
+	s.setHistoryCountCache(count)
+	g.Log().Debugf(ctx, "从数据库获取告警历史总数并缓存 - 总数: %d", count)
+
 	return count
 }
 
@@ -224,6 +305,7 @@ func (s *sAlarmServiceImpl) CreateAlarmIgnore(ctx context.Context, deviceId, sou
 
 	// 清除相关缓存，确保下次查询能获取到最新状态
 	s.clearDeviceCache(deviceId)
+	s.clearCountCache()
 
 	return nil
 }
@@ -282,6 +364,7 @@ func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByDeviceId(ctx context.Context, dev
 
 	g.Log().Infof(ctx, "成功删除告警忽略记录 - 设备ID: %s", deviceId)
 	s.clearDeviceCache(deviceId) // 清除指定设备的缓存
+	s.clearCountCache()          // 清除计数缓存
 	return nil
 }
 
@@ -296,6 +379,7 @@ func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByDeviceIdAndPoint(ctx context.Cont
 
 	g.Log().Infof(ctx, "成功删除告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
 	s.clearDeviceCache(deviceId) // 清除指定设备的缓存
+	s.clearCountCache()          // 清除计数缓存
 	return nil
 }
 
@@ -326,11 +410,23 @@ func (s *sAlarmServiceImpl) GetAlarmIgnorePage(ctx context.Context, page, pageSi
 
 // GetAlarmIgnoreCount 获取告警忽略表记录总数
 func (s *sAlarmServiceImpl) GetAlarmIgnoreCount(ctx context.Context) int {
+	// 优先从缓存获取
+	if count, found := s.getIgnoreCountFromCache(); found {
+		g.Log().Debugf(ctx, "从缓存获取告警忽略总数 - 总数: %d", count)
+		return count
+	}
+
+	// 缓存未命中，从数据库获取
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
 	count, err := alarmIgnore.GetCount(ctx)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取告警忽略表记录总数失败 - 错误: %+v", err)
 		return 0
 	}
+
+	// 将结果设置到缓存
+	s.setIgnoreCountCache(count)
+	g.Log().Debugf(ctx, "从数据库获取告警忽略总数并缓存 - 总数: %d", count)
+
 	return count
 }

@@ -11,6 +11,8 @@ use (
 	./plugins/plug_protocols/p_canbus
 	./plugins/plug_protocols/p_modbus
 
+	plugins/plug_policy/p_timer_policy
+
 	./plugins/plug_storages/p_storage
 	./plugins/plug_storages/p_tsdb
 	./services/s_db
