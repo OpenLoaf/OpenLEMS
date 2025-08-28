@@ -98,7 +98,8 @@ func (s *SDriverInfo) GetAllTelemetry(instance IDevice) map[string]any {
 	for _, telemetry := range s.Telemetry {
 		value, err := s.GetTelemetry(telemetry.Name, instance)
 		if err != nil {
-			c_log.Errorf(context.Background(), "Get telemetry %s error: %+v", telemetry.Name, err)
+			// 这里有时候err也是正常的，比如系统刚启动，但是页面一直在请求
+			c_log.Debugf(context.Background(), "Get telemetry %s error: %+v", telemetry.Name, err)
 			continue
 		}
 		telemetryMap[telemetry.Name] = value

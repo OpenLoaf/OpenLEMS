@@ -27,7 +27,7 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 	items := make([]*v1.CurrentAlarmItem, 0, pageSize)
 	matchIndex := 0 // 记录过滤后命中的全局索引，用于 Total 与分页
 
-	common.GetDeviceManager().IteratorAssAllDevicesWrapper(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
+	common.GetDeviceManager().IteratorAllDevices(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
 		if device == nil {
 			return true
 		}

@@ -28,6 +28,9 @@ func NewVirtualDevice(ctx context.Context, deviceConfig *c_base.SDeviceConfig) *
 		deviceConfig: deviceConfig,
 	}
 }
+func (s *SVirtualDeviceImpl) IsVirtualDevice() bool {
+	return true
+}
 
 func (s *SVirtualDeviceImpl) Reset() error {
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {

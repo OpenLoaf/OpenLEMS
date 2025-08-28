@@ -8,10 +8,16 @@ import (
 )
 
 func (c *ControllerV1) GetDeviceTelemetry(ctx context.Context, req *v1.GetDeviceTelemetryReq) (res *v1.GetDeviceTelemetryRes, err error) {
+
+	if common.GetDeviceManager().Status() == c_base.EStateInit {
+		// 系统还在初始化中
+		return nil, nil
+	}
+
 	telemetry := make(map[string]*v1.DeviceTelemetryData)
 	alarmLevelMap := make(map[string]string)
 
-	common.GetDeviceManager().IteratorAssAllDevicesWrapper(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
+	common.GetDeviceManager().IteratorAllDevices(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
 		deviceId := config.Id
 		if deviceId == "" || config.DriverInfo == nil {
 			return true

@@ -33,6 +33,10 @@ func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base
 	return device, nil
 }
 
+func (s *SRealDeviceImpl[P]) IsVirtualDevice() bool {
+	return false
+}
+
 func (s *SRealDeviceImpl[P]) GetAlarmLevel() c_base.EAlarmLevel {
 	if s.isProtocolNil() {
 		return c_base.EAlarmLevelError

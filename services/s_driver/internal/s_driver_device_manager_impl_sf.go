@@ -46,6 +46,14 @@ func NewSingleDriverManager(parentCtx context.Context) *SDeviceManager {
 	return driverManagerInstance
 }
 
+func (m *SDeviceManager) GetDeviceNameById(deviceId string) string {
+	config := m.GetDeviceConfigById(deviceId)
+	if config == nil {
+		return ""
+	}
+	return config.Name
+}
+
 func (m *SDeviceManager) GetTopDeviceConfigs() []*c_base.SDeviceConfig {
 	return m.deviceConfig
 }
@@ -78,7 +86,7 @@ func (m *SDeviceManager) GetAllDriversInfo() []*c_base.SDriverInfo {
 	return drivers
 }
 
-func (m *SDeviceManager) IteratorAssAllDevicesWrapper(deviceWrapper func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
+func (m *SDeviceManager) IteratorAllDevices(deviceWrapper func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
 	flatList := m.GetFlatList()
 	for _, config := range flatList {
 		if !deviceWrapper(config, m.deviceInstanceMap[config.Id]) {

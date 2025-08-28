@@ -6,32 +6,48 @@ import (
 	"common"
 	"common/c_base"
 	"context"
+	"fmt"
+	"sort"
+
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
-	"sort"
 )
 
 func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error) {
+	if common.GetDeviceManager().Status() == c_base.EStateInit {
+		// 系统还在初始化中
+		return nil, nil
+	}
 
 	device := common.GetDeviceManager().GetDeviceById(req.DeviceId)
 	if device == nil {
 		return nil, gerror.NewCode(gcode.CodeNotFound)
 	}
 
-	res = &v1.GetRealDeviceCacheRes{
-		//DeviceServerState: device.GetDeviceState().String(),
-		AlarmLevel: device.GetAlarmLevel().String(),
-	}
-	res.LastUpdateTime = device.GetLastUpdateTime()
-
 	groupCacheMap := make(map[string]*entity.SSingleDeviceGroup)
 	list := device.GetMetaValueList()
 	for _, v := range list {
-		// todo 修改为：虚拟设备，显示设备名称+组名称
+
 		groupName := ""
+
+		// 如果点位的设备ID和当前请求的设备ID不一样，说明是子设备。名称修改为设备名+组名
+		if req.DeviceId != v.DeviceId {
+			groupName = common.GetDeviceManager().GetDeviceNameById(v.DeviceId)
+		}
+
 		if v.Meta.Group != nil {
-			groupName = v.Meta.Group.GroupName
+			if groupName != "" {
+				groupName = fmt.Sprintf("%s:%s", groupName, v.Meta.Group.GroupName)
+			} else {
+				groupName = v.Meta.Group.GroupName
+			}
+		} else {
+			if groupName != "" {
+				groupName = fmt.Sprintf("%s:其他", groupName)
+			} else {
+				groupName = "其他"
+			}
 		}
 
 		// 缓存group
@@ -65,10 +81,18 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	for _, group := range groupCacheMap {
 		groups = append(groups, group)
 	}
+
 	sort.Slice(groups, func(i, j int) bool {
+		if groups[i].GroupSort == groups[j].GroupSort {
+			return groups[i].GroupName < groups[j].GroupName
+		}
 		return groups[i].GroupSort < groups[j].GroupSort
 	})
 
-	res.Groups = groups
-	return res, nil
+	return &v1.GetRealDeviceCacheRes{
+		DeviceServerState: device.GetProtocolStatus().String(),
+		AlarmLevel:        device.GetAlarmLevel().String(),
+		LastUpdateTime:    device.GetLastUpdateTime(),
+		Groups:            groups,
+	}, nil
 }

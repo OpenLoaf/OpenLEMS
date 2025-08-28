@@ -2,13 +2,6 @@ package c_base
 
 import "time"
 
-type EProtocolStatus int // 连接状态
-const (
-	EProtocolDisconnected EProtocolStatus = iota // 连接断开
-	EProtocolConnecting                          // 正在连接中
-	EProtocolConnected                           // 连接成功
-)
-
 type IProtocol interface {
 	IAlarm
 	GetStatus() EProtocolStatus            // 获取协议连接状态

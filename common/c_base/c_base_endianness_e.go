@@ -1,4 +1,4 @@
-//go:generate stringer -type=ECharSequence -output=c_base_endianness_e_string.go
+//go:generate stringer -type=EProtocolStatus -trimprefix=E -output=c_base_endianness_e_string.go
 package c_base
 
 type ECharSequence uint8

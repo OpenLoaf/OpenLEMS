@@ -10,7 +10,7 @@ import (
 func (c *ControllerV1) GetRealDeviceList(ctx context.Context, req *v1.GetRealDeviceListReq) (res *v1.GetRealDeviceListRes, err error) {
 	var devices = make([]*c_base.SDeviceConfig, 0)
 
-	common.GetDeviceManager().IteratorAssAllDevicesWrapper(func(config *c_base.SDeviceConfig, instance c_base.IDevice) bool {
+	common.GetDeviceManager().IteratorAllDevices(func(config *c_base.SDeviceConfig, instance c_base.IDevice) bool {
 		devices = append(devices, config)
 		return true
 	})
