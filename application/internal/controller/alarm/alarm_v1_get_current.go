@@ -38,9 +38,11 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 		}
 		for _, alarm := range alarmList {
 			// 过滤条件
-			if req.DeviceId != "" && alarm.DeviceId != req.DeviceId {
+
+			if req.DeviceId != "" && (alarm.DeviceId == req.DeviceId || config.Id == req.DeviceId) {
 				continue
 			}
+
 			if req.Level != "" && req.Level != "ALL" && !strings.EqualFold(alarm.Level.String(), req.Level) {
 				continue
 			}
