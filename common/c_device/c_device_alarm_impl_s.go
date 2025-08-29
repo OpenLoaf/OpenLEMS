@@ -116,7 +116,7 @@ func (s *sAlarmImpl) IgnoreClearAlarm(deviceId string, point string) {
 		s.callHandlers(oldAlarmWrapper, s.maxLevel, c_base.EAlarmActionIgnore)
 
 		// 保存到告警历史中
-		historyMessage := fmt.Sprintf("触发于:%s，触发值为:%v，已手动屏蔽", oldAlarmWrapper.HappenTime.Format("2006-01-02 15:04:05.000"), oldAlarmWrapper.Value)
+		historyMessage := fmt.Sprintf("手动屏蔽告警，触发值为:%v", oldAlarmWrapper.Value)
 		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, oldAlarmWrapper.Meta.Name, oldKey.Level.String(), oldAlarmWrapper.Meta.Cn, historyMessage, oldAlarmWrapper.HappenTime)
 		if err != nil {
 			c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
