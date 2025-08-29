@@ -19,6 +19,7 @@ type IDeviceV1 interface {
 
 type IDeviceV2 interface {
 	GetDeviceTree(ctx context.Context, req *v1.GetDeviceTreeReq) (res *v1.GetDeviceTreeRes, err error)
+	GetDeviceTreeById(ctx context.Context, req *v1.GetDeviceTreeByIdReq) (res *v1.GetDeviceTreeByIdRes, err error)
 	DisableDevice(ctx context.Context, req *v1.DisableDeviceReq) (res *v1.DisableDeviceRes, err error)
 	EnableDevice(ctx context.Context, req *v1.EnableDeviceReq) (res *v1.EnableDeviceRes, err error)
 }

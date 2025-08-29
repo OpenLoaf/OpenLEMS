@@ -2,6 +2,7 @@ package v1
 
 import (
 	"application/internal/model/entity"
+
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -30,4 +31,13 @@ type EnableDeviceReq struct {
 }
 
 type EnableDeviceRes struct {
+}
+
+type GetDeviceTreeByIdReq struct {
+	g.Meta   `path:"/device/tree/{deviceId}" method:"get" tags:"设备相关" summary:"根据设备ID获取设备树"`
+	DeviceId string `json:"deviceId" v:"required" dc:"设备ID"`
+}
+
+type GetDeviceTreeByIdRes struct {
+	DeviceTree *entity.SDeviceTree `json:"deviceTree" dc:"设备树"`
 }
