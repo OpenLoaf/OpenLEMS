@@ -117,7 +117,7 @@ func (s *sAlarmImpl) IgnoreClearAlarm(deviceId string, point string) {
 
 		// 保存到告警历史中
 		historyMessage := fmt.Sprintf("手动屏蔽告警，触发值为:%v", oldAlarmWrapper.Value)
-		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, oldAlarmWrapper.Meta.Name, oldKey.Level.String(), oldAlarmWrapper.Meta.Cn, historyMessage, oldAlarmWrapper.HappenTime)
+		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, oldAlarmWrapper.Meta, historyMessage, oldAlarmWrapper.HappenTime)
 		if err != nil {
 			c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
 		}
@@ -211,7 +211,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 			alarm = oldAlarm // 使用旧的告警信息用于日志和处理器
 
 			historyMessage := fmt.Sprintf("触发值为:%v，告警清除后值为:%v", oldAlarm.Value, value)
-			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, meta.Name, meta.Level.String(), meta.Cn, historyMessage, oldAlarm.HappenTime)
+			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, meta, historyMessage, oldAlarm.HappenTime)
 			if err != nil {
 				c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
 			}

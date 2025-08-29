@@ -53,7 +53,7 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 			SourceDeviceName: common.GetDeviceManager().GetDeviceNameById(r.SourceDeviceId),
 			Point:            r.Point,
 			Level:            r.Level,
-			Title:            r.Title,
+			Title:            r.PointName,
 			Detail:           r.Detail,
 			TriggerAt:        r.TriggerAt,
 			ClearAt:          r.ClearAt,

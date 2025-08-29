@@ -28,7 +28,7 @@ type SAlarmHistoryModel struct {
 	SourceDeviceId string     `json:"sourceDeviceId" orm:"source_device_id"` // 原设备ID
 	Point          string     `json:"point" orm:"point"`
 	Level          string     `json:"level" orm:"level"`
-	Title          string     `json:"title" orm:"title"`
+	PointName      string     `json:"pointName" orm:"point_name"`
 	Detail         string     `json:"detail" orm:"detail"`
 	TriggerAt      *time.Time `json:"triggerAt" orm:"trigger_at"`
 	ClearAt        *time.Time `json:"clearAt" orm:"clear_at,auto_now_add"`
