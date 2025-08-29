@@ -67,7 +67,7 @@ func (c *ControllerV1) CreateAlarmIgnore(ctx context.Context, req *v1.CreateAlar
 	if strings.TrimSpace(req.DeviceId) == "" || strings.TrimSpace(req.SourceDeviceId) == "" {
 		return nil, gerror.NewCode(gcode.CodeInvalidParameter)
 	}
-	if strings.TrimSpace(req.Point) == "" {
+	if strings.TrimSpace(req.Point) == "" || strings.TrimSpace(req.PointName) == "" {
 		return nil, gerror.NewCode(gcode.CodeInvalidParameter)
 	}
 

@@ -25,7 +25,6 @@ type CurrentAlarmItem struct {
 	Point            string     `json:"point" dc:"告警点位"`
 	PointName        string     `json:"pointName" dc:"告警点位名称"`
 	Level            string     `json:"level" dc:"告警级别"`
-	Title            string     `json:"title" dc:"告警标题"`
 	Detail           string     `json:"detail" dc:"告警详情"`
 	CreatedAt        *time.Time `json:"createdAt" dc:"创建时间"`
 }
