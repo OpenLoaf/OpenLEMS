@@ -38,7 +38,7 @@ type IAlarmService interface {
 	GetAllAlarmHistory(ctx context.Context) ([]*s_db_model.SAlarmHistoryModel, error)
 	GetAlarmHistoryPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SAlarmHistoryModel, int, error)
 	ClearAllAlarmHistory(ctx context.Context) error
-	GetAlarmHistoryCount(ctx context.Context) int
+	GetAlarmHistoryCount(ctx context.Context, deviceId string) int
 
 	// 告警忽略相关方法
 	CreateAlarmIgnore(ctx context.Context, deviceId, sourceDeviceId, point, pointName string) error
@@ -48,7 +48,7 @@ type IAlarmService interface {
 	DeleteAlarmIgnoreByDeviceIdAndPoint(ctx context.Context, deviceId, point string) error
 	GetAllAlarmIgnore(ctx context.Context) ([]*s_db_model.SAlarmIgnoreModel, error)
 	GetAlarmIgnorePage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SAlarmIgnoreModel, int, error)
-	GetAlarmIgnoreCount(ctx context.Context) int
+	GetAlarmIgnoreCount(ctx context.Context, deviceId string) int
 }
 
 type ILogService interface {

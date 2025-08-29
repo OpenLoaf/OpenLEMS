@@ -157,3 +157,12 @@ func (a *SAlarmHistoryModel) GetCount(ctx context.Context) (int, error) {
 	}
 	return count, nil
 }
+
+// GetCountByDeviceId 根据设备ID获取告警历史表记录总数
+func (a *SAlarmHistoryModel) GetCountByDeviceId(ctx context.Context, deviceId string) (int, error) {
+	count, err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldDeviceId, deviceId).Count()
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

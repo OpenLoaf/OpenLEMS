@@ -179,23 +179,45 @@ func (s *sAlarmServiceImpl) ClearAllAlarmHistory(ctx context.Context) error {
 }
 
 // GetAlarmHistoryCount 获取告警历史表记录总数
-func (s *sAlarmServiceImpl) GetAlarmHistoryCount(ctx context.Context) int {
-	cacheKey := "history_count"
+func (s *sAlarmServiceImpl) GetAlarmHistoryCount(ctx context.Context, deviceId string) int {
+	var cacheKey string
+	if deviceId == "" {
+		cacheKey = "history_count_all"
+	} else {
+		cacheKey = "history_count_" + deviceId
+	}
 
 	// 优先从缓存获取
 	cachedCount, err := s.countCache.Get(ctx, cacheKey)
 	if err == nil && cachedCount != nil {
 		if count := cachedCount.Int(); count != 0 || cachedCount.String() != "" {
-			g.Log().Debugf(ctx, "从缓存获取告警历史总数 - 总数: %d", count)
+			if deviceId == "" {
+				g.Log().Debugf(ctx, "从缓存获取所有告警历史总数 - 总数: %d", count)
+			} else {
+				g.Log().Debugf(ctx, "从缓存获取设备[%s]告警历史总数 - 总数: %d", deviceId, count)
+			}
 			return count
 		}
 	}
 
 	// 缓存未命中，从数据库获取
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
-	count, err := alarmHistory.GetCount(ctx)
+	var count int
+
+	if deviceId == "" {
+		// 获取所有记录总数
+		count, err = alarmHistory.GetCount(ctx)
+	} else {
+		// 获取指定设备记录总数
+		count, err = alarmHistory.GetCountByDeviceId(ctx, deviceId)
+	}
+
 	if err != nil {
-		g.Log().Errorf(ctx, "获取告警历史表记录总数失败 - 错误: %+v", err)
+		if deviceId == "" {
+			g.Log().Errorf(ctx, "获取告警历史表记录总数失败 - 错误: %+v", err)
+		} else {
+			g.Log().Errorf(ctx, "获取设备[%s]告警历史表记录总数失败 - 错误: %+v", deviceId, err)
+		}
 		return 0
 	}
 
@@ -205,7 +227,11 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryCount(ctx context.Context) int {
 		g.Log().Warningf(ctx, "设置告警历史总数缓存失败 - 错误: %+v", err)
 	}
 
-	g.Log().Debugf(ctx, "从数据库获取告警历史总数并缓存 - 总数: %d", count)
+	if deviceId == "" {
+		g.Log().Debugf(ctx, "从数据库获取所有告警历史总数并缓存 - 总数: %d", count)
+	} else {
+		g.Log().Debugf(ctx, "从数据库获取设备[%s]告警历史总数并缓存 - 总数: %d", deviceId, count)
+	}
 	return count
 }
 
@@ -338,23 +364,45 @@ func (s *sAlarmServiceImpl) GetAlarmIgnorePage(ctx context.Context, page, pageSi
 }
 
 // GetAlarmIgnoreCount 获取告警忽略表记录总数
-func (s *sAlarmServiceImpl) GetAlarmIgnoreCount(ctx context.Context) int {
-	cacheKey := "ignore_count"
+func (s *sAlarmServiceImpl) GetAlarmIgnoreCount(ctx context.Context, deviceId string) int {
+	var cacheKey string
+	if deviceId == "" {
+		cacheKey = "ignore_count_all"
+	} else {
+		cacheKey = "ignore_count_" + deviceId
+	}
 
 	// 优先从缓存获取
 	cachedCount, err := s.countCache.Get(ctx, cacheKey)
 	if err == nil && cachedCount != nil {
 		if count := cachedCount.Int(); count != 0 || cachedCount.String() != "" {
-			g.Log().Debugf(ctx, "从缓存获取告警忽略总数 - 总数: %d", count)
+			if deviceId == "" {
+				g.Log().Debugf(ctx, "从缓存获取所有告警忽略总数 - 总数: %d", count)
+			} else {
+				g.Log().Debugf(ctx, "从缓存获取设备[%s]告警忽略总数 - 总数: %d", deviceId, count)
+			}
 			return count
 		}
 	}
 
 	// 缓存未命中，从数据库获取
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
-	count, err := alarmIgnore.GetCount(ctx)
+	var count int
+
+	if deviceId == "" {
+		// 获取所有记录总数
+		count, err = alarmIgnore.GetCount(ctx)
+	} else {
+		// 获取指定设备记录总数
+		count, err = alarmIgnore.GetCountByDeviceId(ctx, deviceId)
+	}
+
 	if err != nil {
-		g.Log().Errorf(ctx, "获取告警忽略表记录总数失败 - 错误: %+v", err)
+		if deviceId == "" {
+			g.Log().Errorf(ctx, "获取告警忽略表记录总数失败 - 错误: %+v", err)
+		} else {
+			g.Log().Errorf(ctx, "获取设备[%s]告警忽略表记录总数失败 - 错误: %+v", deviceId, err)
+		}
 		return 0
 	}
 
@@ -364,6 +412,10 @@ func (s *sAlarmServiceImpl) GetAlarmIgnoreCount(ctx context.Context) int {
 		g.Log().Warningf(ctx, "设置告警忽略总数缓存失败 - 错误: %+v", err)
 	}
 
-	g.Log().Debugf(ctx, "从数据库获取告警忽略总数并缓存 - 总数: %d", count)
+	if deviceId == "" {
+		g.Log().Debugf(ctx, "从数据库获取所有告警忽略总数并缓存 - 总数: %d", count)
+	} else {
+		g.Log().Debugf(ctx, "从数据库获取设备[%s]告警忽略总数并缓存 - 总数: %d", deviceId, count)
+	}
 	return count
 }

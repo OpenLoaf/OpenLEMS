@@ -142,3 +142,12 @@ func (a *SAlarmIgnoreModel) GetCount(ctx context.Context) (int, error) {
 	}
 	return count, nil
 }
+
+// GetCountByDeviceId 根据设备ID获取告警忽略表记录总数
+func (a *SAlarmIgnoreModel) GetCountByDeviceId(ctx context.Context, deviceId string) (int, error) {
+	count, err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldDeviceId, deviceId).Count()
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
+}

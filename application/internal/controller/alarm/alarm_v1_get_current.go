@@ -78,8 +78,8 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 	// 3) 返回分页数据（Total 为命中条目总数）
 	return &v1.GetCurrentAlarmsRes{
 		Total:        matchIndex,
-		HistoryTotal: s_db.GetAlarmService().GetAlarmHistoryCount(ctx),
-		IgnoreTotal:  s_db.GetAlarmService().GetAlarmIgnoreCount(ctx),
+		HistoryTotal: s_db.GetAlarmService().GetAlarmHistoryCount(ctx, req.DeviceId),
+		IgnoreTotal:  s_db.GetAlarmService().GetAlarmIgnoreCount(ctx, req.DeviceId),
 		Items:        items,
 	}, nil
 }
