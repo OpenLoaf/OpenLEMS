@@ -79,7 +79,7 @@ func (c *ControllerV1) CreateAlarmIgnore(ctx context.Context, req *v1.CreateAlar
 	if ignored {
 		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
-	if err := svc.CreateAlarmIgnore(ctx, req.DeviceId, req.SourceDeviceId, req.Point); err != nil {
+	if err := svc.CreateAlarmIgnore(ctx, req.DeviceId, req.SourceDeviceId, req.Point, req.PointName); err != nil {
 		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
 
@@ -144,6 +144,7 @@ func (c *ControllerV1) GetAlarmIgnore(ctx context.Context, req *v1.GetAlarmIgnor
 			SourceDeviceId:   r.SourceDeviceId,
 			SourceDeviceName: common.GetDeviceManager().GetDeviceNameById(r.SourceDeviceId),
 			Point:            r.Point,
+			PointName:        r.PointName,
 			CreatedAt:        r.CreatedAt,
 		})
 	}

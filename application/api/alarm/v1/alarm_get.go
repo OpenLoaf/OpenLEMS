@@ -12,7 +12,7 @@ type GetCurrentAlarmsReq struct {
 	g.Meta   `path:"/alarm/current" method:"get" tags:"告警" summary:"获取当前告警分页列表"`
 	DeviceId string `json:"deviceId" dc:"可选，指定设备ID；为空则查询全部"`
 	Level    string `json:"level" v:"in:NONE,WARN,ALARM,ERROR,ALL" dc:"告警级别过滤(可空/为ALL返回全部)"`
-	Point    string `json:"point" dc:"可选，告警点位名称过滤"`
+	Point    string `json:"point" dc:"可选，告警点位过滤"`
 	Page     int    `json:"page" d:"1" dc:"页码，从1开始"`
 	PageSize int    `json:"pageSize" d:"20" dc:"每页条数(最大100)"`
 }
@@ -22,7 +22,8 @@ type CurrentAlarmItem struct {
 	SourceDeviceName string     `json:"sourceDeviceName" dc:"源设备名称"`
 	DeviceId         string     `json:"deviceId" dc:"设备ID"`
 	DeviceName       string     `json:"deviceName" dc:"设备名称"`
-	Point            string     `json:"point" dc:"告警点位名称"`
+	Point            string     `json:"point" dc:"告警点位"`
+	PointName        string     `json:"pointName" dc:"告警点位名称"`
 	Level            string     `json:"level" dc:"告警级别"`
 	Title            string     `json:"title" dc:"告警标题"`
 	Detail           string     `json:"detail" dc:"告警详情"`

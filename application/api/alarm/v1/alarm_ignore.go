@@ -13,6 +13,7 @@ type CreateAlarmIgnoreReq struct {
 	DeviceId       string `json:"deviceId" v:"required" dc:"设备ID"`
 	SourceDeviceId string `json:"sourceDeviceId" dc:"源设备ID"`
 	Point          string `json:"point" v:"required" dc:"告警点位名称"`
+	PointName      string `json:"pointName" dc:"点位名称"`
 }
 
 type CreateAlarmIgnoreRes struct{}
@@ -44,7 +45,8 @@ type AlarmIgnoreItem struct {
 	DeviceName       string     `json:"deviceName" dc:"设备名称"`
 	SourceDeviceId   string     `json:"sourceDeviceId" dc:"源告警设备ID"`
 	SourceDeviceName string     `json:"sourceDeviceName" dc:"源设备名称"`
-	Point            string     `json:"point" dc:"告警点位名称"`
+	Point            string     `json:"point" dc:"告警点位"`
+	PointName        string     `json:"pointName" dc:"告警点位名称"`
 	CreatedAt        *time.Time `json:"createdAt" dc:"创建时间"`
 }
 

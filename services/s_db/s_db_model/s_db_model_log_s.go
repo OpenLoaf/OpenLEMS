@@ -21,10 +21,10 @@ type SLogModel struct {
 	g.Meta    `orm:"table:log"`
 	Id        int        `json:"id" orm:"id,primary,auto_increment"`
 	Type      string     `json:"type" orm:"type"`
-	DeviceId  string     `json:"device_id" orm:"device_id"`
+	DeviceId  string     `json:"deviceId" orm:"device_id"`
 	Level     string     `json:"level" orm:"level"`
 	Content   string     `json:"content" orm:"content"`
-	CreatedAt *time.Time `json:"created_at" orm:"created_at,auto_now_add"`
+	CreatedAt *time.Time `json:"createdAt" orm:"created_at,auto_now_add"`
 }
 
 // Create 创建日志记录

@@ -211,12 +211,13 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryCount(ctx context.Context) int {
 // ==================== 告警忽略相关方法 ====================
 
 // CreateAlarmIgnore 创建告警忽略记录
-func (s *sAlarmServiceImpl) CreateAlarmIgnore(ctx context.Context, deviceId, sourceDeviceId, point string) error {
+func (s *sAlarmServiceImpl) CreateAlarmIgnore(ctx context.Context, deviceId, sourceDeviceId, point, pointName string) error {
 	now := time.Now()
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{
 		DeviceId:       deviceId,
 		SourceDeviceId: sourceDeviceId,
 		Point:          point,
+		PointName:      pointName,
 		CreatedAt:      &now,
 	}
 

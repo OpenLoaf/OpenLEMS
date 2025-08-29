@@ -30,7 +30,7 @@ type SProtocolModel struct {
 	Type     string `json:"type" orm:"type"`
 	Address  string `json:"address" orm:"address"`
 	Timeout  int64  `json:"timeout" orm:"timeout"`
-	LogLevel string `json:"log_level" orm:"log_level"`
+	LogLevel string `json:"logLevel" orm:"log_level"`
 	// 在sqlite中以json字符串形式存储设备参数
 	Params  string `json:"params" orm:"params"`
 	Sort    int    `json:"sort" orm:"sort"`

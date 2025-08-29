@@ -41,7 +41,7 @@ type IAlarmService interface {
 	GetAlarmHistoryCount(ctx context.Context) int
 
 	// 告警忽略相关方法
-	CreateAlarmIgnore(ctx context.Context, deviceId, sourceDeviceId, point string) error
+	CreateAlarmIgnore(ctx context.Context, deviceId, sourceDeviceId, point, pointName string) error
 	GetAlarmIgnoreByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmIgnoreModel, error)
 	IsAlarmIgnored(ctx context.Context, deviceId, sourceDeviceId, point string) (bool, error)
 	DeleteAlarmIgnoreByDeviceId(ctx context.Context, deviceId string) error

@@ -26,6 +26,6 @@ const ( // 特殊值
 
 type SDatabaseBasic struct {
 	Id        string      `json:"id,omitempty" orm:"id"` // 设备ID
-	CreatedAt *gtime.Time `json:"created_at" orm:"created_at"`
-	UpdatedAt *gtime.Time `json:"updated_at" orm:"updated_at"`
+	CreatedAt *gtime.Time `json:"createdAt" orm:"created_at"`
+	UpdatedAt *gtime.Time `json:"updatedAt" orm:"updated_at"`
 }

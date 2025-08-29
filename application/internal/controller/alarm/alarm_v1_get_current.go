@@ -64,6 +64,7 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 				SourceDeviceId:   alarm.DeviceId,
 				SourceDeviceName: config.Name,
 				Point:            alarm.Meta.Name,
+				PointName:        alarm.Meta.Cn,
 				Level:            alarm.Level.String(),
 				Title:            alarm.Meta.Cn,
 				Detail:           fmt.Sprintf("[%s]触发！值为: %v", alarm.Meta.Cn, alarm.Value),
