@@ -28,7 +28,7 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 	items := make([]*v1.CurrentAlarmItem, 0, pageSize)
 	matchIndex := 0 // 记录过滤后命中的全局索引，用于 Total 与分页
 
-	common.GetDeviceManager().IteratorAllDevices(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
+	common.GetDeviceManager().IteratorChildDevicesById(req.DeviceId, func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
 		if device == nil {
 			return true
 		}
@@ -37,12 +37,6 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 			return true
 		}
 		for _, alarm := range alarmList {
-			// 过滤条件
-
-			if req.DeviceId != "" && (alarm.DeviceId == req.DeviceId || config.Id == req.DeviceId) {
-				continue
-			}
-
 			if req.Level != "" && req.Level != "ALL" && !strings.EqualFold(alarm.Level.String(), req.Level) {
 				continue
 			}

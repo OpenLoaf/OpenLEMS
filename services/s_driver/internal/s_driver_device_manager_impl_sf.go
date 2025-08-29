@@ -95,9 +95,10 @@ func (m *SDeviceManager) IteratorAllDevices(deviceWrapper func(config *c_base.SD
 	}
 }
 
-// IteratorDevicesById 按设备ID遍历该设备及所有子设备
+// IteratorChildDevicesById 按设备ID遍历该设备及所有子设备
 func (m *SDeviceManager) IteratorChildDevicesById(deviceId string, iterator func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
 	if deviceId == "" || iterator == nil {
+		m.IteratorAllDevices(iterator)
 		return
 	}
 	start := m.GetDeviceConfigById(deviceId)
