@@ -31,8 +31,8 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 	if req.Point != "" {
 		filters["point"] = req.Point
 	}
-	if req.Title != "" {
-		filters["title"] = req.Title
+	if req.PointName != "" {
+		filters["title"] = req.PointName
 	}
 	if req.Date != "" {
 		filters["date"] = req.Date
@@ -53,7 +53,7 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 			SourceDeviceName: common.GetDeviceManager().GetDeviceNameById(r.SourceDeviceId),
 			Point:            r.Point,
 			Level:            r.Level,
-			Title:            r.PointName,
+			PointName:        r.PointName,
 			Detail:           r.Detail,
 			TriggerAt:        r.TriggerAt,
 			ClearAt:          r.ClearAt,

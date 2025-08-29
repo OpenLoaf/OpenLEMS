@@ -104,8 +104,8 @@ func initConfigDatabase() {
 			device_id VARCHAR(255) NOT NULL,
 			source_device_id VARCHAR(255) NOT NULL,
 			point VARCHAR(255) NOT NULL,
+			point_name VARCHAR(255) NOT NULL,
 			level VARCHAR(255) NOT NULL,
-			title VARCHAR(255) NOT NULL,
 			detail TEXT,
 			trigger_at DATETIME,
 			clear_at DATETIME DEFAULT CURRENT_TIMESTAMP
