@@ -7,7 +7,8 @@ import (
 )
 
 type GetDeviceTelemetryReq struct {
-	g.Meta `path:"/device/telemetry" method:"get" tags:"设备相关" summary:"获取所有设备的遥测信息"`
+	g.Meta   `path:"/device/telemetry" method:"get" tags:"设备相关" summary:"获取所有设备的遥测信息"`
+	DeviceId string `json:"deviceId" dc:"设备ID"`
 }
 
 type DeviceTelemetryData struct {

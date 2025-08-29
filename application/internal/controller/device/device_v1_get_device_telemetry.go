@@ -17,12 +17,8 @@ func (c *ControllerV1) GetDeviceTelemetry(ctx context.Context, req *v1.GetDevice
 	telemetry := make(map[string]*v1.DeviceTelemetryData)
 	alarmLevelMap := make(map[string]string)
 
-	common.GetDeviceManager().IteratorAllDevices(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
+	common.GetDeviceManager().IteratorChildDevicesById(req.DeviceId, func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
 		deviceId := config.Id
-		if deviceId == "" || config.DriverInfo == nil {
-			return true
-		}
-
 		if device == nil {
 			return true
 		}
