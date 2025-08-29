@@ -11,7 +11,17 @@ type sTimerPolicyImpl struct {
 
 func (s *sTimerPolicyImpl) Init() {
 
-	//s.RegisterMonitor()
+	s.RegisterMonitor(&c_base.SPolicyMonitor{
+		Name:     "充电",
+		Duration: nil,
+		Modes:    nil,
+		TriggerFunc: func() bool {
+			return true
+		},
+		HandleFunc: func() {
+
+		},
+	})
 
 }
 
