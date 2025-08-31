@@ -29,7 +29,7 @@ func (s *SGetProtocolCacheValueImpl) GetValue(meta *c_base.Meta) (any, error) {
 		return nil, err
 	}
 	if cacheValue == nil {
-		return nil, nil
+		return nil, errors.Errorf("cache value is empty")
 	}
 	metaValue := &c_base.MetaValue{}
 	err = cacheValue.Structs(metaValue)

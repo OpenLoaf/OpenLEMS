@@ -7,6 +7,7 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"context"
+	"net"
 	"os"
 	"p_tsdb"
 	"runtime"
@@ -34,6 +35,52 @@ const (
 )
 
 var MainCtx context.Context
+
+// getLocalIPv4Addrs 获取所有本地IPv4地址
+func getLocalIPv4Addrs() ([]string, error) {
+	var ipv4Addrs []string
+
+	// 获取所有网络接口
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, iface := range interfaces {
+		// 跳过down状态的接口
+		if iface.Flags&net.FlagUp == 0 {
+			continue
+		}
+
+		// 跳过loopback接口
+		if iface.Flags&net.FlagLoopback != 0 {
+			continue
+		}
+
+		// 获取接口的地址
+		addrs, err := iface.Addrs()
+		if err != nil {
+			continue
+		}
+
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+
+			// 只获取IPv4地址，且不是回环地址
+			if ip != nil && ip.To4() != nil && !ip.IsLoopback() {
+				ipv4Addrs = append(ipv4Addrs, ip.String())
+			}
+		}
+	}
+
+	return ipv4Addrs, nil
+}
 
 var (
 	Main = gcmd.Command{
@@ -123,12 +170,30 @@ var (
 					// 延迟一点时间，确保GoFrame先打印完路由信息
 					time.Sleep(100 * time.Millisecond)
 
+					// 获取所有IPv4地址
+					ipv4Addrs, err := getLocalIPv4Addrs()
+					if err != nil {
+						g.Log().Warningf(ctx, "获取IPv4地址失败: %v", err)
+						ipv4Addrs = []string{"localhost"}
+					}
+
 					// 打印服务器访问地址
 					g.Log().Infof(ctx, "==========================================")
 					g.Log().Infof(ctx, "🚀 EMS Web服务已启动！PID: %d", os.Getpid())
-					g.Log().Infof(ctx, "📡 服务器地址: http://localhost%s", serverAddress)
-					g.Log().Infof(ctx, "📖 API文档: http://localhost%s/api.json", serverAddress)
-					g.Log().Infof(ctx, "🔧 调试工具: http://localhost%s/debug", serverAddress)
+
+					// 打印所有IPv4地址的服务器访问地址
+					g.Log().Infof(ctx, "📡 服务器地址:")
+					for _, ip := range ipv4Addrs {
+						g.Log().Infof(ctx, "   http://%s%s", ip, serverAddress)
+					}
+
+					// 打印API文档和调试工具地址（使用第一个IPv4地址或localhost）
+					primaryIP := "localhost"
+					if len(ipv4Addrs) > 0 {
+						primaryIP = ipv4Addrs[0]
+					}
+					g.Log().Infof(ctx, "📖 API文档: http://%s%s/api.json", primaryIP, serverAddress)
+					g.Log().Infof(ctx, "🔧 调试工具: http://%s%s/debug", primaryIP, serverAddress)
 					g.Log().Infof(ctx, "==========================================")
 				}()
 
