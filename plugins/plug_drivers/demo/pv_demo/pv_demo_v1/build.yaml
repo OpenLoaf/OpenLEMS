@@ -1,10 +1,10 @@
 brand: HEX
 model: Demo
-type: ess
+type: pv
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-09-01"
-remark: "测试储能柜"
+remark: "测试光伏"
 telemetry:
   - name: status
     displayName: "状态"
@@ -13,26 +13,20 @@ telemetry:
       0: "未知|#FF5D5D"
       1: "关机|#9CBF30"
       2: "待机|#6967EE"
-      3: "充电中|#29A634"
-      4: "放电中|#0098FA"
+      4: "发电中|#0098FA"
       5: "故障|#FF5D5D"
-      6: "同步中|#FF5D5D"
-      7: "启动中|#FF5D5D"
-  - name: soc
-    unit: "%"
-    displayName: "SOC"
   - name: power
     unit: "kW"
-    displayName: "功率"
-  - name: historyIncomingQuantity
-    displayName: "历史充电量"
-    unit: "kWh"
-    remark: "历史充电量"
+    displayName: "发电功率"
+  - name: irradiance
+    displayName: "当前辐照度"
+    unit: "W/m²"
+  - name: temperature
+    displayName: "当前温度"
+    unit: "°C"
   - name: historyOutgoingQuantity
-    displayName: "历史放电量"
+    displayName: "历史发电量"
     unit: "kWh"
-    remark: "历史放电量"
-
 
 service:
   - name: CustomPowerZeroService

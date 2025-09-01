@@ -4,12 +4,15 @@
 package internal
 
 import (
+	"ammeter_demo/ammeter_demo_v1"
 	"bms_pylon_tech_us108/bms_pylon_tech_us108_v1"
 	"common/c_base"
 	"common/c_log"
 	"context"
 	"ess_demo/ess_demo_v1"
 	"github.com/pkg/errors"
+	"load_demo/load_demo_v1"
+	"pv_demo/pv_demo_v1"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
 	"starCharge100E_v1/pcs_star_charge_100E_v1"
@@ -27,12 +30,18 @@ var pluginNewMethodCache = map[string]any{
 	"ess_pylon_checkwatt_v1.0.0":  ess_pylon_checkwatt_v1.NewPlugin,
 	"pcs_star_charge_100E_v1.0.0": pcs_star_charge_100E_v1.NewPlugin,
 	"ess_demo_v1.0.0":             ess_demo_v1.NewPlugin,
+	"pv_demo_v1.0.0":              pv_demo_v1.NewPlugin,
+	"load_demo_v1.0.0":            load_demo_v1.NewPlugin,
+	"ammeter_demo_v1.0.0":         ammeter_demo_v1.NewPlugin,
 }
 var pluginDriverInfo = map[string]*c_base.SDriverInfo{
 	"bms_pylon_tech_us108_v1.0.0": bms_pylon_tech_us108_v1.GetDriverInfo(),
 	"ess_pylon_checkwatt_v1.0.0":  ess_pylon_checkwatt_v1.GetDriverInfo(),
 	"pcs_star_charge_100E_v1.0.0": pcs_star_charge_100E_v1.GetDriverInfo(),
 	"ess_demo_v1.0.0":             ess_demo_v1.GetDriverInfo(),
+	"pv_demo_v1.0.0":              pv_demo_v1.GetDriverInfo(),
+	"load_demo_v1.0.0":            load_demo_v1.GetDriverInfo(),
+	"ammeter_demo_v1.0.0":         ammeter_demo_v1.GetDriverInfo(),
 }
 
 func GetAllDriversInfo() map[string]*c_base.SDriverInfo {

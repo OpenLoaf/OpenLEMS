@@ -5,6 +5,7 @@ import (
 	"common/c_device"
 	"common/c_log"
 	"common/c_proto"
+	"common/c_status"
 	"time"
 
 	"github.com/pkg/errors"
@@ -31,7 +32,7 @@ func (s *sPcsStarCharge100E) Init() error {
 
 func (s *sPcsStarCharge100E) Shutdown() {
 	_ = s.SetPower(0)
-	_ = s.SetStatus(c_base.EPcsStatusOff)
+	_ = s.SetStatus(c_status.EPcsStatusOff)
 	c_log.Infof(s.DeviceCtx, "销毁成功,设置PCS状态为Off!")
 }
 
@@ -44,15 +45,15 @@ func (s *sPcsStarCharge100E) SetReset() error {
 	return nil
 }
 
-func (s *sPcsStarCharge100E) SetStatus(status c_base.EEnergyStoreStatus) error {
-	if status == c_base.EPcsStatusOff {
+func (s *sPcsStarCharge100E) SetStatus(status c_status.EEnergyStoreStatus) error {
+	if status == c_status.EPcsStatusOff {
 		_ = s.SetPower(0)
 
 		return s.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
 			return protocol.WriteSingleRegister(OnOffCommand, 0)
 		})
 	}
-	if status == c_base.EPcsStatusStandby {
+	if status == c_status.EPcsStatusStandby {
 		// 这里文档是 On/off command: 0- Shutdown, 1- Startup, 2- Standby
 		return s.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
 			return protocol.WriteSingleRegister(OnOffCommand, 1)
@@ -65,40 +66,40 @@ func (s *sPcsStarCharge100E) SetGridMode(mode c_base.EGridMode) error {
 	return errors.Errorf("sPcsStarCharge100E SetGridMode status not support!")
 }
 
-func (s *sPcsStarCharge100E) GetStatus() (c_base.EEnergyStoreStatus, error) {
+func (s *sPcsStarCharge100E) GetStatus() (c_status.EEnergyStoreStatus, error) {
 	v, err := s.GetFromProtocol(func(protocol c_proto.IModbusProtocol) (any, error) {
 		value, err := protocol.GetUintValue(InverterOperationStatus)
 		if err != nil {
-			return c_base.EPcsStatusUnknown, err
+			return c_status.EPcsStatusUnknown, err
 		}
 		switch value {
 		// 0 - Waiting for the machine to start, 1 - Power on self check, 2 - Grid connected operation, 3 - Off grid operation, 4 - Reserved, 5 - General error
 		case 0, 1:
 			// 等待设备启动算是关机的状态
-			return c_base.EPcsStatusOff, nil
+			return c_status.EPcsStatusOff, nil
 		case 2, 3:
 			// 离网并网运行中时，说明设备正常。获取功率，如果获取功率失败，说明设备故障，获取成功后正为放电，负为充电
 			power, err := s.GetPower()
 			if err != nil {
-				return c_base.EPcsStatusFault, err
+				return c_status.EPcsStatusFault, err
 			}
 			if power > 0 {
-				return c_base.EPcsStatusDischarge, nil
+				return c_status.EPcsStatusDischarge, nil
 			} else if power < 0 {
-				return c_base.EPcsStatusCharge, nil
+				return c_status.EPcsStatusCharge, nil
 			} else {
-				return c_base.EPcsStatusStandby, nil
+				return c_status.EPcsStatusStandby, nil
 			}
 		case 5:
-			return c_base.EPcsStatusFault, err
+			return c_status.EPcsStatusFault, err
 		}
-		return c_base.EPcsStatusFault, err
+		return c_status.EPcsStatusFault, err
 	})
 
 	if err != nil {
-		return c_base.EPcsStatusUnknown, err
+		return c_status.EPcsStatusUnknown, err
 	}
-	return v.(c_base.EEnergyStoreStatus), err
+	return v.(c_status.EEnergyStoreStatus), err
 }
 
 func (s *sPcsStarCharge100E) GetGridMode() (c_base.EGridMode, error) {

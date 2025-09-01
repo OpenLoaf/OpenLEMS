@@ -4,12 +4,13 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"common/c_proto"
+	"common/c_status"
 	"github.com/pkg/errors"
 	"p_base"
 )
 
 func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value int32) error {
-	if p.GetProtocolStatus() != c_base.EProtocolConnected {
+	if p.GetProtocolStatus() != c_status.EProtocolConnected {
 		return errors.Errorf("device %s connect is not activated", p.deviceId)
 	}
 
@@ -36,7 +37,7 @@ func (p *ModbusProtocolProvider) WriteSingleRegister(meta *c_base.Meta, value in
 }
 
 func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *c_proto.SModbusTask, values []int64) error {
-	if p.GetProtocolStatus() != c_base.EProtocolConnected {
+	if p.GetProtocolStatus() != c_status.EProtocolConnected {
 		return errors.Errorf("device %s connect is not activated", p.deviceId)
 	}
 	dataLength := group.Quantity

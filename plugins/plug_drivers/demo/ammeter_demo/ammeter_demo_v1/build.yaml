@@ -1,0 +1,28 @@
+brand: HEX
+model: Demo
+type: ammeter
+version: v1.0.0
+author: "zz@hexems.com"
+create: "2025-09-01"
+remark: "测试电表"
+telemetry:
+  - name: pTotal
+    unit: "kW"
+    displayName: "功率"
+  - name: frequency
+    displayName: "频率"
+  - name: pfTotal
+    displayName: "功率因素"
+  - name: historyIncomingQuantity
+    displayName: "正向总有功电能"
+    unit: "kWh"
+  - name: historyOutgoingQuantity
+    displayName: "反向总有功电能"
+    unit: "kWh"
+
+
+#service:
+#  - name: CustomPowerZeroService
+#    displayName: "零功率"
+#  - name:  CustomPowerRandomService
+#    displayName: "随机功率"

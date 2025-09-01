@@ -42,10 +42,10 @@ func initConfigDatabase() {
 			name VARCHAR(255) NOT NULL,
 			type VARCHAR(255) NOT NULL,
 			address VARCHAR(255) NOT NULL,
-			timeout INTEGER NOT NULL,
-			log_level VARCHAR(255) NOT NULL,
+			timeout INTEGER NOT NULL DEFAULT 30,
+			log_level VARCHAR(255) NOT NULL DEFAULT 'INFO',
 			sort INTEGER DEFAULT 0,
-			params TEXT,
+			params TEXT DEFAULT '{}',
 		    enable BOOLEAN DEFAULT 1,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
@@ -65,9 +65,9 @@ func initConfigDatabase() {
 			driver VARCHAR(255),
 			policy VARCHAR(255),
 			policy_params VARCHAR(255),
-			log_level VARCHAR(255),
+			log_level VARCHAR(255) DEFAULT 'INFO',
 			enabled BOOLEAN DEFAULT 1,
-			params TEXT,
+			params TEXT DEFAULT '{}',
 		    strategy VARCHAR(255),
 		    storage_enable BOOLEAN DEFAULT 1,
 			storage_interval_sec INTEGER NOT NULL DEFAULT 60,
@@ -105,9 +105,9 @@ func initConfigDatabase() {
 			source_device_id VARCHAR(255) NOT NULL,
 			point VARCHAR(255) NOT NULL,
 			point_name VARCHAR(255) NOT NULL,
-			level VARCHAR(255) NOT NULL,
+			level VARCHAR(255) NOT NULL ,
 			detail TEXT,
-			trigger_at DATETIME,
+			trigger_at DATETIME NOT NULL,
 			clear_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 	`)
@@ -137,7 +137,7 @@ func initConfigDatabase() {
 			type VARCHAR(255) NOT NULL,
 			device_id VARCHAR(255),
 			level VARCHAR(255) NOT NULL,
-			content TEXT,
+			content TEXT NOT NULL,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
 	`)

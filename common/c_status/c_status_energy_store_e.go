@@ -1,5 +1,5 @@
-//go:generate stringer -type=EEnergyStoreStatus -output=c_base_energy_store_status_e_string.go
-package c_base
+//go:generate stringer -type=EEnergyStoreStatus -output=c_status_energy_store_e_string.go
+package c_status
 
 type EEnergyStoreStatus int // 储能状态（PCS状态）
 

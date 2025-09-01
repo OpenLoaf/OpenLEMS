@@ -4,6 +4,7 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"common/c_proto"
+	"common/c_status"
 	"fmt"
 	"github.com/pkg/errors"
 	"p_base"
@@ -26,7 +27,7 @@ func (p *ModbusProtocolProvider) ReadSingleSync(meta *c_base.Meta, function c_pr
 		return vr, nil
 	}
 
-	if p.GetProtocolStatus() != c_base.EProtocolConnected {
+	if p.GetProtocolStatus() != c_status.EProtocolConnected {
 		return nil, errors.New("当前连接未连接，无法查询数据")
 	}
 

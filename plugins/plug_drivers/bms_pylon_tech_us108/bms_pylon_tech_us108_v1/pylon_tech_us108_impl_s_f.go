@@ -4,13 +4,12 @@ import (
 	"common/c_device"
 	"common/c_log"
 	"common/c_proto"
+	"common/c_status"
 	"common/c_type"
 	"math"
 	"time"
 
 	"github.com/pkg/errors"
-
-	"common/c_base"
 
 	"github.com/shockerli/cvt"
 )
@@ -272,7 +271,7 @@ func (p *sBmsPylonTechUs108) startWriteTimeTask() {
 				c_log.Debugf(p.DeviceCtx, "startWriteTimeTask() 关闭!")
 				return
 			case <-ticker.C:
-				if p.GetProtocolStatus() != c_base.EProtocolConnected {
+				if p.GetProtocolStatus() != c_status.EProtocolConnected {
 					continue
 				}
 				_ = p._syncTime()

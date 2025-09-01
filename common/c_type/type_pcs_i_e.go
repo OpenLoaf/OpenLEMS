@@ -1,13 +1,16 @@
 package c_type
 
-import "common/c_base"
+import (
+	"common/c_base"
+	"common/c_status"
+)
 
 type IPcsBasic interface {
-	SetReset() error                                  // 复位
-	SetStatus(status c_base.EEnergyStoreStatus) error // 设置状态(开机、关机、待机、充电、放电、故障、同步中
-	SetGridMode(mode c_base.EGridMode) error          // 设置电网状态
-	GetStatus() (c_base.EEnergyStoreStatus, error)    // 状态
-	GetGridMode() (c_base.EGridMode, error)           // 电网状态
+	SetReset() error                                    // 复位
+	SetStatus(status c_status.EEnergyStoreStatus) error // 设置状态(开机、关机、待机、充电、放电、故障、同步中
+	SetGridMode(mode c_base.EGridMode) error            // 设置电网状态
+	GetStatus() (c_status.EEnergyStoreStatus, error)    // 状态
+	GetGridMode() (c_base.EGridMode, error)             // 电网状态
 
 	SetPower(power int32) error             // 设置有功功率
 	SetReactivePower(power int32) error     // 设置无功功率

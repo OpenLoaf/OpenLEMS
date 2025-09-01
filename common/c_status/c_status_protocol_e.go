@@ -1,5 +1,5 @@
-//go:generate stringer -type=EProtocolStatus -trimprefix=EProtocol -output=c_base_protocol_status_e_string.go
-package c_base
+//go:generate stringer -type=EProtocolStatus -trimprefix=EProtocol -output=c_status_protocol_e_string.go
+package c_status
 
 type EProtocolStatus int // 连接状态
 const (

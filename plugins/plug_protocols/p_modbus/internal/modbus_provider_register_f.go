@@ -4,6 +4,7 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"common/c_proto"
+	"common/c_status"
 	"context"
 	"github.com/pkg/errors"
 	"time"
@@ -78,7 +79,7 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 					return
 				case <-tk.C:
 					// 如果没有连接，就延迟3秒后再执行下个周期
-					if p.GetProtocolStatus() != c_base.EProtocolConnected {
+					if p.GetProtocolStatus() != c_status.EProtocolConnected {
 						time.Sleep(3 * time.Second)
 						continue
 					}
@@ -107,7 +108,7 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 					// 这里等待一个周期(也就是跳过一个周期)exit
 					//time.Sleep(cycle)
 					// 如果没有连接，就延迟3秒后再执行下个周期
-					if p.GetProtocolStatus() != c_base.EProtocolConnected {
+					if p.GetProtocolStatus() != c_status.EProtocolConnected {
 						time.Sleep(3 * time.Second)
 						continue
 					}

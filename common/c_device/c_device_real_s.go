@@ -2,6 +2,7 @@ package c_device
 
 import (
 	"common/c_base"
+	"common/c_status"
 	"context"
 	"github.com/pkg/errors"
 	"time"
@@ -79,9 +80,9 @@ func (s *SRealDeviceImpl[P]) RegisterAlarmHandlerFunc(alarmAction c_base.EAlarmA
 	s.protocol.RegisterAlarmHandlerFunc(alarmAction, handler)
 }
 
-func (s *SRealDeviceImpl[P]) GetProtocolStatus() c_base.EProtocolStatus {
+func (s *SRealDeviceImpl[P]) GetProtocolStatus() c_status.EProtocolStatus {
 	if s.isProtocolNil() {
-		return c_base.EProtocolDisconnected
+		return c_status.EProtocolDisconnected
 	}
 	return s.protocol.GetProtocolStatus()
 }

@@ -4,6 +4,7 @@ import (
 	"common/c_base"
 	"common/c_device"
 	"common/c_proto"
+	"common/c_status"
 	"context"
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/frame/g"
@@ -91,14 +92,14 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 
 	return provider, nil
 }
-func (p *ModbusProtocolProvider) GetProtocolStatus() c_base.EProtocolStatus {
+func (p *ModbusProtocolProvider) GetProtocolStatus() c_status.EProtocolStatus {
 	if p.client == nil {
-		return c_base.EProtocolDisconnected
+		return c_status.EProtocolDisconnected
 	}
 	if p.client.IsConnected() {
-		return c_base.EProtocolConnected
+		return c_status.EProtocolConnected
 	}
-	return c_base.EProtocolConnecting
+	return c_status.EProtocolConnecting
 }
 func (p *ModbusProtocolProvider) GetLastUpdateTime() *time.Time {
 	return p.lastUpdateTime

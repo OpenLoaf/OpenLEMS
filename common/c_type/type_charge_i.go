@@ -7,9 +7,9 @@ type IChargeBasic interface {
 	SetReactivePower(power float64) error // 设置无功功率
 	SetPowerFactor(factor float32) error  // 设置功率因数
 
-	GetTargetPower() float64         // 获取目标有功功率
-	GetTargetReactivePower() float64 // 获取目标无功功率
-	GetTargetPowerFactor() float32   // 获取目标功率因数
+	GetTargetPower() (float64, error)         // 获取目标有功功率
+	GetTargetReactivePower() (float64, error) // 获取目标无功功率
+	GetTargetPowerFactor() (float32, error)   // 获取目标功率因数
 
 	GetPower() (float64, error)         // 有功功率
 	GetApparentPower() (float64, error) // 视在功率

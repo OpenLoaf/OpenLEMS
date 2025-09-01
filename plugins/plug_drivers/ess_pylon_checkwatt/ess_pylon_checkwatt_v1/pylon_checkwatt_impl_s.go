@@ -5,6 +5,7 @@ import (
 	"common/c_device"
 	"common/c_func"
 	"common/c_log"
+	"common/c_status"
 	"common/c_type"
 	"github.com/pkg/errors"
 	"github.com/shockerli/cvt"
@@ -39,7 +40,7 @@ func (p *sEssPylonCheckwatt) Init() error {
 
 func (p *sEssPylonCheckwatt) Shutdown() {
 	_ = p.SetPower(0)
-	_ = p.SetStatus(c_base.EPcsStatusOff)
+	_ = p.SetStatus(c_status.EPcsStatusOff)
 }
 
 func (p *sEssPylonCheckwatt) SetReset() error {
@@ -212,8 +213,8 @@ func (p *sEssPylonCheckwatt) GetHistoryOutgoingQuantity() (float64, error) {
 	})
 }
 
-func (p *sEssPylonCheckwatt) SetStatus(status c_base.EEnergyStoreStatus) error {
-	if status == c_base.EPcsStatusUnknown || status == c_base.EPcsStatusSync || status == c_base.EPcsStatusFault {
+func (p *sEssPylonCheckwatt) SetStatus(status c_status.EEnergyStoreStatus) error {
+	if status == c_status.EPcsStatusUnknown || status == c_status.EPcsStatusSync || status == c_status.EPcsStatusFault {
 		return errors.New("参数错误")
 	}
 	bmsStatus, err := p.GetBmsStatus()
@@ -256,11 +257,11 @@ func (p *sEssPylonCheckwatt) SetGridMode(mode c_base.EGridMode) error {
 	})
 }
 
-func (p *sEssPylonCheckwatt) GetStatus() (c_base.EEnergyStoreStatus, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (c_base.EEnergyStoreStatus, error) {
+func (p *sEssPylonCheckwatt) GetStatus() (c_status.EEnergyStoreStatus, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (c_status.EEnergyStoreStatus, error) {
 		return device.GetStatus()
-	}, func(values []any) (c_base.EEnergyStoreStatus, error) {
-		return c_func.EqualAggregate[c_base.EEnergyStoreStatus](values)
+	}, func(values []any) (c_status.EEnergyStoreStatus, error) {
+		return c_func.EqualAggregate[c_status.EEnergyStoreStatus](values)
 	})
 }
 

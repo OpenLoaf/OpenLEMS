@@ -3,6 +3,7 @@ package c_device
 import (
 	"common"
 	"common/c_base"
+	"common/c_status"
 	"common/c_type"
 	"context"
 	"github.com/pkg/errors"
@@ -42,8 +43,8 @@ func (s *SVirtualDeviceImpl) Reset() error {
 	return nil
 }
 
-func (s *SVirtualDeviceImpl) GetProtocolStatus() c_base.EProtocolStatus {
-	return c_base.EProtocolConnected
+func (s *SVirtualDeviceImpl) GetProtocolStatus() c_status.EProtocolStatus {
+	return c_status.EProtocolConnected
 }
 
 func (s *SVirtualDeviceImpl) GetMetaValueList() []*c_base.MetaValueWrapper {
