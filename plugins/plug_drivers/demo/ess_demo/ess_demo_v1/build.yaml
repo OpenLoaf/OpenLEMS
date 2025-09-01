@@ -24,21 +24,6 @@ telemetry:
   - name: power
     unit: "kW"
     displayName: "功率"
-  - name: targetPower
-    unit: "kW"
-    displayName: "目标功率"
-  - name: apparentPower
-    unit: "kVA"
-    displayName: "视在功率"
-  - name: reactivePower
-    unit: "kVar"
-    displayName: "无功功率"
-  - name: todayIncomingQuantity
-    unit: "kWh"
-    displayName: "当日充电量"
-  - name: todayOutgoingQuantity
-    displayName: "当日放电量"
-    unit: "kWh"
   - name: historyIncomingQuantity
     displayName: "历史充电量"
     unit: "kWh"

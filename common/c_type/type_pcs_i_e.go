@@ -9,15 +9,15 @@ type IPcsBasic interface {
 	GetStatus() (c_base.EEnergyStoreStatus, error)    // 状态
 	GetGridMode() (c_base.EGridMode, error)           // 电网状态
 
-	SetPower(power int32) error          // 设置有功功率
-	SetReactivePower(power int32) error  // 设置无功功率
-	SetPowerFactor(factor float32) error // 设置功率因数
-	GetTargetPower() int32               // 获取目标有功功率
-	GetTargetReactivePower() int32       // 获取目标无功功率
-	GetTargetPowerFactor() float32       // 获取目标功率因数
-	GetPower() (float64, error)          // 有功功率
-	GetApparentPower() (float64, error)  // 视在功率
-	GetReactivePower() (float64, error)  // 无功功率
+	SetPower(power int32) error             // 设置有功功率
+	SetReactivePower(power int32) error     // 设置无功功率
+	SetPowerFactor(factor float32) error    // 设置功率因数
+	GetTargetPower() (int32, error)         // 获取目标有功功率
+	GetTargetReactivePower() (int32, error) // 获取目标无功功率
+	GetTargetPowerFactor() (float32, error) // 获取目标功率因数
+	GetPower() (float64, error)             // 有功功率
+	GetApparentPower() (float64, error)     // 视在功率
+	GetReactivePower() (float64, error)     // 无功功率
 
 	GetRatedPower() (uint32, error)      // 额定功率， -1代表未知
 	GetMaxInputPower() (float32, error)  // 最大充电功率、最大输入功率限制

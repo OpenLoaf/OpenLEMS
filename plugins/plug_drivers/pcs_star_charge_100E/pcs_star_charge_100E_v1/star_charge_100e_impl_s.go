@@ -125,16 +125,16 @@ func (s *sPcsStarCharge100E) SetPowerFactor(factor float32) error {
 	return nil
 }
 
-func (s *sPcsStarCharge100E) GetTargetPower() int32 {
-	return s.targetPower
+func (s *sPcsStarCharge100E) GetTargetPower() (int32, error) {
+	return s.targetPower, nil
 }
 
-func (s *sPcsStarCharge100E) GetTargetReactivePower() int32 {
-	return s.targetReactivePower
+func (s *sPcsStarCharge100E) GetTargetReactivePower() (int32, error) {
+	return s.targetReactivePower, nil
 }
 
-func (s *sPcsStarCharge100E) GetTargetPowerFactor() float32 {
-	return -1
+func (s *sPcsStarCharge100E) GetTargetPowerFactor() (float32, error) {
+	return -1, nil
 }
 
 func (s *sPcsStarCharge100E) GetPower() (float64, error) {

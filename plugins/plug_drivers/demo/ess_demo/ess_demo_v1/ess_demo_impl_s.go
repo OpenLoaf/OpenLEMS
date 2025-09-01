@@ -18,7 +18,8 @@ func (s *sEssDemo) Init() error {
 }
 
 func (s *sEssDemo) Shutdown() {
-
+	_ = s.SetPower(0)
+	_ = s.SetStatus(c_base.EPcsStatusOff)
 }
 
 func (s *sEssDemo) GetCellMinTemp() (float32, error) {
@@ -128,72 +129,56 @@ func (s *sEssDemo) SetPowerFactor(factor float32) error {
 	return c_base.NotSupport
 }
 
-func (s *sEssDemo) GetTargetPower() int32 {
-	targetPower, err := s.GetFromPointInt32(TargetPower)
-	if err != nil {
-		return 0
-	}
-	return targetPower
+func (s *sEssDemo) GetTargetPower() (int32, error) {
+	return s.GetFromPointInt32(TargetPower)
 }
 
-func (s *sEssDemo) GetTargetReactivePower() int32 {
-	//TODO implement me
-	panic("implement me")
+func (s *sEssDemo) GetTargetReactivePower() (int32, error) {
+	return 0, c_base.NotSupport
 }
 
-func (s *sEssDemo) GetTargetPowerFactor() float32 {
-	//TODO implement me
-	panic("implement me")
+func (s *sEssDemo) GetTargetPowerFactor() (float32, error) {
+	return 0, c_base.NotSupport
 }
 
 func (s *sEssDemo) GetPower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFromPointFloat64(Power)
 }
 
 func (s *sEssDemo) GetApparentPower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return 0, c_base.NotSupport
 }
 
 func (s *sEssDemo) GetReactivePower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return 0, c_base.NotSupport
 }
 
 func (s *sEssDemo) GetRatedPower() (uint32, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFromPointUint32(PowerCapacity)
 }
 
 func (s *sEssDemo) GetMaxInputPower() (float32, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFromPointFloat32(MaxChargePower)
 }
 
 func (s *sEssDemo) GetMaxOutputPower() (float32, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFromPointFloat32(MaxDischargePower)
 }
 
 func (s *sEssDemo) GetTodayIncomingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return 0, c_base.NotSupport
 }
 
 func (s *sEssDemo) GetHistoryIncomingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFromPointFloat64(ConsumedEnergy)
 }
 
 func (s *sEssDemo) GetTodayOutgoingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return 0, c_base.NotSupport
 }
 
 func (s *sEssDemo) GetHistoryOutgoingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+	return s.GetFromPointFloat64(ConsumedEnergy)
 }
 
 func (s *sEssDemo) GetFireEnvTemperature() (float64, error) {
@@ -205,5 +190,5 @@ func (s *sEssDemo) GetCarbonMonoxideConcentration() (float64, error) {
 }
 
 func (s *sEssDemo) HasSmoke() (bool, error) {
-	return false, nil
+	return false, c_base.NotSupport
 }

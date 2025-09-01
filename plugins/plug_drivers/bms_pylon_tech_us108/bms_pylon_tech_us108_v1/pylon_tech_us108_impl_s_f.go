@@ -171,15 +171,11 @@ func (p *sBmsPylonTechUs108) GetDcPower() (float64, error) {
 }
 
 func (p *sBmsPylonTechUs108) GetDcVoltage() (float64, error) {
-	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetFloat64Value(DCVoltage)
-	})
+	return p.GetFromPointFloat64(DCVoltage)
 }
 
 func (p *sBmsPylonTechUs108) GetDcCurrent() (float64, error) {
-	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetFloat64Value(DCCurrent)
-	})
+	return p.GetFromPointFloat64(DCCurrent)
 }
 
 func (p *sBmsPylonTechUs108) GetCellMinTemp() (float32, error) {

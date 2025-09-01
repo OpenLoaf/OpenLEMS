@@ -310,16 +310,16 @@ func (p *sEssPylonCheckwatt) SetPowerFactor(factor float32) error {
 	})
 }
 
-func (p *sEssPylonCheckwatt) GetTargetPower() int32 {
-	return p.targetPower
+func (p *sEssPylonCheckwatt) GetTargetPower() (int32, error) {
+	return p.targetPower, nil
 }
 
-func (p *sEssPylonCheckwatt) GetTargetReactivePower() int32 {
-	return p.targetReactivePower
+func (p *sEssPylonCheckwatt) GetTargetReactivePower() (int32, error) {
+	return p.targetReactivePower, nil
 }
 
-func (p *sEssPylonCheckwatt) GetTargetPowerFactor() float32 {
-	return p.targetPowerFactor
+func (p *sEssPylonCheckwatt) GetTargetPowerFactor() (float32, error) {
+	return p.targetPowerFactor, nil
 }
 
 func (p *sEssPylonCheckwatt) GetPower() (float64, error) {
