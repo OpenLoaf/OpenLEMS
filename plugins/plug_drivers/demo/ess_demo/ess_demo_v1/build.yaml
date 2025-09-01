@@ -32,3 +32,10 @@ telemetry:
     displayName: "历史放电量"
     unit: "kWh"
     remark: "历史放电量"
+
+
+service:
+  - name: CustomPowerZeroService
+    displayName: "零功率"
+  - name:  CustomPowerRandomService
+    displayName: "随机功率"

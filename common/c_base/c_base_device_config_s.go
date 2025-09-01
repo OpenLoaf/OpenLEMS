@@ -75,7 +75,7 @@ func (s *SDeviceConfig) GetAllTelemetry(instance IDevice) map[string]any {
 	return s.DriverInfo.GetAllTelemetry(instance)
 }
 
-func (s *SDeviceConfig) ExecuteCustomService(functionName string, instance any, params any) error {
+func (s *SDeviceConfig) ExecuteCustomService(functionName string, instance IDevice, params any) error {
 	if s.DriverInfo == nil {
 		return nil
 	}
