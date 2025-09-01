@@ -5,8 +5,9 @@ import (
 	"common/c_device"
 	"common/c_log"
 	"common/c_proto"
-	"github.com/pkg/errors"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type sPcsStarCharge100E struct {
@@ -137,21 +138,15 @@ func (s *sPcsStarCharge100E) GetTargetPowerFactor() float32 {
 }
 
 func (s *sPcsStarCharge100E) GetPower() (float64, error) {
-	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(TotalActivePowerInverterSide)
-	})
+	return s.GetFromPointFloat64(TotalActivePowerInverterSide)
 }
 
 func (s *sPcsStarCharge100E) GetApparentPower() (float64, error) {
-	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(TotalApparentPowerInverterSide)
-	})
+	return s.GetFromPointFloat64(TotalApparentPowerInverterSide)
 }
 
 func (s *sPcsStarCharge100E) GetReactivePower() (float64, error) {
-	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(TotalReactivePowerInverterSide)
-	})
+	return s.GetFromPointFloat64(TotalReactivePowerInverterSide)
 }
 
 func (s *sPcsStarCharge100E) GetRatedPower() (uint32, error) {

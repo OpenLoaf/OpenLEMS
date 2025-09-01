@@ -5,9 +5,10 @@ import (
 	"common/c_log"
 	"common/c_proto"
 	"common/c_type"
-	"github.com/pkg/errors"
 	"math"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"common/c_base"
 
@@ -149,15 +150,11 @@ func (p *sBmsPylonTechUs108) SetBmsStatus(status c_type.EBmsStatus) error {
 }
 
 func (p *sBmsPylonTechUs108) GetSoc() (float32, error) {
-	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(SOC)
-	})
+	return p.GetFromPointFloat32(SOC)
 }
 
 func (p *sBmsPylonTechUs108) GetSoh() (float32, error) {
-	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(SOH)
-	})
+	return p.GetFromPointFloat32(SOH)
 }
 
 func (p *sBmsPylonTechUs108) GetDcPower() (float64, error) {
@@ -186,15 +183,11 @@ func (p *sBmsPylonTechUs108) GetDcCurrent() (float64, error) {
 }
 
 func (p *sBmsPylonTechUs108) GetCellMinTemp() (float32, error) {
-	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(BatteryCellMinTemp)
-	})
+	return p.GetFromPointFloat32(BatteryCellMinTemp)
 }
 
 func (p *sBmsPylonTechUs108) GetCellMaxTemp() (float32, error) {
-	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(BatteryCellMaxTemp)
-	})
+	return p.GetFromPointFloat32(BatteryCellMaxTemp)
 }
 
 func (p *sBmsPylonTechUs108) GetCellAvgTemp() (float32, error) {
@@ -210,15 +203,11 @@ func (p *sBmsPylonTechUs108) GetCellAvgTemp() (float32, error) {
 }
 
 func (p *sBmsPylonTechUs108) GetCellMinVoltage() (float32, error) {
-	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(BatteryCellMinVoltage)
-	})
+	return p.GetFromPointFloat32(BatteryCellMinVoltage)
 }
 
 func (p *sBmsPylonTechUs108) GetCellMaxVoltage() (float32, error) {
-	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(BatteryCellMaxVoltage)
-	})
+	return p.GetFromPointFloat32(BatteryCellMaxVoltage)
 }
 
 func (p *sBmsPylonTechUs108) GetCellAvgVoltage() (float32, error) {
@@ -234,9 +223,7 @@ func (p *sBmsPylonTechUs108) GetCellAvgVoltage() (float32, error) {
 }
 
 func (p *sBmsPylonTechUs108) GetCycleCount() (uint, error) {
-	return p.GetFromProtocolUint(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(CycleCount)
-	})
+	return p.GetFromPointUint(CycleCount)
 }
 
 func (p *sBmsPylonTechUs108) GetTodayIncomingQuantity() (float64, error) {

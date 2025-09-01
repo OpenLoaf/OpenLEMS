@@ -4,6 +4,7 @@ import (
 	"common/c_base"
 	"common/c_device"
 	"common/c_proto"
+
 	"github.com/shockerli/cvt"
 )
 
@@ -128,9 +129,7 @@ func (s *sEssDemo) SetPowerFactor(factor float32) error {
 }
 
 func (s *sEssDemo) GetTargetPower() int32 {
-	targetPower, err := s.GetFromProtocolInt32(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(TargetPower)
-	})
+	targetPower, err := s.GetFromPointInt32(TargetPower)
 	if err != nil {
 		return 0
 	}
