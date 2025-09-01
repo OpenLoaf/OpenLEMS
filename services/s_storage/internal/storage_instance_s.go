@@ -96,7 +96,7 @@ func (s *SStorageManager) RegisterDriver(deviceConfig *c_base.SDeviceConfig) {
 			// 保存数据
 			instance := common.GetDeviceManager().GetDeviceById(deviceId)
 			if instance == nil {
-				c_log.BizErrorf(s.ctx, "设备历史数据存储服务启动失败，设备[%s]未找到实例", deviceId)
+				c_log.BizDebugf(s.ctx, "设备历史数据存储服务启动失败，设备[%s]未找到实例", deviceId)
 				return
 			}
 			dc := common.GetDeviceManager().GetDeviceConfigById(deviceId)

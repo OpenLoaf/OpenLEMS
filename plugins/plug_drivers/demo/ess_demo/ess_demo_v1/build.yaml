@@ -1,0 +1,49 @@
+brand: Hexems
+model: Demo
+type: ess
+version: v1.0.0
+author: "zz@hexems.com"
+create: "2025-09-01"
+remark: "测试储能柜"
+telemetry:
+  - name: status
+    displayName: "状态"
+    type: label
+    mapping:
+      0: "未知|#FF5D5D"
+      1: "关机|#9CBF30"
+      2: "待机|#6967EE"
+      3: "充电中|#29A634"
+      4: "放电中|#0098FA"
+      5: "故障|#FF5D5D"
+      6: "同步中|#FF5D5D"
+      7: "启动中|#FF5D5D"
+  - name: soc
+    unit: "%"
+    displayName: "SOC"
+  - name: power
+    unit: "kW"
+    displayName: "功率"
+  - name: targetPower
+    unit: "kW"
+    displayName: "目标功率"
+  - name: apparentPower
+    unit: "kVA"
+    displayName: "视在功率"
+  - name: reactivePower
+    unit: "kVar"
+    displayName: "无功功率"
+  - name: todayIncomingQuantity
+    unit: "kWh"
+    displayName: "当日充电量"
+  - name: todayOutgoingQuantity
+    displayName: "当日放电量"
+    unit: "kWh"
+  - name: historyIncomingQuantity
+    displayName: "历史充电量"
+    unit: "kWh"
+    remark: "历史充电量"
+  - name: historyOutgoingQuantity
+    displayName: "历史放电量"
+    unit: "kWh"
+    remark: "历史放电量"

@@ -7,6 +7,11 @@ use (
 	./plugins/plug_drivers/bms_pylon_tech_us108
 	./plugins/plug_drivers/ess_pylon_checkwatt
 	./plugins/plug_drivers/pcs_star_charge_100E
+	./plugins/plug_drivers/demo/ammeter_demo
+	./plugins/plug_drivers/demo/ess_demo
+	./plugins/plug_drivers/demo/load_demo
+	./plugins/plug_drivers/demo/pv_demo
+
 	./plugins/plug_protocols/p_base
 	./plugins/plug_protocols/p_canbus
 	./plugins/plug_protocols/p_modbus

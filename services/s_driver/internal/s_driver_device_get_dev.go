@@ -8,6 +8,7 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"context"
+	"ess_demo/ess_demo_v1"
 	"github.com/pkg/errors"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
@@ -25,11 +26,13 @@ var pluginNewMethodCache = map[string]any{
 	"bms_pylon_tech_us108_v1.0.0": bms_pylon_tech_us108_v1.NewPlugin,
 	"ess_pylon_checkwatt_v1.0.0":  ess_pylon_checkwatt_v1.NewPlugin,
 	"pcs_star_charge_100E_v1.0.0": pcs_star_charge_100E_v1.NewPlugin,
+	"ess_demo_v1.0.0":             ess_demo_v1.NewPlugin,
 }
 var pluginDriverInfo = map[string]*c_base.SDriverInfo{
 	"bms_pylon_tech_us108_v1.0.0": bms_pylon_tech_us108_v1.GetDriverInfo(),
 	"ess_pylon_checkwatt_v1.0.0":  ess_pylon_checkwatt_v1.GetDriverInfo(),
 	"pcs_star_charge_100E_v1.0.0": pcs_star_charge_100E_v1.GetDriverInfo(),
+	"ess_demo_v1.0.0":             ess_demo_v1.GetDriverInfo(),
 }
 
 func GetAllDriversInfo() map[string]*c_base.SDriverInfo {

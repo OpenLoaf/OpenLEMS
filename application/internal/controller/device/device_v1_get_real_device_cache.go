@@ -9,20 +9,18 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/gogf/gf/v2/errors/gcode"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
 func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error) {
 	if common.GetDeviceManager().Status() == c_base.EStateInit {
 		// 系统还在初始化中
-		return nil, nil
+		return &v1.GetRealDeviceCacheRes{}, nil
 	}
 
 	device := common.GetDeviceManager().GetDeviceById(req.DeviceId)
 	if device == nil {
-		return nil, gerror.NewCode(gcode.CodeNotFound)
+		return &v1.GetRealDeviceCacheRes{}, nil
 	}
 
 	groupCacheMap := make(map[string]*entity.SSingleDeviceGroup)

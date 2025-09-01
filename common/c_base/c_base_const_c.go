@@ -1,6 +1,7 @@
 package c_base
 
 import (
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -32,3 +33,5 @@ const (
 )
 
 const DefaultCacheLifeTime = 10 * time.Second
+
+var NotSupport = errors.New("function not support") // 不支持的方法
