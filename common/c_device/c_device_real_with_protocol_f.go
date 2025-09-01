@@ -1,6 +1,8 @@
 package c_device
 
 import (
+	"common/c_base"
+
 	"github.com/pkg/errors"
 
 	"github.com/shockerli/cvt"
@@ -119,6 +121,119 @@ func (s *SRealDeviceImpl[P]) GetFromProtocolFloat32(fc func(protocol P) (any, er
 
 func (s *SRealDeviceImpl[P]) GetFromProtocolFloat64(fc func(protocol P) (any, error)) (float64, error) {
 	v, err := s.GetFromProtocol(fc)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Float64E(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPoint(point *c_base.Meta) (any, error) {
+	return s.GetFromProtocol(func(protocol P) (any, error) {
+		return protocol.GetValue(point)
+	})
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointBool(point *c_base.Meta) (bool, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return false, err
+	}
+	return cvt.BoolE(v)
+}
+
+// 整数类型函数
+func (s *SRealDeviceImpl[P]) GetFromPointInt(point *c_base.Meta) (int, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.IntE(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointInt8(point *c_base.Meta) (int8, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Int8E(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointInt16(point *c_base.Meta) (int16, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Int16E(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointInt32(point *c_base.Meta) (int32, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Int32E(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointInt64(point *c_base.Meta) (int64, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Int64E(v)
+}
+
+// 无符号整数类型函数
+func (s *SRealDeviceImpl[P]) GetFromPointUint(point *c_base.Meta) (uint, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.UintE(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointUint8(point *c_base.Meta) (uint8, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Uint8E(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointUint16(point *c_base.Meta) (uint16, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Uint16E(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointUint32(point *c_base.Meta) (uint32, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Uint32E(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointUint64(point *c_base.Meta) (uint64, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Uint64E(v)
+}
+
+// 浮点数类型函数
+func (s *SRealDeviceImpl[P]) GetFromPointFloat32(point *c_base.Meta) (float32, error) {
+	v, err := s.GetFromPoint(point)
+	if err != nil {
+		return 0, err
+	}
+	return cvt.Float32E(v)
+}
+
+func (s *SRealDeviceImpl[P]) GetFromPointFloat64(point *c_base.Meta) (float64, error) {
+	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
 	}

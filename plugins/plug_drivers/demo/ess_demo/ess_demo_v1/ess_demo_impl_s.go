@@ -45,9 +45,7 @@ func (s *sEssDemo) GetCellAvgVoltage() (float32, error) {
 }
 
 func (s *sEssDemo) GetSoc() (float32, error) {
-	return s.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(SOC)
-	})
+	return s.GetFromPointFloat32(SOC)
 }
 
 func (s *sEssDemo) GetSoh() (float32, error) {
@@ -55,9 +53,7 @@ func (s *sEssDemo) GetSoh() (float32, error) {
 }
 
 func (s *sEssDemo) GetCapacity() (uint32, error) {
-	return s.GetFromProtocolUint32(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetValue(EnergyCapacity)
-	})
+	return s.GetFromPointUint32(EnergyCapacity)
 }
 
 func (s *sEssDemo) GetCycleCount() (uint, error) {
