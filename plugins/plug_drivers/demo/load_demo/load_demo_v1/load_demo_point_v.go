@@ -9,7 +9,7 @@ import (
 var (
 	Status      = &c_base.Meta{Name: "Status", Cn: "设备状态字", Addr: 0x012C, ReadType: c_base.RInt16}
 	Power       = &c_base.Meta{Name: "Power", Cn: "当前功率", Addr: 0x012D, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
-	Energy      = &c_base.Meta{Name: "Energy", Cn: "累计用电量", Addr: 0x012E, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kWh"}
+	Energy      = &c_base.Meta{Name: "Energy", Cn: "累计用电量", Addr: 0x012E, ReadType: c_base.RUint16, Factor: 0.1, Unit: "kWh"}
 	MaxLoad     = &c_base.Meta{Name: "MaxLoad", Cn: "最大负荷", Addr: 0x012F, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
 	PowerFactor = &c_base.Meta{Name: "PowerFactor", Cn: "功率因数", Addr: 0x0130, ReadType: c_base.RInt16, Factor: 0.01}
 	LoadRate    = &c_base.Meta{Name: "LoadRate", Cn: "当前负荷率", Addr: 0x0131, ReadType: c_base.RInt16, Factor: 0.1, Unit: "%"}

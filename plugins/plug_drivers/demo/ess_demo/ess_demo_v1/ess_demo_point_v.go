@@ -39,8 +39,8 @@ var (
 	}}
 	Power             = &c_base.Meta{Name: "Power", Cn: "功率", Addr: 0xC9, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
 	SOC               = &c_base.Meta{Name: "SOC", Cn: "当前SOC", Addr: 0xCA, ReadType: c_base.RInt16, Factor: 0.1, Unit: "%"}
-	GeneratedEnergy   = &c_base.Meta{Name: "GeneratedEnergy", Cn: "累计放电量", Addr: 0xCB, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kWh"}
-	ConsumedEnergy    = &c_base.Meta{Name: "ConsumedEnergy", Cn: "累计用电量", Addr: 0xCC, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kWh"}
+	GeneratedEnergy   = &c_base.Meta{Name: "GeneratedEnergy", Cn: "累计放电量", Addr: 0xCB, ReadType: c_base.RUint16, Factor: 0.1, Unit: "kWh"}
+	ConsumedEnergy    = &c_base.Meta{Name: "ConsumedEnergy", Cn: "累计用电量", Addr: 0xCC, ReadType: c_base.RUint16, Factor: 0.1, Unit: "kWh"}
 	MaxChargePower    = &c_base.Meta{Name: "MaxChargePower", Cn: "最大允许充电功率", Addr: 0xCD, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
 	MaxDischargePower = &c_base.Meta{Name: "MaxDischargePower", Cn: "最大允许放电功率", Addr: 0xCE, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
 	DeviceControl     = &c_base.Meta{Name: "DeviceControl", Cn: "设备状态控制", Addr: 0xCF, ReadType: c_base.RInt16, StatusExplain: func(value any) string {

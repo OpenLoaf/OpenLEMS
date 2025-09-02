@@ -33,8 +33,8 @@ var (
 	TotalActivePower    = &c_base.Meta{Name: "TotalActivePower", Cn: "总有功功率", Addr: 0x01A0, ReadType: c_base.RInt16, SystemType: c_base.SFloat32, Factor: 0.1, Unit: "kW"}
 	TotalReactivePower  = &c_base.Meta{Name: "TotalReactivePower", Cn: "总无功功率", Addr: 0x01A1, ReadType: c_base.RInt16, SystemType: c_base.SFloat32, Factor: 0.1, Unit: "kVar"}
 	TotalApparentPower  = &c_base.Meta{Name: "TotalApparentPower", Cn: "总视在功率", Addr: 0x01A2, ReadType: c_base.RInt16, SystemType: c_base.SFloat32, Factor: 0.1, Unit: "kVA"}
-	ForwardActiveEnergy = &c_base.Meta{Name: "ForwardActiveEnergy", Cn: "正向有功电量", Addr: 0x01A3, ReadType: c_base.RInt16, SystemType: c_base.SFloat32, Factor: 0.01, Unit: "kWh"}
-	ReverseActiveEnergy = &c_base.Meta{Name: "ReverseActiveEnergy", Cn: "反向有功电量", Addr: 0x01A4, ReadType: c_base.RInt16, SystemType: c_base.SFloat32, Factor: 0.01, Unit: "kWh"}
+	ForwardActiveEnergy = &c_base.Meta{Name: "ForwardActiveEnergy", Cn: "正向有功电量", Addr: 0x01A3, ReadType: c_base.RUint16, SystemType: c_base.SFloat32, Factor: 0.01, Unit: "kWh"}
+	ReverseActiveEnergy = &c_base.Meta{Name: "ReverseActiveEnergy", Cn: "反向有功电量", Addr: 0x01A4, ReadType: c_base.RUint16, SystemType: c_base.SFloat32, Factor: 0.01, Unit: "kWh"}
 
 	// System parameters
 	Frequency        = &c_base.Meta{Name: "Frequency", Cn: "频率", Addr: 0x01A5, ReadType: c_base.RInt16, SystemType: c_base.SFloat32, Factor: 0.01, Unit: "Hz"}

@@ -22,5 +22,6 @@ use (
 	./services/s_driver
 	./services/s_storage
 
-	plugins/plug_policy/p_timer_policy
+	./plugins/plug_policy/p_policy_timer
+	./plugins/plug_policy/p_policy_mircogrid
 )

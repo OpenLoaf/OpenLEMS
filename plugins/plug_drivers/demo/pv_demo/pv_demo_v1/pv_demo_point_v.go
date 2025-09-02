@@ -12,7 +12,7 @@ var (
 	// 根据规格表定义光伏设备点表
 	Status          = &c_base.Meta{Name: "Status", Cn: "设备状态字", Addr: 0x0064, ReadType: c_base.RInt16}
 	Power           = &c_base.Meta{Name: "Power", Cn: "当前功率", Addr: 0x0065, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
-	GeneratedEnergy = &c_base.Meta{Name: "GeneratedEnergy", Cn: "累计发电量", Addr: 0x0066, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kWh"}
+	GeneratedEnergy = &c_base.Meta{Name: "GeneratedEnergy", Cn: "累计发电量", Addr: 0x0066, ReadType: c_base.RUint16, Factor: 0.1, Unit: "kWh"}
 	OnOffState      = &c_base.Meta{Name: "OnOffState", Cn: "开机状态", Addr: 0x0067, ReadType: c_base.RInt16, Factor: 0.1, StatusExplain: func(value any) string {
 		if v, err := cvt.Uint8E(value); err == nil {
 			switch v {
