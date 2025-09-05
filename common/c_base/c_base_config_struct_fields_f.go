@@ -132,27 +132,29 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 		}
 
 		if unit := field.Tag.Get("unit"); unit != "" {
-			fieldConfig.Unit = unit
+			fieldConfig.Unit = &unit
 		}
 
 		// 解析数值范围限制标签
 		if minStr := field.Tag.Get("min"); minStr != "" {
-			fieldConfig.Min = cvt.Uint8(minStr)
+			minVal := cvt.Uint8(minStr)
+			fieldConfig.Min = &minVal
 		}
 		if maxStr := field.Tag.Get("max"); maxStr != "" {
-			fieldConfig.Max = cvt.Uint8(maxStr)
+			maxVal := cvt.Uint8(maxStr)
+			fieldConfig.Max = &maxVal
 		}
 		// 解析默认值标签
 		if defaultVal := field.Tag.Get("default"); defaultVal != "" {
-			fieldConfig.Default = defaultVal
+			fieldConfig.Default = &defaultVal
 		}
 		// 解析正则表达式验证标签
 		if regex := field.Tag.Get("regex"); regex != "" {
-			fieldConfig.Regex = regex
+			fieldConfig.Regex = &regex
 		}
 		// 解析正则表达式失败提示信息标签
 		if regexFailedMsg := field.Tag.Get("regexFailedMessage"); regexFailedMsg != "" {
-			fieldConfig.RegexFailedMessage = regexFailedMsg
+			fieldConfig.RegexFailedMessage = &regexFailedMsg
 		}
 		// 解析选择项配置标签
 		if selectOptions := field.Tag.Get("selectOptions"); selectOptions != "" {
