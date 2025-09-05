@@ -11,6 +11,7 @@ type UpdateDeviceReq struct {
 	LogLevel   string `json:"logLevel" v:"required"  dc:"日志等级"`
 	Enabled    bool   `json:"enabled"  v:"required" dc:"是否启用"`
 	Sort       int    `json:"sort" v:"required"  dc:"排序"`
+	Params     string `json:"params" dc:"参数"`
 }
 
 type UpdateDeviceRes struct {
