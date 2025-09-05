@@ -175,6 +175,7 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 }
 
 // getFieldTypeInfo 根据反射类型自动推断组件类型和值类型
+// 支持指针类型，会自动获取指针指向的原始数据类型
 // 参数：
 //   - fieldType: 字段的反射类型
 //
@@ -183,14 +184,20 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 //   - string: 值类型
 //
 // 类型映射规则：
-//   - string -> text组件, string值类型
-//   - int/int8/int16/int32/int64 -> number组件, int值类型
-//   - uint/uint8/uint16/uint32/uint64 -> number组件, int值类型
-//   - float32/float64 -> number组件, float值类型
-//   - bool -> switch组件, bool值类型
+//   - string/*string -> text组件, string值类型
+//   - int/int8/int16/int32/int64/*int/*int8/*int16/*int32/*int64 -> number组件, int值类型
+//   - uint/uint8/uint16/uint32/uint64/*uint/*uint8/*uint16/*uint32/*uint64 -> number组件, int值类型
+//   - float32/float64/*float32/*float64 -> number组件, float值类型
+//   - bool/*bool -> switch组件, bool值类型
 //   - 其他类型 -> text组件, string值类型(默认)
 func getFieldTypeInfo(fieldType reflect.Type) (EConfigFieldsComponentType, string) {
-	switch fieldType.Kind() {
+	// 处理指针类型，获取指针指向的原始类型
+	originalType := fieldType
+	if fieldType.Kind() == reflect.Ptr {
+		originalType = fieldType.Elem()
+	}
+
+	switch originalType.Kind() {
 	case reflect.String:
 		return EConfigFieldsComponentTypeText, "string"
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
