@@ -4,8 +4,9 @@ import (
 	"common/c_base"
 	"common/c_status"
 	"context"
-	"github.com/pkg/errors"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type SRealDeviceImpl[P c_base.IProtocol] struct { // 真实设备
@@ -52,11 +53,11 @@ func (s *SRealDeviceImpl[P]) GetAlarmList() []*c_base.MetaValueWrapper {
 	return s.protocol.GetAlarmList()
 }
 
-func (s *SRealDeviceImpl[P]) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType, meta *c_base.Meta, value any) {
+func (s *SRealDeviceImpl[P]) UpdateAlarm(deviceId string, meta *c_base.Meta, value any) {
 	if s.isProtocolNil() {
 		return
 	}
-	s.protocol.UpdateAlarm(deviceId, deviceType, meta, value)
+	s.protocol.UpdateAlarm(deviceId, meta, value)
 }
 
 func (s *SRealDeviceImpl[P]) ResetAlarm() {

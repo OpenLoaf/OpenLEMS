@@ -56,7 +56,7 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr uint16, l
 		vars := p_base.MetaTransformModbus(meta, value)
 		vars, err = p_base.CacheValue(p.ctx, p.deviceId, p.deviceType, p, meta, vars, p.cache, lifetime)
 
-		p.UpdateAlarm(p.deviceId, p.deviceType, meta, vars)
+		p.UpdateAlarm(p.deviceId, meta, vars)
 
 		if err != nil {
 			message := fmt.Sprintf("[%s-%s] %v;", groupName, meta.Name, err)

@@ -16,6 +16,7 @@ func (c *ControllerV1) GetDeviceTelemetry(ctx context.Context, req *v1.GetDevice
 
 	telemetry := make(map[string]*v1.DeviceTelemetryData)
 	alarmLevelMap := make(map[string]string)
+	protocolStatus := make(map[string]string)
 
 	common.GetDeviceManager().IteratorChildDevicesById(req.DeviceId, func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
 		deviceId := config.Id
@@ -23,18 +24,22 @@ func (c *ControllerV1) GetDeviceTelemetry(ctx context.Context, req *v1.GetDevice
 			return true
 		}
 
-		telemetry[deviceId] = &v1.DeviceTelemetryData{
-			LastUpdateTime:  device.GetLastUpdateTime(),
-			TelemetryValues: config.DriverInfo.GetAllTelemetry(device),
+		if values := config.DriverInfo.GetAllTelemetry(device); len(values) > 0 {
+			telemetry[deviceId] = &v1.DeviceTelemetryData{
+				LastUpdateTime:  device.GetLastUpdateTime(),
+				TelemetryValues: values,
+			}
 		}
 
 		alarmLevelMap[deviceId] = device.GetAlarmLevel().String()
+		protocolStatus[deviceId] = device.GetProtocolStatus().String()
 
 		return true
 	})
 
 	return &v1.GetDeviceTelemetryRes{
-		AlarmLevelMap: alarmLevelMap,
-		Telemetry:     telemetry,
+		ProtocolStatus: protocolStatus,
+		AlarmLevelMap:  alarmLevelMap,
+		Telemetry:      telemetry,
 	}, nil
 }

@@ -5,9 +5,10 @@ import (
 	"common"
 	"common/c_log"
 	"context"
+	"s_db"
+
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"s_db"
 )
 
 func (c *ControllerV1) EnableDevice(ctx context.Context, req *v1.EnableDeviceReq) (res *v1.EnableDeviceRes, err error) {

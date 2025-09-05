@@ -124,7 +124,7 @@ func (s *sAlarmImpl) IgnoreClearAlarm(deviceId string, point string) {
 	}
 }
 
-func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType, meta *c_base.Meta, value any) {
+func (s *sAlarmImpl) UpdateAlarm(deviceId string, meta *c_base.Meta, value any) {
 	if meta == nil {
 		c_log.Errorf(s.ctx, "告警元数据不能为空")
 		return
@@ -166,13 +166,14 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	var alarmAction c_base.EAlarmAction
 	var alarm *c_base.MetaValueWrapper
 
-	alarmDeviceName := common.GetDeviceManager().GetDeviceNameById(deviceId)
+	deviceConfig := common.GetDeviceManager().GetDeviceConfigById(deviceId)
+	alarmDeviceName := deviceConfig.Name
 
 	if isCurrentlyTriggered {
 		// 当前需要触发告警
 		alarm = &c_base.MetaValueWrapper{
 			DeviceId:   deviceId,
-			DeviceType: deviceType,
+			DeviceType: deviceConfig.GetType(),
 			Level:      meta.Level,
 			Meta:       meta,
 			Value:      value,
@@ -254,7 +255,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, deviceType c_base.EDeviceType,
 	parentDevice := common.GetDeviceManager().GetDeviceById(s.parentDeviceId)
 	if parentDevice != nil {
 		// 新开一个协程去通知父节点告警, 注意这里传递的还是告警设备的deviceId
-		go parentDevice.UpdateAlarm(deviceId, deviceType, meta, value)
+		go parentDevice.UpdateAlarm(deviceId, meta, value)
 	}
 
 }

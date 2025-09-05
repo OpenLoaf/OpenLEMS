@@ -106,6 +106,8 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 						continue
 					}
 
+					// todo 此处需要获取所有使用到该协议的设备，都触发连接断开警告
+
 					// 计算当前重连间隔
 					if reconnectCount < len(reconnectIntervals) {
 						currentInterval = reconnectIntervals[reconnectCount]
