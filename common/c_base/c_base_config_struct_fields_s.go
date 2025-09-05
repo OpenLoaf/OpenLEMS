@@ -13,7 +13,7 @@ type SConfigStructFields struct {
 	Group              string                     `json:"group"`
 	ValueType          string                     `json:"valueType" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
 	ComponentType      EConfigFieldsComponentType `json:"componentType" dc:"组件类型" required:"true"`
-	Step               *float32                   `json:"setup" required:"true" default:"1" dc:"步长（小步长）"`
+	Step               *float32                   `json:"step" required:"true" default:"1" dc:"步长（小步长）"`
 	Required           bool                       `json:"required" required:"true" dc:"是否必填"`
 	Unit               *string                    `json:"unit" dc:"单位"`
 	Min                *int64                     `json:"min"`
