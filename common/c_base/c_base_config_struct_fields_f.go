@@ -10,6 +10,7 @@ import (
 )
 
 // BuildConfigStructFields 通过反射解析结构体字段，构建配置字段列表
+// 支持嵌套结构体的平铺展开，包括匿名嵌入字段
 // 支持的标签字段：
 //   - json: JSON序列化字段名，必需标签，格式如 "fieldName" 或 "fieldName,omitempty"
 //   - name: 字段显示名称，优先级高于desc和json字段名
@@ -19,13 +20,19 @@ import (
 //   - min: 最小值限制，仅对数值类型有效
 //   - max: 最大值限制，仅对数值类型有效
 //   - default: 默认值
+//   - unit: 单位信息
 //   - regex: 正则表达式验证规则
 //   - regexFailedMessage: 正则表达式验证失败时的提示信息
 //   - selectOptions: 选择项配置，格式为 "key1:value1,key2:value2"，用于单选和多选组件
 //
 // 示例：
 //
+//	type BaseConfig struct {
+//	    UnitId uint8 `json:"unitId" name:"ModbusID" min:"1" max:"255" default:"1"`
+//	}
+//
 //	type Config struct {
+//	    BaseConfig                    // 匿名嵌入，字段会被平铺展开
 //	    Name string `json:"name" name:"设备名称" desc:"设备的显示名称" ct:"text" vt:"string" regex:"^[a-zA-Z0-9_-]+$" regexFailedMessage:"只能包含字母、数字、下划线和连字符"`
 //	    Port int    `json:"port" name:"端口号" desc:"设备通信端口" ct:"number" vt:"int" min:"1" max:"65535" default:"8080"`
 //	    Enable bool `json:"enable" name:"启用状态" desc:"是否启用设备" ct:"switch" vt:"bool" default:"true"`
@@ -43,12 +50,27 @@ func BuildConfigStructFields(config any) ([]*SConfigStructFields, error) {
 		return nil, errors.New("not struct")
 	}
 
-	t := v.Type()
+	return buildConfigStructFieldsRecursive(v.Type(), "")
+}
+
+// buildConfigStructFieldsRecursive 递归处理结构体字段，支持嵌套结构体的平铺展开
+func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([]*SConfigStructFields, error) {
 	var fields []*SConfigStructFields
 
-	for i := 0; i < v.NumField(); i++ {
-		field := t.Field(i)
+	for i := 0; i < structType.NumField(); i++ {
+		field := structType.Field(i)
 		if !field.IsExported() {
+			continue
+		}
+
+		// 处理匿名嵌入字段（嵌套结构体）
+		if field.Anonymous {
+			// 递归处理嵌入的结构体
+			embeddedFields, err := buildConfigStructFieldsRecursive(field.Type, prefix)
+			if err != nil {
+				return nil, err
+			}
+			fields = append(fields, embeddedFields...)
 			continue
 		}
 
@@ -62,6 +84,11 @@ func BuildConfigStructFields(config any) ([]*SConfigStructFields, error) {
 		jsonName := strings.Split(jsonTag, ",")[0]
 		if jsonName == "" {
 			jsonName = field.Name
+		}
+
+		// 如果有前缀，则组合字段名
+		if prefix != "" {
+			jsonName = prefix + "." + jsonName
 		}
 
 		// 获取描述信息，优先使用dc标签，其次使用desc标签
