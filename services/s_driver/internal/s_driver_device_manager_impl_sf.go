@@ -187,7 +187,7 @@ func (m *SDeviceManager) Start() {
 		// 设置协议配置
 		deviceConfig.ProtocolConfig = protocolConfigMap[deviceConfig.ProtocolId]
 		// 添加驱动信息
-		//deviceConfig.DriverInfo, _ = GetDriverInfo(deviceConfig.Driver)
+		deviceConfig.DriverInfo, _ = GetDriverInfo(deviceConfig.Driver)
 	}
 
 	// 构建树形结构
@@ -198,11 +198,11 @@ func (m *SDeviceManager) Start() {
 		c_log.BizInfof(m.ctx, "加载设备：[%s] 准备初始化！", deviceConfig.Name)
 
 		if deviceConfig.Enabled == false {
-			c_log.BizInfof(m.ctx, "设备[%s]未启用！", deviceConfig.Name)
+			c_log.BizWarningf(m.ctx, "设备[%s]未启用！", deviceConfig.Name)
 			return
 		}
 		if deviceConfig.DriverInfo == nil {
-			c_log.BizInfof(m.ctx, "设备[%s]驱动未找到！", deviceConfig.Name)
+			c_log.BizErrorf(m.ctx, "设备[%s]驱动未找到！", deviceConfig.Name)
 			// todo 虚拟节点启动失败的话，子节点都需要关机 （可以做成全局参数）
 			return
 		}

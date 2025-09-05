@@ -76,6 +76,7 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			t.ProtocolAddress = protocolConfig.Address
 			t.ConfigFields = []*c_base.SConfigFields{}
 			switch protocolConfig.GetProtocol() {
+			// 添加modbus的设备配置
 			case c_base.EModbusTcp, c_base.EModbusRtu:
 				fields := p_modbus.GetModbusDeviceConfigFields()
 				if fields != nil {
