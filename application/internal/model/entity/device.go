@@ -68,22 +68,27 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			t.DriverTelemetry = driverInfo.Telemetry
 			t.DriverService = driverInfo.Service
 			t.DriverType = string(driverInfo.Type)
+
+			if driverInfo.GetConfigStructFields() != nil {
+				t.ConfigFields = driverInfo.GetConfigStructFields()
+			}
 		}
 		protocolConfig := record.ProtocolConfig
 		if protocolConfig != nil {
 			t.ProtocolName = protocolConfig.Name
 			t.ProtocolType = string(protocolConfig.Type)
 			t.ProtocolAddress = protocolConfig.Address
-			t.ConfigFields = make([]*c_base.SConfigStructFields, 0)
-			switch protocolConfig.GetProtocol() {
-			// 添加modbus的设备配置
-			case c_base.EModbusTcp, c_base.EModbusRtu:
-				fields := p_modbus.GetModbusDeviceConfigFields()
-				if fields != nil {
-					t.ConfigFields = append(t.ConfigFields, fields...)
+			if t.ConfigFields == nil {
+				t.ConfigFields = make([]*c_base.SConfigStructFields, 0)
+				switch protocolConfig.GetProtocol() {
+				// 添加modbus的设备配置
+				case c_base.EModbusTcp, c_base.EModbusRtu:
+					fields := p_modbus.GetModbusDeviceConfigFields()
+					if fields != nil {
+						t.ConfigFields = append(t.ConfigFields, fields...)
+					}
 				}
 			}
-
 		} else {
 			t.IsVirtualDevice = true
 		}

@@ -12,13 +12,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func BuildDescriptionFromYaml(yamlData []byte) *SDriverInfo {
+func BuildDescriptionFromYaml(yamlData []byte, deviceConfig ...any) *SDriverInfo {
 	info := &SDriverInfo{}
 	err := yaml.Unmarshal(yamlData, info)
 	if err != nil {
-		panic(errors.Errorf("解析版本信息失败！请检查version.yaml文件!%+v", err))
+		panic(errors.Errorf("解析版本信息失败！请检查build.yaml文件!%+v", err))
 	}
 
+	if len(deviceConfig) > 0 && deviceConfig[0] != nil {
+		f, err := BuildConfigStructFields(deviceConfig[0])
+		if err != nil {
+			panic(errors.Errorf("配置对象中的Fileds解析失败!%+v", err))
+		}
+		info.SetConfigStructFields(f)
+	}
 	return info
 }
 

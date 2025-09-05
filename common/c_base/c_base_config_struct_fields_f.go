@@ -99,6 +99,10 @@ func BuildConfigStructFields(config any) ([]*SConfigStructFields, error) {
 			fieldConfig.ValueType = vt
 		}
 
+		if unit := field.Tag.Get("unit"); unit != "" {
+			fieldConfig.Unit = unit
+		}
+
 		// 解析数值范围限制标签
 		if minStr := field.Tag.Get("min"); minStr != "" {
 			fieldConfig.Min = cvt.Uint8(minStr)

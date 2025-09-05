@@ -26,5 +26,13 @@ type SDriverInfo struct {
 	Author     string `json:"author" yaml:"author"`         // 作者
 	Remark     string `json:"remark" yaml:"remark"`         // 备注
 
+	configStructFields []*SConfigStructFields   // 不能从yaml中倒入
 	reflectMethodCache map[string]reflect.Value // 反射方法缓存
+}
+
+func (s *SDriverInfo) SetConfigStructFields(configStructFields []*SConfigStructFields) {
+	s.configStructFields = configStructFields
+}
+func (s *SDriverInfo) GetConfigStructFields() []*SConfigStructFields {
+	return s.configStructFields
 }
