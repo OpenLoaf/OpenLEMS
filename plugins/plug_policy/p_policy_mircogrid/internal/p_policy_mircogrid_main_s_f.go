@@ -1,7 +1,7 @@
 package internal
 
 type sPolicyMircogrid struct {
-	config *sPolicyMircogridConfig
+	config *SPolicyMircogridConfig
 }
 
 func (s *sPolicyMircogrid) Init() {
