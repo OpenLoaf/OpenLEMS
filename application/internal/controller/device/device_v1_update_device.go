@@ -28,6 +28,8 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
 
+	// ToDo: 判断修改字段是否需要重启设备管理器
+
 	// 重启设备管理器以应用更改
 	common.GetDeviceManager().Shutdown()
 	common.GetDeviceManager().Start()
