@@ -16,5 +16,6 @@ func NewPlugin(device c_base.IDevice) c_base.IDevice {
 }
 
 func GetDriverInfo() *c_base.SDriverInfo {
+	// TODO 这里其实可一放到 c_base.IDevice 中，直接在device中加载
 	return c_base.BuildDescriptionFromYaml(buildYaml, true)
 }

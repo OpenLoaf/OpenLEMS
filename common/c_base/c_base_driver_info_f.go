@@ -20,7 +20,7 @@ func BuildDescriptionFromYaml(yamlData []byte, IsVirtualDevice ...bool) *SDriver
 	}
 
 	if len(IsVirtualDevice) > 0 && IsVirtualDevice[0] {
-		info.IsVirtualDevice = true
+		info.SetIsVirtualDevice(true)
 	}
 
 	return info
