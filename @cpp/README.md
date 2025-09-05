@@ -1,84 +1,84 @@
-# @cpp: MPC卡尔曼滤波器 C++ 库 + Go 绑定
+# @cpp: MPC Kalman Filter C++ Library + Go Bindings
 
-本模块包含用于微电网预测的 MPC 卡尔曼滤波器的 C++ 实现，以及使用 `c-for-go` 生成的 Go 绑定。
+This module contains a C++ implementation of MPC Kalman Filter for microgrid prediction with Go bindings generated using `c-for-go`.
 
-## 功能特性
+## Features
 
-- **MPC 卡尔曼滤波器**: 针对微电网负载/光伏预测优化
-- **状态空间模型**: [值, 速度, 加速度] 带趋势衰减
-- **不确定性量化**: 提供预测置信区间
-- **在线学习**: 持续适应新测量数据
-- **C++ 性能**: 高速计算与 Go 集成
+- **MPC Kalman Filter**: Optimized for microgrid load/PV prediction
+- **State Space Model**: [value, velocity, acceleration] with trend decay
+- **Uncertainty Quantification**: Provides prediction confidence intervals
+- **Online Learning**: Continuous adaptation to new measurements
+- **C++ Performance**: High-speed computation with Go integration
 
-## 目录结构
+## Structure
 
-- `include/hexlib/hexlib.h`: 包含 MPC 函数的 C API 头文件
-- `src/mpc_kalman.cpp`: MPC 卡尔曼滤波器实现
-- `src/hexlib.cpp`: 基础工具函数
-- `CMakeLists.txt` 和 `Makefile`: 构建脚本
-- `bindings/`: c-for-go 配置
-- `hexlib/`: 生成的 Go 绑定
+- `include/hexlib/hexlib.h`: C API header with MPC functions
+- `src/mpc_kalman.cpp`: MPC Kalman Filter implementation
+- `src/hexlib.cpp`: Basic utility functions
+- `CMakeLists.txt` and `Makefile`: Build scripts
+- `bindings/`: c-for-go configuration
+- `hexlib/`: Generated Go bindings
 
-## API 函数
+## API Functions
 
-### 核心 MPC 函数
+### Core MPC Functions
 
 ```c
-// 从历史数据创建预测器
+// Create predictor from historical data
 void* mpc_create_predictor(const double* historical_data, int data_count);
 
-// 生成多步预测及不确定性
+// Generate multi-step predictions with uncertainty
 PredictionArray* mpc_predict(void* predictor, int prediction_steps);
 
-// 使用新测量值更新
+// Update with new measurement
 void mpc_update_measurement(void* predictor, double measurement);
 
-// 获取当前滤波状态
+// Get current filtered state
 PredictionResult mpc_get_current_state(void* predictor);
 
-// 清理资源
+// Cleanup
 void mpc_free_predictor(void* predictor);
 void mpc_free_prediction_array(PredictionArray* array);
 ```
 
-## 使用方法
+## Usage
 
-### 构建库:
+### Build the library:
 ```bash
 cd @cpp
 make build
 ```
 
-### 生成 Go 绑定:
+### Generate Go bindings:
 ```bash
 cd @cpp
 make generate
 ```
 
-### Go 集成示例:
+### Go Integration Example:
 ```go
-// 使用历史数据创建预测器
+// Create predictor with historical data
 historicalData := []float64{50.0, 50.0, 45.0, 40.0, 35.0}
 predictor := hexlib.MpcCreatePredictor(&historicalData[0], len(historicalData))
 defer hexlib.MpcFreePredictor(predictor)
 
-// 获取预测结果
+// Get predictions
 predictions := hexlib.MpcPredict(predictor, 10)
 defer hexlib.MpcFreePredictionArray(predictions)
 
-// 使用新测量值更新
+// Update with new measurement
 hexlib.MpcUpdateMeasurement(predictor, 38.0)
 ```
 
-## 与 @internal/ 的集成
+## Integration with @internal/
 
-生成的 Go 绑定可以在 `@internal/` 目录中导入和使用，用于 EMS 预测服务。MPC 卡尔曼滤波器提供：
+The generated Go bindings can be imported and used within the `@internal/` directory for EMS prediction services. The MPC Kalman Filter provides:
 
-1. **实时预测**: 适用于 MPC 控制循环
-2. **不确定性量化**: 风险感知决策制定
-3. **自适应学习**: 持续模型改进
-4. **高性能**: C++ 计算与 Go 便利性
+1. **Real-time prediction**: Suitable for MPC control loops
+2. **Uncertainty quantification**: Risk-aware decision making  
+3. **Adaptive learning**: Continuous model improvement
+4. **High performance**: C++ computation with Go convenience
 
-完美适用于需要可靠短期预测的微电网能源管理系统。
+Perfect for microgrid energy management systems requiring reliable short-term forecasting.
 
 

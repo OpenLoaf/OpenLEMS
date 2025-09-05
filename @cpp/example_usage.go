@@ -15,8 +15,8 @@ func main() {
 	fmt.Printf("测试加法: %d + %d = %d\n", 3, 5, hexlib.HexAdd(3, 5))
 
 	// 历史数据 - 模拟微电网负载数据
-	historicalData := []float64{50.0, 60.0, 80.0, 54.0, 55.0, 70.0, 88.0, 65.0,
-		50.0, 50.0, 50.0, 40.0, 35.0, 34.0, 35.0}
+	historicalData := []float64{50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0, 50.0,
+		50.0, 50.0, 50.0, 40.0, 35.0, 34.0, 44.0}
 
 	fmt.Printf("\n历史数据: %v\n", historicalData)
 
@@ -63,7 +63,7 @@ func main() {
 
 	// 再次预测看看变化
 	fmt.Printf("\n更新后的新预测:\n")
-	newPredictions := hexlib.MpcPredict(predictor, 5)
+	newPredictions := hexlib.MpcPredict(predictor, 10)
 	if newPredictions != nil {
 		for i, result := range newPredictions.Results {
 			fmt.Printf("  第 %2d 步: %.2f ± %.2f\n",

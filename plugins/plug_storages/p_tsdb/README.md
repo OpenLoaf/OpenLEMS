@@ -72,7 +72,7 @@ _ = chart
 
 #### 单独查看数据库
 ```bash
-prometheus --config.file=ptdb.yaml --storage.tsdb.path=ptdb/
+prometheus --config.file=ptdb.yaml --storage.tsdb.path=/Users/zhao/Documents/01.Code/Hex/ems-plan/application/out/ptdb/
 ```
 
 

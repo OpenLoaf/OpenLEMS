@@ -30,6 +30,32 @@ struct Matrix3x3 {
         for(int i = 0; i < 9; i++) data[i] = 0.0;
         data[0] = data[4] = data[8] = 1.0;
     }
+    
+    Matrix3x3 transpose() const {
+        Matrix3x3 result;
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                result(j,i) = (*this)(i,j);
+            }
+        }
+        return result;
+    }
+    
+    Matrix3x3 operator+(const Matrix3x3& other) const {
+        Matrix3x3 result;
+        for(int i = 0; i < 9; i++) {
+            result.data[i] = data[i] + other.data[i];
+        }
+        return result;
+    }
+    
+    Matrix3x3 operator-(const Matrix3x3& other) const {
+        Matrix3x3 result;
+        for(int i = 0; i < 9; i++) {
+            result.data[i] = data[i] - other.data[i];
+        }
+        return result;
+    }
 };
 
 // 3维向量
@@ -49,8 +75,10 @@ struct Vector3 {
 // MPC卡尔曼滤波器类
 class MPCKalmanFilter {
 private:
-    Vector3 state_posterior;      // 后验状态 [值, 速度, 加速度]
-    Matrix3x3 covariance_posterior; // 后验协方差
+    Vector3 state_posterior;         // 后验状态 [值, 速度, 加速度]
+    Matrix3x3 covariance_posterior;  // 后验协方差
+    Vector3 state_prior;             // 先验状态
+    Matrix3x3 covariance_prior;      // 先验协方差
     Matrix3x3 transition_matrix;     // 状态转移矩阵
     Matrix3x3 process_noise_cov;     // 过程噪声协方差
     double measurement_noise_var;    // 测量噪声方差
@@ -102,53 +130,62 @@ public:
     }
     
     Vector3 predict() {
-        // 状态预测
-        Vector3 state_prior;
-        state_prior.x = state_posterior.x + state_posterior.y * time_step + 
-                       0.5 * state_posterior.z * time_step * time_step;
-        state_prior.y = state_posterior.y * (1.0 - 0.25 * time_step) + 
-                       state_posterior.z * time_step;
-        state_prior.z = state_posterior.z * (1.0 - 0.5 * time_step);
+        // 状态预测: x_prior = F * x_posterior
+        state_prior.x = transition_matrix(0,0) * state_posterior.x + 
+                       transition_matrix(0,1) * state_posterior.y + 
+                       transition_matrix(0,2) * state_posterior.z;
+        state_prior.y = transition_matrix(1,0) * state_posterior.x + 
+                       transition_matrix(1,1) * state_posterior.y + 
+                       transition_matrix(1,2) * state_posterior.z;
+        state_prior.z = transition_matrix(2,0) * state_posterior.x + 
+                       transition_matrix(2,1) * state_posterior.y + 
+                       transition_matrix(2,2) * state_posterior.z;
         
-        // 简化的协方差预测
+        // 协方差预测: P_prior = F * P_posterior * F^T + Q
         Matrix3x3 temp = transition_matrix * covariance_posterior;
-        Matrix3x3 covariance_prior = temp * transition_matrix;
+        covariance_prior = temp * transition_matrix.transpose();
+        covariance_prior = covariance_prior + process_noise_cov;
         
-        // 加上过程噪声
-        for(int i = 0; i < 3; i++) {
-            covariance_prior(i,i) += process_noise_cov(i,i);
+        // 非负约束: 确保预测值不为负数
+        if (state_prior.x < 0.0) {
+            state_prior.x = 0.0;
         }
         
-        covariance_posterior = covariance_prior;
-        state_posterior = state_prior;
-        
-        return state_posterior;
+        return state_prior;
     }
     
     void update(double measurement) {
-        // 创新
-        double innovation = measurement - state_posterior.x;
+        // 创新 (innovation): y = z - H * x_prior
+        // 对于单测量值，H = [1, 0, 0]
+        double innovation = measurement - state_prior.x;
         
-        // 创新协方差
-        double innovation_cov = covariance_posterior(0,0) + measurement_noise_var;
+        // 创新协方差: S = H * P_prior * H^T + R
+        double innovation_cov = covariance_prior(0,0) + measurement_noise_var;
         
-        // 卡尔曼增益
+        // 卡尔曼增益: K = P_prior * H^T * S^(-1)
         Vector3 kalman_gain;
-        kalman_gain.x = covariance_posterior(0,0) / innovation_cov;
-        kalman_gain.y = covariance_posterior(1,0) / innovation_cov;
-        kalman_gain.z = covariance_posterior(2,0) / innovation_cov;
+        kalman_gain.x = covariance_prior(0,0) / innovation_cov;
+        kalman_gain.y = covariance_prior(1,0) / innovation_cov;
+        kalman_gain.z = covariance_prior(2,0) / innovation_cov;
         
-        // 后验状态更新
-        state_posterior.x += kalman_gain.x * innovation;
-        state_posterior.y += kalman_gain.y * innovation;
-        state_posterior.z += kalman_gain.z * innovation;
+        // 后验状态更新: x_posterior = x_prior + K * y
+        state_posterior.x = state_prior.x + kalman_gain.x * innovation;
+        state_posterior.y = state_prior.y + kalman_gain.y * innovation;
+        state_posterior.z = state_prior.z + kalman_gain.z * innovation;
         
-        // 简化的协方差更新
-        double factor = 1.0 - kalman_gain.x;
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++) {
-                covariance_posterior(i,j) *= factor;
-            }
+        // 协方差更新: P_posterior = (I - K * H) * P_prior
+        // 对于H = [1, 0, 0]，K*H是一个矩阵，第一列是K，其余为0
+        Matrix3x3 I_minus_KH;
+        I_minus_KH.setIdentity();
+        I_minus_KH(0,0) -= kalman_gain.x;
+        I_minus_KH(1,0) -= kalman_gain.y;
+        I_minus_KH(2,0) -= kalman_gain.z;
+        
+        covariance_posterior = I_minus_KH * covariance_prior;
+        
+        // 非负约束: 确保更新后的状态值不为负数
+        if (state_posterior.x < 0.0) {
+            state_posterior.x = 0.0;
         }
     }
     
@@ -159,16 +196,29 @@ public:
         Matrix3x3 temp_cov = covariance_posterior;
         
         for(int i = 0; i < steps; i++) {
-            // 预测下一步
-            temp_state.x += temp_state.y * time_step + 0.5 * temp_state.z * time_step * time_step;
-            temp_state.y *= (1.0 - 0.25 * time_step);
-            temp_state.y += temp_state.z * time_step;
-            temp_state.z *= (1.0 - 0.5 * time_step);
+            // 状态预测: x = F * x
+            Vector3 next_state;
+            next_state.x = transition_matrix(0,0) * temp_state.x + 
+                          transition_matrix(0,1) * temp_state.y + 
+                          transition_matrix(0,2) * temp_state.z;
+            next_state.y = transition_matrix(1,0) * temp_state.x + 
+                          transition_matrix(1,1) * temp_state.y + 
+                          transition_matrix(1,2) * temp_state.z;
+            next_state.z = transition_matrix(2,0) * temp_state.x + 
+                          transition_matrix(2,1) * temp_state.y + 
+                          transition_matrix(2,2) * temp_state.z;
             
-            // 更新不确定性
-            temp_cov(0,0) += process_noise_cov(0,0);
-            temp_cov(1,1) += process_noise_cov(1,1);
-            temp_cov(2,2) += process_noise_cov(2,2);
+            // 协方差预测: P = F * P * F^T + Q
+            Matrix3x3 temp_matrix = transition_matrix * temp_cov;
+            temp_cov = temp_matrix * transition_matrix.transpose();
+            temp_cov = temp_cov + process_noise_cov;
+            
+            temp_state = next_state;
+            
+            // 非负约束: 确保预测值不为负数
+            if (temp_state.x < 0.0) {
+                temp_state.x = 0.0;
+            }
             
             PredictionResult result;
             result.value = temp_state.x;
@@ -199,7 +249,7 @@ void* mpc_create_predictor(const double* historical_data, int data_count) {
     std::vector<double> data(historical_data, historical_data + data_count);
     filter->initializeFromData(data);
     
-    // 在线学习阶段
+    // 在线学习阶段 - 对每个历史数据点进行预测和更新
     for(const double& measurement : data) {
         filter->predict();
         filter->update(measurement);

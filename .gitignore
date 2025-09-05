@@ -42,6 +42,5 @@ build/
 *.so
 *.dylib
 *.dll
-hexlib/
 
 
