@@ -15,8 +15,8 @@ type SConfigStructFields struct {
 	ComponentType      EConfigFieldsComponentType `json:"componentType" dc:"组件类型" required:"true"`
 	Required           bool                       `json:"required" required:"true"`
 	Unit               *string                    `json:"unit" dc:"单位"`
-	Min                *uint8                     `json:"min"`
-	Max                *uint8                     `json:"max"`
+	Min                *int64                     `json:"min"`
+	Max                *int64                     `json:"max"`
 	Default            *string                    `json:"default"`
 	SelectOptions      map[string]string          `json:"selectOptions"`
 	Regex              *string                    `json:"regex" dc:"正则表达式"`
@@ -29,7 +29,7 @@ func (s *SConfigStructFields) String() string {
 	}
 
 	// 处理指针字段
-	var minVal, maxVal uint8
+	var minVal, maxVal int64
 	if s.Min != nil {
 		minVal = *s.Min
 	}
