@@ -3,12 +3,12 @@ package c_base
 type EConfigFieldsComponentType string
 
 const (
-	EConfigStructFieldsComponentTypeText         = "text"         // 文本
-	EConfigStructFieldsComponentTypeNumber       = "number"       // 数字
-	EConfigStructFieldsComponentTypeSwitch       = "switch"       // 开关
-	EConfigStructFieldsComponentTypeSingleSelect = "singleSelect" // 单选
-	EConfigStructFieldsComponentTypeMultiSelect  = "multiSelect"  // 多选
-	EConfigStructFieldsComponentTypeDate         = "date"         // 日期
-	EConfigStructFieldsComponentTypeTime         = "time"         // 时间
-	EConfigStructFieldsComponentTypeDateTime     = "dateTime"     // 完整的日期+时间
+	EConfigFieldsComponentTypeText         = "text"         // 文本
+	EConfigFieldsComponentTypeNumber       = "number"       // 数字
+	EConfigFieldsComponentTypeSwitch       = "switch"       // 开关
+	EConfigFieldsComponentTypeSingleSelect = "singleSelect" // 单选
+	EConfigFieldsComponentTypeMultiSelect  = "multiSelect"  // 多选
+	EConfigFieldsComponentTypeDate         = "date"         // 日期
+	EConfigFieldsComponentTypeTime         = "time"         // 时间
+	EConfigFieldsComponentTypeDateTime     = "dateTime"     // 完整的日期+时间
 )

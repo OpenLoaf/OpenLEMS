@@ -6,7 +6,7 @@ import (
 	"regexp"
 )
 
-type SConfigFields struct {
+type SConfigStructFields struct {
 	Name               string                     `json:"name" required:"true"`
 	Description        string                     `json:"description" required:"true"`
 	Code               string                     `json:"code" required:"true"`
@@ -20,18 +20,18 @@ type SConfigFields struct {
 	RegexFailedMessage string                     `json:"regexFailedMessage" dc:"正则表达式失败提醒"`
 }
 
-func (s *SConfigFields) String() string {
+func (s *SConfigStructFields) String() string {
 	if s == nil {
-		return "SConfigFields(nil)"
+		return "SConfigStructFields(nil)"
 	}
 
-	return fmt.Sprintf("SConfigFields{Name:%s, Code:%s, ValueType:%s, ComponentType:%s, Min:%d, Max:%d, Default:%s, Regex:%s}",
-		s.Name, s.Code, s.ValueType, s.ComponentType, s.Min, s.Max, s.Default, s.Regex)
+	return fmt.Sprintf("SConfigStructFields{Name:%s, Code:%s, ValueType:%s, ComponentType:%s, Min:%d, Max:%d, Default:%s, Regex:%s}",
+		s.Name, s.Code, s.ValueType, s.ComponentType.String(), s.Min, s.Max, s.Default, s.Regex)
 }
 
-func (s *SConfigFields) Check() error {
+func (s *SConfigStructFields) Check() error {
 	if s == nil {
-		return errors.New("SConfigFields is nil")
+		return errors.New("SConfigStructFields is nil")
 	}
 
 	// 检查必填字段
