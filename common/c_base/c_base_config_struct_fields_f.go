@@ -20,6 +20,7 @@ import (
 //   - min: 最小值限制，仅对数值类型有效
 //   - max: 最大值限制，仅对数值类型有效
 //   - default: 默认值
+//   - required: 是否必填
 //   - unit: 单位信息
 //   - regex: 正则表达式验证规则
 //   - regexFailedMessage: 正则表达式验证失败时的提示信息
@@ -124,6 +125,10 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 		// 解析值类型标签(vt)
 		if vt := field.Tag.Get("vt"); vt != "" {
 			fieldConfig.ValueType = vt
+		}
+		// 解析组件类型标签(ct)
+		if req := field.Tag.Get("required"); req != "" {
+			fieldConfig.Required = cvt.Bool(req)
 		}
 
 		if unit := field.Tag.Get("unit"); unit != "" {
