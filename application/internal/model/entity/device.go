@@ -82,7 +82,6 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 				if fields != nil {
 					t.ConfigFields = append(t.ConfigFields, fields...)
 				}
-
 			}
 
 		} else {

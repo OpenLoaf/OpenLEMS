@@ -1,5 +1,5 @@
 package c_proto
 
 type SModbusDeviceConfig struct {
-	UnitId uint8 `json:"unitId" min:"1" max:"256"` // 单元ID
+	UnitId uint8 `json:"unitId" name:"ModbusID" min:"1" max:"255" default:"1"` // 单元ID
 }

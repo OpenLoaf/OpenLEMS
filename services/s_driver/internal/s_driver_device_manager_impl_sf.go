@@ -233,17 +233,21 @@ func (m *SDeviceManager) BuildVirtualDevice(deviceCtx context.Context, deviceCon
 	device := c_device.NewVirtualDevice(deviceCtx, deviceConfig)
 	// 物理设备
 	driver, err := getDriver(deviceConfig.Driver, device)
-	if driver == nil || err != nil {
-		c_log.BizErrorf(m.ctx, "虚拟设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
+	if err != nil {
+		c_log.BizErrorf(deviceCtx, "虚拟设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
+		return
+	}
+	if driver == nil {
+		c_log.BizErrorf(deviceCtx, "虚拟设备[%s]驱动加载失败！原因driver为空", deviceConfig.Name)
 		return
 	}
 	err = driver.Init()
 	if err != nil {
-		c_log.BizErrorf(m.ctx, "虚拟设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
+		c_log.BizErrorf(deviceCtx, "虚拟设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
 		return
 	}
 	m.deviceInstanceMap[deviceConfig.Id] = driver
-	c_log.BizInfof(m.ctx, "虚拟设备[%s]初始化成功！", deviceConfig.Name)
+	c_log.BizInfof(deviceCtx, "虚拟设备[%s]初始化成功！", deviceConfig.Name)
 }
 
 // BuildRealDevice 创建物理设备连接
@@ -257,25 +261,25 @@ func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig
 	}
 	device, err := c_device.NewRealDevice(deviceCtx, deviceConfig, protocolProvider.(c_proto.IModbusProtocol))
 	if err != nil {
-		c_log.BizErrorf(m.ctx, "设备[%s] 初始化失败！原因：%s", deviceConfig.Name, err.Error())
+		c_log.BizErrorf(deviceCtx, "设备[%s] 初始化失败！原因：%s", deviceConfig.Name, err.Error())
 		return
 	}
 
 	// 物理设备
 	driver, err := getDriver(deviceConfig.Driver, device)
 	if driver == nil || err != nil {
-		c_log.BizErrorf(m.ctx, "设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
+		c_log.BizErrorf(deviceCtx, "设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
 		return
 	}
 	err = driver.Init()
 	if err != nil {
-		c_log.BizErrorf(m.ctx, "设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
+		c_log.BizErrorf(deviceCtx, "设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
 		return
 	}
 	protocolProvider.ProtocolListen() // 启动监听
 
 	m.deviceInstanceMap[deviceConfig.Id] = driver
-	c_log.BizInfof(m.ctx, "设备[%s]初始化成功！", deviceConfig.Name)
+	c_log.BizInfof(deviceCtx, "设备[%s]初始化成功！", deviceConfig.Name)
 }
 
 // GetDriverInfo 获取指定驱动的详细信息

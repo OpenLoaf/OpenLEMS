@@ -2,8 +2,6 @@ package c_base
 
 import (
 	"encoding/json"
-	"github.com/gogf/gf/v2/errors/gcode"
-	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/pkg/errors"
 )
 
@@ -63,7 +61,7 @@ func (s *SDeviceConfig) GetType() EDeviceType {
 
 func (s *SDeviceConfig) GetTelemetry(key string, instance any) (any, error) {
 	if s.DriverInfo == nil {
-		return nil, gerror.NewCode(gcode.CodeNotFound, "device not found")
+		return nil, errors.New("device not found")
 	}
 	return s.DriverInfo.GetTelemetry(key, instance)
 }

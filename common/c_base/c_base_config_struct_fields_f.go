@@ -1,8 +1,8 @@
 package c_base
 
 import (
+	"github.com/shockerli/cvt"
 	"reflect"
-	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -61,14 +61,10 @@ func BuildConfigStructFields(config any) ([]*SConfigFields, error) {
 
 		// 解析其他标签
 		if minStr := field.Tag.Get("min"); minStr != "" {
-			if mi, err := strconv.ParseUint(minStr, 10, 8); err == nil {
-				fieldConfig.Min = uint8(mi)
-			}
+			fieldConfig.Min = cvt.Uint8(minStr)
 		}
 		if maxStr := field.Tag.Get("max"); maxStr != "" {
-			if mx, err := strconv.ParseUint(maxStr, 10, 8); err == nil {
-				fieldConfig.Max = uint8(mx)
-			}
+			fieldConfig.Max = cvt.Uint8(maxStr)
 		}
 		if defaultVal := field.Tag.Get("default"); defaultVal != "" {
 			fieldConfig.Default = defaultVal
