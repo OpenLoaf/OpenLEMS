@@ -187,7 +187,7 @@ func (m *SDeviceManager) Start() {
 		// 设置协议配置
 		deviceConfig.ProtocolConfig = protocolConfigMap[deviceConfig.ProtocolId]
 		// 添加驱动信息
-		deviceConfig.DriverInfo, _ = GetDriverInfo(deviceConfig.Driver)
+		//deviceConfig.DriverInfo, _ = GetDriverInfo(deviceConfig.Driver)
 	}
 
 	// 构建树形结构

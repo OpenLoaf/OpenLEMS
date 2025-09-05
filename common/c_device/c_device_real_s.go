@@ -5,6 +5,7 @@ import (
 	"common/c_status"
 	"context"
 	"github.com/pkg/errors"
+	yaml "gopkg.in/yaml.v3"
 	"time"
 )
 
@@ -32,6 +33,17 @@ func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base
 	}
 
 	return device, nil
+}
+
+func (s *SRealDeviceImpl[P]) BuildDriverInfoFromYaml(yamlData []byte) *c_base.SDriverInfo {
+	info := &c_base.SDriverInfo{}
+	err := yaml.Unmarshal(yamlData, info)
+	if err != nil {
+		panic(errors.Errorf("解析信息失败！请检查build.yaml文件!%+v", err))
+	}
+
+	info.SetIsVirtualDevice(false)
+	return info
 }
 
 func (s *SRealDeviceImpl[P]) IsVirtualDevice() bool {
