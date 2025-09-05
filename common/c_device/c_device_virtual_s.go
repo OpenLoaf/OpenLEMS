@@ -7,7 +7,6 @@ import (
 	"common/c_type"
 	"context"
 	"github.com/pkg/errors"
-	yaml "gopkg.in/yaml.v3"
 	"time"
 )
 
@@ -31,16 +30,6 @@ func NewVirtualDevice(ctx context.Context, deviceConfig *c_base.SDeviceConfig) *
 	}
 }
 
-func (s *SVirtualDeviceImpl) BuildDriverInfoFromYaml(yamlData []byte) *c_base.SDriverInfo {
-	info := &c_base.SDriverInfo{}
-	err := yaml.Unmarshal(yamlData, info)
-	if err != nil {
-		panic(errors.Errorf("解析信息失败！请检查build.yaml文件!%+v", err))
-	}
-
-	info.SetIsVirtualDevice(true)
-	return info
-}
 func (s *SVirtualDeviceImpl) IsVirtualDevice() bool {
 	return true
 }

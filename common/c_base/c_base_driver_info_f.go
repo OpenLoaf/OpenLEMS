@@ -12,15 +12,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func BuildDescriptionFromYaml(yamlData []byte, IsVirtualDevice ...bool) *SDriverInfo {
+func BuildDescriptionFromYaml(yamlData []byte) *SDriverInfo {
 	info := &SDriverInfo{}
 	err := yaml.Unmarshal(yamlData, info)
 	if err != nil {
 		panic(errors.Errorf("解析版本信息失败！请检查version.yaml文件!%+v", err))
-	}
-
-	if len(IsVirtualDevice) > 0 && IsVirtualDevice[0] {
-		info.SetIsVirtualDevice(true)
 	}
 
 	return info

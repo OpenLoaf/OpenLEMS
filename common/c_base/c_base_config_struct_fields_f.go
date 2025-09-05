@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func BuildConfigStructFields(config any) ([]*SConfigStructFields, error) {
+func BuildConfigStructFields(config any) ([]*SConfigFields, error) {
 	if config == nil {
 		return nil, errors.New("config is nil")
 	}
@@ -22,7 +22,7 @@ func BuildConfigStructFields(config any) ([]*SConfigStructFields, error) {
 	}
 
 	t := v.Type()
-	var fields []*SConfigStructFields
+	var fields []*SConfigFields
 
 	for i := 0; i < v.NumField(); i++ {
 		field := t.Field(i)
@@ -51,7 +51,7 @@ func BuildConfigStructFields(config any) ([]*SConfigStructFields, error) {
 		// 根据字段类型确定组件类型和值类型
 		componentType, valueType := getFieldTypeInfo(field.Type)
 
-		fieldConfig := &SConfigStructFields{
+		fieldConfig := &SConfigFields{
 			Name:          field.Tag.Get("name"),
 			Code:          jsonName,
 			ValueType:     valueType,
@@ -84,7 +84,7 @@ func BuildConfigStructFields(config any) ([]*SConfigStructFields, error) {
 }
 
 // getFieldTypeInfo 根据反射类型返回组件类型和值类型
-func getFieldTypeInfo(fieldType reflect.Type) (EConfigStructFieldsComponentType, string) {
+func getFieldTypeInfo(fieldType reflect.Type) (EConfigFieldsComponentType, string) {
 	switch fieldType.Kind() {
 	case reflect.String:
 		return EConfigStructFieldsComponentTypeText, "string"

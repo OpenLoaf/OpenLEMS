@@ -26,14 +26,5 @@ type SDriverInfo struct {
 	Author     string `json:"author" yaml:"author"`         // 作者
 	Remark     string `json:"remark" yaml:"remark"`         // 备注
 
-	isVirtualDevice    bool                     `dc:"是否是虚拟设备"` // 该字段并非从yaml中获取，而是自动配置的
 	reflectMethodCache map[string]reflect.Value // 反射方法缓存
-}
-
-func (s *SDriverInfo) GetIsVirtualDevice() bool {
-	return s.isVirtualDevice
-}
-
-func (s *SDriverInfo) SetIsVirtualDevice(isVirtualDevice bool) {
-	s.isVirtualDevice = isVirtualDevice
 }

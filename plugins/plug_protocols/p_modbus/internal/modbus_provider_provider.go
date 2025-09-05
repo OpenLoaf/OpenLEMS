@@ -3,6 +3,7 @@ package internal
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_log"
 	"common/c_proto"
 	"common/c_status"
 	"context"
@@ -92,6 +93,17 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 
 	return provider, nil
 }
+
+func (p *ModbusProtocolProvider) GetDeviceConfigFields() []*c_base.SConfigFields {
+	modbusDeviceConfig := &c_proto.SModbusDeviceConfig{}
+	fields, err := c_base.BuildConfigStructFields(modbusDeviceConfig)
+	if err != nil {
+		c_log.BizErrorf(p.ctx, "解析Modbus配置信息结构失败！")
+		return nil
+	}
+	return fields
+}
+
 func (p *ModbusProtocolProvider) GetProtocolStatus() c_status.EProtocolStatus {
 	if p.client == nil {
 		return c_status.EProtocolDisconnected

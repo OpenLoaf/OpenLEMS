@@ -11,7 +11,6 @@ import (
 var buildYaml []byte
 
 func NewPlugin(device c_base.IDevice) c_base.IDevice {
-	_ = device.BuildDriverInfoFromYaml(buildYaml) // TODO 先这么加，其实重复了。后面改
 	return &sBmsPylonTechUs108{
 		SRealDeviceImpl: device.(*c_device.SRealDeviceImpl[c_proto.IModbusProtocol]),
 	}

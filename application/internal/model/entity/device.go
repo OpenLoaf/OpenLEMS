@@ -3,6 +3,7 @@ package entity
 import (
 	"common/c_base"
 	"github.com/pkg/errors"
+	"p_modbus"
 	"reflect"
 
 	"github.com/gogf/gf/v2/util/gconv"
@@ -24,6 +25,7 @@ type SDeviceTree struct {
 	CreatedAt          string         `json:"created_at" dc:"创建时间"`
 	UpdatedAt          string         `json:"updated_at" dc:"更新时间"`
 
+	ConfigFields    []*c_base.SConfigFields  `json:"configFields" yaml:"fields" dc:"配置字段信息"`
 	IsVirtualDevice bool                     `json:"isVirtualDevice" dc:"是否是虚拟设备"`
 	DriverType      string                   `json:"driverType" dc:"驱动类型"`
 	DriverBrand     string                   `json:"driverBrand,omitempty" dc:"驱动品牌"`
@@ -66,13 +68,24 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			t.DriverTelemetry = driverInfo.Telemetry
 			t.DriverService = driverInfo.Service
 			t.DriverType = string(driverInfo.Type)
-			t.IsVirtualDevice = driverInfo.GetIsVirtualDevice()
 		}
 		protocolConfig := record.ProtocolConfig
 		if protocolConfig != nil {
 			t.ProtocolName = protocolConfig.Name
 			t.ProtocolType = string(protocolConfig.Type)
 			t.ProtocolAddress = protocolConfig.Address
+			t.ConfigFields = []*c_base.SConfigFields{}
+			switch protocolConfig.GetProtocol() {
+			case c_base.EModbusTcp, c_base.EModbusRtu:
+				fields := p_modbus.GetModbusDeviceConfigFields()
+				if fields != nil {
+					t.ConfigFields = append(t.ConfigFields, fields...)
+				}
+
+			}
+
+		} else {
+			t.IsVirtualDevice = true
 		}
 
 		if len(record.ChildDeviceConfig) > 0 {
