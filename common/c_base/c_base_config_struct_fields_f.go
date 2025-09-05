@@ -137,11 +137,11 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 
 		// 解析数值范围限制标签
 		if minStr := field.Tag.Get("min"); minStr != "" {
-			minVal := cvt.Uint8(minStr)
+			minVal := cvt.Int64(minStr)
 			fieldConfig.Min = &minVal
 		}
 		if maxStr := field.Tag.Get("max"); maxStr != "" {
-			maxVal := cvt.Uint8(maxStr)
+			maxVal := cvt.Int64(maxStr)
 			fieldConfig.Max = &maxVal
 		}
 		// 解析默认值标签
