@@ -9,8 +9,8 @@ import (
 
 type SConfigStructFields struct {
 	Name               string                     `json:"name" required:"true"`
-	Description        string                     `json:"description" required:"true"`
 	Code               string                     `json:"code" required:"true"`
+	Group              string                     `json:"group"`
 	ValueType          string                     `json:"valueType" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
 	ComponentType      EConfigFieldsComponentType `json:"componentType" dc:"组件类型" required:"true"`
 	Required           bool                       `json:"required" required:"true"`
@@ -21,6 +21,7 @@ type SConfigStructFields struct {
 	SelectOptions      map[string]string          `json:"selectOptions"`
 	Regex              *string                    `json:"regex" dc:"正则表达式"`
 	RegexFailedMessage *string                    `json:"regexFailedMessage" dc:"正则表达式失败提醒"`
+	Description        string                     `json:"description" required:"true"`
 }
 
 func (s *SConfigStructFields) String() string {

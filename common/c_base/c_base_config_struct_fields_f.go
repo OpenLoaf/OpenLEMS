@@ -118,6 +118,11 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 			fieldConfig.Name = jsonName
 		}
 
+		// 解析值类型标签(vt)
+		if g := field.Tag.Get("group"); g != "" {
+			fieldConfig.Group = g
+		}
+
 		// 解析组件类型标签(ct)
 		if ct := field.Tag.Get("ct"); ct != "" {
 			fieldConfig.ComponentType = EConfigFieldsComponentType(ct)
