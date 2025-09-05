@@ -24,6 +24,7 @@ type SDeviceTree struct {
 	CreatedAt          string         `json:"created_at" dc:"创建时间"`
 	UpdatedAt          string         `json:"updated_at" dc:"更新时间"`
 
+	IsVirtualDevice bool                     `json:"isVirtualDevice" dc:"是否是虚拟设备"`
 	DriverType      string                   `json:"driverType" dc:"驱动类型"`
 	DriverBrand     string                   `json:"driverBrand,omitempty" dc:"驱动品牌"`
 	DriverModel     string                   `json:"driverModel" yaml:"model" dc:"驱动型号"`
@@ -65,6 +66,7 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			t.DriverTelemetry = driverInfo.Telemetry
 			t.DriverService = driverInfo.Service
 			t.DriverType = string(driverInfo.Type)
+			t.IsVirtualDevice = driverInfo.GetIsVirtualDevice()
 		}
 		protocolConfig := record.ProtocolConfig
 		if protocolConfig != nil {
