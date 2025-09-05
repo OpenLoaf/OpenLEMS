@@ -34,3 +34,14 @@ arm-build/*.tar.gz
 out/
 go.sum
 
+
+
+build/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+hexlib/
+
+
