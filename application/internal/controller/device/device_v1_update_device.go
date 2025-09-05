@@ -20,6 +20,7 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 	data["logLevel"] = req.LogLevel
 	data["enabled"] = req.Enabled
 	data["sort"] = req.Sort
+	data["params"] = req.Params
 
 	// 调用数据库服务更新设备
 	err = s_db.GetDeviceService().UpdateDevice(ctx, req.DeviceId, data)
