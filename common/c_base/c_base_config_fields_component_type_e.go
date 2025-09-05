@@ -1,15 +1,14 @@
-//go:generate stringer -type=EConfigFieldsComponentType -trimprefix=EConfigFieldsComponentType -output=c_base_config_fields_component_type_e_string.go
 package c_base
 
-type EConfigFieldsComponentType int
+type EConfigFieldsComponentType string
 
 const (
-	EConfigStructFieldsComponentTypeText         EConfigFieldsComponentType = iota // 文本
-	EConfigStructFieldsComponentTypeNumber                                         // 数字
-	EConfigStructFieldsComponentTypeSwitch                                         // 开关
-	EConfigStructFieldsComponentTypeSingleSelect                                   // 单选
-	EConfigStructFieldsComponentTypeMultiSelect                                    // 多选
-	EConfigStructFieldsComponentTypeDate                                           // 日期
-	EConfigStructFieldsComponentTypeTime                                           // 时间
-	EConfigStructFieldsComponentTypeDateTime                                       // 完整的日期+时间
+	EConfigStructFieldsComponentTypeText         = "text"         // 文本
+	EConfigStructFieldsComponentTypeNumber       = "number"       // 数字
+	EConfigStructFieldsComponentTypeSwitch       = "switch"       // 开关
+	EConfigStructFieldsComponentTypeSingleSelect = "singleSelect" // 单选
+	EConfigStructFieldsComponentTypeMultiSelect  = "multiSelect"  // 多选
+	EConfigStructFieldsComponentTypeDate         = "date"         // 日期
+	EConfigStructFieldsComponentTypeTime         = "time"         // 时间
+	EConfigStructFieldsComponentTypeDateTime     = "dateTime"     // 完整的日期+时间
 )

@@ -26,7 +26,7 @@ func (s *SConfigFields) String() string {
 	}
 
 	return fmt.Sprintf("SConfigFields{Name:%s, Code:%s, ValueType:%s, ComponentType:%s, Min:%d, Max:%d, Default:%s, Regex:%s}",
-		s.Name, s.Code, s.ValueType, s.ComponentType.String(), s.Min, s.Max, s.Default, s.Regex)
+		s.Name, s.Code, s.ValueType, s.ComponentType, s.Min, s.Max, s.Default, s.Regex)
 }
 
 func (s *SConfigFields) Check() error {

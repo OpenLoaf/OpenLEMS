@@ -59,6 +59,21 @@ func BuildConfigStructFields(config any) ([]*SConfigFields, error) {
 			Description:   desc,
 		}
 
+		if name := field.Tag.Get("name"); name != "" {
+			fieldConfig.Name = name
+		} else if dc := field.Tag.Get("desc"); dc != "" {
+			fieldConfig.Name = dc
+		} else {
+			fieldConfig.Name = jsonName
+		}
+
+		if ct := field.Tag.Get("ct"); ct != "" {
+			fieldConfig.ComponentType = EConfigFieldsComponentType(ct)
+		}
+		if vt := field.Tag.Get("vt"); vt != "" {
+			fieldConfig.ValueType = vt
+		}
+
 		// 解析其他标签
 		if minStr := field.Tag.Get("min"); minStr != "" {
 			fieldConfig.Min = cvt.Uint8(minStr)
