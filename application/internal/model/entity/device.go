@@ -25,14 +25,14 @@ type SDeviceTree struct {
 	CreatedAt          string         `json:"created_at" dc:"创建时间"`
 	UpdatedAt          string         `json:"updated_at" dc:"更新时间"`
 
-	ConfigFields    []*c_base.SConfigFields  `json:"configFields" yaml:"fields" dc:"配置字段信息"`
-	IsVirtualDevice bool                     `json:"isVirtualDevice" dc:"是否是虚拟设备"`
-	DriverType      string                   `json:"driverType" dc:"驱动类型"`
-	DriverBrand     string                   `json:"driverBrand,omitempty" dc:"驱动品牌"`
-	DriverModel     string                   `json:"driverModel" yaml:"model" dc:"驱动型号"`
-	DriverVersion   string                   `json:"driverVersion" yaml:"version" v:"required" dc:"驱动版本"`
-	DriverTelemetry []*c_base.STelemetry     `json:"driverTelemetry" yaml:"telemetry" dc:"遥测"`
-	DriverService   []*c_base.SDriverService `json:"driverService" yaml:"customService" dc:"自定义服务"`
+	ConfigFields    []*c_base.SConfigStructFields `json:"configFields" yaml:"fields" dc:"配置字段信息"`
+	IsVirtualDevice bool                          `json:"isVirtualDevice" dc:"是否是虚拟设备"`
+	DriverType      string                        `json:"driverType" dc:"驱动类型"`
+	DriverBrand     string                        `json:"driverBrand,omitempty" dc:"驱动品牌"`
+	DriverModel     string                        `json:"driverModel" yaml:"model" dc:"驱动型号"`
+	DriverVersion   string                        `json:"driverVersion" yaml:"version" v:"required" dc:"驱动版本"`
+	DriverTelemetry []*c_base.STelemetry          `json:"driverTelemetry" yaml:"telemetry" dc:"遥测"`
+	DriverService   []*c_base.SDriverService      `json:"driverService" yaml:"customService" dc:"自定义服务"`
 
 	ProtocolName    string `json:"protocolName" dc:"协议名称"`
 	ProtocolType    string `json:"protocolType,omitempty" dc:"协议类型"`
@@ -74,7 +74,7 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			t.ProtocolName = protocolConfig.Name
 			t.ProtocolType = string(protocolConfig.Type)
 			t.ProtocolAddress = protocolConfig.Address
-			t.ConfigFields = []*c_base.SConfigFields{}
+			t.ConfigFields = make([]*c_base.SConfigStructFields, 0)
 			switch protocolConfig.GetProtocol() {
 			// 添加modbus的设备配置
 			case c_base.EModbusTcp, c_base.EModbusRtu:

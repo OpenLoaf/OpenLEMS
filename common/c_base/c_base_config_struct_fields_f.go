@@ -1,9 +1,10 @@
 package c_base
 
 import (
-	"github.com/shockerli/cvt"
 	"reflect"
 	"strings"
+
+	"github.com/shockerli/cvt"
 
 	"github.com/pkg/errors"
 )

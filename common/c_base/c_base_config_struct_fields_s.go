@@ -2,8 +2,9 @@ package c_base
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"regexp"
+
+	"github.com/pkg/errors"
 )
 
 type SConfigStructFields struct {
@@ -26,7 +27,7 @@ func (s *SConfigStructFields) String() string {
 	}
 
 	return fmt.Sprintf("SConfigStructFields{Name:%s, Code:%s, ValueType:%s, ComponentType:%s, Min:%d, Max:%d, Default:%s, Regex:%s}",
-		s.Name, s.Code, s.ValueType, s.ComponentType.String(), s.Min, s.Max, s.Default, s.Regex)
+		s.Name, s.Code, s.ValueType, s.ComponentType, s.Min, s.Max, s.Default, s.Regex)
 }
 
 func (s *SConfigStructFields) Check() error {

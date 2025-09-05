@@ -94,7 +94,7 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 	return provider, nil
 }
 
-func (p *ModbusProtocolProvider) GetDeviceConfigFields() []*c_base.SConfigFields {
+func (p *ModbusProtocolProvider) GetDeviceConfigFields() []*c_base.SConfigStructFields {
 	modbusDeviceConfig := &c_proto.SModbusDeviceConfig{}
 	fields, err := c_base.BuildConfigStructFields(modbusDeviceConfig)
 	if err != nil {
