@@ -7,8 +7,6 @@ import (
 	"common/c_proto"
 	"common/c_status"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 type sPcsStarCharge100E struct {
@@ -36,10 +34,6 @@ func (s *sPcsStarCharge100E) Shutdown() {
 	c_log.Infof(s.DeviceCtx, "销毁成功,设置PCS状态为Off!")
 }
 
-func (s *sPcsStarCharge100E) GetFunctionList() []*c_base.STelemetry {
-	return nil
-}
-
 func (s *sPcsStarCharge100E) SetReset() error {
 	c_log.Warningf(s.DeviceCtx, "sPcsStarCharge100E SetReset() not support!")
 	return nil
@@ -59,11 +53,11 @@ func (s *sPcsStarCharge100E) SetStatus(status c_status.EEnergyStoreStatus) error
 			return protocol.WriteSingleRegister(OnOffCommand, 1)
 		})
 	}
-	return errors.Errorf("sPcsStarCharge100E SetStatus status not support!")
+	return c_base.NotSupport
 }
 
 func (s *sPcsStarCharge100E) SetGridMode(mode c_base.EGridMode) error {
-	return errors.Errorf("sPcsStarCharge100E SetGridMode status not support!")
+	return c_base.NotSupport
 }
 
 func (s *sPcsStarCharge100E) GetStatus() (c_status.EEnergyStoreStatus, error) {

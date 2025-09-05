@@ -26,5 +26,6 @@ type SDriverInfo struct {
 	Author     string `json:"author" yaml:"author"`         // 作者
 	Remark     string `json:"remark" yaml:"remark"`         // 备注
 
+	IsVirtualDevice    bool                     `json:"isVirtualDevice" yaml:"isVirtualDevice" v:"required" dc:"是否是虚拟设备"`
 	reflectMethodCache map[string]reflect.Value // 反射方法缓存
 }

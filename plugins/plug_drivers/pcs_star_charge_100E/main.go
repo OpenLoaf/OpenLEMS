@@ -22,15 +22,3 @@ func GetDriverInfo() *c_base.SDriverInfo {
 	info.CommitHash = commitHash
 	return info
 }
-
-//
-//func main() {
-//	ctx := context.Background()
-//	command := c_base.PluginDriverCommand(func() c_base.IDevice {
-//		return NewPlugin(ctx)
-//	})
-//
-//	// 此处可添加自定义命令
-//	//command.AddCommand()
-//	command.Run(ctx)
-//}

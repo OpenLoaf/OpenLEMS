@@ -16,5 +16,5 @@ func NewPlugin(device c_base.IDevice) c_base.IDevice {
 }
 
 func GetDriverInfo() *c_base.SDriverInfo {
-	return c_base.BuildDescriptionFromYaml(buildYaml)
+	return c_base.BuildDescriptionFromYaml(buildYaml, true)
 }

@@ -12,14 +12,18 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-func BuildDescriptionFromYaml(yamlData []byte) *SDriverInfo {
-	description := &SDriverInfo{}
-	err := yaml.Unmarshal(yamlData, description)
+func BuildDescriptionFromYaml(yamlData []byte, IsVirtualDevice ...bool) *SDriverInfo {
+	info := &SDriverInfo{}
+	err := yaml.Unmarshal(yamlData, info)
 	if err != nil {
 		panic(errors.Errorf("解析版本信息失败！请检查version.yaml文件!%+v", err))
 	}
 
-	return description
+	if len(IsVirtualDevice) > 0 && IsVirtualDevice[0] {
+		info.IsVirtualDevice = true
+	}
+
+	return info
 }
 
 // GetTelemetry 反射获取遥测信息 用于实现IDriver接口
