@@ -13,7 +13,7 @@ type SConfigStructFields struct {
 	Code               string                     `json:"code" required:"true"`
 	ValueType          string                     `json:"valueType" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
 	ComponentType      EConfigFieldsComponentType `json:"componentType" dc:"组件类型" required:"true"`
-	Required           bool                       `json:"requited" required:"true"`
+	Required           bool                       `json:"required" required:"true"`
 	Unit               string                     `json:"unit" dc:"单位"`
 	Min                uint8                      `json:"min"`
 	Max                uint8                      `json:"max"`
