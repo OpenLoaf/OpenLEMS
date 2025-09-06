@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"common"
 	"common/c_base"
 	"common/c_log"
 	"context"
@@ -10,6 +11,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/pkg/errors"
+	"github.com/shockerli/cvt"
 	"github.com/torykit/go-modbus"
 )
 
@@ -98,8 +100,9 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 
 						// 连接正常，重置重连计数
 						if reconnectCount > 0 {
-							c_log.BizInfof(ctx, "连接恢复正常，重置重连计数")
+							c_log.BizInfof(ctx, "连接恢复正常，清除告警。")
 							reconnectCount = 0
+							TriggerOfflineAlarm(protocolConfig.Id, false)
 						}
 						// 等待一段时间再检查
 						time.Sleep(3 * time.Second)
@@ -107,6 +110,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 					}
 
 					// todo 此处需要获取所有使用到该协议的设备，都触发连接断开警告
+					TriggerOfflineAlarm(protocolConfig.Id, true)
 
 					// 计算当前重连间隔
 					if reconnectCount < len(reconnectIntervals) {
@@ -136,6 +140,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 							if client.IsConnected() {
 								c_log.BizInfof(ctx, "modbus协议第%d次重连成功！", reconnectCount)
 								reconnectCount = 0 // 重连成功，重置计数
+								TriggerOfflineAlarm(protocolConfig.Id, false)
 							} else {
 								c_log.BizWarningf(ctx, "第%d次重连连接建立但状态检查失败", reconnectCount)
 							}
@@ -154,4 +159,35 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 	}
 
 	return client, nil
+}
+
+func TriggerOfflineAlarm(protocolId string, trigger bool) {
+	common.GetDeviceManager().IteratorAllDevices(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
+		if device == nil || config == nil {
+			return true
+		}
+		protocolConfig := config.ProtocolConfig
+		if protocolConfig == nil || protocolConfig.Id != protocolId {
+			return true
+		}
+
+		// 触发或清除离线告警
+		device.UpdateAlarm(device.GetConfig().Id, &c_base.Meta{
+			Name:  "Offline",
+			Cn:    "设备连接状态告警",
+			Level: c_base.EAlarmLevelError,
+			Trigger: func(v any) bool {
+				return cvt.Bool(v)
+			},
+			StatusExplain: func(value any) string {
+				v := cvt.Bool(value)
+				if v {
+					return "离线"
+				}
+				return "上线"
+			},
+		}, trigger)
+
+		return true
+	})
 }

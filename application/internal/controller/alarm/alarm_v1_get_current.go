@@ -53,6 +53,13 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 				continue
 			}
 
+			var detail string
+			if alarm.Meta.StatusExplain == nil {
+				detail = fmt.Sprintf("[%s]触发！值为: %v", alarm.Meta.Cn, alarm.Value)
+			} else {
+				detail = fmt.Sprintf("[%s]触发！值为: %v", alarm.Meta.Cn, alarm.Meta.StatusExplain(alarm.Value))
+			}
+
 			// 收集当前页数据
 			items = append(items, &v1.CurrentAlarmItem{
 				DeviceId:         config.Id,
@@ -62,7 +69,7 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 				Point:            alarm.Meta.Name,
 				PointName:        alarm.Meta.Cn,
 				Level:            alarm.Level.String(),
-				Detail:           fmt.Sprintf("[%s]触发！值为: %v", alarm.Meta.Cn, alarm.Value),
+				Detail:           detail,
 				CreatedAt:        alarm.HappenTime,
 			})
 		}

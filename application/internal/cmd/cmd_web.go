@@ -18,6 +18,8 @@ import (
 	"context"
 	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -139,6 +141,72 @@ func startWeb(ctx context.Context) *ghttp.Server {
 			}
 		})
 	}
+
+	// 本地静态文件服务：处理 /static 路径
+	staticPath := g.Cfg().MustGet(ctx, "static.path", "out/static").String()
+	if staticPath != "" {
+		// 检查静态文件目录是否存在
+		if _, err := os.Stat(staticPath); err == nil {
+			g.Log().Infof(ctx, "启用本地静态文件服务，路径: %s", staticPath)
+
+			// 静态文件路由处理
+			s.BindHandler("GET:/static/*", func(r *ghttp.Request) {
+				// 获取请求的文件路径
+				requestPath := strings.TrimPrefix(r.URL.Path, "/static/")
+				if requestPath == "" {
+					requestPath = "index.html"
+				}
+
+				// 构建完整的文件路径
+				filePath := filepath.Join(staticPath, requestPath)
+
+				// 安全检查：确保文件路径在静态目录内
+				absStaticPath, _ := filepath.Abs(staticPath)
+				absFilePath, _ := filepath.Abs(filePath)
+				if !strings.HasPrefix(absFilePath, absStaticPath) {
+					r.Response.WriteStatus(http.StatusForbidden)
+					return
+				}
+
+				// 检查文件是否存在
+				if _, err := os.Stat(filePath); os.IsNotExist(err) {
+					r.Response.WriteStatus(http.StatusNotFound)
+					return
+				}
+
+				// 设置适当的Content-Type
+				ext := filepath.Ext(filePath)
+				switch ext {
+				case ".html":
+					r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+				case ".css":
+					r.Response.Header().Set("Content-Type", "text/css; charset=utf-8")
+				case ".js":
+					r.Response.Header().Set("Content-Type", "application/javascript; charset=utf-8")
+				case ".json":
+					r.Response.Header().Set("Content-Type", "application/json; charset=utf-8")
+				case ".png":
+					r.Response.Header().Set("Content-Type", "image/png")
+				case ".jpg", ".jpeg":
+					r.Response.Header().Set("Content-Type", "image/jpeg")
+				case ".gif":
+					r.Response.Header().Set("Content-Type", "image/gif")
+				case ".svg":
+					r.Response.Header().Set("Content-Type", "image/svg+xml")
+				case ".ico":
+					r.Response.Header().Set("Content-Type", "image/x-icon")
+				default:
+					r.Response.Header().Set("Content-Type", "application/octet-stream")
+				}
+
+				// 提供文件
+				http.ServeFile(r.Response.Writer, r.Request, filePath)
+			})
+		} else {
+			g.Log().Warningf(ctx, "静态文件目录不存在: %s", staticPath)
+		}
+	}
+
 	// Just run the server.
 	return s
 }
@@ -203,7 +271,7 @@ func MiddlewareAccessLog(r *ghttp.Request) {
 	if method == http.MethodOptions {
 		return
 	}
-	if strings.HasPrefix(path, "/assets/") || strings.HasPrefix(path, "/images/") || path == "/favicon.ico" {
+	if strings.HasPrefix(path, "/assets/") || strings.HasPrefix(path, "/images/") || strings.HasPrefix(path, "/static/") || path == "/favicon.ico" {
 		return
 	}
 	if status == http.StatusSwitchingProtocols {

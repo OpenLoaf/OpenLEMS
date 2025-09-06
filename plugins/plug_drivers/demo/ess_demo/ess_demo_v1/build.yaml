@@ -5,6 +5,7 @@ version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-09-01"
 remark: "测试储能柜"
+protocolType: "modbus"
 telemetry:
   - name: status
     displayName: "状态"

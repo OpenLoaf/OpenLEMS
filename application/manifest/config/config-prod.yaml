@@ -19,4 +19,8 @@ logger:
     level: "all"
     stdout: false
 
+# 静态文件配置
+static:
+  path: "out/static"
+
 

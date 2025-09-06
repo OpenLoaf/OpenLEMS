@@ -8,8 +8,10 @@ type SPolicyMircogridConfig struct {
 	ChargeEfficiency    float64 `json:"chargeEfficiency" name:"充电效率" desc:"充电效率" ct:"number" vt:"float" min:"0" max:"1" default:"0.95"`
 	DischargeEfficiency float64 `json:"dischargeEfficiency" name:"放电效率" desc:"放电效率" ct:"number" vt:"float" min:"0" max:"1" default:"0.95"`
 
-	// 需量控制参数
+	// 需量控制参数， 优先降低功率
 	EnableDemandControl bool `json:"enableDemandControl" name:"启动需量控制模式" desc:"启动需量控制模式" ct:"switch" vt:"bool" default:"false"`
+	// TODO 需量控制目标值（在控制周期内，平均功率不能超过目标值）
+	// TODO 需量控制周期（15分钟）
 
 	// 充电桩参数
 	AllowPileReduce bool `json:"allowPileReduce" name:"允许充电桩降功率" desc:"不允许充电桩降功率（无充电桩）" ct:"switch" vt:"bool" default:"false"`

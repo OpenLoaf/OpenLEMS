@@ -5,6 +5,7 @@ version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-09-01"
 remark: "测试负荷"
+protocolType: "modbus"
 telemetry:
   - name: power
     unit: "kW"

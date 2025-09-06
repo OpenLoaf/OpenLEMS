@@ -53,7 +53,7 @@ func (m *SDeviceManager) GetChildDeviceInstance(pid string) []c_base.IDevice {
 //
 //}
 
-func (m *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *c_base.SDeviceConfig) (c_base.IProtocol, error) {
+func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceConfig *c_base.SDeviceConfig) (c_base.IProtocol, error) {
 	// 从配置中获取协议
 	protocolConfig := deviceConfig.ProtocolConfig
 	if protocolConfig == nil {
@@ -72,14 +72,14 @@ func (m *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 			client = _client.(modbus.Client)
 		} else {
 			// 创建client
-			c, err := p_modbus.NewModbusClient(ctx, protocolConfig)
+			c, err := p_modbus.NewModbusClient(m.ctx, protocolConfig)
 			if err != nil {
 				return nil, err
 			}
 			client = c
 			m.protocolClientCache[protocolConfig.Id] = client
 		}
-		modbusProvider, err := p_modbus.NewModbusProvider(ctx, deviceConfig.GetType(), protocolConfig, deviceConfig, client)
+		modbusProvider, err := p_modbus.NewModbusProvider(deviceCtx, deviceConfig.GetType(), protocolConfig, deviceConfig, client)
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +98,7 @@ func (m *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 		//}
 		//
 		//if receiverChan == nil || transmitterChan == nil {
-		//	r, t, err := protocolCanbus.NewCanbusChan(ctx, protocolConfig)
+		//	r, t, err := protocolCanbus.NewCanbusChan(deviceCtx, protocolConfig)
 		//	if err != nil {
 		//		return nil, err
 		//	}
@@ -108,14 +108,14 @@ func (m *SDeviceManager) getProtocolProvider(ctx context.Context, deviceConfig *
 		//	m.protocolClientCache[protocolConfig.Id+"_transmitterChan"] = transmitterChan
 		//}
 		//
-		//canbusProvider, err := protocolCanbus.NewCanbusProvider(ctx, deviceType, protocolConfig, deviceConfigTree, receiverChan, transmitterChan)
+		//canbusProvider, err := protocolCanbus.NewCanbusProvider(deviceCtx, deviceType, protocolConfig, deviceConfigTree, receiverChan, transmitterChan)
 		//if err != nil {
 		//	return nil, err
 		//}
-		//g.Log().Infof(ctx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
+		//g.Log().Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
 		//return canbusProvider, nil
 	case c_base.EGpioSysfs:
-		//gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(ctx, protocolConfig, deviceConfigTree)
+		//gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(deviceCtx, protocolConfig, deviceConfigTree)
 		//if err != nil {
 		//	return nil, err
 		//}

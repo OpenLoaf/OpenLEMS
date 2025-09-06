@@ -211,7 +211,13 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, meta *c_base.Meta, value any) 
 			alarmAction = c_base.EAlarmActionFirstClear
 			alarm = oldAlarm // 使用旧的告警信息用于日志和处理器
 
-			historyMessage := fmt.Sprintf("触发值为:%v，告警清除后值为:%v", oldAlarm.Value, value)
+			var historyMessage string
+			if alarm.Meta.StatusExplain == nil {
+				historyMessage = fmt.Sprintf("触发值为:%v，告警清除后值为:%v", oldAlarm.Value, value)
+			} else {
+				historyMessage = fmt.Sprintf("触发值为:%v，告警清除后值为:%v", alarm.Meta.StatusExplain(oldAlarm.Value), alarm.Meta.StatusExplain(value))
+			}
+
 			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, meta, historyMessage, oldAlarm.HappenTime)
 			if err != nil {
 				c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)

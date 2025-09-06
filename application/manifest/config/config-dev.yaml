@@ -14,3 +14,7 @@ logger:
     file: "{Ymd}.log"
     level: "all"
     stdout: true
+
+# 静态文件配置
+static:
+  path: "out/static"
