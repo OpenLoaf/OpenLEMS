@@ -5,13 +5,13 @@ import (
 	"common/c_chart"
 	"common/c_log"
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/pkg/errors"
 	"path/filepath"
 	"sort"
 	"sync"
 	"time"
+
+	"github.com/pkg/errors"
 
 	"github.com/shockerli/cvt"
 
@@ -132,24 +132,12 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_base.EDeviceType, fie
 			}
 		default:
 			// 对非数值类型，将值 JSON 序列化后，附加一个 *_text 序列保存为 0/1
-			b, _ := json.Marshal(v)
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: "ems_metric_text",
 				LabelNameType:   string(c_base.StorageTypeDevice),
 				LabelNameID:     deviceId,
 				LabelNameField:  field,
 			}), ts, 1)
-			if err != nil {
-				_ = app.Rollback()
-				return err
-			}
-			// 再保存长度指标作为辅助
-			_, err = app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric_text_len",
-				LabelNameType:   string(c_base.StorageTypeDevice),
-				LabelNameID:     deviceId,
-				LabelNameField:  field,
-			}), ts, float64(len(b)))
 			if err != nil {
 				_ = app.Rollback()
 				return err
@@ -169,7 +157,6 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 		val, err := cvt.Float64E(v)
 		if err != nil {
 			// 同 SaveDevices 的处理
-			b, _ := json.Marshal(v)
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric:   "ems_metric_text",
 				LabelNameType:     string(c_base.StorageTypeProtocol),
@@ -177,17 +164,6 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 				LabelNameField:    field,
 				LabelNameDeviceID: deviceConfig.Id,
 			}), ts, 1)
-			if err != nil {
-				_ = app.Rollback()
-				return err
-			}
-			_, err = app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric:   "ems_metric_text_len",
-				LabelNameType:     string(c_base.StorageTypeProtocol),
-				LabelNameID:       protocolConfig.Id,
-				LabelNameField:    field,
-				LabelNameDeviceID: deviceConfig.Id,
-			}), ts, float64(len(b)))
 			if err != nil {
 				_ = app.Rollback()
 				return err
@@ -218,23 +194,12 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 	for field, v := range metrics {
 		val, err := cvt.Float64E(v)
 		if err != nil {
-			b, _ := json.Marshal(v)
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: "ems_metric_text",
 				LabelNameType:   string(c_base.StorageTypeSystem),
 				LabelNameID:     measurement,
 				LabelNameField:  field,
 			}), ts, 1)
-			if err != nil {
-				_ = app.Rollback()
-				return err
-			}
-			_, err = app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric_text_len",
-				LabelNameType:   string(c_base.StorageTypeSystem),
-				LabelNameID:     measurement,
-				LabelNameField:  field,
-			}), ts, float64(len(b)))
 			if err != nil {
 				_ = app.Rollback()
 				return err
