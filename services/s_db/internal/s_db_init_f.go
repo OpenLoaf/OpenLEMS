@@ -87,6 +87,7 @@ func initConfigDatabase() {
 			enabled BOOLEAN default 1,
 			remark VARCHAR(255),
 			sort INTEGER DEFAULT 0,
+			group_name VARCHAR(255) DEFAULT 'system',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)

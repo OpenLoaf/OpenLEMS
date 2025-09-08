@@ -160,7 +160,7 @@ func (m *SDeviceManager) Start() {
 	m.protocolClientCache = make(map[string]any)
 	m.deviceInstanceMap = make(map[string]c_base.IDevice)
 
-	rootDeviceID := s_db.GetDeviceService().GetRootDeviceId()
+	rootDeviceID := s_db.GetSettingService().GetRootDeviceId(m.ctx)
 	deviceConfigs, err := s_db.GetDeviceService().GetEnableDeviceConfigsWithRecursion(m.ctx, rootDeviceID)
 	if err != nil {
 		m.state = c_base.EStateError

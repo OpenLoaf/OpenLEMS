@@ -17,6 +17,7 @@ const (
 
 	FieldValue  = "value"
 	FieldRemark = "remark"
+	FieldGroup  = "group_name"
 )
 
 const ( // 特殊值

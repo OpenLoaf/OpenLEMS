@@ -2,6 +2,7 @@ package s_db_model
 
 import (
 	"context"
+
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -20,6 +21,7 @@ type SSettingModel struct {
 	Enabled  bool   `json:"enable" orm:"enabled"`
 	Remark   string `json:"remark" orm:"remark"`
 	Sort     int    `json:"sort" orm:"sort"`
+	Group    string `json:"group" orm:"group_name"`
 }
 
 // GetValue 获取设置值
@@ -30,6 +32,16 @@ func (s *SSettingModel) GetValue() string {
 // SetValue 设置值
 func (s *SSettingModel) SetValue(value string) {
 	s.Value = value
+}
+
+// GetGroup 获取分组
+func (s *SSettingModel) GetGroup() string {
+	return s.Group
+}
+
+// SetGroup 设置分组
+func (s *SSettingModel) SetGroup(group string) {
+	s.Group = group
 }
 
 // Create 创建设置记录
@@ -140,4 +152,24 @@ func GetAllSettingsOrderBySort(ctx context.Context) ([]*SSettingModel, error) {
 	var settings []*SSettingModel
 	err := g.Model(TableSetting).Ctx(ctx).Order(FieldSort).Scan(&settings)
 	return settings, err
+}
+
+// GetSettingsByGroup 根据分组获取设置记录
+func GetSettingsByGroup(ctx context.Context, group string) ([]*SSettingModel, error) {
+	var settings []*SSettingModel
+	err := g.Model(TableSetting).Ctx(ctx).Where(FieldGroup, group).Scan(&settings)
+	return settings, err
+}
+
+// GetEnabledSettingsByGroup 根据分组获取启用的设置记录
+func GetEnabledSettingsByGroup(ctx context.Context, group string) ([]*SSettingModel, error) {
+	var settings []*SSettingModel
+	err := g.Model(TableSetting).Ctx(ctx).Where(FieldGroup, group).Where(FieldEnable, true).Scan(&settings)
+	return settings, err
+}
+
+// UpdateGroup 更新分组
+func (s *SSettingModel) UpdateGroup(ctx context.Context, group string) error {
+	s.Group = group
+	return s.UpdateFields(ctx, g.Map{FieldGroup: group})
 }

@@ -15,10 +15,6 @@ type sDeviceServiceImpl struct {
 	ctx         context.Context
 }
 
-func (s *sDeviceServiceImpl) GetRootDeviceId() string {
-	return GetSettingService().GetSettingValueByKey(s.ctx, s_db_basic.SettingActiveDeviceRootIdKey, s_db_basic.DefaultActiveDeviceRootId)
-}
-
 var (
 	deviceManageInstance s_db_basic.IDeviceService
 	deviceManageOnce     sync.Once
