@@ -1,0 +1,195 @@
+---
+alwaysApply: true
+description: Services architecture and patterns for the EMS plan project
+---
+
+# Services 架构指南
+
+`services/` 目录包含项目的核心服务层，采用微服务架构模式，每个服务都是独立的 Go 模块。
+
+## 服务模块结构
+
+### 1. s_storage - 存储服务
+**职责**: 统一管理数据存储和系统监控指标
+
+**核心文件**:
+- [export_common_storage.go](mdc:services/s_storage/export_common_storage.go) - 服务导出接口
+- [storage_instance_s.go](mdc:services/s_storage/internal/storage_instance_s.go) - 存储管理器实现
+- [s_storage_system_metrics_f.go](mdc:services/s_storage/internal/s_storage_system_metrics_f.go) - 系统指标收集
+
+**主要功能**:
+```go
+// 创建单例存储管理器
+func NewSingleStorageManager(parentCtx context.Context, storage c_base.IStorage)
+
+// 注册设备存储任务
+func RegisterStorageDriver(deviceConfig *c_base.SDeviceConfig)
+```
+
+**特点**:
+- 使用单例模式管理存储实例
+- 自动收集系统监控指标 (CPU、内存、进程信息)
+- 支持设备数据的定时存储
+- 集成 GoFrame 定时器进行周期性任务
+
+### 2. s_db - 数据库服务
+**职责**: 提供数据持久化和业务数据访问
+
+**核心文件**:
+- [s_db_export_f.go](mdc:services/s_db/s_db_export_f.go) - 服务导出接口
+- [s_db_basic_interface.go](mdc:services/s_db/s_db_basic/s_db_basic_interface.go) - 服务接口定义
+- [s_db_model/](mdc:services/s_db/s_db_model/) - 数据模型层
+
+**服务接口**:
+```go
+// 设备服务
+type IDeviceService interface {
+    GetEnableDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error)
+    GetAllDevices(ctx context.Context) ([]*s_db_model.SDeviceModel, error)
+    UpdateDevice(ctx context.Context, deviceId string, data map[string]interface{}) error
+}
+
+// 告警服务
+type IAlarmService interface {
+    CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_base.Meta, detail string, triggerAt *time.Time) error
+    GetAlarmHistoryByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmHistoryModel, error)
+    // ... 更多告警相关方法
+}
+
+// 协议服务
+type IProtocolService interface {
+    GetProtocolList(ctx context.Context, type_ string) ([]*s_db_model.SProtocolModel, error)
+    CreateProtocol(ctx context.Context, data map[string]interface{}) (string, error)
+    // ... 更多协议相关方法
+}
+```
+
+**数据模型**:
+- `SDeviceModel` - 设备数据模型
+- `SAlarmHistoryModel` - 告警历史模型
+- `SProtocolModel` - 协议配置模型
+- `SLogModel` - 日志数据模型
+- `SSettingModel` - 系统设置模型
+
+### 3. s_driver - 驱动服务
+**职责**: 设备驱动管理和设备实例创建
+
+**核心文件**:
+- [s_driver_export_f.go](mdc:services/s_driver/s_driver_export_f.go) - 服务导出接口
+- [s_driver_device_manager_impl_sf.go](mdc:services/s_driver/internal/s_driver_device_manager_impl_sf.go) - 设备管理器实现
+
+**主要功能**:
+```go
+// 创建驱动管理器实现
+func NewDriverManagerImpl(parentCtx context.Context) common.IDeviceManager
+```
+
+## 架构模式
+
+### 1. 服务导出模式
+每个服务都提供统一的导出接口，隐藏内部实现细节：
+
+```go
+// s_storage 导出
+func NewSingleStorageManager(parentCtx context.Context, storage c_base.IStorage)
+func RegisterStorageDriver(deviceConfig *c_base.SDeviceConfig)
+
+// s_db 导出
+func GetDeviceService() s_db_basic.IDeviceService
+func GetAlarmService() s_db_basic.IAlarmService
+func GetProtocolService() s_db_basic.IProtocolService
+
+// s_driver 导出
+func NewDriverManagerImpl(parentCtx context.Context) common.IDeviceManager
+```
+
+### 2. 单例模式
+关键服务使用单例模式确保全局唯一性：
+- `StorageManagerInstance` - 存储管理器单例
+- `DeviceManager` - 设备管理器单例
+
+### 3. 接口分离原则
+每个服务都定义清晰的接口，便于测试和扩展：
+- `IDeviceService` - 设备相关操作
+- `IAlarmService` - 告警相关操作
+- `IProtocolService` - 协议相关操作
+- `ILogService` - 日志相关操作
+- `ISettingService` - 设置相关操作
+
+### 4. 依赖注入
+服务间通过依赖注入进行解耦：
+- 存储服务依赖 `c_base.IStorage` 接口
+- 驱动服务实现 `common.IDeviceManager` 接口
+- 数据库服务提供各种业务服务接口
+
+## 技术栈
+
+### 共同依赖
+- **GoFrame v2**: 统一的 Web 框架和 ORM
+- **Context**: 上下文传递和生命周期管理
+- **SQLite**: 轻量级数据库存储
+
+### 服务特定依赖
+- **s_storage**: `gopsutil` 系统监控, `golang.org/x/net` 网络工具
+- **s_driver**: `torykit/go-modbus` Modbus 协议支持
+- **s_db**: `google/uuid` UUID 生成, `pkg/errors` 错误处理
+
+## 开发规范
+
+### 1. 模块独立性
+- 每个服务都是独立的 Go 模块
+- 通过 `go.mod` 管理依赖
+- 服务间通过接口通信
+
+### 2. 错误处理
+- 统一使用 `github.com/pkg/errors` 进行错误包装
+- 所有服务方法都应该返回适当的错误信息
+
+### 3. 上下文传递
+- 所有服务方法都应该接受 `context.Context` 参数
+- 支持请求取消和超时控制
+
+### 4. 数据模型
+- 使用 GoFrame ORM 进行数据访问
+- 模型结构体包含 `g.Meta` 元数据
+- 支持 JSON 序列化和数据库映射
+
+### 5. 测试
+- 每个服务都应该有对应的测试文件
+- 使用接口进行依赖注入，便于单元测试
+
+## 使用示例
+
+### 初始化服务
+```go
+// 初始化数据库服务
+s_db.Init()
+
+// 创建存储管理器
+s_storage.NewSingleStorageManager(ctx, storageInstance)
+
+// 创建设备管理器
+deviceManager := s_driver.NewDriverManagerImpl(ctx)
+common.RegisterDeviceManager(deviceManager)
+```
+
+### 使用服务
+```go
+// 获取设备服务
+deviceService := s_db.GetDeviceService()
+devices, err := deviceService.GetAllDevices(ctx)
+
+// 获取告警服务
+alarmService := s_db.GetAlarmService()
+err := alarmService.CreateAlarmHistory(ctx, deviceId, sourceId, meta, detail, triggerTime)
+
+// 注册设备存储
+s_storage.RegisterStorageDriver(deviceConfig)
+```
+
+## 扩展指南
+
+1. **新增服务**: 创建新的服务目录，遵循相同的模块结构
+2. **新增接口**: 在 `s_db_basic/` 中定义新接口，在 `impl/` 中实现
+3. **新增数据模型**: 在 `s_db_model/` 中添加新的模型结构
+4. **新增存储功能**: 在 `s_storage/internal/` 中扩展存储逻辑
