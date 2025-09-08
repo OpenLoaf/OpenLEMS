@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 
 	v1 "application/api/system/v1"
+	"common"
 
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
@@ -352,4 +353,40 @@ func (c *ControllerV1) UpdateStorageTime(ctx context.Context, req *v1.UpdateStor
 	}
 
 	return &v1.UpdateStorageTimeRes{}, nil
+}
+
+// GetStorageStats 获取存储统计信息
+func (c *ControllerV1) GetStorageStats(ctx context.Context, req *v1.GetStorageStatsReq) (res *v1.GetStorageStatsRes, err error) {
+	// 获取存储实例
+	storage := common.GetStorageInstance()
+
+	// 调用存储统计方法
+	stats, err := storage.GetStorageStats()
+	if err != nil {
+		return nil, errors.Errorf("获取存储统计信息失败: %+v", err)
+	}
+
+	// 转换为API响应格式
+	storageStatsInfo := v1.StorageStatsInfo{
+		TotalSeries:      stats.TotalSeries,
+		TotalSamples:     stats.TotalSamples,
+		StorageSize:      stats.StorageSize,
+		StorageSizeMB:    stats.StorageSizeMB,
+		RetentionTime:    stats.RetentionTime,
+		RetentionHours:   stats.RetentionHours,
+		AvgSeriesSize:    stats.AvgSeriesSize,
+		SamplesPerSecond: stats.SamplesPerSecond,
+	}
+
+	// 处理时间戳转换
+	if stats.OldestTimestamp != nil {
+		storageStatsInfo.OldestTimestamp = *stats.OldestTimestamp
+	}
+	if stats.NewestTimestamp != nil {
+		storageStatsInfo.NewestTimestamp = *stats.NewestTimestamp
+	}
+
+	return &v1.GetStorageStatsRes{
+		Stats: storageStatsInfo,
+	}, nil
 }

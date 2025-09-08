@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"time"
+
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -146,3 +148,24 @@ type UpdateStorageTimeReq struct {
 	LogRetentionDays    int `json:"logRetentionDays" v:"min:1#日志数据保留天数必须大于0" dc:"日志数据保留天数"`
 }
 type UpdateStorageTimeRes struct{}
+
+type GetStorageStatsReq struct {
+	g.Meta `path:"/system/storage/stats" method:"get" tags:"系统相关" summary:"获取存储统计信息"`
+}
+type GetStorageStatsRes struct {
+	Stats StorageStatsInfo `json:"stats" dc:"存储统计信息"`
+}
+
+// StorageStatsInfo 存储统计信息结构体
+type StorageStatsInfo struct {
+	TotalSeries      int64     `json:"total_series" dc:"总时间序列数量"`
+	TotalSamples     int64     `json:"total_samples" dc:"总样本数量"`
+	StorageSize      int64     `json:"storage_size" dc:"存储大小（字节）"`
+	StorageSizeMB    float64   `json:"storage_size_mb" dc:"存储大小（MB）"`
+	OldestTimestamp  time.Time `json:"oldest_timestamp" dc:"最老数据时间戳"`
+	NewestTimestamp  time.Time `json:"newest_timestamp" dc:"最新数据时间戳"`
+	RetentionTime    int64     `json:"retention_time" dc:"数据保留时间（秒）"`
+	RetentionHours   float64   `json:"retention_hours" dc:"数据保留时间（小时）"`
+	AvgSeriesSize    float64   `json:"avg_series_size" dc:"平均每个序列占用数据大小（字节）"`
+	SamplesPerSecond float64   `json:"samples_per_second" dc:"每秒存储样本数"`
+}

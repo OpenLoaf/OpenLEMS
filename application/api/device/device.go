@@ -15,6 +15,7 @@ type IDeviceV1 interface {
 	GetRealDeviceList(ctx context.Context, req *v1.GetRealDeviceListReq) (res *v1.GetRealDeviceListRes, err error)
 	GetDeviceHistory(ctx context.Context, req *v1.PostDeviceHistoryReq) (res *v1.PostDeviceHistoryRes, err error)
 	GetDeviceNameList(ctx context.Context, req *v1.GetDeviceNameListReq) (res *v1.GetDeviceNameListRes, err error)
+	GetDeviceDetailedList(ctx context.Context, req *v1.GetDeviceDetailedListReq) (res *v1.GetDeviceDetailedListRes, err error)
 }
 
 type IDeviceV2 interface {

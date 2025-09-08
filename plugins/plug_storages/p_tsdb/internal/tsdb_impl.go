@@ -6,6 +6,7 @@ import (
 	"common/c_log"
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"sync"
@@ -315,6 +316,127 @@ func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, point
 		chart.AddSeries(*seriesMap[k])
 	}
 	return chart, nil
+}
+
+func (p *promDB) GetStorageStats() (*c_base.StorageStats, error) {
+	stats := &c_base.StorageStats{}
+
+	// 获取数据库头部信息
+	head := p.db.Head()
+	if head == nil {
+		return stats, fmt.Errorf("无法获取数据库头部信息")
+	}
+
+	// 获取头部统计信息
+	headStats := head.Stats("")
+	stats.TotalSeries = int64(headStats.NumSeries)
+	// 注意：Prometheus TSDB的Stats结构体没有NumSamples字段，我们通过查询来估算
+	stats.TotalSamples = p.estimateTotalSamples()
+
+	// 转换时间戳为time.Time类型
+	if headStats.MinTime > 0 {
+		oldestTime := time.UnixMilli(headStats.MinTime)
+		stats.OldestTimestamp = &oldestTime
+	}
+	if headStats.MaxTime > 0 {
+		newestTime := time.UnixMilli(headStats.MaxTime)
+		stats.NewestTimestamp = &newestTime
+	}
+
+	// 计算存储大小（通过数据库目录大小估算）
+	storageSize, err := p.calculateStorageSize()
+	if err != nil {
+		c_log.BizInfof(p.ctx, "计算存储大小失败: %v", err)
+		stats.StorageSize = -1 // 表示无法获取
+	} else {
+		stats.StorageSize = storageSize
+	}
+
+	// 计算数据保留时间（秒）
+	if headStats.MinTime > 0 && headStats.MaxTime > 0 {
+		stats.RetentionTime = (headStats.MaxTime - headStats.MinTime) / 1000 // 转换为秒
+	}
+
+	// 计算平均每个序列占用数据大小
+	if stats.TotalSeries > 0 && stats.StorageSize > 0 {
+		stats.AvgSeriesSize = float64(stats.StorageSize) / float64(stats.TotalSeries)
+	}
+
+	// 计算每秒存储样本数
+	if stats.RetentionTime > 0 && stats.TotalSamples > 0 {
+		stats.SamplesPerSecond = float64(stats.TotalSamples) / float64(stats.RetentionTime)
+	}
+
+	// 计算存储大小（MB）
+	stats.StorageSizeMB = float64(stats.StorageSize) / (1024 * 1024)
+
+	// 计算数据保留时间（小时）
+	stats.RetentionHours = float64(stats.RetentionTime) / 3600
+
+	c_log.Debugf(p.ctx, "获取存储统计信息: 序列数=%d, 样本数=%d, 存储大小=%.2fMB, 保留时间=%.2f小时, 平均序列大小=%.2f字节, 每秒样本数=%.2f",
+		stats.TotalSeries, stats.TotalSamples, stats.StorageSizeMB, stats.RetentionHours, stats.AvgSeriesSize, stats.SamplesPerSecond)
+
+	return stats, nil
+}
+
+// estimateTotalSamples 估算总样本数量
+func (p *promDB) estimateTotalSamples() int64 {
+	// 通过查询所有ems_metric系列来估算样本数量
+	head := p.db.Head()
+	if head == nil {
+		return 0
+	}
+
+	// 创建查询器
+	q, err := p.db.Querier(context.Background(), 0, time.Now().UnixMilli())
+	if err != nil {
+		return 0
+	}
+	defer q.Close()
+
+	// 查询所有ems_metric系列
+	matchers := []*labels.Matcher{
+		labels.MustNewMatcher(labels.MatchEqual, LabelNameMetric, "ems_metric"),
+	}
+
+	ss, _, err := q.Select(false, nil, matchers...)
+	if err != nil {
+		return 0
+	}
+
+	var totalSamples int64
+	for ss.Next() {
+		s := ss.At()
+		it := s.Iterator()
+		for it.Next() {
+			totalSamples++
+		}
+	}
+
+	return totalSamples
+}
+
+// calculateStorageSize 计算存储目录大小
+func (p *promDB) calculateStorageSize() (int64, error) {
+	// 获取数据库路径
+	dbPath := p.db.Dir()
+	if dbPath == "" {
+		return 0, fmt.Errorf("无法获取数据库路径")
+	}
+
+	// 遍历目录计算总大小
+	var totalSize int64
+	err := filepath.Walk(dbPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			totalSize += info.Size()
+		}
+		return nil
+	})
+
+	return totalSize, err
 }
 
 func (p *promDB) Close() {

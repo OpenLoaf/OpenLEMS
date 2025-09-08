@@ -9,6 +9,6 @@ func main() {
 	w.SetSize(1440, 900, webview.HintNone)
 	w.SetHtml("Thanks for using webview!")
 
-	w.Navigate("http://localhost:15880")
+	w.Navigate("http://localhost:3002")
 	w.Run()
 }

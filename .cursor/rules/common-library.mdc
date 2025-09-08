@@ -1,0 +1,148 @@
+---
+alwaysApply: true
+description: Common library structure and conventions for the EMS plan project
+---
+
+# Common Library 结构指南
+
+`common/` 目录是项目的核心共享库，包含所有模块间共享的接口、类型定义和基础功能。
+
+## 目录结构
+
+### 核心模块
+- **c_base/**: 基础接口和类型定义
+  - 设备接口: [c_base_device_i.go](mdc:common/c_base/c_base_device_i.go)
+  - 驱动接口: [c_base_driver_i.go](mdc:common/c_base/c_base_driver_i.go) 
+  - 存储接口: [c_base_storage_i.go](mdc:common/c_base/c_base_storage_i.go)
+  - 设备类型枚举: [c_base_type_e.go](mdc:common/c_base/c_base_type_e.go)
+  - 配置结构: [c_base_device_config_s.go](mdc:common/c_base/c_base_device_config_s.go)
+
+- **c_device/**: 设备相关实现
+  - 真实设备: [c_device_real_s.go](mdc:common/c_device/c_device_real_s.go)
+  - 虚拟设备: [c_device_virtual_s.go](mdc:common/c_device/c_device_virtual_s.go)
+  - 设备策略: [c_device_policy_s.go](mdc:common/c_device/c_device_policy_s.go)
+
+- **c_proto/**: 协议相关
+  - Modbus 协议: [c_modbus_protocol_i.go](mdc:common/c_proto/c_modbus_protocol_i.go)
+  - 协议配置: [c_modbus_config_s.go](mdc:common/c_proto/c_modbus_config_s.go)
+
+- **c_func/**: 聚合函数
+  - 平均值: [c_func_aggregate_avg_f.go](mdc:common/c_func/c_func_aggregate_avg_f.go)
+  - 最大值: [c_func_aggregate_max_f.go](mdc:common/c_func/c_func_aggregate_max_f.go)
+  - 最小值: [c_func_aggregate_min_f.go](mdc:common/c_func/c_func_aggregate_min_f.go)
+  - 求和: [c_func_aggregate_sum_f.go](mdc:common/c_func/c_func_aggregate_sum_f.go)
+
+- **c_chart/**: 图表数据结构
+- **c_status/**: 状态管理
+- **c_alarm/**: 告警管理
+- **c_log/**: 日志接口
+- **c_timer/**: 定时器功能
+
+## 命名约定
+
+### 文件命名模式
+- `c_*_i.go`: 接口定义 (Interface)
+- `c_*_s.go`: 结构体定义 (Struct) 
+- `c_*_e.go`: 枚举定义 (Enum)
+- `c_*_f.go`: 函数定义 (Function)
+- `c_*_c.go`: 常量定义 (Constant)
+- `*_test.go`: 测试文件
+
+### 类型命名
+- `I*`: 接口类型 (如 `IDevice`, `IDriver`, `IStorage`)
+- `S*`: 结构体类型 (如 `SDeviceConfig`, `SDriverInfo`)
+- `E*`: 枚举类型 (如 `EDeviceType`, `EProtocolType`)
+- `*_si.go`: 单例接口 (如 `c_device_manager_si.go`)
+
+## 核心接口
+
+### 设备管理
+```go
+// 设备管理器接口
+type IDeviceManager interface {
+    Start()                      // 启动服务
+    Shutdown()                   // 停止管理器
+    GetDeviceById(deviceId string) c_base.IDevice
+    IteratorAllDevices(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool)
+}
+```
+
+### 设备接口
+```go
+// 设备基础接口
+type IDevice interface {
+    IAlarm // 继承告警接口
+    GetConfig() *SDeviceConfig
+    GetProtocolStatus() c_status.EProtocolStatus
+    GetMetaValueList() []*MetaValueWrapper
+    IsVirtualDevice() bool
+}
+```
+
+### 存储接口
+```go
+// 存储接口
+type IStorage interface {
+    SaveDevices(deviceId string, deviceType EDeviceType, fields map[string]any) error
+    SaveProtocolMetrics(protocolConfig *SProtocolConfig, deviceConfig *SDeviceConfig, metrics map[string]any) error
+    GetStorageData(storageType StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error)
+    GetStorageStats() (*StorageStats, error)
+}
+```
+
+## 设备类型
+
+支持的设备类型定义在 [c_base_type_e.go](mdc:common/c_base/c_base_type_e.go):
+- `EDeviceAmmeter`: 电表
+- `EDeviceCoolingAc`: 制冷空调
+- `EDeviceBms`: 电池管理系统
+- `EDevicePcs`: 电池逆变器
+- `EDeviceEnergyStore`: 储能柜
+- `EDeviceChargePile`: 充电桩
+- 等等...
+
+## 使用模式
+
+### 单例注册模式
+```go
+// 注册设备管理器
+func RegisterDeviceManager(cmd IDeviceManager) {
+    deviceManager = cmd
+}
+
+// 获取设备管理器
+func GetDeviceManager() IDeviceManager {
+    if deviceManager == nil {
+        panic("device manager is nil !")
+    }
+    return deviceManager
+}
+```
+
+### 泛型聚合函数
+```go
+// 使用泛型实现类型安全的聚合函数
+func avgAggregate[T c_base.Number](values []any, convert func(interface{}) (T, error)) (T, error)
+```
+
+## 依赖关系
+
+- 使用 `github.com/shockerli/cvt` 进行类型转换
+- 使用 `github.com/pkg/errors` 进行错误处理
+- 使用 `gopkg.in/yaml.v3` 进行 YAML 配置解析
+
+## 开发指南
+
+1. **新增设备类型**: 在 [c_base_type_e.go](mdc:common/c_base/c_base_type_e.go) 中添加枚举值
+2. **新增接口**: 在对应的 `c_*_i.go` 文件中定义
+3. **新增实现**: 在对应的 `c_*_s.go` 文件中实现
+4. **新增聚合函数**: 在 [c_func/](mdc:common/c_func/) 目录中添加
+5. **测试**: 为所有新功能添加对应的 `*_test.go` 文件
+
+## 注意事项
+
+- 所有接口都应该有对应的实现
+- 使用泛型时确保类型安全
+- 错误处理要统一使用 `github.com/pkg/errors`
+- 单例模式要确保线程安全
+- 配置结构体要支持 YAML 序列化
