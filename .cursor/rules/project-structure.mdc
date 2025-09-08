@@ -1,0 +1,90 @@
+---
+alwaysApply: true
+description: 项目整体结构和开发规范
+---
+
+# EMS-Plan 项目结构指南
+
+## 项目架构
+
+这是一个基于 Go 的能源管理系统 (EMS)，采用微服务架构和插件化设计。
+
+### 核心目录结构
+
+```text
+ems-plan/
+├── common/                    # 共享库 - 所有模块间共享的接口和类型
+├── services/                  # 服务层 - 核心业务服务
+│   ├── s_db/                 # 数据库服务
+│   ├── s_driver/             # 驱动服务  
+│   └── s_storage/            # 存储服务
+├── plugins/                  # 插件系统
+│   ├── plug_drivers/         # 设备驱动插件
+│   ├── plug_protocols/       # 协议插件
+│   ├── plug_storages/        # 存储插件
+│   └── plug_policy/          # 策略插件
+├── application/              # 主应用程序
+└── @cpp/                     # C++ 扩展库
+```
+
+## 开发规范
+
+### 1. 命名约定
+
+#### 文件命名
+
+- 接口文件：`*_i.go` (Interface)
+- 结构体文件：`*_s.go` (Struct)
+- 枚举文件：`*_e.go` (Enum)
+- 函数文件：`*_f.go` (Function)
+- 常量文件：`*_c.go` (Constant)
+- 测试文件：`*_test.go`
+
+#### 类型命名
+
+- 接口：`I*` (如 `IDevice`, `IDriver`)
+- 结构体：`S*` (如 `SDeviceConfig`, `SDriverInfo`)
+- 枚举：`E*` (如 `EDeviceType`, `EProtocolType`)
+
+### 2. 服务开发流程
+
+#### s_db 服务 (数据库服务)
+
+1. 在 `s_db_init_f.go` 中添加 SQL 表创建语句
+2. 在 `s_db_model/` 中创建模型文件
+3. 在 `s_db_basic_interface.go` 中定义服务接口
+4. 在 `internal/impl/` 中实现服务
+5. 在 `s_db_export_f.go` 中添加导出函数
+
+#### 插件开发
+
+1. 在对应的 `plug_*/` 目录下创建插件
+2. 实现相应的接口
+3. 添加配置文件
+4. 注册到系统中
+
+### 3. 技术栈
+
+- **GoFrame v2**: Web 框架和 ORM
+- **SQLite**: 轻量级数据库
+- **Go Modules**: 依赖管理
+- **CGO**: C++ 扩展支持
+
+### 4. 代码规范
+
+- 使用 `context.Context` 进行上下文传递
+- 统一错误处理使用 `github.com/pkg/errors`
+- 日志记录使用 GoFrame 的 `g.Log()`
+- 单例模式用于服务管理
+- 接口分离原则
+
+### 5. 启动方式
+
+使用项目的 `run_example.sh` 脚本启动示例应用程序。
+
+## 关键文件
+
+- [common/c_base/](mdc:common/c_base/) - 基础接口和类型定义
+- [services/s_db/](mdc:services/s_db/) - 数据库服务
+- [application/main.go](mdc:application/main.go) - 主程序入口
+- [@cpp/run_example.sh](mdc:@cpp/run_example.sh) - 示例启动脚本

@@ -1,0 +1,373 @@
+---
+description: application 接口开发规则 - API、Controller、Entity 创建标准化流程
+---
+
+# Application 接口开发规则
+
+`application/` 目录是项目的 Web 应用层，采用 GoFrame v2 框架，遵循 RESTful API 设计原则。遵循以下标准化开发流程：
+
+## 目录结构
+
+```text
+application/
+├── api/                        # API 接口定义层
+│   ├── [module]/              # 模块目录
+│   │   ├── [module].go        # 模块接口定义 (自动生成)
+│   │   └── v1/                # 版本目录
+│   │       └── [module]_*.go  # 具体接口定义
+├── internal/                   # 内部实现层
+│   ├── controller/            # 控制器实现
+│   │   └── [module]/          # 模块控制器
+│   │       ├── [module]_new.go        # 控制器构造函数 (自动生成)
+│   │       └── [module]_v1_*.go       # 具体接口实现
+│   ├── model/                 # 数据模型层
+│   │   ├── entity/            # 实体模型
+│   │   └── convert/           # 数据转换
+│   ├── consts/                # 常量定义
+│   └── logic/                 # 业务逻辑层
+└── manifest/                  # 配置文件
+```
+
+## 开发流程
+
+### 1. 创建 API 接口定义
+
+在 `api/[module]/v1/` 目录下创建接口定义文件：
+
+```go
+package v1
+
+import (
+    "application/internal/model/entity"
+    "github.com/gogf/gf/v2/frame/g"
+)
+
+// [Action][Module]Req 请求结构体
+type [Action][Module]Req struct {
+    g.Meta `path:"/[module]/[action]" method:"[method]" tags:"[模块名]相关" summary:"[接口描述]"`
+    
+    // 路径参数
+    [ParamName] string `json:"[paramName]" v:"required" dc:"[参数描述]"`
+    
+    // 查询参数
+    [QueryParam] string `json:"[queryParam]" dc:"[查询参数描述]"`
+    
+    // 请求体参数
+    [BodyParam] string `json:"[bodyParam]" v:"required" dc:"[请求体参数描述]"`
+}
+
+// [Action][Module]Res 响应结构体
+type [Action][Module]Res struct {
+    // 基础响应字段
+    [ResultField] []*entity.S[Module]Entity `json:"[resultField]" dc:"[结果字段描述]"`
+    
+    // 分页字段 (如需要)
+    Total int `json:"total" dc:"总数"`
+    Page  int `json:"page" dc:"当前页"`
+    Size  int `json:"size" dc:"每页大小"`
+}
+```
+
+**API 定义规范**：
+
+- 文件命名：`[module]_[action].go`
+- 结构体命名：`[Action][Module]Req/Res`
+- 必须包含 `g.Meta` 标签定义路由信息
+- 路径参数使用 `v:"required"` 验证
+- 所有字段都要有 `dc` 标签描述
+- 响应结构体使用 `entity` 包中的实体模型
+
+### 2. 更新模块接口定义
+
+在 `api/[module]/[module].go` 中添加新接口方法：
+
+```go
+type I[Module]V1 interface {
+    // 现有方法...
+    
+    // 新增方法
+    [Action][Module](ctx context.Context, req *v1.[Action][Module]Req) (res *v1.[Action][Module]Res, err error)
+}
+```
+
+**注意**：此文件由 GoFrame CLI 自动生成，通常不需要手动编辑。
+
+### 3. 创建实体模型
+
+在 `internal/model/entity/` 目录下创建实体文件：
+
+```go
+package entity
+
+import (
+    "common/c_base"
+    "github.com/pkg/errors"
+    "reflect"
+    "github.com/gogf/gf/v2/util/gconv"
+)
+
+// S[Module]Entity 实体结构体
+type S[Module]Entity struct {
+    // 基础字段
+    Id        string `json:"id" dc:"ID"`
+    Name      string `json:"name" dc:"名称"`
+    CreatedAt string `json:"createdAt" dc:"创建时间"`
+    UpdatedAt string `json:"updatedAt" dc:"更新时间"`
+    
+    // 业务字段
+    [BusinessField] string `json:"[businessField]" dc:"[业务字段描述]"`
+    
+    // 关联字段
+    [RelatedField] []*S[RelatedModule]Entity `json:"[relatedField]" dc:"[关联字段描述]"`
+}
+
+// UnmarshalValue 实现值转换接口
+func (e *S[Module]Entity) UnmarshalValue(value interface{}) error {
+    if record, ok := value.(*c_base.S[BaseType]); ok {
+        *e = S[Module]Entity{
+            Id:        record.Id,
+            Name:      record.Name,
+            CreatedAt: record.CreatedAt,
+            UpdatedAt: record.UpdatedAt,
+            // 其他字段映射...
+        }
+        return nil
+    }
+    return errors.Errorf(`unsupported value type for UnmarshalValue: %v`, reflect.TypeOf(value))
+}
+```
+
+**实体模型规范**：
+
+- 文件命名：`[module].go`
+- 结构体命名：`S[Module]Entity`
+- 必须实现 `UnmarshalValue` 方法用于数据转换
+- 使用 `gconv` 进行类型转换
+- 字段要有完整的 JSON 和描述标签
+
+### 4. 实现控制器
+
+在 `internal/controller/[module]/` 目录下创建控制器实现：
+
+```go
+package [module]
+
+import (
+    "context"
+    "application/api/[module]"
+    "application/internal/model/entity"
+    "common"
+    "s_db"
+    
+    v1 "application/api/[module]/v1"
+    "github.com/gogf/gf/v2/errors/gerror"
+    "github.com/gogf/gf/v2/errors/gcode"
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/util/gconv"
+)
+
+// [Action][Module] 实现接口方法
+func (c *ControllerV1) [Action][Module](ctx context.Context, req *v1.[Action][Module]Req) (res *v1.[Action][Module]Res, err error) {
+    // 1. 参数验证和预处理
+    if req.[ParamName] == "" {
+        return nil, gerror.NewCode(gcode.CodeInvalidParameter, "参数不能为空")
+    }
+    
+    // 2. 调用业务逻辑或服务层
+    var result []*entity.S[Module]Entity
+    
+    // 方式1: 调用 common 层服务
+    if manager := common.GetDeviceManager(); manager != nil {
+        // 使用设备管理器
+        configs := manager.GetDeviceConfigList()
+        err = gconv.Scan(configs, &result)
+        if err != nil {
+            g.Log().Errorf(ctx, "数据转换失败: %+v", err)
+            return nil, gerror.WrapCode(gcode.CodeInternalError, err, "数据转换失败")
+        }
+    }
+    
+    // 方式2: 调用 s_db 服务
+    // service := s_db.Get[Module]Service()
+    // data, err := service.Get[Module]sByCondition(ctx, condition)
+    // if err != nil {
+    //     g.Log().Errorf(ctx, "查询失败: %+v", err)
+    //     return nil, gerror.WrapCode(gcode.CodeInternalError, err, "查询失败")
+    // }
+    
+    // 3. 构建响应
+    return &v1.[Action][Module]Res{
+        [ResultField]: result,
+        // 分页信息 (如需要)
+        Total: len(result),
+        Page:  req.Page,
+        Size:  req.Size,
+    }, nil
+}
+```
+
+**控制器实现规范**：
+
+- 文件命名：`[module]_v1_[action].go`
+- 方法命名：`[Action][Module]`
+- 必须进行参数验证
+- 使用 `gerror` 进行错误处理
+- 使用 `g.Log()` 记录日志
+- 返回统一的响应格式
+
+### 5. 更新控制器构造函数
+
+在 `internal/controller/[module]/[module]_new.go` 中确保控制器已注册：
+
+```go
+package [module]
+
+import (
+    "application/api/[module]"
+)
+
+type ControllerV1 struct{}
+
+func NewV1() [module].I[Module]V1 {
+    return &ControllerV1{}
+}
+```
+
+**注意**：此文件由 GoFrame CLI 自动生成，通常不需要手动编辑。
+
+## 命名约定
+
+### 文件命名
+
+- API 定义: `[module]_[action].go`
+- 控制器实现: `[module]_v1_[action].go`
+- 实体模型: `[module].go`
+- 构造函数: `[module]_new.go`
+
+### 类型命名
+
+- 接口: `I[Module]V1`
+- 控制器: `ControllerV1`
+- 请求结构: `[Action][Module]Req`
+- 响应结构: `[Action][Module]Res`
+- 实体: `S[Module]Entity`
+
+### 方法命名
+
+- 查询: `Get[Module]`, `Get[Module]List`, `Get[Module]ById`
+- 创建: `Create[Module]`
+- 更新: `Update[Module]`
+- 删除: `Delete[Module]`
+- 操作: `[Action][Module]`
+
+## 路由规范
+
+### HTTP 方法映射
+
+- `GET`: 查询操作
+- `POST`: 创建操作
+- `PUT`: 更新操作
+- `DELETE`: 删除操作
+
+### 路径规范
+
+- 资源集合: `/[module]` (如 `/device`)
+- 单个资源: `/[module]/{id}` (如 `/device/{deviceId}`)
+- 子资源: `/[module]/{id}/[submodule]` (如 `/device/{deviceId}/telemetry`)
+- 操作: `/[module]/[action]` (如 `/device/enable`)
+
+### 标签规范
+
+- 模块标签: `[模块名]相关` (如 `设备相关`)
+- 接口描述: 简洁明确的功能描述
+
+## 错误处理
+
+### 错误码使用
+
+```go
+// 参数错误
+gerror.NewCode(gcode.CodeInvalidParameter, "参数不能为空")
+
+// 内部错误
+gerror.WrapCode(gcode.CodeInternalError, err, "操作失败")
+
+// 资源不存在
+gerror.NewCode(gcode.CodeNotFound, "资源不存在")
+```
+
+### 日志记录
+
+```go
+// 错误日志
+g.Log().Errorf(ctx, "操作失败: %+v", err)
+
+// 信息日志
+g.Log().Infof(ctx, "操作成功: %s", result)
+
+// 调试日志
+g.Log().Debugf(ctx, "调试信息: %+v", data)
+```
+
+## 数据转换
+
+### 使用 gconv 进行类型转换
+
+```go
+// 结构体转换
+var result []*entity.SModuleEntity
+err = gconv.Scan(sourceData, &result)
+
+// 基础类型转换
+intValue := gconv.Int(stringValue)
+boolValue := gconv.Bool(stringValue)
+```
+
+### 实体转换
+
+```go
+// 实现 UnmarshalValue 方法
+func (e *SEntity) UnmarshalValue(value interface{}) error {
+    if record, ok := value.(*c_base.SBaseType); ok {
+        // 字段映射
+        *e = SEntity{
+            Id:   record.Id,
+            Name: record.Name,
+            // ...
+        }
+        return nil
+    }
+    return errors.Errorf(`unsupported value type: %v`, reflect.TypeOf(value))
+}
+```
+
+## 技术栈
+
+- **GoFrame v2**: Web 框架和路由管理
+- **Context**: 上下文传递和生命周期管理
+- **gconv**: 类型转换工具
+- **gerror**: 错误处理
+- **g.Log()**: 日志记录
+
+## 开发检查清单
+
+创建新的 API 接口时，确保完成以下步骤：
+
+- [ ] 在 `api/[module]/v1/` 中创建接口定义
+- [ ] 在 `api/[module]/[module].go` 中添加接口方法
+- [ ] 在 `internal/model/entity/` 中创建实体模型
+- [ ] 在 `internal/controller/[module]/` 中实现控制器
+- [ ] 确保所有方法都有适当的错误处理
+- [ ] 添加必要的日志记录
+- [ ] 测试接口的正确性
+- [ ] 验证路由和参数绑定
+
+## 示例参考
+
+参考现有实现：
+
+- [device.go](mdc:application/api/device/device.go) - 模块接口定义
+- [device_get.go](mdc:application/api/device/v1/device_get.go) - 接口定义示例
+- [device_v1_get_device_tree.go](mdc:application/internal/controller/device/device_v1_get_device_tree.go) - 控制器实现示例
+- [device.go](mdc:application/internal/model/entity/device.go) - 实体模型示例
+- [protocol_v1_create_protocol.go](mdc:application/internal/controller/protocol/protocol_v1_create_protocol.go) - 创建操作示例

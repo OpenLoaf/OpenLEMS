@@ -63,8 +63,6 @@ func initConfigDatabase() {
 			protocol_id VARCHAR(255),
 			name VARCHAR(255) NOT NULL,
 			driver VARCHAR(255),
-			policy VARCHAR(255),
-			policy_params VARCHAR(255),
 			log_level VARCHAR(255) DEFAULT 'INFO',
 			enabled BOOLEAN DEFAULT 1,
 			params TEXT DEFAULT '{}',
@@ -84,7 +82,7 @@ func initConfigDatabase() {
 	_, err = g.DB().Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS setting (
 			id VARCHAR(255) PRIMARY KEY,
-			value VARCHAR(255),
+			value TEXT,
 		    is_public BOOLEAN DEFAULT 0,
 			enabled BOOLEAN default 1,
 			remark VARCHAR(255),
