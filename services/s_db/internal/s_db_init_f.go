@@ -82,12 +82,12 @@ func initConfigDatabase() {
 	_, err = g.DB().Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS setting (
 			id VARCHAR(255) PRIMARY KEY,
+			group_name VARCHAR(255) DEFAULT 'system',
 			value TEXT,
 		    is_public BOOLEAN DEFAULT 0,
 			enabled BOOLEAN default 1,
 			remark VARCHAR(255),
 			sort INTEGER DEFAULT 0,
-			group_name VARCHAR(255) DEFAULT 'system',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
