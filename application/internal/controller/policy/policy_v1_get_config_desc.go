@@ -17,7 +17,9 @@ func (c *ControllerV1) GetPolicyConfigDesc(ctx context.Context, req *v1.GetPolic
 	if req.PolicyId == "" {
 		policyId = s_db.GetSettingService().GetRootPolicyId(ctx)
 		if policyId == "" {
-			return nil, errors.New("未设置激活的策略ID")
+			return &v1.GetPolicyConfigDescRes{
+				Config: nil,
+			}, nil
 		}
 	} else {
 		policyId = req.PolicyId
@@ -26,7 +28,9 @@ func (c *ControllerV1) GetPolicyConfigDesc(ctx context.Context, req *v1.GetPolic
 	// 获取策略配置字符串
 	policyConfigStr := s_db.GetSettingService().GetSettingValueById(ctx, policyId)
 	if policyConfigStr == "" {
-		return nil, errors.New("策略配置不存在")
+		return &v1.GetPolicyConfigDescRes{
+			Config: nil,
+		}, nil
 	}
 
 	// 将策略配置字符串解析为JSON对象
