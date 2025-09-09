@@ -111,6 +111,11 @@ func (s *sSettingServiceImpl) GetRootDeviceId(ctx context.Context) string {
 	return s.GetSettingValueByIdWithDefaultValue(ctx, s_db_basic.SettingActiveDeviceRootIdKey, c_base.ESettingGroupSystem, s_db_basic.DefaultActiveDeviceRootId)
 }
 
+// GetRootPolicyId 获取激活的策略ID
+func (s *sSettingServiceImpl) GetRootPolicyId(ctx context.Context) string {
+	return s.GetSettingValueById(ctx, s_db_basic.SettingActivePolicyIdKey)
+}
+
 /*func (s *sSettingServiceImpl) GetProtocolsConfigList(ctx context.Context) []*c_base.SProtocolConfig {
 	protocols, err := GetProtocolService().GetAllProtocols(ctx)
 	if err != nil {

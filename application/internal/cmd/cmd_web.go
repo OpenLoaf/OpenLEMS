@@ -8,6 +8,7 @@ import (
 	"application/internal/controller/driver"
 	"application/internal/controller/log"
 	"application/internal/controller/network"
+	"application/internal/controller/policy"
 	"application/internal/controller/protocol"
 	"application/internal/controller/system"
 
@@ -71,6 +72,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		group.Bind(control.NewV1())
 		group.Bind(log.NewV1())
 		group.Bind(alarm.NewV1())
+		group.Bind(policy.NewV1())
 
 	})
 

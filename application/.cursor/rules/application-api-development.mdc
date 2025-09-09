@@ -235,6 +235,101 @@ func NewV1() [module].I[Module]V1 {
 
 **注意**：此文件由 GoFrame CLI 自动生成，通常不需要手动编辑。
 
+### 6. 注册接口包到 Web 服务
+
+创建新的接口包后，必须在 `internal/cmd/cmd_web.go` 中注册控制器：
+
+#### 6.1 导入控制器包
+
+在文件顶部的导入部分添加新的控制器包：
+
+```go
+import (
+    "application/internal/consts"
+    "application/internal/controller/alarm"
+    "application/internal/controller/control"
+    "application/internal/controller/device"
+    "application/internal/controller/driver"
+    "application/internal/controller/log"
+    "application/internal/controller/network"
+    "application/internal/controller/policy"      // 新增模块
+    "application/internal/controller/protocol"
+    "application/internal/controller/system"
+    "application/internal/controller/[newmodule]" // 新增模块
+    // ... 其他导入
+)
+```
+
+#### 6.2 绑定控制器到路由组
+
+在 `startWeb` 函数的 API 路由组中添加新的控制器绑定：
+
+```go
+s.Group("/api", func(group *ghttp.RouterGroup) {
+    group.Middleware(
+        ghttp.MiddlewareCORS,
+        func(r *ghttp.Request) {
+            httpLanguage := r.GetHeader("Accept-Language")
+            if httpLanguage == "" {
+                httpLanguage = "zh-CN"
+            }
+            r.SetCtx(gi18n.WithLanguage(r.Context(), httpLanguage))
+            r.Middleware.Next()
+        },
+    )
+
+    // 现有控制器绑定
+    group.Bind(device.NewV1())
+    group.Bind(driver.NewV1())
+    group.Bind(network.NewV1())
+    group.Bind(system.NewV1())
+    group.Bind(protocol.NewV1())
+    group.Bind(control.NewV1())
+    group.Bind(log.NewV1())
+    group.Bind(alarm.NewV1())
+    group.Bind(policy.NewV1())
+    
+    // 新增控制器绑定
+    group.Bind([newmodule].NewV1())
+})
+```
+
+#### 6.3 注册步骤检查清单
+
+创建新接口包时，确保完成以下注册步骤：
+
+- [ ] 在 `internal/cmd/cmd_web.go` 中导入新的控制器包
+- [ ] 在 API 路由组中添加 `group.Bind([module].NewV1())`
+- [ ] 确保控制器构造函数 `NewV1()` 存在
+- [ ] 验证路由注册成功（启动服务后检查日志）
+- [ ] 测试 API 接口可访问性
+
+#### 6.4 路由注册示例
+
+**完整的注册示例**：
+
+```go
+// 1. 导入部分
+import (
+    "application/internal/controller/[newmodule]"
+)
+
+// 2. 路由绑定部分
+s.Group("/api", func(group *ghttp.RouterGroup) {
+    // ... 中间件配置 ...
+    
+    // 绑定新模块控制器
+    group.Bind([newmodule].NewV1())
+})
+```
+
+**注意事项**：
+
+1. **导入顺序**：按字母顺序排列导入包
+2. **绑定顺序**：按模块功能重要性或字母顺序排列绑定
+3. **命名一致性**：确保包名、控制器名、接口名保持一致
+4. **错误处理**：如果控制器注册失败，服务启动时会报错
+
 ## 命名约定
 
 ### 文件命名
@@ -281,32 +376,140 @@ func NewV1() [module].I[Module]V1 {
 - 模块标签: `[模块名]相关` (如 `设备相关`)
 - 接口描述: 简洁明确的功能描述
 
-## 错误处理
+## 异常处理
+
+### 错误处理原则
+
+1. **统一错误返回**：所有异常都通过 `err` 返回，不使用自定义响应体
+2. **错误码标准化**：使用 GoFrame 标准错误码
+3. **错误信息本地化**：错误信息支持多语言
+4. **详细日志记录**：记录错误上下文和堆栈信息
 
 ### 错误码使用
 
 ```go
-// 参数错误
-gerror.NewCode(gcode.CodeInvalidParameter, "参数不能为空")
+import (
+    "errors"
+    "github.com/gogf/gf/v2/errors/gerror"
+    "github.com/gogf/gf/v2/errors/gcode"
+)
 
-// 内部错误
-gerror.WrapCode(gcode.CodeInternalError, err, "操作失败")
+// 参数验证错误
+if req.ParamName == "" {
+    return nil, errors.New("参数不能为空")
+}
+
+// 业务逻辑错误
+if !isValidFormat(req.Data) {
+    return nil, gerror.NewCode(gcode.CodeInvalidParameter, "数据格式不正确")
+}
 
 // 资源不存在
-gerror.NewCode(gcode.CodeNotFound, "资源不存在")
+if resource == nil {
+    return nil, gerror.NewCode(gcode.CodeNotFound, "资源不存在")
+}
+
+// 权限错误
+if !hasPermission(ctx, resource) {
+    return nil, gerror.NewCode(gcode.CodeNotAuthorized, "权限不足")
+}
+
+// 内部错误（包装原始错误）
+if err != nil {
+    return nil, gerror.WrapCode(gcode.CodeInternalError, err, "操作失败")
+}
 ```
 
-### 日志记录
+### 异常处理最佳实践
 
 ```go
-// 错误日志
-g.Log().Errorf(ctx, "操作失败: %+v", err)
+func (c *ControllerV1) ExampleMethod(ctx context.Context, req *v1.ExampleReq) (res *v1.ExampleRes, err error) {
+    // 1. 参数验证
+    if err := c.validateRequest(req); err != nil {
+        g.Log().Errorf(ctx, "参数验证失败: %+v", err)
+        return nil, err
+    }
+    
+    // 2. 业务逻辑处理
+    result, err := c.processBusinessLogic(ctx, req)
+    if err != nil {
+        g.Log().Errorf(ctx, "业务逻辑处理失败: %+v", err)
+        return nil, err
+    }
+    
+    // 3. 数据转换
+    var response []*entity.ExampleEntity
+    if err := gconv.Scan(result, &response); err != nil {
+        g.Log().Errorf(ctx, "数据转换失败: %+v", err)
+        return nil, gerror.WrapCode(gcode.CodeInternalError, err, "数据转换失败")
+    }
+    
+    // 4. 成功返回
+    g.Log().Infof(ctx, "操作成功，处理了 %d 条记录", len(response))
+    return &v1.ExampleRes{
+        Data: response,
+    }, nil
+}
 
-// 信息日志
-g.Log().Infof(ctx, "操作成功: %s", result)
+// 参数验证方法
+func (c *ControllerV1) validateRequest(req *v1.ExampleReq) error {
+    if req.ID == "" {
+        return errors.New("ID不能为空")
+    }
+    if !strings.HasPrefix(req.ID, "prefix_") {
+        return errors.New("ID格式不正确，必须以prefix_开头")
+    }
+    return nil
+}
+```
 
-// 调试日志
-g.Log().Debugf(ctx, "调试信息: %+v", data)
+### 错误日志记录
+
+```go
+// 错误日志 - 包含上下文信息
+g.Log().Errorf(ctx, "操作失败 - 用户ID: %s, 操作: %s, 错误: %+v", userID, operation, err)
+
+// 警告日志 - 业务异常
+g.Log().Warningf(ctx, "业务异常 - 资源ID: %s, 原因: %s", resourceID, reason)
+
+// 信息日志 - 成功操作
+g.Log().Infof(ctx, "操作成功 - 处理了 %d 条记录", count)
+
+// 调试日志 - 详细调试信息
+g.Log().Debugf(ctx, "调试信息 - 请求参数: %+v, 响应数据: %+v", req, response)
+```
+
+### 错误响应格式
+
+**成功响应**：
+
+```json
+HTTP 200 OK
+{
+    "code": 0,
+    "message": "success",
+    "data": { ... }
+}
+```
+
+**错误响应**：
+
+```json
+HTTP 400 Bad Request
+{
+    "code": 400,
+    "message": "参数不能为空"
+}
+```
+
+**内部错误响应**：
+
+```json
+HTTP 500 Internal Server Error
+{
+    "code": 500,
+    "message": "操作失败: 数据库连接异常"
+}
 ```
 
 ## 数据转换
@@ -351,16 +554,53 @@ func (e *SEntity) UnmarshalValue(value interface{}) error {
 
 ## 开发检查清单
 
-创建新的 API 接口时，确保完成以下步骤：
+### 创建新模块接口包
+
+创建新的 API 模块时，确保完成以下步骤：
 
 - [ ] 在 `api/[module]/v1/` 中创建接口定义
 - [ ] 在 `api/[module]/[module].go` 中添加接口方法
 - [ ] 在 `internal/model/entity/` 中创建实体模型
 - [ ] 在 `internal/controller/[module]/` 中实现控制器
+- [ ] 在 `internal/cmd/cmd_web.go` 中导入新的控制器包
+- [ ] 在 `internal/cmd/cmd_web.go` 中绑定控制器到路由组
 - [ ] 确保所有方法都有适当的错误处理
 - [ ] 添加必要的日志记录
 - [ ] 测试接口的正确性
 - [ ] 验证路由和参数绑定
+- [ ] 验证服务启动和路由注册成功
+
+### 添加新接口到现有模块
+
+在现有模块中添加新接口时，确保完成以下步骤：
+
+- [ ] 在 `api/[module]/v1/` 中创建新接口定义
+- [ ] 在 `api/[module]/[module].go` 中添加新接口方法
+- [ ] 在 `internal/controller/[module]/` 中实现新接口控制器
+- [ ] 确保新接口有适当的错误处理
+- [ ] 添加必要的日志记录
+- [ ] 测试新接口的正确性
+- [ ] 验证路由和参数绑定
+
+### 错误处理检查清单
+
+- [ ] 所有异常都通过 `err` 返回，不使用自定义响应体
+- [ ] 参数验证错误使用 `errors.New()` 返回
+- [ ] 业务逻辑错误使用 `gerror.NewCode()` 返回
+- [ ] 内部错误使用 `gerror.WrapCode()` 包装原始错误
+- [ ] 所有错误都有详细的日志记录
+- [ ] 错误信息支持多语言（如需要）
+- [ ] 错误响应格式符合标准
+
+### 代码质量检查清单
+
+- [ ] 遵循命名约定和文件结构
+- [ ] 使用统一的错误处理方式
+- [ ] 添加适当的日志记录
+- [ ] 实现数据转换接口（如需要）
+- [ ] 添加必要的参数验证
+- [ ] 确保代码可读性和可维护性
+- [ ] 添加必要的注释和文档
 
 ## 示例参考
 

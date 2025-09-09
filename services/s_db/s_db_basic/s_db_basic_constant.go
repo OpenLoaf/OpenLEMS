@@ -4,6 +4,8 @@ const (
 	SettingActiveDeviceRootIdKey = "active_device_root_id" // 根设备ID
 	DefaultActiveDeviceRootId    = "0"                     // 默认根设备ID
 
+	SettingActivePolicyIdKey = "active_policy_id" // 激活的策略ID
+
 	SettingDeviceRetentionDays = "DeviceRetentionDays"
 	DefaultDeviceRetentionDays = "100" // 默认设备保存天数
 

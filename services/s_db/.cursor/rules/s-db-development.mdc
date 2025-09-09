@@ -1,0 +1,323 @@
+---
+globs: services/s_db/**/*.go
+description: s_db 服务开发规则 - SQL、Model、Service 创建标准化流程
+---
+
+# s_db 服务开发规则
+
+`s_db` 服务是项目的数据库服务层，负责数据持久化和业务数据访问。遵循以下标准化开发流程：
+
+## 目录结构
+
+```text
+services/s_db/
+├── s_db_export_f.go              # 服务导出接口
+├── s_db_basic/                   # 服务接口定义
+│   └── s_db_basic_interface.go   # 所有服务接口
+├── s_db_model/                   # 数据模型层
+│   ├── s_db_model_const_c.go     # 常量定义
+│   └── s_db_model_*.go          # 具体模型文件
+├── internal/                     # 内部实现
+│   ├── s_db_init_f.go           # 数据库初始化
+│   └── impl/                    # 服务实现
+│       └── s_db_impl_*.go       # 具体服务实现
+└── go.mod                       # 模块依赖
+```
+
+## 开发流程
+
+### 1. 创建 SQL 表结构
+
+在 [s_db_init_f.go](mdc:services/s_db/internal/s_db_init_f.go) 的 `initConfigDatabase()` 函数中添加表创建 SQL：
+
+```sql
+// 创建 [表名] 表
+_, err = g.DB().Exec(ctx, `
+    CREATE TABLE IF NOT EXISTS [table_name] (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,  -- 或 VARCHAR(255) PRIMARY KEY
+        [field1] [type] [constraints],
+        [field2] [type] [constraints],
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+`)
+if err != nil {
+    g.Log().Fatal(ctx, err)
+}
+```
+
+**SQL 规范**：
+
+- 表名使用下划线命名法
+- 主键通常为 `INTEGER PRIMARY KEY AUTOINCREMENT` 或 `VARCHAR(255) PRIMARY KEY`
+- 必须包含 `created_at` 和 `updated_at` 时间戳字段
+- 布尔字段使用 `BOOLEAN DEFAULT 0/1`
+- 文本字段使用 `TEXT` 或 `VARCHAR(255)`
+- 数值字段使用 `INTEGER` 或 `REAL`
+
+### 2. 创建 Model 文件
+
+在 `s_db_model/` 目录下创建 `s_db_model_[table_name]_s.go` 文件：
+
+```go
+package s_db_model
+
+import (
+    "context"
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/os/gtime"
+)
+
+// 数据库相关常量
+const (
+    Table[TableName] = "[table_name]"
+)
+
+// [TableName] 表结构
+type S[TableName]Model struct {
+    g.Meta       `orm:"table:[table_name]"`
+    Id           int         `json:"id" orm:"id"`
+    [Field1]     string      `json:"[field1]" orm:"[field1]"`
+    [Field2]     string      `json:"[field2]" orm:"[field2]"`
+    CreatedAt    *gtime.Time `json:"createdAt" orm:"created_at"`
+    UpdatedAt    *gtime.Time `json:"updatedAt" orm:"updated_at"`
+}
+
+// Getter/Setter 方法
+func (s *S[TableName]Model) Get[Field1]() string {
+    return s.[Field1]
+}
+
+func (s *S[TableName]Model) Set[Field1]([field1] string) {
+    s.[Field1] = [field1]
+}
+
+// CRUD 方法
+func (s *S[TableName]Model) Create(ctx context.Context) error {
+    _, err := g.Model(Table[TableName]).Ctx(ctx).Insert(s)
+    return err
+}
+
+func (s *S[TableName]Model) GetById(ctx context.Context, id int) error {
+    return g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, id).Scan(s)
+}
+
+func (s *S[TableName]Model) Update(ctx context.Context) error {
+    _, err := g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, s.Id).Update(s)
+    return err
+}
+
+func (s *S[TableName]Model) UpdateFields(ctx context.Context, data g.Map) error {
+    _, err := g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, s.Id).Update(data)
+    return err
+}
+
+func (s *S[TableName]Model) Delete(ctx context.Context) error {
+    _, err := g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, s.Id).Delete()
+    return err
+}
+
+// 静态方法
+func Delete[TableName]ById(ctx context.Context, id int) error {
+    _, err := g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, id).Delete()
+    return err
+}
+
+func GetAll[TableName]s(ctx context.Context) ([]*S[TableName]Model, error) {
+    var [tableName]s []*S[TableName]Model
+    err := g.Model(Table[TableName]).Ctx(ctx).Scan(&[tableName]s)
+    return [tableName]s, err
+}
+
+func Get[TableName]sByCondition(ctx context.Context, condition g.Map) ([]*S[TableName]Model, error) {
+    var [tableName]s []*S[TableName]Model
+    err := g.Model(Table[TableName]).Ctx(ctx).Where(condition).Scan(&[tableName]s)
+    return [tableName]s, err
+}
+
+func Count[TableName]s(ctx context.Context) (int, error) {
+    count, err := g.Model(Table[TableName]).Ctx(ctx).Count()
+    return count, err
+}
+
+func Paginate[TableName]s(ctx context.Context, page, pageSize int) ([]*S[TableName]Model, error) {
+    var [tableName]s []*S[TableName]Model
+    err := g.Model(Table[TableName]).Ctx(ctx).Page(page, pageSize).Scan(&[tableName]s)
+    return [tableName]s, err
+}
+```
+
+**Model 规范**：
+
+- 结构体命名：`S[TableName]Model`
+- 表常量命名：`Table[TableName]`
+- 必须包含 `g.Meta` 和 ORM 标签
+- 提供完整的 Getter/Setter 方法
+- 实现标准 CRUD 操作
+- 提供静态查询方法
+- 使用 [s_db_model_const_c.go](mdc:services/s_db/s_db_model/s_db_model_const_c.go) 中定义的字段常量
+
+### 3. 定义 Service 接口
+
+在 [s_db_basic_interface.go](mdc:services/s_db/s_db_basic/s_db_basic_interface.go) 中添加服务接口：
+
+```go
+type I[TableName]Service interface {
+    // 基础 CRUD 方法
+    Create[TableName](ctx context.Context, [params]) (int, error)
+    Get[TableName]ById(ctx context.Context, id int) (*s_db_model.S[TableName]Model, error)
+    Update[TableName](ctx context.Context, id int, data map[string]interface{}) error
+    Delete[TableName](ctx context.Context, id int) error
+    
+    // 查询方法
+    GetAll[TableName]s(ctx context.Context) ([]*s_db_model.S[TableName]Model, error)
+    Get[TableName]sBy[Condition](ctx context.Context, [param] string) ([]*s_db_model.S[TableName]Model, error)
+    Get[TableName]Page(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.S[TableName]Model, int, error)
+    
+    // 统计方法
+    ClearAll[TableName]s(ctx context.Context) error
+    Get[TableName]Count(ctx context.Context) (int, error)
+}
+```
+
+**接口规范**：
+
+- 接口命名：`I[TableName]Service`
+- 方法命名使用动词开头
+- 所有方法必须接受 `context.Context` 参数
+- 返回错误信息要详细
+- 分页方法返回数据和总数
+
+### 4. 实现 Service
+
+在 `internal/impl/` 目录下创建 `s_db_impl_[table_name]_service_s.go` 文件：
+
+```go
+package impl
+
+import (
+    "context"
+    "s_db/s_db_basic"
+    "s_db/s_db_model"
+    "sync"
+    "github.com/gogf/gf/v2/frame/g"
+    "github.com/gogf/gf/v2/os/gtime"
+)
+
+type s[TableName]ServiceImpl struct {
+}
+
+var (
+    [tableName]ServiceInstance s_db_basic.I[TableName]Service
+    [tableName]ServiceOnce     sync.Once
+)
+
+func Get[TableName]Service() s_db_basic.I[TableName]Service {
+    [tableName]ServiceOnce.Do(func() {
+        [tableName]ServiceInstance = &s[TableName]ServiceImpl{}
+    })
+    return [tableName]ServiceInstance
+}
+
+// Create[TableName] 创建[TableName]
+func (s *s[TableName]ServiceImpl) Create[TableName](ctx context.Context, [params]) (int, error) {
+    now := gtime.Now()
+    [tableName]Model := &s_db_model.S[TableName]Model{
+        [Field1]: [field1],
+        [Field2]: [field2],
+        CreatedAt: now,
+        UpdatedAt: now,
+    }
+
+    err := [tableName]Model.Create(ctx)
+    if err != nil {
+        g.Log().Errorf(ctx, "创建[TableName]失败 - 错误: %+v", err)
+        return 0, err
+    }
+
+    // 获取刚插入的记录ID
+    var lastId int
+    err = g.Model(s_db_model.Table[TableName]).Ctx(ctx).Order("id DESC").Limit(1).Scan(&lastId)
+    if err != nil {
+        g.Log().Errorf(ctx, "获取[TableName]ID失败 - 错误: %+v", err)
+        return 0, err
+    }
+
+    g.Log().Infof(ctx, "成功创建[TableName]，ID: %d", lastId)
+    return lastId, nil
+}
+
+// 其他方法实现...
+```
+
+**Service 实现规范**：
+
+- 实现类命名：`s[TableName]ServiceImpl`
+- 使用单例模式确保全局唯一性
+- 所有方法都要有详细的日志记录
+- 错误处理要统一使用 `g.Log().Errorf`
+- 成功操作使用 `g.Log().Infof`
+- 自动设置 `created_at` 和 `updated_at` 时间戳
+
+### 5. 导出 Service
+
+在 [s_db_export_f.go](mdc:services/s_db/s_db_export_f.go) 中添加导出函数：
+
+```go
+// Get[TableName]Service 获取[TableName]service对象
+func Get[TableName]Service() s_db_basic.I[TableName]Service {
+    return impl.Get[TableName]Service()
+}
+```
+
+## 命名约定
+
+### 文件命名
+
+- Model: `s_db_model_[table_name]_s.go`
+- Service 实现: `s_db_impl_[table_name]_service_s.go`
+- 常量: `s_db_model_const_c.go`
+
+### 类型命名
+
+- 接口: `I[TableName]Service`
+- 实现: `s[TableName]ServiceImpl`
+- 模型: `S[TableName]Model`
+- 表常量: `Table[TableName]`
+
+### 方法命名
+
+- 创建: `Create[TableName]`
+- 查询: `Get[TableName]ById`, `GetAll[TableName]s`
+- 更新: `Update[TableName]`
+- 删除: `Delete[TableName]`
+- 分页: `Get[TableName]Page`
+- 统计: `Get[TableName]Count`
+
+## 技术栈
+
+- **GoFrame v2**: Web 框架和 ORM
+- **SQLite**: 轻量级数据库
+- **Context**: 上下文传递
+- **单例模式**: 服务实例管理
+
+## 开发检查清单
+
+创建新的数据库实体时，确保完成以下步骤：
+
+- [ ] 在 `s_db_init_f.go` 中添加 SQL 表创建语句
+- [ ] 在 `s_db_model/` 中创建模型文件
+- [ ] 在 `s_db_basic_interface.go` 中定义服务接口
+- [ ] 在 `internal/impl/` 中实现服务
+- [ ] 在 `s_db_export_f.go` 中添加导出函数
+- [ ] 添加必要的常量到 `s_db_model_const_c.go`
+- [ ] 确保所有方法都有适当的日志记录
+- [ ] 测试 CRUD 操作的正确性
+
+## 示例参考
+
+参考现有实现：
+
+- [s_db_model_policy_config_s.go](mdc:services/s_db/s_db_model/s_db_model_policy_config_s.go) - 模型实现
+- [s_db_impl_policy_config_service_s.go](mdc:services/s_db/internal/impl/s_db_impl_policy_config_service_s.go) - 服务实现
+- [s_db_basic_interface.go](mdc:services/s_db/s_db_basic/s_db_basic_interface.go) - 接口定义
