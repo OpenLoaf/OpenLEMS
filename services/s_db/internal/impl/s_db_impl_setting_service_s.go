@@ -140,7 +140,7 @@ func (s *sSettingServiceImpl) GetRootPolicyId(ctx context.Context) string {
 
 		protocolConfig := &c_base.SProtocolConfig{
 			Id:       protocol.Id,
-			Type:     c_base.EProtocolType(protocol.Type),
+			Kind:     c_base.EProtocolType(protocol.Kind),
 			SourceAddress:  protocol.SourceAddress,
 			Timeout:  protocol.Timeout,
 			LogLevel: protocol.LogLevel,
@@ -162,7 +162,7 @@ func (s *sSettingServiceImpl) GetRootPolicyId(ctx context.Context) string {
 		g.Log().Infof(ctx, "协议配置数量: %d", len(protocolConfigs))
 		for i, protocol := range protocolConfigs {
 			g.Log().Infof(ctx, "协议[%d]: ID=%s, SProtocolModel=%s",
-				i, protocol.Id, protocol.Type)
+				i, protocol.Id, protocol.Kind)
 		}
 	} else {
 		g.Log().Infof(ctx, "没有找到任何协议配置")

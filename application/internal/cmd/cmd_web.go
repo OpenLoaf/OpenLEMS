@@ -110,7 +110,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 				return
 			}
 			defer f.Close()
-			// 明确 Content-Type
+			// 明确 Content-Kind
 			r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 			if _, err := io.Copy(r.Response.Writer, f); err != nil {
 				g.Log().Warningf(ctx, "写入 index.html 失败: %+v", err)
@@ -136,7 +136,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 				return
 			}
 			defer f.Close()
-			// 明确 Content-Type
+			// 明确 Content-Kind
 			r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 			if _, err := io.Copy(r.Response.Writer, f); err != nil {
 				g.Log().Warningf(ctx, "写入 index.html 失败: %+v", err)
@@ -176,7 +176,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 					return
 				}
 
-				// 设置适当的Content-Type
+				// 设置适当的Content-Kind
 				ext := filepath.Ext(filePath)
 				switch ext {
 				case ".html":
