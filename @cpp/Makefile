@@ -44,12 +44,25 @@ endif
 generate:
 ifeq ($(OS),Windows_NT)
 	@echo "Generating bindings for Windows..."
-	@if exist bindings\gen.sh bash bindings/gen.sh
-	@if exist bindings\gen.bat bindings\gen.bat
+	@if exist bindings\gen.bat (bindings\gen.bat) else (echo "gen.bat not found")
 else
 	@echo "Generating bindings for $(DETECTED_OS)..."
 	@bash bindings/gen.sh
 endif
+
+# Windows-specific targets
+generate-windows:
+	@echo "Generating bindings for Windows..."
+	@if exist bindings\gen.bat (bindings\gen.bat) else (echo "gen.bat not found")
+
+generate-windows-ps:
+	@echo "Generating bindings for Windows using PowerShell..."
+	@powershell -ExecutionPolicy Bypass -File bindings\gen.ps1
+
+# Unix-specific targets  
+generate-unix:
+	@echo "Generating bindings for $(DETECTED_OS)..."
+	@bash bindings/gen.sh
 
 # 显示当前配置信息
 info:
