@@ -17,7 +17,9 @@ func (c *ControllerV1) GetPolicyConfigDesc(ctx context.Context, req *v1.GetPolic
 	if req.PolicyId == "" {
 		policyId = s_db.GetSettingService().GetRootPolicyId(ctx)
 		if policyId == "" {
-			return nil, errors.New("未设置激活的策略ID")
+			return &v1.GetPolicyConfigDescRes{
+				Config: nil,
+			}, nil
 		}
 	} else {
 		policyId = req.PolicyId
