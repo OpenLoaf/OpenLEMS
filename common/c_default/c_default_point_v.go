@@ -2,7 +2,6 @@ package c_default
 
 import (
 	"common/c_base"
-	"common/c_enum"
 )
 
 // 电力系统常用点位配置
@@ -67,20 +66,20 @@ var (
 
 // 温度相关点位
 var (
-	VPointTemp    = &c_base.SPoint{Key: "Temp", Name: "温度", Unit: "℃", Desc: "设备温度", Sort: 60, Level: c_enum.EAlarmLevelWarn, Min: -40, Max: 85, Precise: 1}        // 温度
-	VPointTempMax = &c_base.SPoint{Key: "TempMax", Name: "最高温度", Unit: "℃", Desc: "设备最高温度", Sort: 61, Level: c_enum.EAlarmLevelWarn, Min: -40, Max: 85, Precise: 1} // 最高温度
-	VPointTempMin = &c_base.SPoint{Key: "TempMin", Name: "最低温度", Unit: "℃", Desc: "设备最低温度", Sort: 62, Level: c_enum.EAlarmLevelWarn, Min: -40, Max: 85, Precise: 1} // 最低温度
+	VPointTemp    = &c_base.SPoint{Key: "Temp", Name: "温度", Unit: "℃", Desc: "设备温度", Sort: 60, Min: -40, Max: 85, Precise: 1}        // 温度
+	VPointTempMax = &c_base.SPoint{Key: "TempMax", Name: "最高温度", Unit: "℃", Desc: "设备最高温度", Sort: 61, Min: -40, Max: 85, Precise: 1} // 最高温度
+	VPointTempMin = &c_base.SPoint{Key: "TempMin", Name: "最低温度", Unit: "℃", Desc: "设备最低温度", Sort: 62, Min: -40, Max: 85, Precise: 1} // 最低温度
 )
 
 // 湿度相关点位
 var (
-	VPointHumidity = &c_base.SPoint{Key: "Humidity", Name: "湿度", Unit: "%RH", Desc: "环境湿度", Sort: 70, Level: c_enum.EAlarmLevelWarn, Min: 0, Max: 100, Precise: 1} // 湿度
+	VPointHumidity = &c_base.SPoint{Key: "Humidity", Name: "湿度", Unit: "%RH", Desc: "环境湿度", Sort: 70, Min: 0, Max: 100, Precise: 1} // 湿度
 )
 
 // 状态相关点位
 var (
-	VPointStatus    = &c_base.SPoint{Key: "Status", Name: "状态", Unit: "", Desc: "设备运行状态", Sort: 80, Min: 0, Max: 255, Precise: 0}                                        // 状态
-	VPointErrorCode = &c_base.SPoint{Key: "ErrorCode", Name: "错误代码", Unit: "", Desc: "设备错误代码", Sort: 82, Level: c_enum.EAlarmLevelError, Min: 0, Max: 65535, Precise: 0} // 错误代码
+	VPointStatus    = &c_base.SPoint{Key: "Status", Name: "状态", Unit: "", Desc: "设备运行状态", Sort: 80, Min: 0, Max: 255, Precise: 0}        // 状态
+	VPointErrorCode = &c_base.SPoint{Key: "ErrorCode", Name: "错误代码", Unit: "", Desc: "设备错误代码", Sort: 82, Min: 0, Max: 65535, Precise: 0} // 错误代码
 )
 
 // 电池相关点位 (BMS)

@@ -106,32 +106,32 @@ func (s *sAlarmImpl) IgnoreClearAlarm(deviceId string, point string) {
 
 		// 保存到告警历史中
 		historyMessage := fmt.Sprintf("手动屏蔽告警，触发值为:%v", alarm.GetValue())
-		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, alarm.IPoint, historyMessage, alarm.GetHappenTime())
+		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, alarm.IPoint, alarm.GetLevel(), historyMessage, alarm.GetHappenTime())
 		if err != nil {
 			c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
 		}
 	}
 }
 
-func (s *sAlarmImpl) UpdateAlarm(deviceId string, meta c_base.IPoint, value any) {
-	if meta == nil {
+func (s *sAlarmImpl) UpdateAlarm(deviceId string, point c_base.IPoint, value any) {
+	if point == nil {
 		c_log.Errorf(s.ctx, "告警元数据不能为空")
 		return
 	}
 
-	// 提前判断告警级别，如果是None则直接退出，避免不必要的处理
-	if meta.GetLevel() == c_enum.EAlarmLevelNone {
+	// 提前点位是否是告警，避免不必要的处理
+	if point.IsNotAlarm() {
 		return
 	}
 
 	// 判断一下这个点位是否被忽略，忽略的不用触发
-	if isAlarmIgnore, err := c_alarm.GetAlarmManager().IsAlarmIgnored(s.ctx, s.deviceId, deviceId, meta.GetName()); err == nil && isAlarmIgnore {
-		c_log.Debugf(s.ctx, "忽略设备[%s]的告警[%s]", deviceId, meta.GetName())
+	if isAlarmIgnore, err := c_alarm.GetAlarmManager().IsAlarmIgnored(s.ctx, s.deviceId, deviceId, point.GetName()); err == nil && isAlarmIgnore {
+		c_log.Debugf(s.ctx, "忽略设备[%s]的告警[%s]", deviceId, point.GetName())
 		return
 	}
 
 	// 先获取当前Trigger的返回值，true代表触发，false代表清除
-	isCurrentlyTriggered, err := meta.AlarmTrigger(value)
+	isCurrentlyTriggered, level, err := point.AlarmTrigger(value)
 	if err != nil {
 		c_log.BizErrorf(s.ctx, "告警触发判断失败！%+v", err)
 		return
@@ -141,7 +141,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, meta c_base.IPoint, value any)
 	defer s.rwMutex.Unlock()
 
 	// 生成告警key
-	alarmKey := s.GetAlarmKey(deviceId, meta.GetName())
+	alarmKey := s.GetAlarmKey(deviceId, point.GetName())
 
 	// 获取缓存中的旧告警，判断之前是否已经触发过
 	oldAlarm, wasPreviouslyTriggered := s.cache[alarmKey]
@@ -158,7 +158,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, meta c_base.IPoint, value any)
 
 	if isCurrentlyTriggered {
 		// 当前需要触发告警
-		alarm = c_base.NewPointValue(deviceId, deviceConfig.GetType(), meta, value)
+		alarm = c_base.NewPointValue(deviceId, point, level, value)
 
 		if !wasPreviouslyTriggered {
 			// 之前没有触发过，现在是首次触发
@@ -166,10 +166,10 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, meta c_base.IPoint, value any)
 			s.cache[alarmKey] = alarm
 
 			// 记录触发日志
-			switch alarm.GetLevel() {
+			switch level {
 			case c_enum.EAlarmLevelWarn:
 				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]警告！值为: %v", alarmDeviceName, alarm.IPoint.GetKey(), value))
-			case c_enum.EAlarmLevelAlarm:
+			case c_enum.EAlarmLevelAlert:
 				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]警报！值为: %v", alarmDeviceName, alarm.IPoint.GetKey(), value))
 			case c_enum.EAlarmLevelError:
 				c_log.BizWarningf(s.ctx, fmt.Sprintf("触发%s[%s]故障！值为: %v", alarmDeviceName, alarm.IPoint.GetKey(), value))
@@ -197,7 +197,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, meta c_base.IPoint, value any)
 				historyMessage = fmt.Sprintf("触发值为:%v，告警清除后值为:%v", oldAlarm.GetValue(), value)
 			}
 
-			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, meta, historyMessage, oldAlarm.GetHappenTime())
+			err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, point, oldAlarm.GetLevel(), historyMessage, oldAlarm.GetHappenTime())
 			if err != nil {
 				c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
 			}
@@ -206,10 +206,10 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, meta c_base.IPoint, value any)
 			delete(s.cache, alarmKey)
 
 			// 记录清除日志
-			switch alarm.GetLevel() {
+			switch level {
 			case c_enum.EAlarmLevelWarn:
 				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]警告！值为: %v", alarmDeviceName, alarm.IPoint.GetKey(), value))
-			case c_enum.EAlarmLevelAlarm:
+			case c_enum.EAlarmLevelAlert:
 				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]警报！值为: %v", alarmDeviceName, alarm.IPoint.GetKey(), value))
 			case c_enum.EAlarmLevelError:
 				c_log.BizInfof(s.ctx, fmt.Sprintf("清除%s[%s]故障！值为: %v", alarmDeviceName, alarm.IPoint.GetKey(), value))
@@ -240,7 +240,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, meta c_base.IPoint, value any)
 	parentDevice := common.GetDeviceManager().GetDeviceById(s.parentDeviceId)
 	if parentDevice != nil {
 		// 新开一个协程去通知父节点告警, 注意这里传递的还是告警设备的deviceId
-		go parentDevice.UpdateAlarm(deviceId, meta, value)
+		go parentDevice.UpdateAlarm(deviceId, point, value)
 	}
 
 }

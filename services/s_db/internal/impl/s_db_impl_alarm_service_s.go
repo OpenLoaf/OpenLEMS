@@ -2,6 +2,7 @@ package impl
 
 import (
 	"common/c_base"
+	"common/c_enum"
 	"context"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
@@ -68,13 +69,13 @@ func (s *sAlarmServiceImpl) clearCountCache(ctx context.Context) {
 // ==================== 告警历史相关方法 ====================
 
 // CreateAlarmHistory 创建告警历史记录
-func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, point c_base.IPoint, detail string, triggerAt time.Time) error {
+func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, point c_base.IPoint, level c_enum.EAlarmLevel, detail string, triggerAt time.Time) error {
 	now := time.Now()
 	alarmHistory := &s_db_model.SAlarmHistoryModel{
 		DeviceId:       deviceId,
 		SourceDeviceId: sourceDeviceId,
 		Point:          point.GetKey(),
-		Level:          point.GetLevel().String(),
+		Level:          level.String(),
 		PointName:      point.GetName(),
 		Detail:         detail,
 		TriggerAt:      &triggerAt,

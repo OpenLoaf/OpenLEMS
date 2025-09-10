@@ -44,7 +44,6 @@ func (s *SSingleDeviceValue) UnmarshalValue(value interface{}) error {
 				Name:       point.GetName(),
 				Cn:         point.GetName(),                          // 暂时使用Name作为中文名称
 				SystemType: point.GetDataAccess().ValueType.String(), // 默认自动系统类型
-				Level:      point.GetLevel().String(),
 				Min:        point.GetMin(),
 				Max:        point.GetMax(),
 				Precise:    point.GetPrecise(),
@@ -64,7 +63,6 @@ type SSingleDeviceMeta struct {
 	Name       string `json:"name"`           // 名称
 	Cn         string `json:"cn"`             // 中文名称, TODO 以后改成I18N
 	SystemType string `json:"systemType"`     // 格式化类型,默认为SUseReadType!自动使用ReadType的类型。
-	Level      string `json:"level"`          // 点位级别
 	Min        int64  `json:"min,omitempty"`  // 范围最小值
 	Max        int64  `json:"max,omitempty"`  // 范围最大值
 	Precise    uint8  `json:"precise"`        // 设置浮点数精度（只是显示用）

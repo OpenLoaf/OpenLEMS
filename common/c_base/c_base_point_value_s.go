@@ -11,16 +11,15 @@ type SPointValue struct {
 	IPoint                        //  点位
 	level      c_enum.EAlarmLevel // 告警等级
 	deviceId   string             //  设备ID
-	deviceType c_enum.EDeviceType //  设备类型
 	value      any                //  点位值
 	happenTime time.Time          //  发生时间
 }
 
 // NewPointValue  创建点位Value
-func NewPointValue(deviceId string, deviceType c_enum.EDeviceType, IPoint IPoint, value any) *SPointValue {
+func NewPointValue(deviceId string, IPoint IPoint, level c_enum.EAlarmLevel, value any) *SPointValue {
 	return &SPointValue{
 		deviceId:   deviceId,
-		deviceType: deviceType,
+		level:      level,
 		IPoint:     IPoint,
 		value:      value,
 		happenTime: time.Now(),
@@ -31,12 +30,12 @@ func (s *SPointValue) GetDeviceId() string {
 	return s.deviceId
 }
 
-func (s *SPointValue) GetDeviceType() c_enum.EDeviceType {
-	return s.deviceType
-}
-
 func (s *SPointValue) GetValue() any {
 	return s.value
+}
+
+func (s *SPointValue) GetLevel() c_enum.EAlarmLevel {
+	return s.level
 }
 
 func (s *SPointValue) GetValueExplain() (string, error) {

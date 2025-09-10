@@ -10,11 +10,11 @@ func _() {
 	var x [1]struct{}
 	_ = x[EAlarmLevelNone-0]
 	_ = x[EAlarmLevelWarn-1]
-	_ = x[EAlarmLevelAlarm-2]
+	_ = x[EAlarmLevelAlert-2]
 	_ = x[EAlarmLevelError-3]
 }
 
-const _EAlarmLevel_name = "NoneWarnAlarmError"
+const _EAlarmLevel_name = "NoneWarnAlertError"
 
 var _EAlarmLevel_index = [...]uint8{0, 4, 8, 13, 18}
 
