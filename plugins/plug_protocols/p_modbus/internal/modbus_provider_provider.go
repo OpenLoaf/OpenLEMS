@@ -142,7 +142,7 @@ func (p *ModbusProtocolProvider) GetPointValueList() []*c_base.SPointValue {
 		} else {
 			if v1Meta.Addr == v2Meta.Addr {
 				// 比对别的
-				if v1Meta.ValueType > v2Meta.ValueType {
+				if v1Meta.DataAccess.ValueType > v2Meta.DataAccess.ValueType {
 					return 1
 				}
 			}

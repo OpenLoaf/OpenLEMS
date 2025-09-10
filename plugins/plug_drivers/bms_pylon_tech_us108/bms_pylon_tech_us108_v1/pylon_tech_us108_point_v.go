@@ -2,7 +2,9 @@ package bms_pylon_tech_us108_v1
 
 import (
 	"common/c_base"
+	"common/c_enum"
 	"common/c_func"
+	"common/c_proto"
 	"fmt"
 	"github.com/shockerli/cvt"
 )
@@ -22,7 +24,8 @@ var (
 
 // 控制信息
 var (
-	SleepControl   = &c_base.SModbusPoint{Name: "SleepControl", Addr: 0x1090, ReadType: c_base.RInt16, Desc: "休眠控制, 写入0xAA进入休眠状态，写入0x55唤醒"}
+	//SleepControl   = &c_base.SModbusPoint{Name: "SleepControl", Addr: 0x1090, ReadType: c_base.RInt16, Desc: "休眠控制, 写入0xAA进入休眠状态，写入0x55唤醒"}
+	SleepControl   = &c_proto.SModbusPoint{Name: "SleepControl", Addr: 0x1090, ReadType: c_base.RInt16, Desc: "休眠控制, 写入0xAA进入休眠状态，写入0x55唤醒"}
 	AllowCharge    = &c_base.SModbusPoint{Name: "AllowCharge", Addr: 0x1091, ReadType: c_base.RInt16, Desc: "允许充电控制, 写入0xAA允许充电，其他无效"}
 	AllowDischarge = &c_base.SModbusPoint{Name: "AllowDischarge", Addr: 0x1092, ReadType: c_base.RInt16, Desc: "允许放电控制, 写入0xAA允许放电，其他无效"}
 	TempShield     = &c_base.SModbusPoint{Name: "TempShield", Addr: 0x1093, ReadType: c_base.RInt16, Desc: "临时屏蔽“无通信时切离继电器功能”的请求"}

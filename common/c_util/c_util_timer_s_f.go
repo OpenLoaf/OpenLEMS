@@ -87,7 +87,7 @@ func (s *scheduler) addTask(parent context.Context, d time.Duration, once bool, 
 		job:    job,
 	}
 	select {
-	case c_enum.S.newTaskCh <- t:
+	case s.newTaskCh <- t:
 	default:
 		// channel 满时退化为锁保护直接入堆，避免阻塞
 		s.mu.Lock()
@@ -99,7 +99,7 @@ func (s *scheduler) addTask(parent context.Context, d time.Duration, once bool, 
 
 func (s *scheduler) cancel(id uint64) {
 	select {
-	case c_enum.S.cancelTaskCh <- id:
+	case s.cancelTaskCh <- id:
 	default:
 		// 退化同步取消
 		s.mu.Lock()

@@ -2,9 +2,9 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_enum"
 	"context"
 	"p_modbus"
-	"p_modbus/internal"
 
 	"github.com/pkg/errors"
 	"github.com/torykit/go-modbus"
@@ -73,7 +73,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 			client = _client.(modbus.Client)
 		} else {
 			// 创建client
-			c, err := internal.NewModbusClient(m.ctx, protocolConfig)
+			c, err := p_modbus.NewModbusClient(m.ctx, protocolConfig)
 			if err != nil {
 				return nil, err
 			}
