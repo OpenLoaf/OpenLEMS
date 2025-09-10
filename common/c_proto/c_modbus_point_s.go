@@ -2,6 +2,7 @@ package c_proto
 
 import (
 	"common/c_base"
+	"fmt"
 
 	"github.com/shockerli/cvt"
 )
@@ -19,6 +20,10 @@ type SModbusPoint struct {
 	// 功能函数
 	StatusExplain func(value any) (string, error)       `json:"-" dc:"状态解释函数"`
 	Trigger       func(value interface{}) (bool, error) `json:"-" dc:"告警触发函数"`
+}
+
+func (s *SModbusPoint) String() string {
+	return fmt.Sprintf("%s[0x%x]", s.GetName(), s.Addr)
 }
 
 func (s *SModbusPoint) ValueExplain(value any) (string, error) {

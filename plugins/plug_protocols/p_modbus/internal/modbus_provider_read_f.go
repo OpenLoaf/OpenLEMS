@@ -195,7 +195,7 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr, quantity
 		}
 
 		p.UpdateAlarm(p.deviceId, point, value)
-		results[i] = value
+		results[i] = value.GetValue()
 	}
 	if errMessage != "" {
 		err = errors.Errorf(errMessage)

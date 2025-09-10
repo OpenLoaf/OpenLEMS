@@ -20,14 +20,14 @@ type IProtocol interface {
 
 type IProtocolCacheValue interface {
 	GetValue(point IPoint) (any, error)
-	GetBool(meta IPoint) (bool, error)
-	GetIntValue(meta IPoint) (int, error)
-	GetInt32Value(meta IPoint) (int32, error)
-	GetUintValue(meta IPoint) (uint, error)
-	GetUint32Value(meta IPoint) (uint32, error)
-	GetFloat32Value(meta IPoint) (float32, error)
-	GetFloat32Values(metas ...IPoint) ([]float32, error)
-	GetFloat64Value(meta IPoint) (float64, error)
-	GetFloat64Values(meta ...IPoint) ([]float64, error)
-	CacheValue(point IPoint, value any, lifetime time.Duration) error
+	GetBool(point IPoint) (*bool, error)
+	GetIntValue(point IPoint) (*int, error)
+	GetInt32Value(point IPoint) (*int32, error)
+	GetUintValue(point IPoint) (*uint, error)
+	GetUint32Value(point IPoint) (*uint32, error)
+	GetFloat32Value(point IPoint) (*float32, error)
+	GetFloat32Values(points ...IPoint) ([]*float32, error)
+	GetFloat64Value(point IPoint) (*float64, error)
+	GetFloat64Values(points ...IPoint) ([]*float64, error)
+	CacheValue(point IPoint, value *SPointValue, lifetime time.Duration) error
 }

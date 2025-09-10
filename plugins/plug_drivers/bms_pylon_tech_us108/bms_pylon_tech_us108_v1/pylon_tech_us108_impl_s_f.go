@@ -55,7 +55,10 @@ func (p *sBmsPylonTechUs108) GetRatedPower() (uint32, error) {
 func (p *sBmsPylonTechUs108) GetMaxInputPower() (float32, error) {
 	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
 		chargeForbiddenMark, err := protocol.GetBool(ChargeForbiddenMark)
-		if err != nil && chargeForbiddenMark {
+		if err != nil {
+			return 0, err
+		}
+		if chargeForbiddenMark != nil && *chargeForbiddenMark {
 			// 禁止充电
 			return 0, nil
 		}
@@ -65,8 +68,11 @@ func (p *sBmsPylonTechUs108) GetMaxInputPower() (float32, error) {
 		if err != nil {
 			return 0, err
 		}
-		power := values[0] * values[1]
-		c_log.Debugf(p.DeviceCtx, "最大充电 电压：%f, 电流：%f, 功率：%f", values[0], values[1], power)
+		if values[0] == nil || values[1] == nil {
+			return 0, nil // 没有采集到数据
+		}
+		power := *values[0] * *values[1]
+		c_log.Debugf(p.DeviceCtx, "最大充电 电压：%f, 电流：%f, 功率：%f", *values[0], *values[1], power)
 
 		v := p.bmsConfig.getMaxInputPower(power)
 		if v != nil {
@@ -79,16 +85,22 @@ func (p *sBmsPylonTechUs108) GetMaxInputPower() (float32, error) {
 func (p *sBmsPylonTechUs108) GetMaxOutputPower() (float32, error) {
 	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
 		dischargeForbiddenMark, err := protocol.GetBool(DischargeForbiddenMark)
-		if err != nil && dischargeForbiddenMark {
+		if err != nil {
+			return 0, err
+		}
+		if dischargeForbiddenMark != nil && *dischargeForbiddenMark {
 			// 禁止放电
 			return 0, nil
 		}
 		// 通过电压和电流来计算功率
 		values, err := protocol.GetFloat32Values(PileMinV, PileMaxDI)
 		if err != nil {
-			return 0, nil
+			return 0, err
 		}
-		power := values[0] * values[1]
+		if values[0] == nil || values[1] == nil {
+			return 0, nil // 没有采集到数据
+		}
+		power := *values[0] * *values[1]
 		power = float32(math.Abs(float64(power)))
 
 		v := p.bmsConfig.getMaxOutputPower(power)
@@ -96,14 +108,21 @@ func (p *sBmsPylonTechUs108) GetMaxOutputPower() (float32, error) {
 			return v, nil
 		}
 
-		c_log.Debugf(p.DeviceCtx, "最大放电 电压：%f, 电流：%f, 功率：%f, 配置功率：%f", values[0], values[1], power, p.bmsConfig.MaxOutputPower)
+		c_log.Debugf(p.DeviceCtx, "最大放电 电压：%f, 电流：%f, 功率：%f, 配置功率：%f", *values[0], *values[1], power, p.bmsConfig.MaxOutputPower)
 		return power, nil
 	})
 }
 
 func (p *sBmsPylonTechUs108) GetBmsStatus() (c_enum.EBmsStatus, error) {
 	status, err := p.GetFromProtocolUint8(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.GetIntValue(BasicStatus)
+		value, err := protocol.GetIntValue(BasicStatus)
+		if err != nil {
+			return nil, err
+		}
+		if value == nil {
+			return nil, nil // 没有采集到数据
+		}
+		return *value, nil
 	})
 	if err != nil {
 		return c_enum.EBmsStatusUnknown, err

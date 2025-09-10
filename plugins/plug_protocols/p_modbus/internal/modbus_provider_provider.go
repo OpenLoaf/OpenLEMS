@@ -126,8 +126,8 @@ func (p *ModbusProtocolProvider) GetLastUpdateTime() *time.Time {
 func (p *ModbusProtocolProvider) GetPointValueList() []*c_base.SPointValue {
 	// 排序
 	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
-		v1Meta := v1.(*c_proto.SModbusPoint)
-		v2Meta := v2.(*c_proto.SModbusPoint)
+		v1Meta := v1.(*c_base.SPointValue).IPoint.(*c_proto.SModbusPoint)
+		v2Meta := v2.(*c_base.SPointValue).IPoint.(*c_proto.SModbusPoint)
 
 		// 先比较 Sort
 		if v1Meta.GetSort() > v2Meta.GetSort() {

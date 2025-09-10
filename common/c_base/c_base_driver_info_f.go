@@ -30,7 +30,7 @@ func BuildDescriptionFromYaml(yamlData []byte, deviceConfig ...any) *SDriverInfo
 }
 
 // GetTelemetry 反射获取遥测信息 用于实现IDriver接口
-func (s *SDriverInfo) GetTelemetry(key string, instance any) (any, error) {
+func (s *SDriverInfo) GetTelemetry(key string, instance IDevice) (any, error) {
 	// 输入参数验证
 	if key == "" {
 		return nil, errors.New("telemetry key cannot be empty")
@@ -81,7 +81,7 @@ func (s *SDriverInfo) GetTelemetry(key string, instance any) (any, error) {
 		defer func() {
 			if r := recover(); r != nil {
 				callErr = errors.Errorf("GetTelemetry panic! key: %s, error: %+v", key, r)
-				c_log.Errorf(context.Background(), "GetTelemetry panic! key: %s, error: %+v", key, r)
+				//c_log.Errorf(context.Background(), "GetTelemetry panic! key: %s, error: %+v", key, r)
 			}
 		}()
 
@@ -135,7 +135,9 @@ func (s *SDriverInfo) GetAllTelemetry(instance IDevice) map[string]any {
 		value, err := s.GetTelemetry(telemetry.Name, instance)
 		if err != nil {
 			// 这里有时候err也是正常的，比如系统刚启动，但是页面一直在请求
-			c_log.Debugf(context.Background(), "Get telemetry %s error: %+v", telemetry.Name, err)
+			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
+			c_log.Warningf(ctx, "Get telemetry %s error: %+v", telemetry.Name, err)
+			//fmt.Printf("Get telemetry %s error: %+v\n", telemetry.Name, err)
 			continue
 		}
 		telemetryMap[telemetry.Name] = value

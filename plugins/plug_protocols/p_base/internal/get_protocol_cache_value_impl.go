@@ -28,15 +28,15 @@ func NewGetProtocolCacheValue(ctx context.Context, deviceId string, deviceType c
 	}
 }
 
-func (s *SGetProtocolCacheValueImpl) CacheValue(point c_base.IPoint, value any, lifetime time.Duration) error {
+func (s *SGetProtocolCacheValueImpl) CacheValue(point c_base.IPoint, value *c_base.SPointValue, lifetime time.Duration) error {
 	if point == nil {
-		return errors.Errorf("[%v-%s] 缓存点位不能为空！", s.deviceId, point.GetName())
+		return errors.Errorf("[%v] 缓存点位不能为空！", s.deviceId)
 	}
 	if value == nil {
 		return errors.Errorf("[%v-%s] 缓存值不能为空！", s.deviceId, point.GetName())
 	}
 
-	return s.cache.Set(s.ctx, point, c_base.NewPointValue(s.deviceId, s.deviceType, point, value), lifetime)
+	return s.cache.Set(s.ctx, point, value, lifetime)
 }
 
 func (s *SGetProtocolCacheValueImpl) GetValue(point c_base.IPoint) (any, error) {
@@ -45,7 +45,7 @@ func (s *SGetProtocolCacheValueImpl) GetValue(point c_base.IPoint) (any, error) 
 		return nil, err
 	}
 	if cacheValue == nil {
-		return nil, errors.Errorf("cache value is empty")
+		return nil, nil
 	}
 	metaValue := &c_base.SPointValue{}
 	err = cacheValue.Structs(metaValue)
@@ -60,75 +60,98 @@ func (s *SGetProtocolCacheValueImpl) GetValue(point c_base.IPoint) (any, error) 
 	return metaValue.GetValue(), err
 }
 
-func (s *SGetProtocolCacheValueImpl) GetBool(point c_base.IPoint) (bool, error) {
+func (s *SGetProtocolCacheValueImpl) GetBool(point c_base.IPoint) (*bool, error) {
 	get, err := s.GetValue(point)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	if get == nil {
-		return false, errors.Errorf("[%v-%s] 获取的值为空！", s.deviceId, point.GetName())
+		return nil, nil // 没有采集到数据
 	}
-	return cvt.BoolE(get)
+	value, err := cvt.BoolE(get)
+	if err != nil {
+		return nil, err
+	}
+	return &value, nil
 }
 
-func (s *SGetProtocolCacheValueImpl) GetIntValue(point c_base.IPoint) (int, error) {
+func (s *SGetProtocolCacheValueImpl) GetIntValue(point c_base.IPoint) (*int, error) {
 	get, err := s.GetValue(point)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	if get == nil {
-		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.deviceId, point.GetName())
+		return nil, nil // 没有采集到数据
 	}
-	return cvt.IntE(get)
+	value, err := cvt.IntE(get)
+	if err != nil {
+		return nil, err
+	}
+	return &value, nil
 }
 
-func (s *SGetProtocolCacheValueImpl) GetInt32Value(point c_base.IPoint) (int32, error) {
+func (s *SGetProtocolCacheValueImpl) GetInt32Value(point c_base.IPoint) (*int32, error) {
 	get, err := s.GetValue(point)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	if get == nil {
-		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.deviceId, point.GetName())
+		return nil, nil // 没有采集到数据
 	}
-	return cvt.Int32E(get)
+	value, err := cvt.Int32E(get)
+	if err != nil {
+		return nil, err
+	}
+	return &value, nil
 }
 
-func (s *SGetProtocolCacheValueImpl) GetUintValue(point c_base.IPoint) (uint, error) {
+func (s *SGetProtocolCacheValueImpl) GetUintValue(point c_base.IPoint) (*uint, error) {
 	get, err := s.GetValue(point)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	if get == nil {
-		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.deviceId, point.GetName())
+		return nil, nil // 没有采集到数据
 	}
-	return cvt.UintE(get)
+	value, err := cvt.UintE(get)
+	if err != nil {
+		return nil, err
+	}
+	return &value, nil
 }
 
-func (s *SGetProtocolCacheValueImpl) GetUint32Value(point c_base.IPoint) (uint32, error) {
+func (s *SGetProtocolCacheValueImpl) GetUint32Value(point c_base.IPoint) (*uint32, error) {
 	get, err := s.GetValue(point)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	if get == nil {
-		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.deviceId, point.GetName())
+		return nil, nil // 没有采集到数据
 	}
-	return cvt.Uint32E(get)
+	value, err := cvt.Uint32E(get)
+	if err != nil {
+		return nil, err
+	}
+	return &value, nil
 }
 
-func (s *SGetProtocolCacheValueImpl) GetFloat32Value(point c_base.IPoint) (float32, error) {
+func (s *SGetProtocolCacheValueImpl) GetFloat32Value(point c_base.IPoint) (*float32, error) {
 	get, err := s.GetValue(point)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	if get == nil {
-		return 0, errors.Errorf("[%v-%s] 获取的值为空！", s.deviceId, point.GetName())
+		return nil, nil // 没有采集到数据
 	}
-
-	return cvt.Float32E(get)
+	value, err := cvt.Float32E(get)
+	if err != nil {
+		return nil, err
+	}
+	return &value, nil
 }
 
-func (s *SGetProtocolCacheValueImpl) GetFloat32Values(points ...c_base.IPoint) ([]float32, error) {
-	list := make([]float32, len(points))
+func (s *SGetProtocolCacheValueImpl) GetFloat32Values(points ...c_base.IPoint) ([]*float32, error) {
+	list := make([]*float32, len(points))
 	for i, poi := range points {
 		get, err := s.GetFloat32Value(poi)
 		if err != nil {
@@ -139,16 +162,20 @@ func (s *SGetProtocolCacheValueImpl) GetFloat32Values(points ...c_base.IPoint) (
 	return list, nil
 }
 
-func (s *SGetProtocolCacheValueImpl) GetFloat64Value(point c_base.IPoint) (float64, error) {
+func (s *SGetProtocolCacheValueImpl) GetFloat64Value(point c_base.IPoint) (*float64, error) {
 	get, err := s.GetValue(point)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return gconv.Float64(get), nil
+	if get == nil {
+		return nil, nil // 没有采集到数据
+	}
+	value := gconv.Float64(get)
+	return &value, nil
 }
 
-func (s *SGetProtocolCacheValueImpl) GetFloat64Values(points ...c_base.IPoint) ([]float64, error) {
-	list := make([]float64, len(points))
+func (s *SGetProtocolCacheValueImpl) GetFloat64Values(points ...c_base.IPoint) ([]*float64, error) {
+	list := make([]*float64, len(points))
 	for i, poi := range points {
 		get, err := s.GetFloat64Value(poi)
 		if err != nil {

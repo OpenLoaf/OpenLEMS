@@ -61,12 +61,12 @@ func (s *SDeviceConfig) GetType() c_enum.EDeviceType {
 	return s.DriverInfo.Type
 }
 
-func (s *SDeviceConfig) GetTelemetry(key string, instance any) (any, error) {
-	if s.DriverInfo == nil {
-		return nil, errors.New("device not found")
-	}
-	return s.DriverInfo.GetTelemetry(key, instance)
-}
+//func (s *SDeviceConfig) GetTelemetry(key string, instance any) (any, error) {
+//	if s.DriverInfo == nil {
+//		return nil, errors.New("device not found")
+//	}
+//	return s.DriverInfo.GetTelemetry(key, instance)
+//}
 
 func (s *SDeviceConfig) GetAllTelemetry(instance IDevice) map[string]any {
 	if s.DriverInfo == nil {

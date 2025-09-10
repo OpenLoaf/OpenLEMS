@@ -66,7 +66,10 @@ func (s *sPcsStarCharge100E) GetStatus() (c_enum.EEnergyStoreStatus, error) {
 		if err != nil {
 			return c_enum.EPcsStatusUnknown, err
 		}
-		switch value {
+		if value == nil {
+			return c_enum.EPcsStatusUnknown, nil // 没有采集到数据
+		}
+		switch *value {
 		// 0 - Waiting for the machine to start, 1 - Power on self check, 2 - Grid connected operation, 3 - Off grid operation, 4 - Reserved, 5 - General error
 		case 0, 1:
 			// 等待设备启动算是关机的状态

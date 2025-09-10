@@ -92,8 +92,11 @@ func (s *sEssDemo) GetStatus() (c_enum.EEnergyStoreStatus, error) {
 		if err != nil {
 			return c_enum.EPcsStatusUnknown, err
 		}
+		if value == nil {
+			return c_enum.EPcsStatusUnknown, nil // 没有采集到数据
+		}
 
-		if v, err := cvt.Uint8E(value); err == nil {
+		if v, err := cvt.Uint8E(*value); err == nil {
 			switch v {
 			case 0:
 				return c_enum.EPcsStatusOff, nil
