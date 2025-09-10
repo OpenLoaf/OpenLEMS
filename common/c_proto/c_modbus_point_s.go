@@ -13,7 +13,7 @@ type SModbusPoint struct {
 	Addr uint16 `json:"addr" v:"required" dc:"起始地址"`
 
 	// 数据访问配置
-	DataAccess SDataAccess `json:"dataAccess" v:"required" dc:"数据访问配置"`
+	DataAccess *c_base.SDataAccess `json:"dataAccess" v:"required" dc:"数据访问配置"`
 
 	// 功能函数
 	StatusExplain func(value any) (string, error)       `json:"-" dc:"状态解释函数"`

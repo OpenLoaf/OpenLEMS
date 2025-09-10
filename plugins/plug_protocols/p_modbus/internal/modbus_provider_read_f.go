@@ -37,14 +37,14 @@ func (p *ModbusProtocolProvider) ReadSingleSync(point *c_proto.SModbusPoint, fun
 
 	name := fmt.Sprintf("SingleRead:%s", point.Name)
 
-	result, err := p.readValues(name, point.Addr, point.GetQuantity(), function)
+	result, err := p.readValues(name, point.Addr, p_base.GetQuantityFromDataAccess(point.DataAccess), function)
 	if err != nil {
 		return nil, err
 	}
 	if result == nil || len(result) == 0 {
 		return nil, errors.Errorf("读取到的数据为空！")
 	}
-	values, err := p.analysisModbus(name, point.Addr, point.GetQuantity(), lifetime, result, point)
+	values, err := p.analysisModbus(name, point.Addr, p_base.GetQuantityFromDataAccess(point.DataAccess), lifetime, result, point)
 	if err != nil {
 		return nil, err
 	}
@@ -208,68 +208,69 @@ func decoder(deviceId string, deviceType c_enum.EDeviceType, bytes []byte, addr,
 	var value any
 	var err error
 
-	//if task.CustomDecoder != nil {
-	//	value, err = task.CustomDecoder(bytes, task, point)
-	//	if err != nil {
-	//		return nil, errors.Wrap(err, "custom decoder failed")
-	//	}
-	//} else {
 	// 使用通用的DecoderBytes函数进行解析
-	// 根据BitLength决定如何传递参数
+	// 使用IsBitMode和IsByteMode方法来判断模式
 	var byteIndex, byteLength, bitIndex, bitLength uint16
 
-	if point.BitLength != 0 {
-		// 位级别：使用BitAddr和BitLength
+	if p_base.IsBitMode(point.DataAccess.BitLength, point.DataAccess.DataFormat) {
+		// 位级别：使用BitIndex和BitLength
 		// 边界检查：确保点位地址在任务范围内
-		// 每个寄存器占16位，所以任务的位地址范围是 [s.Addr*16, (s.Addr+s.Quantity)*16-1]
+		// 每个寄存器占16位，所以任务的位地址范围是 [addr*16, (addr+quantity)*16-1]
 		taskStartBit := addr * 16
 		taskEndBit := (addr+quantity)*16 - 1
 		// 检查起始地址和结束地址都在范围内
-		bitEndAddress := point.BitAddr + point.BitLength - 1
-		if point.BitAddr < taskStartBit || bitEndAddress > taskEndBit {
+		bitEndAddress := point.DataAccess.BitIndex + point.DataAccess.BitLength - 1
+		if point.DataAccess.BitIndex < taskStartBit || bitEndAddress > taskEndBit {
 			return nil, errors.Errorf("bit address range [%d:%d] is out of task range [%d:%d]",
-				point.BitAddr, bitEndAddress, taskStartBit, taskEndBit)
+				point.DataAccess.BitIndex, bitEndAddress, taskStartBit, taskEndBit)
 		}
 
 		// 纯位模式：byteLength=0，使用bitIndex和bitLength
 		byteIndex = 0
 		byteLength = 0
-		bitIndex = point.BitAddr - taskStartBit // 相对位索引
-		bitLength = point.BitLength
-	} else {
+		bitIndex = point.DataAccess.BitIndex - taskStartBit // 相对位索引
+		bitLength = point.DataAccess.BitLength
+	} else if p_base.IsByteMode(point.DataAccess.ByteLength, point.DataAccess.DataFormat) {
 		// 字节级别：Address和Length都是寄存器级别的
 		// 边界检查：确保点位地址在任务范围内
-		if point.Addr < addr || point.Addr+point.Length > addr+quantity {
+		if point.Addr < addr || point.Addr+point.DataAccess.ByteLength > addr+quantity {
 			return nil, errors.Errorf("register address range [%d:%d] is out of task range [%d:%d]",
-				point.Addr, point.Addr+point.Length-1, addr, addr+quantity-1)
+				point.Addr, point.Addr+point.DataAccess.ByteLength-1, addr, addr+quantity-1)
 		}
 
 		// 纯字节模式：bitLength=0，使用byteIndex和byteLength
-		registerOffset := point.Addr - addr // 寄存器偏移量
-		byteIndex = registerOffset * 2      // 转换为字节偏移量
-		byteLength = point.Length * 2       // 寄存器数量转换为字节数量
+		// 修复：使用 point.Addr - addr 计算寄存器偏移量
+		registerOffset := point.Addr - addr          // 寄存器偏移量
+		byteIndex = registerOffset * 2               // 转换为字节偏移量
+		byteLength = point.DataAccess.ByteLength * 2 // 寄存器数量转换为字节数量
 		bitIndex = 0
 		bitLength = 0
+	} else {
+		// 混合模式：既不是纯位模式也不是纯字节模式
+		// 这种情况在Modbus中比较少见，但为了完整性还是处理一下
+		return nil, errors.Errorf("unsupported mode: neither bit mode nor byte mode for point %s", point.GetKey())
 	}
 
+	// 使用导出的DecoderBytes函数
 	value, err = p_base.DecoderBytes(
 		bytes,
 		byteIndex,
 		byteLength,
 		bitIndex,
 		bitLength,
-		point.ByteEndian,
-		point.WordOrder,
-		point.DataFormat,
-		point.ValueType,
-		point.Offset,
-		point.Factor,
+		point.DataAccess.ByteEndian,
+		point.DataAccess.WordOrder,
+		point.DataAccess.DataFormat,
+		point.DataAccess.ValueType,
+		point.DataAccess.Offset,
+		point.DataAccess.Factor,
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to decode point %s", point.GetKey())
 	}
 
-	err = p_base.ValidateValueRange(value, point.Min, point.Max)
+	// 使用导出的ValidateValueRange函数
+	err = p_base.ValidateValueRange(value, point.DataAccess.MinValue, point.DataAccess.MaxValue)
 	if err != nil {
 		return nil, errors.Wrapf(err, "value %v out of range", value)
 	}

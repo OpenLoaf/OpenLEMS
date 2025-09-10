@@ -70,7 +70,7 @@ func (p *ModbusProtocolProvider) WriteMultipleRegisters(group *c_proto.SModbusPo
 			metaIndex = meta.Addr
 		} else {
 			// 计算当前点位应该占用的寄存器数量
-			expectedAddr := metaIndex + p_base.GetQuantityFromDataAccess(&meta.DataAccess)
+			expectedAddr := metaIndex + p_base.GetQuantityFromDataAccess(meta.DataAccess)
 			if meta.Addr != expectedAddr {
 				return errors.Errorf("点位的顺序不正确！点位：%s, 地址：%d，实际地址应该为: %d", meta.Name, meta.Addr, expectedAddr)
 			}
