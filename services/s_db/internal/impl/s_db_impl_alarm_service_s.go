@@ -70,7 +70,7 @@ func (s *sAlarmServiceImpl) clearCountCache(ctx context.Context) {
 // ==================== 告警历史相关方法 ====================
 
 // CreateAlarmHistory 创建告警历史记录
-func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_base.Meta, detail string, triggerAt *time.Time) error {
+func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_base.SModbusPoint, detail string, triggerAt *time.Time) error {
 	if triggerAt == nil {
 		return errors.Errorf("deviceId:%s point:%s level:%s title:%s detail:%s 创建告警记录失败，createAt为空", deviceId, meta.Name, meta.Level.String(), meta.Cn, detail)
 	}

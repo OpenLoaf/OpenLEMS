@@ -127,13 +127,13 @@ func (s *SRealDeviceImpl[P]) GetFromProtocolFloat64(fc func(protocol P) (any, er
 	return cvt.Float64E(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPoint(point *c_base.Meta) (any, error) {
+func (s *SRealDeviceImpl[P]) GetFromPoint(point c_base.IPoint) (any, error) {
 	return s.GetFromProtocol(func(protocol P) (any, error) {
 		return protocol.GetValue(point)
 	})
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointBool(point *c_base.Meta) (bool, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointBool(point c_base.IPoint) (bool, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return false, err
@@ -142,7 +142,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointBool(point *c_base.Meta) (bool, error) 
 }
 
 // 整数类型函数
-func (s *SRealDeviceImpl[P]) GetFromPointInt(point *c_base.Meta) (int, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointInt(point c_base.IPoint) (int, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -150,7 +150,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointInt(point *c_base.Meta) (int, error) {
 	return cvt.IntE(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointInt8(point *c_base.Meta) (int8, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointInt8(point c_base.IPoint) (int8, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -158,7 +158,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointInt8(point *c_base.Meta) (int8, error) 
 	return cvt.Int8E(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointInt16(point *c_base.Meta) (int16, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointInt16(point c_base.IPoint) (int16, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -166,7 +166,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointInt16(point *c_base.Meta) (int16, error
 	return cvt.Int16E(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointInt32(point *c_base.Meta) (int32, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointInt32(point c_base.IPoint) (int32, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -174,7 +174,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointInt32(point *c_base.Meta) (int32, error
 	return cvt.Int32E(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointInt64(point *c_base.Meta) (int64, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointInt64(point c_base.IPoint) (int64, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -183,7 +183,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointInt64(point *c_base.Meta) (int64, error
 }
 
 // 无符号整数类型函数
-func (s *SRealDeviceImpl[P]) GetFromPointUint(point *c_base.Meta) (uint, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointUint(point c_base.IPoint) (uint, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -191,7 +191,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointUint(point *c_base.Meta) (uint, error) 
 	return cvt.UintE(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointUint8(point *c_base.Meta) (uint8, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointUint8(point c_base.IPoint) (uint8, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -199,7 +199,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointUint8(point *c_base.Meta) (uint8, error
 	return cvt.Uint8E(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointUint16(point *c_base.Meta) (uint16, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointUint16(point c_base.IPoint) (uint16, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -207,7 +207,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointUint16(point *c_base.Meta) (uint16, err
 	return cvt.Uint16E(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointUint32(point *c_base.Meta) (uint32, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointUint32(point c_base.IPoint) (uint32, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -215,7 +215,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointUint32(point *c_base.Meta) (uint32, err
 	return cvt.Uint32E(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointUint64(point *c_base.Meta) (uint64, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointUint64(point c_base.IPoint) (uint64, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -224,7 +224,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointUint64(point *c_base.Meta) (uint64, err
 }
 
 // 浮点数类型函数
-func (s *SRealDeviceImpl[P]) GetFromPointFloat32(point *c_base.Meta) (float32, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointFloat32(point c_base.IPoint) (float32, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err
@@ -232,7 +232,7 @@ func (s *SRealDeviceImpl[P]) GetFromPointFloat32(point *c_base.Meta) (float32, e
 	return cvt.Float32E(v)
 }
 
-func (s *SRealDeviceImpl[P]) GetFromPointFloat64(point *c_base.Meta) (float64, error) {
+func (s *SRealDeviceImpl[P]) GetFromPointFloat64(point c_base.IPoint) (float64, error) {
 	v, err := s.GetFromPoint(point)
 	if err != nil {
 		return 0, err

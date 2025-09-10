@@ -1,18 +1,19 @@
 package c_base
 
 import (
+	"common/c_enum"
 	"reflect"
 )
 
 type SDriverInfo struct {
-	Name         string            `json:"name" yaml:"name" v:"required|length:6,40"`     // 驱动名称
-	Type         EDeviceType       `json:"type" yaml:"type" v:"required"`                 // 驱动类型
-	ProtocolType EProtocolType     `json:"protocolType" yaml:"protocolType" v:"required"` // 协议类型
-	Brand        string            `json:"brand" yaml:"brand"`                            // 品牌
-	Model        string            `json:"model" yaml:"model"`                            // 型号
-	Version      string            `json:"version" yaml:"version" v:"required"`           // 版本
-	Telemetry    []*STelemetry     `json:"telemetry" yaml:"telemetry"`                    // 遥测
-	Service      []*SDriverService `json:"service" yaml:"service"`                        // 自定义服务
+	Name         string               `json:"name" yaml:"name" v:"required|length:6,40"`     // 驱动名称
+	Type         c_enum.EDeviceType   `json:"type" yaml:"type" v:"required"`                 // 驱动类型
+	ProtocolType c_enum.EProtocolType `json:"protocolType" yaml:"protocolType" v:"required"` // 协议类型
+	Brand        string               `json:"brand" yaml:"brand"`                            // 品牌
+	Model        string               `json:"model" yaml:"model"`                            // 型号
+	Version      string               `json:"version" yaml:"version" v:"required"`           // 版本
+	Telemetry    []*STelemetry        `json:"telemetry" yaml:"telemetry"`                    // 遥测
+	Service      []*SDriverService    `json:"service" yaml:"service"`                        // 自定义服务
 
 	Enabled      bool   `json:"enabled" yaml:"enabled" v:"required"`
 	Path         string `json:"path"`         // 路径

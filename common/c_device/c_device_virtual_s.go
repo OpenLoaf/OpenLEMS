@@ -3,7 +3,7 @@ package c_device
 import (
 	"common"
 	"common/c_base"
-	"common/c_status"
+	"common/c_enum"
 	"common/c_type"
 	"context"
 	"github.com/pkg/errors"
@@ -44,12 +44,12 @@ func (s *SVirtualDeviceImpl) Reset() error {
 	return nil
 }
 
-func (s *SVirtualDeviceImpl) GetProtocolStatus() c_status.EProtocolStatus {
-	return c_status.EProtocolConnected
+func (s *SVirtualDeviceImpl) GetProtocolStatus() c_enum.EProtocolStatus {
+	return c_enum.EProtocolConnected
 }
 
-func (s *SVirtualDeviceImpl) GetMetaValueList() []*c_base.MetaValueWrapper {
-	var list = make([]*c_base.MetaValueWrapper, 0)
+func (s *SVirtualDeviceImpl) GetMetaValueList() []*c_base.SPointValue {
+	var list = make([]*c_base.SPointValue, 0)
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
 		child := common.GetDeviceManager().GetDeviceById(childDevice.Id)
 		if child == nil {
@@ -96,7 +96,7 @@ func (s *SVirtualDeviceImpl) GetFromChildDeviceId(childDeviceId string, processF
 }
 
 // GetFromChildDeviceType 使用设备类型来获取数据，和VirtualDataFromChildDeviceType的区别在于，这个方法能处理所有类型，而VirtualDataFromChildDeviceType 只能处理数字
-func (s *SVirtualDeviceImpl) GetFromChildDeviceType(childDeviceType c_base.EDeviceType,
+func (s *SVirtualDeviceImpl) GetFromChildDeviceType(childDeviceType c_enum.EDeviceType,
 	processFunction func(device c_base.IDevice) (any, error), // 处理函数
 	aggregateFunction func(values []any) (any, error)) (any, error) { // 聚合函数
 	var results = make([]any, 0)
@@ -122,7 +122,7 @@ func (s *SVirtualDeviceImpl) GetFromChildDeviceType(childDeviceType c_base.EDevi
 }
 
 // GetFromChildAmmeterOrDeviceType 根据电表id或者设备类型来获取数据，优先使用电表，如果电表id为空，才会使用type
-func (s *SVirtualDeviceImpl) GetFromChildAmmeterOrDeviceType(ammeterId string, childDeviceType c_base.EDeviceType,
+func (s *SVirtualDeviceImpl) GetFromChildAmmeterOrDeviceType(ammeterId string, childDeviceType c_enum.EDeviceType,
 	ammeterProcessFunction func(ammeter c_type.IAmmeter) (any, error),
 	processFunction func(device c_base.IDevice) (any, error),
 	aggregateFunction func(values []any) (any, error)) (any, error) {

@@ -1,7 +1,9 @@
 package c_base
 
 import (
+	"common/c_enum"
 	"encoding/json"
+
 	"github.com/pkg/errors"
 )
 
@@ -52,9 +54,9 @@ func (s *SDeviceConfig) ScanParams(target any) error {
 	return nil
 }
 
-func (s *SDeviceConfig) GetType() EDeviceType {
+func (s *SDeviceConfig) GetType() c_enum.EDeviceType {
 	if s.DriverInfo == nil {
-		return EDeviceNone
+		return c_enum.EDeviceNone
 	}
 	return s.DriverInfo.Type
 }

@@ -2,9 +2,9 @@ package c_base
 
 import "time"
 
-type ITask interface {
+type IPointTask interface {
 	GetName() string
 	GetDescription() string
-	GetMetas() []*Meta // 获取点位
+	GetPoints() []IPoint // 获取点位
 	GetLifeTime() time.Duration
 }

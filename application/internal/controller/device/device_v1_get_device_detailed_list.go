@@ -20,7 +20,7 @@ func (c *ControllerV1) GetDeviceDetailedList(ctx context.Context, req *v1.GetDev
 	deviceManager := common.GetDeviceManager()
 
 	// 创建设备类型过滤映射
-	typeFilter := make(map[c_base.EDeviceType]bool)
+	typeFilter := make(map[c_enum.EDeviceType]bool)
 	if len(req.DeviceTypes) > 0 {
 		for _, deviceType := range req.DeviceTypes {
 			typeFilter[deviceType] = true

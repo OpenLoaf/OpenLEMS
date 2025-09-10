@@ -9,7 +9,7 @@ import (
 
 type GetDeviceDetailedListReq struct {
 	g.Meta      `path:"/device/detailed-list" method:"get" tags:"设备相关" summary:"获取设备详细列表"`
-	DeviceTypes []c_base.EDeviceType `json:"deviceTypes,omitempty" dc:"设备类型过滤，可设置多个类型。可选值：ammeter(电表),ca(制冷空调),cl(液冷机组),bms(电池管理系统),fire(消防),hum(温湿度),pcs(电池逆变器),load(负载),pv(光伏),ess(储能柜),cp(充电桩),gen(发电机),gpio(DIY),sess(总站储能柜)"`
+	DeviceTypes []c_enum.EDeviceType `json:"deviceTypes,omitempty" dc:"设备类型过滤，可设置多个类型。可选值：ammeter(电表),ca(制冷空调),cl(液冷机组),bms(电池管理系统),fire(消防),hum(温湿度),pcs(电池逆变器),load(负载),pv(光伏),ess(储能柜),cp(充电桩),gen(发电机),gpio(DIY),sess(总站储能柜)"`
 	Enabled     *bool                `json:"enabled,omitempty" dc:"设备启用状态过滤，true-只显示启用的设备，false-只显示禁用的设备，不传-显示所有设备"`
 }
 
@@ -30,7 +30,7 @@ type DeviceDetailedInfo struct {
 	UpdatedAt          *time.Time     `json:"updatedAt" dc:"更新时间"`
 
 	// 设备类型相关信息
-	DeviceType      c_base.EDeviceType `json:"deviceType" dc:"设备类型"`
+	DeviceType      c_enum.EDeviceType `json:"deviceType" dc:"设备类型"`
 	IsVirtualDevice bool               `json:"isVirtualDevice" dc:"是否是虚拟设备"`
 	DriverType      string             `json:"driverType" dc:"驱动类型"`
 	DriverBrand     string             `json:"driverBrand" dc:"驱动品牌"`

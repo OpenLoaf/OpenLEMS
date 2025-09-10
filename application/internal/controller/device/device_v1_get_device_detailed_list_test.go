@@ -31,7 +31,7 @@ func TestControllerV1_GetDeviceDetailedListWithTypeFilter(t *testing.T) {
 
 	// 测试按设备类型过滤
 	req := &v1.GetDeviceDetailedListReq{
-		DeviceTypes: []c_base.EDeviceType{c_base.EDeviceBms, c_base.EDevicePcs},
+		DeviceTypes: []c_enum.EDeviceType{c_enum.EDeviceBms, c_enum.EDevicePcs},
 	}
 	res, err := controller.GetDeviceDetailedList(context.Background(), req)
 
@@ -75,7 +75,7 @@ func TestControllerV1_GetDeviceDetailedListWithCombinedFilter(t *testing.T) {
 	// 测试组合过滤条件
 	enabled := true
 	req := &v1.GetDeviceDetailedListReq{
-		DeviceTypes: []c_base.EDeviceType{c_base.EDeviceBms, c_base.EDeviceEss},
+		DeviceTypes: []c_enum.EDeviceType{c_enum.EDeviceBms, c_enum.EDeviceEss},
 		Enabled:     &enabled,
 	}
 	res, err := controller.GetDeviceDetailedList(context.Background(), req)

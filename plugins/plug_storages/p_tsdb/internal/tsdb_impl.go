@@ -67,7 +67,7 @@ func NewPromTSDB(ctx context.Context, storageConfig *c_base.SStorageConfig) c_ba
 	return instance
 }
 
-func (p *promDB) SaveDevices(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {
+func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fields map[string]any) error {
 	if len(fields) == 0 {
 		return nil
 	}

@@ -3,9 +3,9 @@ package pcs_star_charge_100E_v1
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
-	"common/c_status"
 	"time"
 )
 
@@ -30,7 +30,7 @@ func (s *sPcsStarCharge100E) Init() error {
 
 func (s *sPcsStarCharge100E) Shutdown() {
 	_ = s.SetPower(0)
-	_ = s.SetStatus(c_status.EPcsStatusOff)
+	_ = s.SetStatus(c_enum.EPcsStatusOff)
 	c_log.Infof(s.DeviceCtx, "销毁成功,设置PCS状态为Off!")
 }
 
@@ -39,15 +39,15 @@ func (s *sPcsStarCharge100E) SetReset() error {
 	return nil
 }
 
-func (s *sPcsStarCharge100E) SetStatus(status c_status.EEnergyStoreStatus) error {
-	if status == c_status.EPcsStatusOff {
+func (s *sPcsStarCharge100E) SetStatus(status c_enum.EEnergyStoreStatus) error {
+	if status == c_enum.EPcsStatusOff {
 		_ = s.SetPower(0)
 
 		return s.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
 			return protocol.WriteSingleRegister(OnOffCommand, 0)
 		})
 	}
-	if status == c_status.EPcsStatusStandby {
+	if status == c_enum.EPcsStatusStandby {
 		// 这里文档是 On/off command: 0- Shutdown, 1- Startup, 2- Standby
 		return s.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
 			return protocol.WriteSingleRegister(OnOffCommand, 1)
@@ -56,48 +56,48 @@ func (s *sPcsStarCharge100E) SetStatus(status c_status.EEnergyStoreStatus) error
 	return c_base.NotSupport
 }
 
-func (s *sPcsStarCharge100E) SetGridMode(mode c_base.EGridMode) error {
+func (s *sPcsStarCharge100E) SetGridMode(mode c_enum.EGridMode) error {
 	return c_base.NotSupport
 }
 
-func (s *sPcsStarCharge100E) GetStatus() (c_status.EEnergyStoreStatus, error) {
+func (s *sPcsStarCharge100E) GetStatus() (c_enum.EEnergyStoreStatus, error) {
 	v, err := s.GetFromProtocol(func(protocol c_proto.IModbusProtocol) (any, error) {
 		value, err := protocol.GetUintValue(InverterOperationStatus)
 		if err != nil {
-			return c_status.EPcsStatusUnknown, err
+			return c_enum.EPcsStatusUnknown, err
 		}
 		switch value {
 		// 0 - Waiting for the machine to start, 1 - Power on self check, 2 - Grid connected operation, 3 - Off grid operation, 4 - Reserved, 5 - General error
 		case 0, 1:
 			// 等待设备启动算是关机的状态
-			return c_status.EPcsStatusOff, nil
+			return c_enum.EPcsStatusOff, nil
 		case 2, 3:
 			// 离网并网运行中时，说明设备正常。获取功率，如果获取功率失败，说明设备故障，获取成功后正为放电，负为充电
 			power, err := s.GetPower()
 			if err != nil {
-				return c_status.EPcsStatusFault, err
+				return c_enum.EPcsStatusFault, err
 			}
 			if power > 0 {
-				return c_status.EPcsStatusDischarge, nil
+				return c_enum.EPcsStatusDischarge, nil
 			} else if power < 0 {
-				return c_status.EPcsStatusCharge, nil
+				return c_enum.EPcsStatusCharge, nil
 			} else {
-				return c_status.EPcsStatusStandby, nil
+				return c_enum.EPcsStatusStandby, nil
 			}
 		case 5:
-			return c_status.EPcsStatusFault, err
+			return c_enum.EPcsStatusFault, err
 		}
-		return c_status.EPcsStatusFault, err
+		return c_enum.EPcsStatusFault, err
 	})
 
 	if err != nil {
-		return c_status.EPcsStatusUnknown, err
+		return c_enum.EPcsStatusUnknown, err
 	}
-	return v.(c_status.EEnergyStoreStatus), err
+	return v.(c_enum.EEnergyStoreStatus), err
 }
 
-func (s *sPcsStarCharge100E) GetGridMode() (c_base.EGridMode, error) {
-	return c_base.EGridOn, nil
+func (s *sPcsStarCharge100E) GetGridMode() (c_enum.EGridMode, error) {
+	return c_enum.EGridOn, nil
 }
 
 func (s *sPcsStarCharge100E) SetPower(power int32) error {
@@ -158,24 +158,24 @@ func (s *sPcsStarCharge100E) GetMaxOutputPower() (float32, error) {
 
 func (s *sPcsStarCharge100E) GetTodayIncomingQuantity() (float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.ReadSingleSync(DailyBatteryDischargeEnergy, c_proto.EMqHoldingRegisters, time.Minute, false)
+		return protocol.ReadSingleSync(DailyBatteryDischargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
 	})
 }
 
 func (s *sPcsStarCharge100E) GetHistoryIncomingQuantity() (float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.ReadSingleSync(TotalBatteryDischargeEnergy, c_proto.EMqHoldingRegisters, time.Minute, false)
+		return protocol.ReadSingleSync(TotalBatteryDischargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
 	})
 }
 
 func (s *sPcsStarCharge100E) GetTodayOutgoingQuantity() (float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.ReadSingleSync(DailyBatteryChargeEnergy, c_proto.EMqHoldingRegisters, time.Minute, false)
+		return protocol.ReadSingleSync(DailyBatteryChargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
 	})
 }
 
 func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.ReadSingleSync(TotalBatteryChargeEnergy, c_proto.EMqHoldingRegisters, time.Minute, false)
+		return protocol.ReadSingleSync(TotalBatteryChargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
 	})
 }

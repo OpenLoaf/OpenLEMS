@@ -20,7 +20,7 @@ type SDeviceManager struct {
 	parentCtx  context.Context
 	ctx        context.Context
 	cancelFunc context.CancelFunc
-	state      c_base.EServerState // 状态
+	state      c_enum.EServerState // 状态
 
 	protocolClientCache map[string]any // 协议客户端缓存
 
@@ -150,26 +150,26 @@ func (m *SDeviceManager) IteratorParentDevicesById(deviceId string, iterator fun
 }
 
 func (m *SDeviceManager) Start() {
-	if m.state == c_base.EStateRunning {
+	if m.state == c_enum.EStateRunning {
 		c_log.BizErrorf(m.ctx, "服务启动失败，服务已经在运行状态中了")
 		return
 	}
 
 	m.ctx, m.cancelFunc = context.WithCancel(m.parentCtx)
-	m.state = c_base.EStateInit
+	m.state = c_enum.EStateInit
 	m.protocolClientCache = make(map[string]any)
 	m.deviceInstanceMap = make(map[string]c_base.IDevice)
 
 	rootDeviceID := s_db.GetSettingService().GetRootDeviceId(m.ctx)
 	deviceConfigs, err := s_db.GetDeviceService().GetEnableDeviceConfigsWithRecursion(m.ctx, rootDeviceID)
 	if err != nil {
-		m.state = c_base.EStateError
+		m.state = c_enum.EStateError
 		g.Log().Errorf(m.ctx, "初始化失败！获取设备配置失败！%+v", err)
 		return
 	}
 	protocolConfigs, err := s_db.GetProtocolService().GetAllProtocolConfigs(m.ctx)
 	if err != nil {
-		m.state = c_base.EStateError
+		m.state = c_enum.EStateError
 		g.Log().Errorf(m.ctx, "初始化失败！获取协议配置失败！%+v", err)
 		return
 	}
@@ -224,7 +224,7 @@ func (m *SDeviceManager) Start() {
 		}
 	})
 
-	m.state = c_base.EStateRunning
+	m.state = c_enum.EStateRunning
 }
 
 // BuildVirtualDevice 创建虚拟设备
@@ -256,7 +256,7 @@ func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig
 	if protocolProvider == nil || err != nil {
 		// todo 添加日志，创建连接失败了
 		c_log.BizErrorf(deviceCtx, "创建协议实例失败! 协议ID: %s 原因：%s", deviceConfig.ProtocolId, err.Error())
-		m.state = c_base.EStateError
+		m.state = c_enum.EStateError
 		return
 	}
 	device, err := c_device.NewRealDevice(deviceCtx, deviceConfig, protocolProvider.(c_proto.IModbusProtocol))
@@ -288,14 +288,14 @@ func (m *SDeviceManager) GetDriverInfo(driverName string) (*c_base.SDriverInfo, 
 }
 
 // GetDriversByType 根据设备类型获取驱动信息
-func (m *SDeviceManager) GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []*c_base.SDriverInfo {
+func (m *SDeviceManager) GetDriversByType(ctx context.Context, deviceType c_enum.EDeviceType) []*c_base.SDriverInfo {
 	return GetDriversByType(ctx, deviceType)
 }
 
 // GetSupportedDeviceTypes 获取支持的设备类型列表
-func (m *SDeviceManager) GetSupportedDeviceTypes(ctx context.Context) []c_base.EDeviceType {
+func (m *SDeviceManager) GetSupportedDeviceTypes(ctx context.Context) []c_enum.EDeviceType {
 	driversInfo := m.GetAllDriversInfo()
-	typeMap := make(map[c_base.EDeviceType]bool)
+	typeMap := make(map[c_enum.EDeviceType]bool)
 
 	for _, driver := range driversInfo {
 		if driver.Enabled && driver.Type != "" {
@@ -303,7 +303,7 @@ func (m *SDeviceManager) GetSupportedDeviceTypes(ctx context.Context) []c_base.E
 		}
 	}
 
-	var deviceTypes []c_base.EDeviceType
+	var deviceTypes []c_enum.EDeviceType
 	for deviceType := range typeMap {
 		deviceTypes = append(deviceTypes, deviceType)
 	}

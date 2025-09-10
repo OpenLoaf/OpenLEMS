@@ -1,6 +1,7 @@
 package c_base
 
 import (
+	"common/c_enum"
 	"reflect"
 	"strings"
 
@@ -125,7 +126,7 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 
 		// 解析组件类型标签(ct)
 		if ct := field.Tag.Get("ct"); ct != "" {
-			fieldConfig.ComponentType = EConfigFieldsComponentType(ct)
+			fieldConfig.ComponentType = c_enum.EConfigFieldsComponentType(ct)
 		}
 		// 解析值类型标签(vt)
 		if vt := field.Tag.Get("vt"); vt != "" {
@@ -197,7 +198,7 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 //   - float32/float64/*float32/*float64 -> number组件, float值类型
 //   - bool/*bool -> switch组件, bool值类型
 //   - 其他类型 -> text组件, string值类型(默认)
-func getFieldTypeInfo(fieldType reflect.Type) (EConfigFieldsComponentType, string) {
+func getFieldTypeInfo(fieldType reflect.Type) (c_enum.EConfigFieldsComponentType, string) {
 	// 处理指针类型，获取指针指向的原始类型
 	originalType := fieldType
 	if fieldType.Kind() == reflect.Ptr {
@@ -206,16 +207,16 @@ func getFieldTypeInfo(fieldType reflect.Type) (EConfigFieldsComponentType, strin
 
 	switch originalType.Kind() {
 	case reflect.String:
-		return EConfigFieldsComponentTypeText, "string"
+		return c_enum.EConfigFieldsComponentTypeText, "string"
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return EConfigFieldsComponentTypeNumber, "int"
+		return c_enum.EConfigFieldsComponentTypeNumber, "int"
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return EConfigFieldsComponentTypeNumber, "int"
+		return c_enum.EConfigFieldsComponentTypeNumber, "int"
 	case reflect.Float32, reflect.Float64:
-		return EConfigFieldsComponentTypeNumber, "float"
+		return c_enum.EConfigFieldsComponentTypeNumber, "float"
 	case reflect.Bool:
-		return EConfigFieldsComponentTypeSwitch, "bool"
+		return c_enum.EConfigFieldsComponentTypeSwitch, "bool"
 	default:
-		return EConfigFieldsComponentTypeText, "string"
+		return c_enum.EConfigFieldsComponentTypeText, "string"
 	}
 }

@@ -1,20 +1,19 @@
 //go:generate stringer -type=ESystemType -trimprefix=S -output=c_base_meta_system_type_e_string.go
-package c_base
+package c_enum
 
-type ESystemType int // 读取到数据后，转换为到系统类型
+type EValueType int // 读取到数据后，转换为到系统类型
 
 const (
-	SUseReadType ESystemType = iota // 自动使用ReadType的类型。
-	SBool
-	SInt8
-	SUint8
-	SInt16
-	SUint16
-	SInt32
-	SUint32
-	SInt64
-	SUint64
-	SFloat32
-	SFloat64
-	SString
+	EBool EValueType = iota // 自动使用ReadType的类型。
+	EInt8
+	EUint8
+	EInt16
+	EUint16
+	EInt32
+	EUint32
+	EInt64
+	EUint64
+	EFloat32
+	EFloat64
+	EString
 )

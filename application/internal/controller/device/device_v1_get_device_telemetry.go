@@ -9,7 +9,7 @@ import (
 
 func (c *ControllerV1) GetDeviceTelemetry(ctx context.Context, req *v1.GetDeviceTelemetryReq) (res *v1.GetDeviceTelemetryRes, err error) {
 
-	if common.GetDeviceManager().Status() == c_base.EStateInit {
+	if common.GetDeviceManager().Status() == c_enum.EStateInit {
 		// 系统还在初始化中
 		return nil, nil
 	}

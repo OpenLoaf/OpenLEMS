@@ -124,7 +124,7 @@ var (
 			s_db.Init()
 
 			// 初始化存储（切换为 TSDB，无外部配置时采用默认路径与策略）
-			storageInst := p_tsdb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_base.EStorageTypeTsdb, Url: "", Params: map[string]string{}})
+			storageInst := p_tsdb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_enum.EStorageTypeTsdb, Url: "", Params: map[string]string{}})
 			s_storage.NewSingleStorageManager(nil, storageInst)
 			common.RegisterStorageInstance(storageInst)
 

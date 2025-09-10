@@ -2,19 +2,20 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
-	"common/c_status"
 	"context"
-	"github.com/pkg/errors"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
-func (p *ModbusProtocolProvider) RegisterTask(task c_base.ITask, tasks ...c_base.ITask) {
+func (p *ModbusProtocolProvider) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
 	if task == nil {
 		return
 	}
-	if modbusTask, ok := task.(*c_proto.SModbusTask); ok {
+	if modbusTask, ok := task.(*c_proto.SModbusPointTask); ok {
 		err := modbusTask.Check(p.ctx)
 		if err == nil {
 			p.registerReadOne(modbusTask)
@@ -24,7 +25,7 @@ func (p *ModbusProtocolProvider) RegisterTask(task c_base.ITask, tasks ...c_base
 	}
 	if len(tasks) != 0 {
 		for _, t := range tasks {
-			if modbusTask, ok := t.(*c_proto.SModbusTask); ok {
+			if modbusTask, ok := t.(*c_proto.SModbusPointTask); ok {
 				err := modbusTask.Check(p.ctx)
 				if err == nil {
 					p.registerReadOne(modbusTask)
@@ -37,7 +38,7 @@ func (p *ModbusProtocolProvider) RegisterTask(task c_base.ITask, tasks ...c_base
 	return
 }
 
-func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
+func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusPointTask) {
 	if group.Name == "" {
 		panic(errors.Errorf("[%v-%v] 参数错误！modbusQuery的name为空！%+v", p.deviceId, group.Name, group))
 	}
@@ -47,9 +48,6 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 		name        = group.Name
 	)
 	ctx := context.WithValue(p.ctx, c_base.ConstCtxKeyDeviceDetail, group.Name)
-
-	// 预处理一下数据
-	setDefaultValue(group)
 
 	if _, ok := p.preQuery[name]; ok {
 		// 如果存在就不再创建
@@ -79,7 +77,7 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 					return
 				case <-tk.C:
 					// 如果没有连接，就延迟3秒后再执行下个周期
-					if p.GetProtocolStatus() != c_status.EProtocolConnected {
+					if p.GetProtocolStatus() != c_enum.EProtocolConnected {
 						time.Sleep(3 * time.Second)
 						continue
 					}
@@ -108,7 +106,7 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 					// 这里等待一个周期(也就是跳过一个周期)exit
 					//time.Sleep(cycle)
 					// 如果没有连接，就延迟3秒后再执行下个周期
-					if p.GetProtocolStatus() != c_status.EProtocolConnected {
+					if p.GetProtocolStatus() != c_enum.EProtocolConnected {
 						time.Sleep(3 * time.Second)
 						continue
 					}
@@ -118,21 +116,11 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusTask) {
 			}
 		}()
 	}
-	displayName := group.DisplayName
+	displayName := group.GetName()
 	if displayName == "" {
 		displayName = group.Name
 	}
 
 	c_log.BizInfof(ctx, "启动Modbus定时读取任务成功！任务名称：[%s] 查询周期: %0.3fs", displayName, cycle.Seconds())
 
-}
-
-// setDefaultValue 检查点位是否规范
-func setDefaultValue(group *c_proto.SModbusTask) {
-	for _, meta := range group.Metas {
-		// 如果倍率没有设置，就默认为1
-		if meta.Factor == 0 {
-			meta.Factor = 1
-		}
-	}
 }

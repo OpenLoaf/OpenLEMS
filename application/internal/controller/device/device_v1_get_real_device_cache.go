@@ -13,7 +13,7 @@ import (
 )
 
 func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error) {
-	if common.GetDeviceManager().Status() == c_base.EStateInit {
+	if common.GetDeviceManager().Status() == c_enum.EStateInit {
 		// 系统还在初始化中
 		return &v1.GetRealDeviceCacheRes{}, nil
 	}

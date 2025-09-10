@@ -2,9 +2,9 @@ package bms_pylon_tech_us108_v1
 
 import (
 	"common/c_device"
+	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
-	"common/c_status"
 	"common/c_type"
 	"math"
 	"time"
@@ -101,39 +101,39 @@ func (p *sBmsPylonTechUs108) GetMaxOutputPower() (float32, error) {
 	})
 }
 
-func (p *sBmsPylonTechUs108) GetBmsStatus() (c_type.EBmsStatus, error) {
+func (p *sBmsPylonTechUs108) GetBmsStatus() (c_enum.EBmsStatus, error) {
 	status, err := p.GetFromProtocolUint8(func(protocol c_proto.IModbusProtocol) (any, error) {
 		return protocol.GetIntValue(BasicStatus)
 	})
 	if err != nil {
-		return c_type.EBmsStatusUnknown, err
+		return c_enum.EBmsStatusUnknown, err
 	}
 	switch status {
 	case 0:
-		return c_type.EBmsStatusOff, nil
+		return c_enum.EBmsStatusOff, nil
 	case 1:
-		return c_type.EBmsStatusCharge, nil
+		return c_enum.EBmsStatusCharge, nil
 	case 2:
-		return c_type.EBmsStatusDischarge, nil
+		return c_enum.EBmsStatusDischarge, nil
 	case 3:
-		return c_type.EBmsStatusStandby, nil
+		return c_enum.EBmsStatusStandby, nil
 	}
-	return c_type.EBmsStatusUnknown, nil
+	return c_enum.EBmsStatusUnknown, nil
 }
 
-func (p *sBmsPylonTechUs108) SetBmsStatus(status c_type.EBmsStatus) error {
+func (p *sBmsPylonTechUs108) SetBmsStatus(status c_enum.EBmsStatus) error {
 	var err error
 	return p.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
 		switch status {
-		case c_type.EBmsStatusOff:
+		case c_enum.EBmsStatusOff:
 			err = protocol.WriteSingleRegister(BasicStatus, 0) // 确保可以休眠
-		case c_type.EBmsStatusUnknown:
+		case c_enum.EBmsStatusUnknown:
 			err = errors.New("参数错误")
-		case c_type.EBmsStatusStandby:
+		case c_enum.EBmsStatusStandby:
 			err = protocol.WriteSingleRegister(BasicStatus, 3) // 确保可以待机
-		case c_type.EBmsStatusCharge:
-		case c_type.EBmsStatusDischarge:
-		case c_type.EBmsStatusFault:
+		case c_enum.EBmsStatusCharge:
+		case c_enum.EBmsStatusDischarge:
+		case c_enum.EBmsStatusFault:
 			// 这些虽然不支持，但是不会返回错误。确保其他的服务调用的时候能够正常
 		}
 
@@ -223,28 +223,28 @@ func (p *sBmsPylonTechUs108) GetCycleCount() (uint, error) {
 
 func (p *sBmsPylonTechUs108) GetTodayIncomingQuantity() (float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		v, err := protocol.ReadSingleSync(TodayCharge, c_proto.EMqHoldingRegisters, 3*time.Second, true)
+		v, err := protocol.ReadSingleSync(TodayCharge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
 		return cvt.Float64(v), err
 	})
 }
 
 func (p *sBmsPylonTechUs108) GetTodayOutgoingQuantity() (float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		v, err := protocol.ReadSingleSync(TodayDischarge, c_proto.EMqHoldingRegisters, 3*time.Second, true)
+		v, err := protocol.ReadSingleSync(TodayDischarge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
 		return cvt.Float64(v), err
 	})
 }
 
 func (p *sBmsPylonTechUs108) GetHistoryIncomingQuantity() (float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		v, err := protocol.ReadSingleSync(HistoryCharge, c_proto.EMqHoldingRegisters, 3*time.Second, true)
+		v, err := protocol.ReadSingleSync(HistoryCharge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
 		return cvt.Float64(v), err
 	})
 }
 
 func (p *sBmsPylonTechUs108) GetHistoryOutgoingQuantity() (float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		v, err := protocol.ReadSingleSync(HistoryDischarge, c_proto.EMqHoldingRegisters, 3*time.Second, true)
+		v, err := protocol.ReadSingleSync(HistoryDischarge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
 		return cvt.Float64(v), err
 	})
 }
@@ -271,7 +271,7 @@ func (p *sBmsPylonTechUs108) startWriteTimeTask() {
 				c_log.Debugf(p.DeviceCtx, "startWriteTimeTask() 关闭!")
 				return
 			case <-ticker.C:
-				if p.GetProtocolStatus() != c_status.EProtocolConnected {
+				if p.GetProtocolStatus() != c_enum.EProtocolConnected {
 					continue
 				}
 				_ = p._syncTime()

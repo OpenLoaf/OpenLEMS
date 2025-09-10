@@ -3,30 +3,36 @@ package internal
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
-	"common/c_status"
 	"context"
+	"p_base"
+	"sync"
+	"time"
+
 	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/pkg/errors"
 	"github.com/torykit/go-modbus"
-	"p_base"
-	"sync"
-	"time"
 )
+
+type MetaValue struct {
+	Value      any        `json:"value,omitempty" dc:"数值"`
+	HappenTime *time.Time `json:"happenTime,omitempty" dc:"发生时间"`
+}
 
 type ModbusProtocolProvider struct {
 	c_base.IAlarm
-	c_base.IGetProtocolCacheValue
+	c_base.IProtocolCacheValue
 
 	ctx  context.Context // 上下文
 	once sync.Once       // 只执行一次Init方法
 
 	deviceId   string
-	deviceType c_base.EDeviceType
+	deviceType c_enum.EDeviceType
 
 	client             modbus.Client   // modbus的通讯
 	preQuery           map[string]bool // 预读
@@ -39,9 +45,9 @@ type ModbusProtocolProvider struct {
 	metricProtocol *sMetricProtocol // 统计协议
 }
 
-var _ c_base.IProtocol = (*ModbusProtocolProvider)(nil)
+var _ c_proto.IModbusProtocol = (*ModbusProtocolProvider)(nil)
 
-func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
+func NewModbusProvider(ctx context.Context, deviceType c_enum.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
 	if protocolConfig == nil {
 		panic(errors.Errorf("Modbus设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
 	}
@@ -59,10 +65,10 @@ func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, proto
 	}
 	cache := gcache.New()
 	provider := &ModbusProtocolProvider{
-		IGetProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id, cache),
-		IAlarm:                 c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
-		deviceId:               deviceConfig.Id,
-		deviceType:             deviceType,
+		IProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id, deviceType, cache),
+		IAlarm:              c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
+		deviceId:            deviceConfig.Id,
+		deviceType:          deviceType,
 
 		once:               sync.Once{},
 		ctx:                ctx,
@@ -104,29 +110,29 @@ func (p *ModbusProtocolProvider) GetDeviceConfigFields() []*c_base.SConfigStruct
 	return fields
 }
 
-func (p *ModbusProtocolProvider) GetProtocolStatus() c_status.EProtocolStatus {
+func (p *ModbusProtocolProvider) GetProtocolStatus() c_enum.EProtocolStatus {
 	if p.client == nil {
-		return c_status.EProtocolDisconnected
+		return c_enum.EProtocolDisconnected
 	}
 	if p.client.IsConnected() {
-		return c_status.EProtocolConnected
+		return c_enum.EProtocolConnected
 	}
-	return c_status.EProtocolConnecting
+	return c_enum.EProtocolConnecting
 }
 func (p *ModbusProtocolProvider) GetLastUpdateTime() *time.Time {
 	return p.lastUpdateTime
 }
 
-func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
+func (p *ModbusProtocolProvider) GetPointValueList() []*c_base.SPointValue {
 	// 排序
 	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
-		v1Meta := v1.(*c_base.MetaValueWrapper).Meta
-		v2Meta := v2.(*c_base.MetaValueWrapper).Meta
+		v1Meta := v1.(*c_proto.SModbusPoint)
+		v2Meta := v2.(*c_proto.SModbusPoint)
 
 		// 先比较 Sort
-		if v1Meta.Sort > v2Meta.Sort {
+		if v1Meta.GetSort() > v2Meta.GetSort() {
 			return 1
-		} else if v1Meta.Sort < v2Meta.Sort {
+		} else if v1Meta.GetSort() < v2Meta.GetSort() {
 			return -1
 		}
 
@@ -136,7 +142,7 @@ func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 		} else {
 			if v1Meta.Addr == v2Meta.Addr {
 				// 比对别的
-				if v1Meta.ReadType > v2Meta.ReadType {
+				if v1Meta.ValueType > v2Meta.ValueType {
 					return 1
 				}
 			}
@@ -156,26 +162,20 @@ func (p *ModbusProtocolProvider) GetMetaValueList() []*c_base.MetaValueWrapper {
 			continue
 		}
 
-		metaValue := &c_base.MetaValue{}
+		metaValue := &MetaValue{}
 		err = _varValue.Structs(metaValue)
 		if err != nil {
 			g.Log().Errorf(p.ctx, "解析缓存值失败：%+v", err)
 			continue
 		}
 
-		_sortValues.Add(&c_base.MetaValueWrapper{
-			DeviceId:   p.deviceId,
-			DeviceType: p.deviceType,
-			Meta:       meta.(*c_base.Meta),
-			Value:      metaValue.Value,
-			HappenTime: metaValue.HappenTime,
-		})
+		_sortValues.Add(c_base.NewPointValue(p.deviceId, p.deviceType, meta.(c_base.IPoint), metaValue.Value))
 	}
 	//_sortValues = _sortValues.Sort()
 
-	result := make([]*c_base.MetaValueWrapper, _sortValues.Len())
+	result := make([]*c_base.SPointValue, _sortValues.Len())
 	for i, v := range _sortValues.Slice() {
-		result[i] = v.(*c_base.MetaValueWrapper)
+		result[i] = v.(*c_base.SPointValue)
 	}
 
 	return result

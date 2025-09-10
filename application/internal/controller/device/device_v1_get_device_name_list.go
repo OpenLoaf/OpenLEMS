@@ -22,7 +22,7 @@ func (c *ControllerV1) GetDeviceNameList(ctx context.Context, req *v1.GetDeviceN
 	// 如果指定了设备类型过滤
 	if len(req.DeviceTypes) > 0 {
 		// 创建设备类型映射，用于快速查找
-		typeFilter := make(map[c_base.EDeviceType]bool)
+		typeFilter := make(map[c_enum.EDeviceType]bool)
 		for _, deviceType := range req.DeviceTypes {
 			typeFilter[deviceType] = true
 		}

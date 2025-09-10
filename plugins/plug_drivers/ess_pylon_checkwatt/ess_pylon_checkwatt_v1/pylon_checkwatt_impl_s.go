@@ -3,9 +3,9 @@ package ess_pylon_checkwatt_v1
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_enum"
 	"common/c_func"
 	"common/c_log"
-	"common/c_status"
 	"common/c_type"
 	"github.com/pkg/errors"
 	"github.com/shockerli/cvt"
@@ -31,7 +31,7 @@ func (p *sEssPylonCheckwatt) Init() error {
 
 	c_log.BizInfof(p.DeviceCtx, "虚拟储能柜初始化完毕!")
 
-	p.RegisterAlarmHandlerFunc(c_base.EAlarmActionLevelUp, func(alarm *c_base.MetaValueWrapper, currentMaxAlarmLevel c_base.EAlarmLevel, isFirstHandler bool) {
+	p.RegisterAlarmHandlerFunc(c_enum.EAlarmActionLevelUp, func(alarm *c_base.SPointValue, currentMaxAlarmLevel c_enum.EAlarmLevel, isFirstHandler bool) {
 		c_log.BizInfof(p.DeviceCtx, "触发告警")
 	})
 
@@ -40,7 +40,7 @@ func (p *sEssPylonCheckwatt) Init() error {
 
 func (p *sEssPylonCheckwatt) Shutdown() {
 	_ = p.SetPower(0)
-	_ = p.SetStatus(c_status.EPcsStatusOff)
+	_ = p.SetStatus(c_enum.EPcsStatusOff)
 }
 
 func (p *sEssPylonCheckwatt) SetReset() error {
@@ -162,7 +162,7 @@ func (p *sEssPylonCheckwatt) GetCellAvgVoltage() (float32, error) {
 
 // GetAmmeterOrPcsSumData 从电表或者PCS获取数据聚合返回方法
 func (p *sEssPylonCheckwatt) GetAmmeterOrPcsSumData(ammeterProcessFunction func(ammeter c_type.IAmmeter) (any, error), pcsProcessFunc func(pcs c_type.IPcs) (float64, error)) (float64, error) {
-	v, err := p.GetFromChildAmmeterOrDeviceType(p.essConfig.AmmeterId, c_base.EDevicePcs,
+	v, err := p.GetFromChildAmmeterOrDeviceType(p.essConfig.AmmeterId, c_enum.EDevicePcs,
 		func(ammeter c_type.IAmmeter) (any, error) {
 			return ammeterProcessFunction(ammeter)
 		}, func(device c_base.IDevice) (any, error) {
@@ -213,8 +213,8 @@ func (p *sEssPylonCheckwatt) GetHistoryOutgoingQuantity() (float64, error) {
 	})
 }
 
-func (p *sEssPylonCheckwatt) SetStatus(status c_status.EEnergyStoreStatus) error {
-	if status == c_status.EPcsStatusUnknown || status == c_status.EPcsStatusSync || status == c_status.EPcsStatusFault {
+func (p *sEssPylonCheckwatt) SetStatus(status c_enum.EEnergyStoreStatus) error {
+	if status == c_enum.EPcsStatusUnknown || status == c_enum.EPcsStatusSync || status == c_enum.EPcsStatusFault {
 		return errors.New("参数错误")
 	}
 	bmsStatus, err := p.GetBmsStatus()
@@ -222,10 +222,10 @@ func (p *sEssPylonCheckwatt) SetStatus(status c_status.EEnergyStoreStatus) error
 		return errors.Errorf("获取BMS状态失败! 错误原因：%s", err.Error())
 	}
 
-	if bmsStatus == c_type.EBmsStatusOff {
+	if bmsStatus == c_enum.EBmsStatusOff {
 		// 先去开机
 		err = c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) error {
-			return device.SetBmsStatus(c_type.EBmsStatusStandby) // 设为待机
+			return device.SetBmsStatus(c_enum.EBmsStatusStandby) // 设为待机
 		})
 		if err != nil {
 			return errors.Errorf("设置BMS状态失败！错误原因: %s", err.Error())
@@ -242,34 +242,34 @@ func (p *sEssPylonCheckwatt) SetStatus(status c_status.EEnergyStoreStatus) error
 	})
 }
 
-func (p *sEssPylonCheckwatt) GetBmsStatus() (c_type.EBmsStatus, error) {
+func (p *sEssPylonCheckwatt) GetBmsStatus() (c_enum.EBmsStatus, error) {
 	// 判断电池是否上电，如果没有就先上电
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (c_type.EBmsStatus, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IBms) (c_enum.EBmsStatus, error) {
 		return device.GetBmsStatus()
-	}, func(values []any) (c_type.EBmsStatus, error) {
-		return c_func.EqualAggregate[c_type.EBmsStatus](values)
+	}, func(values []any) (c_enum.EBmsStatus, error) {
+		return c_func.EqualAggregate[c_enum.EBmsStatus](values)
 	})
 }
 
-func (p *sEssPylonCheckwatt) SetGridMode(mode c_base.EGridMode) error {
+func (p *sEssPylonCheckwatt) SetGridMode(mode c_enum.EGridMode) error {
 	return c_device.VirtualExecuteWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) error {
 		return device.SetGridMode(mode)
 	})
 }
 
-func (p *sEssPylonCheckwatt) GetStatus() (c_status.EEnergyStoreStatus, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (c_status.EEnergyStoreStatus, error) {
+func (p *sEssPylonCheckwatt) GetStatus() (c_enum.EEnergyStoreStatus, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (c_enum.EEnergyStoreStatus, error) {
 		return device.GetStatus()
-	}, func(values []any) (c_status.EEnergyStoreStatus, error) {
-		return c_func.EqualAggregate[c_status.EEnergyStoreStatus](values)
+	}, func(values []any) (c_enum.EEnergyStoreStatus, error) {
+		return c_func.EqualAggregate[c_enum.EEnergyStoreStatus](values)
 	})
 }
 
-func (p *sEssPylonCheckwatt) GetGridMode() (c_base.EGridMode, error) {
-	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (c_base.EGridMode, error) {
+func (p *sEssPylonCheckwatt) GetGridMode() (c_enum.EGridMode, error) {
+	return c_device.VirtualGetDataWithChildDeviceType(p.SVirtualDeviceImpl, func(device c_type.IPcs) (c_enum.EGridMode, error) {
 		return device.GetGridMode()
-	}, func(values []any) (c_base.EGridMode, error) {
-		return c_func.EqualAggregate[c_base.EGridMode](values)
+	}, func(values []any) (c_enum.EGridMode, error) {
+		return c_func.EqualAggregate[c_enum.EGridMode](values)
 	})
 }
 

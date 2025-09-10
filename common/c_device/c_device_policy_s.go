@@ -3,19 +3,20 @@ package c_device
 import (
 	"common"
 	"common/c_base"
+	"common/c_enum"
 	"context"
 )
 
 type SBasePolicyImpl[T c_base.IDriver] struct {
 	Ctx          context.Context
-	mode         c_base.EPolicyMode
+	mode         c_enum.EPolicyMode
 	deviceId     string
 	manualAction func()
 }
 
-func (s *SBasePolicyImpl[T]) SetPolicyMode(mode c_base.EPolicyMode) {
+func (s *SBasePolicyImpl[T]) SetPolicyMode(mode c_enum.EPolicyMode) {
 	// 执行手动触发方法
-	if s.mode != c_base.EPolicyModeManual && mode == c_base.EPolicyModeManual && s.manualAction != nil {
+	if s.mode != c_enum.EPolicyModeManual && mode == c_enum.EPolicyModeManual && s.manualAction != nil {
 		s.manualAction()
 	}
 	s.mode = mode
@@ -33,7 +34,7 @@ func (s *SBasePolicyImpl[T]) ExecuteDriverFunc(f func(driver T)) {
 
 }
 
-func (s *SBasePolicyImpl[T]) GetPolicyMode() c_base.EPolicyMode {
+func (s *SBasePolicyImpl[T]) GetPolicyMode() c_enum.EPolicyMode {
 	return s.mode
 }
 

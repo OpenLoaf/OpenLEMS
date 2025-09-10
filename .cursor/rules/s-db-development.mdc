@@ -1,4 +1,5 @@
 ---
+alwaysApply: false
 globs: services/s_db/**/*.go
 description: s_db 服务开发规则 - SQL、Model、Service 创建标准化流程
 ---

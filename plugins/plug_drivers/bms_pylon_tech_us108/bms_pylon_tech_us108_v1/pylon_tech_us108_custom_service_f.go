@@ -27,7 +27,7 @@ func (p *sBmsPylonTechUs108) CustomSyncTimeService() error {
 func (p *sBmsPylonTechUs108) CustomTestTrigger() error {
 	c_log.BizInfo(p.DeviceCtx, "触发测试温度告警触发指令")
 	return p.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
-		return protocol.WriteSingleRegister(&c_base.Meta{
+		return protocol.WriteSingleRegister(&c_base.SModbusPoint{
 			Addr:     0x1100,
 			ReadType: c_base.RUint16,
 		}, 0x1202)
@@ -37,7 +37,7 @@ func (p *sBmsPylonTechUs108) CustomTestTrigger() error {
 func (p *sBmsPylonTechUs108) CustomTestClear() error {
 	c_log.BizInfo(p.DeviceCtx, "触发测试温度告警清除指令")
 	return p.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
-		return protocol.WriteSingleRegister(&c_base.Meta{
+		return protocol.WriteSingleRegister(&c_base.SModbusPoint{
 			Addr:     0x1100,
 			ReadType: c_base.RUint16,
 		}, 0x1002)

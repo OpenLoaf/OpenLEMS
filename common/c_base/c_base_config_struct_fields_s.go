@@ -1,6 +1,7 @@
 package c_base
 
 import (
+	"common/c_enum"
 	"fmt"
 	"regexp"
 
@@ -8,21 +9,21 @@ import (
 )
 
 type SConfigStructFields struct {
-	Name               string                     `json:"name" required:"true"`
-	Code               string                     `json:"code" required:"true"`
-	Group              string                     `json:"group"`
-	ValueType          string                     `json:"valueType" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
-	ComponentType      EConfigFieldsComponentType `json:"componentType" dc:"组件类型" required:"true"`
-	Step               *float32                   `json:"step" required:"true" default:"1" dc:"步长（小步长）"`
-	Required           bool                       `json:"required" required:"true" dc:"是否必填"`
-	Unit               *string                    `json:"unit" dc:"单位"`
-	Min                *int64                     `json:"min"`
-	Max                *int64                     `json:"max"`
-	Default            *string                    `json:"default"`
-	SelectOptions      map[string]string          `json:"selectOptions"`
-	Regex              *string                    `json:"regex" dc:"正则表达式"`
-	RegexFailedMessage *string                    `json:"regexFailedMessage" dc:"正则表达式失败提醒"`
-	Description        string                     `json:"description" required:"true"`
+	Name               string                            `json:"name" required:"true"`
+	Code               string                            `json:"code" required:"true"`
+	Group              string                            `json:"group"`
+	ValueType          string                            `json:"valueType" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
+	ComponentType      c_enum.EConfigFieldsComponentType `json:"componentType" dc:"组件类型" required:"true"`
+	Step               *float32                          `json:"step" required:"true" default:"1" dc:"步长（小步长）"`
+	Required           bool                              `json:"required" required:"true" dc:"是否必填"`
+	Unit               *string                           `json:"unit" dc:"单位"`
+	Min                *int64                            `json:"min"`
+	Max                *int64                            `json:"max"`
+	Default            *string                           `json:"default"`
+	SelectOptions      map[string]string                 `json:"selectOptions"`
+	Regex              *string                           `json:"regex" dc:"正则表达式"`
+	RegexFailedMessage *string                           `json:"regexFailedMessage" dc:"正则表达式失败提醒"`
+	Description        string                            `json:"description" required:"true"`
 }
 
 func (s *SConfigStructFields) String() string {

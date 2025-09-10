@@ -33,7 +33,7 @@ type IProtocolService interface {
 
 type IAlarmService interface {
 	// 告警历史相关方法
-	CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_base.Meta, detail string, triggerAt *time.Time) error
+	CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_base.SModbusPoint, detail string, triggerAt *time.Time) error
 	GetAlarmHistoryByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmHistoryModel, error)
 	GetAlarmHistoryByDeviceIdAndPoint(ctx context.Context, deviceId, point string) ([]*s_db_model.SAlarmHistoryModel, error)
 	DeleteAlarmHistoryByDeviceId(ctx context.Context, deviceId string) error

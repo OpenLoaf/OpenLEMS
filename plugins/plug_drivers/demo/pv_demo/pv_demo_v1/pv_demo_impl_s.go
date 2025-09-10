@@ -3,8 +3,8 @@ package pv_demo_v1
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_enum"
 	"common/c_proto"
-	"common/c_status"
 )
 
 type sPvDemo struct {
@@ -20,15 +20,15 @@ func (s *sPvDemo) Shutdown() {
 
 }
 
-func (s *sPvDemo) GetStatus() (c_status.EPvStatus, error) {
+func (s *sPvDemo) GetStatus() (c_enum.EPvStatus, error) {
 	power, err := s.GetPower()
 	if err != nil {
-		return c_status.EPvUnknown, err
+		return c_enum.EPvUnknown, err
 	}
 	if power == 0.0 {
-		return c_status.EPvStandby, nil
+		return c_enum.EPvStandby, nil
 	}
-	return c_status.EPvGenerate, nil
+	return c_enum.EPvGenerate, nil
 }
 
 func (s *sPvDemo) SetPower(power float64) error {

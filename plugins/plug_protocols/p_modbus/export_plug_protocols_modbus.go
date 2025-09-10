@@ -2,11 +2,13 @@ package p_modbus
 
 import (
 	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
 	"context"
-	"github.com/torykit/go-modbus"
 	"p_modbus/internal"
+
+	"github.com/torykit/go-modbus"
 )
 
 // NewModbusClient 一个协议一个client
@@ -15,7 +17,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 }
 
 // NewModbusProvider 一个设备一个provider
-func NewModbusProvider(ctx context.Context, deviceType c_base.EDeviceType, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
+func NewModbusProvider(ctx context.Context, deviceType c_enum.EDeviceType, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
 	return internal.NewModbusProvider(ctx, deviceType, clientConfig, deviceConfig, client)
 }
 

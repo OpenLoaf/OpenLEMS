@@ -3,6 +3,7 @@ package c_base
 
 import (
 	"common/c_chart"
+	"common/c_enum"
 	"time"
 )
 
@@ -31,7 +32,7 @@ const (
 type IStorage interface {
 
 	// SaveDevices 保存设备数据
-	SaveDevices(deviceId string, deviceType EDeviceType, fields map[string]any) error
+	SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fields map[string]any) error
 
 	// SaveProtocolMetrics 保存协议指标数据
 	SaveProtocolMetrics(protocolConfig *SProtocolConfig, deviceConfig *SDeviceConfig, metrics map[string]any) error

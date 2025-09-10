@@ -2,7 +2,7 @@ package policy
 
 import (
 	v1 "application/api/policy/v1"
-	"common/c_base"
+	"common/c_enum"
 	"context"
 	"errors"
 	"strings"
@@ -30,7 +30,7 @@ func (c *ControllerV1) UpdatePolicyConfig(ctx context.Context, req *v1.UpdatePol
 	settingService := s_db.GetSettingService()
 
 	// 创建或更新策略配置（使用GetSettingValueByIdWithDefaultValue来自动创建）
-	oldValue := settingService.GetSettingValueByIdWithDefaultValue(ctx, req.PolicyId, c_base.ESettingGroupPolicy, req.PolicyConfig)
+	oldValue := settingService.GetSettingValueByIdWithDefaultValue(ctx, req.PolicyId, c_enum.ESettingGroupPolicy, req.PolicyConfig)
 	if oldValue != "" {
 		// 更新
 		err = settingService.SetSettingValueById(ctx, req.PolicyId, req.PolicyConfig)
@@ -40,7 +40,7 @@ func (c *ControllerV1) UpdatePolicyConfig(ctx context.Context, req *v1.UpdatePol
 	}
 
 	// 设置当前策略为激活策略
-	settingService.GetSettingValueByIdWithDefaultValue(ctx, s_db_basic.SettingActivePolicyIdKey, c_base.ESettingGroupPolicy, req.PolicyId)
+	settingService.GetSettingValueByIdWithDefaultValue(ctx, s_db_basic.SettingActivePolicyIdKey, c_enum.ESettingGroupPolicy, req.PolicyId)
 
 	g.Log().Infof(ctx, "成功更新策略配置并设置为激活策略 - 策略ID: %s", req.PolicyId)
 	return &v1.UpdatePolicyConfigRes{}, nil

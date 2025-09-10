@@ -58,7 +58,7 @@ func GetDriverInfo(driverName string) (*c_base.SDriverInfo, error) {
 }
 
 // GetDriversByType 根据设备类型获取驱动信息
-func GetDriversByType(ctx context.Context, deviceType c_base.EDeviceType) []*c_base.SDriverInfo {
+func GetDriversByType(ctx context.Context, deviceType c_enum.EDeviceType) []*c_base.SDriverInfo {
 	allDrivers := GetAllDriversInfo()
 	var filteredDrivers []*c_base.SDriverInfo
 
@@ -99,7 +99,7 @@ func getDriver(driverName string, device c_base.IDevice) (d c_base.IDriver, err 
 	results := reflect.ValueOf(pluginNewMethod).Call(args)
 
 	if dv, ok := results[0].Interface().(c_base.IDriver); ok {
-		//if dv.GetDriverType() != c_base.EDeviceType(driverGroups[0]) {
+		//if dv.GetDriverType() != c_enum.EDeviceType(driverGroups[0]) {
 		//	panic(errors.Errorf("%s 中驱动类型不匹配！期望类型：%s, 实际类型：%s", driverName, dv.GetDriverType(), driverGroups[0]))
 		//}
 		return dv, nil

@@ -1,8 +1,8 @@
 package c_base
 
 import (
+	"common/c_enum"
 	"common/c_log"
-	"common/c_status"
 	"context"
 	"fmt"
 	"reflect"
@@ -126,7 +126,7 @@ func (s *SDriverInfo) GetTelemetry(key string, instance any) (any, error) {
 }
 
 func (s *SDriverInfo) GetAllTelemetry(instance IDevice) map[string]any {
-	if instance == nil || instance.GetProtocolStatus() != c_status.EProtocolConnected { // 如果实例不是连接成功的，就不要返回数据了
+	if instance == nil || instance.GetProtocolStatus() != c_enum.EProtocolConnected { // 如果实例不是连接成功的，就不要返回数据了
 		return nil
 	}
 

@@ -2,7 +2,7 @@ package c_device
 
 import (
 	"common/c_base"
-	"common/c_status"
+	"common/c_enum"
 	"context"
 	"time"
 
@@ -39,25 +39,25 @@ func (s *SRealDeviceImpl[P]) IsVirtualDevice() bool {
 	return false
 }
 
-func (s *SRealDeviceImpl[P]) GetAlarmLevel() c_base.EAlarmLevel {
+func (s *SRealDeviceImpl[P]) GetAlarmLevel() c_enum.EAlarmLevel {
 	if s.isProtocolNil() {
-		return c_base.EAlarmLevelError
+		return c_enum.EAlarmLevelError
 	}
 	return s.protocol.GetAlarmLevel()
 }
 
-func (s *SRealDeviceImpl[P]) GetAlarmList() []*c_base.MetaValueWrapper {
+func (s *SRealDeviceImpl[P]) GetAlarmList() []*c_base.SPointValue {
 	if s.isProtocolNil() {
 		return nil
 	}
 	return s.protocol.GetAlarmList()
 }
 
-func (s *SRealDeviceImpl[P]) UpdateAlarm(deviceId string, meta *c_base.Meta, value any) {
+func (s *SRealDeviceImpl[P]) UpdateAlarm(deviceId string, point c_base.IPoint, value any) {
 	if s.isProtocolNil() {
 		return
 	}
-	s.protocol.UpdateAlarm(deviceId, meta, value)
+	s.protocol.UpdateAlarm(deviceId, point, value)
 }
 
 func (s *SRealDeviceImpl[P]) ResetAlarm() {
@@ -74,16 +74,16 @@ func (s *SRealDeviceImpl[P]) IgnoreClearAlarm(deviceId string, point string) {
 	s.protocol.IgnoreClearAlarm(deviceId, point)
 }
 
-func (s *SRealDeviceImpl[P]) RegisterAlarmHandlerFunc(alarmAction c_base.EAlarmAction, handler func(alarm *c_base.MetaValueWrapper, currentMaxAlarmLevel c_base.EAlarmLevel, isFirstHandler bool), sortValue ...int) {
+func (s *SRealDeviceImpl[P]) RegisterAlarmHandlerFunc(alarmAction c_enum.EAlarmAction, handler func(alarm *c_base.SPointValue, currentMaxAlarmLevel c_enum.EAlarmLevel, isFirstHandler bool), sortValue ...int) {
 	if s.isProtocolNil() {
 		return
 	}
 	s.protocol.RegisterAlarmHandlerFunc(alarmAction, handler)
 }
 
-func (s *SRealDeviceImpl[P]) GetProtocolStatus() c_status.EProtocolStatus {
+func (s *SRealDeviceImpl[P]) GetProtocolStatus() c_enum.EProtocolStatus {
 	if s.isProtocolNil() {
-		return c_status.EProtocolDisconnected
+		return c_enum.EProtocolDisconnected
 	}
 	return s.protocol.GetProtocolStatus()
 }
@@ -95,7 +95,7 @@ func (s *SRealDeviceImpl[P]) GetLastUpdateTime() *time.Time {
 	return s.protocol.GetLastUpdateTime()
 }
 
-func (s *SRealDeviceImpl[P]) RegisterTask(task c_base.ITask, tasks ...c_base.ITask) {
+func (s *SRealDeviceImpl[P]) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
 	if s.isProtocolNil() {
 		return
 	}
@@ -106,8 +106,8 @@ func (s *SRealDeviceImpl[P]) GetServices() map[string]*c_base.SDriverService {
 	return nil
 }
 
-func (s *SRealDeviceImpl[P]) GetMetaValueList() []*c_base.MetaValueWrapper {
-	return s.protocol.GetMetaValueList()
+func (s *SRealDeviceImpl[P]) GetMetaValueList() []*c_base.SPointValue {
+	return s.protocol.GetPointValueList()
 }
 
 func (s *SRealDeviceImpl[P]) GetConfig() *c_base.SDeviceConfig {

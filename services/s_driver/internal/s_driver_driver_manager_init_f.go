@@ -17,13 +17,13 @@ func (m *SDeviceManager) Shutdown() {
 	// 关闭所有client
 	//m.deviceConfigTree.IteratorDesc(func(key, value any) bool {
 	//	deviceWrapper := value.(*SDeviceWrapper)
-	//	if deviceWrapper.deviceState == c_base.EStateRunning {
+	//	if deviceWrapper.deviceState == c_enum.EStateRunning {
 	//		deviceWrapper.Shutdown()
 	//	}
 	//	return true
 	//})
 	m.cancelFunc()
-	m.state = c_base.EStateStopped
+	m.state = c_enum.EStateStopped
 	return
 }
 
@@ -32,7 +32,7 @@ func (m *SDeviceManager) Cleanup() error {
 	return nil
 }
 
-func (m *SDeviceManager) Status() c_base.EServerState {
+func (m *SDeviceManager) Status() c_enum.EServerState {
 	return m.state
 }
 
@@ -65,7 +65,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 
 	// 初始化协议
 	switch protocolConfig.GetProtocol() {
-	case c_base.EModbusRtu, c_base.EModbusTcp:
+	case c_enum.EModbusRtu, c_enum.EModbusTcp:
 		// 从缓存中获取client，如果没有就新建后放入缓存
 		var client modbus.Client
 		if _client, exist := m.protocolClientCache[protocolConfig.Id]; exist {
@@ -85,7 +85,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		}
 
 		return modbusProvider, nil
-	case c_base.ECanbusUdp, c_base.ECanbus:
+	case c_enum.ECanbusUdp, c_enum.ECanbus:
 		//var (
 		//	receiverChan    <-chan can.Frame
 		//	transmitterChan chan<- can.Frame
@@ -114,7 +114,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		//}
 		//g.Log().Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
 		//return canbusProvider, nil
-	case c_base.EGpioSysfs:
+	case c_enum.EGpioSysfs:
 		//gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(deviceCtx, protocolConfig, deviceConfigTree)
 		//if err != nil {
 		//	return nil, err

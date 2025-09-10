@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"common/c_status"
+	"common/c_enum"
 )
 
 type EnergyStoreStatus struct {
@@ -9,7 +9,7 @@ type EnergyStoreStatus struct {
 	I18nName       string `json:"name" dc:"名称"`
 	LastUpdateTime string `json:"lastUpdateTime" dc:"最后更新时间"`
 
-	Status c_status.EEnergyStoreStatus `json:"status" dc:"状态 0:未知状态 1:关机 2:待机 3:充电 4:放电 5:故障 6:同步中"`
+	Status c_enum.EEnergyStoreStatus `json:"status" dc:"状态 0:未知状态 1:关机 2:待机 3:充电 4:放电 5:故障 6:同步中"`
 
 	Soc           string `json:"soc" dc:"soc"`
 	Power         string `json:"power" dc:"有功功率"`

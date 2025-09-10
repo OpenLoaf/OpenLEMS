@@ -8,7 +8,7 @@ type IDeviceManager interface {
 	Start()                      // 启动服务
 	Shutdown()                   // 停止管理器（释放资源、退出 goroutine）
 	Cleanup() error              // 清理过期/无效资源（定时调用）
-	Status() c_base.EServerState // 运行状态
+	Status() c_enum.EServerState // 运行状态
 
 	GetDeviceById(deviceId string) c_base.IDevice              // 通过设备ID获取设备
 	GetDeviceNameById(deviceId string) string                  // 获取设备名称

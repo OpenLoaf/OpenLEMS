@@ -1,7 +1,7 @@
 package impl
 
 import (
-	"common/c_base"
+	"common/c_enum"
 	"context"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
@@ -108,7 +108,7 @@ func (s *sSettingServiceImpl) SetSettingValueById(ctx context.Context, id string
 
 // GetRootDeviceId 获取根设备ID
 func (s *sSettingServiceImpl) GetRootDeviceId(ctx context.Context) string {
-	return s.GetSettingValueByIdWithDefaultValue(ctx, s_db_basic.SettingActiveDeviceRootIdKey, c_base.ESettingGroupSystem, s_db_basic.DefaultActiveDeviceRootId)
+	return s.GetSettingValueByIdWithDefaultValue(ctx, s_db_basic.SettingActiveDeviceRootIdKey, c_enum.ESettingGroupSystem, s_db_basic.DefaultActiveDeviceRootId)
 }
 
 // GetRootPolicyId 获取激活的策略ID
@@ -140,7 +140,7 @@ func (s *sSettingServiceImpl) GetRootPolicyId(ctx context.Context) string {
 
 		protocolConfig := &c_base.SProtocolConfig{
 			Id:       protocol.Id,
-			Kind:     c_base.EProtocolType(protocol.Kind),
+			Kind:     c_enum.EProtocolType(protocol.Kind),
 			SourceAddress:  protocol.SourceAddress,
 			Timeout:  protocol.Timeout,
 			LogLevel: protocol.LogLevel,

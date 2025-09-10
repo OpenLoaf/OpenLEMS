@@ -1,4 +1,5 @@
-package c_base
+//go:generate stringer -type=EWordOrder -trimprefix=EWordOrder -output=c_enum_word_order_e_string.go
+package c_enum
 
 // EWordOrder 字序 (针对多个16位寄存器之间的顺序)
 type EWordOrder int

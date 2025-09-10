@@ -9,7 +9,7 @@ import (
 
 func TestControllerV1_GetDeviceNameList(t *testing.T) {
 	controller := &ControllerV1{}
-	
+
 	// 测试获取所有设备
 	req := &v1.GetDeviceNameListReq{}
 	res, err := controller.GetDeviceNameList(context.Background(), req)
@@ -27,10 +27,10 @@ func TestControllerV1_GetDeviceNameList(t *testing.T) {
 
 func TestControllerV1_GetDeviceNameListWithTypeFilter(t *testing.T) {
 	controller := &ControllerV1{}
-	
+
 	// 测试按设备类型过滤
 	req := &v1.GetDeviceNameListReq{
-		DeviceTypes: []c_base.EDeviceType{c_base.EDeviceBms, c_base.EDevicePcs},
+		DeviceTypes: []c_enum.EDeviceType{c_enum.EDeviceBms, c_enum.EDevicePcs},
 	}
 	res, err := controller.GetDeviceNameList(context.Background(), req)
 

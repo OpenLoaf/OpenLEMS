@@ -3,8 +3,8 @@ package ess_demo_v1
 import (
 	"common/c_base"
 	"common/c_device"
+	"common/c_enum"
 	"common/c_proto"
-	"common/c_status"
 
 	"github.com/shockerli/cvt"
 )
@@ -20,7 +20,7 @@ func (s *sEssDemo) Init() error {
 
 func (s *sEssDemo) Shutdown() {
 	_ = s.SetPower(0)
-	_ = s.SetStatus(c_status.EPcsStatusOff)
+	_ = s.SetStatus(c_enum.EPcsStatusOff)
 }
 
 func (s *sEssDemo) GetCellMinTemp() (float32, error) {
@@ -71,8 +71,8 @@ func (s *sEssDemo) SetReset() error {
 	return s.SetPower(0)
 }
 
-func (s *sEssDemo) SetStatus(status c_status.EEnergyStoreStatus) error {
-	if status == c_status.EPcsStatusOff {
+func (s *sEssDemo) SetStatus(status c_enum.EEnergyStoreStatus) error {
+	if status == c_enum.EPcsStatusOff {
 		_ = s.SetPower(0)
 
 		return s.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
@@ -82,38 +82,38 @@ func (s *sEssDemo) SetStatus(status c_status.EEnergyStoreStatus) error {
 	return nil
 }
 
-func (s *sEssDemo) SetGridMode(mode c_base.EGridMode) error {
+func (s *sEssDemo) SetGridMode(mode c_enum.EGridMode) error {
 	return c_base.NotSupport
 }
 
-func (s *sEssDemo) GetStatus() (c_status.EEnergyStoreStatus, error) {
+func (s *sEssDemo) GetStatus() (c_enum.EEnergyStoreStatus, error) {
 	v, err := s.GetFromProtocol(func(protocol c_proto.IModbusProtocol) (any, error) {
 		value, err := protocol.GetUintValue(Status)
 		if err != nil {
-			return c_status.EPcsStatusUnknown, err
+			return c_enum.EPcsStatusUnknown, err
 		}
 
 		if v, err := cvt.Uint8E(value); err == nil {
 			switch v {
 			case 0:
-				return c_status.EPcsStatusOff, nil
+				return c_enum.EPcsStatusOff, nil
 			case 1:
-				return c_status.EPcsStatusStandby, nil
+				return c_enum.EPcsStatusStandby, nil
 			case 2:
-				return c_status.EPcsStatusCharge, nil
+				return c_enum.EPcsStatusCharge, nil
 			case 3:
-				return c_status.EPcsStatusDischarge, nil
+				return c_enum.EPcsStatusDischarge, nil
 			case 4:
-				return c_status.EPcsStatusFault, nil
+				return c_enum.EPcsStatusFault, nil
 			}
 		}
-		return c_status.EPcsStatusUnknown, err
+		return c_enum.EPcsStatusUnknown, err
 	})
-	return v.(c_status.EEnergyStoreStatus), err
+	return v.(c_enum.EEnergyStoreStatus), err
 }
 
-func (s *sEssDemo) GetGridMode() (c_base.EGridMode, error) {
-	return c_base.EGridOn, nil
+func (s *sEssDemo) GetGridMode() (c_enum.EGridMode, error) {
+	return c_enum.EGridOn, nil
 }
 
 func (s *sEssDemo) SetPower(power int32) error {

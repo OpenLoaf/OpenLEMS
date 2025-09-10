@@ -2,7 +2,7 @@ package pcs_star_charge_100E_v1
 
 import (
 	"common/c_log"
-	"common/c_timer"
+	"common/c_util"
 	"context"
 	"time"
 )
@@ -14,7 +14,7 @@ func (s *sPcsStarCharge100E) writeTime() {
 		scheduleDaily3AM := func() {}
 		scheduleDaily3AM = func() {
 			d := next3AMDuration(time.Now())
-			c_timer.SetTimeout(s.DeviceCtx, d, func(ctx context.Context) {
+			c_util.SetTimeout(s.DeviceCtx, d, func(ctx context.Context) {
 				if e := s._syncTime(); e == nil {
 					c_log.Infof(s.DeviceCtx, "_syncTime() success (daily)")
 				}
@@ -26,7 +26,7 @@ func (s *sPcsStarCharge100E) writeTime() {
 
 		// 失败后每5秒重试，成功后取消
 		var cancelRetry func()
-		cancelRetry = c_timer.SetInterval(s.DeviceCtx, 5*time.Second, func(ctx context.Context) {
+		cancelRetry = c_util.SetInterval(s.DeviceCtx, 5*time.Second, func(ctx context.Context) {
 			if e := s._syncTime(); e == nil {
 				c_log.Infof(s.DeviceCtx, "_syncTime() success (retry)")
 				cancelRetry()
