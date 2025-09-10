@@ -4,7 +4,6 @@ import (
 	v1 "application/api/device/v1"
 	"application/internal/model/entity"
 	"common"
-	"common/c_base"
 	"common/c_enum"
 	"context"
 	"fmt"
@@ -66,11 +65,15 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		}
 		d := &entity.SSingleDeviceValue{}
 		_ = gconv.Scan(v, d)
-		if v.IPoint.SystemType == c_base.SUseReadType {
+
+		// 设置系统类型为读取类型（如果元数据存在）
+		if d.Meta != nil {
 			d.Meta.SystemType = d.Meta.ReadType
 		}
-		if v.IPoint.StatusExplain != nil {
-			d.StatueExplain = v.Meta.StatusExplain(v.Value)
+
+		// 获取状态解释
+		if explain, err := v.IPoint.ValueExplain(v.GetValue()); err == nil && explain != "" {
+			d.StatueExplain = explain
 		}
 		group.Values = append(group.Values, d)
 	}

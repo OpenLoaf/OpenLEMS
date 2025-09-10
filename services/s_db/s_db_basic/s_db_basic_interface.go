@@ -2,7 +2,6 @@ package s_db_basic
 
 import (
 	"common/c_base"
-	"common/c_proto"
 	"context"
 	"s_db/s_db_model"
 	"time"
@@ -34,7 +33,7 @@ type IProtocolService interface {
 
 type IAlarmService interface {
 	// 告警历史相关方法
-	CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_proto.SModbusPoint, detail string, triggerAt *time.Time) error
+	CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, point c_base.IPoint, detail string, triggerAt time.Time) error
 	GetAlarmHistoryByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmHistoryModel, error)
 	GetAlarmHistoryByDeviceIdAndPoint(ctx context.Context, deviceId, point string) ([]*s_db_model.SAlarmHistoryModel, error)
 	DeleteAlarmHistoryByDeviceId(ctx context.Context, deviceId string) error

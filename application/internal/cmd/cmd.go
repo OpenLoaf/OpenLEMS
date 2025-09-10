@@ -5,6 +5,7 @@ import (
 	"application/manifest"
 	"common"
 	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
 	"context"
 	"net"
