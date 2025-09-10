@@ -8,5 +8,5 @@ import (
 // ICoolingAc 空调
 type ICoolingAc interface {
 	c_base.IDriver
-	GetCoolingAcStatus() (c_enum.ECoolingStatus, error)
+	GetCoolingAcStatus() (*c_enum.ECoolingStatus, error)
 }
