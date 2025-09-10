@@ -11,9 +11,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gogf/gf/v2/container/garray"
-	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/pkg/errors"
 	"github.com/torykit/go-modbus"
@@ -31,7 +28,6 @@ type ModbusProtocolProvider struct {
 
 	client             modbus.Client   // modbus的通讯
 	preQuery           map[string]bool // 预读
-	cache              *gcache.Cache   // 点位缓存
 	modbusRwMutex      sync.RWMutex    // 读写锁
 	lastUpdateTime     *time.Time      // 最后更新时间
 	modbusDeviceConfig *c_proto.SModbusDeviceConfig
@@ -58,9 +54,8 @@ func NewModbusProvider(ctx context.Context, deviceType c_enum.EDeviceType, proto
 		// unitId默认禁止为0
 		panic(errors.Errorf("Modbus设备[%s]的UnitId不能为0", deviceConfig.Id))
 	}
-	cache := gcache.New()
 	provider := &ModbusProtocolProvider{
-		IProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id, deviceType, cache),
+		IProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id),
 		IAlarm:              c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
 		deviceId:            deviceConfig.Id,
 		deviceType:          deviceType,
@@ -70,7 +65,6 @@ func NewModbusProvider(ctx context.Context, deviceType c_enum.EDeviceType, proto
 		protocolConfig:     protocolConfig,
 		modbusDeviceConfig: modbusDeviceConfig,
 		preQuery:           make(map[string]bool),
-		cache:              cache,
 		metricProtocol:     newMetricProtocol(ctx, protocolConfig, deviceConfig),
 	}
 	if client != nil {
@@ -116,62 +110,4 @@ func (p *ModbusProtocolProvider) GetProtocolStatus() c_enum.EProtocolStatus {
 }
 func (p *ModbusProtocolProvider) GetLastUpdateTime() *time.Time {
 	return p.lastUpdateTime
-}
-
-func (p *ModbusProtocolProvider) GetPointValueList() []*c_base.SPointValue {
-	// 排序
-	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
-		v1Meta := v1.(*c_base.SPointValue).IPoint.(*c_proto.SModbusPoint)
-		v2Meta := v2.(*c_base.SPointValue).IPoint.(*c_proto.SModbusPoint)
-
-		// 先比较 Sort
-		if v1Meta.GetSort() > v2Meta.GetSort() {
-			return 1
-		} else if v1Meta.GetSort() < v2Meta.GetSort() {
-			return -1
-		}
-
-		// Sort 相等时，再比较 Addr
-		if v1Meta.Addr > v2Meta.Addr {
-			return 1
-		} else {
-			if v1Meta.Addr == v2Meta.Addr {
-				// 比对别的
-				if v1Meta.DataAccess.ValueType > v2Meta.DataAccess.ValueType {
-					return 1
-				}
-			}
-
-			return -1
-		}
-	})
-
-	metas, err := p.cache.Keys(p.ctx)
-	if err != nil {
-		return nil
-	}
-
-	for _, meta := range metas {
-		_varValue, err := p.cache.Get(p.ctx, meta) // MetaValue类型
-		if err != nil {
-			continue
-		}
-
-		pointValue := &c_base.SPointValue{}
-		err = _varValue.Structs(pointValue)
-		if err != nil {
-			g.Log().Errorf(p.ctx, "解析缓存值失败：%+v", err)
-			continue
-		}
-
-		_sortValues.Add(pointValue)
-	}
-	//_sortValues = _sortValues.Sort()
-
-	result := make([]*c_base.SPointValue, _sortValues.Len())
-	for i, v := range _sortValues.Slice() {
-		result[i] = v.(*c_base.SPointValue)
-	}
-
-	return result
 }

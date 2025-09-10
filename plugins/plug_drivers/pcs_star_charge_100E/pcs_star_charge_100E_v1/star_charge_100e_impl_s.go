@@ -6,6 +6,7 @@ import (
 	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
+	"common/c_type"
 	"time"
 )
 
@@ -14,6 +15,8 @@ type sPcsStarCharge100E struct {
 	targetPower         int32 // 目标有功功率
 	targetReactivePower int32 // 目标无功功率
 }
+
+var _ c_type.IPcs = (*sPcsStarCharge100E)(nil)
 
 func (s *sPcsStarCharge100E) Init() error {
 	// 注册
@@ -26,6 +29,11 @@ func (s *sPcsStarCharge100E) Init() error {
 	)
 
 	return nil
+}
+
+func (s *sPcsStarCharge100E) GetIGBTTemperature() (*float32, error) {
+	//return s.GetFromPointFloat32(c_default.VPointIGBTTemp)
+	return nil, nil
 }
 
 func (s *sPcsStarCharge100E) Shutdown() {

@@ -19,6 +19,9 @@ type IProtocol interface {
 }
 
 type IProtocolCacheValue interface {
+	Clear()
+	CacheValue(value *SPointValue, lifetime time.Duration) error
+
 	GetValue(point IPoint) (any, error)
 	GetBool(point IPoint) (*bool, error)
 	GetIntValue(point IPoint) (*int, error)
@@ -29,5 +32,5 @@ type IProtocolCacheValue interface {
 	GetFloat32Values(points ...IPoint) ([]*float32, error)
 	GetFloat64Value(point IPoint) (*float64, error)
 	GetFloat64Values(points ...IPoint) ([]*float64, error)
-	CacheValue(point IPoint, value *SPointValue, lifetime time.Duration) error
+	GetPointValueList() []*SPointValue // 获取所有缓存的数据列表
 }

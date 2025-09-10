@@ -5,6 +5,7 @@ use (
 	./@cpp/hexlib
 	./application
 	./application-gui
+	./core
 	./common
 	./plugins/plug_drivers/bms_pylon_tech_us108
 	./plugins/plug_drivers/demo/ammeter_demo

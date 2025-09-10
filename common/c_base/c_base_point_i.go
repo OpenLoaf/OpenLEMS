@@ -19,3 +19,7 @@ type IPoint interface {
 	ValueExplain(value any) (string, error)                                     // 获取Value解释，一般为状态类型的解释
 	GetDataAccess() *SDataAccess                                                //  获取数据访问配置
 }
+
+//type IPointFull interface {
+//	IPoint
+//}

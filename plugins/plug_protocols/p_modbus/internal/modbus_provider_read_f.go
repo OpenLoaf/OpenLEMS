@@ -183,9 +183,7 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr, quantity
 
 		value, err := decoder(p.deviceId, p.deviceType, result, addr, quantity, point)
 
-		if p.cache != nil && err == nil {
-			err = p.IProtocolCacheValue.CacheValue(point, value, lifetime)
-		}
+		err = p.IProtocolCacheValue.CacheValue(value, lifetime)
 
 		if err != nil {
 			message := fmt.Sprintf("[%s-%s] %v;", groupName, point.Name, err)

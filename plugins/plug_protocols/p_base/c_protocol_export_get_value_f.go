@@ -5,13 +5,11 @@ import (
 	"common/c_enum"
 	"context"
 	"p_base/internal"
-
-	"github.com/gogf/gf/v2/os/gcache"
 )
 
 // NewGetProtocolCacheValue 创建协议缓存值获取器实例
-func NewGetProtocolCacheValue(ctx context.Context, deviceId string, deviceType c_enum.EDeviceType, cache *gcache.Cache) c_base.IProtocolCacheValue {
-	return internal.NewGetProtocolCacheValue(ctx, deviceId, deviceType, cache)
+func NewGetProtocolCacheValue(ctx context.Context, deviceId string) c_base.IProtocolCacheValue {
+	return internal.NewGetProtocolCacheValue(ctx, deviceId)
 }
 
 // DecoderBytes 通用字节解析函数，支持多种协议的数据解析
