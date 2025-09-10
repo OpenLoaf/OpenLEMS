@@ -1,4 +1,4 @@
-package p_modbus
+package internal
 
 import (
 	"common"
