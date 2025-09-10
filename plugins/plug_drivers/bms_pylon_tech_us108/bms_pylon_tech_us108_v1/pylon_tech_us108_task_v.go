@@ -1,7 +1,7 @@
 package bms_pylon_tech_us108_v1
 
 import (
-	"common/c_base"
+	"common/c_enum"
 	"common/c_proto"
 	"time"
 )
@@ -15,7 +15,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 1000,
 		Lifetime:  c_proto.DefaultCacheLifeTime,
-		Metas:     []*c_base.SModbusPoint{ChargeForbiddenMark, DischargeForbiddenMark, SOC30Flag, SOE, HeartbeatSignal},
+		Points:    []*c_proto.SModbusPoint{ChargeForbiddenMark, DischargeForbiddenMark, SOC30Flag, SOE, HeartbeatSignal},
 	}
 
 	GroupInfo = &c_proto.SModbusPointTask{
@@ -26,7 +26,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 1000,
 		Lifetime:  c_proto.DefaultCacheLifeTime,
-		Metas: []*c_base.SModbusPoint{BasicStatus, SystemErrorProtection, CurrentProtection, VoltageProtection,
+		Points: []*c_proto.SModbusPoint{BasicStatus, SystemErrorProtection, CurrentProtection, VoltageProtection,
 			TemperatureProtection, VoltageAlarm, CurrentAlarm, TemperatureAlarm,
 			PileSystemIdleStatus, PileSystemChargeStatus, PileSystemDischargeStatus, PileSystemSleepStatus, FanWarn,
 			Protection, AlarmStatus1, DCVoltage, DCCurrent, Temperature, SOC, CycleCount,
@@ -42,7 +42,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 1000, //TODO 0
 		Lifetime:  c_proto.DefaultCacheLifeTime,
-		Metas:     []*c_base.SModbusPoint{Year, Month, Day, Hour, Minute, Second},
+		Points:    []*c_proto.SModbusPoint{Year, Month, Day, Hour, Minute, Second},
 	}
 
 	GroupStatistics = &c_proto.SModbusPointTask{
@@ -53,6 +53,6 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 1000,             //TODO 0
 		Lifetime:  30 * time.Second, // 30s后过期
-		Metas:     []*c_base.SModbusPoint{SOH, RemainCapacity, ChargeCapacity, DischargeCapacity, TodayCharge, TodayDischarge, HistoryCharge, HistoryDischarge},
+		Points:    []*c_proto.SModbusPoint{SOH, RemainCapacity, ChargeCapacity, DischargeCapacity, TodayCharge, TodayDischarge, HistoryCharge, HistoryDischarge},
 	}
 )

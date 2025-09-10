@@ -2,9 +2,11 @@ package entity
 
 import (
 	"common/c_base"
-	"github.com/pkg/errors"
+	"common/c_enum"
 	"p_modbus"
 	"reflect"
+
+	"github.com/pkg/errors"
 
 	"github.com/gogf/gf/v2/util/gconv"
 )

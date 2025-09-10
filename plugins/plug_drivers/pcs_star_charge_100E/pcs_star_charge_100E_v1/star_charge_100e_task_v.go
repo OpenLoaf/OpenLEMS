@@ -2,6 +2,7 @@ package pcs_star_charge_100E_v1
 
 import (
 	"common/c_base"
+	"common/c_enum"
 	"common/c_proto"
 	"time"
 )
@@ -16,7 +17,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 0,                // 不需要定时读取，需要的时候读取
 		Lifetime:  30 * time.Second, // 30s后过期
-		Metas:     []*c_base.SModbusPoint{DailyBatteryChargeEnergy, DailyBatteryDischargeEnergy, TotalBatteryChargeEnergy, TotalBatteryDischargeEnergy},
+		Points:    []*c_proto.SModbusPoint{DailyBatteryChargeEnergy, DailyBatteryDischargeEnergy, TotalBatteryChargeEnergy, TotalBatteryDischargeEnergy},
 	}
 	SyGroupTime = &c_proto.SModbusPointTask{
 		Name:      "TimeGroup",
@@ -26,7 +27,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 0,
 		Lifetime:  c_base.DefaultCacheLifeTime,
-		Metas:     []*c_base.SModbusPoint{Year, Month, Day, Hour, Minute, Second},
+		Points:    []*c_proto.SModbusPoint{Year, Month, Day, Hour, Minute, Second},
 	}
 
 	SyGroupSoftwareVersion = &c_proto.SModbusPointTask{
@@ -37,7 +38,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 0,
 		Lifetime:  0, // 永不过期
-		Metas:     []*c_base.SModbusPoint{SoftwareVersion},
+		Points:    []*c_proto.SModbusPoint{SoftwareVersion},
 	}
 
 	GroupPhase = &c_proto.SModbusPointTask{
@@ -48,7 +49,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 0,
 		Lifetime:  c_base.DefaultCacheLifeTime,
-		Metas: []*c_base.SModbusPoint{PhaseAVoltageGridSide, PhaseACurrentInverterSide, PhaseACurrentGridSide, PhaseAPowerInverterSide,
+		Points: []*c_proto.SModbusPoint{PhaseAVoltageGridSide, PhaseACurrentInverterSide, PhaseACurrentGridSide, PhaseAPowerInverterSide,
 			PhaseBVoltageGridSide, PhaseBCurrentInverterSide, PhaseBCurrentGridSide, PhaseBPowerInverterSide, PhaseCVoltageGridSide,
 			PhaseCCurrentInverterSide, PhaseCCurrentGridSide, PhaseCPowerInverterSide},
 	}
@@ -64,7 +65,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 1000,
 		Lifetime:  c_base.DefaultCacheLifeTime,
-		Metas:     []*c_base.SModbusPoint{InverterOperationStatus},
+		Points:    []*c_proto.SModbusPoint{InverterOperationStatus},
 	}
 
 	GroupCommand = &c_proto.SModbusPointTask{
@@ -75,7 +76,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 200,
 		Lifetime:  c_base.DefaultCacheLifeTime,
-		Metas:     []*c_base.SModbusPoint{OnOffCommand, ActivePowerSetting, ReactivePowerSetting},
+		Points:    []*c_proto.SModbusPoint{OnOffCommand, ActivePowerSetting, ReactivePowerSetting},
 	}
 
 	GroupPowerInfo = &c_proto.SModbusPointTask{
@@ -86,7 +87,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 200,
 		Lifetime:  c_base.DefaultCacheLifeTime,
-		Metas: []*c_base.SModbusPoint{AverageFrequency, AveragePowerFactor, AverageVoltageBus, AverageVoltagePositive, AverageVoltageNegative,
+		Points: []*c_proto.SModbusPoint{AverageFrequency, AveragePowerFactor, AverageVoltageBus, AverageVoltagePositive, AverageVoltageNegative,
 			TotalActivePowerInverterSide, TotalReactivePowerInverterSide, TotalApparentPowerInverterSide},
 	}
 
@@ -98,7 +99,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 2000,
 		Lifetime:  c_base.DefaultCacheLifeTime,
-		Metas:     []*c_base.SModbusPoint{SerialNumber1, SerialNumber2, SerialNumber3, SerialNumber4, SerialNumber5},
+		Points:    []*c_proto.SModbusPoint{SerialNumber1, SerialNumber2, SerialNumber3, SerialNumber4, SerialNumber5},
 	}
 
 	GroupGridModeSetting = &c_proto.SModbusPointTask{
@@ -109,7 +110,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 1000,
 		Lifetime:  c_base.DefaultCacheLifeTime,
-		Metas:     []*c_base.SModbusPoint{GridModeSetting},
+		Points:    []*c_proto.SModbusPoint{GridModeSetting},
 	}
 
 	GroupTemperature = &c_proto.SModbusPointTask{
@@ -120,7 +121,7 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 2000,
 		Lifetime:  c_base.DefaultCacheLifeTime,
-		Metas:     []*c_base.SModbusPoint{Module1Temperature, Module2Temperature, Module3Temperature, RadiatorTemperature, InternalAmbientTemperature},
+		Points:    []*c_proto.SModbusPoint{Module1Temperature, Module2Temperature, Module3Temperature, RadiatorTemperature, InternalAmbientTemperature},
 	}
 
 	GroupOtherStatus = &c_proto.SModbusPointTask{
@@ -131,6 +132,6 @@ var (
 		Function:  c_enum.EMqHoldingRegisters,
 		CycleMill: 1000,
 		Lifetime:  c_base.DefaultCacheLifeTime,
-		Metas:     []*c_base.SModbusPoint{DCPositiveRelayStatus, DCNegativeRelayStatus, ACRelayStatus, GridOutageStatus},
+		Points:    []*c_proto.SModbusPoint{DCPositiveRelayStatus, DCNegativeRelayStatus, ACRelayStatus, GridOutageStatus},
 	}
 )

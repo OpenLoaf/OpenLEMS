@@ -4,6 +4,7 @@ import (
 	"common"
 	"common/c_base"
 	"common/c_device"
+	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
 	"context"
@@ -255,7 +256,7 @@ func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig
 	protocolProvider, err := m.getProtocolProvider(deviceCtx, deviceConfig)
 	if protocolProvider == nil || err != nil {
 		// todo 添加日志，创建连接失败了
-		c_log.BizErrorf(deviceCtx, "创建协议实例失败! 协议ID: %s 原因：%s", deviceConfig.ProtocolId, err.Error())
+		c_log.BizErrorf(deviceCtx, "创建协议实例失败! 协议ID: %s 原因：%s", deviceConfig.ProtocolId, err)
 		m.state = c_enum.EStateError
 		return
 	}

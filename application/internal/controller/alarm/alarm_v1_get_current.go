@@ -37,10 +37,10 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 			return true
 		}
 		for _, alarm := range alarmList {
-			if req.Level != "" && req.Level != "ALL" && !strings.EqualFold(alarm.Level.String(), req.Level) {
+			if req.Level != "" && req.Level != "ALL" && !strings.EqualFold(alarm.GetLevel().String(), req.Level) {
 				continue
 			}
-			if req.Point != "" && (alarm.Meta == nil || alarm.Meta.Name != req.Point) {
+			if req.Point != "" && (alarm.IPoint == nil || alarm.IPoint.GetKey() != req.Point) {
 				continue
 			}
 
@@ -54,23 +54,28 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 			}
 
 			var detail string
-			if alarm.Meta.StatusExplain == nil {
-				detail = fmt.Sprintf("[%s]触发！值为: %v", alarm.Meta.Cn, alarm.Value)
+			pointName := alarm.IPoint.GetName()
+			pointValue := alarm.GetValue()
+
+			// 尝试获取值的解释
+			if explain, err := alarm.IPoint.ValueExplain(pointValue); err == nil && explain != "" {
+				detail = fmt.Sprintf("[%s]触发！值为: %s", pointName, explain)
 			} else {
-				detail = fmt.Sprintf("[%s]触发！值为: %v", alarm.Meta.Cn, alarm.Meta.StatusExplain(alarm.Value))
+				detail = fmt.Sprintf("[%s]触发！值为: %v", pointName, pointValue)
 			}
 
+			createAt := alarm.GetHappenTime()
 			// 收集当前页数据
 			items = append(items, &v1.CurrentAlarmItem{
 				DeviceId:         config.Id,
 				DeviceName:       config.Name,
-				SourceDeviceId:   alarm.DeviceId,
+				SourceDeviceId:   alarm.GetDeviceId(),
 				SourceDeviceName: config.Name,
-				Point:            alarm.Meta.Name,
-				PointName:        alarm.Meta.Cn,
-				Level:            alarm.Level.String(),
+				Point:            alarm.IPoint.GetKey(),
+				PointName:        alarm.IPoint.GetName(),
+				Level:            alarm.GetLevel().String(),
 				Detail:           detail,
-				CreatedAt:        alarm.HappenTime,
+				CreatedAt:        &createAt,
 			})
 		}
 		return true

@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"common/c_base"
+	"common/c_enum"
 
 	"github.com/gogf/gf/v2/frame/g"
 )

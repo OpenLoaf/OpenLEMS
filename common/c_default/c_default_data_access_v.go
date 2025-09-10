@@ -36,16 +36,28 @@ var (
 
 // 带缩放因子的常用配置
 var (
-	VDataAccessUInt16Scale01  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 0.1, Offset: 0}  // 16位无符号整数 (缩放因子0.1)
-	VDataAccessUInt16Scale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 0.01, Offset: 0} // 16位无符号整数 (缩放因子0.01)
-	VDataAccessUInt16Scale10  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 10.0, Offset: 0} // 16位无符号整数 (缩放因子10)
-	VDataAccessInt16Scale01   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 0.1, Offset: 0}   // 16位有符号整数 (缩放因子0.1)
-	VDataAccessInt16Scale001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 0.01, Offset: 0}  // 16位有符号整数 (缩放因子0.01)
-	VDataAccessInt16Scale10   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 10.0, Offset: 0}  // 16位有符号整数 (缩放因子10)
-	VDataAccessUInt32Scale01  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 0.1, Offset: 0}  // 32位无符号整数 (缩放因子0.1)
-	VDataAccessUInt32Scale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 0.01, Offset: 0} // 32位无符号整数 (缩放因子0.01)
-	VDataAccessUInt32Scale10  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 10.0, Offset: 0} // 32位无符号整数 (缩放因子10)
-	VDataAccessInt32Scale01   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 0.1, Offset: 0}   // 32位有符号整数 (缩放因子0.1)
-	VDataAccessInt32Scale001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 0.01, Offset: 0}  // 32位有符号整数 (缩放因子0.01)
-	VDataAccessInt32Scale10   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 10.0, Offset: 0}  // 32位有符号整数 (缩放因子10)
+	VDataAccessUInt16Scale0001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 0.001, Offset: 0} // 16位无符号整数 (缩放因子0.001)
+	VDataAccessUInt16Scale01   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 0.1, Offset: 0}   // 16位无符号整数 (缩放因子0.1)
+	VDataAccessUInt16Scale001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 0.01, Offset: 0}  // 16位无符号整数 (缩放因子0.01)
+	VDataAccessUInt16Scale10   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 10.0, Offset: 0}  // 16位无符号整数 (缩放因子10)
+	VDataAccessInt16Scale01    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 0.1, Offset: 0}    // 16位有符号整数 (缩放因子0.1)
+	VDataAccessInt16Scale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 0.01, Offset: 0}   // 16位有符号整数 (缩放因子0.01)
+	VDataAccessInt16Scale10    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat32, Factor: 10.0, Offset: 0}   // 16位有符号整数 (缩放因子10)
+	VDataAccessUInt32Scale01   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 0.1, Offset: 0}   // 32位无符号整数 (缩放因子0.1)
+	VDataAccessUInt32Scale001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 0.01, Offset: 0}  // 32位无符号整数 (缩放因子0.01)
+	VDataAccessUInt32Scale10   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 10.0, Offset: 0}  // 32位无符号整数 (缩放因子10)
+	VDataAccessInt32Scale01    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 0.1, Offset: 0}    // 32位有符号整数 (缩放因子0.1)
+	VDataAccessInt32Scale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 0.01, Offset: 0}   // 32位有符号整数 (缩放因子0.01)
+	VDataAccessInt32Scale10    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EFloat64, Factor: 10.0, Offset: 0}   // 32位有符号整数 (缩放因子10)
+)
+
+// 位范围配置 (用于状态位)
+var (
+	VDataAccessBitRangeUInt16 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EUint16} // 位范围 (16位无符号整数)
+	VDataAccessBitRangeBool   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}   // 位范围 (布尔值)
+)
+
+// 布尔类型配置 (UInt16转Bool)
+var (
+	VDataAccessUInt16ToBool = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool} // 16位无符号整数转布尔值
 )

@@ -2,62 +2,74 @@ package ess_demo_v1
 
 import (
 	"common/c_base"
+	"common/c_default"
+	"common/c_enum"
 	"common/c_proto"
 	"fmt"
-	"github.com/shockerli/cvt"
 	"time"
+
+	"github.com/shockerli/cvt"
 )
 
 var ReadTask = &c_proto.SModbusPointTask{
-	Name:        "ReadTask",
-	DisplayName: "查询数据",
-	Addr:        Status.Addr,
-	Quantity:    ChargeEfficiency.Addr - Status.Addr + 1,
-	Function:    c_enum.EMqHoldingRegisters,
-	CycleMill:   500,
-	Lifetime:    3 * time.Second,
-	Metas:       []*c_base.SModbusPoint{Status, Power, SOC, GeneratedEnergy, ConsumedEnergy, MaxChargePower, MaxDischargePower, DeviceControl, TargetPower, PowerCapacity, EnergyCapacity, MinSOC, MaxSOC, ChargeEfficiency},
+	Name:      "ReadTask",
+	Addr:      Status.Addr,
+	Quantity:  ChargeEfficiency.Addr - Status.Addr + 1,
+	Function:  c_enum.EMqHoldingRegisters,
+	CycleMill: 500,
+	Lifetime:  3 * time.Second,
+	Points:    []*c_proto.SModbusPoint{Status, Power, SOC, GeneratedEnergy, ConsumedEnergy, MaxChargePower, MaxDischargePower, DeviceControl, TargetPower, PowerCapacity, EnergyCapacity, MinSOC, MaxSOC, ChargeEfficiency},
 }
 
 var (
-	Status = &c_base.SModbusPoint{Name: "Status", Cn: "状态", Addr: 0xC8, ReadType: c_base.RInt16, StatusExplain: func(value any) string {
-		if v, err := cvt.Uint8E(value); err == nil {
-			switch v {
-			case 0:
-				return "关机"
-			case 1:
-				return "待机"
-			case 2:
-				return "充电中"
-			case 3:
-				return "放电中"
-			case 4:
-				return "故障"
+	Status = &c_proto.SModbusPoint{
+		Addr:       0xC8,
+		SPoint:     &c_base.SPoint{Key: "Status", Name: "状态", Desc: "设备状态"},
+		DataAccess: c_default.VDataAccessInt16,
+		StatusExplain: func(value any) (string, error) {
+			if v, err := cvt.Uint8E(value); err == nil {
+				switch v {
+				case 0:
+					return "关机", nil
+				case 1:
+					return "待机", nil
+				case 2:
+					return "充电中", nil
+				case 3:
+					return "放电中", nil
+				case 4:
+					return "故障", nil
+				}
 			}
-		}
-		return fmt.Sprintf("未知值: %v", value)
-	}}
-	Power             = &c_base.SModbusPoint{Name: "Power", Cn: "功率", Addr: 0xC9, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
-	SOC               = &c_base.SModbusPoint{Name: "SOC", Cn: "当前SOC", Addr: 0xCA, ReadType: c_base.RInt16, Factor: 0.1, Unit: "%"}
-	GeneratedEnergy   = &c_base.SModbusPoint{Name: "GeneratedEnergy", Cn: "累计放电量", Addr: 0xCB, ReadType: c_base.RUint16, Factor: 0.1, Unit: "kWh"}
-	ConsumedEnergy    = &c_base.SModbusPoint{Name: "ConsumedEnergy", Cn: "累计用电量", Addr: 0xCC, ReadType: c_base.RUint16, Factor: 0.1, Unit: "kWh"}
-	MaxChargePower    = &c_base.SModbusPoint{Name: "MaxChargePower", Cn: "最大允许充电功率", Addr: 0xCD, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
-	MaxDischargePower = &c_base.SModbusPoint{Name: "MaxDischargePower", Cn: "最大允许放电功率", Addr: 0xCE, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
-	DeviceControl     = &c_base.SModbusPoint{Name: "DeviceControl", Cn: "设备状态控制", Addr: 0xCF, ReadType: c_base.RInt16, StatusExplain: func(value any) string {
-		if v, err := cvt.Uint8E(value); err == nil {
-			switch v {
-			case 0:
-				return "关机"
-			case 1:
-				return "开机"
+			return fmt.Sprintf("未知值: %v", value), nil
+		},
+	}
+	Power             = &c_proto.SModbusPoint{Addr: 0xC9, SPoint: &c_base.SPoint{Key: "Power", Name: "功率", Unit: "kW", Desc: "当前功率"}, DataAccess: c_default.VDataAccessInt16Scale01}
+	SOC               = &c_proto.SModbusPoint{Addr: 0xCA, SPoint: &c_base.SPoint{Key: "SOC", Name: "当前SOC", Unit: "%", Desc: "当前SOC"}, DataAccess: c_default.VDataAccessInt16Scale01}
+	GeneratedEnergy   = &c_proto.SModbusPoint{Addr: 0xCB, SPoint: &c_base.SPoint{Key: "GeneratedEnergy", Name: "累计放电量", Unit: "kWh", Desc: "累计放电量"}, DataAccess: c_default.VDataAccessUInt16Scale01}
+	ConsumedEnergy    = &c_proto.SModbusPoint{Addr: 0xCC, SPoint: &c_base.SPoint{Key: "ConsumedEnergy", Name: "累计用电量", Unit: "kWh", Desc: "累计用电量"}, DataAccess: c_default.VDataAccessUInt16Scale01}
+	MaxChargePower    = &c_proto.SModbusPoint{Addr: 0xCD, SPoint: &c_base.SPoint{Key: "MaxChargePower", Name: "最大允许充电功率", Unit: "kW", Desc: "最大允许充电功率"}, DataAccess: c_default.VDataAccessInt16Scale01}
+	MaxDischargePower = &c_proto.SModbusPoint{Addr: 0xCE, SPoint: &c_base.SPoint{Key: "MaxDischargePower", Name: "最大允许放电功率", Unit: "kW", Desc: "最大允许放电功率"}, DataAccess: c_default.VDataAccessInt16Scale01}
+	DeviceControl     = &c_proto.SModbusPoint{
+		Addr:       0xCF,
+		SPoint:     &c_base.SPoint{Key: "DeviceControl", Name: "设备状态控制", Desc: "设备状态控制"},
+		DataAccess: c_default.VDataAccessInt16,
+		StatusExplain: func(value any) (string, error) {
+			if v, err := cvt.Uint8E(value); err == nil {
+				switch v {
+				case 0:
+					return "关机", nil
+				case 1:
+					return "开机", nil
+				}
 			}
-		}
-		return fmt.Sprintf("未知值: %v", value)
-	}}
-	TargetPower      = &c_base.SModbusPoint{Name: "TargetPower", Cn: "目标功率设置", Addr: 0xD0, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
-	PowerCapacity    = &c_base.SModbusPoint{Name: "PowerCapacity", Cn: "功率容量", Addr: 0xD1, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kW"}
-	EnergyCapacity   = &c_base.SModbusPoint{Name: "EnergyCapacity", Cn: "能量容量", Addr: 0xD2, ReadType: c_base.RInt16, Factor: 0.1, Unit: "kWh"}
-	MinSOC           = &c_base.SModbusPoint{Name: "MinSOC", Cn: "最小SOC", Addr: 0xD3, ReadType: c_base.RInt16, Factor: 0.1, Unit: "%"}
-	MaxSOC           = &c_base.SModbusPoint{Name: "MaxSOC", Cn: "最大SOC", Addr: 0xD4, ReadType: c_base.RInt16, Factor: 0.1, Unit: "%"}
-	ChargeEfficiency = &c_base.SModbusPoint{Name: "ChargeEfficiency", Cn: "充放电效率", Addr: 0xD5, ReadType: c_base.RInt16, Factor: 0.001}
+			return fmt.Sprintf("未知值: %v", value), nil
+		},
+	}
+	TargetPower      = &c_proto.SModbusPoint{Addr: 0xD0, SPoint: &c_base.SPoint{Key: "TargetPower", Name: "目标功率设置", Unit: "kW", Desc: "目标功率设置"}, DataAccess: c_default.VDataAccessInt16Scale01}
+	PowerCapacity    = &c_proto.SModbusPoint{Addr: 0xD1, SPoint: &c_base.SPoint{Key: "PowerCapacity", Name: "功率容量", Unit: "kW", Desc: "功率容量"}, DataAccess: c_default.VDataAccessInt16Scale01}
+	EnergyCapacity   = &c_proto.SModbusPoint{Addr: 0xD2, SPoint: &c_base.SPoint{Key: "EnergyCapacity", Name: "能量容量", Unit: "kWh", Desc: "能量容量"}, DataAccess: c_default.VDataAccessInt16Scale01}
+	MinSOC           = &c_proto.SModbusPoint{Addr: 0xD3, SPoint: &c_base.SPoint{Key: "MinSOC", Name: "最小SOC", Unit: "%", Desc: "最小SOC"}, DataAccess: c_default.VDataAccessInt16Scale01}
+	MaxSOC           = &c_proto.SModbusPoint{Addr: 0xD4, SPoint: &c_base.SPoint{Key: "MaxSOC", Name: "最大SOC", Unit: "%", Desc: "最大SOC"}, DataAccess: c_default.VDataAccessInt16Scale01}
+	ChargeEfficiency = &c_proto.SModbusPoint{Addr: 0xD5, SPoint: &c_base.SPoint{Key: "ChargeEfficiency", Name: "充放电效率", Desc: "充放电效率"}, DataAccess: c_default.VDataAccessInt16Scale001}
 )

@@ -1,7 +1,7 @@
 package impl
 
 import (
-	"common/c_base"
+	"common/c_proto"
 	"context"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
@@ -70,17 +70,17 @@ func (s *sAlarmServiceImpl) clearCountCache(ctx context.Context) {
 // ==================== 告警历史相关方法 ====================
 
 // CreateAlarmHistory 创建告警历史记录
-func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_base.SModbusPoint, detail string, triggerAt *time.Time) error {
+func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, point *c_proto.SModbusPoint, detail string, triggerAt *time.Time) error {
 	if triggerAt == nil {
-		return errors.Errorf("deviceId:%s point:%s level:%s title:%s detail:%s 创建告警记录失败，createAt为空", deviceId, meta.Name, meta.Level.String(), meta.Cn, detail)
+		return errors.Errorf("deviceId:%s point:%s level:%s title:%s detail:%s 创建告警记录失败，createAt为空", deviceId, point.Name, point.Level.String(), point.Name, detail)
 	}
 	now := time.Now()
 	alarmHistory := &s_db_model.SAlarmHistoryModel{
 		DeviceId:       deviceId,
 		SourceDeviceId: sourceDeviceId,
-		Point:          meta.Name,
-		Level:          meta.Level.String(),
-		PointName:      meta.Cn,
+		Point:          point.Name,
+		Level:          point.Level.String(),
+		PointName:      point.Name,
 		Detail:         detail,
 		TriggerAt:      triggerAt,
 		ClearAt:        &now,
@@ -88,7 +88,7 @@ func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, so
 
 	err := alarmHistory.Create(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "创建告警历史记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, meta.Name, err)
+		g.Log().Errorf(ctx, "创建告警历史记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point.Name, err)
 		return err
 	}
 

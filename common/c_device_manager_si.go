@@ -2,6 +2,7 @@ package common
 
 import (
 	"common/c_base"
+	"common/c_enum"
 )
 
 type IDeviceManager interface {

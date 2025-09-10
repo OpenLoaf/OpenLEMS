@@ -7,16 +7,18 @@ import (
 	"ammeter_demo/ammeter_demo_v1"
 	"bms_pylon_tech_us108/bms_pylon_tech_us108_v1"
 	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
 	"context"
 	"ess_demo/ess_demo_v1"
-	"github.com/pkg/errors"
 	"load_demo/load_demo_v1"
 	"pv_demo/pv_demo_v1"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
 	"starCharge100E_v1/pcs_star_charge_100E_v1"
 	"strings"
+
+	"github.com/pkg/errors"
 
 	"github.com/gogf/gf/v2/frame/g"
 )

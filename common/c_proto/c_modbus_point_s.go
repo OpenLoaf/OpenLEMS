@@ -7,10 +7,11 @@ import (
 )
 
 type SModbusPoint struct {
-	*c_base.SPoint
-
 	// 地址配置
 	Addr uint16 `json:"addr" v:"required" dc:"起始地址"`
+
+	// 点位信息
+	*c_base.SPoint
 
 	// 数据访问配置
 	DataAccess *c_base.SDataAccess `json:"dataAccess" v:"required" dc:"数据访问配置"`

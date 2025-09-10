@@ -5,6 +5,7 @@ import (
 	"application/internal/model/entity"
 	"common"
 	"common/c_base"
+	"common/c_enum"
 	"context"
 	"fmt"
 	"sort"
@@ -30,15 +31,15 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		groupName := ""
 
 		// 如果点位的设备ID和当前请求的设备ID不一样，说明是子设备。名称修改为设备名+组名
-		if req.DeviceId != v.DeviceId {
-			groupName = common.GetDeviceManager().GetDeviceNameById(v.DeviceId)
+		if req.DeviceId != v.GetDeviceId() {
+			groupName = common.GetDeviceManager().GetDeviceNameById(v.GetDeviceId())
 		}
 
-		if v.Meta.Group != nil {
+		if v.IPoint.GetGroup() != nil {
 			if groupName != "" {
-				groupName = fmt.Sprintf("%s:%s", groupName, v.Meta.Group.GroupName)
+				groupName = fmt.Sprintf("%s:%s", groupName, v.IPoint.GetGroup().GroupName)
 			} else {
-				groupName = v.Meta.Group.GroupName
+				groupName = v.IPoint.GetGroup().GroupName
 			}
 		} else {
 			if groupName != "" {
@@ -52,8 +53,8 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		group, exist := groupCacheMap[groupName]
 		if !exist {
 			groupSort := 99999
-			if v.Meta.Group != nil {
-				groupSort = v.Meta.Group.GroupSort
+			if v.IPoint.GetGroup() != nil {
+				groupSort = v.IPoint.GetGroup().GroupSort
 			}
 
 			group = &entity.SSingleDeviceGroup{
@@ -65,10 +66,10 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		}
 		d := &entity.SSingleDeviceValue{}
 		_ = gconv.Scan(v, d)
-		if v.Meta.SystemType == c_base.SUseReadType {
+		if v.IPoint.SystemType == c_base.SUseReadType {
 			d.Meta.SystemType = d.Meta.ReadType
 		}
-		if v.Meta.StatusExplain != nil {
+		if v.IPoint.StatusExplain != nil {
 			d.StatueExplain = v.Meta.StatusExplain(v.Value)
 		}
 		group.Values = append(group.Values, d)

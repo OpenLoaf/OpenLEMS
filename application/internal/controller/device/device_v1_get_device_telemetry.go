@@ -4,6 +4,7 @@ import (
 	v1 "application/api/device/v1"
 	"common"
 	"common/c_base"
+	"common/c_enum"
 	"context"
 )
 
