@@ -97,18 +97,16 @@ func (s *sAlarmImpl) IgnoreClearAlarm(deviceId string, point string) {
 	s.rwMutex.Lock()
 	defer s.rwMutex.Unlock()
 
-	if oldKey, ok := s.cache[key]; ok {
+	if alarm, ok := s.cache[key]; ok {
 		delete(s.cache, key)
 		s.updateMaxLevel()
 
-		oldAlarmWrapper := c_base.NewPointValue(deviceId, oldKey.GetDeviceType(), oldKey.IPoint, oldKey.GetValue())
-
 		// 执行告警忽略
-		s.callHandlers(oldAlarmWrapper, s.maxLevel, c_enum.EAlarmActionIgnore)
+		s.callHandlers(alarm, s.maxLevel, c_enum.EAlarmActionIgnore)
 
 		// 保存到告警历史中
-		historyMessage := fmt.Sprintf("手动屏蔽告警，触发值为:%v", oldAlarmWrapper.GetValue())
-		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, oldAlarmWrapper.IPoint, historyMessage, oldAlarmWrapper.GetHappenTime())
+		historyMessage := fmt.Sprintf("手动屏蔽告警，触发值为:%v", alarm.GetValue())
+		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, alarm.IPoint, historyMessage, alarm.GetHappenTime())
 		if err != nil {
 			c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
 		}

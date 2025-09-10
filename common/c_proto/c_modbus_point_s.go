@@ -36,11 +36,13 @@ func (s *SModbusPoint) ValueExplain(value any) (string, error) {
 }
 
 func (s *SModbusPoint) AlarmTrigger(value any) (bool, error) {
-	if s.Trigger == nil {
-		return false, nil
+	if s.Trigger != nil {
+		return s.Trigger(value)
 	}
-
-	return s.Trigger(value)
+	if s.SPoint.Trigger != nil {
+		return s.SPoint.Trigger(value)
+	}
+	return false, nil
 }
 
 //func (s *SModbusPoint) GetPrecise() uint8 {

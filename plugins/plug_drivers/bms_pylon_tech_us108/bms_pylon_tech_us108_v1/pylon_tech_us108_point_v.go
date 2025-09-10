@@ -84,8 +84,8 @@ var (
 
 	Protection                  = &c_proto.SModbusPoint{Addr: 0x1101, SPoint: &c_base.SPoint{Key: "Protection", Name: "保护状态"}, DataAccess: c_default.VDataAccessInt16}
 	AlarmStatus1                = &c_proto.SModbusPoint{Addr: 0x1102, SPoint: &c_base.SPoint{Key: "AlarmStatus1", Name: "告警状态1"}, DataAccess: c_default.VDataAccessInt16, Trigger: c_func.IsNotZero}
-	DCVoltage                   = &c_proto.SModbusPoint{Addr: 0x1103, SPoint: c_default.VPointVoltage, DataAccess: c_default.VDataAccessUInt16Scale01}
-	DCCurrent                   = &c_proto.SModbusPoint{Addr: 0x1104, SPoint: c_default.VPointCurrent, DataAccess: c_default.VDataAccessInt32Scale001}
+	DCVoltage                   = &c_proto.SModbusPoint{Addr: 0x1103, SPoint: c_default.VPointDcVoltage, DataAccess: c_default.VDataAccessUInt16Scale01}
+	DCCurrent                   = &c_proto.SModbusPoint{Addr: 0x1104, SPoint: c_default.VPointDcCurrent, DataAccess: c_default.VDataAccessInt32Scale001}
 	Temperature                 = &c_proto.SModbusPoint{Addr: 0x1106, SPoint: c_default.VPointTemp, DataAccess: c_default.VDataAccessUInt16Scale01}
 	SOC                         = &c_proto.SModbusPoint{Addr: 0x1107, SPoint: c_default.VPointSOC, DataAccess: c_default.VDataAccessUInt16}
 	CycleCount                  = &c_proto.SModbusPoint{Addr: 0x1108, SPoint: &c_base.SPoint{Key: "CycleCount", Name: "循环次数"}, DataAccess: c_default.VDataAccessUInt16}

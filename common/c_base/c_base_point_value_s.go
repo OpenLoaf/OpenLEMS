@@ -9,6 +9,7 @@ import (
 
 type SPointValue struct {
 	IPoint                        //  点位
+	level      c_enum.EAlarmLevel // 告警等级
 	deviceId   string             //  设备ID
 	deviceType c_enum.EDeviceType //  设备类型
 	value      any                //  点位值

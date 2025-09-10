@@ -9,16 +9,17 @@ import (
 
 // SPoint 点位元数据
 type SPoint struct {
-	Key     string             `json:"key" v:"required"`  // 名称
-	Name    string             `json:"name" v:"required"` // 名称
-	Group   *SPointGroup       `json:"group" dc:"分组"`
-	Unit    string             `json:"unit,omitempty"`    // 单位
-	Desc    string             `json:"desc,omitempty"`    // 备注
-	Sort    int                `json:"sort"`              // 排序
-	Level   c_enum.EAlarmLevel `json:"level"`             // 点位级别
-	Min     int64              `json:"min,omitempty"`     // 范围最小值
-	Max     int64              `json:"max,omitempty"`     // 范围最大值
-	Precise uint8              `json:"precise,omitempty"` // 设置浮点数精度（只是显示用）
+	Key     string                                `json:"key" v:"required"`  // 名称
+	Name    string                                `json:"name" v:"required"` // 名称
+	Group   *SPointGroup                          `json:"group" dc:"分组"`
+	Unit    string                                `json:"unit,omitempty"`    // 单位
+	Desc    string                                `json:"desc,omitempty"`    // 备注
+	Sort    int                                   `json:"sort"`              // 排序
+	Level   c_enum.EAlarmLevel                    `json:"level"`             // 点位级别
+	Min     int64                                 `json:"min,omitempty"`     // 范围最小值
+	Max     int64                                 `json:"max,omitempty"`     // 范围最大值
+	Precise uint8                                 `json:"precise,omitempty"` // 设置浮点数精度（只是显示用）
+	Trigger func(value interface{}) (bool, error) `json:"-" dc:"告警触发函数"`
 }
 
 func (s *SPoint) AlarmTrigger(value any) (bool, error) {
