@@ -8,7 +8,6 @@ type IPoint interface {
 	GetKey() string
 	GetName() string
 	GetGroup() *SPointGroup
-	//GetLevel() c_enum.EAlarmLevel
 	GetUnit() string
 	GetDesc() string
 	GetSort() int

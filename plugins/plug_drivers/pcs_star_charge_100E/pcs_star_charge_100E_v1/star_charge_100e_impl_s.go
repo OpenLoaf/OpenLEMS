@@ -60,7 +60,7 @@ func (s *sPcsStarCharge100E) SetGridMode(mode c_enum.EGridMode) error {
 	return c_base.NotSupport
 }
 
-func (s *sPcsStarCharge100E) GetStatus() (c_enum.EEnergyStoreStatus, error) {
+func (s *sPcsStarCharge100E) GetStatus() (*c_enum.EEnergyStoreStatus, error) {
 	v, err := s.GetFromProtocol(func(protocol c_proto.IModbusProtocol) (any, error) {
 		value, err := protocol.GetUintValue(InverterOperationStatus)
 		if err != nil {
@@ -80,9 +80,12 @@ func (s *sPcsStarCharge100E) GetStatus() (c_enum.EEnergyStoreStatus, error) {
 			if err != nil {
 				return c_enum.EPcsStatusFault, err
 			}
-			if power > 0 {
+			if power == nil {
+				return c_enum.EPcsStatusStandby, nil
+			}
+			if *power > 0 {
 				return c_enum.EPcsStatusDischarge, nil
-			} else if power < 0 {
+			} else if *power < 0 {
 				return c_enum.EPcsStatusCharge, nil
 			} else {
 				return c_enum.EPcsStatusStandby, nil
@@ -94,13 +97,16 @@ func (s *sPcsStarCharge100E) GetStatus() (c_enum.EEnergyStoreStatus, error) {
 	})
 
 	if err != nil {
-		return c_enum.EPcsStatusUnknown, err
+		status := c_enum.EPcsStatusUnknown
+		return &status, err
 	}
-	return v.(c_enum.EEnergyStoreStatus), err
+	status := v.(c_enum.EEnergyStoreStatus)
+	return &status, err
 }
 
-func (s *sPcsStarCharge100E) GetGridMode() (c_enum.EGridMode, error) {
-	return c_enum.EGridOn, nil
+func (s *sPcsStarCharge100E) GetGridMode() (*c_enum.EGridMode, error) {
+	mode := c_enum.EGridOn
+	return &mode, nil
 }
 
 func (s *sPcsStarCharge100E) SetPower(power int32) error {
@@ -123,61 +129,65 @@ func (s *sPcsStarCharge100E) SetPowerFactor(factor float32) error {
 	return nil
 }
 
-func (s *sPcsStarCharge100E) GetTargetPower() (int32, error) {
-	return s.targetPower, nil
+func (s *sPcsStarCharge100E) GetTargetPower() (*int32, error) {
+	return &s.targetPower, nil
 }
 
-func (s *sPcsStarCharge100E) GetTargetReactivePower() (int32, error) {
-	return s.targetReactivePower, nil
+func (s *sPcsStarCharge100E) GetTargetReactivePower() (*int32, error) {
+	return &s.targetReactivePower, nil
 }
 
-func (s *sPcsStarCharge100E) GetTargetPowerFactor() (float32, error) {
-	return -1, nil
+func (s *sPcsStarCharge100E) GetTargetPowerFactor() (*float32, error) {
+	factor := float32(-1)
+	return &factor, nil
 }
 
-func (s *sPcsStarCharge100E) GetPower() (float64, error) {
+func (s *sPcsStarCharge100E) GetPower() (*float64, error) {
 	return s.GetFromPointFloat64(TotalActivePowerInverterSide)
 }
 
-func (s *sPcsStarCharge100E) GetApparentPower() (float64, error) {
+func (s *sPcsStarCharge100E) GetApparentPower() (*float64, error) {
 	return s.GetFromPointFloat64(TotalApparentPowerInverterSide)
 }
 
-func (s *sPcsStarCharge100E) GetReactivePower() (float64, error) {
+func (s *sPcsStarCharge100E) GetReactivePower() (*float64, error) {
 	return s.GetFromPointFloat64(TotalReactivePowerInverterSide)
 }
 
-func (s *sPcsStarCharge100E) GetRatedPower() (uint32, error) {
-	return 100, nil
+func (s *sPcsStarCharge100E) GetRatedPower() (*uint32, error) {
+	power := uint32(100)
+	return &power, nil
 }
 
-func (s *sPcsStarCharge100E) GetMaxInputPower() (float32, error) {
-	return 100, nil
+func (s *sPcsStarCharge100E) GetMaxInputPower() (*float32, error) {
+	power := float32(100)
+	return &power, nil
 }
 
-func (s *sPcsStarCharge100E) GetMaxOutputPower() (float32, error) {
-	return 100, nil
+func (s *sPcsStarCharge100E) GetMaxOutputPower() (*float32, error) {
+	power := float32(100)
+	return &power, nil
 }
 
-func (s *sPcsStarCharge100E) GetTodayIncomingQuantity() (float64, error) {
+func (s *sPcsStarCharge100E) GetTodayIncomingQuantity() (*float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
 		return protocol.ReadSingleSync(DailyBatteryDischargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
 	})
 }
 
-func (s *sPcsStarCharge100E) GetHistoryIncomingQuantity() (float64, error) {
+func (s *sPcsStarCharge100E) GetHistoryIncomingQuantity() (*float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
 		return protocol.ReadSingleSync(TotalBatteryDischargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
 	})
 }
 
-func (s *sPcsStarCharge100E) GetTodayOutgoingQuantity() (float64, error) {
+func (s *sPcsStarCharge100E) GetTodayOutgoingQuantity() (*float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
 		return protocol.ReadSingleSync(DailyBatteryChargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
 	})
 }
 
-func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (float64, error) {
+func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (*float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
 		return protocol.ReadSingleSync(TotalBatteryChargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
 	})

@@ -45,14 +45,14 @@ func (p *sBmsPylonTechUs108) Shutdown() {
 
 }
 
-func (p *sBmsPylonTechUs108) GetRatedPower() (uint32, error) {
+func (p *sBmsPylonTechUs108) GetRatedPower() (*uint32, error) {
 	if p.bmsConfig.RatedPower == nil {
-		return 0, errors.New("参数错误")
+		return nil, errors.New("参数错误")
 	}
-	return *p.bmsConfig.RatedPower, nil
+	return p.bmsConfig.RatedPower, nil
 }
 
-func (p *sBmsPylonTechUs108) GetMaxInputPower() (float32, error) {
+func (p *sBmsPylonTechUs108) GetMaxInputPower() (*float32, error) {
 	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
 		chargeForbiddenMark, err := protocol.GetBool(ChargeForbiddenMark)
 		if err != nil {
@@ -82,7 +82,7 @@ func (p *sBmsPylonTechUs108) GetMaxInputPower() (float32, error) {
 	})
 }
 
-func (p *sBmsPylonTechUs108) GetMaxOutputPower() (float32, error) {
+func (p *sBmsPylonTechUs108) GetMaxOutputPower() (*float32, error) {
 	return p.GetFromProtocolFloat32(func(protocol c_proto.IModbusProtocol) (any, error) {
 		dischargeForbiddenMark, err := protocol.GetBool(DischargeForbiddenMark)
 		if err != nil {
@@ -113,8 +113,8 @@ func (p *sBmsPylonTechUs108) GetMaxOutputPower() (float32, error) {
 	})
 }
 
-func (p *sBmsPylonTechUs108) GetBmsStatus() (c_enum.EBmsStatus, error) {
-	status, err := p.GetFromProtocolUint8(func(protocol c_proto.IModbusProtocol) (any, error) {
+func (p *sBmsPylonTechUs108) GetBmsStatus() (*c_enum.EBmsStatus, error) {
+	statusValue, err := p.GetFromProtocolUint8(func(protocol c_proto.IModbusProtocol) (any, error) {
 		value, err := protocol.GetIntValue(BasicStatus)
 		if err != nil {
 			return nil, err
@@ -125,19 +125,29 @@ func (p *sBmsPylonTechUs108) GetBmsStatus() (c_enum.EBmsStatus, error) {
 		return *value, nil
 	})
 	if err != nil {
-		return c_enum.EBmsStatusUnknown, err
+		status := c_enum.EBmsStatusUnknown
+		return &status, err
 	}
-	switch status {
+	if statusValue == nil {
+		status := c_enum.EBmsStatusUnknown
+		return &status, nil
+	}
+	switch *statusValue {
 	case 0:
-		return c_enum.EBmsStatusOff, nil
+		status := c_enum.EBmsStatusOff
+		return &status, nil
 	case 1:
-		return c_enum.EBmsStatusCharge, nil
+		status := c_enum.EBmsStatusCharge
+		return &status, nil
 	case 2:
-		return c_enum.EBmsStatusDischarge, nil
+		status := c_enum.EBmsStatusDischarge
+		return &status, nil
 	case 3:
-		return c_enum.EBmsStatusStandby, nil
+		status := c_enum.EBmsStatusStandby
+		return &status, nil
 	}
-	return c_enum.EBmsStatusUnknown, nil
+	status := c_enum.EBmsStatusUnknown
+	return &status, nil
 }
 
 func (p *sBmsPylonTechUs108) SetBmsStatus(status c_enum.EBmsStatus) error {
@@ -167,112 +177,124 @@ func (p *sBmsPylonTechUs108) SetBmsStatus(status c_enum.EBmsStatus) error {
 	})
 }
 
-func (p *sBmsPylonTechUs108) GetSoc() (float32, error) {
+func (p *sBmsPylonTechUs108) GetSoc() (*float32, error) {
 	return p.GetFromPointFloat32(SOC)
 }
 
-func (p *sBmsPylonTechUs108) GetSoh() (float32, error) {
+func (p *sBmsPylonTechUs108) GetSoh() (*float32, error) {
 	return p.GetFromPointFloat32(SOH)
 }
 
-func (p *sBmsPylonTechUs108) GetDcPower() (float64, error) {
+func (p *sBmsPylonTechUs108) GetDcPower() (*float64, error) {
 	current, err := p.GetDcCurrent()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	voltage, err := p.GetDcVoltage()
 	if err != nil {
-		return 0, err
+		return nil, err
+	}
+	if current == nil || voltage == nil {
+		return nil, nil
 	}
 	// kW
-	return current * voltage / 1000, nil
+	power := *current * *voltage / 1000
+	return &power, nil
 }
 
-func (p *sBmsPylonTechUs108) GetDcVoltage() (float64, error) {
+func (p *sBmsPylonTechUs108) GetDcVoltage() (*float64, error) {
 	return p.GetFromPointFloat64(DCVoltage)
 }
 
-func (p *sBmsPylonTechUs108) GetDcCurrent() (float64, error) {
+func (p *sBmsPylonTechUs108) GetDcCurrent() (*float64, error) {
 	return p.GetFromPointFloat64(DCCurrent)
 }
 
-func (p *sBmsPylonTechUs108) GetCellMinTemp() (float32, error) {
+func (p *sBmsPylonTechUs108) GetCellMinTemp() (*float32, error) {
 	return p.GetFromPointFloat32(BatteryCellMinTemp)
 }
 
-func (p *sBmsPylonTechUs108) GetCellMaxTemp() (float32, error) {
+func (p *sBmsPylonTechUs108) GetCellMaxTemp() (*float32, error) {
 	return p.GetFromPointFloat32(BatteryCellMaxTemp)
 }
 
-func (p *sBmsPylonTechUs108) GetCellAvgTemp() (float32, error) {
+func (p *sBmsPylonTechUs108) GetCellAvgTemp() (*float32, error) {
 	minTemp, err := p.GetCellMinTemp()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	maxTemp, err := p.GetCellMaxTemp()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return (minTemp + maxTemp) / 2.0, nil
+	if minTemp == nil || maxTemp == nil {
+		return nil, nil
+	}
+	avgTemp := (*minTemp + *maxTemp) / 2.0
+	return &avgTemp, nil
 }
 
-func (p *sBmsPylonTechUs108) GetCellMinVoltage() (float32, error) {
+func (p *sBmsPylonTechUs108) GetCellMinVoltage() (*float32, error) {
 	return p.GetFromPointFloat32(BatteryCellMinVoltage)
 }
 
-func (p *sBmsPylonTechUs108) GetCellMaxVoltage() (float32, error) {
+func (p *sBmsPylonTechUs108) GetCellMaxVoltage() (*float32, error) {
 	return p.GetFromPointFloat32(BatteryCellMaxVoltage)
 }
 
-func (p *sBmsPylonTechUs108) GetCellAvgVoltage() (float32, error) {
+func (p *sBmsPylonTechUs108) GetCellAvgVoltage() (*float32, error) {
 	minVoltage, err := p.GetCellMinVoltage()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 	maxVoltage, err := p.GetCellMaxVoltage()
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	return (minVoltage + maxVoltage) / 2.0, nil
+	if minVoltage == nil || maxVoltage == nil {
+		return nil, nil
+	}
+	avgVoltage := (*minVoltage + *maxVoltage) / 2.0
+	return &avgVoltage, nil
 }
 
-func (p *sBmsPylonTechUs108) GetCycleCount() (uint, error) {
+func (p *sBmsPylonTechUs108) GetCycleCount() (*uint, error) {
 	return p.GetFromPointUint(CycleCount)
 }
 
-func (p *sBmsPylonTechUs108) GetTodayIncomingQuantity() (float64, error) {
+func (p *sBmsPylonTechUs108) GetTodayIncomingQuantity() (*float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
 		v, err := protocol.ReadSingleSync(TodayCharge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
 		return cvt.Float64(v), err
 	})
 }
 
-func (p *sBmsPylonTechUs108) GetTodayOutgoingQuantity() (float64, error) {
+func (p *sBmsPylonTechUs108) GetTodayOutgoingQuantity() (*float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
 		v, err := protocol.ReadSingleSync(TodayDischarge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
 		return cvt.Float64(v), err
 	})
 }
 
-func (p *sBmsPylonTechUs108) GetHistoryIncomingQuantity() (float64, error) {
+func (p *sBmsPylonTechUs108) GetHistoryIncomingQuantity() (*float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
 		v, err := protocol.ReadSingleSync(HistoryCharge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
 		return cvt.Float64(v), err
 	})
 }
 
-func (p *sBmsPylonTechUs108) GetHistoryOutgoingQuantity() (float64, error) {
+func (p *sBmsPylonTechUs108) GetHistoryOutgoingQuantity() (*float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
 		v, err := protocol.ReadSingleSync(HistoryDischarge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
 		return cvt.Float64(v), err
 	})
 }
 
-func (p *sBmsPylonTechUs108) GetCapacity() (uint32, error) {
+func (p *sBmsPylonTechUs108) GetCapacity() (*uint32, error) {
 	if p.bmsConfig.Capacity == nil {
-		return 0, errors.New("不支持的操作")
+		return nil, errors.New("不支持的操作")
 	}
-	return *p.bmsConfig.Capacity, nil
+	return p.bmsConfig.Capacity, nil
 }
 
 func (p *sBmsPylonTechUs108) SetReset() error {

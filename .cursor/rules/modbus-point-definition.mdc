@@ -7,64 +7,74 @@ globs: **/*point*.go,**/*modbus*.go
 
 ## 基本结构
 
-所有 Modbus 点位必须使用 `c_proto.SModbusPoint` 结构，包含以下字段：
-- `Addr`: Modbus 地址 (必须放在第一位)
-- `SPoint`: 点位基本信息
-- `DataAccess`: 数据访问配置
-- `StatusExplain`: 状态解释函数 (可选)
-- `Trigger`: 告警触发函数 (可选)
+所有 Modbus 点位必须使用 `c_proto.SModbusPoint` 结构，字段顺序：
+1. `Addr`: Modbus 地址 (必须放在第一位)
+2. `SPoint`: 点位基本信息
+3. `DataAccess`: 数据访问配置
+4. `StatusExplain`: 状态解释函数 (可选)
+5. `Trigger`: 告警触发函数 (可选)
 
-## 字段顺序规范
-
-```go
-// 正确的字段顺序
-PointName = &c_proto.SModbusPoint{
-    Addr: 0x1100,                    // 地址必须放在第一位
-    SPoint: &c_base.SPoint{...},     // 点位信息
-    DataAccess: c_default.VDataAccessXXX, // 数据访问配置
-    StatusExplain: func(value any) (string, error) { ... }, // 可选
-    Trigger: func(value interface{}) (bool, error) { ... }, // 可选
-}
-```
+参考: `common/c_proto/c_modbus_point_s.go`
 
 ## 预定义配置使用规范
 
 ### 数据访问配置 (DataAccess)
 **必须优先使用 `c_default.VDataAccess*` 预定义配置，避免手动创建 `&c_base.SDataAccess{}`**
 
+参考: `common/c_default/c_default_data_access_v.go`
+
 **匹配规则：**
 - `DataFormat: c_enum.DataFormatUInt16` + `ValueType: c_enum.EUint16` → `c_default.VDataAccessUInt16`
 - `DataFormat: c_enum.DataFormatInt16` + `ValueType: c_enum.EInt16` → `c_default.VDataAccessInt16`
 - `DataFormat: c_enum.DataFormatUInt32` + `ValueType: c_enum.EUint32` → `c_default.VDataAccessUInt32`
 - `DataFormat: c_enum.DataFormatInt32` + `ValueType: c_enum.EInt32` → `c_default.VDataAccessInt32`
+- `DataFormat: c_enum.DataFormatFloat32` + `ValueType: c_enum.EFloat32` → `c_default.VDataAccessFloat32`
+- `DataFormat: c_enum.DataFormatFloat64` + `ValueType: c_enum.EFloat64` → `c_default.VDataAccessFloat64`
 - `Factor: 0.1` + UInt16 → `c_default.VDataAccessUInt16Scale01`
 - `Factor: 0.01` + UInt16 → `c_default.VDataAccessUInt16Scale001`
 - `Factor: 0.001` + UInt16 → `c_default.VDataAccessUInt16Scale0001`
 - `DataFormat: c_enum.DataFormatUInt16` + `ValueType: c_enum.EBool` → `c_default.VDataAccessUInt16ToBool`
+- `DataFormat: c_enum.DataFormatBitRange` + `ValueType: c_enum.EBool` → `c_default.VDataAccessBitRangeBool`
+- `DataFormat: c_enum.DataFormatBitRange` + `ValueType: c_enum.EUint16` → `c_default.VDataAccessBitRangeUInt16`
 
 ### 点位信息 (SPoint)
 **必须优先使用 `c_default.VPoint*` 预定义配置，避免手动创建 `&c_base.SPoint{}`**
 
+参考: `common/c_default/c_default_point_v.go`
+
 **匹配规则：**
-- `Name: "电压"` 或 `Unit: "V"` → `c_default.VPointVoltage`
-- `Name: "电流"` 或 `Unit: "A"` → `c_default.VPointCurrent`
-- `Name: "SOC"` 或 `Name: "电量"` → `c_default.VPointSOC`
-- `Name: "SOH"` 或 `Name: "健康度"` → `c_default.VPointSOH`
+- `Name: "A相电流"` 或 `Unit: "A"` + `Key: "Ia"` → `c_default.VPointIa`
+- `Name: "B相电流"` 或 `Unit: "A"` + `Key: "Ib"` → `c_default.VPointIb`
+- `Name: "C相电流"` 或 `Unit: "A"` + `Key: "Ic"` → `c_default.VPointIc`
+- `Name: "平均电流"` 或 `Unit: "A"` + `Key: "Iavg"` → `c_default.VPointIavg`
+- `Name: "最大电流"` 或 `Unit: "A"` + `Key: "Imax"` → `c_default.VPointImax`
+- `Name: "A相电压"` 或 `Unit: "V"` + `Key: "Ua"` → `c_default.VPointUa`
+- `Name: "B相电压"` 或 `Unit: "V"` + `Key: "Ub"` → `c_default.VPointUb`
+- `Name: "C相电压"` 或 `Unit: "V"` + `Key: "Uc"` → `c_default.VPointUc`
+- `Name: "平均电压"` 或 `Unit: "V"` + `Key: "Uavg"` → `c_default.VPointUavg`
+- `Name: "最大电压"` 或 `Unit: "V"` + `Key: "Umax"` → `c_default.VPointUmax`
+- `Name: "AB线电压"` 或 `Unit: "V"` + `Key: "Uab"` → `c_default.VPointUab`
+- `Name: "BC线电压"` 或 `Unit: "V"` + `Key: "Ubc"` → `c_default.VPointUbc`
+- `Name: "CA线电压"` 或 `Unit: "V"` + `Key: "Uca"` → `c_default.VPointUca`
+- `Name: "电池电量"` 或 `Unit: "%"` + `Key: "SOC"` → `c_default.VPointSOC`
+- `Name: "电池健康度"` 或 `Unit: "%"` + `Key: "SOH"` → `c_default.VPointSOH`
+- `Name: "电池电压"` 或 `Unit: "V"` + `Key: "Voltage"` → `c_default.VPointDcVoltage`
+- `Name: "电池电流"` 或 `Unit: "A"` + `Key: "Current"` → `c_default.VPointDcCurrent`
+- `Name: "电池直流功率"` 或 `Unit: "kW"` + `Key: "Power"` → `c_default.VPointDcPower`
 - `Name: "温度"` 且无 Max/Min → `c_default.VPointTemp`
 - `Name: "最高温度"` 或 `Name: "温度"` + `Max` → `c_default.VPointTempMax`
 - `Name: "最低温度"` 或 `Name: "温度"` + `Min` → `c_default.VPointTempMin`
-- `Name: "错误"` 或 `Name: "故障"` → `c_default.VPointErrorCode`
+- `Name: "湿度"` 或 `Unit: "%RH"` → `c_default.VPointHumidity`
+- `Name: "频率"` 或 `Unit: "Hz"` → `c_default.VPointFreq`
+- `Name: "状态"` 或 `Key: "Status"` → `c_default.VPointStatus`
+- `Name: "错误代码"` 或 `Name: "故障"` + `Key: "ErrorCode"` → `c_default.VPointErrorCode`
 
-### 2. 自定义配置的简化
-
+### 自定义配置简化
 **位范围配置:**
 ```go
-// 使用预定义基础配置 + 自定义位参数
 DataAccess: &c_base.SDataAccess{
     BitIndex: 0, BitLength: 2,  // 位参数放在前面
     DataFormat: c_enum.DataFormatBitRange,
-    ByteEndian: c_enum.ByteEndianBig,
-    WordOrder: c_enum.WordOrderHighLow,
     ValueType: c_enum.EUint16,
 }
 ```
@@ -76,49 +86,47 @@ DataAccess: &c_base.SDataAccess{
 ## 函数使用规范
 
 ### StatusExplain 函数
-```go
-// 使用预定义函数
-StatusExplain: c_func.StatusExplainProtectFunc
+**函数签名：** `func(value any) (string, error)`
 
-// 或使用 BoolExplain
-StatusExplain: func(value any) (string, error) {
-    return c_func.BoolExplain(value, "充电", "否")
-}
-```
+参考: `common/c_default/c_default_status_explain.go`
+
+**预定义函数：**
+- `c_default.StatusExplainProtectFunc`
+- `c_default.StatusExplainEnableFunc`
+- `c_default.StatusExplainIsNotFunc`
+- `c_default.StatusExplainErrorFunc`
 
 ### Trigger 函数
-```go
-// 使用预定义函数
-Trigger: c_func.IsNotZero
-```
+**函数签名：** `func(value interface{}) (trigger bool, level c_enum.EAlarmLevel, err error)`
+
+参考: `common/c_default/c_default_alarm_trigger_f.go`
+
+**预定义函数：**
+- `c_default.FAlarmTriggerWarnBool` - 布尔值警告触发
+- `c_default.FAlarmTriggerAlertBool` - 布尔值警报触发
+- `c_default.FAlarmTriggerErrorBool` - 布尔值故障触发
+- `c_default.FAlarmTriggerWarnNotZero` - 非零值警告触发
+- `c_default.FAlarmTriggerAlertNotZero` - 非零值警报触发
+- `c_default.FAlarmTriggerErrorNotZero` - 非零值故障触发
+- `c_default.FAlarmTriggerRangeThan` - 范围告警触发
+
+## 告警范围配置
+
+### SAlarmRangeTrigger 结构
+参考: `common/c_base/c_base_alarm_range_s.go`
+
+**告警判断逻辑：**
+- 从错误级别开始判断（最高优先级）
+- 如果值 < Before 或 > After，则触发对应级别的告警
+- 告警级别优先级：错误 > 警报 > 警告
 
 ## 代码格式规范
 
 ### 1. 单行定义
-除非包含方法，否则变量定义应该在一行内：
-```go
-DCVoltage = &c_proto.SModbusPoint{Addr: 0x1103, SPoint: c_default.VPointVoltage, DataAccess: c_default.VDataAccessUInt16Scale01}
-```
+除非包含方法，否则变量定义应该在一行内
 
 ### 2. 多行定义 (包含方法时)
-```go
-BasicStatus = &c_proto.SModbusPoint{
-    Addr: 0x1100,
-    SPoint: &c_base.SPoint{Key: "BasicStatus", Name: "基本状态", Desc: "基本状态:00：休眠 01：充电 02：放电 03：搁置"},
-    DataAccess: &c_base.SDataAccess{BitIndex: 0, BitLength: 2, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EUint16},
-    StatusExplain: func(value any) (string, error) {
-        if v, err := cvt.Int8E(value); err == nil {
-            switch v {
-            case 0: return "休眠", nil
-            case 1: return "充电", nil
-            case 2: return "放电", nil
-            case 3: return "搁置", nil
-            }
-        }
-        return fmt.Sprintf("未知值: %v", value), nil
-    },
-}
-```
+按字段顺序排列，方法单独占行
 
 ## 命名规范
 
@@ -127,31 +135,6 @@ BasicStatus = &c_proto.SModbusPoint{
 - 描述信息保持与原始代码一致
 - 不要自我发挥，保持原有含义
 
-## 示例对比
-
-**❌ 错误示例:**
-```go
-// 手动创建配置，字段顺序错误
-DCVoltage = &c_proto.SModbusPoint{
-    SPoint: &c_base.SPoint{Key: "DCVoltage", Name: "直流电压", Unit: "V"},
-    Addr: 0x1103,
-    DataAccess: &c_base.SDataAccess{
-        DataFormat: c_enum.DataFormatUInt16,
-        ValueType: c_enum.EFloat32,
-        Factor: 0.1,
-        Offset: 0,
-    },
-}
-```
-
-**✅ 正确示例:**
-```go
-// 使用预定义配置，字段顺序正确
-// Name: "直流电压" + Unit: "V" → c_default.VPointVoltage
-// Factor: 0.1 + UInt16 → c_default.VDataAccessUInt16Scale01
-DCVoltage = &c_proto.SModbusPoint{Addr: 0x1103, SPoint: c_default.VPointVoltage, DataAccess: c_default.VDataAccessUInt16Scale01}
-```
-
 ## 唯一性约束
 
 ### Point Key 唯一性
@@ -159,142 +142,33 @@ DCVoltage = &c_proto.SModbusPoint{Addr: 0x1103, SPoint: c_default.VPointVoltage,
 
 **检查方法:**
 ```bash
-# 在驱动目录中检查重复的 Key
 grep -r "Key:" plugins/plug_drivers/your_driver/ | grep -o 'Key: "[^"]*"' | sort | uniq -d
 ```
-
-**❌ 错误示例:**
-```go
-// 同一个文件中出现重复的 Key
-var (
-    DCVoltage1 = &c_proto.SModbusPoint{Addr: 0x1103, SPoint: &c_base.SPoint{Key: "DCVoltage", ...}}
-    DCVoltage2 = &c_proto.SModbusPoint{Addr: 0x1104, SPoint: &c_base.SPoint{Key: "DCVoltage", ...}} // ❌ 重复的 Key
-)
-```
-
-**✅ 正确示例:**
-```go
-// 使用不同的 Key 名称
-var (
-    DCVoltage1 = &c_proto.SModbusPoint{Addr: 0x1103, SPoint: &c_base.SPoint{Key: "DCVoltage1", ...}}
-    DCVoltage2 = &c_proto.SModbusPoint{Addr: 0x1104, SPoint: &c_base.SPoint{Key: "DCVoltage2", ...}} // ✅ 不同的 Key
-)
-```
-
-### 命名建议
-- 使用描述性的 Key 名称
-- 对于相似的点位，使用数字后缀区分
-- Key 名称应该反映点位的实际用途
 
 ## Modbus Task 定义规范
 
 ### 基本结构
 Modbus Task 使用 `c_proto.SModbusPointTask` 结构，用于组织和管理多个相关的 Modbus 点位。
 
-```go
-TaskName = &c_proto.SModbusPointTask{
-    Name:      "TaskName",           // 任务名称
-    Desc:      "任务描述",            // 任务描述
-    Addr:      StartPoint.Addr,      // 起始地址
-    Quantity:  EndPoint.Addr - StartPoint.Addr + 1, // 寄存器数量
-    Function:  c_enum.EMqHoldingRegisters, // 功能码
-    CycleMill: 1000,                // 循环间隔(毫秒)
-    Lifetime:  c_proto.DefaultCacheLifeTime, // 缓存生命周期
-    Points:    []*c_proto.SModbusPoint{...}, // 包含的点位列表
-}
-```
-
-### 字段规范
-
-#### 1. Name 和 Desc
-- `Name`: 使用 PascalCase，简洁明了
-- `Desc`: 使用中文描述，说明任务用途
-
-#### 2. Addr 和 Quantity
-- `Addr`: 使用任务中第一个点位的地址
-- `Quantity`: 计算方式为 `EndPoint.Addr - StartPoint.Addr + 1`
-
-#### 3. Function
-- 通常使用 `c_enum.EMqHoldingRegisters` (保持寄存器读取)
-- 根据实际需求选择合适的功能码
-
-#### 4. CycleMill
-- 心跳类任务: 1000ms (1秒)
-- 统计类任务: 可设置为更长间隔
-- 时间类任务: 可设置为 0 (按需读取)
-
-#### 5. Lifetime
-- 默认使用 `c_proto.DefaultCacheLifeTime`
-- 统计类数据可使用 `30 * time.Second` 等自定义时间
-- 实时数据使用默认缓存时间
-
-#### 6. Points
-- 按地址顺序排列点位
-- 确保地址连续，避免跨区域读取
-- 包含所有相关的 Modbus 点位
+参考: `common/c_proto/c_modbus_point_s.go`
 
 ### 任务分组建议
 
 #### 1. 心跳类任务 (GroupHeart)
-```go
-GroupHeart = &c_proto.SModbusPointTask{
-    Name:      "GroupHeart",
-    Desc:      "心跳,等点位",
-    Addr:      ChargeForbiddenMark.Addr,
-    Quantity:  5,
-    Function:  c_enum.EMqHoldingRegisters,
-    CycleMill: 1000,
-    Lifetime:  c_proto.DefaultCacheLifeTime,
-    Points:    []*c_proto.SModbusPoint{ChargeForbiddenMark, DischargeForbiddenMark, SOC30Flag, SOE, HeartbeatSignal},
-}
-```
+- 循环间隔: 1000ms
+- 缓存时间: 默认
 
 #### 2. 基本信息任务 (GroupInfo)
-```go
-GroupInfo = &c_proto.SModbusPointTask{
-    Name:      "GroupInfo",
-    Desc:      "查询基本运行信息",
-    Addr:      BasicStatus.Addr,
-    Quantity:  Switching.Addr - BasicStatus.Addr + 1,
-    Function:  c_enum.EMqHoldingRegisters,
-    CycleMill: 1000,
-    Lifetime:  c_proto.DefaultCacheLifeTime,
-    Points: []*c_proto.SModbusPoint{BasicStatus, SystemErrorProtection, CurrentProtection, VoltageProtection,
-        TemperatureProtection, VoltageAlarm, CurrentAlarm, TemperatureAlarm,
-        PileSystemIdleStatus, PileSystemChargeStatus, PileSystemDischargeStatus, PileSystemSleepStatus, FanWarn,
-        Protection, AlarmStatus1, DCVoltage, DCCurrent, Temperature, SOC, CycleCount,
-        PileMaxV, PileMaxI, PileMinV, PileMaxDI, Switching,
-    },
-}
-```
+- 循环间隔: 1000ms
+- 缓存时间: 默认
 
 #### 3. 时间类任务 (GroupTime)
-```go
-GroupTime = &c_proto.SModbusPointTask{
-    Name:      "GroupTime",
-    Desc:      "查询年月日时分秒",
-    Addr:      Year.Addr,
-    Quantity:  Second.Addr - Year.Addr + 1,
-    Function:  c_enum.EMqHoldingRegisters,
-    CycleMill: 1000, // 或 0 (按需读取)
-    Lifetime:  c_proto.DefaultCacheLifeTime,
-    Points:    []*c_proto.SModbusPoint{Year, Month, Day, Hour, Minute, Second},
-}
-```
+- 循环间隔: 1000ms 或 0 (按需读取)
+- 缓存时间: 默认
 
 #### 4. 统计类任务 (GroupStatistics)
-```go
-GroupStatistics = &c_proto.SModbusPointTask{
-    Name:      "GroupStatistics",
-    Desc:      "查询统计信息",
-    Addr:      SOH.Addr,
-    Quantity:  HistoryDischarge.Addr - SOH.Addr + 2,
-    Function:  c_enum.EMqHoldingRegisters,
-    CycleMill: 1000,             // 或更长间隔
-    Lifetime:  30 * time.Second, // 统计数据可设置较长缓存时间
-    Points:    []*c_proto.SModbusPoint{SOH, RemainCapacity, ChargeCapacity, DischargeCapacity, TodayCharge, TodayDischarge, HistoryCharge, HistoryDischarge},
-}
-```
+- 循环间隔: 1000ms 或更长间隔
+- 缓存时间: 30 * time.Second
 
 ### 任务设计原则
 
@@ -329,3 +203,10 @@ GroupStatistics = &c_proto.SModbusPointTask{
 10. ✅ Task 中点位地址连续
 11. ✅ Task 按功能合理分组
 12. ✅ 设置合适的 CycleMill 和 Lifetime
+13. ✅ 使用正确的枚举类型 (EDataFormat, EValueType, EAlarmLevel 等)
+14. ✅ 触发函数返回正确的告警级别
+15. ✅ 状态解释函数返回正确的字符串格式
+16. ✅ 位范围配置使用 BitIndex 和 BitLength 字段
+17. ✅ 自定义配置时避免冗余的默认值
+18. ✅ 告警范围配置使用 SAlarmRangeTrigger 结构
+19. ✅ 告警判断从错误级别开始，按优先级顺序检查
