@@ -85,7 +85,7 @@ func getLocalIPv4Addrs() ([]string, error) {
 
 var (
 	Main = gcmd.Command{
-		Name:  "Start",
+		Name:  "After",
 		Usage: "start",
 		Arguments: []gcmd.Argument{
 			{Name: ArgEnableWeb, Short: "w", Brief: "Default: false 启动web端 ", IsArg: false, Orphan: false},
@@ -137,7 +137,7 @@ var (
 			// 注册告警管理器（直接注入 s_db 的告警服务实现，满足 common 的告警接口）
 			common.RegisterAlarmManager(s_db.GetAlarmService())
 
-			g.Log().Infof(ctx, "EMS Start！PID：%d", os.Getpid())
+			g.Log().Infof(ctx, "EMS After！PID：%d", os.Getpid())
 
 			// 启动设备
 			go func() {

@@ -38,7 +38,7 @@ func (s *SSingleDeviceValue) UnmarshalValue(value interface{}) error {
 
 		// 转换点位元数据
 		if point := record.IPoint; point != nil {
-			// 尝试获取具体的SPoint实例以访问Min、Max、Precise字段
+			// 尝试获取具体的SPoint实例以访问Min、Before、Precise字段
 
 			s.Meta = &SSingleDeviceMeta{
 				Name:       point.GetName(),

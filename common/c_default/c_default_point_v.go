@@ -2,6 +2,7 @@ package c_default
 
 import (
 	"common/c_base"
+	"common/c_enum"
 )
 
 // 电力系统常用点位配置
@@ -17,14 +18,62 @@ var (
 
 // 三相电压相关点位
 var (
-	VPointUa   = &c_base.SPoint{Key: "Ua", Name: "A相电压", Unit: "V", Desc: "A相电压值", Sort: 10, Min: 0, Max: 1000, Precise: 1}    // A相电压
-	VPointUb   = &c_base.SPoint{Key: "Ub", Name: "B相电压", Unit: "V", Desc: "B相电压值", Sort: 11, Min: 0, Max: 1000, Precise: 1}    // B相电压
-	VPointUc   = &c_base.SPoint{Key: "Uc", Name: "C相电压", Unit: "V", Desc: "C相电压值", Sort: 12, Min: 0, Max: 1000, Precise: 1}    // C相电压
-	VPointUavg = &c_base.SPoint{Key: "Uavg", Name: "平均电压", Unit: "V", Desc: "三相平均电压", Sort: 13, Min: 0, Max: 1000, Precise: 1} // 平均电压
-	VPointUmax = &c_base.SPoint{Key: "Umax", Name: "最大电压", Unit: "V", Desc: "三相最大电压", Sort: 14, Min: 0, Max: 1000, Precise: 1} // 最大电压
-	VPointUab  = &c_base.SPoint{Key: "Uab", Name: "AB线电压", Unit: "V", Desc: "AB线电压值", Sort: 15, Min: 0, Max: 1000, Precise: 1} // AB线电压
-	VPointUbc  = &c_base.SPoint{Key: "Ubc", Name: "BC线电压", Unit: "V", Desc: "BC线电压值", Sort: 16, Min: 0, Max: 1000, Precise: 1} // BC线电压
-	VPointUca  = &c_base.SPoint{Key: "Uca", Name: "CA线电压", Unit: "V", Desc: "CA线电压值", Sort: 17, Min: 0, Max: 1000, Precise: 1} // CA线电压
+	VPointUa = &c_base.SPoint{Key: "Ua", Name: "A相电压", Unit: "V", Desc: "A相电压值", Sort: 10, Min: 0, Max: 1000, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 150, After: 280}, // 错误：< 150V 或 > 280V
+			Alert: &c_base.SAlarmOvertop{Before: 180, After: 250}, // 警报：< 180V 或 > 250V
+			Warn:  &c_base.SAlarmOvertop{Before: 200, After: 240}, // 警告：< 200V 或 > 240V
+		})
+	}} // A相电压
+	VPointUb = &c_base.SPoint{Key: "Ub", Name: "B相电压", Unit: "V", Desc: "B相电压值", Sort: 11, Min: 0, Max: 1000, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 150, After: 280}, // 错误：< 150V 或 > 280V
+			Alert: &c_base.SAlarmOvertop{Before: 180, After: 250}, // 警报：< 180V 或 > 250V
+			Warn:  &c_base.SAlarmOvertop{Before: 200, After: 240}, // 警告：< 200V 或 > 240V
+		})
+	}} // B相电压
+	VPointUc = &c_base.SPoint{Key: "Uc", Name: "C相电压", Unit: "V", Desc: "C相电压值", Sort: 12, Min: 0, Max: 1000, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 150, After: 280}, // 错误：< 150V 或 > 280V
+			Alert: &c_base.SAlarmOvertop{Before: 180, After: 250}, // 警报：< 180V 或 > 250V
+			Warn:  &c_base.SAlarmOvertop{Before: 200, After: 240}, // 警告：< 200V 或 > 240V
+		})
+	}} // C相电压
+	VPointUavg = &c_base.SPoint{Key: "Uavg", Name: "平均电压", Unit: "V", Desc: "三相平均电压", Sort: 13, Min: 0, Max: 1000, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 150, After: 280}, // 错误：< 150V 或 > 280V
+			Alert: &c_base.SAlarmOvertop{Before: 180, After: 250}, // 警报：< 180V 或 > 250V
+			Warn:  &c_base.SAlarmOvertop{Before: 200, After: 240}, // 警告：< 200V 或 > 240V
+		})
+	}} // 平均电压
+	VPointUmax = &c_base.SPoint{Key: "Umax", Name: "最大电压", Unit: "V", Desc: "三相最大电压", Sort: 14, Min: 0, Max: 1000, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 150, After: 280}, // 错误：< 150V 或 > 280V
+			Alert: &c_base.SAlarmOvertop{Before: 180, After: 250}, // 警报：< 180V 或 > 250V
+			Warn:  &c_base.SAlarmOvertop{Before: 200, After: 240}, // 警告：< 200V 或 > 240V
+		})
+	}} // 最大电压
+	VPointUab = &c_base.SPoint{Key: "Uab", Name: "AB线电压", Unit: "V", Desc: "AB线电压值", Sort: 15, Min: 0, Max: 1000, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 250, After: 500}, // 错误：< 250V 或 > 500V
+			Alert: &c_base.SAlarmOvertop{Before: 300, After: 450}, // 警报：< 300V 或 > 450V
+			Warn:  &c_base.SAlarmOvertop{Before: 350, After: 420}, // 警告：< 350V 或 > 420V
+		})
+	}} // AB线电压
+	VPointUbc = &c_base.SPoint{Key: "Ubc", Name: "BC线电压", Unit: "V", Desc: "BC线电压值", Sort: 16, Min: 0, Max: 1000, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 250, After: 500}, // 错误：< 250V 或 > 500V
+			Alert: &c_base.SAlarmOvertop{Before: 300, After: 450}, // 警报：< 300V 或 > 450V
+			Warn:  &c_base.SAlarmOvertop{Before: 350, After: 420}, // 警告：< 350V 或 > 420V
+		})
+	}} // BC线电压
+	VPointUca = &c_base.SPoint{Key: "Uca", Name: "CA线电压", Unit: "V", Desc: "CA线电压值", Sort: 17, Min: 0, Max: 1000, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 250, After: 500}, // 错误：< 250V 或 > 500V
+			Alert: &c_base.SAlarmOvertop{Before: 300, After: 450}, // 警报：< 300V 或 > 450V
+			Warn:  &c_base.SAlarmOvertop{Before: 350, After: 420}, // 警告：< 350V 或 > 420V
+		})
+	}} // CA线电压
 )
 
 // 功率相关点位
@@ -45,15 +94,45 @@ var (
 
 // 功率因数相关点位
 var (
-	VPointPFa = &c_base.SPoint{Key: "PFa", Name: "A相功率因数", Unit: "", Desc: "A相功率因数", Sort: 35, Min: -1, Max: 1, Precise: 3} // A相功率因数
-	VPointPFb = &c_base.SPoint{Key: "PFb", Name: "B相功率因数", Unit: "", Desc: "B相功率因数", Sort: 36, Min: -1, Max: 1, Precise: 3} // B相功率因数
-	VPointPFc = &c_base.SPoint{Key: "PFc", Name: "C相功率因数", Unit: "", Desc: "C相功率因数", Sort: 37, Min: -1, Max: 1, Precise: 3} // C相功率因数
-	VPointPF  = &c_base.SPoint{Key: "PF", Name: "总功率因数", Unit: "", Desc: "三相总功率因数", Sort: 38, Min: -1, Max: 1, Precise: 3}  // 总功率因数
+	VPointPFa = &c_base.SPoint{Key: "PFa", Name: "A相功率因数", Unit: "", Desc: "A相功率因数", Sort: 35, Min: -1, Max: 1, Precise: 3, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: -1.0, After: -0.5}, // 错误：< -0.5
+			Alert: &c_base.SAlarmOvertop{Before: -1.0, After: -0.7}, // 警报：< -0.7
+			Warn:  &c_base.SAlarmOvertop{Before: -1.0, After: -0.8}, // 警告：< -0.8
+		})
+	}} // A相功率因数
+	VPointPFb = &c_base.SPoint{Key: "PFb", Name: "B相功率因数", Unit: "", Desc: "B相功率因数", Sort: 36, Min: -1, Max: 1, Precise: 3, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: -1.0, After: -0.5}, // 错误：< -0.5
+			Alert: &c_base.SAlarmOvertop{Before: -1.0, After: -0.7}, // 警报：< -0.7
+			Warn:  &c_base.SAlarmOvertop{Before: -1.0, After: -0.8}, // 警告：< -0.8
+		})
+	}} // B相功率因数
+	VPointPFc = &c_base.SPoint{Key: "PFc", Name: "C相功率因数", Unit: "", Desc: "C相功率因数", Sort: 37, Min: -1, Max: 1, Precise: 3, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: -1.0, After: -0.5}, // 错误：< -0.5
+			Alert: &c_base.SAlarmOvertop{Before: -1.0, After: -0.7}, // 警报：< -0.7
+			Warn:  &c_base.SAlarmOvertop{Before: -1.0, After: -0.8}, // 警告：< -0.8
+		})
+	}} // C相功率因数
+	VPointPF = &c_base.SPoint{Key: "PF", Name: "总功率因数", Unit: "", Desc: "三相总功率因数", Sort: 38, Min: -1, Max: 1, Precise: 3, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: -1.0, After: -0.5}, // 错误：< -0.5
+			Alert: &c_base.SAlarmOvertop{Before: -1.0, After: -0.7}, // 警报：< -0.7
+			Warn:  &c_base.SAlarmOvertop{Before: -1.0, After: -0.8}, // 警告：< -0.8
+		})
+	}} // 总功率因数
 )
 
 // 频率相关点位
 var (
-	VPointFreq = &c_base.SPoint{Key: "Freq", Name: "频率", Unit: "Hz", Desc: "电网频率", Sort: 40, Min: 45, Max: 55, Precise: 2} // 频率
+	VPointFreq = &c_base.SPoint{Key: "Freq", Name: "频率", Unit: "Hz", Desc: "电网频率", Sort: 40, Min: 45, Max: 55, Precise: 2, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 45, After: 55}, // 错误：< 45Hz 或 > 55Hz
+			Alert: &c_base.SAlarmOvertop{Before: 47, After: 53}, // 警报：< 47Hz 或 > 53Hz
+			Warn:  &c_base.SAlarmOvertop{Before: 48, After: 52}, // 警告：< 48Hz 或 > 52Hz
+		})
+	}} // 频率
 )
 
 // 电能相关点位
@@ -66,14 +145,38 @@ var (
 
 // 温度相关点位
 var (
-	VPointTemp    = &c_base.SPoint{Key: "Temp", Name: "温度", Unit: "℃", Desc: "设备温度", Sort: 60, Min: -40, Max: 85, Precise: 1}        // 温度
-	VPointTempMax = &c_base.SPoint{Key: "TempMax", Name: "最高温度", Unit: "℃", Desc: "设备最高温度", Sort: 61, Min: -40, Max: 85, Precise: 1} // 最高温度
-	VPointTempMin = &c_base.SPoint{Key: "TempMin", Name: "最低温度", Unit: "℃", Desc: "设备最低温度", Sort: 62, Min: -40, Max: 85, Precise: 1} // 最低温度
+	VPointTemp = &c_base.SPoint{Key: "Temp", Name: "温度", Unit: "℃", Desc: "设备温度", Sort: 60, Min: -40, Max: 85, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: -20, After: 80}, // 错误：< -20℃ 或 > 80℃
+			Alert: &c_base.SAlarmOvertop{Before: -10, After: 70}, // 警报：< -10℃ 或 > 70℃
+			Warn:  &c_base.SAlarmOvertop{Before: 0, After: 60},   // 警告：< 0℃ 或 > 60℃
+		})
+	}} // 温度
+	VPointTempMax = &c_base.SPoint{Key: "TempMax", Name: "最高温度", Unit: "℃", Desc: "设备最高温度", Sort: 61, Min: -40, Max: 85, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: -20, After: 80}, // 错误：< -20℃ 或 > 80℃
+			Alert: &c_base.SAlarmOvertop{Before: -10, After: 70}, // 警报：< -10℃ 或 > 70℃
+			Warn:  &c_base.SAlarmOvertop{Before: 0, After: 60},   // 警告：< 0℃ 或 > 60℃
+		})
+	}} // 最高温度
+	VPointTempMin = &c_base.SPoint{Key: "TempMin", Name: "最低温度", Unit: "℃", Desc: "设备最低温度", Sort: 62, Min: -40, Max: 85, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: -20, After: 80}, // 错误：< -20℃ 或 > 80℃
+			Alert: &c_base.SAlarmOvertop{Before: -10, After: 70}, // 警报：< -10℃ 或 > 70℃
+			Warn:  &c_base.SAlarmOvertop{Before: 0, After: 60},   // 警告：< 0℃ 或 > 60℃
+		})
+	}} // 最低温度
 )
 
 // 湿度相关点位
 var (
-	VPointHumidity = &c_base.SPoint{Key: "Humidity", Name: "湿度", Unit: "%RH", Desc: "环境湿度", Sort: 70, Min: 0, Max: 100, Precise: 1} // 湿度
+	VPointHumidity = &c_base.SPoint{Key: "Humidity", Name: "湿度", Unit: "%RH", Desc: "环境湿度", Sort: 70, Min: 0, Max: 100, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 0, After: 95}, // 错误：> 95%
+			Alert: &c_base.SAlarmOvertop{Before: 0, After: 90}, // 警报：> 90%
+			Warn:  &c_base.SAlarmOvertop{Before: 0, After: 80}, // 警告：> 80%
+		})
+	}} // 湿度
 )
 
 // 状态相关点位
@@ -84,8 +187,20 @@ var (
 
 // 电池相关点位 (BMS)
 var (
-	VPointSOC       = &c_base.SPoint{Key: "SOC", Name: "电池电量", Unit: "%", Desc: "电池剩余电量百分比", Sort: 90, Min: 0, Max: 100, Precise: 1}        // 电池电量
-	VPointSOH       = &c_base.SPoint{Key: "SOH", Name: "电池健康度", Unit: "%", Desc: "电池健康度百分比", Sort: 91, Min: 0, Max: 100, Precise: 1}        // 电池健康度
+	VPointSOC = &c_base.SPoint{Key: "SOC", Name: "电池电量", Unit: "%", Desc: "电池剩余电量百分比", Sort: 90, Min: 0, Max: 100, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 0, After: 5},  // 错误：< 5%
+			Alert: &c_base.SAlarmOvertop{Before: 0, After: 10}, // 警报：< 10%
+			Warn:  &c_base.SAlarmOvertop{Before: 0, After: 20}, // 警告：< 20%
+		})
+	}} // 电池电量
+	VPointSOH = &c_base.SPoint{Key: "SOH", Name: "电池健康度", Unit: "%", Desc: "电池健康度百分比", Sort: 91, Min: 0, Max: 100, Precise: 1, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
+			Error: &c_base.SAlarmOvertop{Before: 0, After: 60}, // 错误：< 60%
+			Alert: &c_base.SAlarmOvertop{Before: 0, After: 70}, // 警报：< 70%
+			Warn:  &c_base.SAlarmOvertop{Before: 0, After: 80}, // 警告：< 80%
+		})
+	}} // 电池健康度
 	VPointDcVoltage = &c_base.SPoint{Key: "Voltage", Name: "电池电压", Unit: "V", Desc: "电池总电压", Sort: 92, Min: 0, Max: 1000, Precise: 2}       // 电池电压
 	VPointDcCurrent = &c_base.SPoint{Key: "Current", Name: "电池电流", Unit: "A", Desc: "电池充放电电流", Sort: 93, Min: -1000, Max: 1000, Precise: 2} // 电池电流
 	VPointDcPower   = &c_base.SPoint{Key: "Power", Name: "电池直流功率", Unit: "kW", Desc: "电池直流功率", Sort: 94, Min: -1000, Max: 1000, Precise: 2} // 电池直流功率
