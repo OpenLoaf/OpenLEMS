@@ -3,7 +3,9 @@ package internal
 import (
 	"common"
 	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
+	"common/c_proto"
 	"context"
 	"time"
 
@@ -21,7 +23,7 @@ import (
 func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig) (modbus.Client, error) {
 	var client modbus.Client
 	switch protocolConfig.GetProtocol() {
-	case c_base.EModbusTcp:
+	case c_enum.EModbusTcp:
 		var option []modbus.ClientProviderOption
 
 		if protocolConfig.GetLogLevel() == "debug" || protocolConfig.GetLogLevel() == "DEBUG" {
@@ -31,7 +33,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		option = append(option, modbus.WithTCPTimeout(time.Duration(protocolConfig.GetTimeout())*time.Second))
 		tcpProvider := modbus.NewTCPClientProvider(protocolConfig.GetAddress(), option...)
 		client = modbus.NewClient(tcpProvider)
-	case c_base.EModbusRtu:
+	case c_enum.EModbusRtu:
 
 		rtuConfig := &ModbusRtuProtocolConfig{}
 		err := gconv.Scan(protocolConfig.Params, rtuConfig)
@@ -62,7 +64,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 
 	err := client.Connect()
 	if err != nil {
-		if protocolConfig.GetProtocol() == c_base.EModbusRtu {
+		if protocolConfig.GetProtocol() == c_enum.EModbusRtu {
 			//panic(errors.Errorf("modbus rtu 地址：[%s] 连接失败！ %v", protocolConfig.GetAddress(), err))
 			return nil, errors.Wrapf(err, "modbus rtu 地址：[%s] 连接失败！", protocolConfig.GetAddress())
 		}
@@ -71,7 +73,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		c_log.BizInfof(ctx, "modbus协议连接到：%s 成功！", protocolConfig.GetAddress())
 	}
 
-	if protocolConfig.GetProtocol() == c_base.EModbusTcp {
+	if protocolConfig.GetProtocol() == c_enum.EModbusTcp {
 		// 重连机制
 		go func() {
 			// 重连间隔配置：第一次3秒、第二次10秒、第三次30秒、第四次60秒、之后每5分钟
@@ -172,19 +174,22 @@ func TriggerOfflineAlarm(protocolId string, trigger bool) {
 		}
 
 		// 触发或清除离线告警
-		device.UpdateAlarm(device.GetConfig().Id, &c_base.Meta{
-			Name:  "Offline",
-			Cn:    "设备连接状态告警",
-			Level: c_base.EAlarmLevelError,
-			Trigger: func(v any) bool {
-				return cvt.Bool(v)
+		device.UpdateAlarm(device.GetConfig().Id, &c_proto.SModbusPoint{
+			SPoint: &c_base.SPoint{
+				Key:   "Offline",
+				Name:  "设备连接状态告警",
+				Level: c_enum.EAlarmLevelError,
 			},
-			StatusExplain: func(value any) string {
-				v := cvt.Bool(value)
-				if v {
-					return "离线"
+			Trigger: cvt.BoolE,
+			StatusExplain: func(value any) (string, error) {
+				v, err := cvt.BoolE(value)
+				if err != nil {
+					return "", errors.Wrap(err, "状态转换失败")
 				}
-				return "上线"
+				if v {
+					return "离线", nil
+				}
+				return "上线", nil
 			},
 		}, trigger)
 
