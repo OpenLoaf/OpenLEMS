@@ -270,7 +270,7 @@ func decoder(deviceId string, deviceType c_enum.EDeviceType, bytes []byte, addr,
 	}
 
 	// 使用导出的ValidateValueRange函数
-	err = p_base.ValidateValueRange(value, point.DataAccess.MinValue, point.DataAccess.MaxValue)
+	err = p_base.ValidateValueRange(value, point.GetMin(), point.GetMax())
 	if err != nil {
 		return nil, errors.Wrapf(err, "value %v out of range", value)
 	}

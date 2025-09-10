@@ -21,8 +21,4 @@ type SDataAccess struct {
 	ValueType c_enum.EValueType `json:"valueType,omitempty" dc:"返回值类型"`
 	Factor    float32           `json:"factor,omitempty" dc:"系数（默认: 0.0 不乘以系数）"`
 	Offset    int               `json:"offset,omitempty" dc:"偏移值（默认: 0）"`
-
-	// 验证配置
-	MinValue int64 `json:"minValue,omitempty" v:"gte:0" dc:"最小值验证（0表示不验证）"`
-	MaxValue int64 `json:"maxValue,omitempty" v:"gte:0|lte:MinValue" dc:"最大值验证（0表示不验证）"`
 }

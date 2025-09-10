@@ -2,6 +2,7 @@ package c_base
 
 import (
 	"common/c_enum"
+	"strconv"
 
 	"github.com/shockerli/cvt"
 )
@@ -17,7 +18,7 @@ type SPoint struct {
 	Level   c_enum.EAlarmLevel `json:"level"`             // 点位级别
 	Min     int64              `json:"min,omitempty"`     // 范围最小值
 	Max     int64              `json:"max,omitempty"`     // 范围最大值
-	Precise int                `json:"precise,omitempty"` // 设置浮点数精度（只是显示用）
+	Precise uint8              `json:"precise,omitempty"` // 设置浮点数精度（只是显示用）
 }
 
 func (s *SPoint) AlarmTrigger(value any) (bool, error) {
@@ -25,6 +26,25 @@ func (s *SPoint) AlarmTrigger(value any) (bool, error) {
 }
 
 func (s *SPoint) ValueExplain(value any) (string, error) {
+	// 检查值是否为数值类型（整数或浮点数）
+	switch value.(type) {
+	case int, int8, int16, int32, int64:
+	case uint, uint8, uint16, uint32, uint64:
+	case float32, float64:
+	default:
+		// 非数值类型使用默认的字符串转换
+		return cvt.StringE(value)
+	}
+
+	// 尝试将值转换为浮点数
+	if floatVal, err := cvt.Float64E(value); err == nil {
+		// 使用 strconv.FormatFloat 进行精确格式化
+		// 'f' 表示固定小数点格式，s.Precise 表示精度
+		formatted := strconv.FormatFloat(floatVal, 'f', int(s.Precise), 64)
+		return formatted, nil
+	}
+
+	// 如果无法转换为浮点数，使用默认的字符串转换
 	return cvt.StringE(value)
 }
 
@@ -54,4 +74,16 @@ func (s *SPoint) GetDesc() string {
 
 func (s *SPoint) GetSort() int {
 	return s.Sort
+}
+
+func (s *SPoint) GetMin() int64 {
+	return s.Min
+}
+
+func (s *SPoint) GetMax() int64 {
+	return s.Max
+}
+
+func (s *SPoint) GetPrecise() uint8 {
+	return s.Precise
 }

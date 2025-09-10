@@ -3,8 +3,6 @@ package c_proto
 import (
 	"common/c_base"
 	"fmt"
-
-	"github.com/shockerli/cvt"
 )
 
 type SModbusPoint struct {
@@ -22,13 +20,17 @@ type SModbusPoint struct {
 	Trigger       func(value interface{}) (bool, error) `json:"-" dc:"告警触发函数"`
 }
 
+func (s *SModbusPoint) GetDataAccess() *c_base.SDataAccess {
+	return s.DataAccess
+}
+
 func (s *SModbusPoint) String() string {
 	return fmt.Sprintf("%s[0x%x]", s.GetName(), s.Addr)
 }
 
 func (s *SModbusPoint) ValueExplain(value any) (string, error) {
 	if s.StatusExplain == nil {
-		return cvt.String(value), nil
+		return s.SPoint.ValueExplain(value)
 	}
 	return s.StatusExplain(value)
 }
@@ -40,3 +42,7 @@ func (s *SModbusPoint) AlarmTrigger(value any) (bool, error) {
 
 	return s.Trigger(value)
 }
+
+//func (s *SModbusPoint) GetPrecise() uint8 {
+//
+//}

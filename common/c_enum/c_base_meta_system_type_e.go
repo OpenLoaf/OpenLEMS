@@ -1,4 +1,4 @@
-//go:generate stringer -type=ESystemType -trimprefix=S -output=c_base_meta_system_type_e_string.go
+//go:generate stringer -type=EValueType -trimprefix=E -output=c_base_meta_system_type_e_string.go
 package c_enum
 
 type EValueType int // 读取到数据后，转换为到系统类型

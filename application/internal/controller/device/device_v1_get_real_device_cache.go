@@ -66,11 +66,6 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		d := &entity.SSingleDeviceValue{}
 		_ = gconv.Scan(v, d)
 
-		// 设置系统类型为读取类型（如果元数据存在）
-		if d.Meta != nil {
-			d.Meta.SystemType = d.Meta.ReadType
-		}
-
 		// 获取状态解释
 		if explain, err := v.IPoint.ValueExplain(v.GetValue()); err == nil && explain != "" {
 			d.StatueExplain = explain

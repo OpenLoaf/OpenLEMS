@@ -19,11 +19,6 @@ import (
 	"github.com/torykit/go-modbus"
 )
 
-type MetaValue struct {
-	Value      any        `json:"value,omitempty" dc:"数值"`
-	HappenTime *time.Time `json:"happenTime,omitempty" dc:"发生时间"`
-}
-
 type ModbusProtocolProvider struct {
 	c_base.IAlarm
 	c_base.IProtocolCacheValue
@@ -162,14 +157,14 @@ func (p *ModbusProtocolProvider) GetPointValueList() []*c_base.SPointValue {
 			continue
 		}
 
-		metaValue := &MetaValue{}
-		err = _varValue.Structs(metaValue)
+		pointValue := &c_base.SPointValue{}
+		err = _varValue.Structs(pointValue)
 		if err != nil {
 			g.Log().Errorf(p.ctx, "解析缓存值失败：%+v", err)
 			continue
 		}
 
-		_sortValues.Add(c_base.NewPointValue(p.deviceId, p.deviceType, meta.(c_base.IPoint), metaValue.Value))
+		_sortValues.Add(pointValue)
 	}
 	//_sortValues = _sortValues.Sort()
 

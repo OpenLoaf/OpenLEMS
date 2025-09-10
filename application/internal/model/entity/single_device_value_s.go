@@ -1,7 +1,12 @@
 package entity
 
 import (
+	"common/c_base"
+	"fmt"
+	"reflect"
 	"time"
+
+	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type SSingleDeviceGroup struct {
@@ -17,21 +22,52 @@ type SSingleDeviceValue struct {
 	HappenTime    *time.Time         `json:"happenTime,omitempty"`
 }
 
+func (s *SSingleDeviceValue) UnmarshalValue(value interface{}) error {
+	if record, ok := value.(*c_base.SPointValue); ok {
+		// 转换点位值
+		s.Value = gconv.String(record.GetValue())
+
+		// 转换发生时间
+		happenTime := record.GetHappenTime()
+		s.HappenTime = &happenTime
+
+		// 获取状态解释
+		if explain, err := record.GetValueExplain(); err == nil {
+			s.StatueExplain = explain
+		}
+
+		// 转换点位元数据
+		if point := record.IPoint; point != nil {
+			// 尝试获取具体的SPoint实例以访问Min、Max、Precise字段
+
+			s.Meta = &SSingleDeviceMeta{
+				Name:       point.GetName(),
+				Cn:         point.GetName(),                          // 暂时使用Name作为中文名称
+				SystemType: point.GetDataAccess().ValueType.String(), // 默认自动系统类型
+				Level:      point.GetLevel().String(),
+				Min:        point.GetMin(),
+				Max:        point.GetMax(),
+				Precise:    point.GetPrecise(),
+				Unit:       point.GetUnit(),
+				Desc:       point.GetDesc(),
+			}
+		}
+
+		return nil
+	}
+
+	return fmt.Errorf(`unsupported value type for UnmarshalValue: %v`, reflect.TypeOf(value))
+}
+
 // Meta 点位元数据
 type SSingleDeviceMeta struct {
-	Name       string  `json:"name"`                 // 名称
-	Cn         string  `json:"cn"`                   // 中文名称, TODO 以后改成I18N
-	Addr       uint16  `json:"addr"`                 // 地址，索引
-	BitLength  uint8   `json:"bitLength,omitempty"`  // 位长度, 可以和ReadType一起使用，表示位读取。 比如 RBit5，BigLength=3 代表读取第5位到第7位。0时忽略该参数！
-	Endianness string  `json:"endianness,omitempty"` // 字节顺序，默认为大端
-	ReadType   string  `json:"readType"`             // 数据类型，ECharSequence 字节顺序将会影响读取到的数据结果
-	SystemType string  `json:"systemType"`           // 格式化类型,默认为SUseReadType!自动使用ReadType的类型。
-	Level      string  `json:"level"`                // 点位级别
-	Factor     float32 `json:"factor,omitempty"`     // 乘以系数，如果是0，自动会改成1。因为0无意义
-	Offset     int     `json:"offset,omitempty"`     // 偏移值
-	Min        int64   `json:"min,omitempty"`        // 范围最小值
-	Max        int64   `json:"max,omitempty"`        // 范围最大值
-	Precise    int     `json:"precise,omitempty"`    // 设置浮点数精度（只是显示用）
-	Unit       string  `json:"unit,omitempty"`       // 单位
-	Desc       string  `json:"desc,omitempty"`       // 备注
+	Name       string `json:"name"`           // 名称
+	Cn         string `json:"cn"`             // 中文名称, TODO 以后改成I18N
+	SystemType string `json:"systemType"`     // 格式化类型,默认为SUseReadType!自动使用ReadType的类型。
+	Level      string `json:"level"`          // 点位级别
+	Min        int64  `json:"min,omitempty"`  // 范围最小值
+	Max        int64  `json:"max,omitempty"`  // 范围最大值
+	Precise    uint8  `json:"precise"`        // 设置浮点数精度（只是显示用）
+	Unit       string `json:"unit,omitempty"` // 单位
+	Desc       string `json:"desc,omitempty"` // 备注
 }

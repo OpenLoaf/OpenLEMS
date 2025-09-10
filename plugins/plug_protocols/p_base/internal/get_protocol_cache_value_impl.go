@@ -3,6 +3,7 @@ package internal
 import (
 	"common/c_base"
 	"common/c_enum"
+	"common/c_log"
 	"context"
 	"time"
 
@@ -35,7 +36,7 @@ func (s *SGetProtocolCacheValueImpl) CacheValue(point c_base.IPoint, value *c_ba
 	if value == nil {
 		return errors.Errorf("[%v-%s] 缓存值不能为空！", s.deviceId, point.GetName())
 	}
-
+	c_log.Debugf(context.Background(), "缓存设备: %s 值 %s[%s]：%v 过期时间: %v", s.deviceId, point.GetName(), point.GetKey(), value.GetValue(), lifetime)
 	return s.cache.Set(s.ctx, point, value, lifetime)
 }
 
