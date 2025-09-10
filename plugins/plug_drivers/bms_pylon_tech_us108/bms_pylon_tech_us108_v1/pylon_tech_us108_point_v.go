@@ -4,7 +4,6 @@ import (
 	"common/c_base"
 	"common/c_default"
 	"common/c_enum"
-	"common/c_func"
 	"common/c_proto"
 	"fmt"
 
@@ -59,27 +58,27 @@ var (
 		}
 		return fmt.Sprintf("未知值: %v", value), nil
 	}}
-	SystemErrorProtection = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "SystemErrorProtection", Name: "系统故障保护", Group: StatusGroup, Trigger: c_default.FAlarmTriggerErrorBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 3, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_func.StatusExplainProtectFunc}
-	CurrentProtection     = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "CurrentProtection", Name: "电流保护", Group: StatusGroup, Trigger: c_default.FAlarmTriggerErrorBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 4, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_func.StatusExplainProtectFunc}
-	VoltageProtection     = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "VoltageProtection", Name: "电压保护", Group: StatusGroup, Trigger: c_default.FAlarmTriggerErrorBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 5, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_func.StatusExplainProtectFunc}
-	TemperatureProtection = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "TemperatureProtection", Name: "温度保护", Group: StatusGroup, Trigger: c_default.FAlarmTriggerErrorBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 6, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_func.StatusExplainProtectFunc}
-	VoltageAlarm          = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "VoltageAlarm", Name: "电压警告", Group: StatusGroup, Trigger: c_default.FAlarmTriggerAlertBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 7, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_func.StatusExplainProtectFunc}
-	CurrentAlarm          = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "CurrentAlarm", Name: "电流警告", Group: StatusGroup, Trigger: c_default.FAlarmTriggerAlertBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 8, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_func.StatusExplainProtectFunc}
-	TemperatureAlarm      = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "TemperatureAlarm", Name: "温度警告", Group: StatusGroup, Trigger: c_default.FAlarmTriggerAlertBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 9, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_func.StatusExplainProtectFunc}
+	SystemErrorProtection = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "SystemErrorProtection", Name: "系统故障保护", Group: StatusGroup, Trigger: c_default.FAlarmTriggerErrorBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 3, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_default.StatusExplainProtectFunc}
+	CurrentProtection     = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "CurrentProtection", Name: "电流保护", Group: StatusGroup, Trigger: c_default.FAlarmTriggerErrorBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 4, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_default.StatusExplainProtectFunc}
+	VoltageProtection     = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "VoltageProtection", Name: "电压保护", Group: StatusGroup, Trigger: c_default.FAlarmTriggerErrorBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 5, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_default.StatusExplainProtectFunc}
+	TemperatureProtection = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "TemperatureProtection", Name: "温度保护", Group: StatusGroup, Trigger: c_default.FAlarmTriggerErrorBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 6, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_default.StatusExplainProtectFunc}
+	VoltageAlarm          = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "VoltageAlarm", Name: "电压警告", Group: StatusGroup, Trigger: c_default.FAlarmTriggerAlertBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 7, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_default.StatusExplainProtectFunc}
+	CurrentAlarm          = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "CurrentAlarm", Name: "电流警告", Group: StatusGroup, Trigger: c_default.FAlarmTriggerAlertBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 8, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_default.StatusExplainProtectFunc}
+	TemperatureAlarm      = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "TemperatureAlarm", Name: "温度警告", Group: StatusGroup, Trigger: c_default.FAlarmTriggerAlertBool, Desc: "0-正常；1-保护"}, DataAccess: &c_base.SDataAccess{BitIndex: 9, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: c_default.StatusExplainProtectFunc}
 	PileSystemIdleStatus  = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "PileSystemIdleStatus", Name: "电池组搁置状态", Group: StatusGroup, Desc: "0-否，1-搁置"}, DataAccess: &c_base.SDataAccess{BitIndex: 10, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: func(value any) (string, error) {
-		return c_func.BoolExplain(value, "搁置", "否")
+		return c_default.StatusExplainBool(value, "搁置", "否")
 	}}
 	PileSystemChargeStatus = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "PileSystemChargeStatus", Name: "电池组充电状态", Group: StatusGroup, Desc: "0-否，1-充电"}, DataAccess: &c_base.SDataAccess{BitIndex: 11, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: func(value any) (string, error) {
-		return c_func.BoolExplain(value, "充电", "否")
+		return c_default.StatusExplainBool(value, "充电", "否")
 	}}
 	PileSystemDischargeStatus = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "PileSystemDischargeStatus", Name: "电池组放电状态", Group: StatusGroup, Desc: "0-否，1-放电"}, DataAccess: &c_base.SDataAccess{BitIndex: 12, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: func(value any) (string, error) {
-		return c_func.BoolExplain(value, "放电", "否")
+		return c_default.StatusExplainBool(value, "放电", "否")
 	}}
 	PileSystemSleepStatus = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "PileSystemSleepStatus", Name: "电池组休眠状态", Group: StatusGroup, Desc: "0-否，1-休眠"}, DataAccess: &c_base.SDataAccess{BitIndex: 13, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: func(value any) (string, error) {
-		return c_func.BoolExplain(value, "休眠", "否")
+		return c_default.StatusExplainBool(value, "休眠", "否")
 	}}
 	FanWarn = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "FanWarn", Name: "电池组休眠状态", Group: StatusGroup, Trigger: c_default.FAlarmTriggerAlertBool, Desc: "0-无异常，1-有异常"}, DataAccess: &c_base.SDataAccess{BitIndex: 14, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: func(value any) (string, error) {
-		return c_func.BoolExplain(value, "有异常", "无异常")
+		return c_default.StatusExplainBool(value, "有异常", "无异常")
 	}}
 
 	Protection                  = &c_proto.SModbusPoint{Addr: 0x1101, SPoint: &c_base.SPoint{Key: "Protection", Name: "保护状态"}, DataAccess: c_default.VDataAccessInt16}
