@@ -18,11 +18,11 @@ type GetNetworkInterfaceListRes struct {
 }
 
 type UpdateNetworkInterfaceReq struct {
-	g.Meta  `path:"/network/interface/update" method:"post" tags:"网络相关" summary:"更新网络接口配置"`
-	Name    string `json:"name"  v:"required#接口名称必填"`
-	IP      string `json:"ip"    v:"required|ipv4#IP地址必填|IP地址格式不正确"`
-	Netmask string `json:"netmask" v:"required|ipv4#子网掩码必填|子网掩码格式不正确"`
-	Gateway string `json:"gateway" v:"ipv4#网关地址格式不正确"`
+	g.Meta      `path:"/network/interface/update" method:"post" tags:"网络相关" summary:"更新网络接口配置"`
+	Name        string   `json:"name" v:"required#接口名称必填"`
+	IPAddresses []string `json:"ipAddresses" v:"required#IP地址列表必填"`
+	Netmask     string   `json:"netmask" v:"required#子网掩码必填"`
+	Gateway     string   `json:"gateway" v:"ipv4#网关地址格式不正确"`
 }
 type UpdateNetworkInterfaceRes struct {
 	// 空响应体，成功则返回空对象，失败通过错误码/信息返回

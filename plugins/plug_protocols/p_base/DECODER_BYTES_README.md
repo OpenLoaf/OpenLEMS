@@ -7,6 +7,7 @@
 ## 功能特性
 
 ### 1. 支持的数据格式
+
 - **整数类型**: 16位/32位有符号和无符号整数
 - **浮点数类型**: 32位/64位IEEE 754浮点数
 - **BCD码**: 16位和32位二进制编码十进制数
@@ -16,10 +17,12 @@
 - **自定义格式**: 支持扩展自定义解析
 
 ### 2. 字节序支持
+
 - **字节序**: 大端序(ByteEndianBig) / 小端序(ByteEndianLittle)
 - **字序**: 高字在前(WordOrderHighLow) / 低字在前(WordOrderLowHigh)
 
 ### 3. 数据处理
+
 - **系数处理**: 支持浮点数系数乘法
 - **偏移量处理**: 支持数值偏移
 - **类型转换**: 自动转换为目标系统类型
@@ -47,16 +50,19 @@ func DecoderBytes(
 ## 三种读取模式
 
 ### 1. 纯字节模式 (bitLength=0)
+
 - **用途**: 读取指定字节范围的数据
 - **参数**: `byteIndex` 和 `byteLength` 有效，`bitIndex=0, bitLength=0`
 - **示例**: `DecoderBytes(data, 0, 2, 0, 0, ...)` - 读取第0字节开始的2字节数据
 
 ### 2. 纯位模式 (byteLength=0)
+
 - **用途**: 从数据开头读取指定位范围
 - **参数**: `bitIndex` 和 `bitLength` 有效，`byteIndex=0, byteLength=0`
 - **示例**: `DecoderBytes(data, 0, 0, 5, 3, ...)` - 从第5位开始读取3位数据
 
 ### 3. 混合模式 (两者都不为0)
+
 - **用途**: 先读取指定字节范围，再从中提取指定位
 - **参数**: 所有参数都有效
 - **示例**: `DecoderBytes(data, 2, 2, 3, 5, ...)` - 从第2字节开始读取2字节，然后提取第3-7位
@@ -64,6 +70,7 @@ func DecoderBytes(
 ## 使用示例
 
 ### 模式1：Modbus 16位整数解析（纯字节模式）
+
 ```go
 data := []byte{0x12, 0x34}
 result, err := DecoderBytes(data, 0, 2, 0, 0, ByteEndianBig, WordOrderHighLow, DataFormatUInt16, EInt16, 0, 1.0, 0, 10000)
@@ -76,6 +83,7 @@ if err != nil {
 ```
 
 ### 模式2：CANbus 位数据解析（纯位模式）
+
 ```go
 data := []byte{0xB6} // 0b10110110
 result, err := DecoderBytes(data, 0, 0, 5, 3, ByteEndianBig, WordOrderHighLow, DataFormatBitRange, EInt32, 0, 1.0, 0, 0)
@@ -88,6 +96,7 @@ if err != nil {
 ```
 
 ### 模式3：混合模式 - 从第2字节开始读取2字节，然后提取第3-7位
+
 ```go
 data := []byte{0x12, 0x34, 0xB6, 0x78}
 result, err := DecoderBytes(data, 2, 2, 3, 5, ByteEndianBig, WordOrderHighLow, DataFormatBitRange, EInt32, 0, 1.0, 0, 0)
@@ -100,6 +109,7 @@ if err != nil {
 ```
 
 ### CANbus BCD码解析（纯字节模式，无范围验证）
+
 ```go
 data := []byte{0x12, 0x34}
 result, err := DecoderBytes(data, 0, 2, 0, 0, ByteEndianBig, WordOrderHighLow, DataFormatBCD, EInt32, 0, 0.1, 0, 0)
@@ -112,6 +122,7 @@ if err != nil {
 ```
 
 ### IEEE 754浮点数解析（纯字节模式，带范围验证）
+
 ```go
 data := []byte{0x40, 0x49, 0x0F, 0xDB} // 3.14159的IEEE 754表示
 result, err := DecoderBytes(data, 0, 4, 0, 0, ByteEndianBig, WordOrderHighLow, DataFormatFloat32, EFloat64, 0, 1.0, -100, 100)
@@ -124,6 +135,7 @@ if err != nil {
 ```
 
 ### 小端字节序解析（纯字节模式，带范围验证）
+
 ```go
 data := []byte{0x34, 0x12}
 result, err := DecoderBytes(data, 0, 2, 0, 0, ByteEndianLittle, WordOrderHighLow, DataFormatUInt16, EInt16, 0, 1.0, 0, 10000)
@@ -136,6 +148,7 @@ if err != nil {
 ```
 
 ### ASCII字符串解析（纯字节模式，带长度验证）
+
 ```go
 data := []byte{'H', 'e', 'l', 'l', 'o', ' ', 'W', 'o', 'r', 'l', 'd'}
 result, err := DecoderBytes(data, 0, 11, 0, 0, ByteEndianBig, WordOrderHighLow, DataFormatStringASCII, EString, 0, 1.0, 3, 20)
@@ -150,6 +163,7 @@ if err != nil {
 ### 位范围解析示例（使用纯位模式）
 
 #### 获取第3个bit的值（从低位开始，0-based）
+
 ```go
 data := []byte{0xB6} // 0b10110110
 result, err := DecoderBytes(data, 0, 0, 3, 1, ByteEndianBig, WordOrderHighLow, DataFormatBitRange, EUint8, 0, 1.0, 0, 0)
@@ -162,6 +176,7 @@ if err != nil {
 ```
 
 #### 获取从第4个bit起后2位bit的值
+
 ```go
 data := []byte{0xB6} // 0b10110110
 result, err := DecoderBytes(data, 0, 0, 4, 2, ByteEndianBig, WordOrderHighLow, DataFormatBitRange, EUint8, 0, 1.0, 0, 0)
@@ -174,6 +189,7 @@ if err != nil {
 ```
 
 #### 获取最高位（MSB）
+
 ```go
 data := []byte{0xB6} // 0b10110110
 result, err := DecoderBytes(data, 0, 0, 7, 1, ByteEndianBig, WordOrderHighLow, DataFormatBitRange, EUint8, 0, 1.0, 0, 0)
@@ -186,6 +202,7 @@ if err != nil {
 ```
 
 #### 获取最低位（LSB）
+
 ```go
 data := []byte{0xB6} // 0b10110110
 result, err := DecoderBytes(data, 0, 0, 0, 1, ByteEndianBig, WordOrderHighLow, DataFormatBitRange, EUint8, 0, 1.0, 0, 0)
@@ -200,22 +217,26 @@ if err != nil {
 ## 性能优化
 
 ### 1. 内存优化
+
 - 预分配结果切片，避免多次内存分配
 - 缓存浮点数转换，减少重复计算
 - 零值检查，避免不必要的计算
 
 ### 2. 算法优化
+
 - 高效的字节序重排算法
 - 优化的BCD码解析
 - 快速类型转换
 
 ### 3. 错误处理
+
 - 边界检查，防止数组越界
 - 参数验证，确保输入有效性
 - 完整的错误传播，所有错误都会向上传递
 - 详细的错误信息，便于调试和问题定位
 
 ### 4. 数据验证
+
 - 支持数值范围验证（min/max）
 - 支持字符串长度验证（min/max作为长度限制）
 - 自动跳过布尔类型的验证
@@ -225,21 +246,25 @@ if err != nil {
 ## 协议支持
 
 ### Modbus TCP/RTU
+
 - 支持所有标准数据类型
 - 支持大端和小端字节序
 - 支持字序交换
 
 ### CANbus
+
 - 支持位级数据读取
 - 支持BCD码解析
 - 支持多字节序
 
 ### IEC 61850
+
 - 支持IEEE 754浮点数
 - 支持UTF-16字符串
 - 支持复杂数据结构
 
 ### S7 (西门子PLC)
+
 - 支持西门子特有的数据格式
 - 支持位操作
 - 支持字符串处理
@@ -247,6 +272,7 @@ if err != nil {
 ## 测试覆盖
 
 函数包含完整的单元测试，覆盖：
+
 - 所有数据格式的解析
 - 字节序和字序的组合
 - 边界情况处理
@@ -256,6 +282,7 @@ if err != nil {
 ## 扩展性
 
 函数设计具有良好的扩展性：
+
 - 可以轻松添加新的数据格式
 - 支持自定义解析函数
 - 可以扩展新的字节序类型
@@ -319,7 +346,7 @@ if err != nil {
 2. **字符串类型**: 进行长度验证（min/max作为长度限制）
 3. **布尔类型**: 自动跳过范围验证
 4. **位范围类型**: 自动跳过范围验证（位值本身已经有限制）
-5. **验证控制**: 
+5. **验证控制**:
    - `min=0, max=0`: 不进行验证
    - `min>0 或 max>0`: 进行验证
 6. **验证时机**: 在数据解析、系数处理、类型转换完成后进行验证

@@ -24,8 +24,15 @@ func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.Updat
 	}
 
 	// 基础校验
-	if net.ParseIP(req.IP) == nil {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "IP地址格式不正确")
+	if len(req.IPAddresses) == 0 {
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "IP地址列表不能为空")
+	}
+
+	// 验证所有IP地址格式
+	for i, ip := range req.IPAddresses {
+		if net.ParseIP(ip) == nil {
+			return nil, gerror.NewCode(gcode.CodeInvalidParameter, fmt.Sprintf("第%d个IP地址格式不正确: %s", i+1, ip))
+		}
 	}
 
 	// 验证子网掩码格式（十六进制格式，如ffffff00）
@@ -37,7 +44,7 @@ func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.Updat
 		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "网关地址格式不正确")
 	}
 
-	g.Log().Infof(ctx, "开始应用网络配置: name=%s ip=%s mask=%s gw=%s", req.Name, req.IP, req.Netmask, req.Gateway)
+	g.Log().Infof(ctx, "开始应用网络配置: name=%s ipAddresses=%v mask=%s gw=%s", req.Name, req.IPAddresses, req.Netmask, req.Gateway)
 
 	// 应用配置
 	if err = applyLinuxConfig(ctx, req); err != nil {
@@ -65,9 +72,15 @@ func applyLinuxConfig(ctx context.Context, req *v1.UpdateNetworkInterfaceReq) er
 	// 构建命令序列
 	cmds := [][]string{
 		{"ip", "addr", "flush", "dev", req.Name},
-		{"ip", "addr", "add", fmt.Sprintf("%s/%d", req.IP, prefixLen), "dev", req.Name},
-		{"ip", "link", "set", req.Name, "up"},
 	}
+
+	// 为每个IP地址添加配置命令
+	for _, ip := range req.IPAddresses {
+		cmds = append(cmds, []string{"ip", "addr", "add", fmt.Sprintf("%s/%d", ip, prefixLen), "dev", req.Name})
+	}
+
+	// 启用接口
+	cmds = append(cmds, []string{"ip", "link", "set", req.Name, "up"})
 
 	// 如果指定了网关，添加默认路由
 	if req.Gateway != "" {
@@ -91,20 +104,31 @@ func verifyInterface(req *v1.UpdateNetworkInterfaceReq) (bool, string) {
 	if err != nil {
 		return false, err.Error()
 	}
+
 	addrs, _ := ifi.Addrs()
-	var ipOK bool
+	var configuredIPs []string
+
+	// 收集当前配置的IP地址
 	for _, a := range addrs {
 		if ipNet, ok := a.(*net.IPNet); ok && ipNet.IP.To4() != nil {
-			ipOK = ipNet.IP.String() == req.IP
-			if ipOK {
+			configuredIPs = append(configuredIPs, ipNet.IP.String())
+		}
+	}
+
+	// 检查所有请求的IP地址是否都已配置
+	for _, requestedIP := range req.IPAddresses {
+		found := false
+		for _, configuredIP := range configuredIPs {
+			if configuredIP == requestedIP {
+				found = true
 				break
 			}
 		}
+		if !found {
+			return false, fmt.Sprintf("IP地址 %s 未生效", requestedIP)
+		}
 	}
-	if !ipOK {
-		return false, "IP未生效"
-	}
-	// 网关与 DNS 的强校验在不同系统复杂，这里报告基本成功
+
 	return true, "配置已应用"
 }
 
