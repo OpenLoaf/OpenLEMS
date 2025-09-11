@@ -3,38 +3,208 @@ package network
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
+	"os"
 	"os/exec"
 	"runtime"
 	"strings"
 
 	v1 "application/api/network/v1"
+
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
 )
 
-// UpdateDNS 单独更新系统 DNS
+// UpdateDNS 更新系统DNS配置（仅支持Linux）
 func (c *ControllerV1) UpdateDNS(ctx context.Context, req *v1.UpdateDNSReq) (res *v1.UpdateDNSRes, err error) {
+	// 只支持Linux系统
+	if runtime.GOOS != "linux" {
+		return nil, gerror.NewCode(gcode.CodeNotSupported, "DNS更新功能仅支持Linux系统")
+	}
+
 	if len(req.DNS) == 0 {
-		return nil, errors.Errorf("DNS不能为空")
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "DNS服务器列表不能为空")
 	}
-	switch runtime.GOOS {
-	case "linux":
-		lines := make([]string, 0, len(req.DNS))
-		for _, d := range req.DNS {
-			lines = append(lines, "nameserver "+d)
+
+	// 验证DNS服务器地址格式
+	for _, dns := range req.DNS {
+		if !isValidIP(dns) {
+			return nil, gerror.NewCode(gcode.CodeInvalidParameter, fmt.Sprintf("无效的DNS服务器地址: %s", dns))
 		}
-		content := strings.Join(lines, "\n") + "\n"
-		if out, err := exec.Command("sh", "-c", fmt.Sprintf("echo '%s' > /etc/resolv.conf", content)).CombinedOutput(); err != nil {
-			return nil, errors.Errorf("write resolv.conf failed: %v, %s", err, string(out))
-		}
-	case "darwin":
-		// macOS 需要针对每个服务设置；这里使用 networksetup -setdnsservers for all 'en*'. 简化方案：en0/en1/en2...
-		for i := 0; i < 10; i++ {
-			dev := fmt.Sprintf("en%d", i)
-			args := append([]string{"-setdnsservers", dev}, req.DNS...)
-			exec.Command("networksetup", args...).CombinedOutput()
-		}
-	default:
-		return nil, errors.Errorf("unsupported OS")
 	}
+
+	g.Log().Infof(ctx, "开始更新DNS配置，DNS服务器: %v", req.DNS)
+
+	// 尝试不同的DNS更新方法
+	err = updateDNSConfig(ctx, req.DNS)
+	if err != nil {
+		g.Log().Errorf(ctx, "更新DNS配置失败: %+v", err)
+		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新DNS配置失败")
+	}
+
+	g.Log().Infof(ctx, "DNS配置更新成功")
 	return &v1.UpdateDNSRes{}, nil
+}
+
+// updateDNSConfig 更新DNS配置，尝试多种方法
+func updateDNSConfig(ctx context.Context, dnsServers []string) error {
+	// 方法1: 检查是否使用systemd-resolved
+	if isSystemdResolvedActive() {
+		return updateDNSWithSystemdResolved(ctx, dnsServers)
+	}
+
+	// 方法2: 检查是否使用NetworkManager
+	if isNetworkManagerActive() {
+		return updateDNSWithNetworkManager(ctx, dnsServers)
+	}
+
+	// 方法3: 检查是否使用resolvconf
+	if isResolvconfAvailable() {
+		return updateDNSWithResolvconf(ctx, dnsServers)
+	}
+
+	// 方法4: 直接写入/etc/resolv.conf
+	return updateDNSDirectly(ctx, dnsServers)
+}
+
+// isSystemdResolvedActive 检查systemd-resolved是否活跃
+func isSystemdResolvedActive() bool {
+	cmd := exec.Command("systemctl", "is-active", "systemd-resolved")
+	output, err := cmd.Output()
+	return err == nil && strings.TrimSpace(string(output)) == "active"
+}
+
+// isNetworkManagerActive 检查NetworkManager是否活跃
+func isNetworkManagerActive() bool {
+	cmd := exec.Command("systemctl", "is-active", "NetworkManager")
+	output, err := cmd.Output()
+	return err == nil && strings.TrimSpace(string(output)) == "active"
+}
+
+// isResolvconfAvailable 检查resolvconf工具是否可用
+func isResolvconfAvailable() bool {
+	_, err := exec.LookPath("resolvconf")
+	return err == nil
+}
+
+// updateDNSWithSystemdResolved 使用systemd-resolved更新DNS
+func updateDNSWithSystemdResolved(ctx context.Context, dnsServers []string) error {
+	g.Log().Infof(ctx, "使用systemd-resolved更新DNS配置")
+
+	// 使用resolvectl设置DNS服务器
+	for _, dns := range dnsServers {
+		cmd := exec.Command("resolvectl", "dns", "", dns)
+		if output, err := cmd.CombinedOutput(); err != nil {
+			return fmt.Errorf("resolvectl设置DNS失败: %v, 输出: %s", err, string(output))
+		}
+	}
+
+	return nil
+}
+
+// updateDNSWithNetworkManager 使用NetworkManager更新DNS
+func updateDNSWithNetworkManager(ctx context.Context, dnsServers []string) error {
+	g.Log().Infof(ctx, "使用NetworkManager更新DNS配置")
+
+	// 获取活动连接
+	cmd := exec.Command("nmcli", "-t", "-f", "NAME,TYPE,DEVICE", "connection", "show", "--active")
+	output, err := cmd.Output()
+	if err != nil {
+		return fmt.Errorf("获取NetworkManager连接失败: %v", err)
+	}
+
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
+		fields := strings.Split(line, ":")
+		if len(fields) >= 3 && fields[1] == "802-3-ethernet" {
+			connectionName := fields[0]
+			// 为每个以太网连接设置DNS
+			dnsList := strings.Join(dnsServers, ",")
+			cmd := exec.Command("nmcli", "connection", "modify", connectionName, "ipv4.dns", dnsList)
+			if output, err := cmd.CombinedOutput(); err != nil {
+				return fmt.Errorf("NetworkManager设置DNS失败: %v, 输出: %s", err, string(output))
+			}
+		}
+	}
+
+	// 重新加载连接
+	cmd = exec.Command("nmcli", "connection", "reload")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("NetworkManager重新加载连接失败: %v, 输出: %s", err, string(output))
+	}
+
+	return nil
+}
+
+// updateDNSWithResolvconf 使用resolvconf更新DNS
+func updateDNSWithResolvconf(ctx context.Context, dnsServers []string) error {
+	g.Log().Infof(ctx, "使用resolvconf更新DNS配置")
+
+	// 构建resolv.conf内容
+	var content strings.Builder
+	for _, dns := range dnsServers {
+		content.WriteString(fmt.Sprintf("nameserver %s\n", dns))
+	}
+
+	// 使用resolvconf更新
+	cmd := exec.Command("resolvconf", "-u")
+	cmd.Stdin = strings.NewReader(content.String())
+	if output, err := cmd.CombinedOutput(); err != nil {
+		return fmt.Errorf("resolvconf更新DNS失败: %v, 输出: %s", err, string(output))
+	}
+
+	return nil
+}
+
+// updateDNSDirectly 直接写入/etc/resolv.conf
+func updateDNSDirectly(ctx context.Context, dnsServers []string) error {
+	g.Log().Infof(ctx, "直接写入/etc/resolv.conf更新DNS配置")
+
+	// 构建resolv.conf内容
+	var content strings.Builder
+	content.WriteString("# Generated by EMS Plan\n")
+	content.WriteString("options timeout:2\n")
+	content.WriteString("options attempts:3\n")
+	content.WriteString("options rotate\n")
+
+	for _, dns := range dnsServers {
+		content.WriteString(fmt.Sprintf("nameserver %s\n", dns))
+	}
+
+	// 写入文件
+	err := os.WriteFile("/etc/resolv.conf", []byte(content.String()), 0644)
+	if err != nil {
+		return fmt.Errorf("写入/etc/resolv.conf失败: %v", err)
+	}
+
+	return nil
+}
+
+// isValidIP 验证IP地址格式
+func isValidIP(ip string) bool {
+	// 简单的IP地址格式验证
+	parts := strings.Split(ip, ".")
+	if len(parts) != 4 {
+		return false
+	}
+
+	for _, part := range parts {
+		if len(part) == 0 || len(part) > 3 {
+			return false
+		}
+		for _, char := range part {
+			if char < '0' || char > '9' {
+				return false
+			}
+		}
+		if part[0] == '0' && len(part) > 1 {
+			return false
+		}
+	}
+
+	return true
 }

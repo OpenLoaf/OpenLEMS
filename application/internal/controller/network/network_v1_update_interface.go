@@ -3,85 +3,85 @@ package network
 import (
 	"context"
 	"fmt"
-	"github.com/pkg/errors"
 	"net"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 
 	v1 "application/api/network/v1"
 
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-// UpdateNetworkInterface 仅更新 IP/掩码/网关/DNS
+// UpdateNetworkInterface 更新网络接口配置（仅支持Linux）
 func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.UpdateNetworkInterfaceReq) (res *v1.UpdateNetworkInterfaceRes, err error) {
-	// 1) 基础校验（GoFrame 已做格式校验，这里做互斥/逻辑校验）
+	// 只支持Linux系统
+	if runtime.GOOS != "linux" {
+		return nil, gerror.NewCode(gcode.CodeNotSupported, "网络接口更新功能仅支持Linux系统")
+	}
+
+	// 基础校验
 	if net.ParseIP(req.IP) == nil {
-		return nil, errors.Errorf("IP地址格式不正确")
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "IP地址格式不正确")
 	}
-	if _, ipnet, perr := net.ParseCIDR(req.IP + "/24"); ipnet == nil || perr != nil { // 仅用于快速触发解析
-		// 忽略
+
+	// 验证子网掩码格式（十六进制格式，如ffffff00）
+	if !isValidHexMask(req.Netmask) {
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "子网掩码格式不正确，应为十六进制格式（如ffffff00）")
 	}
+
 	if req.Gateway != "" && net.ParseIP(req.Gateway) == nil {
-		return nil, errors.Errorf("网关地址格式不正确")
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "网关地址格式不正确")
 	}
-	// DNS 已移出本接口
 
-	// 2) 应用配置
 	g.Log().Infof(ctx, "开始应用网络配置: name=%s ip=%s mask=%s gw=%s", req.Name, req.IP, req.Netmask, req.Gateway)
-	switch runtime.GOOS {
-	case "linux":
-		if err = applyLinux(req); err != nil {
-			g.Log().Errorf(ctx, "应用Linux网络配置失败: %+v", err)
-			return nil, err
-		}
-	case "darwin":
-		if err = applyDarwin(req); err != nil {
-			g.Log().Errorf(ctx, "应用Darwin网络配置失败: %+v", err)
-			return nil, err
-		}
-	default:
-		return nil, errors.New("unsupported OS")
+
+	// 应用配置
+	if err = applyLinuxConfig(ctx, req); err != nil {
+		g.Log().Errorf(ctx, "应用Linux网络配置失败: %+v", err)
+		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "应用网络配置失败")
 	}
 
-	// 3) 验证
+	// 验证配置
 	ok, verifyMsg := verifyInterface(req)
 	g.Log().Infof(ctx, "应用完成，验证结果: ok=%v msg=%s", ok, verifyMsg)
 	if !ok {
-		return nil, errors.Errorf(verifyMsg)
+		return nil, gerror.NewCode(gcode.CodeInternalError, verifyMsg)
 	}
+
 	return &v1.UpdateNetworkInterfaceRes{}, nil
 }
 
-func applyLinux(req *v1.UpdateNetworkInterfaceReq) error {
-	// ip addr flush dev <name> ; ip addr add <ip>/<mask> dev <name>
-	mask, err := maskToPrefix(req.Netmask)
+func applyLinuxConfig(ctx context.Context, req *v1.UpdateNetworkInterfaceReq) error {
+	// 将十六进制子网掩码转换为CIDR前缀长度
+	prefixLen, err := hexMaskToPrefix(req.Netmask)
 	if err != nil {
 		return err
 	}
+
+	// 构建命令序列
 	cmds := [][]string{
 		{"ip", "addr", "flush", "dev", req.Name},
-		{"ip", "addr", "add", fmt.Sprintf("%s/%d", req.IP, mask), "dev", req.Name},
+		{"ip", "addr", "add", fmt.Sprintf("%s/%d", req.IP, prefixLen), "dev", req.Name},
+		{"ip", "link", "set", req.Name, "up"},
 	}
+
+	// 如果指定了网关，添加默认路由
 	if req.Gateway != "" {
 		cmds = append(cmds, []string{"ip", "route", "replace", "default", "via", req.Gateway, "dev", req.Name})
 	}
-	for _, c := range cmds {
-		if out, err := exec.Command(c[0], c[1:]...).CombinedOutput(); err != nil {
-			return errors.Errorf("%s failed: %v, %s", strings.Join(c, " "), err, string(out))
+
+	// 执行命令
+	for _, cmd := range cmds {
+		g.Log().Debugf(ctx, "执行命令: %s", strings.Join(cmd, " "))
+		if output, err := exec.Command(cmd[0], cmd[1:]...).CombinedOutput(); err != nil {
+			return fmt.Errorf("命令执行失败 %s: %v, 输出: %s", strings.Join(cmd, " "), err, string(output))
 		}
 	}
-	// DNS 不在此接口更新
-	return nil
-}
 
-func applyDarwin(req *v1.UpdateNetworkInterfaceReq) error {
-	// networksetup -setmanual <device> <ip> <subnet> <router>
-	if out, err := exec.Command("networksetup", "-setmanual", req.Name, req.IP, req.Netmask, req.Gateway).CombinedOutput(); err != nil {
-		return errors.Errorf("setmanual failed: %v, %s", err, string(out))
-	}
-	// DNS 不在此接口更新
 	return nil
 }
 
@@ -108,31 +108,50 @@ func verifyInterface(req *v1.UpdateNetworkInterfaceReq) (bool, string) {
 	return true, "配置已应用"
 }
 
-func maskToPrefix(mask string) (int, error) {
-	ip := net.ParseIP(mask)
-	if ip == nil {
-		return 0, errors.Errorf("子网掩码格式不正确")
+// isValidHexMask 验证十六进制子网掩码格式
+func isValidHexMask(mask string) bool {
+	// 检查长度（应该是8个字符，如ffffff00）
+	if len(mask) != 8 {
+		return false
 	}
-	ip = ip.To4()
-	if ip == nil {
-		return 0, errors.Errorf("子网掩码格式不正确")
-	}
-	ones := 0
-	for _, b := range []byte{ip[0], ip[1], ip[2], ip[3]} {
-		for i := 7; i >= 0; i-- {
-			if (b>>uint(i))&1 == 1 {
-				ones++
-			} else {
-				break
-			}
+
+	// 检查是否都是十六进制字符
+	for _, char := range mask {
+		if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F')) {
+			return false
 		}
 	}
-	return ones, nil
+
+	// 尝试解析为32位整数
+	_, err := strconv.ParseUint(mask, 16, 32)
+	return err == nil
 }
 
-func emptyIf(v string, def string) string {
-	if v == "" {
-		return def
+// hexMaskToPrefix 将十六进制子网掩码转换为CIDR前缀长度
+func hexMaskToPrefix(hexMask string) (int, error) {
+	// 解析十六进制掩码
+	maskValue, err := strconv.ParseUint(hexMask, 16, 32)
+	if err != nil {
+		return 0, fmt.Errorf("无效的十六进制掩码: %s", hexMask)
 	}
-	return v
+
+	// 计算前缀长度
+	ones := 0
+	for i := 31; i >= 0; i-- {
+		if (maskValue>>uint(i))&1 == 1 {
+			ones++
+		} else {
+			break
+		}
+	}
+
+	// 验证掩码的连续性（确保没有0在1之后）
+	temp := maskValue
+	for i := 0; i < 32-ones; i++ {
+		if (temp>>uint(i))&1 == 1 {
+			return 0, fmt.Errorf("无效的子网掩码: %s（掩码不连续）", hexMask)
+		}
+	}
+
+	return ones, nil
 }

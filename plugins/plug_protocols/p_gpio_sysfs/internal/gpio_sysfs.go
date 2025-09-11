@@ -59,10 +59,6 @@ type SGpioSysfsProvider struct {
 
 var _ c_proto.IGpioSysfsProtocol = (*SGpioSysfsProvider)(nil)
 
-func (s *SGpioSysfsProvider) IsPhysical() bool {
-	return true
-}
-
 func (s *SGpioSysfsProvider) GetProtocolStatus() c_enum.EProtocolStatus {
 	return s.protocolStatus
 }
@@ -134,10 +130,6 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 	return provider, nil
 }
 
-func (s *SGpioSysfsProvider) GetDeviceConfig() *c_base.SDeviceConfig {
-	return s.deviceConfig
-}
-
 func (s *SGpioSysfsProvider) GetPointValueList() []*c_base.SPointValue {
 	if s.lastUpdateTime == nil {
 		return []*c_base.SPointValue{}
@@ -188,14 +180,6 @@ func (s *SGpioSysfsProvider) RegisterHandler(handler func(ctx context.Context, s
 		panic(gerror.Newf("只有输入类型的GPIO才能注册Handler"))
 	}
 	s.handler = handler
-}
-
-func (s *SGpioSysfsProvider) GetId() string {
-	return s.deviceConfig.Id
-}
-
-func (s *SGpioSysfsProvider) IsActivate() bool {
-	return true
 }
 
 func (s *SGpioSysfsProvider) GetValue(point c_base.IPoint) (any, error) {
@@ -249,7 +233,7 @@ func (s *SGpioSysfsProvider) process(status bool) {
 		// 触发告警
 		if s.deviceGpioConfig.Level != c_enum.EAlarmLevelNone && s.deviceGpioConfig.Direction == c_proto.EGpioDirectionIn {
 			// 使用 IAlarm 接口的 UpdateAlarm 方法
-			s.IAlarm.UpdateAlarm(s.GetId(), s.meta, status)
+			s.IAlarm.UpdateAlarm(s.deviceId, s.meta, status)
 		}
 
 	}
@@ -268,7 +252,7 @@ func (s *SGpioSysfsProvider) SetLow() error {
 func (s *SGpioSysfsProvider) setValue(level gpio.Level) error {
 	// 检查是否为输出模式
 	if s.deviceGpioConfig.Direction == c_proto.EGpioDirectionIn {
-		g.Log().Debugf(s.ctx, "GPIO Direction %s is [in], can't output", s.GetId())
+		g.Log().Debugf(s.ctx, "GPIO Direction %s is [in], can't output", s.deviceId)
 		return nil
 	}
 	return s.pin.Out(level)
