@@ -149,11 +149,20 @@ func getDNSServers(ctx context.Context) []string {
 
 // getGatewayForInterface 获取指定网络接口的网关地址
 func getGatewayForInterface(ctx context.Context, interfaceName string) string {
-	// 只在Linux系统上获取网关信息
-	if runtime.GOOS != "linux" {
+	switch runtime.GOOS {
+	case "linux":
+		return getGatewayLinux(interfaceName)
+	case "darwin": // macOS
+		return getGatewayMacOS(interfaceName)
+	case "windows":
+		return getGatewayWindows(interfaceName)
+	default:
 		return ""
 	}
+}
 
+// getGatewayLinux 在Linux系统上获取网关地址
+func getGatewayLinux(interfaceName string) string {
 	// 执行 ip route show 命令获取路由信息
 	cmd := exec.Command("ip", "route", "show", "dev", interfaceName)
 	output, err := cmd.Output()
@@ -177,6 +186,77 @@ func getGatewayForInterface(ctx context.Context, interfaceName string) string {
 							return gateway
 						}
 					}
+				}
+			}
+		}
+	}
+
+	return ""
+}
+
+// getGatewayMacOS 在macOS系统上获取网关地址
+func getGatewayMacOS(interfaceName string) string {
+	// 执行 route -n get default 命令获取默认路由
+	cmd := exec.Command("route", "-n", "get", "default")
+	output, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// 查找 "gateway:" 行
+		if strings.HasPrefix(line, "gateway:") {
+			parts := strings.Split(line, "gateway:")
+			if len(parts) > 1 {
+				gateway := strings.TrimSpace(parts[1])
+				// 验证是否为有效的IP地址
+				if net.ParseIP(gateway) != nil {
+					return gateway
+				}
+			}
+		}
+	}
+
+	return ""
+}
+
+// getGatewayWindows 在Windows系统上获取网关地址
+func getGatewayWindows(interfaceName string) string {
+	// 执行 route print 命令获取路由信息
+	cmd := exec.Command("route", "print")
+	output, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	lines := strings.Split(string(output), "\n")
+	inActiveRoutes := false
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		// 检查是否进入活动路由部分
+		if strings.Contains(line, "Active Routes:") {
+			inActiveRoutes = true
+			continue
+		}
+
+		// 如果不在活动路由部分，跳过
+		if !inActiveRoutes {
+			continue
+		}
+
+		// 查找默认路由 (0.0.0.0 开头的行)
+		if strings.HasPrefix(line, "0.0.0.0") {
+			fields := strings.Fields(line)
+			if len(fields) >= 3 {
+				// 第二个字段通常是网关地址
+				gateway := fields[2]
+				// 验证是否为有效的IP地址
+				if net.ParseIP(gateway) != nil {
+					return gateway
 				}
 			}
 		}
