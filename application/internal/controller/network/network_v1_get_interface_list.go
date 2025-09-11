@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"os"
 	"os/exec"
@@ -224,7 +225,35 @@ func getGatewayMacOS(interfaceName string) string {
 
 // getGatewayWindows 在Windows系统上获取网关地址
 func getGatewayWindows(interfaceName string) string {
-	// 执行 route print 命令获取路由信息
+	// 方法1: 使用 netsh 命令获取接口配置（最可靠）
+	gateway := getGatewayFromNetsh(interfaceName)
+	if gateway != "" {
+		return gateway
+	}
+
+	// 方法2: 使用 route print 命令获取路由信息
+	gateway = getGatewayFromRoutePrint(interfaceName)
+	if gateway != "" {
+		return gateway
+	}
+
+	// 方法3: 使用 wmic 命令获取网络适配器配置
+	gateway = getGatewayFromWmic(interfaceName)
+	if gateway != "" {
+		return gateway
+	}
+
+	// 方法4: 使用 ipconfig 命令作为最后备选
+	gateway = getGatewayFromIpconfig(interfaceName)
+	if gateway != "" {
+		return gateway
+	}
+
+	return ""
+}
+
+// getGatewayFromRoutePrint 使用 route print 命令获取网关
+func getGatewayFromRoutePrint(interfaceName string) string {
 	cmd := exec.Command("route", "print")
 	output, err := cmd.Output()
 	if err != nil {
@@ -233,6 +262,7 @@ func getGatewayWindows(interfaceName string) string {
 
 	lines := strings.Split(string(output), "\n")
 	inActiveRoutes := false
+	var currentInterface string
 
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -248,16 +278,150 @@ func getGatewayWindows(interfaceName string) string {
 			continue
 		}
 
+		// 检查是否是接口标题行 (例如: "Interface List")
+		if strings.Contains(line, "Interface List") {
+			continue
+		}
+
+		// 检查是否是接口信息行 (例如: "0x1 ... MS TCP Loopback interface")
+		if strings.Contains(line, "MS TCP") || strings.Contains(line, "interface") {
+			// 提取接口名称
+			parts := strings.Split(line, "interface")
+			if len(parts) > 1 {
+				currentInterface = strings.TrimSpace(parts[1])
+			}
+			continue
+		}
+
 		// 查找默认路由 (0.0.0.0 开头的行)
 		if strings.HasPrefix(line, "0.0.0.0") {
 			fields := strings.Fields(line)
-			if len(fields) >= 3 {
-				// 第二个字段通常是网关地址
-				gateway := fields[2]
-				// 验证是否为有效的IP地址
-				if net.ParseIP(gateway) != nil {
-					return gateway
+			if len(fields) >= 4 {
+				// 检查是否匹配指定的接口名称
+				if currentInterface != "" && strings.Contains(strings.ToLower(currentInterface), strings.ToLower(interfaceName)) {
+					gateway := fields[2]
+					// 验证是否为有效的IP地址
+					if net.ParseIP(gateway) != nil {
+						return gateway
+					}
 				}
+			}
+		}
+	}
+
+	return ""
+}
+
+// getGatewayFromNetsh 使用 netsh 命令获取网关
+func getGatewayFromNetsh(interfaceName string) string {
+	// 获取接口的IP配置
+	cmd := exec.Command("netsh", "interface", "ip", "show", "config", fmt.Sprintf("name=\"%s\"", interfaceName))
+	output, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// 查找 "默认网关:" 或 "Default Gateway:" 行
+		if strings.Contains(line, "默认网关:") || strings.Contains(line, "Default Gateway:") {
+			// 处理中文和英文两种格式
+			var gateway string
+			if strings.Contains(line, "默认网关:") {
+				parts := strings.Split(line, "默认网关:")
+				if len(parts) > 1 {
+					gateway = strings.TrimSpace(parts[1])
+				}
+			} else if strings.Contains(line, "Default Gateway:") {
+				parts := strings.Split(line, "Default Gateway:")
+				if len(parts) > 1 {
+					gateway = strings.TrimSpace(parts[1])
+				}
+			}
+
+			// 验证是否为有效的IP地址
+			if gateway != "" && net.ParseIP(gateway) != nil {
+				return gateway
+			}
+		}
+	}
+
+	return ""
+}
+
+// getGatewayFromWmic 使用 wmic 命令获取网关
+func getGatewayFromWmic(interfaceName string) string {
+	// 获取网络适配器配置
+	cmd := exec.Command("wmic", "path", "Win32_NetworkAdapterConfiguration", "where", fmt.Sprintf("NetConnectionID='%s'", interfaceName), "get", "DefaultIPGateway", "/format:list")
+	output, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// 查找 "DefaultIPGateway=" 行
+		if strings.HasPrefix(line, "DefaultIPGateway=") {
+			gateway := strings.TrimPrefix(line, "DefaultIPGateway=")
+			gateway = strings.TrimSpace(gateway)
+			// 验证是否为有效的IP地址
+			if net.ParseIP(gateway) != nil {
+				return gateway
+			}
+		}
+	}
+
+	return ""
+}
+
+// getGatewayFromIpconfig 使用 ipconfig 命令获取网关
+func getGatewayFromIpconfig(interfaceName string) string {
+	// 执行 ipconfig 命令获取所有接口信息
+	cmd := exec.Command("ipconfig")
+	output, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	lines := strings.Split(string(output), "\n")
+	inTargetInterface := false
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+
+		// 检查是否进入目标接口的配置部分
+		if strings.Contains(line, interfaceName) && strings.Contains(line, "适配器") {
+			inTargetInterface = true
+			continue
+		}
+
+		// 如果遇到新的适配器配置，退出当前接口
+		if inTargetInterface && strings.Contains(line, "适配器") && !strings.Contains(line, interfaceName) {
+			inTargetInterface = false
+			continue
+		}
+
+		// 在目标接口配置中查找默认网关
+		if inTargetInterface && (strings.Contains(line, "默认网关") || strings.Contains(line, "Default Gateway")) {
+			// 提取网关地址
+			var gateway string
+			if strings.Contains(line, "默认网关") {
+				parts := strings.Split(line, "默认网关")
+				if len(parts) > 1 {
+					gateway = strings.TrimSpace(strings.Trim(parts[1], ".:"))
+				}
+			} else if strings.Contains(line, "Default Gateway") {
+				parts := strings.Split(line, "Default Gateway")
+				if len(parts) > 1 {
+					gateway = strings.TrimSpace(strings.Trim(parts[1], ".:"))
+				}
+			}
+
+			// 验证是否为有效的IP地址
+			if gateway != "" && net.ParseIP(gateway) != nil {
+				return gateway
 			}
 		}
 	}
