@@ -14,6 +14,7 @@ type GetNetworkInterfaceListReq struct {
 type GetNetworkInterfaceListRes struct {
 	Interfaces []*entity.SNetworkInterface `json:"interfaces" dc:"网络接口列表"`
 	Total      int                         `json:"total" dc:"总数"`
+	DNS        []string                    `json:"dns" dc:"DNS服务器地址列表"`
 }
 
 type UpdateNetworkInterfaceReq struct {
