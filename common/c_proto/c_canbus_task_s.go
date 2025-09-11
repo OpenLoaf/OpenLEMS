@@ -10,15 +10,16 @@ import (
 )
 
 type SCanbusTask struct {
-	Name          string
-	Desc          string
-	GetCanbusID   func(params map[string]any) *uint32
-	IDMatch       func(canId uint32) bool                              // 判断ID是否匹配，如果为空，直接判断是否和CanbusID相等
-	Lifetime      time.Duration                                        // lifetime 为0时候缓存永不过期，为负数时候不缓存并删除缓存的值
-	Points        []*SCanbusPoint                                      // 点位列表
-	IsRemote      bool                                                 // 是否是远程帧（写重要）
-	IsExtended    bool                                                 // 是否是扩展帧（写重要）
-	CustomDecoder func(bytes []byte, point c_base.IPoint) (any, error) // 手动解析，空代表使用默认的协议解析器
+	Name           string
+	Desc           string
+	GetCanbusID    func(params map[string]any) uint32
+	Lifetime       time.Duration                                                           // lifetime 为0时候缓存永不过期，为负数时候不缓存并删除缓存的值
+	Points         []*SCanbusPoint                                                         // 点位列表
+	IsRemote       bool                                                                    // 是否是远程帧（写重要）
+	IsExtended     bool                                                                    // 是否是扩展帧（写重要）
+	SendMaxRetries int                                                                     // 发送最大重试次数，默认为3
+	CustomDecoder  func(task *SCanbusTask, bytes []byte, point c_base.IPoint) (any, error) // 手动解析，空代表使用默认的协议解析器
+	CustomEncoder  func(task *SCanbusTask, values []any) ([]byte, error)                   //  手动编码，空代表使用默认的协议编码器
 }
 
 func (s *SCanbusTask) GetName() string {

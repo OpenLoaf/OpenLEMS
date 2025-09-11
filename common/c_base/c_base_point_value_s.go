@@ -2,24 +2,28 @@ package c_base
 
 import (
 	"common/c_enum"
+	"common/c_log"
+	"context"
 	"time"
 
 	"github.com/shockerli/cvt"
 )
 
 type SPointValue struct {
-	IPoint                        //  点位
-	level      c_enum.EAlarmLevel // 告警等级
-	deviceId   string             //  设备ID
-	value      any                //  点位值
-	happenTime time.Time          //  发生时间
+	IPoint               //  点位
+	deviceId   string    //  设备ID
+	value      any       //  点位值
+	happenTime time.Time //  发生时间
+
+	isTrigger *bool
+	level     c_enum.EAlarmLevel // 告警等级
+
 }
 
 // NewPointValue  创建点位Value
-func NewPointValue(deviceId string, IPoint IPoint, level c_enum.EAlarmLevel, value any) *SPointValue {
+func NewPointValue(deviceId string, IPoint IPoint, value any) *SPointValue {
 	return &SPointValue{
 		deviceId:   deviceId,
-		level:      level,
 		IPoint:     IPoint,
 		value:      value,
 		happenTime: time.Now(),
@@ -35,7 +39,27 @@ func (s *SPointValue) GetValue() any {
 }
 
 func (s *SPointValue) GetLevel() c_enum.EAlarmLevel {
+	if s.IPoint == nil {
+		return c_enum.EAlarmLevelNone
+	}
+	if s.isTrigger == nil {
+		s.IsAlarmTrigger()
+	}
 	return s.level
+}
+
+func (s *SPointValue) IsAlarmTrigger() bool {
+	if s.isTrigger == nil {
+		trigger, level, err := s.AlarmTrigger(s.value)
+		if err != nil {
+			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, s.deviceId)
+			c_log.BizErrorf(ctx, "告警触发函数错误: %v", err)
+			return false
+		}
+		s.isTrigger = &trigger
+		s.level = level
+	}
+	return *s.isTrigger
 }
 
 func (s *SPointValue) GetValueExplain() (string, error) {

@@ -5,8 +5,9 @@ import (
 	"common/c_enum"
 	"common/c_proto"
 	"context"
-	"go.einride.tech/can"
 	"p_canbus/internal"
+
+	"go.einride.tech/can"
 )
 
 func NewCanbusChan(ctx context.Context, protocolConfig *c_base.SProtocolConfig) (<-chan can.Frame, chan<- can.Frame, error) {

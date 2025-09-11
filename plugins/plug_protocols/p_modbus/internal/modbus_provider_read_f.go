@@ -273,5 +273,5 @@ func decoder(deviceId string, bytes []byte, addr, quantity uint16, point *c_prot
 		return nil, errors.Wrapf(err, "value %v out of range", value)
 	}
 
-	return c_base.NewPointValue(deviceId, point, 0, value), nil
+	return c_base.NewPointValue(deviceId, point, value), nil
 }

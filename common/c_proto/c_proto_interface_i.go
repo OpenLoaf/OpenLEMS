@@ -21,7 +21,5 @@ type ICanbusProtocol interface {
 	c_base.IProtocol
 	c_base.IProtocolCacheValue
 
-	RegisterCanbusTask(group *SCanbusTask, gs ...*SCanbusTask)
-
-	SendMessage(task *SCanbusTask, values []int64) error
+	SendMessage(task *SCanbusTask, values []float64) error
 }

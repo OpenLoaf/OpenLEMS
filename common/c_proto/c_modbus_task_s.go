@@ -23,7 +23,8 @@ type SModbusPointTask struct {
 	Transitory     bool                       // 是短暂的，查询一次后，需要再次调用查询才能查询，而且不会一直轮询。默认是永久查询
 	TransitoryTime time.Duration
 	Desc           string
-	CustomDecoder  func(bytes []byte, task *SModbusPointTask, point c_base.IPoint) (any, error) // 手动解析，空代表使用默认的协议解析器
+	CustomDecoder  func(task *SModbusPointTask, bytes []byte, point c_base.IPoint) (any, error) // 手动解析，空代表使用默认的协议解析器
+	CustomEncoder  func(task *SModbusPointTask, values []any) ([]byte, error)                   //  手动编码，空代表使用默认的协议编码器
 }
 
 func (s *SModbusPointTask) GetName() string {

@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"common/c_enum"
 	"common/c_log"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -20,14 +22,15 @@ func (c *CanbusProtocolProvider) ProtocolListen() {
 
 					for _, task := range c.canTaskList {
 						canId := task.GetCanbusID(c.deviceConfig.Params)
-						if canId == nil {
-							//g.Log().Debugf(c.ctx, "获取到的canID为空 %s", task.Name)
-							continue
-						}
-						//g.Log().Debugf(c.ctx, "当前的task ID: 0x%X 比对的ID:0x%X", *canId, frame.ID)
-						if *canId == frame.ID {
+						//g.Log().Debugf(c.ctx, "当前的task ID: 0x%X 比对的ID:0x%X", canId, frame.ID)
+						if canId == frame.ID {
 							// 同一个帧ID，在一个设备下，只会响应一个Task
-							c.analysisCanbus(task, frame)
+							if err := c.analysisCanbus(task, frame); err != nil {
+								g.Log().Errorf(c.ctx, "解析 CANbus 数据失败 task:%s error:%v", task.Name, err)
+							}
+
+							now := time.Now()
+							c.lastUpdateTime = &now
 							break
 						}
 						/*if task.IDMatch != nil && task.IDMatch(frame.ID) {
@@ -41,5 +44,5 @@ func (c *CanbusProtocolProvider) ProtocolListen() {
 			}
 		}()
 	})
-
+	c.protocolStatus = c_enum.EProtocolConnected
 }
