@@ -1,11 +1,12 @@
-package canbus
+package p_canbus
 
 import (
 	"context"
 	"fmt"
+	"testing"
+
 	"go.einride.tech/can/pkg/candevice"
 	"go.einride.tech/can/pkg/socketcan"
-	"testing"
 )
 
 func TestFireCan0(t *testing.T) {

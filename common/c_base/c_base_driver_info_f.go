@@ -94,7 +94,12 @@ func (s *SDriverInfo) GetTelemetry(key string, instance IDevice) (any, error) {
 
 		if len(values) == 1 {
 			// 只有返回值，没有error
-			result = values[0].Interface()
+			// 检查返回值是否为 nil 指针
+			if values[0].IsNil() {
+				result = nil
+			} else {
+				result = values[0].Interface()
+			}
 			return
 		}
 
@@ -115,7 +120,12 @@ func (s *SDriverInfo) GetTelemetry(key string, instance IDevice) (any, error) {
 		}
 
 		// 返回成功结果
-		result = values[0].Interface()
+		// 检查返回值是否为 nil 指针
+		if values[0].IsNil() {
+			result = nil
+		} else {
+			result = values[0].Interface()
+		}
 	}()
 
 	if callErr != nil {

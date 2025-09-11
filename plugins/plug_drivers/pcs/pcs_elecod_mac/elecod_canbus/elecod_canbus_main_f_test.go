@@ -27,18 +27,18 @@ func Test_buildCANbusID(t *testing.T) {
 	}
 
 	id := BuildCanbusID(cmd)
-	fmt.Printf("待机: 0x%X\n", *id)
-	PrintCANbusID(*id)
+	fmt.Printf("待机: 0x%X\n", id)
+	PrintCANbusID(id)
 
 	cmd.ServiceCode = 0x02
 	id = BuildCanbusID(cmd)
-	fmt.Printf("启动: 0x%X\n", *id)
-	PrintCANbusID(*id)
+	fmt.Printf("启动: 0x%X\n", id)
+	PrintCANbusID(id)
 
 	cmd.ServiceCode = 0x03
 	id = BuildCanbusID(cmd)
-	fmt.Printf("停止: 0x%X\n", *id)
-	PrintCANbusID(*id)
+	fmt.Printf("停止: 0x%X\n", id)
+	PrintCANbusID(id)
 }
 
 func TestSync(t *testing.T) {
@@ -53,8 +53,8 @@ func TestSync(t *testing.T) {
 	}
 
 	id := BuildCanbusID(cmd)
-	fmt.Printf("待机: 0x%X\n", *id)
-	PrintCANbusID(*id)
+	fmt.Printf("待机: 0x%X\n", id)
+	PrintCANbusID(id)
 }
 
 func TestPrintCanbusID(t *testing.T) {
@@ -99,9 +99,9 @@ func TestAA(t *testing.T) {
 	m["selfAddress"] = 1
 	m["macAddress"] = 0
 	id := BuildMacToScreenCanbusID(MessageTypeAnalog, 0x02, m)
-	fmt.Printf("ID: 0x%X\n", *id)
+	fmt.Printf("ID: 0x%X\n", id)
 
-	if *id == 0x1C512810 {
+	if id == 0x1C512810 {
 		fmt.Println("EQ")
 	}
 }

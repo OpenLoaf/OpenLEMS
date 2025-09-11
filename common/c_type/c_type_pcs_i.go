@@ -12,6 +12,7 @@ type IPcsBasic interface {
 	GetPower() (*float64, error)             // 有功功率
 	GetApparentPower() (*float64, error)     // 视在功率
 	GetReactivePower() (*float64, error)     // 无功功率
+	GetFrequency() (*float64, error)         //  频率
 
 	GetTodayIncomingQuantity() (*float64, error)   // 正向有功, 今日充电量
 	GetHistoryIncomingQuantity() (*float64, error) // 正向有功, 充电量

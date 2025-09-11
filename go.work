@@ -20,6 +20,7 @@ use (
 	./plugins/plug_protocols/p_base
 	./plugins/plug_protocols/p_canbus
 	./plugins/plug_protocols/p_modbus
+	./plugins/plug_protocols/p_gpio_sysfs
 
 	./plugins/plug_storages/p_storage
 	./plugins/plug_storages/p_tsdb

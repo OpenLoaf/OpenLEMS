@@ -4,10 +4,13 @@ import (
 	"common/c_base"
 	"common/c_enum"
 	"context"
+	"p_canbus"
 	"p_modbus"
 
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/pkg/errors"
 	"github.com/torykit/go-modbus"
+	"go.einride.tech/can"
 )
 
 func (m *SDeviceManager) IsProtocolActive(protocolId string) bool {
@@ -87,34 +90,34 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 
 		return modbusProvider, nil
 	case c_enum.ECanbusUdp, c_enum.ECanbus:
-		//var (
-		//	receiverChan    <-chan can.Frame
-		//	transmitterChan chan<- can.Frame
-		//)
-		//if _receiverChan, exist := m.protocolClientCache[protocolConfig.Id+"_receiverChan"]; exist {
-		//	receiverChan = _receiverChan.(chan can.Frame)
-		//}
-		//if _transmitterChan, exist := m.protocolClientCache[protocolConfig.Id+"_transmitterChan"]; exist {
-		//	transmitterChan = _transmitterChan.(chan<- can.Frame)
-		//}
-		//
-		//if receiverChan == nil || transmitterChan == nil {
-		//	r, t, err := protocolCanbus.NewCanbusChan(deviceCtx, protocolConfig)
-		//	if err != nil {
-		//		return nil, err
-		//	}
-		//	receiverChan = r
-		//	transmitterChan = t
-		//	m.protocolClientCache[protocolConfig.Id+"_receiverChan"] = receiverChan
-		//	m.protocolClientCache[protocolConfig.Id+"_transmitterChan"] = transmitterChan
-		//}
-		//
-		//canbusProvider, err := protocolCanbus.NewCanbusProvider(deviceCtx, deviceType, protocolConfig, deviceConfigTree, receiverChan, transmitterChan)
-		//if err != nil {
-		//	return nil, err
-		//}
-		//g.Log().Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
-		//return canbusProvider, nil
+		var (
+			receiverChan    <-chan can.Frame
+			transmitterChan chan<- can.Frame
+		)
+		if _receiverChan, exist := m.protocolClientCache[protocolConfig.Id+"_receiverChan"]; exist {
+			receiverChan = _receiverChan.(chan can.Frame)
+		}
+		if _transmitterChan, exist := m.protocolClientCache[protocolConfig.Id+"_transmitterChan"]; exist {
+			transmitterChan = _transmitterChan.(chan<- can.Frame)
+		}
+
+		if receiverChan == nil || transmitterChan == nil {
+			r, t, err := p_canbus.NewCanbusChan(deviceCtx, protocolConfig)
+			if err != nil {
+				return nil, err
+			}
+			receiverChan = r
+			transmitterChan = t
+			m.protocolClientCache[protocolConfig.Id+"_receiverChan"] = receiverChan
+			m.protocolClientCache[protocolConfig.Id+"_transmitterChan"] = transmitterChan
+		}
+
+		canbusProvider, err := p_canbus.NewCanbusProvider(deviceCtx, protocolConfig, deviceConfig, receiverChan, transmitterChan)
+		if err != nil {
+			return nil, err
+		}
+		g.Log().Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
+		return canbusProvider, nil
 	case c_enum.EGpioSysfs:
 		//gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(deviceCtx, protocolConfig, deviceConfigTree)
 		//if err != nil {

@@ -39,28 +39,28 @@ var (
 	analogBridgeTemp   = &c_proto.SCanbusPoint{SPoint: &c_base.SPoint{Key: "BridgeTemp", Name: "平衡桥温度", Unit: "℃", Desc: "平衡桥温度", Sort: 16, Precise: 1, Group: AnalogAcGroup}, DataAccess: c_default.VDataAccessFloat32Byte3Scale1}
 
 	// 电网频率 (0x04)
-	analogGridFrequencyA = &c_proto.SCanbusPoint{SPoint: &c_base.SPoint{Key: "FreqA", Name: "电网频率A", Unit: "Hz", Desc: "电网频率A", Sort: 17, Precise: 2, Group: AnalogAcGroup}, DataAccess: c_default.VDataAccessFloat32Byte0Scale001}
-	analogGridFrequencyB = &c_proto.SCanbusPoint{SPoint: &c_base.SPoint{Key: "FreqB", Name: "电网频率B", Unit: "Hz", Desc: "电网频率B", Sort: 18, Precise: 2, Group: AnalogAcGroup}, DataAccess: c_default.VDataAccessFloat32Byte1Scale001}
-	analogGridFrequencyC = &c_proto.SCanbusPoint{SPoint: &c_base.SPoint{Key: "FreqC", Name: "电网频率C", Unit: "Hz", Desc: "电网频率C", Sort: 19, Precise: 2, Group: AnalogAcGroup}, DataAccess: c_default.VDataAccessFloat32Byte2Scale001}
+	AnalogGridFrequencyA = &c_proto.SCanbusPoint{SPoint: &c_base.SPoint{Key: "FreqA", Name: "电网频率A", Unit: "Hz", Desc: "电网频率A", Sort: 17, Precise: 2, Group: AnalogAcGroup}, DataAccess: c_default.VDataAccessFloat32Byte0Scale001}
+	AnalogGridFrequencyB = &c_proto.SCanbusPoint{SPoint: &c_base.SPoint{Key: "FreqB", Name: "电网频率B", Unit: "Hz", Desc: "电网频率B", Sort: 18, Precise: 2, Group: AnalogAcGroup}, DataAccess: c_default.VDataAccessFloat32Byte1Scale001}
+	AnalogGridFrequencyC = &c_proto.SCanbusPoint{SPoint: &c_base.SPoint{Key: "FreqC", Name: "电网频率C", Unit: "Hz", Desc: "电网频率C", Sort: 19, Precise: 2, Group: AnalogAcGroup}, DataAccess: c_default.VDataAccessFloat32Byte2Scale001}
 	analogAmbientTemp    = &c_proto.SCanbusPoint{SPoint: &c_base.SPoint{Key: "AmbientTemp", Name: "环境温度", Unit: "℃", Desc: "环境温度", Sort: 20, Precise: 1, Group: AnalogAcGroup}, DataAccess: c_default.VDataAccessFloat32Byte3Scale1}
 
 	// 无功功率 (0x06)
 	analogReactivePowerA     = &c_proto.SCanbusPoint{SPoint: c_default.VPointQa, DataAccess: c_default.VDataAccessFloat32Byte0Scale01}
 	analogReactivePowerB     = &c_proto.SCanbusPoint{SPoint: c_default.VPointQb, DataAccess: c_default.VDataAccessFloat32Byte1Scale01}
 	analogReactivePowerC     = &c_proto.SCanbusPoint{SPoint: c_default.VPointQc, DataAccess: c_default.VDataAccessFloat32Byte2Scale01}
-	analogTotalReactivePower = &c_proto.SCanbusPoint{SPoint: c_default.VPointQ, DataAccess: c_default.VDataAccessFloat32Byte3Scale01}
+	AnalogTotalReactivePower = &c_proto.SCanbusPoint{SPoint: c_default.VPointQ, DataAccess: c_default.VDataAccessFloat32Byte3Scale01}
 
 	// 视在功率 (0x08) - 使用预定义点位
 	analogApparentPowerA     = &c_proto.SCanbusPoint{SPoint: c_default.VPointSa, DataAccess: c_default.VDataAccessFloat32Byte0Scale01}
 	analogApparentPowerB     = &c_proto.SCanbusPoint{SPoint: c_default.VPointSb, DataAccess: c_default.VDataAccessFloat32Byte1Scale01}
 	analogApparentPowerC     = &c_proto.SCanbusPoint{SPoint: c_default.VPointSc, DataAccess: c_default.VDataAccessFloat32Byte2Scale01}
-	analogTotalApparentPower = &c_proto.SCanbusPoint{SPoint: c_default.VPointS, DataAccess: c_default.VDataAccessFloat32Byte3Scale01}
+	AnalogTotalApparentPower = &c_proto.SCanbusPoint{SPoint: c_default.VPointS, DataAccess: c_default.VDataAccessFloat32Byte3Scale01}
 
 	// 功率因数 (0x07)
 	analogPowerFactorA     = &c_proto.SCanbusPoint{SPoint: c_default.VPointPFa, DataAccess: c_default.VDataAccessFloat32Byte0Scale001}
 	analogPowerFactorB     = &c_proto.SCanbusPoint{SPoint: c_default.VPointPFb, DataAccess: c_default.VDataAccessFloat32Byte1Scale001}
 	analogPowerFactorC     = &c_proto.SCanbusPoint{SPoint: c_default.VPointPFc, DataAccess: c_default.VDataAccessFloat32Byte2Scale001}
-	analogTotalPowerFactor = &c_proto.SCanbusPoint{SPoint: c_default.VPointPF, DataAccess: c_default.VDataAccessFloat32Byte3Scale001}
+	AnalogTotalPowerFactor = &c_proto.SCanbusPoint{SPoint: c_default.VPointPF, DataAccess: c_default.VDataAccessFloat32Byte3Scale001}
 
 	// 逆变电压 (0x09)
 	analogInverterVoltageA = &c_proto.SCanbusPoint{SPoint: &c_base.SPoint{Key: "InverterVoltageA", Name: "逆变电压A(AB)", Unit: "V", Desc: "逆变电压A(AB)", Sort: 33, Precise: 1, Group: AnalogAcGroup}, DataAccess: c_default.VDataAccessFloat32Byte0Scale01}

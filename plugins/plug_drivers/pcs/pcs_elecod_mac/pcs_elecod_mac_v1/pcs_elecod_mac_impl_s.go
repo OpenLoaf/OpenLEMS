@@ -16,6 +16,10 @@ type sPcsElecodMac struct {
 	pcsConfig *sPcsElecodMacConfig
 }
 
+func (s *sPcsElecodMac) GetFrequency() (*float64, error) {
+	return s.GetFromPointFloat64(elecod_mac_defined.AnalogGridFrequencyA)
+}
+
 var _ c_type.IPcs = (*sPcsElecodMac)(nil)
 
 func (s *sPcsElecodMac) Init() error {
@@ -94,12 +98,12 @@ func (s *sPcsElecodMac) SetPowerFactor(factor float32) error {
 
 func (s *sPcsElecodMac) GetTargetPower() (*int32, error) {
 	// TODO: 实现目标功率获取逻辑
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sPcsElecodMac) GetTargetReactivePower() (*int32, error) {
 	// TODO: 实现目标无功功率获取逻辑
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sPcsElecodMac) GetTargetPowerFactor() (*float32, error) {
@@ -109,20 +113,15 @@ func (s *sPcsElecodMac) GetTargetPowerFactor() (*float32, error) {
 
 func (s *sPcsElecodMac) GetPower() (*float64, error) {
 	// 使用新的协议方法获取功率值
-	return s.GetFromProtocolFloat64(func(protocol c_proto.ICanbusProtocol) (any, error) {
-		// TODO: 实现从CANBUS协议获取功率值的逻辑
-		return nil, c_base.NotSupport
-	})
+	return s.GetFromPointFloat64(elecod_mac_defined.AnalogTotalActivePower)
 }
 
 func (s *sPcsElecodMac) GetApparentPower() (*float64, error) {
-	// TODO: 实现视在功率获取逻辑
-	return nil, c_base.NotSupport
+	return s.GetFromPointFloat64(elecod_mac_defined.AnalogTotalApparentPower)
 }
 
 func (s *sPcsElecodMac) GetReactivePower() (*float64, error) {
-	// TODO: 实现无功功率获取逻辑
-	return nil, c_base.NotSupport
+	return s.GetFromPointFloat64(elecod_mac_defined.AnalogTotalReactivePower)
 }
 
 func (s *sPcsElecodMac) GetRatedPower() (*uint32, error) {
@@ -145,25 +144,25 @@ func (s *sPcsElecodMac) GetMaxOutputPower() (*float32, error) {
 
 func (s *sPcsElecodMac) GetTodayIncomingQuantity() (*float64, error) {
 	// TODO: 实现今日充电量获取逻辑
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sPcsElecodMac) GetHistoryIncomingQuantity() (*float64, error) {
 	// TODO: 实现历史充电量获取逻辑
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sPcsElecodMac) GetTodayOutgoingQuantity() (*float64, error) {
 	// TODO: 实现今日放电量获取逻辑
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sPcsElecodMac) GetHistoryOutgoingQuantity() (*float64, error) {
 	// TODO: 实现历史放电量获取逻辑
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sPcsElecodMac) GetIGBTTemperature() (*float32, error) {
 	// TODO: 实现IGBT温度获取逻辑
-	return nil, c_base.NotSupport
+	return nil, nil
 }

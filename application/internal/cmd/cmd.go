@@ -8,13 +8,16 @@ import (
 	"common/c_enum"
 	"common/c_log"
 	"context"
+	"fmt"
 	"net"
 	"os"
 	"p_tsdb"
+	"path/filepath"
 	"runtime"
 	"s_db"
 	"s_driver"
 	"s_storage"
+	"strconv"
 	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -33,9 +36,36 @@ const (
 	ArgSqliteDbPath       = "db-path"               // sqlite数据库路径
 	ArgActiveDeviceRootId = "active-device-root-id" // 强制激活根设备
 	ArgProfile            = "profile"               // 配置profile: default/dev/prod等
+	DefaultPidFile        = "out/ems.pid"           // 默认PID文件路径
 )
 
 var MainCtx context.Context
+
+// writePidFile 将PID写入文件
+func writePidFile(pidFile string, pid int) error {
+	// 确保目录存在
+	dir := filepath.Dir(pidFile)
+	if err := os.MkdirAll(dir, 0755); err != nil {
+		return fmt.Errorf("创建PID文件目录失败: %v", err)
+	}
+
+	// 写入PID文件
+	if err := os.WriteFile(pidFile, []byte(strconv.Itoa(pid)), 0644); err != nil {
+		return fmt.Errorf("写入PID文件失败: %v", err)
+	}
+
+	return nil
+}
+
+// removePidFile 删除PID文件
+func removePidFile(pidFile string) error {
+	if _, err := os.Stat(pidFile); err == nil {
+		if err := os.Remove(pidFile); err != nil {
+			return fmt.Errorf("删除PID文件失败: %v", err)
+		}
+	}
+	return nil
+}
 
 // getLocalIPv4Addrs 获取所有本地IPv4地址
 func getLocalIPv4Addrs() ([]string, error) {
@@ -137,7 +167,16 @@ var (
 			// 注册告警管理器（直接注入 s_db 的告警服务实现，满足 common 的告警接口）
 			common.RegisterAlarmManager(s_db.GetAlarmService())
 
-			g.Log().Infof(ctx, "EMS After！PID：%d", os.Getpid())
+			pid := os.Getpid()
+			g.Log().Infof(ctx, "EMS After！PID：%d", pid)
+
+			// 写入PID文件
+			pidFile := DefaultPidFile
+			if err := writePidFile(pidFile, pid); err != nil {
+				g.Log().Warningf(ctx, "写入PID文件失败: %v", err)
+			} else {
+				g.Log().Infof(ctx, "PID已保存到文件: %s", pidFile)
+			}
 
 			// 启动设备
 			go func() {
@@ -149,6 +188,15 @@ var (
 			gproc.AddSigHandlerShutdown(func(sig os.Signal) {
 				g.Log().Infof(ctx, "接收到关闭服务信号：%s", sig.String())
 				//common.GetDeviceManager().Shutdown()
+
+				// 清理PID文件
+				pidFile := DefaultPidFile
+				if err := removePidFile(pidFile); err != nil {
+					g.Log().Warningf(ctx, "清理PID文件失败: %v", err)
+				} else {
+					g.Log().Infof(ctx, "PID文件已清理: %s", pidFile)
+				}
+
 				cancelFunc()
 				time.Sleep(1 * time.Second)
 				g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())

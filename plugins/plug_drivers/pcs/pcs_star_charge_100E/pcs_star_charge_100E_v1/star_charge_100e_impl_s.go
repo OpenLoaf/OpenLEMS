@@ -31,6 +31,10 @@ func (s *sPcsStarCharge100E) Init() error {
 	return nil
 }
 
+func (s *sPcsStarCharge100E) GetFrequency() (*float64, error) {
+	return s.GetFromPointFloat64(AverageFrequency)
+}
+
 func (s *sPcsStarCharge100E) GetIGBTTemperature() (*float32, error) {
 	//return s.GetFromPointFloat32(c_default.VPointIGBTTemp)
 	return nil, nil

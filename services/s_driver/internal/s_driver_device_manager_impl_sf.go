@@ -260,14 +260,26 @@ func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig
 		m.state = c_enum.EStateError
 		return
 	}
-	device, err := c_device.NewRealDevice(deviceCtx, deviceConfig, protocolProvider.(c_proto.IModbusProtocol))
+
+	var device any
+	switch deviceConfig.ProtocolConfig.GetProtocol() {
+	case c_enum.EModbusRtu, c_enum.EModbusTcp:
+		device, err = c_device.NewRealDevice(deviceCtx, deviceConfig, protocolProvider.(c_proto.IModbusProtocol))
+	case c_enum.ECanbus, c_enum.ECanbusUdp:
+		device, err = c_device.NewRealDevice(deviceCtx, deviceConfig, protocolProvider.(c_proto.ICanbusProtocol))
+	}
+
 	if err != nil {
 		c_log.BizErrorf(deviceCtx, "设备[%s] 初始化失败！原因：%s", deviceConfig.Name, err.Error())
 		return
 	}
+	if device == nil {
+		c_log.BizErrorf(deviceCtx, "设备[%s] 初始化失败！原因：device为空", deviceConfig.Name)
+		return
+	}
 
 	// 物理设备
-	driver, err := getDriver(deviceConfig.Driver, device)
+	driver, err := getDriver(deviceConfig.Driver, device.(c_base.IDevice))
 	if driver == nil || err != nil {
 		c_log.BizErrorf(deviceCtx, "设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
 		return

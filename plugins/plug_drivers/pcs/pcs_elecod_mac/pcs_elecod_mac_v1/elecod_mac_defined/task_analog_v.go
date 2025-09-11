@@ -54,7 +54,7 @@ var (
 	analogGridFrequencyInfo = c_proto.SCanbusTask{
 		Name: "电网频率",
 		Points: []*c_proto.SCanbusPoint{
-			analogGridFrequencyA, analogGridFrequencyB, analogGridFrequencyC, analogAmbientTemp,
+			AnalogGridFrequencyA, AnalogGridFrequencyB, AnalogGridFrequencyC, analogAmbientTemp,
 		},
 		GetCanbusID: func(params map[string]any) uint32 {
 			return elecod_canbus.BuildMacToScreenCanbusID(analogMessageType, 0x04, params)
@@ -74,7 +74,7 @@ var (
 	analogReactivePowerInfo = c_proto.SCanbusTask{
 		Name: "无功功率",
 		Points: []*c_proto.SCanbusPoint{
-			analogReactivePowerA, analogReactivePowerB, analogReactivePowerC, analogTotalReactivePower,
+			analogReactivePowerA, analogReactivePowerB, analogReactivePowerC, AnalogTotalReactivePower,
 		},
 		GetCanbusID: func(params map[string]any) uint32 {
 			return elecod_canbus.BuildMacToScreenCanbusID(analogMessageType, 0x06, params)
@@ -84,7 +84,7 @@ var (
 	analogPowerFactorInfo = c_proto.SCanbusTask{
 		Name: "功率因素",
 		Points: []*c_proto.SCanbusPoint{
-			analogPowerFactorA, analogPowerFactorB, analogPowerFactorC, analogTotalPowerFactor,
+			analogPowerFactorA, analogPowerFactorB, analogPowerFactorC, AnalogTotalPowerFactor,
 		},
 		GetCanbusID: func(params map[string]any) uint32 {
 			return elecod_canbus.BuildMacToScreenCanbusID(analogMessageType, 0x07, params)
@@ -94,7 +94,7 @@ var (
 	analogApparentPowerInfo = c_proto.SCanbusTask{
 		Name: "视在功率",
 		Points: []*c_proto.SCanbusPoint{
-			analogApparentPowerA, analogApparentPowerB, analogApparentPowerC, analogTotalApparentPower,
+			analogApparentPowerA, analogApparentPowerB, analogApparentPowerC, AnalogTotalApparentPower,
 		},
 		GetCanbusID: func(params map[string]any) uint32 {
 			return elecod_canbus.BuildMacToScreenCanbusID(analogMessageType, 0x08, params)
