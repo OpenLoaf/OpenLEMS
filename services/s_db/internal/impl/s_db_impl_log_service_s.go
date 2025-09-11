@@ -124,6 +124,19 @@ func (s *sLogServiceImpl) DeleteLogByType(ctx context.Context, logType string) e
 	return nil
 }
 
+// DeleteLogByFilters 根据过滤条件删除日志记录
+func (s *sLogServiceImpl) DeleteLogByFilters(ctx context.Context, filters map[string]interface{}) (int, error) {
+	log := &s_db_model.SLogModel{}
+	deletedCount, err := log.DeleteByFilters(ctx, filters)
+	if err != nil {
+		g.Log().Errorf(ctx, "根据条件删除日志记录失败 - 过滤条件: %+v, 错误: %+v", filters, err)
+		return 0, err
+	}
+
+	g.Log().Infof(ctx, "成功根据条件删除日志记录 - 过滤条件: %+v, 删除数量: %d", filters, deletedCount)
+	return deletedCount, nil
+}
+
 // GetAllLog 获取所有日志记录
 func (s *sLogServiceImpl) GetAllLog(ctx context.Context) ([]*s_db_model.SLogModel, error) {
 	log := &s_db_model.SLogModel{}

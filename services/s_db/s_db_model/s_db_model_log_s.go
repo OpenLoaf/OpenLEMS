@@ -2,6 +2,7 @@ package s_db_model
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -91,6 +92,59 @@ func (l *SLogModel) DeleteByType(ctx context.Context, logType string) error {
 	return err
 }
 
+// DeleteByFilters 根据过滤条件删除日志记录
+func (l *SLogModel) DeleteByFilters(ctx context.Context, filters map[string]interface{}) (int, error) {
+	model := g.Model(TableLog).Ctx(ctx)
+	hasValidFilter := false
+
+	// 应用过滤条件
+	if filters != nil {
+		// 类型过滤
+		if logType, ok := filters["type"].(string); ok && logType != "" {
+			model = model.Where(FieldType, logType)
+			hasValidFilter = true
+		}
+
+		// 级别过滤
+		if level, ok := filters["level"].(string); ok && level != "" {
+			model = model.Where(FieldLevel, level)
+			hasValidFilter = true
+		}
+
+		// 设备ID过滤
+		if deviceId, ok := filters["device_id"].(string); ok && deviceId != "" {
+			model = model.Where(FieldDeviceId, deviceId)
+			hasValidFilter = true
+		}
+
+		// 日期过滤 (yyyy-MM-dd)
+		if date, ok := filters["date"].(string); ok && date != "" {
+			model = model.Where("DATE(created_at) = ?", date)
+			hasValidFilter = true
+		}
+
+		// 内容模糊搜索
+		if content, ok := filters["content"].(string); ok && content != "" {
+			model = model.Where(FieldContent+" LIKE ?", "%"+content+"%")
+			hasValidFilter = true
+		}
+	}
+
+	// 安全检查：如果没有有效的过滤条件，不允许删除所有记录
+	if !hasValidFilter {
+		return 0, errors.New("删除操作必须包含至少一个有效的过滤条件，以防止意外删除所有数据")
+	}
+
+	// 执行删除并返回影响的行数
+	result, err := model.Delete()
+	if err != nil {
+		return 0, err
+	}
+
+	affectedRows, _ := result.RowsAffected()
+	return int(affectedRows), nil
+}
+
 // GetAll 获取所有日志记录
 func (l *SLogModel) GetAll(ctx context.Context) ([]*SLogModel, error) {
 	var records []*SLogModel
@@ -151,8 +205,8 @@ func (l *SLogModel) GetPage(ctx context.Context, page, pageSize int, filters map
 
 // ClearAll 清除所有日志记录并执行VACUUM
 func (l *SLogModel) ClearAll(ctx context.Context) error {
-	// 删除所有记录
-	_, err := g.Model(TableLog).Ctx(ctx).Delete()
+	// 删除所有记录 - 使用 WHERE 1=1 来满足安全要求
+	_, err := g.Model(TableLog).Ctx(ctx).Where("1=1").Delete()
 	if err != nil {
 		return err
 	}
