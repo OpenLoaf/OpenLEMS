@@ -12,4 +12,5 @@ import (
 
 type ILogV1 interface {
 	GetBizLog(ctx context.Context, req *v1.GetBizLogReq) (res *v1.GetBizLogRes, err error)
+	DeleteBizLog(ctx context.Context, req *v1.DeleteBizLogReq) (res *v1.DeleteBizLogRes, err error)
 }

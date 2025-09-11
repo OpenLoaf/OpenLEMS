@@ -62,6 +62,7 @@ type ILogService interface {
 	GetLogByDeviceIdAndType(ctx context.Context, deviceId, logType string) ([]*s_db_model.SLogModel, error)
 	DeleteLogByDeviceId(ctx context.Context, deviceId string) error
 	DeleteLogByType(ctx context.Context, logType string) error
+	DeleteLogByFilters(ctx context.Context, filters map[string]interface{}) (int, error)
 	GetAllLog(ctx context.Context) ([]*s_db_model.SLogModel, error)
 	GetLogPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SLogModel, int, error)
 	ClearAllLog(ctx context.Context) error
