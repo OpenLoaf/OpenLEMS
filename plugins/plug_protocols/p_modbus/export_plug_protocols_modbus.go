@@ -2,7 +2,6 @@ package p_modbus
 
 import (
 	"common/c_base"
-	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
 	"context"
@@ -17,8 +16,8 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 }
 
 // NewModbusProvider 一个设备一个provider
-func NewModbusProvider(ctx context.Context, deviceType c_enum.EDeviceType, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
-	return internal.NewModbusProvider(ctx, deviceType, clientConfig, deviceConfig, client)
+func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
+	return internal.NewModbusProvider(ctx, clientConfig, deviceConfig, client)
 }
 
 // GetModbusDeviceConfigFields 获取modbus的设备配置

@@ -80,7 +80,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 			client = c
 			m.protocolClientCache[protocolConfig.Id] = client
 		}
-		modbusProvider, err := p_modbus.NewModbusProvider(deviceCtx, deviceConfig.GetType(), protocolConfig, deviceConfig, client)
+		modbusProvider, err := p_modbus.NewModbusProvider(deviceCtx, protocolConfig, deviceConfig, client)
 		if err != nil {
 			return nil, err
 		}

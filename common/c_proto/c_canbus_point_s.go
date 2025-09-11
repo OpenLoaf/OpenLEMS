@@ -2,33 +2,50 @@ package c_proto
 
 import (
 	"common/c_base"
-	"time"
+	"common/c_enum"
+	"fmt"
 )
 
-type SCanbusTask struct {
-	Name          string
-	Desc          string
-	GetCanbusID   func(params map[string]any) *uint32
-	IDMatch       func(canId uint32) bool                              // 判断ID是否匹配，如果为空，直接判断是否和CanbusID相等
-	Lifetime      time.Duration                                        // lifetime 为0时候缓存永不过期，为负数时候不缓存并删除缓存的值
-	Points        []c_base.IPoint                                      // 点位列表
-	IsRemote      bool                                                 // 是否是远程帧（写重要）
-	IsExtended    bool                                                 // 是否是扩展帧（写重要）
-	CustomDecoder func(bytes []byte, point c_base.IPoint) (any, error) // 手动解析，空代表使用默认的协议解析器
+type SCanbusPoint struct {
+
+	// 点位信息
+	*c_base.SPoint
+
+	// 数据访问配置
+	DataAccess *c_base.SDataAccess `json:"dataAccess" v:"required" dc:"数据访问配置"`
+
+	// 功能函数
+	StatusExplain func(value any) (text string, err error)                                    `json:"-" dc:"状态解释函数"`
+	Trigger       func(value interface{}) (trigger bool, level c_enum.EAlarmLevel, err error) `json:"-" dc:"告警触发函数"` // 可覆盖SPoint的触发函数
 }
 
-func (s *SCanbusTask) GetName() string {
-	return s.Name
+func (s *SCanbusPoint) GetDataAccess() *c_base.SDataAccess {
+	return s.DataAccess
 }
 
-func (s *SCanbusTask) GetDescription() string {
-	return s.Desc
+func (s *SCanbusPoint) String() string {
+	if s.DataAccess == nil {
+		return s.GetName()
+	}
+	return fmt.Sprintf("%s-%s", s.GetName(), s.DataAccess)
 }
 
-func (s *SCanbusTask) GetPoints() []c_base.IPoint {
-	return s.Points
+func (s *SCanbusPoint) ValueExplain(value any) (string, error) {
+	if s.StatusExplain == nil {
+		return s.SPoint.ValueExplain(value)
+	}
+	return s.StatusExplain(value)
+}
+func (s *SCanbusPoint) IsNotAlarm() bool {
+	return s.Trigger == nil || s.SPoint.IsNotAlarm()
 }
 
-func (s *SCanbusTask) GetLifeTime() time.Duration {
-	return s.Lifetime
+func (s *SCanbusPoint) AlarmTrigger(value any) (trigger bool, level c_enum.EAlarmLevel, err error) {
+	if s.Trigger != nil {
+		return s.Trigger(value)
+	}
+	if s.SPoint.Trigger != nil {
+		return s.SPoint.Trigger(value)
+	}
+	return false, level, nil
 }

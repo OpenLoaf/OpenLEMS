@@ -181,7 +181,7 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr, quantity
 			continue
 		}
 
-		value, err := decoder(p.deviceId, p.deviceType, result, addr, quantity, point)
+		value, err := decoder(p.deviceId, result, addr, quantity, point)
 
 		err = p.IProtocolCacheValue.CacheValue(value, lifetime)
 
@@ -202,7 +202,7 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr, quantity
 	return results, err
 }
 
-func decoder(deviceId string, deviceType c_enum.EDeviceType, bytes []byte, addr, quantity uint16, point *c_proto.SModbusPoint) (*c_base.SPointValue, error) {
+func decoder(deviceId string, bytes []byte, addr, quantity uint16, point *c_proto.SModbusPoint) (*c_base.SPointValue, error) {
 	var value any
 	var err error
 
