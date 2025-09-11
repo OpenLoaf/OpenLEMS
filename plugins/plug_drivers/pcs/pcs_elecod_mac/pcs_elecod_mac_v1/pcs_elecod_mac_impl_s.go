@@ -1,166 +1,169 @@
 package pcs_elecod_mac_v1
 
 import (
-	"canbus/p_canbus"
 	"common/c_base"
+	"common/c_device"
+	"common/c_enum"
 	"common/c_log"
-	"context"
+	"common/c_proto"
+	"common/c_type"
 	"fmt"
 	"pcs_elecod/pcs_elecod_mac_v1/elecod_mac_defined"
 )
 
 type sPcsElecodMac struct {
-	p_canbus.ICanbusProtocol
-	ctx          context.Context
-	deviceConfig *c_base.SDeviceConfig
-	pcsConfig    *sPcsElecodMacConfig
-	*c_base.SDriverDescription
+	*c_device.SRealDeviceImpl[c_proto.ICanbusProtocol]
+	pcsConfig *sPcsElecodMacConfig
 }
 
-func (s *sPcsElecodMac) InitDevice(deviceConfig *c_base.SDeviceConfig, protocol c_base.IProtocol, childDevice []c_base.IDevice) {
-	s.deviceConfig = deviceConfig
-	s.ICanbusProtocol = protocol.(p_canbus.ICanbusProtocol)
+var _ c_type.IPcs = (*sPcsElecodMac)(nil)
 
+func (s *sPcsElecodMac) Init() error {
+	// 解析配置
 	s.pcsConfig = &sPcsElecodMacConfig{}
-	err := deviceConfig.ScanParams(s.pcsConfig)
+	err := s.GetConfig().ScanParams(s.pcsConfig)
 	if err != nil {
-		panic(fmt.Errorf("PcsElecodMac配置解析失败：内容:%v 原因: %s", deviceConfig.Params, err.Error()))
+		return fmt.Errorf("PcsElecodMac配置解析失败：内容:%v 原因: %s", s.GetConfig().Params, err.Error())
 	}
 
 	if s.pcsConfig.MacAddress == nil || s.pcsConfig.SelfAddress == nil {
-		panic(fmt.Errorf("PcsElecodMac配置解析失败：缺少配置项！当前配置：%v", deviceConfig.Params))
+		return fmt.Errorf("PcsElecodMac配置解析失败：缺少配置项！当前配置：%v", s.GetConfig().Params)
 	}
 
+	// 注册任务
 	for _, task := range elecod_mac_defined.AnalogAllTasks {
-		s.RegisterCanbusTask(task)
-		c_log.Log().Infof(s.ctx, "注册%v", task)
+		s.RegisterTask(task)
+		c_log.Infof(s.DeviceCtx, "注册%v", task)
 	}
 	for _, task := range elecod_mac_defined.ConfigAllTasks {
-		s.RegisterCanbusTask(task)
-		c_log.Log().Infof(s.ctx, "注册%v", task)
+		s.RegisterTask(task)
+		c_log.Infof(s.DeviceCtx, "注册%v", task)
 	}
 
-	// 使用自研定时器，监听 ctx
-	/*	c_timer.SetInterval(s.ctx, time.Second, func(ctx context.Context) {
-		c_log.Debugf(s.ctx, "定时发送心跳数据")
-		e := s.SendMessage(elecod_mac_defined.CmdStandby, nil)
-		if e != nil {
-			c_log.Errorf(ctx, "发送心跳失败！ %v", e.Error())
-		}
-	})*/
-
-	c_log.Info(s.ctx, "测试结束！！！！")
+	c_log.Info(s.DeviceCtx, "PcsElecodMac 初始化完成")
+	return nil
 }
 
 func (s *sPcsElecodMac) Shutdown() {
-	c_log.Info(s.ctx, "Shutdown")
-}
-
-func (s *sPcsElecodMac) GetDriverType() c_base.EDeviceType {
-	return c_base.EDevicePcs
+	c_log.Info(s.DeviceCtx, "PcsElecodMac Shutdown")
 }
 
 func (s *sPcsElecodMac) SetReset() error {
-	//TODO implement me
-	panic("implement me")
+	c_log.Warningf(s.DeviceCtx, "sPcsElecodMac SetReset() not support!")
+	return nil
 }
 
-func (s *sPcsElecodMac) SetStatus(status c_base.EEnergyStoreStatus) error {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) SetStatus(status c_enum.EEnergyStoreStatus) error {
+	// TODO: 实现状态设置逻辑
+	c_log.Warningf(s.DeviceCtx, "sPcsElecodMac SetStatus() not implemented!")
+	return c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) SetGridMode(mode c_base.EGridMode) error {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) SetGridMode(mode c_enum.EGridMode) error {
+	c_log.Warningf(s.DeviceCtx, "sPcsElecodMac SetGridMode() not support!")
+	return c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetStatus() (c_base.EEnergyStoreStatus, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetStatus() (*c_enum.EEnergyStoreStatus, error) {
+	// TODO: 实现状态获取逻辑
+	status := c_enum.EPcsStatusUnknown
+	return &status, c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetGridMode() (c_base.EGridMode, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetGridMode() (*c_enum.EGridMode, error) {
+	mode := c_enum.EGridOn
+	return &mode, nil
 }
 
 func (s *sPcsElecodMac) SetPower(power int32) error {
-	//TODO implement me
-	panic("implement me")
+	// TODO: 实现功率设置逻辑
+	c_log.Warningf(s.DeviceCtx, "sPcsElecodMac SetPower() not implemented!")
+	return c_base.NotSupport
 }
 
 func (s *sPcsElecodMac) SetReactivePower(power int32) error {
-	//TODO implement me
-	panic("implement me")
+	// TODO: 实现无功功率设置逻辑
+	c_log.Warningf(s.DeviceCtx, "sPcsElecodMac SetReactivePower() not implemented!")
+	return c_base.NotSupport
 }
 
 func (s *sPcsElecodMac) SetPowerFactor(factor float32) error {
-	//TODO implement me
-	panic("implement me")
+	c_log.Warningf(s.DeviceCtx, "sPcsElecodMac SetPowerFactor() not support!")
+	return c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetTargetPower() int32 {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetTargetPower() (*int32, error) {
+	// TODO: 实现目标功率获取逻辑
+	return nil, c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetTargetReactivePower() int32 {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetTargetReactivePower() (*int32, error) {
+	// TODO: 实现目标无功功率获取逻辑
+	return nil, c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetTargetPowerFactor() float32 {
-	return 0
+func (s *sPcsElecodMac) GetTargetPowerFactor() (*float32, error) {
+	factor := float32(-1)
+	return &factor, nil
 }
 
-func (s *sPcsElecodMac) GetPower() (float64, error) {
-	v, err := s.GetFloat64Value(elecod_mac_defined.AnalogTotalActivePower)
-	c_log.Debugf(s.ctx, "====>获取到功率值为%v %v", v, err)
-	return v, err
+func (s *sPcsElecodMac) GetPower() (*float64, error) {
+	// 使用新的协议方法获取功率值
+	return s.GetFromProtocolFloat64(func(protocol c_proto.ICanbusProtocol) (any, error) {
+		// TODO: 实现从CANBUS协议获取功率值的逻辑
+		return nil, c_base.NotSupport
+	})
 }
 
-func (s *sPcsElecodMac) GetApparentPower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetApparentPower() (*float64, error) {
+	// TODO: 实现视在功率获取逻辑
+	return nil, c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetReactivePower() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetReactivePower() (*float64, error) {
+	// TODO: 实现无功功率获取逻辑
+	return nil, c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetRatedPower() int32 {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetRatedPower() (*uint32, error) {
+	// TODO: 实现额定功率获取逻辑
+	power := uint32(100) // 默认值
+	return &power, nil
 }
 
-func (s *sPcsElecodMac) GetMaxInputPower() (float32, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetMaxInputPower() (*float32, error) {
+	// TODO: 实现最大输入功率获取逻辑
+	power := float32(100) // 默认值
+	return &power, nil
 }
 
-func (s *sPcsElecodMac) GetMaxOutputPower() (float32, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetMaxOutputPower() (*float32, error) {
+	// TODO: 实现最大输出功率获取逻辑
+	power := float32(100) // 默认值
+	return &power, nil
 }
 
-func (s *sPcsElecodMac) GetTodayIncomingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetTodayIncomingQuantity() (*float64, error) {
+	// TODO: 实现今日充电量获取逻辑
+	return nil, c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetHistoryIncomingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetHistoryIncomingQuantity() (*float64, error) {
+	// TODO: 实现历史充电量获取逻辑
+	return nil, c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetTodayOutgoingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetTodayOutgoingQuantity() (*float64, error) {
+	// TODO: 实现今日放电量获取逻辑
+	return nil, c_base.NotSupport
 }
 
-func (s *sPcsElecodMac) GetHistoryOutgoingQuantity() (float64, error) {
-	//TODO implement me
-	panic("implement me")
+func (s *sPcsElecodMac) GetHistoryOutgoingQuantity() (*float64, error) {
+	// TODO: 实现历史放电量获取逻辑
+	return nil, c_base.NotSupport
+}
+
+func (s *sPcsElecodMac) GetIGBTTemperature() (*float32, error) {
+	// TODO: 实现IGBT温度获取逻辑
+	return nil, c_base.NotSupport
 }

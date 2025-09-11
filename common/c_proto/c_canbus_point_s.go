@@ -11,6 +11,9 @@ type SCanbusPoint struct {
 	// 点位信息
 	*c_base.SPoint
 
+	Sort  int                 `json:"sort"`          // 覆盖SPoint的Sort
+	Group *c_base.SPointGroup `json:"group" dc:"分组"` // 覆盖SPoint的Group
+
 	// 数据访问配置
 	DataAccess *c_base.SDataAccess `json:"dataAccess" v:"required" dc:"数据访问配置"`
 
@@ -48,4 +51,18 @@ func (s *SCanbusPoint) AlarmTrigger(value any) (trigger bool, level c_enum.EAlar
 		return s.SPoint.Trigger(value)
 	}
 	return false, level, nil
+}
+
+func (s *SCanbusPoint) GetGroup() *c_base.SPointGroup {
+	if s.Group != nil {
+		return s.Group
+	}
+	return s.SPoint.Group
+}
+
+func (s *SCanbusPoint) GetSort() int {
+	if s.Sort != 0 {
+		return s.Sort
+	}
+	return s.SPoint.Sort
 }

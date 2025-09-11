@@ -2,8 +2,9 @@ package elecod_canbus
 
 import (
 	"fmt"
-	"github.com/shockerli/cvt"
 	"sync"
+
+	"github.com/shockerli/cvt"
 )
 
 // 全局缓存相关变量
@@ -42,14 +43,14 @@ func ParseCANbusID(id uint32) SCANFrameInfo {
 	return info
 }
 
-func BuildScreenToMapCanbus(messageType MessageType, serviceCode uint32, params map[string]any) *uint32 {
+func BuildScreenToMapCanbus(messageType MessageType, serviceCode uint32, params map[string]any) uint32 {
 	selfAddress, err := cvt.Uint32E(params["selfAddress"])
 	if err != nil {
-		return nil
+		return 0xFFFFFFFF
 	}
 	macAddress, err := cvt.Uint32E(params["macAddress"])
 	if err != nil {
-		return nil
+		return 0xFFFFFFFF
 	}
 	return BuildCanbusID(&SCANFrameInfo{
 		TargetDeviceType: DeviceTypeMAC,
@@ -61,17 +62,17 @@ func BuildScreenToMapCanbus(messageType MessageType, serviceCode uint32, params 
 	})
 }
 
-func BuildMacToScreenCanbusID(messageType MessageType, serviceCode uint32, params map[string]any) *uint32 {
+func BuildMacToScreenCanbusID(messageType MessageType, serviceCode uint32, params map[string]any) uint32 {
 
 	selfAddress, err := cvt.Uint32E(params["selfAddress"])
 	if err != nil {
 		fmt.Println("1build scan canbus id error:", err)
-		return nil
+		return 0
 	}
 	macAddress, err := cvt.Uint32E(params["macAddress"])
 	if err != nil {
 		fmt.Println("2build scan canbus id error:", err)
-		return nil
+		return 0
 	}
 
 	id := BuildCanbusID(&SCANFrameInfo{
@@ -86,9 +87,9 @@ func BuildMacToScreenCanbusID(messageType MessageType, serviceCode uint32, param
 }
 
 // 构建CANbus ID
-func BuildCanbusID(info *SCANFrameInfo) *uint32 {
+func BuildCanbusID(info *SCANFrameInfo) uint32 {
 	if info == nil {
-		return nil
+		return 0
 	}
 
 	var id uint32
@@ -102,7 +103,7 @@ func BuildCanbusID(info *SCANFrameInfo) *uint32 {
 	id |= (info.ServiceCode & 0xFF) << 3               // ServiceCode: bits 3-10
 	id |= info.Reserved & 0x07                         // Reserved: bits 0-2
 
-	return &id
+	return id
 }
 
 // 解析数据帧

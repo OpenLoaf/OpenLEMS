@@ -7,6 +7,8 @@ type EDataFormat int
 const (
 	DataFormatUInt16      EDataFormat = iota // 16位无符号整数
 	DataFormatInt16                          // 16位有符号整数 (二进制补码)
+	DataFormatUInt8                          // 8位无符号整数
+	DataFormatInt8                           // 8位有符号整数 (二进制补码)
 	DataFormatUInt32                         // 32位无符号整数
 	DataFormatInt32                          // 32位有符号整数
 	DataFormatFloat32                        // 32位IEEE 754浮点数

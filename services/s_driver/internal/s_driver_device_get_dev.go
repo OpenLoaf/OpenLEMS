@@ -12,6 +12,7 @@ import (
 	"context"
 	"ess_demo/ess_demo_v1"
 	"load_demo/load_demo_v1"
+	"pcs_elecod/pcs_elecod_mac_v1"
 	"pv_demo/pv_demo_v1"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
@@ -35,6 +36,7 @@ var pluginNewMethodCache = map[string]any{
 	"pv_demo_v1.0.0":              pv_demo_v1.NewPlugin,
 	"load_demo_v1.0.0":            load_demo_v1.NewPlugin,
 	"ammeter_demo_v1.0.0":         ammeter_demo_v1.NewPlugin,
+	"pcs_elecod_mac_v1.0.0":       pcs_elecod_mac_v1.NewPlugin,
 }
 var pluginDriverInfo = map[string]*c_base.SDriverInfo{
 	"bms_pylon_tech_us108_v1.0.0": bms_pylon_tech_us108_v1.GetDriverInfo(),
@@ -44,6 +46,7 @@ var pluginDriverInfo = map[string]*c_base.SDriverInfo{
 	"pv_demo_v1.0.0":              pv_demo_v1.GetDriverInfo(),
 	"load_demo_v1.0.0":            load_demo_v1.GetDriverInfo(),
 	"ammeter_demo_v1.0.0":         ammeter_demo_v1.GetDriverInfo(),
+	"pcs_elecod_mac_v1.0.0":       pcs_elecod_mac_v1.GetDriverInfo(),
 }
 
 func GetAllDriversInfo() map[string]*c_base.SDriverInfo {
