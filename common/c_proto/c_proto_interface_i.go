@@ -27,7 +27,6 @@ type ICanbusProtocol interface {
 
 type IGpioSysfsProtocol interface {
 	c_base.IProtocol
-	c_base.IProtocolCacheValue
 
 	RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) // 状态变化处理
 	GetGpioStatus() *bool                                                          // 是否是高电平

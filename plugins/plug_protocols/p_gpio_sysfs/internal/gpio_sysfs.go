@@ -14,11 +14,11 @@ import (
 
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gfile"
-	"github.com/gogf/gf/v2/os/gproc"
 	"github.com/gogf/gf/v2/os/gtimer"
-	"github.com/gogf/gf/v2/text/gstr"
 	"github.com/gogf/gf/v2/util/gconv"
+	"periph.io/x/conn/v3/gpio"
+	"periph.io/x/conn/v3/gpio/gpioreg"
+	"periph.io/x/host/v3"
 )
 
 // SGpioPoint GPIO点位结构
@@ -45,8 +45,7 @@ type SGpioSysfsProvider struct {
 	deviceGpioConfig   *c_proto.SDeviceGpioConfig                            // 设备扩展配置
 	protocolConfig     *c_base.SProtocolConfig                               // 协议配置
 	protocolGpioConfig *p_gpio_sysfs.SProtocolGpioConfig                     // 协议扩展配置
-	gpioDirPath        string                                                // gpio路径
-	gpioValuePath      string                                                // gpio值路径
+	pin                gpio.PinIO                                            // periph.io GPIO 引脚
 	handler            func(ctx context.Context, status bool, isChange bool) // 处理函数
 
 	// 状态管理
@@ -72,9 +71,6 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 	if protocolConfig == nil {
 		return nil, gerror.Newf("GPIO设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name)
 	}
-	if protocolConfig.Address == "" {
-		return nil, gerror.Newf("GPIO设备：[%s]%s 的协议配置地址不能为空！", deviceConfig.Id, deviceConfig.Name)
-	}
 	if deviceConfig == nil {
 		return nil, gerror.Newf("GPIO协议：%s 的设备配置不能为空！", protocolConfig.Id)
 	}
@@ -89,6 +85,18 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 		return nil, gerror.Newf("GPIO设备[%s]的IO不能为空或者0", deviceConfig.Id)
 	}
 
+	// 初始化 periph.io
+	_, err = host.Init()
+	if err != nil {
+		return nil, gerror.Newf("初始化 periph.io 失败：%v", err)
+	}
+
+	// 获取 GPIO 引脚
+	pin := gpioreg.ByName(fmt.Sprintf("GPIO%d", deviceGpioConfig.Io))
+	if pin == nil {
+		return nil, gerror.Newf("无法找到 GPIO%d 引脚", deviceGpioConfig.Io)
+	}
+
 	provider := &SGpioSysfsProvider{
 		IProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id),
 		IAlarm:              c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
@@ -99,7 +107,7 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 		deviceConfig:     deviceConfig,
 		deviceGpioConfig: deviceGpioConfig,
 		protocolConfig:   protocolConfig,
-		gpioDirPath:      gfile.Join(protocolConfig.Address, fmt.Sprintf("gpio%d", deviceGpioConfig.Io)),
+		pin:              pin,
 		protocolStatus:   c_enum.EProtocolConnecting,
 
 		meta: &SGpioPoint{
@@ -116,7 +124,6 @@ func NewGpioSysfsProvider(ctx context.Context, protocolConfig *c_base.SProtocolC
 			},
 		},
 	}
-	provider.gpioValuePath = gfile.Join(provider.gpioDirPath, GpioPathValue)
 
 	provider.protocolGpioConfig = &p_gpio_sysfs.SProtocolGpioConfig{}
 	err = gconv.Scan(protocolConfig.Params, provider.protocolGpioConfig)
@@ -145,30 +152,17 @@ func (s *SGpioSysfsProvider) ProtocolListen() {
 		panic(gerror.Newf("direction方向未设置！"))
 	}
 	s.once.Do(func() {
-
-		// 先判断Path是否存在
-		if !gfile.Exists(s.gpioDirPath) {
-			// 判断一下export是否存在，如果存在，就export导出一下端口
-			exportFilePath := gfile.Join(s.protocolConfig.Address, "export")
-			if gfile.Exists(exportFilePath) {
-				// 执行导出方法
-				gproc.MustShellExec(s.ctx, fmt.Sprintf("echo %d > %s", s.deviceGpioConfig.Io, exportFilePath))
-			} else {
-				panic(gerror.Newf("导出的方法不存在！%s", exportFilePath))
-			}
-			// 再次判断是否成功
-			if !gfile.Exists(s.gpioDirPath) {
-				panic(gerror.Newf("export导出后%s还是不存在！", s.gpioDirPath))
-			}
+		// 设置 GPIO 方向
+		var err error
+		if s.deviceGpioConfig.Direction == c_proto.EGpioDirectionIn {
+			// 设置为输入模式
+			err = s.pin.In(gpio.PullNoChange, gpio.BothEdges)
+		} else {
+			// 设置为输出模式，初始化为低电平
+			err = s.pin.Out(gpio.Low)
 		}
-		if !gfile.Exists(s.gpioValuePath) {
-			panic(gerror.Newf("gpio值路径不存在！%s", s.gpioValuePath))
-		}
-
-		// 设置方向
-		err := gfile.PutContents(gfile.Join(s.gpioDirPath, GpioPathDirection), string(s.deviceGpioConfig.Direction))
 		if err != nil {
-			panic(gerror.Newf("设置方向失败！%v", err))
+			panic(gerror.Newf("设置 GPIO 方向失败！%v", err))
 		}
 
 		// 设置协议状态为已连接
@@ -229,16 +223,10 @@ func (s *SGpioSysfsProvider) GetGpioStatus() *bool {
 }
 
 func (s *SGpioSysfsProvider) isHighForce() *bool {
-	value := gfile.GetContents(s.gpioValuePath)
-
-	status := false
-	if gstr.Trim(value) == "1" {
-		s.process(true)
-		status = true
-	} else {
-		s.process(false)
-		status = false
-	}
+	// 使用 periph.io 读取 GPIO 状态
+	level := s.pin.Read()
+	status := level == gpio.High
+	s.process(status)
 	return &status
 }
 
@@ -269,19 +257,19 @@ func (s *SGpioSysfsProvider) process(status bool) {
 
 func (s *SGpioSysfsProvider) SetHigh() error {
 	// 设置为高电平
-	return s.setValue("1")
+	return s.setValue(gpio.High)
 }
 
 func (s *SGpioSysfsProvider) SetLow() error {
 	// 设置为低电平
-	return s.setValue("0")
+	return s.setValue(gpio.Low)
 }
 
-func (s *SGpioSysfsProvider) setValue(value string) error {
-	// 设置为低电平
+func (s *SGpioSysfsProvider) setValue(level gpio.Level) error {
+	// 检查是否为输出模式
 	if s.deviceGpioConfig.Direction == c_proto.EGpioDirectionIn {
 		g.Log().Debugf(s.ctx, "GPIO Direction %s is [in], can't output", s.GetId())
 		return nil
 	}
-	return gfile.PutContents(s.gpioValuePath, value)
+	return s.pin.Out(level)
 }

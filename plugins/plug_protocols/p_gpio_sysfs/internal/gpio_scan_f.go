@@ -2,54 +2,52 @@ package internal
 
 import (
 	"context"
-	"os"
+	"fmt"
 	"p_gpio_sysfs/p_gpio_sysfs"
-	"path/filepath"
 	"strconv"
-	"strings"
 
-	"github.com/gogf/gf/v2/os/gfile"
+	"periph.io/x/conn/v3/gpio/gpioreg"
+	"periph.io/x/host/v3"
 )
 
-// ScanGpioSysfs 扫描指定 sysfs gpio 路径，汇总 gpiochip 与已导出的 gpioN 信息
-// 常见 root 为 /sys/class/gpio
+// ScanGpioSysfs 使用 periph.io 扫描可用的 GPIO 引脚
+// root 参数保留以保持接口兼容性，但实际使用 periph.io 的 GPIO 发现功能
 func ScanGpioSysfs(ctx context.Context, root string) (*p_gpio_sysfs.SGpioScanResult, error) {
 	result := &p_gpio_sysfs.SGpioScanResult{Chips: make([]*p_gpio_sysfs.SGpioChipInfo, 0), Gpios: make([]*p_gpio_sysfs.SGpioInfo, 0)}
 
-	entries, err := os.ReadDir(root)
+	// 初始化 periph.io
+	_, err := host.Init()
 	if err != nil {
-		return result, err
+		return result, fmt.Errorf("初始化 periph.io 失败：%v", err)
 	}
 
-	for _, e := range entries {
-		if !e.IsDir() {
-			continue
-		}
-		name := e.Name()
-		full := filepath.Join(root, name)
-
-		if strings.HasPrefix(name, "gpiochip") {
-			chip := &p_gpio_sysfs.SGpioChipInfo{Name: name, Path: full}
-			chip.Label = strings.TrimSpace(gfile.GetContents(filepath.Join(full, "label")))
-			chip.Base = atoiSafe(strings.TrimSpace(gfile.GetContents(filepath.Join(full, "base"))))
-			chip.Ngpio = atoiSafe(strings.TrimSpace(gfile.GetContents(filepath.Join(full, "ngpio"))))
-			result.Chips = append(result.Chips, chip)
-			continue
-		}
-
-		if strings.HasPrefix(name, "gpio") {
-			num := atoiSafe(strings.TrimPrefix(name, "gpio"))
-			gpio := &p_gpio_sysfs.SGpioInfo{
-				Name:   name,
-				Path:   full,
-				Number: num,
+	// 扫描可用的 GPIO 引脚
+	// 这里我们尝试扫描常见的 GPIO 引脚名称
+	// 实际实现可能需要根据具体硬件平台调整
+	for i := 0; i < MaxGpioScanCount; i++ {
+		pinName := fmt.Sprintf("GPIO%d", i)
+		pin := gpioreg.ByName(pinName)
+		if pin != nil {
+			gpioInfo := &p_gpio_sysfs.SGpioInfo{
+				Name:      pinName,
+				Path:      fmt.Sprintf("/sys/class/gpio/gpio%d", i),
+				Number:    i,
+				Direction: "unknown", // periph.io 不直接提供方向信息
+				Value:     "unknown", // 需要实际读取才能获取值
 			}
-			// direction 与 value 可能不存在（未导出或权限限制），忽略错误
-			gpio.Direction = strings.TrimSpace(gfile.GetContents(filepath.Join(full, GpioPathDirection)))
-			gpio.Value = strings.TrimSpace(gfile.GetContents(filepath.Join(full, GpioPathValue)))
-			result.Gpios = append(result.Gpios, gpio)
+			result.Gpios = append(result.Gpios, gpioInfo)
 		}
 	}
+
+	// 添加一个通用的芯片信息
+	chip := &p_gpio_sysfs.SGpioChipInfo{
+		Name:  DefaultGpioChipName,
+		Path:  fmt.Sprintf("/sys/class/gpio/%s", DefaultGpioChipName),
+		Label: DefaultGpioChipLabel,
+		Base:  0,
+		Ngpio: len(result.Gpios),
+	}
+	result.Chips = append(result.Chips, chip)
 
 	return result, nil
 }

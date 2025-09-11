@@ -2,7 +2,11 @@ module p_gpio_sysfs
 
 go 1.24.4
 
-require github.com/gogf/gf/v2 v2.9.0
+require (
+	github.com/gogf/gf/v2 v2.9.0
+	periph.io/x/conn/v3 v3.7.2
+	periph.io/x/host/v3 v3.8.5
+)
 
 require (
 	github.com/BurntSushi/toml v1.5.0 // indirect

@@ -32,7 +32,7 @@ func (p *ModbusProtocolProvider) ReadSingleSync(point *c_proto.SModbusPoint, fun
 	}
 
 	if p.GetProtocolStatus() != c_enum.EProtocolConnected {
-		return nil, errors.New("当前连接未连接，无法查询数据")
+		return nil, nil
 	}
 
 	name := fmt.Sprintf("SingleRead:%s", point.Name)

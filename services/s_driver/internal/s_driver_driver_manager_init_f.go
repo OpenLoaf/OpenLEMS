@@ -119,7 +119,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		g.Log().Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
 		return canbusProvider, nil
 	case c_enum.EGpioSysfs:
-		//gpioSysfsProtocol, err := gpio_sysfs.NewGpioSysfsProvider(deviceCtx, protocolConfig, deviceConfigTree)
+		//gpioSysfsProtocol, err := p_gpio_sysfs.NewGpioSysfsProvider(deviceCtx, protocolConfig, deviceConfig)
 		//if err != nil {
 		//	return nil, err
 		//}

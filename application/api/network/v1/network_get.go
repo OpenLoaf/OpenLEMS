@@ -7,14 +7,13 @@ import (
 )
 
 type GetNetworkInterfaceListReq struct {
-	g.Meta       `path:"/network/interface/list" method:"get" tags:"网络相关" summary:"获取本机网络接口列表"`
-	OnlyEthernet bool `json:"onlyEthernet" dc:"仅返回以太网(有线)接口，默认false"`
+	g.Meta          `path:"/network/interface/list" method:"get" tags:"网络相关" summary:"获取本机网络接口列表"`
+	IncludeLoopback bool `json:"includeLoopback" dc:"是否包含回环接口，默认true"`
 }
 
 type GetNetworkInterfaceListRes struct {
-	Interfaces []*entity.SNetworkInterface `json:"list" dc:"网络接口列表"`
+	Interfaces []*entity.SNetworkInterface `json:"interfaces" dc:"网络接口列表"`
 	Total      int                         `json:"total" dc:"总数"`
-	DNS        []string                    `json:"dns" dc:"系统DNS服务器列表"`
 }
 
 type UpdateNetworkInterfaceReq struct {

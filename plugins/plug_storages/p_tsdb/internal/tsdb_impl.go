@@ -19,6 +19,8 @@ import (
 
 	"github.com/prometheus/prometheus/pkg/labels"
 	promtsdb "github.com/prometheus/prometheus/tsdb"
+
+	"core/c_window_counter/public"
 )
 
 const (
@@ -31,8 +33,9 @@ const (
 )
 
 type promDB struct {
-	ctx context.Context
-	db  *promtsdb.DB
+	ctx           context.Context
+	db            *promtsdb.DB
+	sampleCounter public.IWindowCounter // 滑动窗口计数器，用于统计每秒存储样本数
 }
 
 var (
@@ -59,10 +62,18 @@ func NewPromTSDB(ctx context.Context, storageConfig *c_base.SStorageConfig) c_ba
 		// Use default options; caller controls retention via external cleanup or tsdb options if needed
 		db, err := promtsdb.Open(filepath.Clean(basePath), nil, nil, nil)
 		if err != nil {
-			panic(errors.Errorf("打开 Prometheus TSDB 失败: %w", err.Error()))
+			panic(errors.Errorf("打开 Prometheus TSDB 失败: %v", err))
 		}
 
-		instance = &promDB{ctx: ctx, db: db}
+		// 创建滑动窗口计数器，用于统计每秒存储样本数
+		// 使用1分钟窗口，60个桶，每个桶代表1秒
+		sampleCounter := public.NewQPSWindowCounter()
+
+		instance = &promDB{
+			ctx:           ctx,
+			db:            db,
+			sampleCounter: sampleCounter,
+		}
 		c_log.BizInfof(ctx, "启动时序数据库！")
 	})
 	return instance
@@ -74,6 +85,8 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fie
 	}
 	ts := time.Now().UnixMilli()
 	app := p.db.Appender()
+
+	var sampleCount int64 = 0 // 统计本次存储的样本数量
 	for field, value := range fields {
 		// 统一转为 float64，如果失败写入字符串的 JSON 序列
 		switch v := value.(type) {
@@ -88,6 +101,7 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fie
 				_ = app.Rollback()
 				return err
 			}
+			sampleCount++
 		case int32:
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: "ems_metric",
@@ -99,6 +113,7 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fie
 				_ = app.Rollback()
 				return err
 			}
+			sampleCount++
 		case int64:
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: "ems_metric",
@@ -110,6 +125,7 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fie
 				_ = app.Rollback()
 				return err
 			}
+			sampleCount++
 		case float32:
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: "ems_metric",
@@ -121,6 +137,7 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fie
 				_ = app.Rollback()
 				return err
 			}
+			sampleCount++
 		case float64:
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: "ems_metric",
@@ -132,6 +149,7 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fie
 				_ = app.Rollback()
 				return err
 			}
+			sampleCount++
 		default:
 			// 对非数值类型，将值 JSON 序列化后，附加一个 *_text 序列保存为 0/1
 			_, err := app.Add(labels.FromMap(map[string]string{
@@ -144,8 +162,15 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fie
 				_ = app.Rollback()
 				return err
 			}
+			sampleCount++
 		}
 	}
+
+	// 更新滑动窗口计数器
+	if sampleCount > 0 {
+		p.sampleCounter.IncrementBy(sampleCount)
+	}
+
 	return app.Commit()
 }
 
@@ -155,6 +180,8 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 	}
 	ts := time.Now().UnixMilli()
 	app := p.db.Appender()
+
+	var sampleCount int64 = 0 // 统计本次存储的样本数量
 	for field, v := range metrics {
 		val, err := cvt.Float64E(v)
 		if err != nil {
@@ -170,6 +197,7 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 				_ = app.Rollback()
 				return err
 			}
+			sampleCount++
 			continue
 		}
 		_, err = app.Add(labels.FromMap(map[string]string{
@@ -183,7 +211,14 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 			_ = app.Rollback()
 			return err
 		}
+		sampleCount++
 	}
+
+	// 更新滑动窗口计数器
+	if sampleCount > 0 {
+		p.sampleCounter.IncrementBy(sampleCount)
+	}
+
 	return app.Commit()
 }
 
@@ -193,6 +228,8 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 	}
 	ts := time.Now().UnixMilli()
 	app := p.db.Appender()
+
+	var sampleCount int64 = 0 // 统计本次存储的样本数量
 	for field, v := range metrics {
 		val, err := cvt.Float64E(v)
 		if err != nil {
@@ -206,6 +243,7 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 				_ = app.Rollback()
 				return err
 			}
+			sampleCount++
 			continue
 		}
 		_, err = app.Add(labels.FromMap(map[string]string{
@@ -218,7 +256,14 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 			_ = app.Rollback()
 			return err
 		}
+		sampleCount++
 	}
+
+	// 更新滑动窗口计数器
+	if sampleCount > 0 {
+		p.sampleCounter.IncrementBy(sampleCount)
+	}
+
 	return app.Commit()
 }
 
@@ -248,10 +293,6 @@ func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, point
 
 	// 逐点位查询并合并时间戳
 	// 收集所有样本 (timestamp -> map[field]value)
-	type sample struct {
-		ts  int64
-		val float64
-	}
 	data := make(map[int64]map[string]float64)
 
 	for _, k := range pointKey {
@@ -334,9 +375,16 @@ func (p *promDB) GetStorageStats() (*c_base.StorageStats, error) {
 	// 注意：Prometheus TSDB的Stats结构体没有NumSamples字段，我们通过查询来估算
 	stats.TotalSamples = p.estimateTotalSamples()
 
-	// 转换时间戳为time.Time类型
-	if headStats.MinTime > 0 {
-		oldestTime := time.UnixMilli(headStats.MinTime)
+	// 获取数据库中真正的第一条数据时间
+	oldestTime, err := p.getOldestTimestamp()
+	if err != nil {
+		c_log.BizInfof(p.ctx, "获取最老时间戳失败: %v", err)
+		// 如果查询失败，回退到使用Head的MinTime
+		if headStats.MinTime > 0 {
+			oldestTime := time.UnixMilli(headStats.MinTime)
+			stats.OldestTimestamp = &oldestTime
+		}
+	} else {
 		stats.OldestTimestamp = &oldestTime
 	}
 	if headStats.MaxTime > 0 {
@@ -354,8 +402,9 @@ func (p *promDB) GetStorageStats() (*c_base.StorageStats, error) {
 	}
 
 	// 计算数据保留时间（秒）
-	if headStats.MinTime > 0 && headStats.MaxTime > 0 {
-		stats.RetentionTime = (headStats.MaxTime - headStats.MinTime) / 1000 // 转换为秒
+	if stats.OldestTimestamp != nil && headStats.MaxTime > 0 {
+		oldestTimeMs := stats.OldestTimestamp.UnixMilli()
+		stats.RetentionTime = (headStats.MaxTime - oldestTimeMs) / 1000 // 转换为秒
 	}
 
 	// 计算平均每个序列占用数据大小
@@ -363,10 +412,8 @@ func (p *promDB) GetStorageStats() (*c_base.StorageStats, error) {
 		stats.AvgSeriesSize = float64(stats.StorageSize) / float64(stats.TotalSeries)
 	}
 
-	// 计算每秒存储样本数
-	if stats.RetentionTime > 0 && stats.TotalSamples > 0 {
-		stats.SamplesPerSecond = float64(stats.TotalSamples) / float64(stats.RetentionTime)
-	}
+	// 使用滑动窗口计数器获取每秒存储样本数
+	stats.SamplesPerSecond = p.sampleCounter.GetQPS()
 
 	// 计算存储大小（MB）
 	stats.StorageSizeMB = float64(stats.StorageSize) / (1024 * 1024)
@@ -415,6 +462,48 @@ func (p *promDB) estimateTotalSamples() int64 {
 	}
 
 	return totalSamples
+}
+
+// getOldestTimestamp 获取数据库中真正的第一条数据时间
+func (p *promDB) getOldestTimestamp() (time.Time, error) {
+	// 创建一个查询器，查询所有时间范围的数据
+	q, err := p.db.Querier(context.Background(), 0, time.Now().UnixMilli())
+	if err != nil {
+		return time.Time{}, err
+	}
+	defer q.Close()
+
+	// 查询所有ems_metric系列来找到最早的时间戳
+	matchers := []*labels.Matcher{
+		labels.MustNewMatcher(labels.MatchEqual, LabelNameMetric, "ems_metric"),
+	}
+
+	ss, _, err := q.Select(false, nil, matchers...)
+	if err != nil {
+		return time.Time{}, err
+	}
+
+	var oldestTimestamp int64 = -1
+	for ss.Next() {
+		s := ss.At()
+		it := s.Iterator()
+		if it.Next() {
+			t, _ := it.At()
+			if oldestTimestamp == -1 || t < oldestTimestamp {
+				oldestTimestamp = t
+			}
+		}
+	}
+
+	if err := ss.Err(); err != nil {
+		return time.Time{}, err
+	}
+
+	if oldestTimestamp == -1 {
+		return time.Time{}, fmt.Errorf("未找到任何数据")
+	}
+
+	return time.UnixMilli(oldestTimestamp), nil
 }
 
 // calculateStorageSize 计算存储目录大小
