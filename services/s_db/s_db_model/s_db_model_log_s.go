@@ -117,9 +117,13 @@ func (l *SLogModel) DeleteByFilters(ctx context.Context, filters map[string]inte
 			hasValidFilter = true
 		}
 
-		// 日期过滤 (yyyy-MM-dd)
+		// 日期过滤 (yyyy-MM-dd) - 支持带时区偏移的时间格式
 		if date, ok := filters["date"].(string); ok && date != "" {
-			model = model.Where("DATE(created_at) = ?", date)
+			// 使用时间范围查询，支持带时区的时间格式
+			// 将日期字符串转换为时间范围：从 00:00:00 到 23:59:59
+			startTime := date + " 00:00:00"
+			endTime := date + " 23:59:59"
+			model = model.Where("created_at >= ? AND created_at <= ?", startTime, endTime)
 			hasValidFilter = true
 		}
 
@@ -158,9 +162,13 @@ func (l *SLogModel) GetPage(ctx context.Context, page, pageSize int, filters map
 
 	// 应用过滤条件
 	if filters != nil {
-		// 日期过滤 (yyyy-MM-dd)
+		// 日期过滤 (yyyy-MM-dd) - 支持带时区偏移的时间格式
 		if date, ok := filters["date"].(string); ok && date != "" {
-			model = model.Where("DATE(created_at) = ?", date)
+			// 使用时间范围查询，支持带时区的时间格式
+			// 将日期字符串转换为时间范围：从 00:00:00 到 23:59:59
+			startTime := date + " 00:00:00"
+			endTime := date + " 23:59:59"
+			model = model.Where("created_at >= ? AND created_at <= ?", startTime, endTime)
 		}
 
 		// 类型过滤
