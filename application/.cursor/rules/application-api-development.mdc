@@ -1,4 +1,5 @@
 ---
+alwaysApply: false
 description: application 接口开发规则 - API、Controller、Entity 创建标准化流程
 ---
 

@@ -147,7 +147,17 @@ func startWeb(ctx context.Context) *ghttp.Server {
 	// 本地静态文件服务：处理 /static 路径
 	staticPath := g.Cfg().MustGet(ctx, "static.path", "out/static").String()
 	if staticPath != "" {
-		// 检查静态文件目录是否存在
+		// 检查静态文件目录是否存在，如果不存在则创建
+		if _, err := os.Stat(staticPath); os.IsNotExist(err) {
+			g.Log().Infof(ctx, "静态文件目录不存在，正在创建: %s", staticPath)
+			if err := os.MkdirAll(staticPath, 0755); err != nil {
+				g.Log().Errorf(ctx, "创建静态文件目录失败: %s, 错误: %+v", staticPath, err)
+			} else {
+				g.Log().Infof(ctx, "静态文件目录创建成功: %s", staticPath)
+			}
+		}
+
+		// 再次检查目录是否存在（创建后或原本就存在）
 		if _, err := os.Stat(staticPath); err == nil {
 			g.Log().Infof(ctx, "启用本地静态文件服务，路径: %s", staticPath)
 
@@ -205,7 +215,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 				http.ServeFile(r.Response.Writer, r.Request, filePath)
 			})
 		} else {
-			g.Log().Warningf(ctx, "静态文件目录不存在: %s", staticPath)
+			g.Log().Errorf(ctx, "静态文件目录创建失败或无法访问: %s", staticPath)
 		}
 	}
 
