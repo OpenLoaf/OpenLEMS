@@ -23,8 +23,7 @@ type ModbusProtocolProvider struct {
 	ctx  context.Context // 上下文
 	once sync.Once       // 只执行一次Init方法
 
-	deviceId   string
-	deviceType c_enum.EDeviceType
+	deviceId string
 
 	client             modbus.Client   // modbus的通讯
 	preQuery           map[string]bool // 预读
@@ -38,7 +37,7 @@ type ModbusProtocolProvider struct {
 
 var _ c_proto.IModbusProtocol = (*ModbusProtocolProvider)(nil)
 
-func NewModbusProvider(ctx context.Context, deviceType c_enum.EDeviceType, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
+func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, client any) (c_proto.IModbusProtocol, error) {
 	if protocolConfig == nil {
 		panic(errors.Errorf("Modbus设备：[%s]%s 的协议配置不能为空！", deviceConfig.Id, deviceConfig.Name))
 	}
@@ -58,7 +57,6 @@ func NewModbusProvider(ctx context.Context, deviceType c_enum.EDeviceType, proto
 		IProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id),
 		IAlarm:              c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
 		deviceId:            deviceConfig.Id,
-		deviceType:          deviceType,
 
 		once:               sync.Once{},
 		ctx:                ctx,

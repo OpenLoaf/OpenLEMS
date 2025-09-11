@@ -36,6 +36,10 @@ func EncoderBytes(value any, dataFormat c_enum.EDataFormat, byteEndian c_enum.EB
 	var err error
 
 	switch dataFormat {
+	case c_enum.DataFormatUInt8:
+		result, err = encodeUInt8(processedValue, byteEndian, wordOrder)
+	case c_enum.DataFormatInt8:
+		result, err = encodeInt8(processedValue, byteEndian, wordOrder)
 	case c_enum.DataFormatUInt16:
 		result, err = encodeUInt16(processedValue, byteEndian, wordOrder)
 	case c_enum.DataFormatInt16:
@@ -75,6 +79,20 @@ func EncoderBytes(value any, dataFormat c_enum.EDataFormat, byteEndian c_enum.EB
 }
 
 // 数值类型编码函数
+
+func encodeUInt8(value any, byteEndian c_enum.EByteEndian, wordOrder c_enum.EWordOrder) ([]byte, error) {
+	val := cvt.Uint8(value)
+
+	// uint8 只有一个字节，不需要字节序和字序处理
+	return []byte{byte(val)}, nil
+}
+
+func encodeInt8(value any, byteEndian c_enum.EByteEndian, wordOrder c_enum.EWordOrder) ([]byte, error) {
+	val := cvt.Int8(value)
+
+	// int8 只有一个字节，不需要字节序和字序处理
+	return []byte{byte(val)}, nil
+}
 
 func encodeUInt16(value any, byteEndian c_enum.EByteEndian, wordOrder c_enum.EWordOrder) ([]byte, error) {
 	val := cvt.Uint16(value)

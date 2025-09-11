@@ -158,7 +158,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, point c_base.IPoint, value any
 
 	if isCurrentlyTriggered {
 		// 当前需要触发告警
-		alarm = c_base.NewPointValue(deviceId, point, level, value)
+		alarm = c_base.NewPointValue(deviceId, point, value)
 
 		if !wasPreviouslyTriggered {
 			// 之前没有触发过，现在是首次触发

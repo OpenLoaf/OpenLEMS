@@ -14,6 +14,8 @@ func GetEffectiveByteLength(byteLength uint16, dataFormat c_enum.EDataFormat) ui
 
 	// 否则根据数据格式返回默认长度
 	switch dataFormat {
+	case c_enum.DataFormatUInt8, c_enum.DataFormatInt8:
+		return 1
 	case c_enum.DataFormatUInt16, c_enum.DataFormatInt16, c_enum.DataFormatBCD:
 		return 2
 	case c_enum.DataFormatUInt32, c_enum.DataFormatInt32, c_enum.DataFormatFloat32, c_enum.DataFormatBCD32:

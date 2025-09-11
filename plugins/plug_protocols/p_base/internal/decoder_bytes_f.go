@@ -110,6 +110,10 @@ func DecoderBytes(bytes []byte, byteIndex uint16, byteLength uint16, bitIndex ui
 	var err error
 
 	switch dataFormat {
+	case c_enum.DataFormatUInt8:
+		rawValue, err = decodeUInt8(data, byteEndian, wordOrder)
+	case c_enum.DataFormatInt8:
+		rawValue, err = decodeInt8(data, byteEndian, wordOrder)
 	case c_enum.DataFormatUInt16:
 		rawValue, err = decodeUInt16(data, byteEndian, wordOrder)
 	case c_enum.DataFormatInt16:
@@ -155,6 +159,24 @@ func DecoderBytes(bytes []byte, byteIndex uint16, byteLength uint16, bitIndex ui
 }
 
 // 数值类型解析函数
+
+func decodeUInt8(data []byte, byteEndian c_enum.EByteEndian, wordOrder c_enum.EWordOrder) (any, error) {
+	if len(data) < 1 {
+		return nil, errors.New("insufficient data for uint8")
+	}
+
+	// uint8 只有一个字节，不需要字节序和字序处理
+	return uint8(data[0]), nil
+}
+
+func decodeInt8(data []byte, byteEndian c_enum.EByteEndian, wordOrder c_enum.EWordOrder) (any, error) {
+	if len(data) < 1 {
+		return nil, errors.New("insufficient data for int8")
+	}
+
+	// int8 只有一个字节，不需要字节序和字序处理
+	return int8(data[0]), nil
+}
 
 func decodeUInt16(data []byte, byteEndian c_enum.EByteEndian, wordOrder c_enum.EWordOrder) (any, error) {
 	if len(data) < 2 {

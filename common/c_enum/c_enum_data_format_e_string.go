@@ -10,22 +10,24 @@ func _() {
 	var x [1]struct{}
 	_ = x[DataFormatUInt16-0]
 	_ = x[DataFormatInt16-1]
-	_ = x[DataFormatUInt32-2]
-	_ = x[DataFormatInt32-3]
-	_ = x[DataFormatFloat32-4]
-	_ = x[DataFormatFloat64-5]
-	_ = x[DataFormatBCD-6]
-	_ = x[DataFormatBCD32-7]
-	_ = x[DataFormatStringASCII-8]
-	_ = x[DataFormatStringUTF16-9]
-	_ = x[DataFormatBits-10]
-	_ = x[DataFormatBitRange-11]
-	_ = x[DataFormatCustom-12]
+	_ = x[DataFormatUInt8-2]
+	_ = x[DataFormatInt8-3]
+	_ = x[DataFormatUInt32-4]
+	_ = x[DataFormatInt32-5]
+	_ = x[DataFormatFloat32-6]
+	_ = x[DataFormatFloat64-7]
+	_ = x[DataFormatBCD-8]
+	_ = x[DataFormatBCD32-9]
+	_ = x[DataFormatStringASCII-10]
+	_ = x[DataFormatStringUTF16-11]
+	_ = x[DataFormatBits-12]
+	_ = x[DataFormatBitRange-13]
+	_ = x[DataFormatCustom-14]
 }
 
-const _EDataFormat_name = "UInt16Int16UInt32Int32Float32Float64BCDBCD32StringASCIIStringUTF16BitsBitRangeCustom"
+const _EDataFormat_name = "UInt16Int16UInt8Int8UInt32Int32Float32Float64BCDBCD32StringASCIIStringUTF16BitsBitRangeCustom"
 
-var _EDataFormat_index = [...]uint8{0, 6, 11, 17, 22, 29, 36, 39, 44, 55, 66, 70, 78, 84}
+var _EDataFormat_index = [...]uint8{0, 6, 11, 16, 20, 26, 31, 38, 45, 48, 53, 64, 75, 79, 87, 93}
 
 func (i EDataFormat) String() string {
 	if i < 0 || i >= EDataFormat(len(_EDataFormat_index)-1) {

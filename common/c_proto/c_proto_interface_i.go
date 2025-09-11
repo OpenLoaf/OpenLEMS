@@ -10,10 +10,16 @@ type IModbusProtocol interface {
 	c_base.IProtocol
 	c_base.IProtocolCacheValue
 
-	// todo 删除lifetime
 	ReadSingleSync(meta *SModbusPoint, function c_enum.EModbusReadFunction, lifetime time.Duration, readCache bool) (any, error) // lifetime 为0时候永不过期，为负数时候不缓存并删除缓存的值
 	ReadGroupSync(group *SModbusPointTask, readCache bool, points ...*SModbusPoint) ([]any, error)                               // 同步读取,第二个参数为幻读,先从缓存中取，如果有值直接返回，无值再去执行查询方法
 
 	WriteSingleRegister(meta *SModbusPoint, value int32) error
 	WriteMultipleRegisters(group *SModbusPointTask, values []int64) error
+}
+
+type ICanbusProtocol interface {
+	c_base.IProtocol
+	c_base.IProtocolCacheValue
+
+	SendMessage(task *SCanbusTask, values []float64) error
 }

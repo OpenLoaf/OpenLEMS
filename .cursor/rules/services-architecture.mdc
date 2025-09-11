@@ -51,7 +51,7 @@ type IDeviceService interface {
 
 // 告警服务
 type IAlarmService interface {
-    CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_base.Meta, detail string, triggerAt *time.Time) error
+    CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_proto.SCanbusPoint, detail string, triggerAt *time.Time) error
     GetAlarmHistoryByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmHistoryModel, error)
     // ... 更多告警相关方法
 }

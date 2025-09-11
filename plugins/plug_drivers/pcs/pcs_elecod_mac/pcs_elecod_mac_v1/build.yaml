@@ -1,0 +1,31 @@
+brand: Elecod
+model: pcs
+version: v1.0.0
+author: "zz@hexems.com"
+create: "2025-08-10"
+remark: "亿兰科MAC协议"
+protocolType: "canbus"
+telemetry:
+  - name: power
+    unit: "kW"
+    remark: "功率"
+  - name: voltage
+    unit: "V"
+    remark: "电压"
+  - name: current
+    unit: "A"
+    remark: "电流"
+  - name: frequency
+    unit: "Hz"
+    remark: "频率"
+  - name: temperature
+    unit: "℃"
+    remark: "温度"
+
+customService:
+  - name: CustomShutdownService
+    displayName: "g18n:shutdown"
+  - name: CustomStartupService
+    displayName: "g18:startup"
+  - name: CustomStandbyService
+    displayName: "g18:standby"
