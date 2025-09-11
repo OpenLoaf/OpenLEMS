@@ -4,6 +4,7 @@ import (
 	"context"
 	"net"
 	"os"
+	"os/exec"
 	"runtime"
 	"strings"
 	"time"
@@ -28,22 +29,15 @@ func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetN
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取网络接口列表失败")
 	}
 
-	g.Log().Infof(ctx, "系统中共有 %d 个网络接口", len(netInterfaces))
-
 	var interfaces []*entity.SNetworkInterface
-	for i, netIface := range netInterfaces {
-		g.Log().Debugf(ctx, "处理接口 %d: 名称=%s, MAC=%s, 标志=%v, MTU=%d, 索引=%d",
-			i, netIface.Name, netIface.HardwareAddr.String(), netIface.Flags, netIface.MTU, netIface.Index)
-
+	for _, netIface := range netInterfaces {
 		// 只返回有MAC地址的接口
 		if len(netIface.HardwareAddr) == 0 {
-			g.Log().Debugf(ctx, "跳过接口 %s: 没有MAC地址", netIface.Name)
 			continue
 		}
 
 		// 过滤条件检查
 		if !req.IncludeLoopback && netIface.Name == "lo" {
-			g.Log().Debugf(ctx, "跳过接口 %s: 回环接口且未包含回环", netIface.Name)
 			continue
 		}
 
@@ -57,23 +51,18 @@ func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetN
 			Index: netIface.Index,
 		}
 
-		g.Log().Debugf(ctx, "构建接口信息: 名称=%s, 类型=%s, MAC=%s, 启用=%v",
-			iface.Name, iface.Type, iface.MAC, iface.Up)
+		// 获取网关地址
+		iface.Gateway = getGatewayForInterface(ctx, netIface.Name)
 
 		// 获取IP地址信息
 		addrs, err := netIface.Addrs()
 		if err != nil {
 			g.Log().Warningf(ctx, "获取接口 %s 的IP地址失败: %+v", netIface.Name, err)
 		} else {
-			g.Log().Debugf(ctx, "接口 %s 有 %d 个IP地址", netIface.Name, len(addrs))
-
 			var ipv4Addrs []string
-			for j, addr := range addrs {
-				g.Log().Debugf(ctx, "处理地址 %d: %s (类型: %T)", j, addr.String(), addr)
-
+			for _, addr := range addrs {
 				ipNet, ok := addr.(*net.IPNet)
 				if !ok {
-					g.Log().Debugf(ctx, "跳过地址 %s: 不是IPNet类型", addr.String())
 					continue
 				}
 
@@ -83,38 +72,19 @@ func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetN
 					ipv4Addrs = append(ipv4Addrs, ipStr)
 					if iface.Netmask == "" {
 						iface.Netmask = getNetmaskFromIPNet(ipNet)
-						g.Log().Debugf(ctx, "设置子网掩码: %s", iface.Netmask)
 					}
-				} else {
-					// 忽略IPv6地址
-					g.Log().Debugf(ctx, "忽略IPv6地址: %s", ipStr)
 				}
 			}
 			iface.IPAddresses = ipv4Addrs
-			g.Log().Debugf(ctx, "接口 %s 最终IP地址: 总数=%d",
-				netIface.Name, len(iface.IPAddresses))
 		}
 
 		interfaces = append(interfaces, iface)
-		g.Log().Infof(ctx, "成功添加接口: %s", netIface.Name)
 	}
 
 	// 获取DNS服务器地址列表
 	dnsServers := getDNSServers(ctx)
 
 	g.Log().Infof(ctx, "获取网络接口列表完成，共 %d 个接口，耗时: %v", len(interfaces), time.Since(start))
-
-	if len(interfaces) == 0 {
-		g.Log().Warningf(ctx, "没有找到符合条件的网络接口，请检查过滤条件")
-	}
-
-	// 打印最终结果摘要
-	for i, iface := range interfaces {
-		g.Log().Infof(ctx, "结果接口 %d: 名称=%s, 类型=%s, MAC=%s, IP地址数=%d",
-			i, iface.Name, iface.Type, iface.MAC, len(iface.IPAddresses))
-	}
-
-	g.Log().Infof(ctx, "DNS服务器列表: %v", dnsServers)
 
 	return &v1.GetNetworkInterfaceListRes{
 		Interfaces: interfaces,
@@ -161,20 +131,92 @@ func getDNSServers(ctx context.Context) []string {
 				dns := strings.TrimSpace(strings.TrimPrefix(line, "nameserver "))
 				if dns != "" && net.ParseIP(dns) != nil {
 					dnsServers = append(dnsServers, dns)
-					g.Log().Debugf(ctx, "从 /etc/resolv.conf 读取到DNS服务器: %s", dns)
 				}
 			}
 		}
-	} else {
-		g.Log().Warningf(ctx, "无法读取 /etc/resolv.conf 文件: %+v", err)
 	}
 
-	// 如果没有找到DNS服务器，添加一些常用的公共DNS
-	if len(dnsServers) == 0 {
-		g.Log().Infof(ctx, "未找到系统DNS配置，使用默认公共DNS服务器")
-		dnsServers = []string{"8.8.8.8", "8.8.4.4", "1.1.1.1"}
+	// 检查是否使用了systemd-resolved等本地解析器
+	if len(dnsServers) == 1 && dnsServers[0] == "127.0.0.53" {
+		realDNSServers := getDNSServersFromResolvectl(ctx)
+		if len(realDNSServers) > 0 {
+			dnsServers = realDNSServers
+		}
 	}
 
-	g.Log().Infof(ctx, "获取到 %d 个DNS服务器", len(dnsServers))
+	return dnsServers
+}
+
+// getGatewayForInterface 获取指定网络接口的网关地址
+func getGatewayForInterface(ctx context.Context, interfaceName string) string {
+	// 只在Linux系统上获取网关信息
+	if runtime.GOOS != "linux" {
+		return ""
+	}
+
+	// 执行 ip route show 命令获取路由信息
+	cmd := exec.Command("ip", "route", "show", "dev", interfaceName)
+	output, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// 查找默认路由 (0.0.0.0/0 或 default)
+		if strings.HasPrefix(line, "default") || strings.HasPrefix(line, "0.0.0.0/0") {
+			fields := strings.Fields(line)
+			if len(fields) >= 3 {
+				// 查找 "via" 关键字后的网关地址
+				for i, field := range fields {
+					if field == "via" && i+1 < len(fields) {
+						gateway := fields[i+1]
+						// 验证是否为有效的IP地址
+						if net.ParseIP(gateway) != nil {
+							return gateway
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ""
+}
+
+// getDNSServersFromResolvectl 使用resolvectl命令获取真实的DNS服务器
+func getDNSServersFromResolvectl(ctx context.Context) []string {
+	var dnsServers []string
+
+	// 执行 resolvectl status 命令
+	cmd := exec.Command("resolvectl", "status")
+	output, err := cmd.Output()
+	if err != nil {
+		return dnsServers
+	}
+
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// 查找包含 "DNS Servers:" 的行
+		if strings.Contains(line, "DNS Servers:") {
+			// 提取DNS服务器地址
+			parts := strings.Split(line, "DNS Servers:")
+			if len(parts) > 1 {
+				dnsPart := strings.TrimSpace(parts[1])
+				// 按空格分割多个DNS服务器
+				servers := strings.Fields(dnsPart)
+				for _, server := range servers {
+					// 验证是否为有效的IP地址
+					if net.ParseIP(server) != nil {
+						dnsServers = append(dnsServers, server)
+					}
+				}
+			}
+			break
+		}
+	}
+
 	return dnsServers
 }
