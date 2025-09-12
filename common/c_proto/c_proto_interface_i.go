@@ -3,7 +3,6 @@ package c_proto
 import (
 	"common/c_base"
 	"common/c_enum"
-	"context"
 	"time"
 )
 
@@ -25,11 +24,11 @@ type ICanbusProtocol interface {
 	SendMessage(task *SCanbusTask, values []float64) error
 }
 
-type IGpioSysfsProtocol interface {
+type IGpiodProtocol interface {
 	c_base.IProtocol
 
-	RegisterHandler(handler func(ctx context.Context, status bool, isChange bool)) // 状态变化处理
-	GetGpioStatus() *bool                                                          // 是否是高电平
-	SetHigh() error                                                                // 设置为高电平
-	SetLow() error                                                                 // 设置为低电平
+	RegisterHandler(handler func(status bool)) // 状态变化处理
+	GetGpioStatus() *bool                      // 是否是高电平
+	SetHigh() error                            // 设置为高电平
+	SetLow() error                             // 设置为低电平
 }

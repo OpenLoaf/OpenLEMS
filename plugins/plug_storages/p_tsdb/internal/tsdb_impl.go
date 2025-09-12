@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"c_window_counter/public"
 	"common/c_base"
 	"common/c_chart"
 	"common/c_enum"
@@ -19,8 +20,6 @@ import (
 
 	"github.com/prometheus/prometheus/pkg/labels"
 	promtsdb "github.com/prometheus/prometheus/tsdb"
-
-	"core/c_window_counter/public"
 )
 
 const (

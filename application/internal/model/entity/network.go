@@ -11,4 +11,5 @@ type SNetworkInterface struct {
 	Index       int      `json:"index" dc:"接口索引"`
 	IPAddresses []string `json:"ipAddresses" dc:"IPv4地址列表"`
 	DHCP        bool     `json:"dhcp" dc:"是否使用DHCP"`
+	DNS         []string `json:"dns" dc:"DNS服务器地址列表"`
 }

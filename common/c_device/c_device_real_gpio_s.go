@@ -9,7 +9,7 @@ import (
 )
 
 type SRealGpio struct {
-	c_proto.IGpioSysfsProtocol
+	c_proto.IGpiodProtocol
 
 	DeviceCtx    context.Context
 	cancel       context.CancelFunc

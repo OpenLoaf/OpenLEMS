@@ -1,7 +1,7 @@
 package public
 
 import (
-	"core/c_window_counter/internal"
+	"c_window_counter/internal"
 	"time"
 )
 

@@ -4,111 +4,112 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"time"
 
 	v1 "application/api/network/v1"
+	"t_network_manager"
+	"t_network_manager/public"
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-// UpdateNetworkInterface 更新网络接口配置（仅支持Linux）
+// UpdateNetworkInterface 更新网络接口配置
 func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.UpdateNetworkInterfaceReq) (res *v1.UpdateNetworkInterfaceRes, err error) {
-	start := time.Now()
-	g.Log().Infof(ctx, "开始更新网络接口配置: %s", req.Name)
-
-	// 创建验证器和网络管理器
-	validator := NewNetworkValidator()
-	networkManager := NewNetworkManager()
-
-	// 构建更新请求
-	updateReq := &UpdateInterfaceRequest{
-		Name:        req.Name,
-		DHCP:        req.DHCP,
-		IPAddresses: req.IPAddresses,
-		Netmask:     req.Netmask,
-		Gateway:     req.Gateway,
-		DNS:         req.DNS,
+	// 1. 参数验证
+	if err := c.validateUpdateRequest(req); err != nil {
+		return nil, err
 	}
 
-	// 验证请求参数
-	if err := validator.ValidateUpdateRequest(updateReq); err != nil {
-		g.Log().Errorf(ctx, "参数验证失败: %+v", err)
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, err.Error())
+	// 2. 获取网络管理器实例
+	networkManager := t_network_manager.GetInstance()
+	if networkManager == nil {
+		g.Log().Errorf(ctx, "获取网络管理器实例失败")
+		return nil, gerror.NewCode(gcode.CodeInternalError, "网络管理器初始化失败")
 	}
 
-	configMode := "静态配置"
-	if req.DHCP {
-		configMode = "DHCP配置"
-	}
-	g.Log().Infof(ctx, "应用网络配置: name=%s mode=%s ipAddresses=%v mask=%s gw=%s dns=%v", req.Name, configMode, req.IPAddresses, req.Netmask, req.Gateway, req.DNS)
+	// 3. 构建配置对象
+	config := c.buildInterfaceConfig(req)
 
-	// 更新网络接口配置
-	if err := networkManager.UpdateInterface(ctx, updateReq); err != nil {
-		g.Log().Errorf(ctx, "更新网络接口配置失败: %+v", err)
-		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新网络配置失败")
+	// 4. 更新接口配置
+	interfaceID := public.InterfaceID(req.Name)
+	if err := networkManager.UpdateInterfaceConfig(ctx, interfaceID, config); err != nil {
+		g.Log().Errorf(ctx, "更新网络接口 %s 配置失败: %+v", req.Name, err)
+		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新网络接口配置失败")
 	}
 
-	// 验证配置结果
-	if err := c.verifyInterfaceConfiguration(ctx, updateReq); err != nil {
-		g.Log().Warningf(ctx, "配置验证失败: %+v", err)
-		// 配置验证失败不阻断返回，只记录警告
-	}
-
-	g.Log().Infof(ctx, "网络接口配置更新完成: %s，耗时: %v", req.Name, time.Since(start))
+	g.Log().Infof(ctx, "网络接口 %s 配置更新成功", req.Name)
 	return &v1.UpdateNetworkInterfaceRes{}, nil
 }
 
-// verifyInterfaceConfiguration 验证接口配置结果
-func (c *ControllerV1) verifyInterfaceConfiguration(ctx context.Context, req *UpdateInterfaceRequest) error {
-	// 等待配置生效
-	time.Sleep(2 * time.Second)
-
-	// 读取系统当前状态进行比对
-	ifi, err := net.InterfaceByName(req.Name)
-	if err != nil {
-		return err
+// validateUpdateRequest 验证更新请求参数
+func (c *ControllerV1) validateUpdateRequest(req *v1.UpdateNetworkInterfaceReq) error {
+	if req.Name == "" {
+		return gerror.NewCode(gcode.CodeInvalidParameter, "接口名称不能为空")
 	}
 
-	addrs, _ := ifi.Addrs()
-	var configuredIPs []string
+	// 如果使用静态IP，验证必要参数
+	if !req.DHCP {
+		if len(req.IPAddresses) == 0 {
+			return gerror.NewCode(gcode.CodeInvalidParameter, "静态IP模式下必须提供IP地址")
+		}
 
-	// 收集当前配置的IP地址
-	for _, a := range addrs {
-		if ipNet, ok := a.(*net.IPNet); ok && ipNet.IP.To4() != nil {
-			configuredIPs = append(configuredIPs, ipNet.IP.String())
+		// 验证IP地址格式
+		for _, ip := range req.IPAddresses {
+			if net.ParseIP(ip) == nil {
+				return gerror.NewCode(gcode.CodeInvalidParameter, fmt.Sprintf("无效的IP地址: %s", ip))
+			}
+		}
+
+		// 验证子网掩码
+		if req.Netmask != "" {
+			if net.ParseIP(req.Netmask) == nil {
+				return gerror.NewCode(gcode.CodeInvalidParameter, "无效的子网掩码格式")
+			}
+		}
+
+		// 验证网关
+		if req.Gateway != "" {
+			if net.ParseIP(req.Gateway) == nil {
+				return gerror.NewCode(gcode.CodeInvalidParameter, "无效的网关地址")
+			}
 		}
 	}
 
-	if req.DHCP {
-		// DHCP模式：检查接口是否启用
-		up := ifi.Flags&net.FlagUp != 0
-		if !up {
-			return fmt.Errorf("接口未启用")
+	// 验证DNS服务器地址
+	for _, dns := range req.DNS {
+		if net.ParseIP(dns) == nil {
+			return gerror.NewCode(gcode.CodeInvalidParameter, fmt.Sprintf("无效的DNS服务器地址: %s", dns))
 		}
-
-		if len(configuredIPs) == 0 {
-			g.Log().Infof(ctx, "DHCP配置已应用（接口已启用，等待网络连接获取IP地址）")
-		} else {
-			g.Log().Infof(ctx, "DHCP配置已应用（已获取IP地址: %v）", configuredIPs)
-		}
-	} else {
-		// 静态模式：检查所有请求的IP地址是否都已配置
-		for _, requestedIP := range req.IPAddresses {
-			found := false
-			for _, configuredIP := range configuredIPs {
-				if configuredIP == requestedIP {
-					found = true
-					break
-				}
-			}
-			if !found {
-				return fmt.Errorf("IP地址 %s 未生效", requestedIP)
-			}
-		}
-		g.Log().Infof(ctx, "静态配置已应用")
 	}
 
 	return nil
+}
+
+// buildInterfaceConfig 构建接口配置对象
+func (c *ControllerV1) buildInterfaceConfig(req *v1.UpdateNetworkInterfaceReq) public.InterfaceConfig {
+	config := public.InterfaceConfig{
+		DHCP: &req.DHCP,
+		DNS:  req.DNS,
+	}
+
+	// 如果不是DHCP模式，设置静态IP配置
+	if !req.DHCP && len(req.IPAddresses) > 0 {
+		var ipv4Configs []*public.Ipv4Config
+		for _, ip := range req.IPAddresses {
+			ipv4Config := &public.Ipv4Config{
+				IPv4:       ip,
+				SubnetMask: req.Netmask,
+			}
+			ipv4Configs = append(ipv4Configs, ipv4Config)
+		}
+		config.IPv4 = ipv4Configs
+	}
+
+	// 设置网关
+	if req.Gateway != "" {
+		config.Gateway = []string{req.Gateway}
+	}
+
+	return config
 }

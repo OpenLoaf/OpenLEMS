@@ -3,10 +3,11 @@ go 1.25.0
 use (
 	./@cpp
 	./@cpp/hexlib
+	./common
 	./application
 	./application-gui
-	./core
-	./common
+	./tools/t_window_counter
+	./tools/t_network_manager
 	./plugins/plug_drivers/gpio/gpio_zlg_em_1000
 	./plugins/plug_drivers/bms/bms_pylon_tech_us108
 	./plugins/plug_drivers/demo/ammeter_demo
@@ -21,7 +22,7 @@ use (
 	./plugins/plug_protocols/p_base
 	./plugins/plug_protocols/p_canbus
 	./plugins/plug_protocols/p_modbus
-	./plugins/plug_protocols/p_gpio_sysfs
+	./plugins/plug_protocols/p_gpiod
 
 	./plugins/plug_storages/p_storage
 	./plugins/plug_storages/p_tsdb

@@ -1,7 +1,7 @@
 package v1
 
 import (
-	"application/internal/model/entity"
+	"t_network_manager/public"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -12,9 +12,7 @@ type GetNetworkInterfaceListReq struct {
 }
 
 type GetNetworkInterfaceListRes struct {
-	Interfaces []*entity.SNetworkInterface `json:"interfaces" dc:"网络接口列表"`
-	Total      int                         `json:"total" dc:"总数"`
-	DNS        []string                    `json:"dns" dc:"DNS服务器地址列表"`
+	Interfaces []*public.InterfaceSummary `json:"interfaces" dc:"网络接口列表"`
 }
 
 type UpdateNetworkInterfaceReq struct {
