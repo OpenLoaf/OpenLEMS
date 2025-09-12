@@ -78,6 +78,11 @@ func (m *SManager) getInterfaceDetails(ctx context.Context, serviceName string) 
 		return nil, err
 	}
 
+	// 获取DHCP状态
+	if err := m.getDHCPStatus(ctx, serviceName, summary); err != nil {
+		return nil, err
+	}
+
 	return summary, nil
 }
 
@@ -115,9 +120,30 @@ func (m *SManager) getIPConfig(ctx context.Context, serviceName string, summary 
 	}
 
 	lines := strings.Split(string(output), "\n")
+	var currentIPv4 *public.Ipv4Config
+
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "MTU:") {
+
+		if strings.HasPrefix(line, "IP address:") {
+			// 解析IP地址
+			parts := strings.Fields(line)
+			if len(parts) > 2 {
+				ip := parts[2]
+				if net.ParseIP(ip) != nil {
+					currentIPv4 = &public.Ipv4Config{
+						IPv4: ip,
+					}
+					summary.IPv4 = append(summary.IPv4, currentIPv4)
+				}
+			}
+		} else if strings.HasPrefix(line, "Subnet mask:") && currentIPv4 != nil {
+			// 解析子网掩码
+			parts := strings.Fields(line)
+			if len(parts) > 2 {
+				currentIPv4.SubnetMask = parts[2]
+			}
+		} else if strings.HasPrefix(line, "MTU:") {
 			// 解析MTU
 			parts := strings.Fields(line)
 			if len(parts) > 1 {
@@ -169,6 +195,31 @@ func (m *SManager) getGatewayInfo(ctx context.Context, serviceName string, summa
 					summary.Gateway = append(summary.Gateway, parts[1])
 				}
 			}
+		}
+	}
+
+	return nil
+}
+
+// getDHCPStatus 获取DHCP状态
+func (m *SManager) getDHCPStatus(ctx context.Context, serviceName string, summary *public.InterfaceSummary) error {
+	cmd := exec.CommandContext(ctx, "networksetup", "-getinfo", serviceName)
+	output, err := cmd.Output()
+	if err != nil {
+		return err
+	}
+
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if strings.HasPrefix(line, "Configuration Method:") {
+			// 检查配置方法
+			if strings.Contains(line, "DHCP") {
+				summary.DHCP = true
+			} else {
+				summary.DHCP = false
+			}
+			break
 		}
 	}
 
