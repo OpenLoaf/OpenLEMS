@@ -77,7 +77,7 @@ var (
 	PileSystemSleepStatus = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "PileSystemSleepStatus", Name: "电池组休眠状态", Group: StatusGroup, Desc: "0-否，1-休眠"}, DataAccess: &c_base.SDataAccess{BitIndex: 13, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: func(value any) (string, error) {
 		return c_default.StatusExplainBool(value, "休眠", "否")
 	}}
-	FanWarn = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "FanWarn", Name: "电池组休眠状态", Group: StatusGroup, Trigger: c_default.FAlarmTriggerAlertBool, Desc: "0-无异常，1-有异常"}, DataAccess: &c_base.SDataAccess{BitIndex: 14, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: func(value any) (string, error) {
+	FanWarn = &c_proto.SModbusPoint{Addr: 0x1100, SPoint: &c_base.SPoint{Key: "FanWarn", Name: "风扇告警", Group: StatusGroup, Trigger: c_default.FAlarmTriggerAlertBool, Desc: "0-无异常，1-有异常"}, DataAccess: &c_base.SDataAccess{BitIndex: 14, BitLength: 1, DataFormat: c_enum.DataFormatBitRange, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, ValueType: c_enum.EBool}, StatusExplain: func(value any) (string, error) {
 		return c_default.StatusExplainBool(value, "有异常", "无异常")
 	}}
 

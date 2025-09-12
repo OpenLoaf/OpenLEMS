@@ -182,6 +182,9 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr, quantity
 		}
 
 		value, err := decoder(p.deviceId, result, addr, quantity, point)
+		if err != nil {
+			g.Log().Errorf(p.ctx, "解析点位：[%s:%s] bytes失败! %+v", groupName, point, err)
+		}
 
 		err = p.IProtocolCacheValue.CacheValue(value, lifetime)
 
@@ -214,7 +217,8 @@ func decoder(deviceId string, bytes []byte, addr, quantity uint16, point *c_prot
 		// 位级别：使用BitIndex和BitLength
 		// 边界检查：确保点位地址在任务范围内
 		// 每个寄存器占16位，所以任务的位地址范围是 [addr*16, (addr+quantity)*16-1]
-		taskStartBit := addr * 16
+		// taskStartBit := addr * 16
+		taskStartBit := uint16(0)
 		taskEndBit := (addr+quantity)*16 - 1
 		// 检查起始地址和结束地址都在范围内
 		bitEndAddress := point.DataAccess.BitIndex + point.DataAccess.BitLength - 1
