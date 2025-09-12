@@ -3,6 +3,8 @@ package c_device
 import (
 	"common/c_base"
 	"common/c_log"
+	"reflect"
+
 	"github.com/pkg/errors"
 )
 
@@ -25,12 +27,16 @@ func VirtualGetDataWithChildDeviceType[T c_base.IDriver, V any](s *SVirtualDevic
 				if err != nil {
 					return zero, err
 				}
+				v := reflect.ValueOf(result)
+				if v.Kind() == reflect.Ptr && v.IsNil() {
+					continue
+				}
 				results = append(results, result)
 			}
 		}
 	}
 	if len(results) == 0 {
-		return zero, errors.New("数据不存在")
+		return zero, nil
 	}
 	return aggregateFunction(results)
 }

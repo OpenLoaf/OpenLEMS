@@ -3,30 +3,30 @@ go 1.25.0
 use (
 	./@cpp
 	./@cpp/hexlib
-	./common
 	./application
 	./application-gui
-	./tools/t_window_counter
-	./tools/t_network_manager
-	./plugins/plug_drivers/gpio/gpio_basic
+	./common
 	./plugins/plug_drivers/bms/bms_pylon_tech_us108
 	./plugins/plug_drivers/demo/ammeter_demo
 	./plugins/plug_drivers/demo/ess_demo
 	./plugins/plug_drivers/demo/load_demo
 	./plugins/plug_drivers/demo/pv_demo
 	./plugins/plug_drivers/ess/ess_pylon_checkwatt
+	./plugins/plug_drivers/gpio/gpio_basic
 	./plugins/plug_drivers/pcs/pcs_elecod_mac
 	./plugins/plug_drivers/pcs/pcs_star_charge_100E
 	./plugins/plug_policy/p_policy_mircogrid
 
 	./plugins/plug_protocols/p_base
 	./plugins/plug_protocols/p_canbus
-	./plugins/plug_protocols/p_modbus
 	./plugins/plug_protocols/p_gpiod
+	./plugins/plug_protocols/p_modbus
 
 	./plugins/plug_storages/p_storage
 	./plugins/plug_storages/p_tsdb
 	./services/s_db
 	./services/s_driver
 	./services/s_storage
+	./tools/t_network_manager
+	./tools/t_window_counter
 )

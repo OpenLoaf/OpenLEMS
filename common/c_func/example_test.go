@@ -13,7 +13,7 @@ func ExampleAggregateAvgInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("平均值: %d\n", avg)
+	fmt.Printf("平均值: %d\n", *avg)
 
 	// 浮点数平均值
 	floatValues := []any{1.5, 2.5, 3.5, 4.5, 5.5}
@@ -22,7 +22,7 @@ func ExampleAggregateAvgInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("浮点数平均值: %.2f\n", avgFloat)
+	fmt.Printf("浮点数平均值: %.2f\n", *avgFloat)
 
 	// 字符串转换
 	strValues := []any{"10", "20", "30", "40", "50"}
@@ -31,7 +31,7 @@ func ExampleAggregateAvgInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("字符串转换平均值: %d\n", avgStr)
+	fmt.Printf("字符串转换平均值: %d\n", *avgStr)
 
 	// Output:
 	// 平均值: 3
@@ -48,7 +48,7 @@ func ExampleAggregateSumInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("总和: %d\n", sum)
+	fmt.Printf("总和: %d\n", *sum)
 
 	// 浮点数求和
 	floatValues := []any{1.5, 2.5, 3.5, 4.5, 5.5}
@@ -57,7 +57,7 @@ func ExampleAggregateSumInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("浮点数总和: %.2f\n", sumFloat)
+	fmt.Printf("浮点数总和: %.2f\n", *sumFloat)
 
 	// Output:
 	// 总和: 15
@@ -73,7 +73,7 @@ func ExampleAggregateMaxInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("最大值: %d\n", max)
+	fmt.Printf("最大值: %d\n", *max)
 
 	// 浮点数最大值
 	floatValues := []any{1.5, 5.5, 3.5, 9.5, 2.5}
@@ -82,7 +82,7 @@ func ExampleAggregateMaxInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("浮点数最大值: %.2f\n", maxFloat)
+	fmt.Printf("浮点数最大值: %.2f\n", *maxFloat)
 
 	// Output:
 	// 最大值: 9
@@ -98,7 +98,7 @@ func ExampleAggregateMinInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("最小值: %d\n", min)
+	fmt.Printf("最小值: %d\n", *min)
 
 	// 浮点数最小值
 	floatValues := []any{5.5, 1.5, 3.5, 9.5, 2.5}
@@ -107,7 +107,7 @@ func ExampleAggregateMinInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("浮点数最小值: %.2f\n", minFloat)
+	fmt.Printf("浮点数最小值: %.2f\n", *minFloat)
 
 	// Output:
 	// 最小值: 1
@@ -123,13 +123,13 @@ func ExampleAggregateEqualInt() {
 		fmt.Printf("错误: %+v\n", err)
 		return
 	}
-	fmt.Printf("相等值结果: %d\n", result)
+	fmt.Printf("相等值结果: %d\n", *result)
 
 	// 不相等值
 	unequalValues := []any{1, 2, 3, 4}
 	_, err = AggregateEqualInt(unequalValues)
 	if err != nil {
-		fmt.Printf("不相等值错误: %+v\n", err)
+		fmt.Printf("不相等值错误: %s\n", err.Error())
 	}
 
 	// 通用相等性判断

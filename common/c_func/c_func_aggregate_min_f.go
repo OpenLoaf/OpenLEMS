@@ -7,10 +7,9 @@ import (
 )
 
 // 求最小值
-func minAggregate[T c_base.Number](values []any, convert func(interface{}) (T, error)) (T, error) {
+func minAggregate[T c_base.Number](values []any, convert func(interface{}) (T, error)) (*T, error) {
 	if len(values) == 0 {
-		var zero T
-		return zero, nil
+		return nil, nil
 	}
 
 	var mi T
@@ -32,59 +31,58 @@ func minAggregate[T c_base.Number](values []any, convert func(interface{}) (T, e
 		}
 	}
 	if err != nil {
-		var zero T
-		return zero, err
+		return nil, err
 	}
-	return mi, nil
+	return &mi, nil
 }
 
 // 整数类型
-var AggregateMinInt = func(values []any) (int, error) {
+var AggregateMinInt = func(values []any) (*int, error) {
 	return minAggregate[int](values, cvt.IntE)
 }
 
-var AggregateMinInt8 = func(values []any) (int8, error) {
+var AggregateMinInt8 = func(values []any) (*int8, error) {
 	return minAggregate[int8](values, cvt.Int8E)
 }
 
-var AggregateMinInt16 = func(values []any) (int16, error) {
+var AggregateMinInt16 = func(values []any) (*int16, error) {
 	return minAggregate[int16](values, cvt.Int16E)
 }
 
-var AggregateMinInt32 = func(values []any) (int32, error) {
+var AggregateMinInt32 = func(values []any) (*int32, error) {
 	return minAggregate[int32](values, cvt.Int32E)
 }
 
-var AggregateMinInt64 = func(values []any) (int64, error) {
+var AggregateMinInt64 = func(values []any) (*int64, error) {
 	return minAggregate[int64](values, cvt.Int64E)
 }
 
 // 无符号整数类型
-var AggregateMinUint = func(values []any) (uint, error) {
+var AggregateMinUint = func(values []any) (*uint, error) {
 	return minAggregate[uint](values, cvt.UintE)
 }
 
-var AggregateMinUint8 = func(values []any) (uint8, error) {
+var AggregateMinUint8 = func(values []any) (*uint8, error) {
 	return minAggregate[uint8](values, cvt.Uint8E)
 }
 
-var AggregateMinUint16 = func(values []any) (uint16, error) {
+var AggregateMinUint16 = func(values []any) (*uint16, error) {
 	return minAggregate[uint16](values, cvt.Uint16E)
 }
 
-var AggregateMinUint32 = func(values []any) (uint32, error) {
+var AggregateMinUint32 = func(values []any) (*uint32, error) {
 	return minAggregate[uint32](values, cvt.Uint32E)
 }
 
-var AggregateMinUint64 = func(values []any) (uint64, error) {
+var AggregateMinUint64 = func(values []any) (*uint64, error) {
 	return minAggregate[uint64](values, cvt.Uint64E)
 }
 
 // 浮点数类型
-var AggregateMinFloat32 = func(values []any) (float32, error) {
+var AggregateMinFloat32 = func(values []any) (*float32, error) {
 	return minAggregate[float32](values, cvt.Float32E)
 }
 
-var AggregateMinFloat64 = func(values []any) (float64, error) {
+var AggregateMinFloat64 = func(values []any) (*float64, error) {
 	return minAggregate[float64](values, cvt.Float64E)
 }
