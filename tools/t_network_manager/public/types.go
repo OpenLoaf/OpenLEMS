@@ -28,3 +28,12 @@ type Ipv4Config struct {
 	IPv4       string `json:"ipv4"`
 	SubnetMask string `json:"subnetMask"`
 }
+
+// PingResult ping测试结果
+type PingResult struct {
+	Target    string  `json:"target" dc:"目标地址"`
+	Success   bool    `json:"success" dc:"是否成功"`
+	Latency   float64 `json:"latency" dc:"延迟时间（毫秒）"`
+	Error     string  `json:"error,omitempty" dc:"错误信息（如果失败）"`
+	Timestamp int64   `json:"timestamp" dc:"测试时间戳"`
+}

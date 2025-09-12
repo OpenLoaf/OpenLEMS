@@ -38,3 +38,12 @@ type SetInterfaceStateReq struct {
 type SetInterfaceStateRes struct {
 	// 空响应体，成功则返回空对象，失败通过错误码/信息返回
 }
+
+type PingReq struct {
+	g.Meta `path:"/network/ping" method:"post" tags:"网络相关" summary:"执行ping测试"`
+	Target string `json:"target" v:"required#目标地址必填" dc:"目标IP地址或域名"`
+}
+
+type PingRes struct {
+	Result *public.PingResult `json:"result" dc:"ping测试结果"`
+}

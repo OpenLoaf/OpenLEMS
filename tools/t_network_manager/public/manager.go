@@ -12,4 +12,7 @@ type NetworkManager interface {
 	// 配置与状态
 	UpdateInterfaceConfig(ctx context.Context, id InterfaceID, cfg InterfaceConfig) error
 	SetInterfaceState(ctx context.Context, id InterfaceID, up bool) error
+
+	// 网络测试
+	Ping(ctx context.Context, target string) (*PingResult, error)
 }

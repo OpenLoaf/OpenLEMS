@@ -8,8 +8,11 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"regexp"
+	"strconv"
 	"strings"
 	"t_network_manager/public"
+	"time"
 
 	"github.com/vishvananda/netlink"
 )
@@ -568,4 +571,66 @@ func (m *SManager) SetInterfaceState(ctx context.Context, id public.InterfaceID,
 	}
 
 	return nil
+}
+
+// Ping 执行ping测试
+func (m *SManager) Ping(ctx context.Context, target string) (*public.PingResult, error) {
+	// 验证目标地址
+	if target == "" {
+		return &public.PingResult{
+			Target:    target,
+			Success:   false,
+			Error:     "目标地址不能为空",
+			Timestamp: time.Now().Unix(),
+		}, nil
+	}
+
+	// 使用系统的ping命令
+	cmd := exec.CommandContext(ctx, "ping", "-c", "1", "-W", "3", target)
+	output, err := cmd.Output()
+
+	result := &public.PingResult{
+		Target:    target,
+		Timestamp: time.Now().Unix(),
+	}
+
+	if err != nil {
+		result.Success = false
+		result.Error = fmt.Sprintf("ping失败: %v", err)
+		return result, nil
+	}
+
+	// 解析ping输出获取延迟时间
+	latency, err := m.parsePingOutput(string(output))
+	if err != nil {
+		result.Success = false
+		result.Error = fmt.Sprintf("解析ping结果失败: %v", err)
+		return result, nil
+	}
+
+	result.Success = true
+	result.Latency = latency
+	return result, nil
+}
+
+// parsePingOutput 解析ping命令输出
+func (m *SManager) parsePingOutput(output string) (float64, error) {
+	// Linux ping输出格式示例：
+	// PING 8.8.8.8 (8.8.8.8) 56(84) bytes of data.
+	// 64 bytes from 8.8.8.8: icmp_seq=1 ttl=57 time=12.3 ms
+
+	// 查找time=xxx ms模式
+	re := regexp.MustCompile(`time=(\d+\.?\d*)\s*ms`)
+	matches := re.FindStringSubmatch(output)
+
+	if len(matches) < 2 {
+		return 0, fmt.Errorf("无法从ping输出中解析延迟时间")
+	}
+
+	latency, err := strconv.ParseFloat(matches[1], 64)
+	if err != nil {
+		return 0, fmt.Errorf("解析延迟时间失败: %v", err)
+	}
+
+	return latency, nil
 }
