@@ -1,6 +1,6 @@
 ---
 description: Modbus点位定义规范和最佳实践
-globs: **/*point*.go,**/*modbus*.go
+globs: **/*point*.go,**/*modbus*.go,**/*task*.go
 ---
 
 # Modbus 点位定义规范
