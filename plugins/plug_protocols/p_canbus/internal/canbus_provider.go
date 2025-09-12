@@ -35,10 +35,6 @@ type CanbusProtocolProvider struct {
 	//metricProtocol *sMetricProtocol // 统计协议
 }
 
-func (c *CanbusProtocolProvider) GetProtocolStatus() c_enum.EProtocolStatus {
-	return c.protocolStatus
-}
-
 var _ c_proto.ICanbusProtocol = (*CanbusProtocolProvider)(nil)
 
 func NewCanbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, receiverChan <-chan can.Frame, transmitterChan chan<- can.Frame) (c_proto.ICanbusProtocol, error) {
@@ -65,6 +61,14 @@ func NewCanbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 	}
 
 	return provider, nil
+}
+
+func (c *CanbusProtocolProvider) GetProtocolStatus() c_enum.EProtocolStatus {
+	return c.protocolStatus
+}
+
+func (c *CanbusProtocolProvider) GetConfig() *c_base.SDeviceConfig {
+	return c.deviceConfig
 }
 
 func (c *CanbusProtocolProvider) GetLastUpdateTime() *time.Time {

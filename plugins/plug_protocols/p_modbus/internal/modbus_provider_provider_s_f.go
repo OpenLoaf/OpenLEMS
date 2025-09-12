@@ -23,14 +23,15 @@ type ModbusProtocolProvider struct {
 	ctx  context.Context // 上下文
 	once sync.Once       // 只执行一次Init方法
 
-	deviceId string
+	deviceId       string
+	client         modbus.Client   // modbus的通讯
+	preQuery       map[string]bool // 预读
+	modbusRwMutex  sync.RWMutex    // 读写锁
+	lastUpdateTime *time.Time      // 最后更新时间
+	protocolConfig *c_base.SProtocolConfig
 
-	client             modbus.Client   // modbus的通讯
-	preQuery           map[string]bool // 预读
-	modbusRwMutex      sync.RWMutex    // 读写锁
-	lastUpdateTime     *time.Time      // 最后更新时间
+	deviceConfig       *c_base.SDeviceConfig
 	modbusDeviceConfig *c_proto.SModbusDeviceConfig
-	protocolConfig     *c_base.SProtocolConfig
 
 	metricProtocol *sMetricProtocol // 统计协议
 }
@@ -57,13 +58,13 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 		IProtocolCacheValue: p_base.NewGetProtocolCacheValue(ctx, deviceConfig.Id),
 		IAlarm:              c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
 		deviceId:            deviceConfig.Id,
-
-		once:               sync.Once{},
-		ctx:                ctx,
-		protocolConfig:     protocolConfig,
-		modbusDeviceConfig: modbusDeviceConfig,
-		preQuery:           make(map[string]bool),
-		metricProtocol:     newMetricProtocol(ctx, protocolConfig, deviceConfig),
+		deviceConfig:        deviceConfig,
+		once:                sync.Once{},
+		ctx:                 ctx,
+		protocolConfig:      protocolConfig,
+		modbusDeviceConfig:  modbusDeviceConfig,
+		preQuery:            make(map[string]bool),
+		metricProtocol:      newMetricProtocol(ctx, protocolConfig, deviceConfig),
 	}
 	if client != nil {
 		provider.client = client.(modbus.Client)
@@ -85,6 +86,10 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 	//}
 
 	return provider, nil
+}
+
+func (p *ModbusProtocolProvider) GetConfig() *c_base.SDeviceConfig {
+	return p.deviceConfig
 }
 
 func (p *ModbusProtocolProvider) GetDeviceConfigFields() []*c_base.SConfigStructFields {

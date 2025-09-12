@@ -1,5 +1,6 @@
 brand: Elecod
-model: pcs
+model: MAC
+type: pcs
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-08-10"
@@ -22,7 +23,7 @@ telemetry:
 #    unit: "℃"
 #    remark: "温度"
 
-customService:
+Service:
   - name: CustomShutdownService
     displayName: "g18n:shutdown"
   - name: CustomStartupService

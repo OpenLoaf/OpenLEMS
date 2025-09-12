@@ -8,7 +8,7 @@ use (
 	./application-gui
 	./tools/t_window_counter
 	./tools/t_network_manager
-	./plugins/plug_drivers/gpio/gpio_zlg_em_1000
+	./plugins/plug_drivers/gpio/gpio_basic
 	./plugins/plug_drivers/bms/bms_pylon_tech_us108
 	./plugins/plug_drivers/demo/ammeter_demo
 	./plugins/plug_drivers/demo/ess_demo

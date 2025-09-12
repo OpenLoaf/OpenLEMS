@@ -30,7 +30,7 @@ func (c *ControllerV1) GetGpioSysfsScan(ctx context.Context, req *v1.GetGpioSysf
 	g.Log().Infof(ctx, "开始扫描GPIO Sysfs信息")
 
 	// 1. 获取所有GPIO协议配置
-	protocols, err := s_db.GetProtocolService().GetProtocolList(ctx, string(c_enum.EGpioSysfs))
+	protocols, err := s_db.GetProtocolService().GetProtocolList(ctx, string(c_enum.EGpiod))
 	if err != nil {
 		g.Log().Errorf(ctx, "获取GPIO协议列表失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取GPIO协议列表失败")

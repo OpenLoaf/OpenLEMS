@@ -1,0 +1,258 @@
+---
+description: 驱动描述文件 build.yaml 生成规范
+globs: **/build.yaml
+---
+
+# 驱动描述文件 build.yaml 生成规范
+
+## 概述
+
+驱动描述文件 `build.yaml` 通过 `BuildDescriptionFromYaml` 方法生成 `SDriverInfo` 和 `SConfigStructFields` 列表，用于描述驱动的元数据和前端展示方式。
+
+## 文件结构
+
+### 基础信息字段
+
+```yaml
+brand: "品牌名称"           # 设备品牌
+model: "型号名称"          # 设备型号  
+type: "设备类型"           # 设备类型：bms、pcs、ess、gpio等
+version: "版本号"          # 驱动版本，如 "v1.0.0"
+author: "作者邮箱"         # 作者信息
+create: "创建日期"         # 创建日期，格式 "YYYY-MM-DD"
+remark: "备注信息"         # 驱动描述
+protocolType: "协议类型"   # 协议类型：modbus、canbus、gpiod、virtual等
+```
+
+### 遥测信息 (telemetry)
+
+遥测信息通过反射机制调用 `Get{Telemetry.name}` 方法获取数据。
+
+```yaml
+telemetry:
+  - name: "遥测名称"                    # 遥测字段名，对应Get方法名
+    displayName: "显示名称"             # 前端显示名称
+    unit: "单位"                       # 数据单位，如 "kW", "kWh", "V", "A", "%"
+    type: "数据类型"                   # 数据类型：label（可选）
+    mapping:                           # 状态映射（用于label类型）
+      "0": "未知|#FF5D5D"
+      "1": "关机|#9CBF30"
+      "2": "待机|#6967EE"
+    remark: "备注信息"                 # 字段说明
+```
+
+**数据类型 (type) 规则：**
+
+1. **type 为空或未定义**：前端直接显示原始数据值，适用于数值类型数据
+2. **type: "label"**：前端使用 label 组件显示，根据 `mapping` 进行数据映射
+
+**状态映射 (mapping) 规则：**
+
+- **格式**：`"原始值": "显示名称|#颜色代码"`
+- **原始值**：设备返回的实际数据值（字符串格式）
+- **显示名称**：前端展示的文本内容
+- **颜色代码**：十六进制颜色值
+
+**常用颜色代码：**
+
+- `#FF5D5D` - 红色（故障、错误状态）
+- `#9CBF30` - 绿色（正常、关机状态）
+- `#6967EE` - 蓝色（待机状态）
+- `#29A634` - 深绿色（运行、充电状态）
+- `#0098FA` - 亮蓝色（工作、放电状态）
+
+### 自定义服务 (service)
+
+自定义服务通过反射执行对应的方法。
+
+```yaml
+service:
+  - name: "服务方法名"                 # 对应驱动中的方法名
+    displayName: "显示名称"            # 前端显示名称，支持i18n
+    description: "服务描述"            # 服务功能描述
+```
+
+**服务命名规范：**
+
+- 推荐使用 `Custom` 前缀，如 `CustomShutdownService`
+- 方法名应具有语义性，如 `SetHigh`、`SetLow`、`Start`、`Stop`
+- 支持国际化，使用 `g18n:key` 格式
+
+## 反射机制
+
+### 遥测数据获取
+
+系统调用设备实例的 `Get{Telemetry.name}` 方法：
+
+```go
+// 示例：telemetry.name = "soc"
+// 系统会调用 instance.GetSoc() 方法
+functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
+method := instanceValue.MethodByName(functionName)
+```
+
+**方法要求：**
+
+- 方法名格式：`Get + 首字母大写的遥测名称`
+- 返回值：可以是单个值或 `(value, error)` 格式
+- 方法必须是无参数的
+
+### 自定义服务执行
+
+系统调用设备实例的服务方法：
+
+```go
+// 示例：service.name = "CustomShutdownService"
+// 系统会调用 instance.CustomShutdownService() 方法
+method := reflect.ValueOf(instance).MethodByName(functionName)
+```
+
+**方法要求：**
+
+- 方法名必须与 `service.name` 完全匹配
+- 返回值：可以是 `error` 或 `(result, error)` 格式
+- 方法必须是无参数的
+
+## 配置结构体字段
+
+通过 `BuildConfigStructFields` 方法解析设备配置结构体：
+
+```go
+type DeviceConfig struct {
+    Name   string `json:"name" name:"设备名称" ct:"text" required:"true"`
+    Port   int    `json:"port" name:"端口号" ct:"number" min:"1" max:"65535" default:"8080"`
+    Enable bool   `json:"enable" name:"启用状态" ct:"switch" default:"true"`
+}
+```
+
+**标签规范：**
+
+- `json`: JSON序列化字段名（必需）
+- `name`: 字段显示名称
+- `ct`: 组件类型（必需）- `text`、`number`、`switch`、`singleSelect`、`multiSelect`
+- `required`: 是否必填
+- `min`/`max`: 数值范围限制
+- `default`: 默认值
+- `unit`: 单位信息
+
+## 示例文件
+
+### BMS 驱动示例
+
+```yaml
+brand: Pylon
+model: TechUs108
+type: bms
+version: v1.0.0
+author: "zz@hexems.com"
+create: "2024-09-07"
+remark: "派能108kWh风冷电池MBMS"
+protocolType: "modbus"
+telemetry:
+  # 状态类数据 - 使用 label 类型和 mapping 映射
+  - name: bmsStatus
+    displayName: "电池状态"
+    type: label
+    mapping:
+      "0": "未知|#FF5D5D"
+      "1": "关机|#9CBF30"
+      "2": "待机|#6967EE"
+      "3": "充电中|#29A634"
+      "4": "放电中|#0098FA"
+      "5": "故障|#FF5D5D"
+  # 数值类数据 - type 为空，直接显示数值
+  - name: soc
+    unit: "%"
+    displayName: "SOC"
+  - name: capacity
+    unit: "kWh"
+    displayName: "电池容量"
+  - name: dcPower
+    unit: "kW"
+    displayName: "直流功率"
+service:
+  - name: CustomDcOffService
+    displayName: "g18n:dc-off"
+    description: "电池下电指令"
+  - name: CustomDcOnService
+    displayName: "g18n:dc-on"
+    description: "电池上电指令"
+```
+
+### GPIO 驱动示例
+
+```yaml
+brand: Hex
+model: Basic-GPIO
+name: "基础GPIO驱动"
+version: "v1.0.0"
+author: "zz@hexems.com"
+create: "2025-09-12"
+protocolType: "gpiod"
+remark: "基础GPIO驱动，支持GPIO输入输出控制"
+telemetry:
+  # 布尔值状态 - 使用 label 类型和布尔值映射
+  - name: gpioStatus
+    displayName: "状态"
+    type: label
+    mapping:
+      "false": "关|#9CBF30"
+      "true": "开|#0098FA"
+  # 数值数据 - type 为空，直接显示
+  - name: voltage
+    unit: "V"
+    displayName: "电压"
+service:
+  - name: SetLow
+    displayName: "低电平"
+    description: "设置为低电平"
+  - name: SetHigh
+    displayName: "高电平"
+    description: "设置为高电平"
+  - name: CustomToggleService
+    displayName: "g18n:toggle"
+    description: "切换状态"
+```
+
+## 最佳实践
+
+### 遥测设计
+
+1. **数据类型选择**:
+   - 状态类数据使用 `type: label` 配合 `mapping` 映射
+   - 数值类数据不设置 `type`，直接显示原始值
+   - 布尔值状态使用 `type: label` 配合布尔值映射
+2. **状态映射设计**:
+   - 为所有可能的状态值提供完整的映射关系
+   - 使用语义化的显示名称，避免技术术语
+   - 颜色选择应符合用户直觉（绿色=正常，红色=故障等）
+
+### 服务设计
+
+1. **功能明确**: 每个服务应有明确的功能定义
+2. **命名规范**: 推荐使用 `Custom` 前缀和语义化命名
+3. **国际化支持**: 使用 `g18n:key` 格式支持多语言
+
+### 配置字段设计
+
+1. **必需标签**: 所有字段必须包含 `json` 和 `ct` 标签
+2. **验证规则**: 为数值字段设置合理的 `min`/`max` 范围
+3. **默认值**: 为常用字段设置合理的默认值
+
+## 注意事项
+
+1. **反射依赖**: 遥测和服务方法必须严格按照命名规范实现
+2. **type 和 mapping 使用**:
+   - `type: label` 必须配合 `mapping` 使用，否则前端无法正确显示
+   - `mapping` 中的键值必须是字符串格式，即使原始数据是数字
+   - 确保 `mapping` 覆盖所有可能的返回值，避免显示空白
+   - 颜色代码必须是有效的十六进制格式
+3. **性能考虑**: 避免在遥测方法中执行耗时操作
+4. **向后兼容**: 修改现有字段时考虑向后兼容性
+
+## 相关文件
+
+- [c_base_driver_info_s.go](mdc:common/c_base/c_base_driver_info_s.go) - 驱动信息结构体定义
+- [c_base_driver_info_f.go](mdc:common/c_base/c_base_driver_info_f.go) - 驱动信息处理函数
+- [c_base_config_struct_fields_s.go](mdc:common/c_base/c_base_config_struct_fields_s.go) - 配置字段结构体
+- [c_base_config_struct_fields_f.go](mdc:common/c_base/c_base_config_struct_fields_f.go) - 配置字段处理函数

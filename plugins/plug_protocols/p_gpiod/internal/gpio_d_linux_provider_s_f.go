@@ -244,15 +244,13 @@ func (s *sGpiodProvider) getGpioStatusUnsafe() *bool {
 		return nil
 	}
 
-	// 如果是输入引脚，实时读取状态
-	if s.gpiodConfig.Direction == c_enum.EGpioDirectionIn {
-		if value, err := s.line.Value(); err == nil {
-			status := value == 1
-			return &status
-		}
+	// 实时读取GPIO状态（输入和输出引脚都读取）
+	if value, err := s.line.Value(); err == nil {
+		status := value == 1
+		return &status
 	}
 
-	// 返回缓存的状态
+	// 如果读取失败，返回缓存的状态
 	return s.currentStatus
 }
 
@@ -285,8 +283,16 @@ func (s *sGpiodProvider) SetHigh() error {
 		return fmt.Errorf("failed to set GPIO high: %w", err)
 	}
 
-	// 更新状态
-	s.updateStatus(true)
+	// 读取实际值确认设置成功
+	if actualValue, err := s.line.Value(); err == nil {
+		actualStatus := actualValue == 1
+		s.updateStatus(actualStatus)
+		c_log.Debugf(s.ctx, "GPIO pin %d set to high, actual value: %v", s.gpiodConfig.Pin, actualStatus)
+	} else {
+		// 如果读取失败，使用期望值更新状态
+		s.updateStatus(true)
+		c_log.Warningf(s.ctx, "Failed to read GPIO value after setting high on pin %d: %v", s.gpiodConfig.Pin, err)
+	}
 
 	c_log.Debugf(s.ctx, "GPIO pin %d set to high", s.gpiodConfig.Pin)
 	return nil
@@ -314,8 +320,16 @@ func (s *sGpiodProvider) SetLow() error {
 		return fmt.Errorf("failed to set GPIO low: %w", err)
 	}
 
-	// 更新状态
-	s.updateStatus(false)
+	// 读取实际值确认设置成功
+	if actualValue, err := s.line.Value(); err == nil {
+		actualStatus := actualValue == 1
+		s.updateStatus(actualStatus)
+		c_log.Debugf(s.ctx, "GPIO pin %d set to low, actual value: %v", s.gpiodConfig.Pin, actualStatus)
+	} else {
+		// 如果读取失败，使用期望值更新状态
+		s.updateStatus(false)
+		c_log.Warningf(s.ctx, "Failed to read GPIO value after setting low on pin %d: %v", s.gpiodConfig.Pin, err)
+	}
 
 	c_log.Debugf(s.ctx, "GPIO pin %d set to low", s.gpiodConfig.Pin)
 	return nil

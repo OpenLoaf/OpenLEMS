@@ -112,10 +112,8 @@ func (m *SManager) getGatewayInfo(ctx context.Context, link netlink.Link, summar
 
 	// 查找默认路由（网关）
 	for _, route := range routes {
-		if route.Dst == nil { // 默认路由
-			if route.Gw != nil {
-				summary.Gateway = append(summary.Gateway, route.Gw.String())
-			}
+		if route.Gw != nil {
+			summary.Gateway = append(summary.Gateway, route.Gw.String())
 		}
 	}
 

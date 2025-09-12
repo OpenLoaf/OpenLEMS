@@ -17,12 +17,7 @@ type GetNetworkInterfaceListRes struct {
 
 type UpdateNetworkInterfaceReq struct {
 	g.Meta `path:"/network/interface/update" method:"post" tags:"网络相关" summary:"更新网络接口配置"`
-	Name   string `json:"name" v:"required#接口名称必填"`
-	//DHCP        bool     `json:"dhcp" dc:"是否使用DHCP模式"`
-	//IPAddresses []string `json:"ipAddresses" dc:"IP地址列表（DHCP模式下可为空）"`
-	//Netmask     string   `json:"netmask" dc:"子网掩码（DHCP模式下可为空）"`
-	//Gateway     string   `json:"gateway" v:"ipv4#网关地址格式不正确" dc:"网关地址（DHCP模式下可为空）"`
-	//DNS         []string `json:"dns" dc:"DNS服务器地址列表（可选）"`
+	Name   string                  `json:"name" v:"required#接口名称必填"`
 	Config *public.InterfaceConfig `json:"config"`
 }
 type UpdateNetworkInterfaceRes struct {
@@ -36,7 +31,6 @@ type SetInterfaceStateReq struct {
 }
 
 type SetInterfaceStateRes struct {
-	// 空响应体，成功则返回空对象，失败通过错误码/信息返回
 }
 
 type PingReq struct {

@@ -1,5 +1,5 @@
 ---
-alwaysApply: false
+alwaysApply: true
 description: Common library structure and conventions for the EMS plan project
 ---
 
@@ -12,27 +12,9 @@ description: Common library structure and conventions for the EMS plan project
 ### 核心模块
 
 - **c_base/**: 基础接口和类型定义
-  - 设备接口: [c_base_device_i.go](mdc:common/c_base/c_base_device_i.go)
-  - 驱动接口: [c_base_driver_i.go](mdc:common/c_base/c_base_driver_i.go)
-  - 存储接口: [c_base_storage_i.go](mdc:common/c_base/c_base_storage_i.go)
-  - 设备类型枚举: [c_base_type_e.go](mdc:common/c_base/c_base_type_e.go)
-  - 配置结构: [c_base_device_config_s.go](mdc:common/c_base/c_base_device_config_s.go)
-
 - **c_device/**: 设备相关实现
-  - 真实设备: [c_device_real_s.go](mdc:common/c_device/c_device_real_s.go)
-  - 虚拟设备: [c_device_virtual_s.go](mdc:common/c_device/c_device_virtual_s.go)
-  - 设备策略: [c_device_policy_s.go](mdc:common/c_device/c_device_policy_s.go)
-
 - **c_proto/**: 协议相关
-  - Modbus 协议: [c_modbus_protocol_i.go](mdc:common/c_proto/c_modbus_protocol_i.go)
-  - 协议配置: [c_modbus_config_s.go](mdc:common/c_proto/c_modbus_config_s.go)
-
 - **c_func/**: 聚合函数
-  - 平均值: [c_func_aggregate_avg_f.go](mdc:common/c_func/c_func_aggregate_avg_f.go)
-  - 最大值: [c_func_aggregate_max_f.go](mdc:common/c_func/c_func_aggregate_max_f.go)
-  - 最小值: [c_func_aggregate_min_f.go](mdc:common/c_func/c_func_aggregate_min_f.go)
-  - 求和: [c_func_aggregate_sum_f.go](mdc:common/c_func/c_func_aggregate_sum_f.go)
-
 - **c_chart/**: 图表数据结构
 - **c_status/**: 状态管理
 - **c_alarm/**: 告警管理
@@ -43,140 +25,48 @@ description: Common library structure and conventions for the EMS plan project
 
 ### 文件命名规范
 
-#### 基础文件命名模式
+- `c_*_i.go`: 接口定义 (Interface)
+- `c_*_s.go`: 结构体定义 (Struct)
+- `c_*_e.go`: 枚举定义 (Enum)
+- `c_*_f.go`: 函数定义 (Function)
+- `c_*_c.go`: 常量定义 (Constant)
+- `*_test.go`: 测试文件
 
-- `c_*_i.go`: 接口定义 (Interface) - 如 `c_base_device_i.go`
-- `c_*_s.go`: 结构体定义 (Struct) - 如 `c_device_real_s.go`
-- `c_*_e.go`: 枚举定义 (Enum) - 如 `c_base_type_e.go`
-- `c_*_f.go`: 函数定义 (Function) - 如 `c_func_aggregate_avg_f.go`
-- `c_*_c.go`: 常量定义 (Constant) - 如 `c_base_const_c.go`
-- `*_test.go`: 测试文件 - 如 `c_base_point_s_test.go`
+**特殊文件命名**:
 
-#### 特殊文件命名模式
-
-- `*_si.go`: 单例接口 (Singleton Interface) - 如 `c_device_manager_si.go`
-- `*_impl_s.go`: 实现结构体 (Implementation Struct) - 如 `c_device_alarm_impl_s.go`
-- `*_string.go`: 枚举字符串方法 - 如 `c_base_alarm_level_e_string.go`
-- `*_config_s.go`: 配置结构体 - 如 `c_base_device_config_s.go`
-- `*_info_s.go`: 信息结构体 - 如 `c_base_driver_info_s.go`
-- `*_service_s.go`: 服务结构体 - 如 `c_base_driver_service_s.go`
-
-#### 文件命名规则
-
-1. **模块前缀**: 所有文件以模块名开头，如 `c_base_`, `c_device_`, `c_proto_`
-2. **功能描述**: 使用下划线分隔的功能描述，如 `device_config`, `aggregate_avg`
-3. **类型后缀**: 必须使用对应的类型后缀 (`_i`, `_s`, `_e`, `_f`, `_c`)
-4. **小写字母**: 文件名全部使用小写字母和下划线
-5. **避免缩写**: 使用完整单词而非缩写，如 `device` 而非 `dev`
+- `*_si.go`: 单例接口
+- `*_impl_s.go`: 实现结构体
+- `*_config_s.go`: 配置结构体
 
 ### 类型命名规范
 
-#### 接口命名 (Interface)
-
-- **前缀**: 使用 `I` 前缀
-- **格式**: `I + 功能描述 + 类型描述`
-- **示例**:
-  - `IDevice` - 设备接口
-  - `IDriver` - 驱动接口
-  - `IStorage` - 存储接口
-  - `IAlarm` - 告警接口
-  - `IProtocol` - 协议接口
-  - `IDeviceManager` - 设备管理器接口
-
-#### 结构体命名 (Struct)
-
-- **前缀**: 使用 `S` 前缀
-- **格式**: `S + 功能描述 + 类型描述`
-- **示例**:
-  - `SDeviceConfig` - 设备配置结构体
-  - `SDriverInfo` - 驱动信息结构体
-  - `SProtocolConfig` - 协议配置结构体
-  - `SAlarmHistory` - 告警历史结构体
-  - `SStorageStats` - 存储统计结构体
-  - `SMetaValueWrapper` - 元数据值包装器
-
-#### 枚举命名 (Enum)
-
-- **前缀**: 使用 `E` 前缀
-- **格式**: `E + 功能描述 + 类型描述`
-- **示例**:
-  - `EDeviceType` - 设备类型枚举
-  - `EProtocolType` - 协议类型枚举
-  - `EAlarmLevel` - 告警级别枚举
-  - `EAlarmAction` - 告警动作枚举
-  - `EProtocolStatus` - 协议状态枚举
-  - `EStorageType` - 存储类型枚举
-
-#### 常量命名 (Constant)
-
-- **前缀**: 使用 `C` 前缀
-- **格式**: `C + 功能描述 + 类型描述`
-- **示例**:
-  - `CDeviceTypeAmmeter` - 电表设备类型常量
-  - `CProtocolTypeModbus` - Modbus协议类型常量
-  - `CAlarmLevelCritical` - 严重告警级别常量
+- **接口**: `I` 前缀 - 如 `IDevice`, `IDriver`, `IStorage`
+- **结构体**: `S` 前缀 - 如 `SDeviceConfig`, `SDriverInfo`
+- **枚举**: `E` 前缀 - 如 `EDeviceType`, `EProtocolType`
+- **常量**: `C` 前缀 - 如 `CDeviceTypeAmmeter`
 
 ### 方法命名规范
 
-#### 接口方法命名
-
-- **Getter方法**: `Get + 属性名` - 如 `GetConfig()`, `GetDeviceById()`
-- **Setter方法**: `Set + 属性名` - 如 `SetConfig()`, `SetDeviceStatus()`
-- **判断方法**: `Is + 状态描述` - 如 `IsVirtualDevice()`, `IsActive()`
-- **操作方法**: 动词 + 对象 - 如 `Start()`, `Shutdown()`, `SaveDevices()`
-- **迭代方法**: `Iterator + 对象复数` - 如 `IteratorAllDevices()`
-
-#### 函数命名规范
-
-- **构造函数**: `New + 类型名` - 如 `NewDevice()`, `NewDriverManager()`
-- **注册函数**: `Register + 类型名` - 如 `RegisterDeviceManager()`
-- **获取函数**: `Get + 类型名` - 如 `GetDeviceManager()`
-- **聚合函数**: `功能名 + Aggregate` - 如 `avgAggregate()`, `maxAggregate()`
-- **转换函数**: `To + 目标类型` - 如 `ToString()`, `ToBytes()`
-
-#### 方法命名规则
-
-1. **驼峰命名**: 使用驼峰命名法 (CamelCase)
-2. **动词优先**: 方法名以动词开头，如 `Get`, `Set`, `Create`, `Update`, `Delete`
-3. **语义清晰**: 方法名应清楚表达其功能，如 `GetDeviceById` 而非 `GetDevice`
-4. **避免缩写**: 使用完整单词，如 `Configuration` 而非 `Config`
-5. **一致性**: 相同功能的方法使用相同的命名模式
+- **Getter方法**: `Get + 属性名` - 如 `GetConfig()`
+- **Setter方法**: `Set + 属性名` - 如 `SetConfig()`
+- **判断方法**: `Is + 状态描述` - 如 `IsVirtualDevice()`
+- **操作方法**: 动词 + 对象 - 如 `Start()`, `Shutdown()`
+- **构造函数**: `New + 类型名` - 如 `NewDevice()`
 
 ### 变量命名规范
 
-#### 局部变量
-
-- **小写开头**: 使用小写字母开头的驼峰命名
-- **示例**: `deviceId`, `protocolConfig`, `alarmLevel`
-
-#### 包级别变量
-
-- **小写开头**: 使用小写字母开头的驼峰命名
-- **示例**: `deviceManager`, `storageInstance`
-
-#### 常量变量
-
-- **全大写**: 使用全大写字母和下划线
-- **示例**: `DEFAULT_TIMEOUT`, `MAX_RETRY_COUNT`
-
-### 包命名规范
-
-#### 包名规则
-
-- **小写字母**: 全部使用小写字母
-- **简短明确**: 包名应简短且明确表达其功能
-- **避免下划线**: 不使用下划线，如 `cbase` 而非 `c_base`
-- **示例**: `c_base`, `c_device`, `c_proto`, `c_func`
+- **局部变量**: 小写开头的驼峰命名 - 如 `deviceId`
+- **包级别变量**: 小写开头的驼峰命名 - 如 `deviceManager`
+- **常量**: 全大写字母和下划线 - 如 `DEFAULT_TIMEOUT`
 
 ## 核心接口
 
 ### 设备管理
 
 ```go
-// 设备管理器接口
 type IDeviceManager interface {
-    Start()                      // 启动服务
-    Shutdown()                   // 停止管理器
+    Start()
+    Shutdown()
     GetDeviceById(deviceId string) c_base.IDevice
     IteratorAllDevices(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool)
 }
@@ -185,9 +75,8 @@ type IDeviceManager interface {
 ### 设备接口
 
 ```go
-// 设备基础接口
 type IDevice interface {
-    IAlarm // 继承告警接口
+    IAlarm
     GetConfig() *SDeviceConfig
     GetProtocolStatus() c_status.EProtocolStatus
     GetMetaValueList() []*MetaValueWrapper
@@ -198,7 +87,6 @@ type IDevice interface {
 ### 存储接口
 
 ```go
-// 存储接口
 type IStorage interface {
     SaveDevices(deviceId string, deviceType EDeviceType, fields map[string]any) error
     SaveProtocolMetrics(protocolConfig *SProtocolConfig, deviceConfig *SDeviceConfig, metrics map[string]any) error
@@ -207,29 +95,15 @@ type IStorage interface {
 }
 ```
 
-## 设备类型
-
-支持的设备类型定义在 [c_base_type_e.go](mdc:common/c_base/c_base_type_e.go):
-
-- `EDeviceAmmeter`: 电表
-- `EDeviceCoolingAc`: 制冷空调
-- `EDeviceBms`: 电池管理系统
-- `EDevicePcs`: 电池逆变器
-- `EDeviceEnergyStore`: 储能柜
-- `EDeviceChargePile`: 充电桩
-- 等等...
-
 ## 使用模式
 
 ### 单例注册模式
 
 ```go
-// 注册设备管理器
 func RegisterDeviceManager(cmd IDeviceManager) {
     deviceManager = cmd
 }
 
-// 获取设备管理器
 func GetDeviceManager() IDeviceManager {
     if deviceManager == nil {
         panic("device manager is nil !")
@@ -241,65 +115,92 @@ func GetDeviceManager() IDeviceManager {
 ### 泛型聚合函数
 
 ```go
-// 使用泛型实现类型安全的聚合函数
 func avgAggregate[T c_base.Number](values []any, convert func(interface{}) (T, error)) (T, error)
+```
+
+## 日志使用规范
+
+### 日志分类
+
+- **系统日志**: `c_log.级别名(ctx, 参数...)` - 用于系统运行状态、错误信息等
+- **业务日志**: `c_log.Biz级别名(ctx, 参数...)` - 用于业务操作记录、用户行为等
+
+### 日志级别
+
+- `Debug`, `Info`, `Notice`, `Warning`, `Error`, `Critical`, `Panic`, `Fatal`
+
+### 使用示例
+
+```go
+// 系统日志
+c_log.Info(ctx, "系统启动完成")
+c_log.Infof(ctx, "设备 %s 连接成功", deviceId)
+c_log.Error(ctx, "Modbus通信失败", err)
+
+// 业务日志
+c_log.BizInfo(ctx, "用户登录", userId)
+c_log.BizInfof(ctx, "设备配置更新: 设备ID=%s", deviceId)
+```
+
+## 错误处理规范
+
+### 统一使用 `github.com/pkg/errors`
+
+```go
+import "github.com/pkg/errors"
+```
+
+### 错误处理规则
+
+1. **错误包装**: 使用 `errors.Wrap()` 或 `errors.Wrapf()` 添加上下文
+2. **错误创建**: 使用 `errors.New()` 或 `errors.Errorf()`
+3. **错误判断**: 使用 `errors.Is()` 和 `errors.As()`
+4. **错误链**: 保持错误链的完整性
+
+### 错误处理示例
+
+```go
+// ✅ 正确
+func ReadConfig(filename string) (*Config, error) {
+    data, err := os.ReadFile(filename)
+    if err != nil {
+        return nil, errors.Wrap(err, "读取配置文件失败")
+    }
+    return &config, nil
+}
+
+// ❌ 错误
+func ReadConfig(filename string) (*Config, error) {
+    data, err := os.ReadFile(filename)
+    if err != nil {
+        return nil, err // 缺少上下文信息
+    }
+    return &config, nil
+}
 ```
 
 ## 依赖关系
 
-- 使用 `github.com/shockerli/cvt` 进行类型转换
-- 使用 `github.com/pkg/errors` 进行错误处理
-- 使用 `gopkg.in/yaml.v3` 进行 YAML 配置解析
+- `github.com/shockerli/cvt` - 类型转换
+- `github.com/pkg/errors` - 错误处理
+- `gopkg.in/yaml.v3` - YAML 配置解析
 
 ## 开发指南
 
 ### 新增功能开发流程
 
-1. **新增设备类型**: 在 [c_base_type_e.go](mdc:common/c_base/c_base_type_e.go) 中添加枚举值
-2. **新增接口**: 在对应的 `c_*_i.go` 文件中定义
-3. **新增实现**: 在对应的 `c_*_s.go` 文件中实现
-4. **新增聚合函数**: 在 [c_func/](mdc:common/c_func/) 目录中添加
-5. **测试**: 为所有新功能添加对应的 `*_test.go` 文件
-
-### 命名规范检查清单
-
-#### 文件创建时
-
-- [ ] 文件名遵循 `c_模块_功能_类型.go` 格式
-- [ ] 使用正确的类型后缀 (`_i`, `_s`, `_e`, `_f`, `_c`)
-- [ ] 文件名全部使用小写字母和下划线
-- [ ] 避免使用缩写，使用完整单词
-
-#### 类型定义时
-
-- [ ] 接口使用 `I` 前缀，如 `IDeviceManager`
-- [ ] 结构体使用 `S` 前缀，如 `SDeviceConfig`
-- [ ] 枚举使用 `E` 前缀，如 `EDeviceType`
-- [ ] 常量使用 `C` 前缀，如 `CDeviceTypeAmmeter`
-- [ ] 类型名使用驼峰命名法
-
-#### 方法定义时
-
-- [ ] Getter方法使用 `Get + 属性名` 格式
-- [ ] Setter方法使用 `Set + 属性名` 格式
-- [ ] 判断方法使用 `Is + 状态描述` 格式
-- [ ] 操作方法使用动词开头
-- [ ] 方法名语义清晰，避免缩写
-
-#### 变量定义时
-
-- [ ] 局部变量使用小写开头的驼峰命名
-- [ ] 包级别变量使用小写开头的驼峰命名
-- [ ] 常量使用全大写字母和下划线
-- [ ] 变量名具有描述性，避免单字母变量
+1. 在对应的枚举文件中添加枚举值
+2. 在 `c_*_i.go` 文件中定义接口
+3. 在 `c_*_s.go` 文件中实现
+4. 添加对应的 `*_test.go` 测试文件
 
 ### 代码审查要点
 
-1. **命名一致性**: 检查是否遵循项目的命名规范
-2. **类型安全**: 确保泛型使用正确，类型转换安全
-3. **错误处理**: 统一使用 `github.com/pkg/errors` 进行错误包装
-4. **接口实现**: 确保所有接口都有对应的实现
-5. **文档注释**: 为公共接口和方法添加适当的注释
+1. **命名一致性**: 遵循项目的命名规范
+2. **类型安全**: 确保泛型使用正确
+3. **错误处理**: 统一使用 `github.com/pkg/errors`
+4. **接口实现**: 确保所有接口都有对应实现
+5. **日志使用**: 正确使用 `c_log` 进行日志记录
 
 ## 注意事项
 
@@ -314,15 +215,7 @@ func avgAggregate[T c_base.Number](values []any, convert func(interface{}) (T, e
 ### 命名规范要求
 
 - **严格遵循前缀规则**: 接口 `I`、结构体 `S`、枚举 `E`、常量 `C`
-- **文件名一致性**: 必须使用正确的类型后缀，便于快速识别文件内容
-- **避免命名冲突**: 确保类型名在包内唯一，避免与标准库冲突
-- **语义化命名**: 所有命名都应具有明确的语义，便于理解和维护
+- **文件名一致性**: 必须使用正确的类型后缀
+- **避免命名冲突**: 确保类型名在包内唯一
+- **语义化命名**: 所有命名都应具有明确的语义
 - **向后兼容**: 修改现有类型名时要考虑向后兼容性
-
-### 最佳实践
-
-1. **统一性**: 在整个项目中保持命名风格的一致性
-2. **可读性**: 优先考虑代码的可读性，而非简洁性
-3. **扩展性**: 考虑未来功能扩展时的命名空间
-4. **文档化**: 为复杂的命名提供注释说明
-5. **工具支持**: 利用 IDE 的重构功能保持命名一致性

@@ -5,6 +5,7 @@ package internal
 
 import (
 	"ammeter_demo/ammeter_demo_v1"
+	"basic_gpio/gpio_basic_v1"
 	"bms_pylon_tech_us108/bms_pylon_tech_us108_v1"
 	"common/c_base"
 	"common/c_enum"
@@ -16,6 +17,7 @@ import (
 	"pv_demo/pv_demo_v1"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
+	"runtime"
 	"starCharge100E_v1/pcs_star_charge_100E_v1"
 	"strings"
 
@@ -37,6 +39,7 @@ var pluginNewMethodCache = map[string]any{
 	"load_demo_v1.0.0":            load_demo_v1.NewPlugin,
 	"ammeter_demo_v1.0.0":         ammeter_demo_v1.NewPlugin,
 	"pcs_elecod_mac_v1.0.0":       pcs_elecod_mac_v1.NewPlugin,
+	"gpio_basic_v1.0.0":           gpio_basic_v1.NewPlugin,
 }
 var pluginDriverInfo = map[string]*c_base.SDriverInfo{
 	"bms_pylon_tech_us108_v1.0.0": bms_pylon_tech_us108_v1.GetDriverInfo(),
@@ -47,6 +50,7 @@ var pluginDriverInfo = map[string]*c_base.SDriverInfo{
 	"load_demo_v1.0.0":            load_demo_v1.GetDriverInfo(),
 	"ammeter_demo_v1.0.0":         ammeter_demo_v1.GetDriverInfo(),
 	"pcs_elecod_mac_v1.0.0":       pcs_elecod_mac_v1.GetDriverInfo(),
+	"gpio_basic_v1.0.0":           gpio_basic_v1.GetDriverInfo(),
 }
 
 func GetAllDriversInfo() map[string]*c_base.SDriverInfo {
@@ -77,6 +81,7 @@ func GetDriversByType(ctx context.Context, deviceType c_enum.EDeviceType) []*c_b
 }
 
 func getDriver(driverName string, device c_base.IDevice) (d c_base.IDriver, err error) {
+
 	if driverName == "" {
 		return nil, errors.Errorf("驱动未设置")
 	}
@@ -84,6 +89,15 @@ func getDriver(driverName string, device c_base.IDevice) (d c_base.IDriver, err 
 	driverGroups := strings.Split(driverName, "_")
 	if driverGroups == nil || len(driverGroups) == 0 {
 		return nil, errors.Errorf("驱动名称错误！%s", driverName)
+	}
+
+	// 检查GPIO协议是否在Linux系统上运行
+	deviceConfig := device.GetConfig()
+	if deviceConfig != nil && deviceConfig.ProtocolConfig != nil {
+		protocolType := deviceConfig.ProtocolConfig.GetProtocol()
+		if (protocolType == c_enum.EGpiod || protocolType == c_enum.EGpioSfs) && runtime.GOOS != "linux" {
+			return nil, errors.Errorf("GPIO协议只能在Linux系统上使用，当前系统：%s，协议类型：%s", runtime.GOOS, protocolType)
+		}
 	}
 
 	pluginNewMethod := pluginNewMethodCache[driverName]

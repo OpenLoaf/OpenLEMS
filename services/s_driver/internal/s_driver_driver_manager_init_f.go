@@ -5,6 +5,7 @@ import (
 	"common/c_enum"
 	"context"
 	"p_canbus"
+	"p_gpiod"
 	"p_modbus"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -118,12 +119,14 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		}
 		g.Log().Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
 		return canbusProvider, nil
-	case c_enum.EGpioSysfs:
-		//gpioSysfsProtocol, err := p_gpio_sysfs.NewGpioSysfsProvider(deviceCtx, protocolConfig, deviceConfig)
-		//if err != nil {
-		//	return nil, err
-		//}
-		//return gpioSysfsProtocol, nil
+	case c_enum.EGpiod:
+		gpioProtocol, err := p_gpiod.NewGpiodProvider(deviceCtx, protocolConfig, deviceConfig)
+		if err != nil {
+			return nil, err
+		}
+		return gpioProtocol, nil
+	case c_enum.EGpioSfs:
+
 	}
 
 	return nil, errors.Errorf("未知的协议类型：%s", protocolConfig.GetProtocol())

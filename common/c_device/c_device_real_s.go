@@ -10,26 +10,20 @@ import (
 )
 
 type SRealDeviceImpl[P c_base.IProtocol] struct { // 真实设备
-	DeviceCtx    context.Context
-	cancel       context.CancelFunc
-	protocol     P
-	deviceConfig *c_base.SDeviceConfig // 配置
+	DeviceCtx context.Context
+	cancel    context.CancelFunc
+	protocol  P
 }
 
 var _ c_base.IDevice = (*SRealDeviceImpl[c_base.IProtocol])(nil)
 
-func NewRealDevice[P c_base.IProtocol](ctx context.Context, deviceConfig *c_base.SDeviceConfig, protocol P) (*SRealDeviceImpl[P], error) {
-	if deviceConfig == nil {
-		// 必须有设备配置
-		panic(errors.New("deviceConfig is nil"))
-	}
+func NewRealDevice[P c_base.IProtocol](ctx context.Context, protocol P) (*SRealDeviceImpl[P], error) {
 	deviceCtx, cancel := context.WithCancel(ctx)
 
 	device := &SRealDeviceImpl[P]{
-		DeviceCtx:    deviceCtx,
-		cancel:       cancel,
-		protocol:     protocol,
-		deviceConfig: deviceConfig,
+		DeviceCtx: deviceCtx,
+		cancel:    cancel,
+		protocol:  protocol,
 	}
 
 	return device, nil
@@ -111,7 +105,7 @@ func (s *SRealDeviceImpl[P]) GetPointValueList() []*c_base.SPointValue {
 }
 
 func (s *SRealDeviceImpl[P]) GetConfig() *c_base.SDeviceConfig {
-	return s.deviceConfig
+	return s.protocol.GetConfig()
 }
 
 func (s *SRealDeviceImpl[P]) isProtocolNil() bool {
