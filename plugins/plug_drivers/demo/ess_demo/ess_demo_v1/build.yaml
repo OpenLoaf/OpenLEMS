@@ -4,13 +4,13 @@ type: ess
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-09-01"
-remark: "测试储能柜"
+desc: "测试储能柜"
 protocolType: "modbus"
 telemetry:
-  - name: status
-    displayName: "状态"
-    type: label
-    mapping:
+  - key: status
+    name: "状态"
+    displayType: label
+    valueExplain:
       0: "未知|#FF5D5D"
       1: "关机|#9CBF30"
       2: "待机|#6967EE"
@@ -19,24 +19,24 @@ telemetry:
       5: "故障|#FF5D5D"
       6: "同步中|#FF5D5D"
       7: "启动中|#FF5D5D"
-  - name: soc
+  - key: soc
     unit: "%"
-    displayName: "SOC"
-  - name: power
+    name: "SOC"
+  - key: power
     unit: "kW"
-    displayName: "功率"
-  - name: historyIncomingQuantity
-    displayName: "历史充电量"
+    name: "功率"
+  - key: historyIncomingQuantity
+    name: "历史充电量"
     unit: "kWh"
-    remark: "历史充电量"
-  - name: historyOutgoingQuantity
-    displayName: "历史放电量"
+    desc: "历史充电量"
+  - key: historyOutgoingQuantity
+    name: "历史放电量"
     unit: "kWh"
-    remark: "历史放电量"
+    desc: "历史放电量"
 
 
 service:
-  - name: CustomPowerZeroService
-    displayName: "零功率"
-  - name:  CustomPowerRandomService
-    displayName: "随机功率"
+  - key: CustomPowerZeroService
+    name: "零功率"
+  - key:  CustomPowerRandomService
+    name: "随机功率"

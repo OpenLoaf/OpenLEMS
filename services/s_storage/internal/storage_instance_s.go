@@ -5,9 +5,10 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"context"
-	"github.com/gogf/gf/v2/frame/g"
 	"sync"
 	"time"
+
+	"github.com/gogf/gf/v2/frame/g"
 
 	"github.com/gogf/gf/v2/os/gtimer"
 )
@@ -103,7 +104,7 @@ func (s *SStorageManager) RegisterDriver(deviceConfig *c_base.SDeviceConfig) {
 			if dc.DriverInfo == nil {
 				return
 			}
-			_ = s.IStorage.SaveDevices(dc.Id, dc.GetType(), dc.DriverInfo.GetAllTelemetry(instance))
+			_ = s.IStorage.SaveDevices(dc.Id, dc.GetType(), c_base.GetAllTelemetry(instance))
 		})
 		g.Log().Infof(s.ctx, "设备[%s]存储间隔：%v", deviceConfig.Name, dur)
 	} else {

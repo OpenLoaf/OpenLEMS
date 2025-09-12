@@ -4,6 +4,7 @@ import (
 	v1 "application/api/device/v1"
 	"application/internal/model/entity"
 	"common"
+	"common/c_base"
 	"common/c_enum"
 	"context"
 	"fmt"
@@ -24,7 +25,11 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	}
 
 	groupCacheMap := make(map[string]*entity.SSingleDeviceGroup)
+
 	list := device.GetPointValueList()
+	//var list = make([]*c_base.SPointValue, 0)
+	list = append(list, c_base.GetAllTelemetryPoint(device)...)
+
 	for _, v := range list {
 
 		groupName := ""

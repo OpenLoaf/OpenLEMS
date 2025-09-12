@@ -29,8 +29,106 @@ func BuildDescriptionFromYaml(yamlData []byte, deviceConfig ...any) *SDriverInfo
 	return info
 }
 
-// GetTelemetry 反射获取遥测信息 用于实现IDriver接口
-func (s *SDriverInfo) GetTelemetry(key string, instance IDevice) (any, error) {
+func GetAllTelemetry(instance IDevice) map[string]any {
+
+	if instance == nil || instance.GetProtocolStatus() != c_enum.EProtocolConnected { // 如果实例不是连接成功的，就不要返回数据了
+		return nil
+	}
+	driverInfo := instance.GetConfig().DriverInfo
+	telemetryMap := make(map[string]any, len(driverInfo.Telemetry))
+	for _, telemetry := range driverInfo.Telemetry {
+		value, err := driverInfo.getTelemetry(telemetry.Key, instance)
+		if err != nil {
+			// 这里有时候err也是正常的，比如系统刚启动，但是页面一直在请求
+			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
+			c_log.Warningf(ctx, "Get telemetry %driverInfo error: %+v", telemetry.Key, err)
+			//fmt.Printf("Get telemetry %driverInfo error: %+v\n", telemetry.Key, err)
+			continue
+		}
+		telemetryMap[telemetry.Key] = value
+	}
+	return telemetryMap
+}
+
+func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
+	if instance == nil { // 如果实例不是连接成功的，就不要返回数据了
+		return nil
+	}
+	driverInfo := instance.GetConfig().DriverInfo
+	var list []*SPointValue
+	for _, telemetry := range driverInfo.Telemetry {
+		value, err := driverInfo.getTelemetry(telemetry.Key, instance)
+		if err != nil {
+			// 这里有时候err也是正常的，比如系统刚启动，但是页面一直在请求
+			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
+			c_log.Warningf(ctx, "Get telemetry %driverInfo error: %+v", telemetry.Key, err)
+			//fmt.Printf("Get telemetry %driverInfo error: %+v\n", telemetry.Key, err)
+			continue
+		}
+
+		list = append(list, NewPointValue(instance.GetConfig().Id, telemetry.ToPoint(ResolvingValueType(value)), value))
+	}
+	return list
+}
+
+func ResolvingValueType(value any) c_enum.EValueType {
+	if value == nil {
+		return c_enum.EString
+	}
+
+	// 使用反射获取值的实际类型
+	valueType := reflect.TypeOf(value)
+
+	// 处理指针类型
+	if valueType.Kind() == reflect.Ptr {
+		if reflect.ValueOf(value).IsNil() {
+			return c_enum.EString
+		}
+		valueType = valueType.Elem()
+	}
+
+	// 根据类型返回对应的枚举值
+	switch valueType.Kind() {
+	case reflect.Bool:
+		return c_enum.EBool
+	case reflect.Int8:
+		return c_enum.EInt8
+	case reflect.Uint8:
+		return c_enum.EUint8
+	case reflect.Int16:
+		return c_enum.EInt16
+	case reflect.Uint16:
+		return c_enum.EUint16
+	case reflect.Int32:
+		return c_enum.EInt32
+	case reflect.Uint32:
+		return c_enum.EUint32
+	case reflect.Int64:
+		return c_enum.EInt64
+	case reflect.Uint64:
+		return c_enum.EUint64
+	case reflect.Float32:
+		return c_enum.EFloat32
+	case reflect.Float64:
+		return c_enum.EFloat64
+	case reflect.String:
+		return c_enum.EString
+	case reflect.Int:
+		// int 类型根据系统架构可能是 32 位或 64 位
+		// 这里统一返回 Int64，如果需要更精确的类型判断，可以根据实际值范围判断
+		return c_enum.EInt64
+	case reflect.Uint:
+		// uint 类型根据系统架构可能是 32 位或 64 位
+		// 这里统一返回 Uint64
+		return c_enum.EUint64
+	default:
+		// 对于其他类型（如结构体、切片、映射等），默认返回字符串类型
+		return c_enum.EString
+	}
+}
+
+// getTelemetry 反射获取遥测信息 用于实现IDriver接口
+func (s *SDriverInfo) getTelemetry(key string, instance IDevice) (any, error) {
 	// 输入参数验证
 	if key == "" {
 		return nil, errors.New("telemetry key cannot be empty")
@@ -80,8 +178,8 @@ func (s *SDriverInfo) GetTelemetry(key string, instance IDevice) (any, error) {
 	func() {
 		defer func() {
 			if r := recover(); r != nil {
-				callErr = errors.Errorf("GetTelemetry panic! key: %s, error: %+v", key, r)
-				//c_log.Errorf(context.Background(), "GetTelemetry panic! key: %s, error: %+v", key, r)
+				callErr = errors.Errorf("getTelemetry panic! key: %s, error: %+v", key, r)
+				//c_log.Errorf(context.Background(), "getTelemetry panic! key: %s, error: %+v", key, r)
 			}
 		}()
 
@@ -133,26 +231,6 @@ func (s *SDriverInfo) GetTelemetry(key string, instance IDevice) (any, error) {
 	}
 
 	return result, nil
-}
-
-func (s *SDriverInfo) GetAllTelemetry(instance IDevice) map[string]any {
-	if instance == nil || instance.GetProtocolStatus() != c_enum.EProtocolConnected { // 如果实例不是连接成功的，就不要返回数据了
-		return nil
-	}
-
-	telemetryMap := make(map[string]any, len(s.Telemetry))
-	for _, telemetry := range s.Telemetry {
-		value, err := s.GetTelemetry(telemetry.Name, instance)
-		if err != nil {
-			// 这里有时候err也是正常的，比如系统刚启动，但是页面一直在请求
-			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
-			c_log.Warningf(ctx, "Get telemetry %s error: %+v", telemetry.Name, err)
-			//fmt.Printf("Get telemetry %s error: %+v\n", telemetry.Name, err)
-			continue
-		}
-		telemetryMap[telemetry.Name] = value
-	}
-	return telemetryMap
 }
 
 func capitalizeFirstLetter(s string) string {

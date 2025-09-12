@@ -25,7 +25,7 @@ func (c *ControllerV1) GetDeviceTelemetry(ctx context.Context, req *v1.GetDevice
 			return true
 		}
 
-		if values := config.DriverInfo.GetAllTelemetry(device); len(values) > 0 {
+		if values := c_base.GetAllTelemetry(device); len(values) > 0 {
 			telemetry[deviceId] = &v1.DeviceTelemetryData{
 				LastUpdateTime:  device.GetLastUpdateTime(),
 				TelemetryValues: values,

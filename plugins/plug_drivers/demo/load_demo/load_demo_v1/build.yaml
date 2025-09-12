@@ -4,19 +4,19 @@ type: load
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-09-01"
-remark: "测试负荷"
+desc: "测试负荷"
 protocolType: "modbus"
 telemetry:
-  - name: power
+  - key: power
     unit: "kW"
-    displayName: "功率"
-  - name: historyIncomingQuantity
-    displayName: "历史用电量"
+    name: "功率"
+  - key: historyIncomingQuantity
+    name: "历史用电量"
     unit: "kWh"
 
 
 #service:
-#  - name: CustomPowerZeroService
-#    displayName: "零功率"
-#  - name:  CustomPowerRandomService
-#    displayName: "随机功率"
+#  - key: CustomPowerZeroService
+#    name: "零功率"
+#  - key:  CustomPowerRandomService
+#    name: "随机功率"

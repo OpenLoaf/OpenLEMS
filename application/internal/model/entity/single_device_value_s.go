@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"reflect"
 	"time"
-
-	"github.com/gogf/gf/v2/util/gconv"
 )
 
 type SSingleDeviceGroup struct {
@@ -17,7 +15,7 @@ type SSingleDeviceGroup struct {
 
 type SSingleDeviceValue struct {
 	Meta          *SSingleDeviceMeta `json:"meta,omitempty"`
-	Value         string             `json:"value,omitempty"`
+	Value         any                `json:"value,omitempty"`
 	StatueExplain string             `json:"statueExplain,omitempty"`
 	HappenTime    *time.Time         `json:"happenTime,omitempty"`
 }
@@ -25,7 +23,7 @@ type SSingleDeviceValue struct {
 func (s *SSingleDeviceValue) UnmarshalValue(value interface{}) error {
 	if record, ok := value.(*c_base.SPointValue); ok {
 		// 转换点位值
-		s.Value = gconv.String(record.GetValue())
+		s.Value = record.GetValue()
 
 		// 转换发生时间
 		happenTime := record.GetHappenTime()
@@ -39,11 +37,15 @@ func (s *SSingleDeviceValue) UnmarshalValue(value interface{}) error {
 		// 转换点位元数据
 		if point := record.IPoint; point != nil {
 			// 尝试获取具体的SPoint实例以访问Min、Before、Precise字段
+			var systemType = "string"
+			if point.GetDataAccess() != nil {
+				systemType = point.GetDataAccess().ValueType.String()
+			}
 
 			s.Meta = &SSingleDeviceMeta{
 				Name:       point.GetName(),
-				Cn:         point.GetName(),                          // 暂时使用Name作为中文名称
-				SystemType: point.GetDataAccess().ValueType.String(), // 默认自动系统类型
+				Cn:         point.GetName(), // 暂时使用Name作为中文名称
+				SystemType: systemType,      // 默认自动系统类型
 				Min:        point.GetMin(),
 				Max:        point.GetMax(),
 				Precise:    point.GetPrecise(),

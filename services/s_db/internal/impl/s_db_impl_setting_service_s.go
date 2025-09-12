@@ -134,7 +134,7 @@ func (s *sSettingServiceImpl) GetRootPolicyId(ctx context.Context) string {
 		params, err := protocol.GetParamsMap()
 		if err != nil {
 			g.Log().Errorf(context.Background(), "获取协议参数失败 - 协议ID: %d, 协议名称: %s, 错误: %v",
-				protocol.Id, protocol.Name, err)
+				protocol.Id, protocol.Key, err)
 			continue
 		}
 
@@ -194,13 +194,13 @@ func BuildDeviceTree(devices []*model.SDeviceModel) []*c_base.SDeviceConfig {
 		// 获取设备参数
 		params, err := device.GetParamsMap()
 		if err != nil {
-			g.Log().Errorf(context.Background(), "获取设备参数失败 - 设备ID: %s, 设备名称: %s, 参数原始值: %s, 错误: %v", device.Id, device.Name, device.Params, err)
+			g.Log().Errorf(context.Background(), "获取设备参数失败 - 设备ID: %s, 设备名称: %s, 参数原始值: %s, 错误: %v", device.Id, device.Key, device.Params, err)
 			return nil
 		}
 		node := &c_base.SDeviceConfig{
 			Id:         device.Id,
 			ProtocolId: device.ProtocolId,
-			Name:       device.Name,
+			Key:       device.Key,
 			Driver:     device.Driver,
 			LogLevel:   device.LogLevel,
 			Enabled:    device.Enabled,

@@ -1,7 +1,6 @@
 package ess_demo_v1
 
 import (
-	"common/c_base"
 	"common/c_device"
 	"common/c_enum"
 	"common/c_proto"
@@ -24,27 +23,27 @@ func (s *sEssDemo) Shutdown() {
 }
 
 func (s *sEssDemo) GetCellMinTemp() (*float32, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetCellMaxTemp() (*float32, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetCellAvgTemp() (*float32, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetCellMinVoltage() (*float32, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetCellMaxVoltage() (*float32, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetCellAvgVoltage() (*float32, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetSoc() (*float32, error) {
@@ -61,11 +60,11 @@ func (s *sEssDemo) GetCapacity() (*uint32, error) {
 }
 
 func (s *sEssDemo) GetCycleCount() (*uint, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetDcPower() (*float64, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) SetReset() error {
@@ -84,17 +83,17 @@ func (s *sEssDemo) SetStatus(status c_enum.EEnergyStoreStatus) error {
 }
 
 func (s *sEssDemo) SetGridMode(mode c_enum.EGridMode) error {
-	return c_base.NotSupport
+	return nil
 }
 
 func (s *sEssDemo) GetStatus() (*c_enum.EEnergyStoreStatus, error) {
 	v, err := s.GetFromProtocol(func(protocol c_proto.IModbusProtocol) (any, error) {
 		value, err := protocol.GetUintValue(Status)
 		if err != nil {
-			return c_enum.EPcsStatusUnknown, err
+			return nil, err
 		}
 		if value == nil {
-			return c_enum.EPcsStatusUnknown, nil // 没有采集到数据
+			return nil, nil // 没有采集到数据
 		}
 
 		if v, err := cvt.Uint8E(*value); err == nil {
@@ -113,6 +112,9 @@ func (s *sEssDemo) GetStatus() (*c_enum.EEnergyStoreStatus, error) {
 		}
 		return c_enum.EPcsStatusUnknown, err
 	})
+	if v == nil || err != nil {
+		return nil, err
+	}
 	status := v.(c_enum.EEnergyStoreStatus)
 	return &status, err
 }
@@ -129,11 +131,11 @@ func (s *sEssDemo) SetPower(power int32) error {
 }
 
 func (s *sEssDemo) SetReactivePower(power int32) error {
-	return c_base.NotSupport
+	return nil
 }
 
 func (s *sEssDemo) SetPowerFactor(factor float32) error {
-	return c_base.NotSupport
+	return nil
 }
 
 func (s *sEssDemo) GetTargetPower() (*int32, error) {
@@ -141,11 +143,11 @@ func (s *sEssDemo) GetTargetPower() (*int32, error) {
 }
 
 func (s *sEssDemo) GetTargetReactivePower() (*int32, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetTargetPowerFactor() (*float32, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetPower() (*float64, error) {
@@ -153,11 +155,11 @@ func (s *sEssDemo) GetPower() (*float64, error) {
 }
 
 func (s *sEssDemo) GetApparentPower() (*float64, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetReactivePower() (*float64, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetRatedPower() (*uint32, error) {
@@ -173,7 +175,7 @@ func (s *sEssDemo) GetMaxOutputPower() (*float32, error) {
 }
 
 func (s *sEssDemo) GetTodayIncomingQuantity() (*float64, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetHistoryIncomingQuantity() (*float64, error) {
@@ -181,7 +183,7 @@ func (s *sEssDemo) GetHistoryIncomingQuantity() (*float64, error) {
 }
 
 func (s *sEssDemo) GetTodayOutgoingQuantity() (*float64, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetHistoryOutgoingQuantity() (*float64, error) {
@@ -189,13 +191,13 @@ func (s *sEssDemo) GetHistoryOutgoingQuantity() (*float64, error) {
 }
 
 func (s *sEssDemo) GetFireEnvTemperature() (*float64, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) GetCarbonMonoxideConcentration() (*float64, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }
 
 func (s *sEssDemo) HasSmoke() (*bool, error) {
-	return nil, c_base.NotSupport
+	return nil, nil
 }

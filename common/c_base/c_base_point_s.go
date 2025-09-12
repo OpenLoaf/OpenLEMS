@@ -35,9 +35,8 @@ func (s *SPoint) AlarmTrigger(value any) (trigger bool, level c_enum.EAlarmLevel
 func (s *SPoint) ValueExplain(value any) (string, error) {
 	// 检查值是否为数值类型（整数或浮点数）
 	switch value.(type) {
-	case int, int8, int16, int32, int64:
-	case uint, uint8, uint16, uint32, uint64:
-	case float32, float64:
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
+	case *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64, *float32, *float64:
 	default:
 		// 非数值类型使用默认的字符串转换
 		return cvt.StringE(value)

@@ -5,18 +5,18 @@ version: "v1.0.0"
 author: "zz@hexems.com"
 create: "2025-09-12"
 protocolType: "gpiod"
-remark: "基础GPIO驱动，支持GPIO输入输出控制"
+desc: "基础GPIO驱动，支持GPIO输入输出控制"
 telemetry:
-  - name: gpioStatus
-    displayName: "状态"
-    type: label
-    mapping:
+  - key: gpioStatus
+    name: "状态"
+    displayType: label
+    valueExplain:
       false: "关|#9CBF30"
       true: "开|#0098FA"
 service:
-  - name: SetLow
-    displayName: "低电平"
+  - key: SetLow
+    name: "低电平"
     description: "设置为低电平"
-  - name: SetHigh
-    displayName: "高电平"
+  - key: SetHigh
+    name: "高电平"
     description: "设置为高电平"

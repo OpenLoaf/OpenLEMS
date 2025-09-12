@@ -4,33 +4,33 @@ type: pv
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-09-01"
-remark: "测试光伏"
+desc: "测试光伏"
 protocolType: "modbus"
 telemetry:
-  - name: status
-    displayName: "状态"
-    type: label
-    mapping:
+  - key: status
+    name: "状态"
+    displayType: label
+    valueExplain:
       0: "未知|#FF5D5D"
       1: "关机|#9CBF30"
       2: "待机|#6967EE"
       4: "发电中|#0098FA"
       5: "故障|#FF5D5D"
-  - name: power
+  - key: power
     unit: "kW"
-    displayName: "发电功率"
-  - name: irradiance
-    displayName: "当前辐照度"
+    name: "发电功率"
+  - key: irradiance
+    name: "当前辐照度"
     unit: "W/m²"
-  - name: temperature
-    displayName: "当前温度"
+  - key: temperature
+    name: "当前温度"
     unit: "°C"
-  - name: historyOutgoingQuantity
-    displayName: "历史发电量"
+  - key: historyOutgoingQuantity
+    name: "历史发电量"
     unit: "kWh"
 
 service:
-  - name: CustomPowerZeroService
-    displayName: "零功率"
-  - name:  CustomPowerRandomService
-    displayName: "随机功率"
+  - key: CustomPowerZeroService
+    name: "零功率"
+  - key:  CustomPowerRandomService
+    name: "随机功率"

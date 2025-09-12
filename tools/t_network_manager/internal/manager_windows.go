@@ -28,7 +28,7 @@ func (m *SManager) GetAllInterfaces(ctx context.Context) ([]*public.InterfaceSum
 	// 使用 PowerShell 获取网络适配器信息
 	cmd := exec.CommandContext(ctx, "powershell", "-Command", `
 		Get-NetAdapter | Where-Object {$_.Status -eq "Up" -or $_.Status -eq "Down"} | 
-		Select-Object Name, InterfaceDescription, MacAddress, Status, LinkSpeed | 
+		Select-Object Key, InterfaceDescription, MacAddress, Status, LinkSpeed | 
 		ConvertTo-Json
 	`)
 
@@ -58,7 +58,7 @@ func (m *SManager) GetAllInterfaces(ctx context.Context) ([]*public.InterfaceSum
 
 // getInterfaceDetails 获取单个接口的详细信息
 func (m *SManager) getInterfaceDetails(ctx context.Context, iface map[string]interface{}) (*public.InterfaceSummary, error) {
-	name, ok := iface["Name"].(string)
+	name, ok := iface["Key"].(string)
 	if !ok {
 		return nil, fmt.Errorf("接口名称无效")
 	}
@@ -246,7 +246,7 @@ func (m *SManager) SetInterfaceState(ctx context.Context, id public.InterfaceID,
 	}
 
 	cmd := exec.CommandContext(ctx, "powershell", "-Command", fmt.Sprintf(`
-		%s-NetAdapter -Name "%s" -Confirm:$false
+		%s-NetAdapter -Key "%s" -Confirm:$false
 	`, action, interfaceName))
 
 	if err := cmd.Run(); err != nil {

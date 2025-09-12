@@ -48,7 +48,7 @@ func (s *SConfigStructFields) String() string {
 		regexVal = *s.Regex
 	}
 
-	return fmt.Sprintf("SConfigStructFields{Name:%s, Code:%s, ValueType:%s, ComponentType:%s, After:%d, Before:%d, Default:%s, Regex:%s}",
+	return fmt.Sprintf("SConfigStructFields{Key:%s, Code:%s, ValueType:%s, ComponentType:%s, After:%d, Before:%d, Default:%s, Regex:%s}",
 		s.Name, s.Code, s.ValueType, s.ComponentType, minVal, maxVal, defaultVal, regexVal)
 }
 
@@ -59,7 +59,7 @@ func (s *SConfigStructFields) Check() error {
 
 	// 检查必填字段
 	if s.Name == "" {
-		return errors.New("Name is required")
+		return errors.New("Key is required")
 	}
 	if s.Description == "" {
 		return errors.New("Description is required")

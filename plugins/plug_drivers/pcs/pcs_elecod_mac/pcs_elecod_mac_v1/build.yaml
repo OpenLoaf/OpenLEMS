@@ -4,29 +4,19 @@ type: pcs
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-08-10"
-remark: "亿兰科MAC协议"
+desc: "亿兰科MAC协议"
 protocolType: "canbus"
 telemetry:
-  - name: power
+  - key: power
     unit: "kW"
-    remark: "功率"
-#  - name: voltage
-#    unit: "V"
-#    remark: "电压"
-#  - name: current
-#    unit: "A"
-#    remark: "电流"
-  - name: frequency
+    desc: "功率"
+  - key: frequency
     unit: "Hz"
-    remark: "频率"
-#  - name: temperature
-#    unit: "℃"
-#    remark: "温度"
-
+    desc: "频率"
 Service:
-  - name: CustomShutdownService
-    displayName: "g18n:shutdown"
-  - name: CustomStartupService
-    displayName: "g18:startup"
-  - name: CustomStandbyService
-    displayName: "g18:standby"
+  - key: CustomShutdownService
+    name: "关机"
+  - key: CustomStartupService
+    name: "开机"
+  - key: CustomStandbyService
+    name: "待机"

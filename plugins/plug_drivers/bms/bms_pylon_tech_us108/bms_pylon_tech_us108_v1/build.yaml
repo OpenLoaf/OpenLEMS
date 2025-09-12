@@ -4,13 +4,13 @@ type: bms
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2024-09-07"
-remark: "派能108kWh风冷电池MBMS"
+desc: "派能108kWh风冷电池MBMS"
 protocolType: "modbus"
 telemetry:
-    - name: bmsStatus
-      displayName: "电池状态"
-      type: label
-      mapping:
+    - key: bmsStatus
+      name: "电池状态"
+      displayType: label
+      valueExplain:
         0: "未知|#FF5D5D"
         1: "关机|#9CBF30"
         2: "待机|#6967EE"
@@ -19,41 +19,41 @@ telemetry:
         5: "故障|#FF5D5D"
         6: "同步中|#FF5D5D"
         7: "启动中|#FF5D5D"
-    - name: soc
+    - key: soc
       unit: "%"
-      displayName: "SOC"
-    - name: capacity
+      name: "SOC"
+    - key: capacity
       unit: "kWh"
-      displayName: "电池容量"
-    - name: dcPower
+      name: "电池容量"
+    - key: dcPower
       unit: "kW"
-      displayName: "直流功率"
-    - name: dcVoltage
+      name: "直流功率"
+    - key: dcVoltage
       unit: "V"
-      displayName: "直流电压"
-    - name: dcCurrent
+      name: "直流电压"
+    - key: dcCurrent
       unit: "A"
-      displayName: "直流电流"
-    - name: historyIncomingQuantity
+      name: "直流电流"
+    - key: historyIncomingQuantity
       unit: "kWh"
-      displayName: "充电量"
-    - name: historyOutgoingQuantity
+      name: "充电量"
+    - key: historyOutgoingQuantity
       unit: "kWh"
-      displayName: "放电量"
+      name: "放电量"
 
 
 service:
-  - name: CustomDcOffService
-    displayName: "g18n:dc-off"
+  - key: CustomDcOffService
+    name: "电池下电指令"
     description: "电池下电指令"
-  - name:  CustomDcOnService
-    displayName: "g18n:dc-on"
+  - key:  CustomDcOnService
+    name: "电池上电指令"
     description: "电池上电指令"
-  - name: CustomSyncTimeService
-    displayName: "g18n:syncTime"
-  - name: CustomTestTrigger
-    displayName: "测试温度告警触发"
-  - name: CustomTestClear
-    displayName: "测试温度告警消除"
-  - name: CustomNoFunction
-    displayName: "测试不存在服务"
+  - key: CustomSyncTimeService
+    name: "时间同步指令"
+  - key: CustomTestTrigger
+    name: "测试温度告警触发"
+  - key: CustomTestClear
+    name: "测试温度告警消除"
+  - key: CustomNoFunction
+    name: "测试不存在服务"

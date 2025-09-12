@@ -4,26 +4,26 @@ type: ammeter
 version: v1.0.0
 author: "zz@hexems.com"
 create: "2025-09-01"
-remark: "测试电表"
+desc: "测试电表"
 protocolType: "modbus"
 telemetry:
-  - name: pTotal
+  - key: pTotal
     unit: "kW"
-    displayName: "功率"
-  - name: frequency
-    displayName: "频率"
-  - name: pfTotal
-    displayName: "功率因素"
-  - name: historyIncomingQuantity
-    displayName: "正向总有功电能"
+    name: "功率"
+  - key: frequency
+    name: "频率"
+  - key: pfTotal
+    name: "功率因素"
+  - key: historyIncomingQuantity
+    name: "正向总有功电能"
     unit: "kWh"
-  - name: historyOutgoingQuantity
-    displayName: "反向总有功电能"
+  - key: historyOutgoingQuantity
+    name: "反向总有功电能"
     unit: "kWh"
 
 
 #service:
-#  - name: CustomPowerZeroService
-#    displayName: "零功率"
-#  - name:  CustomPowerRandomService
-#    displayName: "随机功率"
+#  - key: CustomPowerZeroService
+#    name: "零功率"
+#  - key:  CustomPowerRandomService
+#    name: "随机功率"
