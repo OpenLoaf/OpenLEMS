@@ -485,8 +485,8 @@ func (m *SManager) Ping(ctx context.Context, target string) (*public.PingResult,
 		}, nil
 	}
 
-	// 使用Windows的ping命令
-	cmd := exec.CommandContext(ctx, "ping", "-n", "1", "-w", "3000", target)
+	// 使用Windows的ping命令，通过chcp设置代码页为UTF-8
+	cmd := exec.CommandContext(ctx, "cmd", "/c", "chcp 65001 >nul && ping -n 1 -w 3000 "+target)
 	output, err := cmd.Output()
 
 	result := &public.PingResult{
@@ -501,7 +501,8 @@ func (m *SManager) Ping(ctx context.Context, target string) (*public.PingResult,
 	}
 
 	// 解析ping输出获取延迟时间
-	latency, err := m.parsePingOutput(string(output))
+	outputStr := string(output)
+	latency, err := m.parsePingOutput(outputStr)
 	if err != nil {
 		result.Success = false
 		result.Error = fmt.Sprintf("解析ping结果失败: %v", err)
@@ -516,21 +517,45 @@ func (m *SManager) Ping(ctx context.Context, target string) (*public.PingResult,
 // parsePingOutput 解析ping命令输出
 func (m *SManager) parsePingOutput(output string) (float64, error) {
 	// Windows ping输出格式示例：
-	// Pinging 8.8.8.8 with 32 bytes of data:
-	// Reply from 8.8.8.8: bytes=32 time=12ms TTL=57
+	// 英文版: Reply from 8.8.8.8: bytes=32 time=12ms TTL=57
+	// 中文版: 来自 8.8.8.8 的回复: 字节=32 时间=43ms TTL=113
 
-	// 查找time=xxxms模式（Windows没有空格）
+	// 首先尝试英文格式 time=xxxms
 	re := regexp.MustCompile(`time=(\d+)ms`)
 	matches := re.FindStringSubmatch(output)
 
-	if len(matches) < 2 {
-		return 0, fmt.Errorf("无法从ping输出中解析延迟时间")
+	if len(matches) >= 2 {
+		latency, err := strconv.ParseFloat(matches[1], 64)
+		if err != nil {
+			return 0, fmt.Errorf("解析延迟时间失败: %v", err)
+		}
+		return latency, nil
 	}
 
-	latency, err := strconv.ParseFloat(matches[1], 64)
-	if err != nil {
-		return 0, fmt.Errorf("解析延迟时间失败: %v", err)
+	// 如果英文格式失败，尝试中文格式 时间=xxxms
+	re = regexp.MustCompile(`时间=(\d+)ms`)
+	matches = re.FindStringSubmatch(output)
+
+	if len(matches) >= 2 {
+		latency, err := strconv.ParseFloat(matches[1], 64)
+		if err != nil {
+			return 0, fmt.Errorf("解析延迟时间失败: %v", err)
+		}
+		return latency, nil
 	}
 
-	return latency, nil
+	// 尝试处理可能的乱码情况，查找数字+ms的模式
+	re = regexp.MustCompile(`(\d+)ms`)
+	matches = re.FindStringSubmatch(output)
+
+	if len(matches) >= 2 {
+		latency, err := strconv.ParseFloat(matches[1], 64)
+		if err != nil {
+			return 0, fmt.Errorf("解析延迟时间失败: %v", err)
+		}
+		return latency, nil
+	}
+
+	// 如果所有模式都失败，返回详细的错误信息
+	return 0, fmt.Errorf("无法从ping输出中解析延迟时间，输出内容: %q", output)
 }
