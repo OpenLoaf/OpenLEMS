@@ -1,4 +1,4 @@
-package gpio_zlg_em_1000_v1
+package gpio_basic_v1
 
 import (
 	"common/c_base"
@@ -7,6 +7,16 @@ import (
 
 type sBasicGpio struct {
 	c_device.SRealGpio
+}
+
+func (s *sBasicGpio) GetConfig() *SDeviceConfig {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s *sBasicGpio) GetConfig() *SDeviceConfig {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (s *sBasicGpio) Init() error {
