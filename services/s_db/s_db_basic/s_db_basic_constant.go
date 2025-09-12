@@ -4,6 +4,8 @@ const (
 	SettingActiveDeviceRootIdKey = "active_device_root_id" // 根设备ID
 	DefaultActiveDeviceRootId    = "0"                     // 默认根设备ID
 
+	SettingActiveGpioDriver = "" // 默认激活的GPIO驱动，一个系统只能使用一种GPIO驱动
+
 	SettingActivePolicyIdKey = "active_policy_id" // 激活的策略ID
 
 	SettingDeviceRetentionDays = "DeviceRetentionDays"

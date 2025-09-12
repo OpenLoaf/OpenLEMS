@@ -261,7 +261,7 @@ func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig
 		return
 	}
 
-	var device any
+	var device c_base.IDevice
 	switch deviceConfig.ProtocolConfig.GetProtocol() {
 	case c_enum.EModbusRtu, c_enum.EModbusTcp:
 		device, err = c_device.NewRealDevice(deviceCtx, deviceConfig, protocolProvider.(c_proto.IModbusProtocol))
@@ -279,7 +279,7 @@ func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig
 	}
 
 	// 物理设备
-	driver, err := getDriver(deviceConfig.Driver, device.(c_base.IDevice))
+	driver, err := getDriver(deviceConfig.Driver, device)
 	if driver == nil || err != nil {
 		c_log.BizErrorf(deviceCtx, "设备[%s]驱动加载失败！原因：%s", deviceConfig.Name, err.Error())
 		return

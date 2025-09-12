@@ -24,7 +24,7 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	}
 
 	groupCacheMap := make(map[string]*entity.SSingleDeviceGroup)
-	list := device.GetMetaValueList()
+	list := device.GetPointValueList()
 	for _, v := range list {
 
 		groupName := ""

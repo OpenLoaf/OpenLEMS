@@ -106,7 +106,7 @@ func (s *SRealDeviceImpl[P]) GetServices() map[string]*c_base.SDriverService {
 	return nil
 }
 
-func (s *SRealDeviceImpl[P]) GetMetaValueList() []*c_base.SPointValue {
+func (s *SRealDeviceImpl[P]) GetPointValueList() []*c_base.SPointValue {
 	return s.protocol.GetPointValueList()
 }
 

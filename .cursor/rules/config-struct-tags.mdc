@@ -1,0 +1,270 @@
+---
+description: 配置结构体标签规范和最佳实践
+globs: *config*.go,*Config*.go
+---
+
+# 配置结构体标签规范
+
+## 概述
+
+本规则定义了 EMS 项目中配置结构体字段标签的使用规范，基于 [c_base_config_struct_fields_s.go](mdc:common/c_base/c_base_config_struct_fields_s.go) 中定义的 `SConfigStructFields` 结构体。
+
+## 标签规范
+
+### 基础标签
+
+所有配置字段必须包含以下基础标签：
+
+```go
+`json:"fieldName" name:"显示名称" ct:"组件类型" required:"true/false"`
+```
+
+**必需标签说明：**
+
+- `json` - JSON序列化字段名（必需）
+- `ct` - 组件类型（必需），告诉前端使用什么组件渲染
+- `name` - 字段显示名称（推荐）
+
+### 组件类型标签 (ct) - 必需
+
+**重要：`ct` 标签是必需的**，用于告诉前端使用什么组件来渲染字段。根据字段类型选择合适的组件类型：
+
+- `ct:"text"` - 文本输入框（默认）
+- `ct:"number"` - 数字输入框
+- `ct:"switch"` - 开关组件（用于 bool 类型）
+- `ct:"singleSelect"` - 单选下拉框
+- `ct:"multiSelect"` - 多选下拉框
+- `ct:"textarea"` - 多行文本输入
+- `ct:"date"` - 日期选择器
+- `ct:"time"` - 时间选择器
+- `ct:"dateTime"` - 日期时间选择器
+
+### 数值范围标签
+
+对于数值类型字段，使用以下标签：
+
+- `min:"最小值"` - 最小值限制
+- `max:"最大值"` - 最大值限制
+- `step:"步长"` - 数值调整步长
+
+### 默认值标签
+
+- `default:"默认值"` - 字段默认值
+
+### 单位标签
+
+- `unit:"单位"` - 字段单位（如 "kW", "kWh", "V", "A" 等）
+
+### 输入类型标签
+
+- `input_type:"类型"` - 输入类型（如 "number", "text" 等）
+
+### 描述标签
+
+- `dc:"描述内容"` - 字段描述信息，用于帮助文档和用户理解
+- `desc:"描述内容"` - 字段描述信息（与dc标签功能相同，优先级低于dc）
+
+### 分组标签
+
+- `group:"分组名称"` - 字段分组，用于界面组织
+
+### 值类型标签
+
+- `vt:"类型"` - 值类型（string字符串、int整数、float浮点数、bool布尔值）
+
+### 选择选项标签
+
+- `selectOptions:"key1:value1,key2:value2"` - 下拉选择框的选项配置，格式为键值对，用逗号分隔
+
+### 正则表达式标签
+
+- `regex:"正则表达式"` - 字段值的正则表达式验证规则
+- `regexFailedMessage:"错误提示"` - 正则表达式验证失败时的错误提示信息
+
+## 示例
+
+参考 [pylon_tech_us108_config_s.go](mdc:plugins/plug_drivers/bms/bms_pylon_tech_us108/bms_pylon_tech_us108_v1/pylon_tech_us108_config_s.go) 中的实现：
+
+```go
+type sPylonTechUs108BmsConfig struct {
+    c_proto.SModbusDeviceConfig
+    SyncTime       bool    `json:"syncTime" name:"是否同步时间" ct:"switch" default:"false"`
+    RatedPower     *uint32 `json:"ratedPower" input_type:"number" name:"额定功率" min:"0" max:"1000" step:"10" default:"100" unit:"kW"`
+    Capacity       *uint32 `json:"capacity" min:"0" name:"容量" max:"2000" default:"232" unit:"kWh" step:"1"`
+    MaxInputPower  *uint32 `json:"maxInputPower" name:"最大输入功率" min:"0" unit:"kW" step:"1"`
+    MaxOutputPower *uint32 `json:"maxOutputPower" name:"最大输出功率" min:"0" unit:"kW" step:"1"`
+}
+```
+
+## 完整标签示例
+
+基于 [c_base_config_struct_fields_f.go](mdc:common/c_base/c_base_config_struct_fields_f.go) 中支持的完整标签规范：
+
+```go
+type ExampleConfig struct {
+    // 基础字段
+    Name        string `json:"name" name:"设备名称" desc:"设备的显示名称" required:"true"`
+    Code        string `json:"code" name:"设备代码" dc:"唯一标识代码" required:"true"`
+    Group       string `json:"group" name:"分组" dc:"字段分组"`
+    
+    // 类型和组件
+    ValueType   string `json:"valueType" name:"值类型" vt:"string" dc:"string字符串、int整数、float浮点数、bool布尔值"`
+    ComponentType string `json:"componentType" name:"组件类型" ct:"text" dc:"组件类型"`
+    
+    // 数值控制
+    Step        *float32 `json:"step" name:"步长" default:"1" dc:"步长（小步长）"`
+    Min         *int64   `json:"min" name:"最小值" dc:"最小值限制"`
+    Max         *int64   `json:"max" name:"最大值" dc:"最大值限制"`
+    
+    // 验证和描述
+    Required    bool     `json:"required" name:"是否必填" dc:"是否必填"`
+    Unit        *string  `json:"unit" name:"单位" dc:"单位"`
+    Default     *string  `json:"default" name:"默认值" dc:"默认值"`
+    Description string   `json:"description" name:"描述" dc:"详细描述"`
+    
+    // 正则表达式验证
+    Regex              *string `json:"regex" name:"正则表达式" dc:"正则表达式"`
+    RegexFailedMessage *string `json:"regexFailedMessage" name:"正则错误提示" dc:"正则表达式失败提醒"`
+    
+    // 选择选项
+    SelectOptions map[string]string `json:"selectOptions" name:"选择选项" dc:"下拉选择框的选项"`
+}
+```
+
+## 实际使用示例
+
+参考代码注释中的示例：
+
+```go
+type BaseConfig struct {
+    UnitId uint8 `json:"unitId" name:"ModbusID" min:"1" max:"255" default:"1"`
+}
+
+type Config struct {
+    BaseConfig                    // 匿名嵌入，字段会被平铺展开
+    Name string `json:"name" name:"设备名称" desc:"设备的显示名称" ct:"text" vt:"string" regex:"^[a-zA-Z0-9_-]+$" regexFailedMessage:"只能包含字母、数字、下划线和连字符"`
+    Port int    `json:"port" name:"端口号" desc:"设备通信端口" ct:"number" vt:"int" min:"1" max:"65535" default:"8080"`
+    Enable bool `json:"enable" name:"启用状态" desc:"是否启用设备" ct:"switch" vt:"bool" default:"true"`
+}
+```
+
+## 最佳实践
+
+1. **必需标签**：所有字段必须包含 `json` 和 `ct` 标签
+2. **组件类型指定**：`ct` 标签是必需的，用于告诉前端使用什么组件渲染字段
+3. **必填字段标记**：所有必填字段必须设置 `required:"true"`
+4. **中文显示名称**：`name` 标签使用中文，便于用户理解
+5. **合理的默认值**：为常用字段设置合理的默认值
+6. **单位标注**：数值字段应包含相应的单位
+7. **范围限制**：为数值字段设置合理的 min/max 范围
+8. **步长设置**：根据业务需求设置合适的步长
+9. **正则表达式验证**：对需要格式验证的字段使用 `regex` 和 `regexFailedMessage` 标签
+10. **描述信息**：使用 `dc` 或 `desc` 标签提供详细的字段描述
+11. **分组组织**：使用 `group` 标签对相关字段进行分组
+12. **选择选项**：对于枚举类型字段，使用 `selectOptions` 标签定义选项
+13. **匿名嵌入**：支持匿名嵌入结构体，字段会被自动平铺展开
+14. **类型自动推断**：系统会根据 Go 类型自动推断组件类型和值类型，也可通过 `ct` 和 `vt` 标签手动指定
+
+## 字段类型映射
+
+基于 [c_base_config_struct_fields_f.go](mdc:common/c_base/c_base_config_struct_fields_f.go) 中的自动类型推断规则：
+
+| Go 类型 | 自动推断组件类型 | 自动推断值类型 | 推荐标签 |
+|---------|-----------------|---------------|----------|
+| string/*string | text | string | `ct:"text"` 或 `ct:"textarea"` |
+| int/int8/int16/int32/int64/*int/*int8/*int16/*int32/*int64 | number | int | `ct:"number"` |
+| uint/uint8/uint16/uint32/uint64/*uint/*uint8/*uint16/*uint32/*uint64 | number | int | `ct:"number"` |
+| float32/float64/*float32/*float64 | number | float | `ct:"number"` |
+| bool/*bool | switch | bool | `ct:"switch"` |
+| 其他类型 | text | string | 默认处理 |
+
+### 组件类型选项 (ct)
+
+- `text` - 文本输入框
+- `number` - 数字输入框
+- `switch` - 开关组件
+- `singleSelect` - 单选下拉框
+- `multiSelect` - 多选下拉框
+- `date` - 日期选择器
+- `time` - 时间选择器
+- `dateTime` - 日期时间选择器
+
+### 值类型选项 (vt)
+
+- `string` - 字符串
+- `int` - 整数
+- `float` - 浮点数
+- `bool` - 布尔值
+
+## 验证规则
+
+配置结构体应该实现验证方法，确保：
+
+- 必填字段不为空
+- 数值范围在指定范围内
+- 正则表达式格式正确（如果使用）
+- 默认值符合字段类型要求
+
+## 标签优先级和组合使用
+
+### 字段名称优先级
+
+1. `name` 标签 - 最高优先级
+2. `desc` 标签 - 中等优先级
+3. `json` 字段名 - 最低优先级
+
+### 描述信息优先级
+
+1. `dc` 标签 - 最高优先级
+2. `desc` 标签 - 中等优先级
+
+### 常用标签组合
+
+1. **基础字段组合**：
+
+   ```go
+   `json:"fieldName" name:"显示名称" ct:"text" required:"true" dc:"字段描述"`
+   ```
+
+2. **数值字段组合**：
+
+   ```go
+   `json:"fieldName" name:"显示名称" ct:"number" vt:"int" min:"0" max:"100" step:"1" unit:"kW" default:"10"`
+   ```
+
+3. **开关字段组合**：
+
+   ```go
+   `json:"fieldName" name:"显示名称" ct:"switch" vt:"bool" default:"false"`
+   ```
+
+4. **带验证的文本字段组合**：
+
+   ```go
+   `json:"fieldName" name:"显示名称" ct:"text" vt:"string" regex:"^[a-zA-Z0-9]+$" regexFailedMessage:"只能包含字母和数字"`
+   ```
+
+5. **选择字段组合**：
+
+   ```go
+   `json:"fieldName" name:"显示名称" ct:"singleSelect" vt:"string" selectOptions:"option1:选项1,option2:选项2"`
+   ```
+
+6. **分组字段组合**：
+
+   ```go
+   `json:"fieldName" name:"显示名称" ct:"text" group:"网络配置" dc:"网络相关配置项"`
+   ```
+
+### 标签使用注意事项
+
+- `json` 标签是必需的，用于确定字段的序列化名称
+- `ct` 标签是必需的，用于告诉前端使用什么组件渲染字段
+- `required` 标签用于标记字段是否必填
+- `dc` 和 `desc` 标签用于提供详细的字段描述和帮助信息
+- `regex` 和 `regexFailedMessage` 通常成对使用
+- `group` 标签用于界面分组显示
+- `selectOptions` 标签格式为 "key1:value1,key2:value2"
+- `ct` 和 `vt` 标签用于手动指定组件类型和值类型，会覆盖自动推断
+- 支持匿名嵌入结构体，字段会被自动平铺展开
+- **前端渲染依赖**：生成的配置数据是给前端使用的，`ct` 标签直接决定前端组件的选择

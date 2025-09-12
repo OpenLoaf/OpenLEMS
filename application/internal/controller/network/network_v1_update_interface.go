@@ -4,10 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"os/exec"
-	"runtime"
-	"strconv"
-	"strings"
+	"time"
 
 	v1 "application/api/network/v1"
 
@@ -18,91 +15,60 @@ import (
 
 // UpdateNetworkInterface 更新网络接口配置（仅支持Linux）
 func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.UpdateNetworkInterfaceReq) (res *v1.UpdateNetworkInterfaceRes, err error) {
-	// 只支持Linux系统
-	if runtime.GOOS != "linux" {
-		return nil, gerror.NewCode(gcode.CodeNotSupported, "网络接口更新功能仅支持Linux系统")
+	start := time.Now()
+	g.Log().Infof(ctx, "开始更新网络接口配置: %s", req.Name)
+
+	// 创建验证器和网络管理器
+	validator := NewNetworkValidator()
+	networkManager := NewNetworkManager()
+
+	// 构建更新请求
+	updateReq := &UpdateInterfaceRequest{
+		Name:        req.Name,
+		DHCP:        req.DHCP,
+		IPAddresses: req.IPAddresses,
+		Netmask:     req.Netmask,
+		Gateway:     req.Gateway,
+		DNS:         req.DNS,
 	}
 
-	// 基础校验
-	if len(req.IPAddresses) == 0 {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "IP地址列表不能为空")
+	// 验证请求参数
+	if err := validator.ValidateUpdateRequest(updateReq); err != nil {
+		g.Log().Errorf(ctx, "参数验证失败: %+v", err)
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter, err.Error())
 	}
 
-	// 验证所有IP地址格式
-	for i, ip := range req.IPAddresses {
-		if net.ParseIP(ip) == nil {
-			return nil, gerror.NewCode(gcode.CodeInvalidParameter, fmt.Sprintf("第%d个IP地址格式不正确: %s", i+1, ip))
-		}
+	configMode := "静态配置"
+	if req.DHCP {
+		configMode = "DHCP配置"
+	}
+	g.Log().Infof(ctx, "应用网络配置: name=%s mode=%s ipAddresses=%v mask=%s gw=%s dns=%v", req.Name, configMode, req.IPAddresses, req.Netmask, req.Gateway, req.DNS)
+
+	// 更新网络接口配置
+	if err := networkManager.UpdateInterface(ctx, updateReq); err != nil {
+		g.Log().Errorf(ctx, "更新网络接口配置失败: %+v", err)
+		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新网络配置失败")
 	}
 
-	// 验证子网掩码格式（十六进制格式，如ffffff00）
-	if !isValidHexMask(req.Netmask) {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "子网掩码格式不正确，应为十六进制格式（如ffffff00）")
+	// 验证配置结果
+	if err := c.verifyInterfaceConfiguration(ctx, updateReq); err != nil {
+		g.Log().Warningf(ctx, "配置验证失败: %+v", err)
+		// 配置验证失败不阻断返回，只记录警告
 	}
 
-	if req.Gateway != "" && net.ParseIP(req.Gateway) == nil {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "网关地址格式不正确")
-	}
-
-	g.Log().Infof(ctx, "开始应用网络配置: name=%s ipAddresses=%v mask=%s gw=%s", req.Name, req.IPAddresses, req.Netmask, req.Gateway)
-
-	// 应用配置
-	if err = applyLinuxConfig(ctx, req); err != nil {
-		g.Log().Errorf(ctx, "应用Linux网络配置失败: %+v", err)
-		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "应用网络配置失败")
-	}
-
-	// 验证配置
-	ok, verifyMsg := verifyInterface(req)
-	g.Log().Infof(ctx, "应用完成，验证结果: ok=%v msg=%s", ok, verifyMsg)
-	if !ok {
-		return nil, gerror.NewCode(gcode.CodeInternalError, verifyMsg)
-	}
-
+	g.Log().Infof(ctx, "网络接口配置更新完成: %s，耗时: %v", req.Name, time.Since(start))
 	return &v1.UpdateNetworkInterfaceRes{}, nil
 }
 
-func applyLinuxConfig(ctx context.Context, req *v1.UpdateNetworkInterfaceReq) error {
-	// 将十六进制子网掩码转换为CIDR前缀长度
-	prefixLen, err := hexMaskToPrefix(req.Netmask)
-	if err != nil {
-		return err
-	}
+// verifyInterfaceConfiguration 验证接口配置结果
+func (c *ControllerV1) verifyInterfaceConfiguration(ctx context.Context, req *UpdateInterfaceRequest) error {
+	// 等待配置生效
+	time.Sleep(2 * time.Second)
 
-	// 构建命令序列
-	cmds := [][]string{
-		{"ip", "addr", "flush", "dev", req.Name},
-	}
-
-	// 为每个IP地址添加配置命令
-	for _, ip := range req.IPAddresses {
-		cmds = append(cmds, []string{"ip", "addr", "add", fmt.Sprintf("%s/%d", ip, prefixLen), "dev", req.Name})
-	}
-
-	// 启用接口
-	cmds = append(cmds, []string{"ip", "link", "set", req.Name, "up"})
-
-	// 如果指定了网关，添加默认路由
-	if req.Gateway != "" {
-		cmds = append(cmds, []string{"ip", "route", "replace", "default", "via", req.Gateway, "dev", req.Name})
-	}
-
-	// 执行命令
-	for _, cmd := range cmds {
-		g.Log().Debugf(ctx, "执行命令: %s", strings.Join(cmd, " "))
-		if output, err := exec.Command(cmd[0], cmd[1:]...).CombinedOutput(); err != nil {
-			return fmt.Errorf("命令执行失败 %s: %v, 输出: %s", strings.Join(cmd, " "), err, string(output))
-		}
-	}
-
-	return nil
-}
-
-func verifyInterface(req *v1.UpdateNetworkInterfaceReq) (bool, string) {
 	// 读取系统当前状态进行比对
 	ifi, err := net.InterfaceByName(req.Name)
 	if err != nil {
-		return false, err.Error()
+		return err
 	}
 
 	addrs, _ := ifi.Addrs()
@@ -115,67 +81,34 @@ func verifyInterface(req *v1.UpdateNetworkInterfaceReq) (bool, string) {
 		}
 	}
 
-	// 检查所有请求的IP地址是否都已配置
-	for _, requestedIP := range req.IPAddresses {
-		found := false
-		for _, configuredIP := range configuredIPs {
-			if configuredIP == requestedIP {
-				found = true
-				break
+	if req.DHCP {
+		// DHCP模式：检查接口是否启用
+		up := ifi.Flags&net.FlagUp != 0
+		if !up {
+			return fmt.Errorf("接口未启用")
+		}
+
+		if len(configuredIPs) == 0 {
+			g.Log().Infof(ctx, "DHCP配置已应用（接口已启用，等待网络连接获取IP地址）")
+		} else {
+			g.Log().Infof(ctx, "DHCP配置已应用（已获取IP地址: %v）", configuredIPs)
+		}
+	} else {
+		// 静态模式：检查所有请求的IP地址是否都已配置
+		for _, requestedIP := range req.IPAddresses {
+			found := false
+			for _, configuredIP := range configuredIPs {
+				if configuredIP == requestedIP {
+					found = true
+					break
+				}
+			}
+			if !found {
+				return fmt.Errorf("IP地址 %s 未生效", requestedIP)
 			}
 		}
-		if !found {
-			return false, fmt.Sprintf("IP地址 %s 未生效", requestedIP)
-		}
+		g.Log().Infof(ctx, "静态配置已应用")
 	}
 
-	return true, "配置已应用"
-}
-
-// isValidHexMask 验证十六进制子网掩码格式
-func isValidHexMask(mask string) bool {
-	// 检查长度（应该是8个字符，如ffffff00）
-	if len(mask) != 8 {
-		return false
-	}
-
-	// 检查是否都是十六进制字符
-	for _, char := range mask {
-		if !((char >= '0' && char <= '9') || (char >= 'a' && char <= 'f') || (char >= 'A' && char <= 'F')) {
-			return false
-		}
-	}
-
-	// 尝试解析为32位整数
-	_, err := strconv.ParseUint(mask, 16, 32)
-	return err == nil
-}
-
-// hexMaskToPrefix 将十六进制子网掩码转换为CIDR前缀长度
-func hexMaskToPrefix(hexMask string) (int, error) {
-	// 解析十六进制掩码
-	maskValue, err := strconv.ParseUint(hexMask, 16, 32)
-	if err != nil {
-		return 0, fmt.Errorf("无效的十六进制掩码: %s", hexMask)
-	}
-
-	// 计算前缀长度
-	ones := 0
-	for i := 31; i >= 0; i-- {
-		if (maskValue>>uint(i))&1 == 1 {
-			ones++
-		} else {
-			break
-		}
-	}
-
-	// 验证掩码的连续性（确保没有0在1之后）
-	temp := maskValue
-	for i := 0; i < 32-ones; i++ {
-		if (temp>>uint(i))&1 == 1 {
-			return 0, fmt.Errorf("无效的子网掩码: %s（掩码不连续）", hexMask)
-		}
-	}
-
-	return ones, nil
+	return nil
 }

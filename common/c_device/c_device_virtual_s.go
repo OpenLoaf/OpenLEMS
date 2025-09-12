@@ -6,8 +6,9 @@ import (
 	"common/c_enum"
 	"common/c_type"
 	"context"
-	"github.com/pkg/errors"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 type SVirtualDeviceImpl struct { // 虚拟设备
@@ -48,14 +49,14 @@ func (s *SVirtualDeviceImpl) GetProtocolStatus() c_enum.EProtocolStatus {
 	return c_enum.EProtocolConnected
 }
 
-func (s *SVirtualDeviceImpl) GetMetaValueList() []*c_base.SPointValue {
+func (s *SVirtualDeviceImpl) GetPointValueList() []*c_base.SPointValue {
 	var list = make([]*c_base.SPointValue, 0)
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
 		child := common.GetDeviceManager().GetDeviceById(childDevice.Id)
 		if child == nil {
 			continue
 		}
-		childList := child.GetMetaValueList()
+		childList := child.GetPointValueList()
 		if len(childList) > 0 {
 			list = append(list, childList[:]...)
 		}

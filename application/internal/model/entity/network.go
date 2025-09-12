@@ -10,4 +10,5 @@ type SNetworkInterface struct {
 	MTU         int      `json:"mtu" dc:"最大传输单元"`
 	Index       int      `json:"index" dc:"接口索引"`
 	IPAddresses []string `json:"ipAddresses" dc:"IPv4地址列表"`
+	DHCP        bool     `json:"dhcp" dc:"是否使用DHCP"`
 }

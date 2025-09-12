@@ -35,7 +35,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		client = modbus.NewClient(tcpProvider)
 	case c_enum.EModbusRtu:
 
-		rtuConfig := &ModbusRtuProtocolConfig{}
+		rtuConfig := &c_proto.SModbusProtocolRtuConfig{}
 		err := gconv.Scan(protocolConfig.Params, rtuConfig)
 		if err != nil {
 			//panic(errors.Errorf("modbus rtu配置文件解析失败"))
@@ -48,10 +48,10 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 		}
 		option = append(option, modbus.WithSerialConfig(serial.Config{
 			Address:  protocolConfig.GetAddress(),
-			BaudRate: rtuConfig.GetBaudRate(),
-			DataBits: rtuConfig.GetDataBits(),
-			StopBits: rtuConfig.GetStopBits(),
-			Parity:   rtuConfig.GetParity(),
+			BaudRate: rtuConfig.BaudRate,
+			DataBits: rtuConfig.DataBits,
+			StopBits: rtuConfig.StopBits,
+			Parity:   rtuConfig.Parity,
 			Timeout:  time.Duration(protocolConfig.GetTimeout()) * time.Millisecond,
 		}))
 

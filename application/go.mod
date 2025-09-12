@@ -8,6 +8,8 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/shirou/gopsutil/v4 v4.25.7
 	gopkg.in/yaml.v3 v3.0.1
+	periph.io/x/conn/v3 v3.7.2
+	periph.io/x/host/v3 v3.8.5
 )
 
 replace common => ../common
