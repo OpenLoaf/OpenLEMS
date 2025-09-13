@@ -12,7 +12,8 @@ var buildYaml []byte
 
 func NewPlugin(device c_base.IDevice) c_base.IDevice {
 	return &sBasicGpio{
-		SRealGpio: *device.(*c_device.SRealGpio),
+		SRealDeviceImpl: device.(*c_device.SRealDeviceImpl[c_proto.IGpiodProtocol]),
+		config:          &c_proto.SGpioDeviceConfig{},
 	}
 }
 

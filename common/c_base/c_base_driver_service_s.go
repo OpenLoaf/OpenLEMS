@@ -28,8 +28,8 @@ func (s *STelemetry) ToPoint(valueType c_enum.EValueType) IPoint {
 }
 
 type SDriverService struct {
+	Key         string `json:"key" yaml:"key" dc:"执行的方法名"`
 	Name        string `json:"name" yaml:"name"  dc:"服务名称，支持i18n"`
-	DisplayName string `json:"displayName" yaml:"displayName" dc:"执行的方法名"`
 	Description string `json:"description" yaml:"description" dc:"备注"`
 	//Service     func(any) error `json:"-" dc:"执行方法"`
 }

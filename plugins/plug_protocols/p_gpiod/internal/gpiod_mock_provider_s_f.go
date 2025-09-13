@@ -17,6 +17,7 @@ import (
 // sGpiodMockProvider 因为Linux才可以操作gpio，所以模拟了一个。当打为非linux平台的时候，就会使用这个mock的
 type sGpiodMockProvider struct {
 	c_base.IAlarm
+	ctx          context.Context
 	gpiodConfig  *c_proto.SGpiodProtocolConfig
 	deviceConfig *c_base.SDeviceConfig
 
@@ -25,7 +26,7 @@ type sGpiodMockProvider struct {
 	point          c_base.IPoint
 	lastUpdateTime *time.Time
 
-	handler func(status bool)
+	handler func(status bool, isChange bool)
 }
 
 var _ c_proto.IGpiodProtocol = (*sGpiodMockProvider)(nil)
@@ -39,8 +40,9 @@ func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig,
 	}
 
 	return &sGpiodMockProvider{
-		IAlarm:      c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
-		gpiodConfig: gpiodConfig,
+		IAlarm:       c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
+		gpiodConfig:  gpiodConfig,
+		deviceConfig: deviceConfig,
 	}, nil
 }
 
@@ -60,9 +62,15 @@ func (s *sGpiodMockProvider) GetPointValueList() []*c_base.SPointValue {
 	if s.point == nil {
 		return nil
 	}
-	return []*c_base.SPointValue{
-		c_base.NewPointValue(s.deviceConfig.Id, s.point, s.currentStatus),
+
+	var point *c_base.SPointValue
+	if s.currentStatus != nil {
+		point = c_base.NewPointValue(s.deviceConfig.Id, s.point, *s.currentStatus)
+	} else {
+		point = c_base.NewPointValue(s.deviceConfig.Id, s.point, nil)
 	}
+
+	return []*c_base.SPointValue{point}
 }
 
 func (s *sGpiodMockProvider) GetValue(point c_base.IPoint) (any, error) {
@@ -80,7 +88,7 @@ func (s *sGpiodMockProvider) GetConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
-func (s *sGpiodMockProvider) RegisterHandler(handler func(status bool)) {
+func (s *sGpiodMockProvider) RegisterHandler(handler func(status bool, isChange bool)) {
 	s.handler = handler
 }
 
@@ -89,19 +97,29 @@ func (s *sGpiodMockProvider) GetGpioStatus() *bool {
 }
 
 func (s *sGpiodMockProvider) SetHigh() error {
+	last := s.currentStatus
 	s.currentStatus = &high
-
-	if s.handler != nil {
-		s.handler(true)
-	}
-
+	s.processData(high, last)
 	return nil
 }
 
 func (s *sGpiodMockProvider) SetLow() error {
+	last := s.currentStatus
 	s.currentStatus = &low
-	if s.handler != nil {
-		s.handler(false)
-	}
+	s.processData(low, last)
 	return nil
+}
+
+func (s *sGpiodMockProvider) processData(now bool, last *bool) {
+	s.UpdateAlarm(s.deviceConfig.Id, s.point, now)
+
+	isChange := false
+	if last == nil {
+		isChange = true
+	} else if *last != now {
+		isChange = true
+	}
+	if s.handler != nil {
+		s.handler(now, isChange)
+	}
 }

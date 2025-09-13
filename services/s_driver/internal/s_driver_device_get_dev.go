@@ -17,7 +17,6 @@ import (
 	"pv_demo/pv_demo_v1"
 	"pylon_checkwatt_v1/ess_pylon_checkwatt_v1"
 	"reflect"
-	"runtime"
 	"starCharge100E_v1/pcs_star_charge_100E_v1"
 	"strings"
 
@@ -92,13 +91,13 @@ func getDriver(driverName string, device c_base.IDevice) (d c_base.IDriver, err 
 	}
 
 	// 检查GPIO协议是否在Linux系统上运行
-	deviceConfig := device.GetConfig()
-	if deviceConfig != nil && deviceConfig.ProtocolConfig != nil {
-		protocolType := deviceConfig.ProtocolConfig.GetProtocol()
-		if (protocolType == c_enum.EGpiod || protocolType == c_enum.EGpioSfs) && runtime.GOOS != "linux" {
-			return nil, errors.Errorf("GPIO协议只能在Linux系统上使用，当前系统：%s，协议类型：%s", runtime.GOOS, protocolType)
-		}
-	}
+	//deviceConfig := device.GetConfig()
+	//if deviceConfig != nil && deviceConfig.ProtocolConfig != nil {
+	//	protocolType := deviceConfig.ProtocolConfig.GetProtocol()
+	//	if (protocolType == c_enum.EGpiod || protocolType == c_enum.EGpioSfs) && runtime.GOOS != "linux" {
+	//		return nil, errors.Errorf("GPIO协议只能在Linux系统上使用，当前系统：%s，协议类型：%s", runtime.GOOS, protocolType)
+	//	}
+	//}
 
 	pluginNewMethod := pluginNewMethodCache[driverName]
 	if pluginNewMethod == nil {

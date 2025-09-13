@@ -64,12 +64,12 @@ func initConfigDatabase() {
 			name VARCHAR(255) NOT NULL,
 			driver VARCHAR(255),
 			log_level VARCHAR(255) DEFAULT 'INFO',
-			enabled BOOLEAN DEFAULT 1,
+		    manual_model BOOLEAN DEFAULT FALSE,
 			params TEXT DEFAULT '{}',
-		    strategy VARCHAR(255),
 		    storage_enable BOOLEAN DEFAULT 1,
 			storage_interval_sec INTEGER NOT NULL DEFAULT 60,
 			sort INTEGER DEFAULT 0,
+		    enabled BOOLEAN DEFAULT 1,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)

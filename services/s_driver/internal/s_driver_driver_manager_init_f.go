@@ -124,9 +124,9 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		return canbusProvider, nil
 	case c_enum.EGpiod:
 		// 验证系统支持：只有Linux系统才支持gpiod
-		if runtime.GOOS != "linux" {
-			return nil, errors.Errorf("gpiod协议仅在Linux系统上支持，当前系统: %s", runtime.GOOS)
-		}
+		//if runtime.GOOS != "linux" {
+		//	return nil, errors.Errorf("gpiod协议仅在Linux系统上支持，当前系统: %s", runtime.GOOS)
+		//}
 
 		gpioProtocol, err := p_gpiod.NewGpiodProvider(deviceCtx, protocolConfig, deviceConfig)
 		if err != nil {

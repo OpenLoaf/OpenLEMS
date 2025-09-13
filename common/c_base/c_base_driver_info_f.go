@@ -248,7 +248,7 @@ func (s *SDriverInfo) ExecuteCustomService(functionName string, instance IDevice
 	// 执行自定义方法
 	if instance == nil {
 		c_log.Errorf(context.Background(), "ExecuteCustomService [%s] instance is nil", functionName)
-		return fmt.Errorf("custom service instance is nil")
+		return errors.Errorf("custom service instance is nil")
 	}
 
 	ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
@@ -256,14 +256,14 @@ func (s *SDriverInfo) ExecuteCustomService(functionName string, instance IDevice
 	// 判断一下是否允许这个方法调用
 	var service *SDriverService
 	for _, v := range s.Service {
-		if v.Name == functionName {
+		if v.Key == functionName {
 			service = v
 			break
 		}
 	}
 	if service == nil {
 		c_log.BizInfof(ctx, "执行自定义服务失败！原因：[%s]服务未定义！", functionName)
-		return fmt.Errorf("custom service %s not support", functionName)
+		return errors.Errorf("custom service %s not support", functionName)
 	}
 
 	// 反射前先判断缓存中是否存在
@@ -280,8 +280,8 @@ func (s *SDriverInfo) ExecuteCustomService(functionName string, instance IDevice
 	if method, ok = s.reflectMethodCache[functionName]; !ok {
 		method = reflect.ValueOf(instance).MethodByName(functionName)
 		if !method.IsValid() {
-			c_log.BizInfof(ctx, "执行自定义服务[%s]失败！原因该服务对应的方法[%s]不存在！", service.DisplayName, service.Name)
-			return fmt.Errorf("service %s not found", functionName)
+			c_log.BizInfof(ctx, "执行自定义服务[%s]失败！原因该服务对应的方法[%s]不存在！", service.Key, service.Name)
+			return errors.Errorf("service %s not found", functionName)
 		}
 		s.reflectMethodCache[functionName] = method
 	}
@@ -290,14 +290,14 @@ func (s *SDriverInfo) ExecuteCustomService(functionName string, instance IDevice
 	values := method.Call(nil)
 	if len(values) == 1 {
 		if err, ok := values[0].Interface().(error); ok {
-			c_log.BizInfof(ctx, "执行自定义服务[%s]失败！原因：%s", service.DisplayName, err.Error())
+			c_log.BizInfof(ctx, "执行自定义服务[%s]失败！原因：%s", service.Key, err.Error())
 			return err
 		}
-		c_log.BizInfof(ctx, "执行自定义服务[%s]成功！", service.DisplayName)
+		c_log.BizInfof(ctx, "执行自定义服务[%s]成功！", service.Key)
 		return nil
 	}
 
-	c_log.BizInfof(ctx, "执行自定义服务[%s]成功！", service.DisplayName)
+	c_log.BizInfof(ctx, "执行自定义服务[%s]成功！", service.Key)
 
 	fmt.Printf("当前函数: %s 返回的参数数据不为1 ！返回的内容为: %v", functionName, values)
 

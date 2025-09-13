@@ -6,13 +6,6 @@ author: "zz@hexems.com"
 create: "2025-09-12"
 protocolType: "gpiod"
 desc: "基础GPIO驱动，支持GPIO输入输出控制"
-telemetry:
-  - key: gpioStatus
-    name: "状态"
-    displayType: label
-    valueExplain:
-      false: "关|#9CBF30"
-      true: "开|#0098FA"
 service:
   - key: SetLow
     name: "低电平"
