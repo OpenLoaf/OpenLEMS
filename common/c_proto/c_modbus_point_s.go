@@ -32,14 +32,14 @@ func (s *SModbusPoint) String() string {
 	return fmt.Sprintf("%s[0x%x]", s.GetName(), s.Addr)
 }
 
-func (s *SModbusPoint) ValueExplain(value any) (string, error) {
+func (s *SModbusPoint) GetValueExplain(value any) (string, error) {
 	if s.StatusExplain == nil {
-		return s.SPoint.ValueExplain(value)
+		return s.SPoint.GetValueExplain(value)
 	}
 	return s.StatusExplain(value)
 }
-func (s *SModbusPoint) IsNotAlarm() bool {
-	return s.Trigger == nil || s.SPoint.IsNotAlarm()
+func (s *SModbusPoint) IsAlarmPoint() bool {
+	return s.Trigger != nil || s.SPoint.IsAlarmPoint()
 }
 
 func (s *SModbusPoint) AlarmTrigger(value any) (trigger bool, level c_enum.EAlarmLevel, err error) {

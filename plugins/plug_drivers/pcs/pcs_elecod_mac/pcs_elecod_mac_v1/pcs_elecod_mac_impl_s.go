@@ -34,15 +34,18 @@ func (s *sPcsElecodMac) Init() error {
 		return fmt.Errorf("PcsElecodMac配置解析失败：缺少配置项！当前配置：%v", s.GetConfig().Params)
 	}
 
-	// 注册任务
-	for _, task := range elecod_mac_defined.AnalogAllTasks {
-		s.RegisterTask(task)
-		c_log.Infof(s.DeviceCtx, "注册%v", task)
-	}
-	for _, task := range elecod_mac_defined.ConfigAllTasks {
-		s.RegisterTask(task)
-		c_log.Infof(s.DeviceCtx, "注册%v", task)
-	}
+	_ = s.ExecuteProtocolMethod(func(protocol c_proto.ICanbusProtocol) error {
+		// 注册任务
+		for _, task := range elecod_mac_defined.AnalogAllTasks {
+			protocol.RegisterTask(task)
+			c_log.Infof(s.DeviceCtx, "注册%v", task)
+		}
+		for _, task := range elecod_mac_defined.ConfigAllTasks {
+			protocol.RegisterTask(task)
+			c_log.Infof(s.DeviceCtx, "注册%v", task)
+		}
+		return nil
+	})
 
 	c_log.Info(s.DeviceCtx, "PcsElecodMac 初始化完成")
 	return nil

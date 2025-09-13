@@ -195,7 +195,7 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr, quantity
 			continue
 		}
 
-		p.UpdateAlarm(p.deviceId, point, value)
+		p.UpdateAlarm(p.deviceId, point, value.GetValue())
 		results[i] = value.GetValue()
 	}
 	if errMessage != "" {
@@ -263,7 +263,7 @@ func decoder(deviceId string, bytes []byte, addr, quantity uint16, point *c_prot
 		point.DataAccess.ByteEndian,
 		point.DataAccess.WordOrder,
 		point.DataAccess.DataFormat,
-		point.DataAccess.ValueType,
+		point.ValueType,
 		point.DataAccess.Offset,
 		point.DataAccess.Factor,
 	)

@@ -11,7 +11,10 @@ type sAmmeterDemo struct {
 }
 
 func (s *sAmmeterDemo) Init() error {
-	s.RegisterTask(ReadTask)
+	_ = s.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
+		protocol.RegisterTask(ReadTask)
+		return nil
+	})
 	return nil
 }
 

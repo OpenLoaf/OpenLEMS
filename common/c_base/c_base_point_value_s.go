@@ -50,7 +50,7 @@ func (s *SPointValue) GetLevel() c_enum.EAlarmLevel {
 
 func (s *SPointValue) IsAlarmTrigger() bool {
 	if s.isTrigger == nil {
-		trigger, level, err := s.AlarmTrigger(s.value)
+		trigger, level, err := s.TriggerAlarm(s.value)
 		if err != nil {
 			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, s.deviceId)
 			c_log.BizErrorf(ctx, "告警触发函数错误: %v", err)
@@ -62,15 +62,20 @@ func (s *SPointValue) IsAlarmTrigger() bool {
 	return *s.isTrigger
 }
 
-func (s *SPointValue) GetValueExplain() (string, error) {
+// GetActualValueExplain 获取实际的值解释
+func (s *SPointValue) GetActualValueExplain() (string, error) {
 	if s.IPoint != nil {
-		if explainer, ok := s.IPoint.(interface {
-			ValueExplain(value any) (string, error)
-		}); ok {
-			return explainer.ValueExplain(s.value)
-		}
+		return s.IPoint.GetValueExplain(s.value)
 	}
 	return cvt.StringE(s.value)
+}
+
+// GetActualValueType 获取实际的值类型, 如果是auto的将会转换为value的实际类型
+func (s *SPointValue) GetActualValueType() c_enum.EValueType {
+	if s.GetValueType() != c_enum.EAuto {
+		return s.GetValueType()
+	}
+	return ResolvingValueType(s.value)
 }
 
 func (s *SPointValue) GetHappenTime() time.Time {

@@ -23,7 +23,7 @@ func StatusExplainEnableFunc(value any) (string, error) {
 
 // StatusExplainProtectFunc 解释保护/正常状态
 func StatusExplainProtectFunc(value any) (string, error) {
-	return StatusExplainBool(value, "g18n:status_protect", "g18n:status_normal")
+	return StatusExplainBool(value, "保护", "正常")
 }
 
 // StatusExplainIsNotFunc 解释是/否状态

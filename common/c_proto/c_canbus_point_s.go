@@ -33,14 +33,14 @@ func (s *SCanbusPoint) String() string {
 	return fmt.Sprintf("%s-%s", s.GetName(), s.DataAccess)
 }
 
-func (s *SCanbusPoint) ValueExplain(value any) (string, error) {
+func (s *SCanbusPoint) GetValueExplain(value any) (string, error) {
 	if s.StatusExplain == nil {
-		return s.SPoint.ValueExplain(value)
+		return s.SPoint.GetValueExplain(value)
 	}
 	return s.StatusExplain(value)
 }
-func (s *SCanbusPoint) IsNotAlarm() bool {
-	return s.Trigger == nil || s.SPoint.IsNotAlarm()
+func (s *SCanbusPoint) IsAlarmPoint() bool {
+	return s.Trigger != nil || s.SPoint.IsAlarmPoint()
 }
 
 func (s *SCanbusPoint) AlarmTrigger(value any) (trigger bool, level c_enum.EAlarmLevel, err error) {

@@ -73,6 +73,7 @@ func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
 	return list
 }
 
+// ResolvingValueType TODO 提出来
 func ResolvingValueType(value any) c_enum.EValueType {
 	if value == nil {
 		return c_enum.EString

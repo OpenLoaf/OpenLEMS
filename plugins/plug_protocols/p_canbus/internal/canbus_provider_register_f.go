@@ -1,31 +1,23 @@
 package internal
 
 import (
-	"common/c_base"
 	"common/c_log"
 	"common/c_proto"
 
 	"github.com/gogf/gf/v2/errors/gerror"
 )
 
-func (c *CanbusProtocolProvider) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
+func (c *CanbusProtocolProvider) RegisterTask(task *c_proto.SCanbusTask, tasks ...*c_proto.SCanbusTask) {
 	if task == nil {
 		return
 	}
 
-	// 将 IPointTask 转换为 *c_proto.SCanbusTask
-	canbusTask, ok := task.(*c_proto.SCanbusTask)
-	if !ok {
-		c_log.BizErrorf(c.ctx, "[%s-%s] 任务类型转换失败！期望类型：*c_proto.SCanbusTask，实际类型：%T", c.deviceConfig.Id, task.GetName(), task)
-		return
-	}
-
-	err := canbusTask.Check(c.ctx)
+	err := task.Check(c.ctx)
 	if err != nil {
-		c_log.BizErrorf(c.ctx, "[%s-%s] 任务注册失败！原因：%+v", c.deviceConfig.Id, canbusTask.Name, err)
+		c_log.BizErrorf(c.ctx, "[%s-%s] 任务注册失败！原因：%+v", c.deviceConfig.Id, task.Name, err)
 		return
 	}
-	c.registerReadOne(canbusTask)
+	c.registerReadOne(task)
 
 	// 处理额外的任务
 	if len(tasks) != 0 {
@@ -33,17 +25,12 @@ func (c *CanbusProtocolProvider) RegisterTask(task c_base.IPointTask, tasks ...c
 			if t == nil {
 				continue
 			}
-			canbusTask, ok := t.(*c_proto.SCanbusTask)
-			if !ok {
-				c_log.BizErrorf(c.ctx, "[%s-%s] 任务类型转换失败！期望类型：*c_proto.SCanbusTask，实际类型：%T", c.deviceConfig.Id, t.GetName(), t)
-				continue
-			}
-			err := canbusTask.Check(c.ctx)
+			err := t.Check(c.ctx)
 			if err != nil {
-				c_log.BizErrorf(c.ctx, "[%s-%s] 任务注册失败！原因：%+v", c.deviceConfig.Id, canbusTask.Name, err)
+				c_log.BizErrorf(c.ctx, "[%s-%s] 任务注册失败！原因：%+v", c.deviceConfig.Id, t.Name, err)
 				continue
 			}
-			c.registerReadOne(canbusTask)
+			c.registerReadOne(t)
 		}
 	}
 }

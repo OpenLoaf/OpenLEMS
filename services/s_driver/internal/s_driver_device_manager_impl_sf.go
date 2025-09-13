@@ -230,6 +230,14 @@ func (m *SDeviceManager) Start() {
 
 // BuildVirtualDevice 创建虚拟设备
 func (m *SDeviceManager) BuildVirtualDevice(deviceCtx context.Context, deviceConfig *c_base.SDeviceConfig) {
+	// 先判断子设备是否都注册成功，如果成功了就创建。否则不创建虚拟设备
+	for _, child := range deviceConfig.ChildDeviceConfig {
+		if _, exist := m.deviceInstanceMap[child.Id]; !exist {
+			c_log.BizErrorf(deviceCtx, "设备启动失败！原因：子设备[%s(%s) ]启动失败!", child.Name, child.Id)
+			return
+		}
+	}
+
 	// 虚拟设备，创建不会失败
 	device := c_device.NewVirtualDevice(deviceCtx, deviceConfig)
 	// 物理设备
@@ -257,7 +265,6 @@ func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig
 	if protocolProvider == nil || err != nil {
 		// todo 添加日志，创建连接失败了
 		c_log.BizErrorf(deviceCtx, "创建协议实例失败! 协议ID: %s 原因：%s", deviceConfig.ProtocolId, err)
-		m.state = c_enum.EStateError
 		return
 	}
 

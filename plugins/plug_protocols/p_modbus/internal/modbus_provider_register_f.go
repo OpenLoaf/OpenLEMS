@@ -38,59 +38,45 @@ func validateModbusPoint(point *c_proto.SModbusPoint) error {
 	return nil
 }
 
-func (p *ModbusProtocolProvider) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
+// validateTask 验证任务配置和点位配置
+func (p *ModbusProtocolProvider) validateTask(task *c_proto.SModbusPointTask) error {
 	if task == nil {
-		return
+		return errors.New("task is nil")
 	}
-	if modbusTask, ok := task.(*c_proto.SModbusPointTask); ok {
-		// 验证任务配置
-		err := modbusTask.Check(p.ctx)
-		if err != nil {
-			c_log.BizErrorf(p.ctx, "modbus task %s check failed: %v", modbusTask.GetName(), err)
+
+	// 验证任务配置
+	if err := task.Check(p.ctx); err != nil {
+		return errors.Wrapf(err, "modbus task %s check failed", task.GetName())
+	}
+
+	// 验证任务中的所有点位配置
+	for _, point := range task.Points {
+		if err := validateModbusPoint(point); err != nil {
+			return errors.Wrapf(err, "modbus point validation failed")
+		}
+	}
+
+	return nil
+}
+
+func (p *ModbusProtocolProvider) RegisterTask(task *c_proto.SModbusPointTask, tasks ...*c_proto.SModbusPointTask) {
+	// 处理第一个任务
+	if task != nil {
+		if err := p.validateTask(task); err != nil {
+			c_log.BizError(p.ctx, "task validation failed", err)
 			return
 		}
-
-		// 验证任务中的所有点位配置
-		for _, point := range modbusTask.Points {
-			if err := validateModbusPoint(point); err != nil {
-				c_log.BizErrorf(p.ctx, "modbus point validation failed: %v", err)
-				return
-			}
-		}
-
-		p.registerReadOne(modbusTask)
-	} else {
-		c_log.BizErrorf(p.ctx, "modbus task type(%T) not support", task.GetName())
+		p.registerReadOne(task)
 	}
-	if len(tasks) != 0 {
-		for _, t := range tasks {
-			if modbusTask, ok := t.(*c_proto.SModbusPointTask); ok {
-				// 验证任务配置
-				err := modbusTask.Check(p.ctx)
-				if err != nil {
-					c_log.BizErrorf(p.ctx, "modbus task %s check failed: %v", modbusTask.GetName(), err)
-					continue
-				}
 
-				// 验证任务中的所有点位配置
-				hasError := false
-				for _, point := range modbusTask.Points {
-					if err := validateModbusPoint(point); err != nil {
-						c_log.BizErrorf(p.ctx, "modbus point validation failed: %v", err)
-						hasError = true
-						break
-					}
-				}
-
-				if !hasError {
-					p.registerReadOne(modbusTask)
-				}
-			} else {
-				c_log.BizErrorf(p.ctx, "modbus task type(%T) not support", t.GetName())
-			}
+	// 处理额外的任务
+	for _, t := range tasks {
+		if err := p.validateTask(t); err != nil {
+			c_log.BizError(p.ctx, "task validation failed", err)
+			continue
 		}
+		p.registerReadOne(t)
 	}
-	return
 }
 
 func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusPointTask) {

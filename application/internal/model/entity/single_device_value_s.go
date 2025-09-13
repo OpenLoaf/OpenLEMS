@@ -30,22 +30,17 @@ func (s *SSingleDeviceValue) UnmarshalValue(value interface{}) error {
 		s.HappenTime = &happenTime
 
 		// 获取状态解释
-		if explain, err := record.GetValueExplain(); err == nil {
+		if explain, err := record.GetActualValueExplain(); err == nil {
 			s.StatueExplain = explain
 		}
 
 		// 转换点位元数据
 		if point := record.IPoint; point != nil {
 			// 尝试获取具体的SPoint实例以访问Min、Before、Precise字段
-			var systemType = "string"
-			if point.GetDataAccess() != nil {
-				systemType = point.GetDataAccess().ValueType.String()
-			}
-
 			s.Meta = &SSingleDeviceMeta{
 				Name:       point.GetName(),
-				Cn:         point.GetName(), // 暂时使用Name作为中文名称
-				SystemType: systemType,      // 默认自动系统类型
+				Cn:         point.GetName(),               // 暂时使用Name作为中文名称
+				SystemType: point.GetValueType().String(), // 默认自动系统类型
 				Min:        point.GetMin(),
 				Max:        point.GetMax(),
 				Precise:    point.GetPrecise(),

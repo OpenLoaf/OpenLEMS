@@ -108,6 +108,8 @@ func ConvertToReturnFormat(value any, returnFormat c_enum.EValueType) any {
 	}
 
 	switch returnFormat {
+	case c_enum.EAuto:
+		return value
 	case c_enum.EBool:
 		return cvt.Bool(value)
 	case c_enum.EInt8:

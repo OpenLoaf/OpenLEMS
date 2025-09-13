@@ -6,3 +6,9 @@ type SPointGroup struct {
 	GroupSort int    `json:"groupSort" dc:"组排序"`
 	Disable   bool   `json:"disable" dc:"是否显示"` // todo  这个字段暂时没用，先留着
 }
+
+var GroupTotal = &SPointGroup{
+	GroupKey:  "Total",
+	GroupName: "汇总",
+	GroupSort: -1,
+}

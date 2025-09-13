@@ -6,4 +6,5 @@ const (
 	EProtocolDisconnected EProtocolStatus = iota // 连接断开
 	EProtocolConnecting                          // 正在连接中
 	EProtocolConnected                           // 连接成功
+	EProtocolMock                                // 模拟
 )

@@ -4,7 +4,8 @@ package c_enum
 type EValueType int // 读取到数据后，转换为到系统类型
 
 const (
-	EBool EValueType = iota // 自动使用ReadType的类型。
+	EAuto EValueType = iota // 自动使用ReadType的类型。
+	EBool
 	EInt8
 	EUint8
 	EInt16

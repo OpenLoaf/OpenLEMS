@@ -8,23 +8,24 @@ func _() {
 	// An "invalid array index" compiler error signifies that the constant values have changed.
 	// Re-run the stringer command to generate them again.
 	var x [1]struct{}
-	_ = x[EBool-0]
-	_ = x[EInt8-1]
-	_ = x[EUint8-2]
-	_ = x[EInt16-3]
-	_ = x[EUint16-4]
-	_ = x[EInt32-5]
-	_ = x[EUint32-6]
-	_ = x[EInt64-7]
-	_ = x[EUint64-8]
-	_ = x[EFloat32-9]
-	_ = x[EFloat64-10]
-	_ = x[EString-11]
+	_ = x[EAuto-0]
+	_ = x[EBool-1]
+	_ = x[EInt8-2]
+	_ = x[EUint8-3]
+	_ = x[EInt16-4]
+	_ = x[EUint16-5]
+	_ = x[EInt32-6]
+	_ = x[EUint32-7]
+	_ = x[EInt64-8]
+	_ = x[EUint64-9]
+	_ = x[EFloat32-10]
+	_ = x[EFloat64-11]
+	_ = x[EString-12]
 }
 
-const _EValueType_name = "BoolInt8Uint8Int16Uint16Int32Uint32Int64Uint64Float32Float64String"
+const _EValueType_name = "AutoBoolInt8Uint8Int16Uint16Int32Uint32Int64Uint64Float32Float64String"
 
-var _EValueType_index = [...]uint8{0, 4, 8, 13, 18, 24, 29, 35, 40, 46, 53, 60, 66}
+var _EValueType_index = [...]uint8{0, 4, 8, 12, 17, 22, 28, 33, 39, 44, 50, 57, 64, 70}
 
 func (i EValueType) String() string {
 	if i < 0 || i >= EValueType(len(_EValueType_index)-1) {

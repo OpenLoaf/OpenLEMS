@@ -4,8 +4,8 @@ import "fmt"
 
 // ChartData 表示完整的图表数据
 type ChartData struct {
-	XAxis  XAxis    `json:"xAxis"`
-	Series []Series `json:"series"`
+	XAxis  XAxis     `json:"xAxis"`
+	Series []*Series `json:"series"`
 }
 
 // AddTimestamp 向X轴添加时间戳
@@ -14,7 +14,7 @@ func (c *ChartData) AddTimestamp(timestamp int64) {
 }
 
 // AddSeries 添加数据系列
-func (c *ChartData) AddSeries(series Series) {
+func (c *ChartData) AddSeries(series *Series) {
 	c.Series = append(c.Series, series)
 }
 
@@ -25,6 +25,6 @@ func NewChartData(pointCount int) *ChartData {
 			Type: ChartTypeCategory,
 			Data: make([]string, 0),
 		},
-		Series: make([]Series, 0, pointCount),
+		Series: make([]*Series, 0, pointCount),
 	}
 }

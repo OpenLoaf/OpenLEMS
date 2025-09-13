@@ -41,7 +41,7 @@ type IStorage interface {
 	SaveSystemMetrics(measurement string, tags map[string]string, metrics map[string]any) error
 
 	// GetStorageData 获取存储数据
-	GetStorageData(storageType StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error)
+	GetStorageData(storageType StorageType, id string, pointKey []string, startTime, endTime *int64, step int) (*c_chart.ChartData, error)
 
 	// GetStorageStats 获取存储统计信息
 	GetStorageStats() (*StorageStats, error)

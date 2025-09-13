@@ -20,13 +20,16 @@ var _ c_type.IPcs = (*sPcsStarCharge100E)(nil)
 
 func (s *sPcsStarCharge100E) Init() error {
 	// 注册
-	s.RegisterTask(
-		GroupCommand,
-		GroupPowerInfo,
-		//GroupPhase,
-		//GroupSerial, GroupGridModeSetting, GroupTemperature,
-		GroupStatus,
-	)
+	_ = s.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
+		protocol.RegisterTask(
+			GroupCommand,
+			GroupPowerInfo,
+			//GroupPhase,
+			//GroupSerial, GroupGridModeSetting, GroupTemperature,
+			GroupStatus,
+		)
+		return nil
+	})
 
 	return nil
 }

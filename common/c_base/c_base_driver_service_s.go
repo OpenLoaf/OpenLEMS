@@ -11,37 +11,19 @@ type STelemetry struct {
 	ValueExplain map[string]string `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
 }
 
-type sTelemetryPoint struct {
-	*SPoint
-	dataAccess *SDataAccess
-}
-
-func (s *sTelemetryPoint) GetDataAccess() *SDataAccess {
-	return s.dataAccess
-}
-
 func (s *STelemetry) ToPoint(valueType c_enum.EValueType) IPoint {
 	if s.ValueExplain != nil {
 		valueType = c_enum.EString
 	}
 
-	dataAccess := &SDataAccess{
+	return &SPoint{
+		Key:       s.Key,
+		Name:      s.Name,
+		Group:     GroupTotal,
+		Precise:   s.Precise,
+		Desc:      s.Desc,
+		Unit:      s.Unit,
 		ValueType: valueType,
-	}
-	return &sTelemetryPoint{
-		dataAccess: dataAccess,
-		SPoint: &SPoint{
-			Key:  s.Key,
-			Name: s.Name,
-			Group: &SPointGroup{
-				GroupKey:  "Total",
-				GroupName: "汇总",
-				GroupSort: -1,
-			},
-			Precise: s.Precise,
-			Desc:    s.Desc,
-			Unit:    s.Unit,
-		},
 	}
 }
 

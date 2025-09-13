@@ -58,7 +58,7 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 			pointValue := alarm.GetValue()
 
 			// 尝试获取值的解释
-			if explain, err := alarm.IPoint.ValueExplain(pointValue); err == nil && explain != "" {
+			if explain, err := alarm.IPoint.GetValueExplain(pointValue); err == nil && explain != "" {
 				detail = fmt.Sprintf("[%s]触发！值为: %s", pointName, explain)
 			} else {
 				detail = fmt.Sprintf("[%s]触发！值为: %v", pointName, pointValue)

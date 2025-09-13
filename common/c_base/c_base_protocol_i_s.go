@@ -13,7 +13,7 @@ type IProtocol interface {
 
 	GetValue(point IPoint) (any, error)
 
-	RegisterTask(task IPointTask, tasks ...IPointTask) // 注册任务
+	//RegisterTask(task IPointTask, tasks ...IPointTask) // 注册任务
 	ProtocolListen()
 	GetConfig() *SDeviceConfig // 启动协议监听
 

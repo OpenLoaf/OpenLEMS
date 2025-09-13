@@ -27,7 +27,10 @@ func (p *sBmsPylonTechUs108) Init() error {
 	}
 
 	// 2025-08-19 删除了GroupTime
-	p.RegisterTask(GroupHeart, GroupInfo, GroupStatistics)
+	_ = p.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
+		protocol.RegisterTask(GroupHeart, GroupInfo, GroupStatistics)
+		return nil
+	})
 
 	if p.bmsConfig.SyncTime {
 		p.startWriteTimeTask()

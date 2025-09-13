@@ -98,7 +98,6 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fie
 				_ = app.Rollback()
 				return err
 			}
-			c_log.Infof(p.ctx, "保存[%s:%s] \t数据[%v]到tsdb", deviceId, field, numericValue)
 			sampleCount++
 		} else {
 			// 对非数值类型，将值 JSON 序列化后，附加一个 *_text 序列保存为 0/1
@@ -220,15 +219,15 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 	return app.Commit()
 }
 
-func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error) {
+func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int64, step int) (*c_chart.ChartData, error) {
 	// 查询 ems_metric 和 ems_metric_text 系列
 	mint := int64(0)
 	maxt := int64(1<<63 - 1)
 	if startTime != nil && *startTime > 0 {
-		mint = int64(*startTime)
+		mint = *startTime
 	}
 	if endTime != nil && *endTime > 0 {
-		maxt = int64(*endTime)
+		maxt = *endTime
 	}
 
 	q, err := p.db.Querier(context.Background(), mint, maxt)
@@ -308,7 +307,7 @@ func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, point
 	}
 
 	for _, k := range pointKey {
-		chart.AddSeries(*seriesMap[k])
+		chart.AddSeries(seriesMap[k])
 	}
 	return chart, nil
 }

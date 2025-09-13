@@ -12,8 +12,10 @@ type sPvDemo struct {
 }
 
 func (s *sPvDemo) Init() error {
-	s.RegisterTask(ReadTask)
-	return nil
+	return s.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
+		protocol.RegisterTask(ReadTask)
+		return nil
+	})
 }
 
 func (s *sPvDemo) Shutdown() {

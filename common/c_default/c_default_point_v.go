@@ -211,16 +211,12 @@ var (
 var (
 	VPointSOC = &c_base.SPoint{Key: "SOC", Name: "电池电量", Unit: "%", Desc: "电池剩余电量百分比", Sort: 90, Min: 0, Max: 100, Precise: 1, Group: VPointGroupSystemBasic, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
 		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
-			Error: &c_base.SAlarmOvertop{Before: 0, After: 5},  // 错误：< 5%
-			Alert: &c_base.SAlarmOvertop{Before: 0, After: 10}, // 警报：< 10%
-			Warn:  &c_base.SAlarmOvertop{Before: 0, After: 20}, // 警告：< 20%
+			Error: &c_base.SAlarmOvertop{Before: 0, After: 100}, // 错误：> 100%
 		})
 	}} // 电池电量
 	VPointSOH = &c_base.SPoint{Key: "SOH", Name: "电池健康度", Unit: "%", Desc: "电池健康度百分比", Sort: 91, Min: 0, Max: 100, Precise: 1, Group: VPointGroupSystemBasic, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
 		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
-			Error: &c_base.SAlarmOvertop{Before: 0, After: 60}, // 错误：< 60%
-			Alert: &c_base.SAlarmOvertop{Before: 0, After: 70}, // 警报：< 70%
-			Warn:  &c_base.SAlarmOvertop{Before: 0, After: 80}, // 警告：< 80%
+			Error: &c_base.SAlarmOvertop{Before: 0, After: 100}, // 错误：> 100%
 		})
 	}} // 电池健康度
 	VPointDcVoltage = &c_base.SPoint{Key: "Voltage", Name: "电池电压", Unit: "V", Desc: "电池总电压", Sort: 92, Min: 0, Max: 1000, Precise: 2, Group: VPointGroupSystemBasic}       // 电池电压

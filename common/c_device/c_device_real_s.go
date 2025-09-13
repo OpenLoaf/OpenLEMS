@@ -89,12 +89,12 @@ func (s *SRealDeviceImpl[P]) GetLastUpdateTime() *time.Time {
 	return s.protocol.GetLastUpdateTime()
 }
 
-func (s *SRealDeviceImpl[P]) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
-	if s.isProtocolNil() {
-		return
-	}
-	s.protocol.RegisterTask(task, tasks...)
-}
+//func (s *SRealDeviceImpl[P]) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
+//	if s.isProtocolNil() {
+//		return
+//	}
+//	s.protocol.RegisterTask(task, tasks...)
+//}
 
 func (s *SRealDeviceImpl[P]) GetServices() map[string]*c_base.SDriverService {
 	return nil

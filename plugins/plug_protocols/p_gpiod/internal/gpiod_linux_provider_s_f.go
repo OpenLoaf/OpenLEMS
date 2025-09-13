@@ -17,7 +17,7 @@ import (
 	"github.com/warthog618/go-gpiocdev"
 )
 
-type sGpiodProvider struct {
+type sGpiodLinuxProvider struct {
 	c_base.IAlarm
 
 	ctx context.Context
@@ -37,7 +37,7 @@ type sGpiodProvider struct {
 	protocolStatus c_enum.EProtocolStatus
 }
 
-var _ c_proto.IGpiodProtocol = (*sGpiodProvider)(nil)
+var _ c_proto.IGpiodProtocol = (*sGpiodLinuxProvider)(nil)
 
 // NewGpiodProvider 创建新的GPIO provider
 func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (c_proto.IGpiodProtocol, error) {
@@ -47,7 +47,7 @@ func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig,
 		return nil, fmt.Errorf("failed to parse gpiod protocol config: %w", err)
 	}
 
-	provider := &sGpiodProvider{
+	provider := &sGpiodLinuxProvider{
 		IAlarm:         c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
 		gpiodConfig:    gpiodConfig,
 		chipName:       fmt.Sprintf("gpiochip%d", gpiodConfig.ChipIndex),
@@ -59,12 +59,12 @@ func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig,
 	return provider, nil
 }
 
-func (s *sGpiodProvider) GetConfig() *c_base.SDeviceConfig {
+func (s *sGpiodLinuxProvider) GetConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
 // initializeGPIO 初始化GPIO引脚
-func (s *sGpiodProvider) initializeGPIO() error {
+func (s *sGpiodLinuxProvider) initializeGPIO() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -107,7 +107,7 @@ func (s *sGpiodProvider) initializeGPIO() error {
 }
 
 // cleanupGPIO 清理GPIO资源
-func (s *sGpiodProvider) cleanupGPIO() {
+func (s *sGpiodLinuxProvider) cleanupGPIO() {
 	if s.line != nil {
 		s.line.Close()
 		s.line = nil
@@ -116,7 +116,7 @@ func (s *sGpiodProvider) cleanupGPIO() {
 }
 
 // handleGPIOEvent 处理GPIO状态变化事件
-func (s *sGpiodProvider) handleGPIOEvent(evt gpiocdev.LineEvent) {
+func (s *sGpiodLinuxProvider) handleGPIOEvent(evt gpiocdev.LineEvent) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -130,20 +130,20 @@ func (s *sGpiodProvider) handleGPIOEvent(evt gpiocdev.LineEvent) {
 	}
 }
 
-func (s *sGpiodProvider) GetProtocolStatus() c_enum.EProtocolStatus {
+func (s *sGpiodLinuxProvider) GetProtocolStatus() c_enum.EProtocolStatus {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	return s.protocolStatus
 }
 
-func (s *sGpiodProvider) GetLastUpdateTime() *time.Time {
+func (s *sGpiodLinuxProvider) GetLastUpdateTime() *time.Time {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.lastUpdateTime
 }
 
-func (s *sGpiodProvider) GetPointValueList() []*c_base.SPointValue {
+func (s *sGpiodLinuxProvider) GetPointValueList() []*c_base.SPointValue {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -166,7 +166,7 @@ func (s *sGpiodProvider) GetPointValueList() []*c_base.SPointValue {
 	return []*c_base.SPointValue{pointValue}
 }
 
-func (s *sGpiodProvider) GetValue(point c_base.IPoint) (any, error) {
+func (s *sGpiodLinuxProvider) GetValue(point c_base.IPoint) (any, error) {
 	if s.protocolStatus != c_enum.EProtocolConnected {
 		return nil, fmt.Errorf("GPIO protocol not connected")
 	}
@@ -179,12 +179,12 @@ func (s *sGpiodProvider) GetValue(point c_base.IPoint) (any, error) {
 	return *status, nil
 }
 
-func (s *sGpiodProvider) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
+func (s *sGpiodLinuxProvider) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
 	// GPIO协议通常不需要任务注册，因为它是事件驱动的
 	// 如果需要定期读取状态，可以在这里实现
 }
 
-func (s *sGpiodProvider) ProtocolListen() {
+func (s *sGpiodLinuxProvider) ProtocolListen() {
 	c_log.Infof(s.ctx, "Starting GPIO protocol listen on chip %s, pin %d", s.chipName, s.gpiodConfig.Pin)
 
 	// 初始化GPIO
@@ -211,7 +211,7 @@ func (s *sGpiodProvider) ProtocolListen() {
 	}
 }
 
-func (s *sGpiodProvider) RegisterHandler(handler func(status bool)) {
+func (s *sGpiodLinuxProvider) RegisterHandler(handler func(status bool)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -231,14 +231,14 @@ func (s *sGpiodProvider) RegisterHandler(handler func(status bool)) {
 	}
 }
 
-func (s *sGpiodProvider) GetGpioStatus() *bool {
+func (s *sGpiodLinuxProvider) GetGpioStatus() *bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.getGpioStatusUnsafe()
 }
 
 // getGpioStatusUnsafe 获取GPIO状态（不加锁，调用者需确保已加锁）
-func (s *sGpiodProvider) getGpioStatusUnsafe() *bool {
+func (s *sGpiodLinuxProvider) getGpioStatusUnsafe() *bool {
 	// 如果协议未连接，返回nil
 	if s.protocolStatus != c_enum.EProtocolConnected {
 		return nil
@@ -255,13 +255,13 @@ func (s *sGpiodProvider) getGpioStatusUnsafe() *bool {
 }
 
 // updateStatus 更新GPIO状态和时间戳（不加锁，调用者需确保已加锁）
-func (s *sGpiodProvider) updateStatus(status bool) {
+func (s *sGpiodLinuxProvider) updateStatus(status bool) {
 	s.currentStatus = &status
 	now := time.Now()
 	s.lastUpdateTime = &now
 }
 
-func (s *sGpiodProvider) SetHigh() error {
+func (s *sGpiodLinuxProvider) SetHigh() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -298,7 +298,7 @@ func (s *sGpiodProvider) SetHigh() error {
 	return nil
 }
 
-func (s *sGpiodProvider) SetLow() error {
+func (s *sGpiodLinuxProvider) SetLow() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -336,7 +336,7 @@ func (s *sGpiodProvider) SetLow() error {
 }
 
 // Close 关闭GPIO资源
-func (s *sGpiodProvider) Close() error {
+func (s *sGpiodLinuxProvider) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 

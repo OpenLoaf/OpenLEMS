@@ -18,7 +18,7 @@ func VirtualGetDataWithChildDeviceType[T c_base.IDriver, V any](s *SVirtualDevic
 		if childDevice.DriverInfo != nil {
 			child := s.GetChildById(childDevice.Id)
 			if child == nil {
-				// 如果出现有配置，但是无实例。就认为是异常
+				// 如果出现有配置，但是无实例。就认为是异常，说明父设备是没有初始化成的
 				return zero, errors.Errorf("设备[%s]未激活，获取数据失败！", childDevice.Name)
 			}
 			// 匹配类型

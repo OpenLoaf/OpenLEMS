@@ -7,6 +7,7 @@ import (
 	"p_canbus"
 	"p_gpiod"
 	"p_modbus"
+	"runtime"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/pkg/errors"
@@ -54,10 +55,7 @@ func (m *SDeviceManager) GetChildDeviceInstance(pid string) []c_base.IDevice {
 	return deviceInstances
 }
 
-//func (d *SDeviceManager) getModbusProvider() (c_proto.IModbusProtocol,error) {
-//
-//}
-
+// getProtocolProvider 不管连接是否能创建，都会返回provider。但是如果系统不支持的时候，就不会返回
 func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceConfig *c_base.SDeviceConfig) (c_base.IProtocol, error) {
 	// 从配置中获取协议
 	protocolConfig := deviceConfig.ProtocolConfig
@@ -91,6 +89,11 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 
 		return modbusProvider, nil
 	case c_enum.ECanbusUdp, c_enum.ECanbus:
+		// 验证系统支持：只有Linux系统才支持canbus
+		if runtime.GOOS != "linux" {
+			return nil, errors.Errorf("canbus协议仅在Linux系统上支持，当前系统: %s", runtime.GOOS)
+		}
+
 		var (
 			receiverChan    <-chan can.Frame
 			transmitterChan chan<- can.Frame
@@ -120,6 +123,11 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		g.Log().Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
 		return canbusProvider, nil
 	case c_enum.EGpiod:
+		// 验证系统支持：只有Linux系统才支持gpiod
+		if runtime.GOOS != "linux" {
+			return nil, errors.Errorf("gpiod协议仅在Linux系统上支持，当前系统: %s", runtime.GOOS)
+		}
+
 		gpioProtocol, err := p_gpiod.NewGpiodProvider(deviceCtx, protocolConfig, deviceConfig)
 		if err != nil {
 			return nil, err

@@ -30,7 +30,7 @@ func (c *CanbusProtocolProvider) analysisCanbus(task *c_proto.SCanbusTask, frame
 					task.Name, point.GetName(), err)
 				continue
 			}
-			//point.AlarmTrigger(value)
+			//point.TriggerAlarm(value)
 
 			// 处理解析成功后的步骤
 			if err := c.handleDecodedValue(task, point, value, "自定义解码器"); err != nil {
@@ -141,7 +141,7 @@ func (c *CanbusProtocolProvider) analysisSingleCanbusMeta(point *c_proto.SCanbus
 		point.DataAccess.ByteEndian, // 字节序
 		point.DataAccess.WordOrder,  // 字序
 		point.DataAccess.DataFormat, // 数据格式
-		point.DataAccess.ValueType,  // 返回格式类型
+		point.ValueType,             // 返回格式类型
 		point.DataAccess.Offset,     // 偏移量
 		point.DataAccess.Factor,     // 系数
 	)

@@ -5,21 +5,18 @@ import (
 )
 
 type IPoint interface {
-	GetKey() string
-	GetName() string
-	GetGroup() *SPointGroup
-	GetUnit() string
-	GetDesc() string
-	GetSort() int
-	GetMin() int64
-	GetMax() int64
-	GetPrecise() uint8
-	IsNotAlarm() bool                                                           //  是否有告警触发函数
-	AlarmTrigger(value any) (trigger bool, level c_enum.EAlarmLevel, err error) // 判断触发或者消除告警
-	ValueExplain(value any) (string, error)                                     // 获取Value解释，一般为状态类型的解释
-	GetDataAccess() *SDataAccess                                                //  获取数据访问配置
-}
+	GetKey() string                            // 点位Key 一个设备点位key不能重复
+	GetName() string                           // 名称
+	GetGroup() *SPointGroup                    // 分组
+	GetUnit() string                           // 单位
+	GetDesc() string                           // 备注
+	GetSort() int                              // 排序
+	GetMin() int64                             // 点位理论最小值
+	GetMax() int64                             // 点位理论最大值
+	GetPrecise() uint8                         // 小数点
+	GetValueType() c_enum.EValueType           // 值类型
+	GetValueExplain(value any) (string, error) // 获取Value解释，一般为状态类型的解释
 
-//type IPointFull interface {
-//	IPoint
-//}
+	IsAlarmPoint() bool                                                         //  是否是告警点位
+	TriggerAlarm(value any) (trigger bool, level c_enum.EAlarmLevel, err error) // 判断触发或者消除告警
+}

@@ -15,6 +15,7 @@ use (
 	./plugins/plug_drivers/gpio/gpio_basic
 	./plugins/plug_drivers/pcs/pcs_elecod_mac
 	./plugins/plug_drivers/pcs/pcs_star_charge_100E
+
 	./plugins/plug_policy/p_policy_mircogrid
 
 	./plugins/plug_protocols/p_base
@@ -24,6 +25,8 @@ use (
 
 	./plugins/plug_storages/p_storage
 	./plugins/plug_storages/p_tsdb
+
+	./services/s_automation
 	./services/s_db
 	./services/s_driver
 	./services/s_storage

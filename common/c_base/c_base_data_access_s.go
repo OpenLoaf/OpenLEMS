@@ -21,9 +21,9 @@ type SDataAccess struct {
 	WordOrder  c_enum.EWordOrder  `json:"wordOrder,omitempty" dc:"字序（默认: WordOrderHighLow）"`
 
 	// 数据转换配置
-	ValueType c_enum.EValueType `json:"valueType,omitempty" dc:"返回值类型"`
-	Factor    float32           `json:"factor,omitempty" dc:"系数（默认: 0.0 不乘以系数）"`
-	Offset    int               `json:"offset,omitempty" dc:"偏移值（默认: 0）"`
+	//ValueType c_enum.EValueType `json:"valueType,omitempty" dc:"返回值类型"`
+	Factor float32 `json:"factor,omitempty" dc:"系数（默认: 0.0 不乘以系数）"`
+	Offset int     `json:"offset,omitempty" dc:"偏移值（默认: 0）"`
 }
 
 func (s *SDataAccess) String() string {

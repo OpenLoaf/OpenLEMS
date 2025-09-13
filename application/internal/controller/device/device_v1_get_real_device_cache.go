@@ -75,7 +75,7 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		_ = gconv.Scan(v, d)
 
 		// 获取状态解释
-		if explain, err := v.IPoint.ValueExplain(v.GetValue()); err == nil && explain != "" {
+		if explain, err := v.IPoint.GetValueExplain(v.GetValue()); err == nil && explain != "" {
 			d.StatueExplain = explain
 		}
 		group.Values = append(group.Values, d)

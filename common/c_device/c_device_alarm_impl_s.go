@@ -120,7 +120,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, point c_base.IPoint, value any
 	}
 
 	// 提前点位是否是告警，避免不必要的处理
-	if point.IsNotAlarm() {
+	if !point.IsAlarmPoint() {
 		return
 	}
 
@@ -131,7 +131,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, point c_base.IPoint, value any
 	}
 
 	// 先获取当前Trigger的返回值，true代表触发，false代表清除
-	isCurrentlyTriggered, level, err := point.AlarmTrigger(value)
+	isCurrentlyTriggered, level, err := point.TriggerAlarm(value)
 	if err != nil {
 		c_log.BizErrorf(s.ctx, "告警触发判断失败！%+v", err)
 		return
@@ -188,8 +188,8 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, point c_base.IPoint, value any
 
 			var historyMessage string
 
-			newValueExplain, _ := alarm.IPoint.ValueExplain(value)
-			oldValueExplain, _ := oldAlarm.IPoint.ValueExplain(oldAlarm.GetValue())
+			newValueExplain, _ := alarm.IPoint.GetValueExplain(value)
+			oldValueExplain, _ := oldAlarm.IPoint.GetValueExplain(oldAlarm.GetValue())
 
 			if newValueExplain != "" && oldValueExplain != "" {
 				historyMessage = fmt.Sprintf("触发值为:%v，告警清除后值为:%v", oldValueExplain, newValueExplain)
