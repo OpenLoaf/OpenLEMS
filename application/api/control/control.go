@@ -7,7 +7,7 @@ package control
 import (
 	"context"
 
-	v1 "application/api/control/v1"
+	"application/api/control/v1"
 )
 
 type IControlV1 interface {

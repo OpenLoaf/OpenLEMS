@@ -30,7 +30,7 @@ type ICanbusProtocol interface {
 type IGpiodProtocol interface {
 	c_base.IProtocol
 
-	//InitGpioPoint(point c_base.IPoint) // 初始化点位
+	InitGpioPoint(point c_base.IPoint) // 初始化点位
 
 	RegisterHandler(handler func(status bool)) // 状态变化处理
 	GetGpioStatus() *bool                      // 是否是高电平

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (c *ControllerV1) GetDeviceHistory(ctx context.Context, req *v1.PostDeviceHistoryReq) (res *v1.PostDeviceHistoryRes, err error) {
+func (c *ControllerV1) PostDeviceHistory(ctx context.Context, req *v1.PostDeviceHistoryReq) (res *v1.PostDeviceHistoryRes, err error) {
 
 	chart, err := common.GetStorageInstance().GetStorageData(c_base.StorageTypeDevice, req.DeviceId, req.TelemetryKeys, req.StartTime, req.EndTime, req.Step)
 	if chart != nil && len(chart.Series) != 0 {

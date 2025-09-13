@@ -7,7 +7,7 @@ package policy
 import (
 	"context"
 
-	v1 "application/api/policy/v1"
+	"application/api/policy/v1"
 )
 
 type IPolicyV1 interface {

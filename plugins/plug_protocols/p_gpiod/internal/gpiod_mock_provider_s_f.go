@@ -22,6 +22,7 @@ type sGpiodMockProvider struct {
 
 	// 状态管理
 	currentStatus  *bool
+	point          c_base.IPoint
 	lastUpdateTime *time.Time
 
 	handler func(status bool)
@@ -43,6 +44,10 @@ func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig,
 	}, nil
 }
 
+func (s *sGpiodMockProvider) InitGpioPoint(point c_base.IPoint) {
+	s.point = point
+}
+
 func (s *sGpiodMockProvider) GetProtocolStatus() c_enum.EProtocolStatus {
 	return c_enum.EProtocolMock
 }
@@ -52,17 +57,19 @@ func (s *sGpiodMockProvider) GetLastUpdateTime() *time.Time {
 }
 
 func (s *sGpiodMockProvider) GetPointValueList() []*c_base.SPointValue {
+	if s.point == nil {
+		return nil
+	}
 	return []*c_base.SPointValue{
-		c_base.NewPointValue(s.deviceConfig.Id, gpioPoint, s.currentStatus),
+		c_base.NewPointValue(s.deviceConfig.Id, s.point, s.currentStatus),
 	}
 }
 
 func (s *sGpiodMockProvider) GetValue(point c_base.IPoint) (any, error) {
+	if point == s.point {
+		return s.currentStatus, nil
+	}
 	return nil, nil
-}
-
-func (s *sGpiodMockProvider) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
-
 }
 
 func (s *sGpiodMockProvider) ProtocolListen() {
@@ -83,10 +90,18 @@ func (s *sGpiodMockProvider) GetGpioStatus() *bool {
 
 func (s *sGpiodMockProvider) SetHigh() error {
 	s.currentStatus = &high
+
+	if s.handler != nil {
+		s.handler(true)
+	}
+
 	return nil
 }
 
 func (s *sGpiodMockProvider) SetLow() error {
 	s.currentStatus = &low
+	if s.handler != nil {
+		s.handler(false)
+	}
 	return nil
 }
