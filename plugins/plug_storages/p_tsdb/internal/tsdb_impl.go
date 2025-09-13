@@ -16,8 +16,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/shockerli/cvt"
-
 	"github.com/prometheus/prometheus/pkg/labels"
 	promtsdb "github.com/prometheus/prometheus/tsdb"
 )
@@ -87,69 +85,22 @@ func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fie
 
 	var sampleCount int64 = 0 // 统计本次存储的样本数量
 	for field, value := range fields {
-		// 统一转为 float64，如果失败写入字符串的 JSON 序列
-		switch v := value.(type) {
-		case int:
+		// 尝试转换为数值类型
+		if numericValue, ok := convertToFloat64(value); ok {
+			// 数值类型统一处理
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: "ems_metric",
 				LabelNameType:   string(c_base.StorageTypeDevice),
 				LabelNameID:     deviceId,
 				LabelNameField:  field,
-			}), ts, float64(v))
+			}), ts, numericValue)
 			if err != nil {
 				_ = app.Rollback()
 				return err
 			}
+			c_log.Infof(p.ctx, "保存[%s:%s] \t数据[%v]到tsdb", deviceId, field, numericValue)
 			sampleCount++
-		case int32:
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric",
-				LabelNameType:   string(c_base.StorageTypeDevice),
-				LabelNameID:     deviceId,
-				LabelNameField:  field,
-			}), ts, float64(v))
-			if err != nil {
-				_ = app.Rollback()
-				return err
-			}
-			sampleCount++
-		case int64:
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric",
-				LabelNameType:   string(c_base.StorageTypeDevice),
-				LabelNameID:     deviceId,
-				LabelNameField:  field,
-			}), ts, float64(v))
-			if err != nil {
-				_ = app.Rollback()
-				return err
-			}
-			sampleCount++
-		case float32:
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric",
-				LabelNameType:   string(c_base.StorageTypeDevice),
-				LabelNameID:     deviceId,
-				LabelNameField:  field,
-			}), ts, float64(v))
-			if err != nil {
-				_ = app.Rollback()
-				return err
-			}
-			sampleCount++
-		case float64:
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric",
-				LabelNameType:   string(c_base.StorageTypeDevice),
-				LabelNameID:     deviceId,
-				LabelNameField:  field,
-			}), ts, v)
-			if err != nil {
-				_ = app.Rollback()
-				return err
-			}
-			sampleCount++
-		default:
+		} else {
 			// 对非数值类型，将值 JSON 序列化后，附加一个 *_text 序列保存为 0/1
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: "ems_metric_text",
@@ -181,10 +132,24 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 	app := p.db.Appender()
 
 	var sampleCount int64 = 0 // 统计本次存储的样本数量
-	for field, v := range metrics {
-		val, err := cvt.Float64E(v)
-		if err != nil {
-			// 同 SaveDevices 的处理
+	for field, value := range metrics {
+		// 尝试转换为数值类型
+		if numericValue, ok := convertToFloat64(value); ok {
+			// 数值类型统一处理
+			_, err := app.Add(labels.FromMap(map[string]string{
+				LabelNameMetric:   "ems_metric",
+				LabelNameType:     string(c_base.StorageTypeProtocol),
+				LabelNameID:       protocolConfig.Id,
+				LabelNameField:    field,
+				LabelNameDeviceID: deviceConfig.Id,
+			}), ts, numericValue)
+			if err != nil {
+				_ = app.Rollback()
+				return err
+			}
+			sampleCount++
+		} else {
+			// 对非数值类型，将值 JSON 序列化后，附加一个 *_text 序列保存为 0/1
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric:   "ems_metric_text",
 				LabelNameType:     string(c_base.StorageTypeProtocol),
@@ -197,20 +162,7 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 				return err
 			}
 			sampleCount++
-			continue
 		}
-		_, err = app.Add(labels.FromMap(map[string]string{
-			LabelNameMetric:   "ems_metric",
-			LabelNameType:     string(c_base.StorageTypeProtocol),
-			LabelNameID:       protocolConfig.Id,
-			LabelNameField:    field,
-			LabelNameDeviceID: deviceConfig.Id,
-		}), ts, val)
-		if err != nil {
-			_ = app.Rollback()
-			return err
-		}
-		sampleCount++
 	}
 
 	// 更新滑动窗口计数器
@@ -229,9 +181,23 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 	app := p.db.Appender()
 
 	var sampleCount int64 = 0 // 统计本次存储的样本数量
-	for field, v := range metrics {
-		val, err := cvt.Float64E(v)
-		if err != nil {
+	for field, value := range metrics {
+		// 尝试转换为数值类型
+		if numericValue, ok := convertToFloat64(value); ok {
+			// 数值类型统一处理
+			_, err := app.Add(labels.FromMap(map[string]string{
+				LabelNameMetric: "ems_metric",
+				LabelNameType:   string(c_base.StorageTypeSystem),
+				LabelNameID:     measurement,
+				LabelNameField:  field,
+			}), ts, numericValue)
+			if err != nil {
+				_ = app.Rollback()
+				return err
+			}
+			sampleCount++
+		} else {
+			// 对非数值类型，将值 JSON 序列化后，附加一个 *_text 序列保存为 0/1
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: "ems_metric_text",
 				LabelNameType:   string(c_base.StorageTypeSystem),
@@ -243,19 +209,7 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 				return err
 			}
 			sampleCount++
-			continue
 		}
-		_, err = app.Add(labels.FromMap(map[string]string{
-			LabelNameMetric: "ems_metric",
-			LabelNameType:   string(c_base.StorageTypeSystem),
-			LabelNameID:     measurement,
-			LabelNameField:  field,
-		}), ts, val)
-		if err != nil {
-			_ = app.Rollback()
-			return err
-		}
-		sampleCount++
 	}
 
 	// 更新滑动窗口计数器
@@ -533,4 +487,105 @@ func (p *promDB) Close() {
 		_ = p.db.Close()
 		c_log.BizInfof(p.ctx, "关闭时序数据库！")
 	}
+}
+
+// convertToFloat64 将各种数值类型（包括指针类型）转换为 float64
+// 支持的类型：int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64
+// 以及对应的指针类型：*int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64, *float32, *float64
+// 返回值：转换后的 float64 值和是否转换成功
+func convertToFloat64(value any) (float64, bool) {
+	if value == nil {
+		return 0, false
+	}
+
+	switch v := value.(type) {
+	// 基本数值类型
+	case int:
+		return float64(v), true
+	case int8:
+		return float64(v), true
+	case int16:
+		return float64(v), true
+	case int32:
+		return float64(v), true
+	case int64:
+		return float64(v), true
+	case uint:
+		return float64(v), true
+	case uint8:
+		return float64(v), true
+	case uint16:
+		return float64(v), true
+	case uint32:
+		return float64(v), true
+	case uint64:
+		return float64(v), true
+	case float32:
+		return float64(v), true
+	case float64:
+		return v, true
+	case bool:
+		if v {
+			return 1, true
+		} else {
+			return 0, true
+		}
+	// 指针类型
+	case *int:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *int8:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *int16:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *int32:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *int64:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *uint:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *uint8:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *uint16:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *uint32:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *uint64:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *float32:
+		if v != nil {
+			return float64(*v), true
+		}
+	case *float64:
+		if v != nil {
+			return *v, true
+		}
+	case *bool:
+		if *v {
+			return 1, true
+		} else {
+			return 0, true
+		}
+	}
+
+	return 0, false
 }

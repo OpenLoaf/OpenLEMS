@@ -45,7 +45,9 @@ func GetAllTelemetry(instance IDevice) map[string]any {
 			//fmt.Printf("Get telemetry %driverInfo error: %+v\n", telemetry.Key, err)
 			continue
 		}
-		telemetryMap[telemetry.Key] = value
+		if value != nil {
+			telemetryMap[telemetry.Key] = value
+		}
 	}
 	return telemetryMap
 }
