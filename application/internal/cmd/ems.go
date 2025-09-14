@@ -1,0 +1,124 @@
+package cmd
+
+import (
+	applog "application/internal/log"
+	"application/internal/utils"
+	"application/manifest"
+	"common"
+	"common/c_base"
+	"common/c_enum"
+	"common/c_log"
+	"context"
+	"os"
+	"p_tsdb"
+	"runtime"
+	"s_automation"
+	"s_db"
+	"s_driver"
+	"s_storage"
+	"time"
+
+	"github.com/gogf/gf/v2/frame/g"
+	"github.com/gogf/gf/v2/i18n/gi18n"
+	"github.com/gogf/gf/v2/os/gcmd"
+	"github.com/gogf/gf/v2/os/gproc"
+)
+
+// InitSystem 初始化系统
+func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
+	// 注入系统日志（GoFrame）
+	c_log.SetSystemLogger(applog.NewSystemAdapter(g.Log()))
+	// 注入业务日志（输出到数据库）
+	c_log.SetBusinessLogger(applog.NewDatabaseAdapter())
+	// 启用异步日志输出提高性能
+	g.Log().SetAsync(true)
+
+	// 优先加载嵌入式配置，支持 --profile 或 APP_PROFILE 环境变量
+	profile := parser.GetOpt("profile", os.Getenv("APP_PROFILE")).String()
+	if profile == "" || profile == "default" {
+		profile = "prod"
+	}
+	g.Log().Infof(ctx, "Active Profile: %s", profile)
+	manifest.LoadEmbeddedConfig(profile)
+
+	// 设置默认语言为中文(简体)
+	gi18n.SetLanguage("zh-CN")
+
+	// 初始化数据库
+	s_db.Init()
+
+	// 初始化存储（切换为 TSDB，无外部配置时采用默认路径与策略）
+	storageInst := p_tsdb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_enum.EStorageTypeTsdb, Url: "", Params: map[string]string{}})
+	s_storage.NewSingleStorageManager(ctx, storageInst)
+	common.RegisterStorageInstance(storageInst)
+
+	// 注册设备管理器
+	common.RegisterDeviceManager(s_driver.NewDriverManagerImpl(ctx))
+
+	// 注册告警管理器（直接注入 s_db 的告警服务实现，满足 common 的告警接口）
+	common.RegisterAlarmManager(s_db.GetAlarmService())
+
+	// 初始化自动化服务
+	s_automation.Init()
+
+	return nil
+}
+
+// StartServices 启动所有服务
+func StartServices(ctx context.Context) {
+	pid := os.Getpid()
+	g.Log().Infof(ctx, "EMS After！PID：%d", pid)
+
+	// 启动设备
+	go func() {
+		common.GetDeviceManager().Start()
+		c_log.BizInfof(ctx, "EMS系统启动成功！")
+		g.Log().Infof(ctx, "DeviceManger State : %s", common.GetDeviceManager().Status())
+	}()
+
+	// 启动自动化管理器
+	go func() {
+		// 等待设备管理器启动完成
+		time.Sleep(2 * time.Second)
+
+		// 启动自动化管理器，每秒执行一次
+		err := s_automation.StartAutomationManager(ctx, time.Second)
+		if err != nil {
+			g.Log().Errorf(ctx, "启动自动化管理器失败: %+v", err)
+		} else {
+			g.Log().Infof(ctx, "自动化管理器启动成功")
+			c_log.BizInfof(ctx, "自动化服务启动成功！")
+		}
+	}()
+}
+
+// SetupShutdownHandler 设置关闭信号处理
+func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
+	gproc.AddSigHandlerShutdown(func(sig os.Signal) {
+		g.Log().Infof(ctx, "接收到关闭服务信号：%s", sig.String())
+
+		// 停止自动化管理器
+		err := s_automation.StopAutomationManager(ctx)
+		if err != nil {
+			g.Log().Errorf(ctx, "停止自动化管理器失败: %+v", err)
+		} else {
+			g.Log().Infof(ctx, "自动化管理器已停止")
+			c_log.BizInfof(ctx, "自动化服务已停止")
+		}
+
+		//common.GetDeviceManager().Shutdown()
+
+		// 清理PID文件
+		pidFile := "out/ems.pid"
+		if err := utils.RemovePidFile(pidFile); err != nil {
+			g.Log().Warningf(ctx, "清理PID文件失败: %v", err)
+		} else {
+			g.Log().Infof(ctx, "PID文件已清理: %s", pidFile)
+		}
+
+		cancelFunc()
+		time.Sleep(1 * time.Second)
+		g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())
+		c_log.BizWarningf(ctx, "EMS系统关闭！")
+	})
+}
