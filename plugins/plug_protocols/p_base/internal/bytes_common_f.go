@@ -37,7 +37,7 @@ func ValidateValueRange(value any, min, max int64) error {
 	if uintVal, ok := value.(uint64); ok {
 		// 检查uint64值是否在int64范围内
 		if uintVal > math.MaxInt64 {
-			return errors.Errorf("uint64 value %d exceeds int64 maximum %d", uintVal, math.MaxInt64)
+			return errors.Errorf("uint64 value %d exceeds int64 maximum %d", uintVal, int64(math.MaxInt64))
 		}
 		val := int64(uintVal)
 		// 修复：正确处理负数范围验证

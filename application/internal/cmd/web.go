@@ -29,6 +29,11 @@ import (
 
 // startWeb 启动Web服务
 func startWeb(ctx context.Context) *ghttp.Server {
+	return startWebWithBinding(ctx, false)
+}
+
+// startWebWithBinding 启动Web服务，可选择是否只绑定到本地地址
+func startWebWithBinding(ctx context.Context, localOnly bool) *ghttp.Server {
 	ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Web")
 	g.Log().Infof(ctx, "准备启动web程序！")
 
@@ -64,6 +69,24 @@ func startWeb(ctx context.Context) *ghttp.Server {
 		if serverAddress == "" {
 			serverAddress = ":80" // 默认端口
 		}
+
+		// 如果只允许本地访问，修改绑定地址
+		if localOnly {
+			if strings.HasPrefix(serverAddress, ":") {
+				// 如果地址以冒号开头（如 :15880），则添加 127.0.0.1
+				serverAddress = "127.0.0.1" + serverAddress
+			} else if !strings.Contains(serverAddress, "127.0.0.1") && !strings.Contains(serverAddress, "localhost") {
+				// 如果地址不包含本地地址，则替换为 127.0.0.1
+				if strings.Contains(serverAddress, ":") {
+					parts := strings.Split(serverAddress, ":")
+					if len(parts) >= 2 {
+						serverAddress = "127.0.0.1:" + parts[len(parts)-1]
+					}
+				}
+			}
+			g.Log().Infof(ctx, "GUI模式：Web服务仅绑定到本地地址 %s", serverAddress)
+		}
+
 		utils.PrintWebServerInfo(ctx, serverAddress)
 	}()
 

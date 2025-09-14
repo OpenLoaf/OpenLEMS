@@ -15,6 +15,8 @@ const (
 	ArgDeviceConfigName   = "device-name"           // 驱动配置文件
 	ArgDriverConfigName   = "driver-path"           // 驱动文件的存放路径
 	ArgEnableWeb          = "web"                   // 是否启动web
+	ArgEnableGui          = "gui"                   // 是否启动GUI
+	ArgEnableGuiFull      = "gui-full"              // 是否启动GUI并全屏
 	ArgLanguage           = "language"              // 全局语言设置
 	ArgPebbleDbPath       = "runtime-path"          // pebble数据库路径
 	ArgSqliteDbPath       = "db-path"               // sqlite数据库路径
@@ -31,6 +33,8 @@ var (
 		Usage: "start",
 		Arguments: []gcmd.Argument{
 			{Name: ArgEnableWeb, Short: "w", Brief: "Default: false 启动web端 ", IsArg: false, Orphan: false},
+			{Name: ArgEnableGui, Short: "g", Brief: "Default: false 启动GUI界面 ", IsArg: false, Orphan: false},
+			{Name: ArgEnableGuiFull, Short: "f", Brief: "Default: false 启动GUI界面并全屏 ", IsArg: false, Orphan: false},
 			{Name: ArgDeviceConfigName, Short: "d", Brief: "Default: device 设备配置文件 ", IsArg: false, Orphan: false},
 			{Name: ArgDriverConfigName, Short: "dp", Brief: "Default: ./driver 驱动存放路径 ", IsArg: false, Orphan: false},
 			{Name: ArgPebbleDbPath, Short: "rp", Brief: "Default: ./out/runtime 设置实时数据库路径 ", IsArg: false, Orphan: false},
@@ -66,12 +70,44 @@ var (
 			SetupShutdownHandler(ctx, cancelFunc)
 
 			// 启动Web服务或等待信号
-			if parser.GetOpt(ArgEnableWeb).Bool() {
-				g.Log().Infof(ctx, "启动web服务！")
-				web := startWeb(ctx)
-				web.Run()
+			enableWeb := parser.GetOpt(ArgEnableWeb).Bool()
+			enableGui := parser.GetOpt(ArgEnableGui).Bool()
+			enableGuiFull := parser.GetOpt(ArgEnableGuiFull).Bool()
+
+			if enableWeb || enableGui || enableGuiFull {
+				// 如果启用了Web或GUI，都需要启动Web服务
+				if (enableGui || enableGuiFull) && !enableWeb {
+					// 如果只启用GUI，启动本地绑定的Web服务
+					g.Log().Infof(ctx, "启动web服务（GUI模式，仅本地访问）！")
+					web := startWebWithBinding(ctx, true)
+					go web.Run()
+
+					// 启动GUI界面
+					if enableGuiFull {
+						g.Log().Infof(ctx, "启动GUI界面（全屏模式）！")
+						startGuiFullscreen(ctx)
+					} else {
+						g.Log().Infof(ctx, "启动GUI界面！")
+						startGui(ctx)
+					}
+				} else {
+					// 如果启用了Web（无论是否启用GUI），启动正常的Web服务
+					g.Log().Infof(ctx, "启动web服务！")
+					web := startWeb(ctx)
+
+					// 如果同时启用了GUI，则启动GUI界面
+					if enableGui {
+						g.Log().Infof(ctx, "启动GUI界面！")
+						go startGui(ctx)
+					} else if enableGuiFull {
+						g.Log().Infof(ctx, "启动GUI界面（全屏模式）！")
+						go startGuiFullscreen(ctx)
+					}
+
+					web.Run()
+				}
 			} else {
-				g.Log().Infof(ctx, "未启动web服务！")
+				g.Log().Infof(ctx, "未启动web服务和GUI界面！")
 				gproc.Listen()
 			}
 
