@@ -97,29 +97,40 @@ func (s *sGpiodMockProvider) GetGpioStatus() *bool {
 }
 
 func (s *sGpiodMockProvider) SetHigh() error {
-	last := s.currentStatus
-	s.currentStatus = &high
-	s.processData(high, last)
+	s.updateStatus(high)
 	return nil
 }
 
 func (s *sGpiodMockProvider) SetLow() error {
-	last := s.currentStatus
-	s.currentStatus = &low
-	s.processData(low, last)
+	s.updateStatus(low)
 	return nil
 }
 
-func (s *sGpiodMockProvider) processData(now bool, last *bool) {
-	s.UpdateAlarm(s.deviceConfig.Id, s.point, now)
+// updateStatus 更新GPIO状态和时间戳，并处理状态变化
+func (s *sGpiodMockProvider) updateStatus(status bool) {
+	// 保存之前的状态
+	last := s.currentStatus
 
+	// 更新状态和时间戳
+	s.currentStatus = &status
+	now := time.Now()
+	s.lastUpdateTime = &now
+
+	// 更新告警状态
+	if s.point != nil {
+		s.UpdateAlarm(s.deviceConfig.Id, s.point, status)
+	}
+
+	// 判断是否有状态变化
 	isChange := false
 	if last == nil {
 		isChange = true
-	} else if *last != now {
+	} else if *last != status {
 		isChange = true
 	}
+
+	// 调用处理函数
 	if s.handler != nil {
-		s.handler(now, isChange)
+		s.handler(status, isChange)
 	}
 }

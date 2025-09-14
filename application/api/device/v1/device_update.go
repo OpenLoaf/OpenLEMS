@@ -9,6 +9,7 @@ type UpdateDeviceReq struct {
 	ProtocolId string `json:"protocolId"  dc:"协议ID"`
 	Driver     string `json:"driver" v:"required"  dc:"驱动名称"`
 	LogLevel   string `json:"logLevel" v:"required"  dc:"日志等级"`
+	ManualMode *bool  `json:"manualMode"  dc:"是否手动模式"`
 	Enabled    bool   `json:"enabled"  v:"required" dc:"是否启用"`
 	Sort       int    `json:"sort" v:"required"  dc:"排序"`
 	Params     string `json:"params" dc:"参数"`

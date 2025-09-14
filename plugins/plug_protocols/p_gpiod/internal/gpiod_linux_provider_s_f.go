@@ -32,8 +32,9 @@ type sGpiodLinuxProvider struct {
 
 	// 状态管理
 	currentStatus  *bool
+	point          c_base.IPoint
 	lastUpdateTime *time.Time
-	handler        func(status bool)
+	handler        func(status bool, isChange bool)
 	protocolStatus c_enum.EProtocolStatus
 }
 
@@ -61,6 +62,12 @@ func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig,
 
 func (s *sGpiodLinuxProvider) GetConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
+}
+
+func (s *sGpiodLinuxProvider) InitGpioPoint(point c_base.IPoint) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.point = point
 }
 
 // initializeGPIO 初始化GPIO引脚
@@ -120,14 +127,9 @@ func (s *sGpiodLinuxProvider) handleGPIOEvent(evt gpiocdev.LineEvent) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// 更新状态
+	// 更新状态并处理状态变化
 	status := evt.Type == gpiocdev.LineEventRisingEdge
 	s.updateStatus(status)
-
-	// 调用处理函数
-	if s.handler != nil {
-		go s.handler(status)
-	}
 }
 
 func (s *sGpiodLinuxProvider) GetProtocolStatus() c_enum.EProtocolStatus {
@@ -147,8 +149,8 @@ func (s *sGpiodLinuxProvider) GetPointValueList() []*c_base.SPointValue {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	// 如果协议未连接，返回空列表
-	if s.protocolStatus != c_enum.EProtocolConnected {
+	// 如果协议未连接或没有点位，返回空列表
+	if s.protocolStatus != c_enum.EProtocolConnected || s.point == nil {
 		return []*c_base.SPointValue{}
 	}
 
@@ -158,7 +160,7 @@ func (s *sGpiodLinuxProvider) GetPointValueList() []*c_base.SPointValue {
 		return []*c_base.SPointValue{}
 	}
 
-	pointValue := c_base.NewPointValue(s.deviceConfig.Id, nil, *status)
+	pointValue := c_base.NewPointValue(s.deviceConfig.Id, s.point, *status)
 	if s.lastUpdateTime != nil {
 		pointValue.SetHappenTime(*s.lastUpdateTime)
 	}
@@ -211,7 +213,7 @@ func (s *sGpiodLinuxProvider) ProtocolListen() {
 	}
 }
 
-func (s *sGpiodLinuxProvider) RegisterHandler(handler func(status bool)) {
+func (s *sGpiodLinuxProvider) RegisterHandler(handler func(status bool, isChange bool)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -254,11 +256,33 @@ func (s *sGpiodLinuxProvider) getGpioStatusUnsafe() *bool {
 	return s.currentStatus
 }
 
-// updateStatus 更新GPIO状态和时间戳（不加锁，调用者需确保已加锁）
+// updateStatus 更新GPIO状态和时间戳，并处理状态变化（不加锁，调用者需确保已加锁）
 func (s *sGpiodLinuxProvider) updateStatus(status bool) {
+	// 保存之前的状态
+	last := s.currentStatus
+
+	// 更新状态和时间戳
 	s.currentStatus = &status
 	now := time.Now()
 	s.lastUpdateTime = &now
+
+	// 更新告警状态
+	if s.point != nil {
+		s.UpdateAlarm(s.deviceConfig.Id, s.point, status)
+	}
+
+	// 判断是否有状态变化
+	isChange := false
+	if last == nil {
+		isChange = true
+	} else if *last != status {
+		isChange = true
+	}
+
+	// 调用处理函数
+	if s.handler != nil {
+		go s.handler(status, isChange)
+	}
 }
 
 func (s *sGpiodLinuxProvider) SetHigh() error {

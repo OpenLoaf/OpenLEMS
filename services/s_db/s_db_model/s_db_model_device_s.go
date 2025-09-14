@@ -30,7 +30,7 @@ type SDeviceModel struct {
 	ProtocolId         string `json:"protocol_id" orm:"protocol_id"`
 	Driver             string `json:"driver" orm:"driver"`
 	LogLevel           string `json:"logLevel" orm:"log_level"`
-	Strategy           string `json:"strategy,omitempty" orm:"strategy"`             // 	策略名称
+	ManualMode         bool   `json:"manualMode" orm:"manual_mode"`                  // 手动模式
 	StorageEnable      bool   `json:"storageEnable" orm:"storage_enable"`            // 是否存储
 	StorageIntervalSec int32  `json:"storageIntervalSec" orm:"storage_interval_sec"` // 存储间隔(秒),0代表默认1分钟，负数代表不存储
 	Sort               int    `json:"sort" orm:"sort"`

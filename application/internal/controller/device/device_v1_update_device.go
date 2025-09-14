@@ -21,6 +21,9 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 	data["enabled"] = req.Enabled
 	data["sort"] = req.Sort
 	data["params"] = req.Params
+	if req.ManualMode != nil {
+		data["manualMode"] = req.ManualMode
+	}
 
 	// 调用数据库服务更新设备
 	err = s_db.GetDeviceService().UpdateDevice(ctx, req.DeviceId, data)

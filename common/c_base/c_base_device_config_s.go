@@ -14,8 +14,9 @@ type SDeviceConfig struct { // 设备配置
 	ProtocolId string `json:"protocolId,omitempty" orm:"protocol_id"` // 协议配置ID,如果配置了肯定是实体设备
 	Driver     string `json:"driver,omitempty" orm:"driver"`          // 驱动名称
 
-	LogLevel           string         `json:"logLevel,omitempty" orm:"log_level"`            // 日志等级
-	Strategy           string         `json:"strategy,omitempty" orm:"strategy"`             // 	策略名称
+	LogLevel string `json:"logLevel,omitempty" orm:"log_level"` // 日志等级
+	//Strategy           string         `json:"strategy,omitempty" orm:"strategy"`             // 	策略名称
+	ManualMode         bool           `json:"manualMode" orm:"manual_mode"`                  // 手动模式
 	StorageEnable      bool           `json:"StorageEnable" orm:"storage_enable"`            // 是否存储
 	StorageIntervalSec int32          `json:"storageIntervalSec" orm:"storage_interval_sec"` // 存储间隔(秒),0代表默认1分钟，负数代表不存储
 	Sort               int            `json:"sort" orm:"sort"`

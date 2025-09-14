@@ -12,13 +12,14 @@ import (
 )
 
 type SDeviceTree struct {
-	Id                 string         `json:"id,omitempty" dc:"设备ID"`
-	Pid                string         `json:"pid,omitempty" dc:"父设备Id"`
-	Name               string         `json:"name,omitempty" dc:"设备名称"`
-	ProtocolId         string         `json:"protocolId,omitempty" dc:"协议配置ID,如果配置了肯定是实体设备"`
-	Driver             string         `json:"driver,omitempty" dc:"驱动名称"`
-	LogLevel           string         `json:"logLevel,omitempty" dc:"日志等级"`
-	Strategy           string         `json:"strategy,omitempty" dc:"策略名称"`
+	Id         string `json:"id,omitempty" dc:"设备ID"`
+	Pid        string `json:"pid,omitempty" dc:"父设备Id"`
+	Name       string `json:"name,omitempty" dc:"设备名称"`
+	ProtocolId string `json:"protocolId,omitempty" dc:"协议配置ID,如果配置了肯定是实体设备"`
+	Driver     string `json:"driver,omitempty" dc:"驱动名称"`
+	LogLevel   string `json:"logLevel,omitempty" dc:"日志等级"`
+	//Strategy           string         `json:"strategy,omitempty" dc:"策略名称"`
+	ManualMode         bool           `json:"manualMode" dc:"手动模式"`
 	StorageEnable      bool           `json:"StorageEnable" dc:"是否存储"`
 	StorageIntervalSec int32          `json:"storageIntervalSec" dc:"存储间隔(秒),0代表默认1分钟，负数代表不存储"`
 	Sort               int            `json:"sort" dc:"排序"`
@@ -47,13 +48,14 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 	if record, ok := value.(*c_base.SDeviceConfig); ok {
 
 		*t = SDeviceTree{
-			Id:                 record.Id,
-			Pid:                record.Pid,
-			Name:               record.Name,
-			ProtocolId:         record.ProtocolId,
-			Driver:             record.Driver,
-			LogLevel:           record.LogLevel,
-			Strategy:           record.Strategy,
+			Id:         record.Id,
+			Pid:        record.Pid,
+			Name:       record.Name,
+			ProtocolId: record.ProtocolId,
+			Driver:     record.Driver,
+			LogLevel:   record.LogLevel,
+			//Strategy:           record.Strategy,
+			ManualMode:         record.ManualMode,
 			StorageEnable:      record.StorageEnable,
 			StorageIntervalSec: record.StorageIntervalSec,
 			Sort:               record.Sort,

@@ -11,11 +11,12 @@ func _() {
 	_ = x[EProtocolDisconnected-0]
 	_ = x[EProtocolConnecting-1]
 	_ = x[EProtocolConnected-2]
+	_ = x[EProtocolMock-3]
 }
 
-const _EProtocolStatus_name = "DisconnectedConnectingConnected"
+const _EProtocolStatus_name = "DisconnectedConnectingConnectedMock"
 
-var _EProtocolStatus_index = [...]uint8{0, 12, 22, 31}
+var _EProtocolStatus_index = [...]uint8{0, 12, 22, 31, 35}
 
 func (i EProtocolStatus) String() string {
 	if i < 0 || i >= EProtocolStatus(len(_EProtocolStatus_index)-1) {
