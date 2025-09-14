@@ -37,13 +37,13 @@ func (s *SDeviceConfig) ScanParams(target any) error {
 	if target == nil {
 		return errors.New("config target cannot be nil")
 	}
-	if s.Params == nil {
+	if s.Params == nil || len(s.Params) == 0 {
 		return nil
 	}
 
 	// 先将 map[string]string 转换为 JSON 字节
 	jsonBytes, err := json.Marshal(s.Params)
-	if err != nil {
+	if err != nil || len(jsonBytes) == 0 || string(jsonBytes) == "" || string(jsonBytes) == "null" {
 		return errors.Errorf("failed to marshal params to json: %+v", err)
 	}
 

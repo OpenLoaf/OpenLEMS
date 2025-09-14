@@ -18,6 +18,14 @@ const (
 	FieldValue  = "value"
 	FieldRemark = "remark"
 	FieldGroup  = "group_name"
+
+	// Automation 相关字段
+	FieldStartTime      = "start_time"
+	FieldEndTime        = "end_time"
+	FieldTimeRangeType  = "time_range_type"
+	FieldTimeRangeValue = "time_range_value"
+	FieldTriggerRule    = "trigger_rule"
+	FieldExecuteRule    = "execute_rule"
 )
 
 const ( // 特殊值

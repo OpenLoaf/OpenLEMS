@@ -14,6 +14,7 @@ import (
 	"p_tsdb"
 	"path/filepath"
 	"runtime"
+	"s_automation"
 	"s_db"
 	"s_driver"
 	"s_storage"
@@ -167,6 +168,9 @@ var (
 			// 注册告警管理器（直接注入 s_db 的告警服务实现，满足 common 的告警接口）
 			common.RegisterAlarmManager(s_db.GetAlarmService())
 
+			// 初始化自动化服务
+			s_automation.Init()
+
 			pid := os.Getpid()
 			g.Log().Infof(ctx, "EMS After！PID：%d", pid)
 
@@ -185,8 +189,33 @@ var (
 				g.Log().Infof(ctx, "DeviceManger State : %s", common.GetDeviceManager().Status())
 			}()
 
+			// 启动自动化管理器
+			go func() {
+				// 等待设备管理器启动完成
+				time.Sleep(2 * time.Second)
+
+				// 启动自动化管理器，每秒执行一次
+				err := s_automation.StartAutomationManager(ctx, time.Second)
+				if err != nil {
+					g.Log().Errorf(ctx, "启动自动化管理器失败: %+v", err)
+				} else {
+					g.Log().Infof(ctx, "自动化管理器启动成功")
+					c_log.BizInfof(ctx, "自动化服务启动成功！")
+				}
+			}()
+
 			gproc.AddSigHandlerShutdown(func(sig os.Signal) {
 				g.Log().Infof(ctx, "接收到关闭服务信号：%s", sig.String())
+
+				// 停止自动化管理器
+				err := s_automation.StopAutomationManager(ctx)
+				if err != nil {
+					g.Log().Errorf(ctx, "停止自动化管理器失败: %+v", err)
+				} else {
+					g.Log().Infof(ctx, "自动化管理器已停止")
+					c_log.BizInfof(ctx, "自动化服务已停止")
+				}
+
 				//common.GetDeviceManager().Shutdown()
 
 				// 清理PID文件

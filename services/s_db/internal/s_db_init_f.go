@@ -144,5 +144,24 @@ func initConfigDatabase() {
 		g.Log().Fatal(ctx, err)
 	}
 
+	// 创建自动化表
+	_, err = g.DB().Exec(ctx, `
+		CREATE TABLE IF NOT EXISTS automation (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			start_time DATETIME,
+			end_time DATETIME,
+			time_range_type VARCHAR(255) ,
+			time_range_value VARCHAR(255),
+			trigger_rule TEXT NOT NULL,
+			execute_rule TEXT NOT NULL,
+			enable BOOLEAN DEFAULT 1,
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`)
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
+
 	g.Log().Info(ctx, "Config tables created successfully")
 }

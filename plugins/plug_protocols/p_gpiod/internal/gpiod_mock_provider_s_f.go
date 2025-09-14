@@ -97,12 +97,12 @@ func (s *sGpiodMockProvider) GetGpioStatus() *bool {
 }
 
 func (s *sGpiodMockProvider) SetHigh() error {
-	s.updateStatus(high)
+	s.updateStatus(true)
 	return nil
 }
 
 func (s *sGpiodMockProvider) SetLow() error {
-	s.updateStatus(low)
+	s.updateStatus(false)
 	return nil
 }
 

@@ -31,5 +31,6 @@ use (
 	./services/s_driver
 	./services/s_storage
 	./tools/t_network_manager
+	./tools/t_time_task
 	./tools/t_window_counter
 )

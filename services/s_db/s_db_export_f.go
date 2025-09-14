@@ -32,3 +32,8 @@ func GetAlarmService() s_db_basic.IAlarmService {
 func GetLogService() s_db_basic.ILogService {
 	return impl.GetLogService()
 }
+
+// GetAutomationService 获取自动化service对象
+func GetAutomationService() s_db_basic.IAutomationService {
+	return impl.GetAutomationService()
+}

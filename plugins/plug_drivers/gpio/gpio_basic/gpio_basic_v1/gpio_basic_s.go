@@ -4,6 +4,7 @@ import (
 	"common/c_base"
 	"common/c_device"
 	"common/c_enum"
+	"common/c_log"
 	"common/c_proto"
 	"common/c_type"
 
@@ -33,6 +34,7 @@ func (s *sBasicGpio) Init() error {
 
 	err := s.GetConfig().ScanParams(s.config)
 	if err != nil {
+		c_log.BizErrorf(s.DeviceCtx, "Init Device Config Error: %s", err.Error())
 		return err
 	}
 

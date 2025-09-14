@@ -68,3 +68,21 @@ type ILogService interface {
 	ClearAllLog(ctx context.Context) error
 	GetLogCount(ctx context.Context) (int, error)
 }
+
+type IAutomationService interface {
+	// 基础 CRUD 方法
+	CreateAutomation(ctx context.Context, startTime, endTime *time.Time, timeRangeType, timeRangeValue, triggerRule, executeRule string) (int, error)
+	GetAutomationById(ctx context.Context, id int) (*s_db_model.SAutomationModel, error)
+	UpdateAutomation(ctx context.Context, id int, data map[string]interface{}) error
+	DeleteAutomation(ctx context.Context, id int) error
+
+	// 查询方法
+	GetAllAutomations(ctx context.Context) ([]*s_db_model.SAutomationModel, error)
+	GetAutomationsByTimeRangeType(ctx context.Context, timeRangeType string) ([]*s_db_model.SAutomationModel, error)
+	GetEnabledAutomations(ctx context.Context) ([]*s_db_model.SAutomationModel, error)
+	GetAutomationPage(ctx context.Context, page, pageSize int, deviceId string, filters map[string]interface{}) ([]*s_db_model.SAutomationModel, int, error)
+
+	// 统计方法
+	ClearAllAutomations(ctx context.Context) error
+	GetAutomationCount(ctx context.Context) (int, error)
+}
