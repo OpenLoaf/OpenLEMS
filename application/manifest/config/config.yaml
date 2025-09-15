@@ -28,14 +28,16 @@ gfcli:
   build:
     name:     "ems"
     path:     "./out"
-    arch:     "arm"
-    system:   "linux,darwin"
+    arch:     "386,amd64,arm,arm64"
+    system:   "linux,darwin,windows"
+    cgo: true
     # output: "./bin/ems"
     mod:      "none"
     packSrc:  "manifest"
     version:  "v1.0.0"
     extra:    "-tags=dev"
     dumpEnv: true
+    exitWhenError: false
 
 database:
   default:
