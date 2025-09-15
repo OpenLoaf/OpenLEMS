@@ -185,6 +185,52 @@ func ReadConfig(filename string) (*Config, error) {
 - `github.com/pkg/errors` - 错误处理
 - `gopkg.in/yaml.v3` - YAML 配置解析
 
+## 构建标签 (Build Tags)
+
+### 开发环境构建
+
+项目使用 Go 的构建标签 (build tags) 来区分开发环境和生产环境：
+
+```bash
+# 开发环境构建 - 必须添加 -tags=dev 参数
+go build -tags=dev -o ems main.go
+
+# 生产环境构建 - 不添加 dev 标签
+go build -o ems main.go
+```
+
+### 构建标签的作用
+
+- **`dev` 标签**: 启用开发环境功能
+  - 直接加载驱动插件而非从配置文件读取
+  - 启用调试日志和开发工具
+  - 包含开发专用的代码路径
+
+- **无标签**: 生产环境构建
+  - 从配置文件加载驱动
+  - 优化性能和安全性
+  - 移除调试代码
+
+### 相关文件
+
+- `services/s_driver/internal/s_driver_device_get_dev.go` - 开发环境驱动加载
+- `application/manifest/config/config.yaml` - 构建配置中的 `extra: "-tags=dev"`
+- `application/build_with_gui.sh` - 构建脚本中的标签使用
+- `build_armv7l.sh` - ARM 交叉编译脚本
+
+### 构建脚本示例
+
+```bash
+# 开发环境构建
+go build -tags=dev -o ems main.go
+
+# 带 GUI 的开发环境构建
+go build -tags="dev,cgo" -o ems main.go
+
+# 生产环境构建
+go build -o ems main.go
+```
+
 ## 开发指南
 
 ### 新增功能开发流程
@@ -219,3 +265,11 @@ func ReadConfig(filename string) (*Config, error) {
 - **避免命名冲突**: 确保类型名在包内唯一
 - **语义化命名**: 所有命名都应具有明确的语义
 - **向后兼容**: 修改现有类型名时要考虑向后兼容性
+
+### 构建标签要求
+
+- **开发环境构建**: 必须使用 `-tags=dev` 参数
+- **生产环境构建**: 不要使用 `dev` 标签
+- **构建脚本**: 确保构建脚本正确设置标签参数
+- **配置文件**: 检查 `config.yaml` 中的 `extra: "-tags=dev"` 设置
+- **交叉编译**: ARM 等交叉编译也要包含正确的构建标签
