@@ -4,6 +4,7 @@ import (
 	"common/c_enum"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -20,7 +21,7 @@ type SConfigStructFields struct {
 	Min                *int64                            `json:"min"`
 	Max                *int64                            `json:"max"`
 	Default            *string                           `json:"default"`
-	SelectOptions      map[string]string                 `json:"selectOptions"`
+	SelectOptions      []string                          `json:"selectOptions"`
 	Regex              *string                           `json:"regex" dc:"正则表达式"`
 	RegexFailedMessage *string                           `json:"regexFailedMessage" dc:"正则表达式失败提醒"`
 	Description        string                            `json:"description" required:"true"`
@@ -48,8 +49,16 @@ func (s *SConfigStructFields) String() string {
 		regexVal = *s.Regex
 	}
 
-	return fmt.Sprintf("SConfigStructFields{Key:%s, Code:%s, ValueType:%s, ComponentType:%s, After:%d, Before:%d, Default:%s, Regex:%s}",
-		s.Name, s.Code, s.ValueType, s.ComponentType, minVal, maxVal, defaultVal, regexVal)
+	// 处理 SelectOptions 字段
+	var selectOptionsStr string
+	if len(s.SelectOptions) > 0 {
+		selectOptionsStr = fmt.Sprintf("[%s]", strings.Join(s.SelectOptions, ", "))
+	} else {
+		selectOptionsStr = "[]"
+	}
+
+	return fmt.Sprintf("SConfigStructFields{Key:%s, Code:%s, ValueType:%s, ComponentType:%s, After:%d, Before:%d, Default:%s, Regex:%s, SelectOptions:%s}",
+		s.Name, s.Code, s.ValueType, s.ComponentType, minVal, maxVal, defaultVal, regexVal, selectOptionsStr)
 }
 
 func (s *SConfigStructFields) Check() error {

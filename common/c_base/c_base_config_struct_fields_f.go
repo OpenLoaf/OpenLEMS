@@ -164,13 +164,13 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 		}
 		// 解析选择项配置标签
 		if selectOptions := field.Tag.Get("selectOptions"); selectOptions != "" {
-			// 解析格式：key1:value1,key2:value2
-			options := make(map[string]string)
+			// 解析格式：key1:value1,key2:value2 -> ["key1:value1", "key2:value2"]
 			pairs := strings.Split(selectOptions, ",")
+			options := make([]string, 0, len(pairs))
 			for _, pair := range pairs {
-				kv := strings.Split(strings.TrimSpace(pair), ":")
-				if len(kv) == 2 {
-					options[strings.TrimSpace(kv[0])] = strings.TrimSpace(kv[1])
+				trimmedPair := strings.TrimSpace(pair)
+				if trimmedPair != "" {
+					options = append(options, trimmedPair)
 				}
 			}
 			fieldConfig.SelectOptions = options
