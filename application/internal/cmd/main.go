@@ -5,6 +5,7 @@ import (
 	"common/c_base"
 	"context"
 	"os"
+	"runtime"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcmd"
@@ -73,6 +74,12 @@ var (
 			enableWeb := parser.GetOpt(ArgEnableWeb).Bool()
 			enableGui := parser.GetOpt(ArgEnableGui).Bool()
 			enableGuiFull := parser.GetOpt(ArgEnableGuiFull).Bool()
+
+			// Windows 环境下默认启动 GUI
+			if runtime.GOOS == "windows" && !enableWeb && !enableGui && !enableGuiFull {
+				g.Log().Infof(ctx, "Windows 环境：默认启动 GUI 界面")
+				enableGui = true
+			}
 
 			if enableWeb || enableGui || enableGuiFull {
 				// 如果启用了Web或GUI，都需要启动Web服务
