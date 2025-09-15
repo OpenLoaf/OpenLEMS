@@ -57,7 +57,9 @@ func (s *sDeviceServiceImpl) UpdateDevice(ctx context.Context, deviceId string, 
 	if value, ok := data["logLevel"].(string); ok {
 		device.LogLevel = value
 	}
-
+	if value, ok := data["manualMode"].(bool); ok {
+		device.ManualMode = value
+	}
 	return device.Update(ctx)
 }
 
