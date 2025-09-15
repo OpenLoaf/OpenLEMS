@@ -64,7 +64,7 @@ func initConfigDatabase() {
 			name VARCHAR(255) NOT NULL,
 			driver VARCHAR(255),
 			log_level VARCHAR(255) DEFAULT 'INFO',
-		    manual_model BOOLEAN DEFAULT FALSE,
+		    manual_mode BOOLEAN DEFAULT FALSE,
 			params TEXT DEFAULT '{}',
 		    storage_enable BOOLEAN DEFAULT 1,
 			storage_interval_sec INTEGER NOT NULL DEFAULT 60,
