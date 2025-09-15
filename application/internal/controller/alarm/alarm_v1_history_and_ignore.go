@@ -25,7 +25,7 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 	if req.DeviceId != "" {
 		filters["device_id"] = req.DeviceId
 	}
-	if req.Level != "" && req.Level != "ALL" {
+	if req.Level != "" && req.Level != "All" {
 		filters["level"] = req.Level
 	}
 	if req.Point != "" {

@@ -11,7 +11,7 @@ import (
 type GetCurrentAlarmsReq struct {
 	g.Meta   `path:"/alarm/current" method:"get" tags:"告警" summary:"获取当前告警分页列表"`
 	DeviceId string `json:"deviceId" dc:"可选，指定设备ID；为空则查询全部"`
-	Level    string `json:"level" v:"in:NONE,WARN,ALARM,ERROR,ALL" dc:"告警级别过滤(可空/为ALL返回全部)"`
+	Level    string `json:"level" v:"in:None,Warn,Alarm,Error,All" dc:"告警级别过滤(可空/为All返回全部)"`
 	Point    string `json:"point" dc:"可选，告警点位过滤"`
 	Page     int    `json:"page" d:"1" dc:"页码，从1开始"`
 	PageSize int    `json:"pageSize" d:"20" dc:"每页条数(最大100)"`
@@ -41,7 +41,7 @@ type GetCurrentAlarmsRes struct {
 type GetHistoryAlarmsReq struct {
 	g.Meta    `path:"/alarm/history" method:"get" tags:"告警" summary:"获取历史告警分页列表"`
 	DeviceId  string `json:"deviceId" dc:"可选，指定设备ID；为空则查询全部"`
-	Level     string `json:"level" v:"in:NONE,WARN,ALARM,ERROR,ALL" dc:"告警级别过滤(可空/为ALL返回全部)"`
+	Level     string `json:"level" v:"in:None,Warn,Alarm,Error,All" dc:"告警级别过滤(可空/为All返回全部)"`
 	Point     string `json:"point" dc:"可选，告警点位名称过滤"`
 	PointName string `json:"pointName" dc:"可选，告警标题模糊搜索"`
 	Date      string `json:"date" dc:"可选，日期过滤，格式：2006-01-02"`

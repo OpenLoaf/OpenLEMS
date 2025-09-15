@@ -37,7 +37,7 @@ func (c *ControllerV1) GetCurrentAlarms(ctx context.Context, req *v1.GetCurrentA
 			return true
 		}
 		for _, alarm := range alarmList {
-			if req.Level != "" && req.Level != "ALL" && !strings.EqualFold(alarm.GetLevel().String(), req.Level) {
+			if req.Level != "" && req.Level != "All" && !strings.EqualFold(alarm.GetLevel().String(), req.Level) {
 				continue
 			}
 			if req.Point != "" && (alarm.IPoint == nil || alarm.IPoint.GetKey() != req.Point) {
