@@ -91,7 +91,7 @@ func startGuiWithOptions(ctx context.Context, fullscreen bool) {
 			w.SetSize(1920, 1080, webview.HintNone)
 		} else {
 			// 窗口模式：设置固定尺寸
-			w.SetSize(1440, 900, webview.HintNone)
+			w.SetSize(1280, 720, webview.HintNone)
 		}
 
 		// 设置默认HTML内容
