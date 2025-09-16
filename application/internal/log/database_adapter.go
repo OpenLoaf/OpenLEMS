@@ -2,6 +2,7 @@ package log
 
 import (
 	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
 	"context"
 	"fmt"
@@ -15,19 +16,28 @@ import (
 
 // DbLoggerAdapter 数据库日志适配器：将日志保存到数据库中
 type DbLoggerAdapter struct {
-	logService s_db_basic.ILogService
-	stdout     bool
-	mu         sync.RWMutex // 保护并发访问
+	logService   s_db_basic.ILogService
+	stdout       bool
+	stdoutLogger c_log.ILogger // 标准输出日志适配器
+	mu           sync.RWMutex  // 保护并发访问
 }
 
 // NewDatabaseAdapter 创建数据库日志适配器
 func NewDatabaseAdapter() c_log.ILogger {
 	stdout, _ := g.Cfg().Get(context.Background(), "logger.biz_ems_stdout", false)
 	fmt.Printf("===>  new logger adapter stdout: %s\n", stdout.String())
-	return &DbLoggerAdapter{
+
+	adapter := &DbLoggerAdapter{
 		logService: s_db.GetLogService(),
 		stdout:     stdout.Bool(),
 	}
+
+	// 如果启用标准输出，创建GoFrame日志适配器
+	if adapter.stdout {
+		adapter.stdoutLogger = NewSystemAdapter(g.Log())
+	}
+
+	return adapter
 }
 
 // getLogInfo 从上下文中提取日志信息
@@ -43,9 +53,9 @@ func (d *DbLoggerAdapter) getLogInfo(ctx context.Context) (logType, deviceId str
 	}
 
 	mappings := []contextMapping{
-		{c_base.ConstCtxKeyDeviceId, "device"},
-		{c_base.ConstCtxKeyProtocolId, "protocol"},
-		{"PolicyId", "policy"},
+		{c_base.ConstCtxKeyDeviceId, c_enum.ELogTypeDevice.String()},
+		{c_base.ConstCtxKeyProtocolId, c_enum.ELogTypeProtocol.String()},
+		{c_base.ConstCtxKeyPolicyId, c_enum.ELogTypePolicy.String()},
 	}
 
 	// 按优先级检查上下文键
@@ -57,7 +67,7 @@ func (d *DbLoggerAdapter) getLogInfo(ctx context.Context) (logType, deviceId str
 		}
 	}
 
-	return "ems", ""
+	return c_enum.ELogTypeEms.String(), ""
 }
 
 // saveToDb 保存日志到数据库
@@ -68,6 +78,11 @@ func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level, content string) {
 	}
 
 	logType, deviceId := d.getLogInfo(ctx)
+
+	// 如果启用标准输出，先输出到标准输出
+	if d.stdout && d.stdoutLogger != nil {
+		d.outputToStdout(ctx, level, content)
+	}
 
 	// 异步保存到数据库，避免阻塞主流程
 	go func() {
@@ -80,6 +95,31 @@ func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level, content string) {
 				logType, deviceId, level, err)
 		}
 	}()
+}
+
+// outputToStdout 输出日志到标准输出
+func (d *DbLoggerAdapter) outputToStdout(ctx context.Context, level, content string) {
+	if d.stdoutLogger == nil {
+		return
+	}
+
+	// 使用互斥锁保护并发访问
+	d.mu.RLock()
+	defer d.mu.RUnlock()
+	content = "BIZ ====> " + content
+	// 根据日志级别调用对应的输出方法
+	switch level {
+	case "DEBUG":
+		d.stdoutLogger.Debug(ctx, content)
+	case "INFO":
+		d.stdoutLogger.Info(ctx, content)
+	case "WARN":
+		d.stdoutLogger.Warning(ctx, content)
+	case "ERROR":
+		d.stdoutLogger.Error(ctx, content)
+	default:
+		d.stdoutLogger.Info(ctx, content)
+	}
 }
 
 // Debug 调试级别日志

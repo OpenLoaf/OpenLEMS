@@ -8,9 +8,13 @@ server:
   dumpRouterMap: true
   accessLogEnabled: true
 
+
+#debug:
+
+
 logger:
   level:   "info"
-  biz_ems_stdout: false
+  biz_ems_stdout: true
 
 # 静态文件配置
 static:

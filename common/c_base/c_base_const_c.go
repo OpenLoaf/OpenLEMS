@@ -1,13 +1,15 @@
 package c_base
 
 import (
-	"github.com/pkg/errors"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const (
 	ConstCtxKeyGroupName    = "GroupName"
 	ConstCtxKeyProtocolId   = "ProtocolId"
+	ConstCtxKeyPolicyId     = "PolicyId"
 	ConstCtxKeyDeviceId     = "DeviceId"
 	ConstCtxKeyDeviceName   = "DeviceName"
 	ConstCtxKeyDeviceDetail = "DeviceDetail"

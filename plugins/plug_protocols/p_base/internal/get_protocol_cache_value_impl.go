@@ -63,7 +63,7 @@ func (s *SGetProtocolCacheValueImpl) CacheValue(value *c_base.SPointValue, lifet
 	if value == nil {
 		return errors.Errorf("[%v] 缓存值不能为空！", s.deviceId)
 	}
-	c_log.Debugf(context.Background(), "缓存设备: %s 值 %s[%s]：%v 过期时间: %v", s.deviceId, value.GetName(), value.GetKey(), value.GetValue(), lifetime)
+	c_log.Debugf(s.ctx, "缓存设备: %s 值 %s[%s]：%v 过期时间: %v", s.deviceId, value.GetName(), value.GetKey(), value.GetValue(), lifetime)
 	key := s.getCacheKeyWithGroup(value)
 	err := pointCache.Set(s.ctx, key, value, lifetime)
 	if err != nil {
