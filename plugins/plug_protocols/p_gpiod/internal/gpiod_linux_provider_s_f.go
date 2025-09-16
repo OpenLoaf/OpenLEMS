@@ -155,7 +155,7 @@ func (s *sGpiodLinuxProvider) GetPointValueList() []*c_base.SPointValue {
 	}
 
 	// 返回当前GPIO状态
-	status := s.getGpioStatusUnsafe()
+	status := s.GetStatusUnsafe()
 	if status == nil {
 		return []*c_base.SPointValue{}
 	}
@@ -173,7 +173,7 @@ func (s *sGpiodLinuxProvider) GetValue(point c_base.IPoint) (any, error) {
 		return nil, fmt.Errorf("GPIO protocol not connected")
 	}
 
-	status := s.GetGpioStatus()
+	status := s.GetStatus()
 	if status == nil {
 		return nil, fmt.Errorf("GPIO status unavailable")
 	}
@@ -236,11 +236,11 @@ func (s *sGpiodLinuxProvider) RegisterHandler(handler func(status bool, isChange
 func (s *sGpiodLinuxProvider) GetStatus() *bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return s.getGpioStatusUnsafe()
+	return s.GetStatusUnsafe()
 }
 
-// getGpioStatusUnsafe 获取GPIO状态（不加锁，调用者需确保已加锁）
-func (s *sGpiodLinuxProvider) getGpioStatusUnsafe() *bool {
+// GetStatusUnsafe 获取GPIO状态（不加锁，调用者需确保已加锁）
+func (s *sGpiodLinuxProvider) GetStatusUnsafe() *bool {
 	// 如果协议未连接，返回nil
 	if s.protocolStatus != c_enum.EProtocolConnected {
 		return nil

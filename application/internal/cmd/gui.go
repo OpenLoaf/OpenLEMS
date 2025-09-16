@@ -1,4 +1,4 @@
-//go:build !linux || (linux && amd64)
+//go:build !linux
 
 package cmd
 
@@ -36,13 +36,6 @@ void setFullscreen(void* window) {
 }
 #endif
 
-#ifdef __linux__
-#include <gtk/gtk.h>
-void setFullscreen(void* window) {
-    GtkWindow* gtkWindow = (GtkWindow*)window;
-    gtk_window_fullscreen(gtkWindow);
-}
-#endif
 */
 import "C"
 
