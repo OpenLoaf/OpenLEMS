@@ -6,6 +6,7 @@ import (
 	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
+	"common/c_util"
 	"context"
 	"time"
 
@@ -76,18 +77,10 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 	if protocolConfig.GetProtocol() == c_enum.EModbusTcp {
 		// 重连机制
 		go func() {
-			// 重连间隔配置：第一次3秒、第二次10秒、第三次30秒、第四次60秒、之后每5分钟
-			reconnectIntervals := []time.Duration{
-				3 * time.Second,  // 第1次
-				10 * time.Second, // 第2次
-				30 * time.Second, // 第3次
-				60 * time.Second, // 第4次
-				5 * time.Minute,  // 第5次及之后
-				10 * time.Minute, // 第6次及之后
-			}
-
 			reconnectCount := 0
-			var currentInterval time.Duration
+			var startTime time.Time
+			var lastInterval time.Duration
+			var isOffline bool
 
 			for {
 				select {
@@ -100,10 +93,13 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 					// 检查连接状态
 					if client.IsConnected() {
 
-						// 连接正常，重置重连计数
-						if reconnectCount > 0 {
+						// 连接正常，重置重连计数和开始时间
+						if isOffline {
 							c_log.BizInfof(ctx, "连接恢复正常，清除告警。")
 							reconnectCount = 0
+							startTime = time.Time{} // 重置开始时间
+							lastInterval = 0        // 重置间隔记录
+							isOffline = false
 							TriggerOfflineAlarm(protocolConfig.Id, false)
 						}
 						// 等待一段时间再检查
@@ -111,18 +107,42 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 						continue
 					}
 
+					// 首次检测到掉线，记录开始时间
+					if !isOffline {
+						startTime = time.Now()
+						isOffline = true
+					}
+
 					// todo 此处需要获取所有使用到该协议的设备，都触发连接断开警告
 					TriggerOfflineAlarm(protocolConfig.Id, true)
 
 					// 计算当前重连间隔
-					if reconnectCount < len(reconnectIntervals) {
-						currentInterval = reconnectIntervals[reconnectCount]
+					elapsed := time.Since(startTime)
+					var currentInterval time.Duration
+
+					if elapsed < 5*time.Minute {
+						// 前5分钟：3秒一次
+						currentInterval = 3 * time.Second
+					} else if elapsed < 30*time.Minute {
+						// 5-30分钟：10秒一次
+						currentInterval = 10 * time.Second
 					} else {
-						currentInterval = reconnectIntervals[len(reconnectIntervals)-1] // 使用最后一个间隔（5分钟）
+						// 超过30分钟：1分钟一次
+						currentInterval = 1 * time.Minute
 					}
 
 					reconnectCount++
-					c_log.BizInfof(ctx, "设备掉线，准备第%d次重连，等待间隔：%v", reconnectCount, currentInterval)
+
+					// 只在重连间隔切换时记录日志
+					if currentInterval != lastInterval {
+						if elapsed < time.Second {
+							// 首次掉线且时间小于1秒，不显示掉线时长
+							c_log.BizInfof(ctx, "设备掉线，重连策略切换为：%v 重连一次", currentInterval)
+						} else {
+							c_log.BizInfof(ctx, "设备掉线，重连策略切换为：%v 重连一次，已掉线时长：%s", currentInterval, c_util.FormatDuration(elapsed))
+						}
+						lastInterval = currentInterval
+					}
 
 					// 等待重连间隔
 					select {
@@ -135,13 +155,17 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 						// 执行重连
 						err := client.Connect()
 						if err != nil {
-							c_log.BizWarningf(ctx, "第%d次重连失败，等待下次重连，错误：%v", reconnectCount, err)
+							c_log.Debugf(ctx, "第%d次重连失败，等待下次重连，错误：%v", reconnectCount, err)
 						} else {
 							// 等待2秒，再判断是否成功
 							time.Sleep(2 * time.Second)
 							if client.IsConnected() {
-								c_log.BizInfof(ctx, "modbus协议第%d次重连成功！", reconnectCount)
-								reconnectCount = 0 // 重连成功，重置计数
+								offlineDuration := time.Since(startTime)
+								c_log.BizInfof(ctx, "modbus协议第%d次重连成功，离线时长为：%s", reconnectCount, c_util.FormatDuration(offlineDuration))
+								reconnectCount = 0      // 重连成功，重置计数
+								startTime = time.Time{} // 重置开始时间
+								lastInterval = 0        // 重置间隔记录
+								isOffline = false       // 重置离线状态
 								TriggerOfflineAlarm(protocolConfig.Id, false)
 							} else {
 								c_log.BizWarningf(ctx, "第%d次重连连接建立但状态检查失败", reconnectCount)
