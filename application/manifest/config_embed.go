@@ -2,9 +2,9 @@ package manifest
 
 import (
 	"bytes"
+	"context"
 	"embed"
 	"fmt"
-	"os"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcfg"
@@ -57,11 +57,11 @@ func LoadEmbeddedConfig(profile string) {
 // 提前注入一个默认的内置配置，保证最早期（例如 g.Log() 初始化）也不依赖磁盘文件。
 // 默认使用 APP_PROFILE，未设置时使用 prod。
 func init() {
-	profile := os.Getenv("APP_PROFILE")
-	if profile == "" || profile == "default" {
-		profile = "prod"
-	}
-	LoadEmbeddedConfig(profile)
+
+	profile, _ := g.Cfg().GetWithCmd(context.Background(), "profile", "prod")
+
+	fmt.Printf("===>  load config file: %s\n", profile.String())
+	LoadEmbeddedConfig(profile.String())
 }
 
 // deepMerge 递归将 b 合并到 a，b 的值优先生效

@@ -1,6 +1,6 @@
 database:
   default:
-    debug: true
+    debug: false
 
 server:
   address: ":15880"
@@ -9,11 +9,8 @@ server:
   accessLogEnabled: true
 
 logger:
-  biz_ems:
-    path: "out/logs/biz"
-    file: "{Ymd}.log"
-    level: "all"
-    stdout: true
+  level:   "info"
+  biz_ems_stdout: false
 
 # 静态文件配置
 static:

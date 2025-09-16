@@ -3,7 +3,7 @@ package cmd
 import (
 	applog "application/internal/log"
 	"application/internal/utils"
-	"application/manifest"
+	_ "application/manifest"
 	"common"
 	"common/c_base"
 	"common/c_enum"
@@ -26,20 +26,13 @@ import (
 
 // InitSystem 初始化系统
 func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
-	// 注入系统日志（GoFrame）
+
+	// 注入系统日志（GoFrame）- 在配置加载后创建，确保使用正确的日志级别
 	c_log.SetSystemLogger(applog.NewSystemAdapter(g.Log()))
 	// 注入业务日志（输出到数据库）
 	c_log.SetBusinessLogger(applog.NewDatabaseAdapter())
 	// 启用异步日志输出提高性能
 	g.Log().SetAsync(true)
-
-	// 优先加载嵌入式配置，支持 --profile 或 APP_PROFILE 环境变量
-	profile := parser.GetOpt("profile", os.Getenv("APP_PROFILE")).String()
-	if profile == "" || profile == "default" {
-		profile = "prod"
-	}
-	g.Log().Infof(ctx, "Active Profile: %s", profile)
-	manifest.LoadEmbeddedConfig(profile)
 
 	// 设置默认语言为中文(简体)
 	gi18n.SetLanguage("zh-CN")

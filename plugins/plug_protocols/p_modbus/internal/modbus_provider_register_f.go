@@ -90,12 +90,12 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusPointTask
 	)
 	ctx := context.WithValue(p.ctx, c_base.ConstCtxKeyDeviceDetail, group.Name)
 
-	if _, ok := p.preQuery[name]; ok {
+	if p.preQuery.Contains(name) {
 		// 如果存在就不再创建
 		c_log.BizInfof(ctx, "[%s] 查询任务已存在！不再创建！", name)
 		return
 	}
-	p.preQuery[name] = isPermanent
+	p.preQuery.Set(name, isPermanent)
 	// 如果没有设置，默认为1秒一次循环
 
 	var cycle time.Duration
@@ -113,7 +113,7 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusPointTask
 			for {
 				select {
 				case <-ctx.Done():
-					delete(p.preQuery, name)
+					p.preQuery.Remove(name)
 					c_log.Debugf(ctx, "关闭永久触发查询指令的Goroutine")
 					return
 				case <-tk.C:
@@ -136,11 +136,11 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusPointTask
 			for {
 				select {
 				case <-ctx.Done():
-					delete(p.preQuery, name)
+					p.preQuery.Remove(name)
 					c_log.Debugf(ctx, "ctx取消,关闭超时的Goroutine")
 					return
 				case <-lifetime:
-					delete(p.preQuery, name)
+					p.preQuery.Remove(name)
 					c_log.Debugf(ctx, "预读自动过期,关闭Goroutine")
 					return
 				case <-tk.C:

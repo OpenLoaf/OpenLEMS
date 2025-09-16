@@ -1,6 +1,3 @@
-//go:build dev || windows
-// +build dev windows
-
 package internal
 
 import (
@@ -26,7 +23,7 @@ import (
 )
 
 func init() {
-	g.Log().Warningf(context.Background(), "当前环境为开发环境，直接加载驱动插件！而非从driver文件中获取！")
+	g.Log().Warningf(context.Background(), "直接加载驱动插件！而非从driver文件中获取！")
 }
 
 var pluginNewMethodCache = map[string]any{

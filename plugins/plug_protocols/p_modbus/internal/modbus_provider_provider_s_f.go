@@ -11,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/pkg/errors"
 	"github.com/torykit/go-modbus"
@@ -25,7 +26,7 @@ type ModbusProtocolProvider struct {
 
 	deviceId       string
 	client         modbus.Client   // modbus的通讯
-	preQuery       map[string]bool // 预读
+	preQuery       *gmap.StrAnyMap // 预读（线程安全）
 	modbusRwMutex  sync.RWMutex    // 读写锁
 	lastUpdateTime *time.Time      // 最后更新时间
 	protocolConfig *c_base.SProtocolConfig
@@ -63,7 +64,7 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 		ctx:                 ctx,
 		protocolConfig:      protocolConfig,
 		modbusDeviceConfig:  modbusDeviceConfig,
-		preQuery:            make(map[string]bool),
+		preQuery:            gmap.NewStrAnyMap(true), // 线程安全
 		metricProtocol:      newMetricProtocol(ctx, protocolConfig, deviceConfig),
 	}
 	if client != nil {

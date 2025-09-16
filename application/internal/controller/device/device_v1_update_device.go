@@ -15,21 +15,25 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 	// 构建更新数据 - 只更新有值的字段
 	data := make(map[string]interface{})
 
+	needRestart := false
 	// 字符串字段：只有非空字符串才更新
 	if req.Name != "" {
 		data["name"] = req.Name
 	}
 	if req.ProtocolId != "" {
 		data["protocolId"] = req.ProtocolId
+		needRestart = true
 	}
 	if req.Driver != "" {
 		data["driver"] = req.Driver
+		needRestart = true
 	}
 	if req.LogLevel != "" {
 		data["logLevel"] = req.LogLevel
 	}
 	if req.Params != "" {
 		data["params"] = req.Params
+		needRestart = true
 	}
 
 	// 指针字段：只有非nil才更新
@@ -38,6 +42,7 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 	}
 	if req.Enabled != nil {
 		data["enabled"] = *req.Enabled
+		needRestart = true
 	}
 	if req.Sort != nil {
 		data["sort"] = *req.Sort
@@ -50,11 +55,11 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
 
-	// ToDo: 判断修改字段是否需要重启设备管理器
-
-	// 重启设备管理器以应用更改
-	common.GetDeviceManager().Shutdown()
-	common.GetDeviceManager().Start()
+	if needRestart {
+		// 重启设备管理器以应用更改
+		common.GetDeviceManager().Shutdown()
+		common.GetDeviceManager().Start()
+	}
 
 	return &v1.UpdateDeviceRes{
 		DeviceId: req.DeviceId,

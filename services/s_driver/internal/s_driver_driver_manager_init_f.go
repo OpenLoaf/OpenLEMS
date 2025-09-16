@@ -16,7 +16,7 @@ import (
 )
 
 func (m *SDeviceManager) IsProtocolActive(protocolId string) bool {
-	return m.protocolClientCache[protocolId] != nil
+	return m.protocolClientCache.Contains(protocolId)
 }
 
 func (m *SDeviceManager) Shutdown() {
@@ -47,8 +47,10 @@ func (m *SDeviceManager) GetChildDeviceInstance(pid string) []c_base.IDevice {
 	flatList := m.GetFlatList()
 	for _, deviceConfig := range flatList {
 		if deviceConfig != nil && deviceConfig.Pid == pid {
-			if instance, exist := m.deviceInstanceMap[deviceConfig.Id]; exist {
-				deviceInstances = append(deviceInstances, instance)
+			if instance := m.deviceInstanceMap.Get(deviceConfig.Id); instance != nil {
+				if dev, ok := instance.(c_base.IDevice); ok {
+					deviceInstances = append(deviceInstances, dev)
+				}
 			}
 		}
 	}
@@ -71,7 +73,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 	case c_enum.EModbusRtu, c_enum.EModbusTcp:
 		// 从缓存中获取client，如果没有就新建后放入缓存
 		var client modbus.Client
-		if _client, exist := m.protocolClientCache[protocolConfig.Id]; exist {
+		if _client := m.protocolClientCache.Get(protocolConfig.Id); _client != nil {
 			client = _client.(modbus.Client)
 		} else {
 			// 创建client
@@ -80,7 +82,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 				return nil, err
 			}
 			client = c
-			m.protocolClientCache[protocolConfig.Id] = client
+			m.protocolClientCache.Set(protocolConfig.Id, client)
 		}
 		modbusProvider, err := p_modbus.NewModbusProvider(deviceCtx, protocolConfig, deviceConfig, client)
 		if err != nil {
@@ -98,10 +100,10 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 			receiverChan    <-chan can.Frame
 			transmitterChan chan<- can.Frame
 		)
-		if _receiverChan, exist := m.protocolClientCache[protocolConfig.Id+"_receiverChan"]; exist {
+		if _receiverChan := m.protocolClientCache.Get(protocolConfig.Id + "_receiverChan"); _receiverChan != nil {
 			receiverChan = _receiverChan.(chan can.Frame)
 		}
-		if _transmitterChan, exist := m.protocolClientCache[protocolConfig.Id+"_transmitterChan"]; exist {
+		if _transmitterChan := m.protocolClientCache.Get(protocolConfig.Id + "_transmitterChan"); _transmitterChan != nil {
 			transmitterChan = _transmitterChan.(chan<- can.Frame)
 		}
 
@@ -112,8 +114,8 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 			}
 			receiverChan = r
 			transmitterChan = t
-			m.protocolClientCache[protocolConfig.Id+"_receiverChan"] = receiverChan
-			m.protocolClientCache[protocolConfig.Id+"_transmitterChan"] = transmitterChan
+			m.protocolClientCache.Set(protocolConfig.Id+"_receiverChan", receiverChan)
+			m.protocolClientCache.Set(protocolConfig.Id+"_transmitterChan", transmitterChan)
 		}
 
 		canbusProvider, err := p_canbus.NewCanbusProvider(deviceCtx, protocolConfig, deviceConfig, receiverChan, transmitterChan)
@@ -127,19 +129,19 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		//if runtime.GOOS != "linux" {
 		//	return nil, errors.Errorf("gpiod协议仅在Linux系统上支持，当前系统: %s", runtime.GOOS)
 		//}
-		if _, exist := m.protocolClientCache[protocolConfig.Id]; exist {
+		if m.protocolClientCache.Contains(protocolConfig.Id) {
 			return nil, errors.Errorf("[%s]已被其他设备占用！", protocolConfig.Id)
 		}
 
 		gpioProtocol, err := p_gpiod.NewGpiodProvider(deviceCtx, protocolConfig, deviceConfig)
-		m.protocolClientCache[protocolConfig.Id] = gpioProtocol
+		m.protocolClientCache.Set(protocolConfig.Id, gpioProtocol)
 
 		if err != nil {
 			return nil, err
 		}
 		return gpioProtocol, nil
 	case c_enum.EGpioSfs:
-
+		// 未来完善
 	}
 
 	return nil, errors.Errorf("未知的协议类型：%s", protocolConfig.GetProtocol())

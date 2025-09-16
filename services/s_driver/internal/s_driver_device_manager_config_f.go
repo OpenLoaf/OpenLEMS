@@ -4,6 +4,8 @@ import (
 	"common/c_base"
 	"fmt"
 	"strings"
+
+	"github.com/gogf/gf/v2/container/glist"
 )
 
 // BuildTree 从平面列表构建树形结构
@@ -40,7 +42,15 @@ func (m *SDeviceManager) BuildTree(devices []*c_base.SDeviceConfig) []*c_base.SD
 
 // FindDevice 查找设备
 func (m *SDeviceManager) FindDevice(deviceId string) *c_base.SDeviceConfig {
-	return m.findDeviceRecursive(m.deviceConfigTree, deviceId)
+	// 将线程安全的列表转换为切片
+	var devices []*c_base.SDeviceConfig
+	m.deviceConfigTree.Iterator(func(e *glist.Element) bool {
+		if config, ok := e.Value.(*c_base.SDeviceConfig); ok {
+			devices = append(devices, config)
+		}
+		return true
+	})
+	return m.findDeviceRecursive(devices, deviceId)
 }
 
 // findDeviceRecursive 递归查找设备
@@ -60,7 +70,15 @@ func (m *SDeviceManager) findDeviceRecursive(devices []*c_base.SDeviceConfig, de
 // GetFlatList 获取平面列表
 func (m *SDeviceManager) GetFlatList() []*c_base.SDeviceConfig {
 	var flatList []*c_base.SDeviceConfig
-	m.flattenDevices(m.deviceConfigTree, &flatList)
+	// 将线程安全的列表转换为切片
+	var devices []*c_base.SDeviceConfig
+	m.deviceConfigTree.Iterator(func(e *glist.Element) bool {
+		if config, ok := e.Value.(*c_base.SDeviceConfig); ok {
+			devices = append(devices, config)
+		}
+		return true
+	})
+	m.flattenDevices(devices, &flatList)
 	return flatList
 }
 
@@ -75,7 +93,15 @@ func (m *SDeviceManager) flattenDevices(devices []*c_base.SDeviceConfig, result 
 
 // PrintTree 打印树形结构（用于调试）
 func (m *SDeviceManager) PrintTree() {
-	m.printTreeRecursive(m.deviceConfigTree, 0)
+	// 将线程安全的列表转换为切片
+	var devices []*c_base.SDeviceConfig
+	m.deviceConfigTree.Iterator(func(e *glist.Element) bool {
+		if config, ok := e.Value.(*c_base.SDeviceConfig); ok {
+			devices = append(devices, config)
+		}
+		return true
+	})
+	m.printTreeRecursive(devices, 0)
 }
 
 // printTreeRecursive 递归打印树形结构
@@ -91,7 +117,15 @@ func (m *SDeviceManager) printTreeRecursive(devices []*c_base.SDeviceConfig, lev
 
 // ExecuteFromBottom 从最底部的节点开始执行任务
 func (m *SDeviceManager) ExecuteFromBottom(executor func(deviceConfig *c_base.SDeviceConfig)) {
-	m.executeFromBottomRecursive(m.deviceConfigTree, executor)
+	// 将线程安全的列表转换为切片
+	var devices []*c_base.SDeviceConfig
+	m.deviceConfigTree.Iterator(func(e *glist.Element) bool {
+		if config, ok := e.Value.(*c_base.SDeviceConfig); ok {
+			devices = append(devices, config)
+		}
+		return true
+	})
+	m.executeFromBottomRecursive(devices, executor)
 }
 
 // executeFromBottomRecursive 递归从底部执行任务

@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"common/c_log"
 	"context"
 	"encoding/json"
 	"s_db"
@@ -405,7 +406,8 @@ func (m *SAutomationManager) executeAutomationRules(task *SAutomationTask) {
 	if executeRule == "" {
 		return
 	}
-
-	g.Log().Infof(m.ctx, "执行自动化任务，ID: %d, 执行规则: %s",
+	g.Log().Debugf(m.ctx, "gLog执行自动化任务，ID: %d, 执行规则: %s",
+		task.GetId(), executeRule)
+	c_log.Debugf(m.ctx, "执行自动化任务，ID: %d, 执行规则: %s",
 		task.GetId(), executeRule)
 }

@@ -6,6 +6,8 @@ import (
 	"context"
 	"os"
 	"runtime"
+	"syscall"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcmd"
@@ -23,6 +25,7 @@ const (
 	ArgSqliteDbPath       = "db-path"               // sqlite数据库路径
 	ArgActiveDeviceRootId = "active-device-root-id" // 强制激活根设备
 	ArgProfile            = "profile"               // 配置profile: default/dev/prod等
+	ArgTest               = "test"                  // 测试模式：启动3秒后自动关闭
 	DefaultPidFile        = "out/ems.pid"           // 默认PID文件路径
 )
 
@@ -39,10 +42,11 @@ var (
 			{Name: ArgDeviceConfigName, Short: "d", Brief: "Default: device 设备配置文件 ", IsArg: false, Orphan: false},
 			{Name: ArgDriverConfigName, Short: "dp", Brief: "Default: ./driver 驱动存放路径 ", IsArg: false, Orphan: false},
 			{Name: ArgPebbleDbPath, Short: "rp", Brief: "Default: ./out/runtime 设置实时数据库路径 ", IsArg: false, Orphan: false},
-			{Name: ArgSqliteDbPath, Short: "cp", Brief: "Default: ./out/db.sqlite3 设置配置数据库路径 ", IsArg: false, Orphan: false},
+			{Name: ArgSqliteDbPath, Short: "cp", Brief: "Default: ./out/data 设置配置数据库路径 ", IsArg: false, Orphan: false},
 			{Name: ArgLanguage, Short: "l", Brief: "Default: zh-CN 设置语言 ", IsArg: false, Orphan: false},
 			{Name: ArgActiveDeviceRootId, Brief: "强制激活根设备ID ", IsArg: false, Orphan: false},
-			{Name: ArgProfile, Short: "p", Brief: "Default: default 选择配置profile (default/dev/prod等)", IsArg: false, Orphan: false},
+			{Name: ArgProfile, Brief: "Default: prod 选择配置profile (dev/prod等)", IsArg: false, Orphan: false},
+			{Name: ArgTest, Short: "t", Brief: "Default: false 测试模式：启动3秒后自动关闭", IsArg: false, Orphan: false},
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			// 初始化context
@@ -69,6 +73,18 @@ var (
 
 			// 设置关闭信号处理
 			SetupShutdownHandler(ctx, cancelFunc)
+
+			// 检查是否为测试模式
+			enableTest := parser.GetOpt(ArgTest).Bool()
+			if enableTest {
+				g.Log().Infof(ctx, "===> 测试模式已启用，程序将在3秒后自动关闭")
+				go func() {
+					time.Sleep(3 * time.Second)
+					g.Log().Infof(ctx, "===> 测试模式：发送shutdown信号")
+					// 发送SIGTERM信号来触发优雅关闭
+					_ = syscall.Kill(os.Getpid(), syscall.SIGTERM)
+				}()
+			}
 
 			// 启动Web服务或等待信号
 			enableWeb := parser.GetOpt(ArgEnableWeb).Bool()

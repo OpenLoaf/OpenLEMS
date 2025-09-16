@@ -13,14 +13,6 @@ var (
 	businessLogger ILogger = &defaultLogger{}
 )
 
-// SetLogger 便捷方法：系统/业务同时设置
-func SetLogger(logger ILogger) {
-	if logger != nil {
-		systemLogger = logger
-		businessLogger = logger
-	}
-}
-
 // SetSystemLogger 设置系统日志实例
 func SetSystemLogger(logger ILogger) {
 	if logger != nil {
@@ -34,9 +26,6 @@ func SetBusinessLogger(logger ILogger) {
 		businessLogger = logger
 	}
 }
-
-// Log 为兼容保留，等价于系统日志实例
-func Log() ILogger { return systemLogger }
 
 // ---- 顶层方法（系统日志）----
 func Debug(ctx context.Context, v ...interface{}) { systemLogger.Debug(ctx, v...) }

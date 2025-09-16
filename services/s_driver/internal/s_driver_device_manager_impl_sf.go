@@ -13,6 +13,8 @@ import (
 	"sort"
 	"sync"
 
+	"github.com/gogf/gf/v2/container/glist"
+	"github.com/gogf/gf/v2/container/gmap"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -23,10 +25,10 @@ type SDeviceManager struct {
 	cancelFunc context.CancelFunc
 	state      c_enum.EServerState // 状态
 
-	protocolClientCache map[string]any // 协议客户端缓存
+	protocolClientCache *gmap.StrAnyMap // 协议客户端缓存（线程安全）
 
-	deviceConfigTree  []*c_base.SDeviceConfig   // 设备配置树形节点
-	deviceInstanceMap map[string]c_base.IDevice // 设备实例
+	deviceConfigTree  *glist.List     // 设备配置树形节点（线程安全）
+	deviceInstanceMap *gmap.StrAnyMap // 设备实例（线程安全）
 }
 
 var (
@@ -41,7 +43,10 @@ var (
 func NewSingleDriverManager(parentCtx context.Context) *SDeviceManager {
 	driverManagerInitOnce.Do(func() {
 		driverManagerInstance = &SDeviceManager{
-			parentCtx: parentCtx,
+			parentCtx:           parentCtx,
+			protocolClientCache: gmap.NewStrAnyMap(true), // 线程安全
+			deviceConfigTree:    glist.New(true),         // 线程安全
+			deviceInstanceMap:   gmap.NewStrAnyMap(true), // 线程安全
 		}
 	})
 	return driverManagerInstance
@@ -56,12 +61,22 @@ func (m *SDeviceManager) GetDeviceNameById(deviceId string) string {
 }
 
 func (m *SDeviceManager) GetDeviceConfigTree() []*c_base.SDeviceConfig {
-	return m.deviceConfigTree
+	// 将线程安全的列表转换为切片
+	var result []*c_base.SDeviceConfig
+	m.deviceConfigTree.Iterator(func(e *glist.Element) bool {
+		if config, ok := e.Value.(*c_base.SDeviceConfig); ok {
+			result = append(result, config)
+		}
+		return true
+	})
+	return result
 }
 
 func (m *SDeviceManager) GetDeviceById(deviceId string) c_base.IDevice {
-	if dw, exist := m.deviceInstanceMap[deviceId]; exist {
-		return dw
+	if device := m.deviceInstanceMap.Get(deviceId); device != nil {
+		if dev, ok := device.(c_base.IDevice); ok {
+			return dev
+		}
 	}
 	return nil
 }
@@ -90,7 +105,13 @@ func (m *SDeviceManager) GetAllDriversInfo() []*c_base.SDriverInfo {
 func (m *SDeviceManager) IteratorAllDevices(deviceWrapper func(config *c_base.SDeviceConfig, device c_base.IDevice) bool) {
 	flatList := m.GetFlatList()
 	for _, config := range flatList {
-		if !deviceWrapper(config, m.deviceInstanceMap[config.Id]) {
+		var device c_base.IDevice
+		if dev := m.deviceInstanceMap.Get(config.Id); dev != nil {
+			if d, ok := dev.(c_base.IDevice); ok {
+				device = d
+			}
+		}
+		if !deviceWrapper(config, device) {
 			break
 		}
 	}
@@ -112,7 +133,13 @@ func (m *SDeviceManager) IteratorChildDevicesById(deviceId string, iterator func
 		if node == nil {
 			return true
 		}
-		if cont := iterator(node, m.deviceInstanceMap[node.Id]); !cont {
+		var device c_base.IDevice
+		if dev := m.deviceInstanceMap.Get(node.Id); dev != nil {
+			if d, ok := dev.(c_base.IDevice); ok {
+				device = d
+			}
+		}
+		if cont := iterator(node, device); !cont {
 			return false
 		}
 		for _, child := range node.ChildDeviceConfig {
@@ -140,7 +167,13 @@ func (m *SDeviceManager) IteratorParentDevicesById(deviceId string, iterator fun
 			break
 		}
 		visited[current.Id] = true
-		if cont := iterator(current, m.deviceInstanceMap[current.Id]); !cont {
+		var device c_base.IDevice
+		if dev := m.deviceInstanceMap.Get(current.Id); dev != nil {
+			if d, ok := dev.(c_base.IDevice); ok {
+				device = d
+			}
+		}
+		if cont := iterator(current, device); !cont {
 			break
 		}
 		if current.Pid == "" || current.Pid == current.Id {
@@ -158,8 +191,10 @@ func (m *SDeviceManager) Start() {
 
 	m.ctx, m.cancelFunc = context.WithCancel(m.parentCtx)
 	m.state = c_enum.EStateInit
-	m.protocolClientCache = make(map[string]any)
-	m.deviceInstanceMap = make(map[string]c_base.IDevice)
+	// 清空线程安全的容器
+	m.protocolClientCache.Clear()
+	m.deviceInstanceMap.Clear()
+	m.deviceConfigTree.Clear()
 
 	rootDeviceID := s_db.GetSettingService().GetRootDeviceId(m.ctx)
 	deviceConfigs, err := s_db.GetDeviceService().GetEnableDeviceConfigsWithRecursion(m.ctx, rootDeviceID)
@@ -192,7 +227,11 @@ func (m *SDeviceManager) Start() {
 	}
 
 	// 构建树形结构
-	m.deviceConfigTree = m.BuildTree(deviceConfigs)
+	treeConfigs := m.BuildTree(deviceConfigs)
+	// 将树形结构添加到线程安全的列表中
+	for _, config := range treeConfigs {
+		m.deviceConfigTree.PushBack(config)
+	}
 
 	// 从底部开始初始化设备
 	m.ExecuteFromBottom(func(deviceConfig *c_base.SDeviceConfig) {
@@ -232,7 +271,7 @@ func (m *SDeviceManager) Start() {
 func (m *SDeviceManager) BuildVirtualDevice(deviceCtx context.Context, deviceConfig *c_base.SDeviceConfig) {
 	// 先判断子设备是否都注册成功，如果成功了就创建。否则不创建虚拟设备
 	for _, child := range deviceConfig.ChildDeviceConfig {
-		if _, exist := m.deviceInstanceMap[child.Id]; !exist {
+		if !m.deviceInstanceMap.Contains(child.Id) {
 			c_log.BizErrorf(deviceCtx, "设备启动失败！原因：子设备[%s(%s) ]启动失败!", child.Name, child.Id)
 			return
 		}
@@ -255,7 +294,7 @@ func (m *SDeviceManager) BuildVirtualDevice(deviceCtx context.Context, deviceCon
 		c_log.BizErrorf(deviceCtx, "虚拟设备[%s]初始化失败！原因：%s", deviceConfig.Name, err.Error())
 		return
 	}
-	m.deviceInstanceMap[deviceConfig.Id] = driver
+	m.deviceInstanceMap.Set(deviceConfig.Id, driver)
 	c_log.BizInfof(deviceCtx, "虚拟设备[%s]初始化成功！", deviceConfig.Name)
 }
 
@@ -302,7 +341,7 @@ func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig
 	}
 	protocolProvider.ProtocolListen() // 启动监听
 
-	m.deviceInstanceMap[deviceConfig.Id] = driver
+	m.deviceInstanceMap.Set(deviceConfig.Id, driver)
 	c_log.BizInfof(deviceCtx, "设备[%s]初始化成功！", deviceConfig.Name)
 }
 
