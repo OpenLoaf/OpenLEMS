@@ -20,6 +20,11 @@ type SPoint struct {
 	Max       int64                                                                       `json:"max,omitempty" dc:"正常范围最大值"` // 范围最大值，默认为0
 	Precise   uint8                                                                       `json:"precise,omitempty"`          // 设置浮点数精度（只是显示用）
 	Trigger   func(value interface{}) (trigger bool, level c_enum.EAlarmLevel, err error) `json:"-" dc:"告警触发函数"`
+	Hidden    bool                                                                        `json:"hidden" dc:"是否显示"`
+}
+
+func (s *SPoint) IsHidden() bool {
+	return s.Hidden
 }
 
 func (s *SPoint) IsAlarmPoint() bool {

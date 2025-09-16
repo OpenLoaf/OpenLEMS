@@ -163,5 +163,5 @@ func initConfigDatabase() {
 		g.Log().Fatal(ctx, err)
 	}
 
-	g.Log().Info(ctx, "Config tables created successfully")
+	g.Log().Info(ctx, "GpioDeviceConfig tables created successfully")
 }

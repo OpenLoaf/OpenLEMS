@@ -17,6 +17,7 @@ type IPoint interface {
 	GetValueType() c_enum.EValueType           // 值类型
 	GetValueExplain(value any) (string, error) // 获取Value解释，一般为状态类型的解释
 
+	IsHidden() bool                                                             // 是否隐藏不现实
 	IsAlarmPoint() bool                                                         //  是否是告警点位
 	TriggerAlarm(value any) (trigger bool, level c_enum.EAlarmLevel, err error) // 判断触发或者消除告警
 }

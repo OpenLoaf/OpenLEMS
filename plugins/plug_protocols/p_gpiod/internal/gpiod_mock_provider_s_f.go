@@ -51,7 +51,7 @@ func (s *sGpiodMockProvider) InitGpioPoint(point c_base.IPoint) {
 }
 
 func (s *sGpiodMockProvider) GetProtocolStatus() c_enum.EProtocolStatus {
-	return c_enum.EProtocolMock
+	return c_enum.EProtocolConnected
 }
 
 func (s *sGpiodMockProvider) GetLastUpdateTime() *time.Time {
@@ -92,7 +92,7 @@ func (s *sGpiodMockProvider) RegisterHandler(handler func(status bool, isChange 
 	s.handler = handler
 }
 
-func (s *sGpiodMockProvider) GetGpioStatus() *bool {
+func (s *sGpiodMockProvider) GetStatus() *bool {
 	return s.currentStatus
 }
 

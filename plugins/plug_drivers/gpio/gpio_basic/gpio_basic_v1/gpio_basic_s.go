@@ -14,7 +14,7 @@ import (
 type sBasicGpio struct {
 	*c_device.SRealDeviceImpl[c_proto.IGpiodProtocol]
 
-	config *c_proto.SGpioDeviceConfig
+	GpioDeviceConfig *c_proto.SGpioDeviceConfig
 }
 
 var gpioPoint = &c_base.SPoint{
@@ -22,6 +22,7 @@ var gpioPoint = &c_base.SPoint{
 	Name:    "状态",
 	Group:   c_base.GroupTotal,
 	Precise: 0,
+	Hidden:  true,
 }
 
 var _ c_type.IGpio = (*sBasicGpio)(nil)
@@ -32,20 +33,20 @@ func (s *sBasicGpio) Shutdown() {
 
 func (s *sBasicGpio) Init() error {
 
-	err := s.GetConfig().ScanParams(s.config)
+	err := s.GetConfig().ScanParams(s.GpioDeviceConfig)
 	if err != nil {
-		c_log.BizErrorf(s.DeviceCtx, "Init Device Config Error: %s", err.Error())
+		c_log.BizErrorf(s.DeviceCtx, "Init Device GpioDeviceConfig Error: %s", err.Error())
 		return err
 	}
 
-	if s.config.Level != c_enum.EAlarmLevelNone {
+	if s.GpioDeviceConfig.Level != c_enum.EAlarmLevelNone {
 		// 触发告警
 		gpioPoint.Trigger = func(value interface{}) (trigger bool, level c_enum.EAlarmLevel, err error) {
 			trigger, err = cvt.BoolE(value)
-			if !s.config.HighTrigger {
+			if !s.GpioDeviceConfig.HighTrigger {
 				trigger = !trigger
 			}
-			level = s.config.Level
+			level = s.GpioDeviceConfig.Level
 			return
 		}
 	}
@@ -64,9 +65,9 @@ func (s *sBasicGpio) RegisterHandler(handler func(status bool, isChange bool)) {
 	})
 }
 
-func (s *sBasicGpio) GetGpioStatus() *bool {
+func (s *sBasicGpio) GetStatus() *bool {
 	v, err := s.GetFromProtocolBool(func(protocol c_proto.IGpiodProtocol) (any, error) {
-		return protocol.GetGpioStatus(), nil
+		return protocol.GetStatus(), nil
 	})
 	if err != nil {
 		return nil

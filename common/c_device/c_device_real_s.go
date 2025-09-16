@@ -98,7 +98,10 @@ func (s *SRealDeviceImpl[P]) GetConfig() *c_base.SDeviceConfig {
 }
 
 func (s *SRealDeviceImpl[P]) isProtocolNil() bool {
-	return any(s.protocol) == nil
+	// 对于泛型类型，需要特殊处理 nil 检查
+	// 由于泛型约束，我们需要通过接口来检查
+	var zero P
+	return any(s.protocol) == any(zero)
 }
 
 func (s *SRealDeviceImpl[P]) ExecuteProtocolMethod(method func(protocol P) error) error {

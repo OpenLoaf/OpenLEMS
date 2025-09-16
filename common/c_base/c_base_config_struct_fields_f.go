@@ -33,7 +33,7 @@ import (
 //	    UnitId uint8 `json:"unitId" name:"ModbusID" min:"1" max:"255" default:"1"`
 //	}
 //
-//	type Config struct {
+//	type GpioDeviceConfig struct {
 //	    BaseConfig                    // 匿名嵌入，字段会被平铺展开
 //	    Key string `json:"name" name:"设备名称" desc:"设备的显示名称" ct:"text" vt:"string" regex:"^[a-zA-Z0-9_-]+$" regexFailedMessage:"只能包含字母、数字、下划线和连字符"`
 //	    Port int    `json:"port" name:"端口号" desc:"设备通信端口" ct:"number" vt:"int" min:"1" max:"65535" default:"8080"`

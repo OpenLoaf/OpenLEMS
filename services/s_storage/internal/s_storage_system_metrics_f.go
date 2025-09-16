@@ -78,7 +78,7 @@ func GetProcessInfo() map[string]any {
 		//}
 	}
 	// 获取pprof是否启动
-	//isPprofEnabled := g.Config().MustGet(context.Background(), "server.pprofEnabled").Bool()
+	//isPprofEnabled := g.GpioDeviceConfig().MustGet(context.Background(), "server.pprofEnabled").Bool()
 	//
 	//if isPprofEnabled {
 	//	// 获取堆使用情况

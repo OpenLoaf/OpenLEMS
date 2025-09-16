@@ -233,7 +233,7 @@ func (s *sGpiodLinuxProvider) RegisterHandler(handler func(status bool, isChange
 	}
 }
 
-func (s *sGpiodLinuxProvider) GetGpioStatus() *bool {
+func (s *sGpiodLinuxProvider) GetStatus() *bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.getGpioStatusUnsafe()

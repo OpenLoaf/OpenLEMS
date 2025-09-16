@@ -38,7 +38,7 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		if req.DeviceId != v.GetDeviceId() {
 			groupName = common.GetDeviceManager().GetDeviceNameById(v.GetDeviceId())
 		}
-		if v.IPoint == nil {
+		if v.IPoint == nil || v.IPoint.IsHidden() {
 			continue
 		}
 

@@ -8,7 +8,7 @@ import (
 	"p_gpiod/internal"
 )
 
-// NewGpiodProvider 一个设备一个provider
+// NewGpiodProvider 一个设备一个provider， 同时gpio不能重复被使用
 func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (c_proto.IGpiodProtocol, error) {
 	return internal.NewGpiodProvider(ctx, clientConfig, deviceConfig)
 }

@@ -127,8 +127,13 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		//if runtime.GOOS != "linux" {
 		//	return nil, errors.Errorf("gpiod协议仅在Linux系统上支持，当前系统: %s", runtime.GOOS)
 		//}
+		if _, exist := m.protocolClientCache[protocolConfig.Id]; exist {
+			return nil, errors.Errorf("[%s]已被其他设备占用！", protocolConfig.Id)
+		}
 
 		gpioProtocol, err := p_gpiod.NewGpiodProvider(deviceCtx, protocolConfig, deviceConfig)
+		m.protocolClientCache[protocolConfig.Id] = gpioProtocol
+
 		if err != nil {
 			return nil, err
 		}

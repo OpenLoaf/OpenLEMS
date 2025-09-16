@@ -11,10 +11,12 @@ import (
 var buildYaml []byte
 
 func NewPlugin(device c_base.IDevice) c_base.IDevice {
-	return &sBasicGpio{
-		SRealDeviceImpl: device.(*c_device.SRealDeviceImpl[c_proto.IGpiodProtocol]),
-		config:          &c_proto.SGpioDeviceConfig{},
+	d := &sBasicGpio{
+		SRealDeviceImpl:  device.(*c_device.SRealDeviceImpl[c_proto.IGpiodProtocol]),
+		GpioDeviceConfig: &c_proto.SGpioDeviceConfig{},
 	}
+
+	return d
 }
 
 func GetDriverInfo() *c_base.SDriverInfo {
