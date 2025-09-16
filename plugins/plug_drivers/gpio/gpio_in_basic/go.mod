@@ -1,4 +1,4 @@
-module basic_gpio
+module basic_gpio_in
 
 go 1.25
 

@@ -12,7 +12,8 @@ use (
 	./plugins/plug_drivers/demo/load_demo
 	./plugins/plug_drivers/demo/pv_demo
 	./plugins/plug_drivers/ess/ess_pylon_checkwatt
-	./plugins/plug_drivers/gpio/gpio_basic
+	./plugins/plug_drivers/gpio/gpio_in_basic
+	./plugins/plug_drivers/gpio/gpio_out_basic
 	./plugins/plug_drivers/pcs/pcs_elecod_mac
 	./plugins/plug_drivers/pcs/pcs_star_charge_100E
 

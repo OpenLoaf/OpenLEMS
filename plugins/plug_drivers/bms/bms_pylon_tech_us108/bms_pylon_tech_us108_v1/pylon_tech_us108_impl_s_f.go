@@ -267,28 +267,28 @@ func (p *sBmsPylonTechUs108) GetCycleCount() (*uint, error) {
 
 func (p *sBmsPylonTechUs108) GetTodayIncomingQuantity() (*float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		v, err := protocol.ReadSingleSync(TodayCharge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
+		v, err := protocol.ReadSingleSync(TodayCharge, c_enum.EMqHoldingRegisters, time.Minute, true)
 		return cvt.Float64(v), err
 	})
 }
 
 func (p *sBmsPylonTechUs108) GetTodayOutgoingQuantity() (*float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		v, err := protocol.ReadSingleSync(TodayDischarge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
+		v, err := protocol.ReadSingleSync(TodayDischarge, c_enum.EMqHoldingRegisters, time.Minute, true)
 		return cvt.Float64(v), err
 	})
 }
 
 func (p *sBmsPylonTechUs108) GetHistoryIncomingQuantity() (*float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		v, err := protocol.ReadSingleSync(HistoryCharge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
+		v, err := protocol.ReadSingleSync(HistoryCharge, c_enum.EMqHoldingRegisters, time.Minute, true)
 		return cvt.Float64(v), err
 	})
 }
 
 func (p *sBmsPylonTechUs108) GetHistoryOutgoingQuantity() (*float64, error) {
 	return p.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		v, err := protocol.ReadSingleSync(HistoryDischarge, c_enum.EMqHoldingRegisters, 3*time.Second, true)
+		v, err := protocol.ReadSingleSync(HistoryDischarge, c_enum.EMqHoldingRegisters, time.Minute, true)
 		return cvt.Float64(v), err
 	})
 }

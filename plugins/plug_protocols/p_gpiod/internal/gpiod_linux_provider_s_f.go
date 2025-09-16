@@ -57,6 +57,12 @@ func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig,
 		protocolStatus: c_enum.EProtocolDisconnected,
 	}
 
+	// 初始化GPIO
+	if err := provider.initializeGPIO(); err != nil {
+		//c_log.Error(s.ctx, "Failed to initialize GPIO", err)
+		return nil, err
+	}
+
 	return provider, nil
 }
 
@@ -188,13 +194,6 @@ func (s *sGpiodLinuxProvider) RegisterTask(task c_base.IPointTask, tasks ...c_ba
 
 func (s *sGpiodLinuxProvider) ProtocolListen() {
 	c_log.Infof(s.ctx, "Starting GPIO protocol listen on chip %s, pin %d", s.chipName, s.gpiodConfig.Pin)
-
-	// 初始化GPIO
-	if err := s.initializeGPIO(); err != nil {
-		// 记录错误，但不阻塞程序运行
-		c_log.Error(s.ctx, "Failed to initialize GPIO", err)
-		return
-	}
 
 	c_log.Infof(s.ctx, "GPIO initialized successfully on chip %s, pin %d, direction: %v",
 		s.chipName, s.gpiodConfig.Pin, s.gpiodConfig.Direction)

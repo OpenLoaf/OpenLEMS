@@ -28,6 +28,13 @@ func (m *SDeviceManager) Shutdown() {
 	//	}
 	//	return true
 	//})
+	m.IteratorAllDevices(func(config *c_base.SDeviceConfig, device c_base.IDevice) bool {
+		if driver, ok := device.(c_base.IDriver); ok {
+			driver.Shutdown()
+		}
+		return true
+	})
+
 	m.cancelFunc()
 	m.state = c_enum.EStateStopped
 	return

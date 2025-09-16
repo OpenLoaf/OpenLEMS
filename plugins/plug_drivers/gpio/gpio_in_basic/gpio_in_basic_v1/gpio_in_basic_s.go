@@ -1,4 +1,4 @@
-package gpio_basic_v1
+package gpio_in_basic_v1
 
 import (
 	"common/c_base"
@@ -11,7 +11,7 @@ import (
 	"github.com/shockerli/cvt"
 )
 
-type sBasicGpio struct {
+type sBasicGpioIn struct {
 	*c_device.SRealDeviceImpl[c_proto.IGpiodProtocol]
 
 	GpioDeviceConfig *c_proto.SGpioDeviceConfig
@@ -25,13 +25,13 @@ var gpioPoint = &c_base.SPoint{
 	Hidden:  true,
 }
 
-var _ c_type.IGpio = (*sBasicGpio)(nil)
+var _ c_type.IGpioIn = (*sBasicGpioIn)(nil)
 
-func (s *sBasicGpio) Shutdown() {
+func (s *sBasicGpioIn) Shutdown() {
 
 }
 
-func (s *sBasicGpio) Init() error {
+func (s *sBasicGpioIn) Init() error {
 
 	err := s.GetConfig().ScanParams(s.GpioDeviceConfig)
 	if err != nil {
@@ -58,14 +58,14 @@ func (s *sBasicGpio) Init() error {
 	return nil
 }
 
-func (s *sBasicGpio) RegisterHandler(handler func(status bool, isChange bool)) {
+func (s *sBasicGpioIn) RegisterHandler(handler func(status bool, isChange bool)) {
 	_ = s.ExecuteProtocolMethod(func(protocol c_proto.IGpiodProtocol) error {
 		protocol.RegisterHandler(handler)
 		return nil
 	})
 }
 
-func (s *sBasicGpio) GetStatus() *bool {
+func (s *sBasicGpioIn) GetStatus() *bool {
 	v, err := s.GetFromProtocolBool(func(protocol c_proto.IGpiodProtocol) (any, error) {
 		return protocol.GetStatus(), nil
 	})
@@ -73,16 +73,4 @@ func (s *sBasicGpio) GetStatus() *bool {
 		return nil
 	}
 	return v
-}
-
-func (s *sBasicGpio) SetHigh() error {
-	return s.ExecuteProtocolMethod(func(protocol c_proto.IGpiodProtocol) error {
-		return protocol.SetHigh()
-	})
-}
-
-func (s *sBasicGpio) SetLow() error {
-	return s.ExecuteProtocolMethod(func(protocol c_proto.IGpiodProtocol) error {
-		return protocol.SetLow()
-	})
 }

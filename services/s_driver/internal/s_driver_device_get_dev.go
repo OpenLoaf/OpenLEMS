@@ -2,7 +2,8 @@ package internal
 
 import (
 	"ammeter_demo/ammeter_demo_v1"
-	"basic_gpio/gpio_basic_v1"
+	"basic_gpio_in/gpio_in_basic_v1"
+	"basic_gpio_out/gpio_out_basic_v1"
 	"bms_pylon_tech_us108/bms_pylon_tech_us108_v1"
 	"common/c_base"
 	"common/c_enum"
@@ -35,7 +36,8 @@ var pluginNewMethodCache = map[string]any{
 	"load_demo_v1.0.0":            load_demo_v1.NewPlugin,
 	"ammeter_demo_v1.0.0":         ammeter_demo_v1.NewPlugin,
 	"pcs_elecod_mac_v1.0.0":       pcs_elecod_mac_v1.NewPlugin,
-	"gpio_basic_v1.0.0":           gpio_basic_v1.NewPlugin,
+	"gpio_out_basic_v1.0.0":       gpio_out_basic_v1.NewPlugin,
+	"gpio_in_basic_v1.0.0":        gpio_in_basic_v1.NewPlugin,
 }
 var pluginDriverInfo = map[string]*c_base.SDriverInfo{
 	"bms_pylon_tech_us108_v1.0.0": bms_pylon_tech_us108_v1.GetDriverInfo(),
@@ -46,7 +48,8 @@ var pluginDriverInfo = map[string]*c_base.SDriverInfo{
 	"load_demo_v1.0.0":            load_demo_v1.GetDriverInfo(),
 	"ammeter_demo_v1.0.0":         ammeter_demo_v1.GetDriverInfo(),
 	"pcs_elecod_mac_v1.0.0":       pcs_elecod_mac_v1.GetDriverInfo(),
-	"gpio_basic_v1.0.0":           gpio_basic_v1.GetDriverInfo(),
+	"gpio_out_basic_v1.0.0":       gpio_out_basic_v1.GetDriverInfo(),
+	"gpio_in_basic_v1.0.0":        gpio_in_basic_v1.GetDriverInfo(),
 }
 
 func GetAllDriversInfo() map[string]*c_base.SDriverInfo {

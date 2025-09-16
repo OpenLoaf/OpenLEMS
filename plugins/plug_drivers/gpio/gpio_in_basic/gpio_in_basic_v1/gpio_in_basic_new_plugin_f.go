@@ -1,4 +1,4 @@
-package gpio_basic_v1
+package gpio_in_basic_v1
 
 import (
 	"common/c_base"
@@ -11,7 +11,7 @@ import (
 var buildYaml []byte
 
 func NewPlugin(device c_base.IDevice) c_base.IDevice {
-	d := &sBasicGpio{
+	d := &sBasicGpioIn{
 		SRealDeviceImpl:  device.(*c_device.SRealDeviceImpl[c_proto.IGpiodProtocol]),
 		GpioDeviceConfig: &c_proto.SGpioDeviceConfig{},
 	}

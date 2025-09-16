@@ -1,12 +1,12 @@
 brand: Hex
-model: Basic-GPIO
-name: "基础GPIO驱动"
-type: dido
+model: Basic-GPIO-Out
+name: "基础GPIO输出驱动"
+type: gpio_out
 version: "v1.0.0"
 author: "zz@hexems.com"
 create: "2025-09-12"
 protocolType: "gpiod"
-desc: "基础GPIO驱动，支持GPIO输入输出控制"
+desc: "基础GPIO输出驱动，支持GPIO输出控制"
 telemetry:
   - key: status
     name: "状态"

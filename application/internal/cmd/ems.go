@@ -2,7 +2,6 @@ package cmd
 
 import (
 	applog "application/internal/log"
-	"application/internal/utils"
 	_ "application/manifest"
 	"common"
 	"common/c_base"
@@ -99,16 +98,7 @@ func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 			c_log.BizInfof(ctx, "自动化服务已停止")
 		}
 
-		//common.GetDeviceManager().Shutdown()
-
-		// 清理PID文件
-		pidFile := "out/ems.pid"
-		if err := utils.RemovePidFile(pidFile); err != nil {
-			g.Log().Warningf(ctx, "清理PID文件失败: %v", err)
-		} else {
-			g.Log().Infof(ctx, "PID文件已清理: %s", pidFile)
-		}
-
+		common.GetDeviceManager().Shutdown()
 		cancelFunc()
 		time.Sleep(1 * time.Second)
 		g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())

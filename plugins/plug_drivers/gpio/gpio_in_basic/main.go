@@ -1,7 +1,7 @@
 package main
 
 import (
-	driver "basic_gpio/gpio_basic_v1" // 修改此处
+	driver "basic_gpio_in/gpio_in_basic_v1" // 修改此处
 	"common/c_base"
 )
 

@@ -36,14 +36,20 @@ func (s *sDeviceServiceImpl) UpdateDevice(ctx context.Context, deviceId string, 
 		return err
 	}
 
-	if value, ok := data["value"].(string); ok {
+	if value, ok := data["name"].(string); ok {
 		device.Name = value
 	}
-	if value, ok := data[s_db_model.FieldParams].(string); ok {
+	if value, ok := data["params"].(string); ok {
 		device.Params = value
 	}
 	if value, ok := data["storageEnable"].(bool); ok {
 		device.StorageEnable = value
+	}
+	if value, ok := data["protocolId"].(string); ok {
+		device.ProtocolId = value
+	}
+	if value, ok := data["driver"].(string); ok {
+		device.Driver = value
 	}
 	if value, ok := data["storageIntervalSec"].(int32); ok {
 		device.StorageIntervalSec = value
@@ -78,7 +84,7 @@ func (s *sDeviceServiceImpl) GetEnableDeviceConfigsWithRecursion(ctx context.Con
 					 JOIN DeviceDescendants AS dd ON d.pid = dd.id
 			where d.enabled = true
 		)
-		SELECT * FROM DeviceDescendants
+		SELECT * FROM DeviceDescendants order by sort
 `, g.Slice{parentId, parentId})
 
 	if err != nil {

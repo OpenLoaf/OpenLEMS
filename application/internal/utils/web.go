@@ -30,12 +30,16 @@ func PrintWebServerInfo(ctx context.Context, serverAddress string) {
 		g.Log().Infof(ctx, "   http://%s%s", ip, serverAddress)
 	}
 
-	// 打印API文档和调试工具地址（使用第一个IPv4地址或localhost）
-	primaryIP := "localhost"
-	if len(ipv4Addrs) > 0 {
-		primaryIP = ipv4Addrs[0]
+	// 获取当前配置的 profile，如果不是 prod 模式则显示 API 文档和调试工具地址
+	profile, _ := g.Cfg().GetWithCmd(context.Background(), "profile", "prod")
+	if profile.String() != "prod" {
+		// 打印API文档和调试工具地址（使用第一个IPv4地址或localhost）
+		primaryIP := "localhost"
+		if len(ipv4Addrs) > 0 {
+			primaryIP = ipv4Addrs[0]
+		}
+		g.Log().Infof(ctx, "📖 API文档: http://%s%s/api.json", primaryIP, serverAddress)
+		g.Log().Infof(ctx, "🔧 调试工具: http://%s%s/debug", primaryIP, serverAddress)
 	}
-	g.Log().Infof(ctx, "📖 API文档: http://%s%s/api.json", primaryIP, serverAddress)
-	g.Log().Infof(ctx, "🔧 调试工具: http://%s%s/debug", primaryIP, serverAddress)
 	g.Log().Infof(ctx, "==========================================")
 }
