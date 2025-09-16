@@ -313,10 +313,9 @@ func (m *SDeviceManager) BuildRealDevice(deviceCtx context.Context, deviceConfig
 		device, err = c_device.NewRealDevice(deviceCtx, protocolProvider.(c_proto.IModbusProtocol))
 	case c_enum.ECanbus, c_enum.ECanbusUdp:
 		device, err = c_device.NewRealDevice(deviceCtx, protocolProvider.(c_proto.ICanbusProtocol))
-	case c_enum.EGpiod:
+	case c_enum.EGpioIn, c_enum.EGpioOut:
 		//device, err = c_device.NewRealGpio(deviceCtx, protocolProvider.(c_proto.IGpiodProtocol))
 		device, err = c_device.NewRealDevice(deviceCtx, protocolProvider.(c_proto.IGpiodProtocol))
-	case c_enum.EGpioSfs:
 	}
 
 	if err != nil {

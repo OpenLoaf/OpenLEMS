@@ -5,7 +5,7 @@ type: gpio_out
 version: "v1.0.0"
 author: "zz@hexems.com"
 create: "2025-09-12"
-protocolType: "gpiod"
+protocolType: "gpio_out"
 desc: "基础GPIO输出驱动，支持GPIO输出控制"
 telemetry:
   - key: status

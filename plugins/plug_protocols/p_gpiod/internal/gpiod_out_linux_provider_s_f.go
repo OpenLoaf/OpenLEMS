@@ -17,7 +17,7 @@ import (
 	"github.com/warthog618/go-gpiocdev"
 )
 
-type sGpiodLinuxProvider struct {
+type sGpiodOutLinuxProvider struct {
 	c_base.IAlarm
 
 	ctx context.Context
@@ -38,17 +38,22 @@ type sGpiodLinuxProvider struct {
 	protocolStatus c_enum.EProtocolStatus
 }
 
-var _ c_proto.IGpiodProtocol = (*sGpiodLinuxProvider)(nil)
+var _ c_proto.IGpiodProtocol = (*sGpiodOutLinuxProvider)(nil)
 
-// NewGpiodProvider 创建新的GPIO provider
-func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (c_proto.IGpiodProtocol, error) {
+// NewGpiodOutProvider 创建新的GPIO输出provider
+func NewGpiodOutProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (c_proto.IGpiodProtocol, error) {
 	// 解析协议配置
 	gpiodConfig := &c_proto.SGpiodProtocolConfig{}
 	if err := gconv.Scan(clientConfig.Params, gpiodConfig); err != nil {
 		return nil, fmt.Errorf("failed to parse gpiod protocol config: %w", err)
 	}
 
-	provider := &sGpiodLinuxProvider{
+	// 验证方向必须是输出
+	if gpiodConfig.Direction != c_enum.EGpioDirectionOut {
+		return nil, fmt.Errorf("gpiod out provider only supports output direction, got: %v", gpiodConfig.Direction)
+	}
+
+	provider := &sGpiodOutLinuxProvider{
 		IAlarm:         c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
 		gpiodConfig:    gpiodConfig,
 		chipName:       fmt.Sprintf("gpiochip%d", gpiodConfig.ChipIndex),
@@ -59,25 +64,24 @@ func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig,
 
 	// 初始化GPIO
 	if err := provider.initializeGPIO(); err != nil {
-		//c_log.Error(s.ctx, "Failed to initialize GPIO", err)
 		return nil, err
 	}
 
 	return provider, nil
 }
 
-func (s *sGpiodLinuxProvider) GetConfig() *c_base.SDeviceConfig {
+func (s *sGpiodOutLinuxProvider) GetConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
-func (s *sGpiodLinuxProvider) InitGpioPoint(point c_base.IPoint) {
+func (s *sGpiodOutLinuxProvider) InitGpioPoint(point c_base.IPoint) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	s.point = point
 }
 
-// initializeGPIO 初始化GPIO引脚
-func (s *sGpiodLinuxProvider) initializeGPIO() error {
+// initializeGPIO 初始化GPIO输出引脚
+func (s *sGpiodOutLinuxProvider) initializeGPIO() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -89,38 +93,30 @@ func (s *sGpiodLinuxProvider) initializeGPIO() error {
 	pinOffset := int(s.gpiodConfig.Pin)
 	var options []gpiocdev.LineReqOption
 
-	switch s.gpiodConfig.Direction {
-	case c_enum.EGpioDirectionIn:
-		options = []gpiocdev.LineReqOption{gpiocdev.AsInput}
-		if s.gpiodConfig.LowActive {
-			options = append(options, gpiocdev.AsActiveLow)
-		}
-		if s.handler != nil {
-			options = append(options, gpiocdev.WithBothEdges, gpiocdev.WithEventHandler(s.handleGPIOEvent))
-		}
-
-	case c_enum.EGpioDirectionOut:
-		options = []gpiocdev.LineReqOption{gpiocdev.AsOutput(0)}
-		if s.gpiodConfig.LowActive {
-			options = append(options, gpiocdev.AsActiveLow)
-		}
-
-	default:
-		return fmt.Errorf("unsupported GPIO direction: %v", s.gpiodConfig.Direction)
+	// 输出引脚配置，初始值为低电平
+	options = []gpiocdev.LineReqOption{gpiocdev.AsOutput(0)}
+	if s.gpiodConfig.LowActive {
+		options = append(options, gpiocdev.AsActiveLow)
 	}
 
 	line, err := gpiocdev.RequestLine(s.chipName, pinOffset, options...)
 	if err != nil {
-		return fmt.Errorf("failed to request GPIO line %d from %s: %w", pinOffset, s.chipName, err)
+		return fmt.Errorf("failed to request GPIO output line %d from %s: %w", pinOffset, s.chipName, err)
 	}
 
 	s.line = line
 	s.protocolStatus = c_enum.EProtocolConnected
+
+	// 初始化状态为低电平
+	s.currentStatus = &[]bool{false}[0]
+	now := time.Now()
+	s.lastUpdateTime = &now
+
 	return nil
 }
 
 // cleanupGPIO 清理GPIO资源
-func (s *sGpiodLinuxProvider) cleanupGPIO() {
+func (s *sGpiodOutLinuxProvider) cleanupGPIO() {
 	if s.line != nil {
 		s.line.Close()
 		s.line = nil
@@ -128,30 +124,20 @@ func (s *sGpiodLinuxProvider) cleanupGPIO() {
 	s.protocolStatus = c_enum.EProtocolDisconnected
 }
 
-// handleGPIOEvent 处理GPIO状态变化事件
-func (s *sGpiodLinuxProvider) handleGPIOEvent(evt gpiocdev.LineEvent) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	// 更新状态并处理状态变化
-	status := evt.Type == gpiocdev.LineEventRisingEdge
-	s.updateStatus(status)
-}
-
-func (s *sGpiodLinuxProvider) GetProtocolStatus() c_enum.EProtocolStatus {
+func (s *sGpiodOutLinuxProvider) GetProtocolStatus() c_enum.EProtocolStatus {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	return s.protocolStatus
 }
 
-func (s *sGpiodLinuxProvider) GetLastUpdateTime() *time.Time {
+func (s *sGpiodOutLinuxProvider) GetLastUpdateTime() *time.Time {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.lastUpdateTime
 }
 
-func (s *sGpiodLinuxProvider) GetPointValueList() []*c_base.SPointValue {
+func (s *sGpiodOutLinuxProvider) GetPointValueList() []*c_base.SPointValue {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -174,7 +160,7 @@ func (s *sGpiodLinuxProvider) GetPointValueList() []*c_base.SPointValue {
 	return []*c_base.SPointValue{pointValue}
 }
 
-func (s *sGpiodLinuxProvider) GetValue(point c_base.IPoint) (any, error) {
+func (s *sGpiodOutLinuxProvider) GetValue(point c_base.IPoint) (any, error) {
 	if s.protocolStatus != c_enum.EProtocolConnected {
 		return nil, fmt.Errorf("GPIO protocol not connected")
 	}
@@ -187,65 +173,39 @@ func (s *sGpiodLinuxProvider) GetValue(point c_base.IPoint) (any, error) {
 	return *status, nil
 }
 
-func (s *sGpiodLinuxProvider) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
-	// GPIO协议通常不需要任务注册，因为它是事件驱动的
-	// 如果需要定期读取状态，可以在这里实现
+func (s *sGpiodOutLinuxProvider) RegisterTask(task c_base.IPointTask, tasks ...c_base.IPointTask) {
+	// GPIO输出协议通常不需要任务注册
 }
 
-func (s *sGpiodLinuxProvider) ProtocolListen() {
-	c_log.Infof(s.ctx, "Starting GPIO protocol listen on chip %s, pin %d", s.chipName, s.gpiodConfig.Pin)
+func (s *sGpiodOutLinuxProvider) ProtocolListen() {
+	c_log.Infof(s.ctx, "Starting GPIO Output [%s-%s] protocol listen on chip %s, pin %d", s.deviceConfig.Id, s.deviceConfig.ProtocolId, s.chipName, s.gpiodConfig.Pin)
 
-	c_log.Infof(s.ctx, "GPIO initialized successfully on chip %s, pin %d, direction: %v",
-		s.chipName, s.gpiodConfig.Pin, s.gpiodConfig.Direction)
-
-	// 如果是输入引脚，读取初始状态
-	if s.gpiodConfig.Direction == c_enum.EGpioDirectionIn && s.line != nil {
-		if value, err := s.line.Value(); err == nil {
-			s.mu.Lock()
-			status := value == 1
-			s.updateStatus(status)
-			s.mu.Unlock()
-			c_log.Debugf(s.ctx, "Initial GPIO state: %v", status)
-		} else {
-			c_log.Warning(s.ctx, "Failed to read initial GPIO value", err)
-		}
-	}
+	c_log.Infof(s.ctx, "GPIO Output initialized successfully on chip %s, pin %d",
+		s.chipName, s.gpiodConfig.Pin)
 }
 
-func (s *sGpiodLinuxProvider) RegisterHandler(handler func(status bool, isChange bool)) {
+func (s *sGpiodOutLinuxProvider) RegisterHandler(handler func(status bool, isChange bool)) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	c_log.Infof(s.ctx, "Registering GPIO event handler for chip %s, pin %d", s.chipName, s.gpiodConfig.Pin)
+	c_log.Infof(s.ctx, "Registering GPIO output handler for chip %s, pin %d", s.chipName, s.gpiodConfig.Pin)
 	s.handler = handler
-
-	// 如果GPIO已经连接且是输入引脚，需要重新初始化以添加事件处理
-	if s.protocolStatus == c_enum.EProtocolConnected && s.gpiodConfig.Direction == c_enum.EGpioDirectionIn {
-		c_log.Debug(s.ctx, "Reinitializing GPIO to add event handler")
-		go func() {
-			if err := s.initializeGPIO(); err != nil {
-				c_log.Error(s.ctx, "Failed to reinitialize GPIO with handler", err)
-			} else {
-				c_log.Info(s.ctx, "GPIO reinitialized with event handler successfully")
-			}
-		}()
-	}
 }
 
-func (s *sGpiodLinuxProvider) GetStatus() *bool {
+func (s *sGpiodOutLinuxProvider) GetStatus() *bool {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	return s.GetStatusUnsafe()
 }
 
 // GetStatusUnsafe 获取GPIO状态（不加锁，调用者需确保已加锁）
-func (s *sGpiodLinuxProvider) GetStatusUnsafe() *bool {
+func (s *sGpiodOutLinuxProvider) GetStatusUnsafe() *bool {
 	// 如果协议未连接，返回nil
 	if s.protocolStatus != c_enum.EProtocolConnected {
 		return nil
 	}
 
-	// 实时读取GPIO状态（输入和输出引脚都读取）
+	// 实时读取GPIO状态
 	if value, err := s.line.Value(); err == nil {
 		status := value == 1
 		return &status
@@ -256,7 +216,7 @@ func (s *sGpiodLinuxProvider) GetStatusUnsafe() *bool {
 }
 
 // updateStatus 更新GPIO状态和时间戳，并处理状态变化（不加锁，调用者需确保已加锁）
-func (s *sGpiodLinuxProvider) updateStatus(status bool) {
+func (s *sGpiodOutLinuxProvider) updateStatus(status bool) {
 	// 保存之前的状态
 	last := s.currentStatus
 
@@ -284,15 +244,9 @@ func (s *sGpiodLinuxProvider) updateStatus(status bool) {
 	}
 }
 
-func (s *sGpiodLinuxProvider) SetHigh() error {
+func (s *sGpiodOutLinuxProvider) SetHigh() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	// 检查是否是输出引脚
-	if s.gpiodConfig.Direction != c_enum.EGpioDirectionOut {
-		c_log.Warningf(s.ctx, "Attempted to set high on input GPIO pin %d", s.gpiodConfig.Pin)
-		return fmt.Errorf("cannot set value on input GPIO pin")
-	}
 
 	// 检查协议是否已连接
 	if s.protocolStatus != c_enum.EProtocolConnected {
@@ -321,15 +275,9 @@ func (s *sGpiodLinuxProvider) SetHigh() error {
 	return nil
 }
 
-func (s *sGpiodLinuxProvider) SetLow() error {
+func (s *sGpiodOutLinuxProvider) SetLow() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	// 检查是否是输出引脚
-	if s.gpiodConfig.Direction != c_enum.EGpioDirectionOut {
-		c_log.Warningf(s.ctx, "Attempted to set low on input GPIO pin %d", s.gpiodConfig.Pin)
-		return fmt.Errorf("cannot set value on input GPIO pin")
-	}
 
 	// 检查协议是否已连接
 	if s.protocolStatus != c_enum.EProtocolConnected {
@@ -359,11 +307,11 @@ func (s *sGpiodLinuxProvider) SetLow() error {
 }
 
 // Close 关闭GPIO资源
-func (s *sGpiodLinuxProvider) Close() error {
+func (s *sGpiodOutLinuxProvider) Close() error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	c_log.Infof(s.ctx, "Closing GPIO resources for chip %s, pin %d", s.chipName, s.gpiodConfig.Pin)
+	c_log.Infof(s.ctx, "Closing GPIO output resources for chip %s, pin %d", s.chipName, s.gpiodConfig.Pin)
 	s.cleanupGPIO()
 	return nil
 }

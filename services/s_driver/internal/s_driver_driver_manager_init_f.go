@@ -131,7 +131,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		}
 		g.Log().Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
 		return canbusProvider, nil
-	case c_enum.EGpiod:
+	case c_enum.EGpioIn, c_enum.EGpioOut:
 		// 验证系统支持：只有Linux系统才支持gpiod
 		//if runtime.GOOS != "linux" {
 		//	return nil, errors.Errorf("gpiod协议仅在Linux系统上支持，当前系统: %s", runtime.GOOS)
@@ -140,15 +140,20 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 			return nil, errors.Errorf("[%s]已被其他设备占用！", protocolConfig.Id)
 		}
 
-		gpioProtocol, err := p_gpiod.NewGpiodProvider(deviceCtx, protocolConfig, deviceConfig)
+		var gpioProtocol c_base.IProtocol
+		var err error
+		if protocolConfig.GetProtocol() == c_enum.EGpioIn {
+			gpioProtocol, err = p_gpiod.NewGpiodInProvider(deviceCtx, protocolConfig, deviceConfig)
+		} else {
+			gpioProtocol, err = p_gpiod.NewGpiodOutProvider(deviceCtx, protocolConfig, deviceConfig)
+		}
+
 		m.protocolClientCache.Set(protocolConfig.Id, gpioProtocol)
 
 		if err != nil {
 			return nil, err
 		}
 		return gpioProtocol, nil
-	case c_enum.EGpioSfs:
-		// 未来完善
 	}
 
 	return nil, errors.Errorf("未知的协议类型：%s", protocolConfig.GetProtocol())

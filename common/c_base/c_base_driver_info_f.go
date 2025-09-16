@@ -150,9 +150,10 @@ func (s *SDriverInfo) getTelemetry(key string, instance IDevice) (any, error) {
 		ok     bool
 	)
 
+	cacheKey := instance.GetConfig().Id + "_" + key
 	// 先尝试读锁获取缓存
 	s.reflectMethodMutex.RLock()
-	if method, ok = s.reflectMethodCache[key]; ok {
+	if method, ok = s.reflectMethodCache[cacheKey]; ok {
 		s.reflectMethodMutex.RUnlock()
 	} else {
 		s.reflectMethodMutex.RUnlock()
@@ -160,7 +161,7 @@ func (s *SDriverInfo) getTelemetry(key string, instance IDevice) (any, error) {
 		// 缓存不存在，需要写入，使用写锁
 		s.reflectMethodMutex.Lock()
 		// 双重检查，防止其他goroutine已经写入
-		if method, ok = s.reflectMethodCache[key]; !ok {
+		if method, ok = s.reflectMethodCache[cacheKey]; !ok {
 			functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
 
 			// 获取实例的反射值
@@ -181,7 +182,7 @@ func (s *SDriverInfo) getTelemetry(key string, instance IDevice) (any, error) {
 			}
 
 			// 缓存方法
-			s.reflectMethodCache[key] = method
+			s.reflectMethodCache[cacheKey] = method
 		}
 		s.reflectMethodMutex.Unlock()
 	}

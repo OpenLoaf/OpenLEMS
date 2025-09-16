@@ -14,8 +14,8 @@ import (
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
-// sGpiodMockProvider 因为Linux才可以操作gpio，所以模拟了一个。当打为非linux平台的时候，就会使用这个mock的
-type sGpiodMockProvider struct {
+// sGpiodInMockProvider 因为Linux才可以操作gpio，所以模拟了一个输入provider。当打为非linux平台的时候，就会使用这个mock的
+type sGpiodInMockProvider struct {
 	c_base.IAlarm
 	ctx          context.Context
 	gpiodConfig  *c_proto.SGpiodProtocolConfig
@@ -29,36 +29,42 @@ type sGpiodMockProvider struct {
 	handler func(status bool, isChange bool)
 }
 
-var _ c_proto.IGpiodProtocol = (*sGpiodMockProvider)(nil)
+var _ c_proto.IGpiodProtocol = (*sGpiodInMockProvider)(nil)
 
-// NewGpiodProvider 创建新的GPIO provider
-func NewGpiodProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (c_proto.IGpiodProtocol, error) {
+// NewGpiodInProvider 创建新的GPIO输入provider
+func NewGpiodInProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig) (c_proto.IGpiodProtocol, error) {
 	// 解析协议配置
 	gpiodConfig := &c_proto.SGpiodProtocolConfig{}
 	if err := gconv.Scan(clientConfig.Params, gpiodConfig); err != nil {
 		return nil, fmt.Errorf("failed to parse gpiod protocol config: %w", err)
 	}
 
-	return &sGpiodMockProvider{
+	// 验证方向必须是输入
+	if gpiodConfig.Direction != c_enum.EGpioDirectionIn {
+		return nil, fmt.Errorf("gpiod in provider only supports input direction, got: %v", gpiodConfig.Direction)
+	}
+
+	return &sGpiodInMockProvider{
 		IAlarm:       c_device.NewAlarmImpl(ctx, deviceConfig.Id, deviceConfig.Pid),
 		gpiodConfig:  gpiodConfig,
 		deviceConfig: deviceConfig,
+		ctx:          ctx,
 	}, nil
 }
 
-func (s *sGpiodMockProvider) InitGpioPoint(point c_base.IPoint) {
+func (s *sGpiodInMockProvider) InitGpioPoint(point c_base.IPoint) {
 	s.point = point
 }
 
-func (s *sGpiodMockProvider) GetProtocolStatus() c_enum.EProtocolStatus {
+func (s *sGpiodInMockProvider) GetProtocolStatus() c_enum.EProtocolStatus {
 	return c_enum.EProtocolConnected
 }
 
-func (s *sGpiodMockProvider) GetLastUpdateTime() *time.Time {
+func (s *sGpiodInMockProvider) GetLastUpdateTime() *time.Time {
 	return s.lastUpdateTime
 }
 
-func (s *sGpiodMockProvider) GetPointValueList() []*c_base.SPointValue {
+func (s *sGpiodInMockProvider) GetPointValueList() []*c_base.SPointValue {
 	if s.point == nil {
 		return nil
 	}
@@ -73,41 +79,39 @@ func (s *sGpiodMockProvider) GetPointValueList() []*c_base.SPointValue {
 	return []*c_base.SPointValue{point}
 }
 
-func (s *sGpiodMockProvider) GetValue(point c_base.IPoint) (any, error) {
+func (s *sGpiodInMockProvider) GetValue(point c_base.IPoint) (any, error) {
 	if point == s.point {
 		return s.currentStatus, nil
 	}
 	return nil, nil
 }
 
-func (s *sGpiodMockProvider) ProtocolListen() {
-
+func (s *sGpiodInMockProvider) ProtocolListen() {
+	// Mock输入provider的监听逻辑
 }
 
-func (s *sGpiodMockProvider) GetConfig() *c_base.SDeviceConfig {
+func (s *sGpiodInMockProvider) GetConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
-func (s *sGpiodMockProvider) RegisterHandler(handler func(status bool, isChange bool)) {
+func (s *sGpiodInMockProvider) RegisterHandler(handler func(status bool, isChange bool)) {
 	s.handler = handler
 }
 
-func (s *sGpiodMockProvider) GetStatus() *bool {
+func (s *sGpiodInMockProvider) GetStatus() *bool {
 	return s.currentStatus
 }
 
-func (s *sGpiodMockProvider) SetHigh() error {
-	s.updateStatus(true)
-	return nil
+func (s *sGpiodInMockProvider) SetHigh() error {
+	return fmt.Errorf("cannot set value on input GPIO pin")
 }
 
-func (s *sGpiodMockProvider) SetLow() error {
-	s.updateStatus(false)
-	return nil
+func (s *sGpiodInMockProvider) SetLow() error {
+	return fmt.Errorf("cannot set value on input GPIO pin")
 }
 
 // updateStatus 更新GPIO状态和时间戳，并处理状态变化
-func (s *sGpiodMockProvider) updateStatus(status bool) {
+func (s *sGpiodInMockProvider) updateStatus(status bool) {
 	// 保存之前的状态
 	last := s.currentStatus
 

@@ -5,7 +5,7 @@ type: gpio_in
 version: "v1.0.0"
 author: "zz@hexems.com"
 create: "2025-09-12"
-protocolType: "gpiod"
+protocolType: "gpio_in"
 desc: "基础GPIO输入驱动，支持GPIO输入监控和告警"
 telemetry:
   - key: status
