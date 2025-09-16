@@ -150,29 +150,40 @@ func (s *SDriverInfo) getTelemetry(key string, instance IDevice) (any, error) {
 		ok     bool
 	)
 
-	// 如果缓冲中不存在，就反射新增
-	if method, ok = s.reflectMethodCache[key]; !ok {
-		functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
+	// 先尝试读锁获取缓存
+	s.reflectMethodMutex.RLock()
+	if method, ok = s.reflectMethodCache[key]; ok {
+		s.reflectMethodMutex.RUnlock()
+	} else {
+		s.reflectMethodMutex.RUnlock()
 
-		// 获取实例的反射值
-		instanceValue := reflect.ValueOf(instance)
-		if !instanceValue.IsValid() {
-			return nil, errors.Errorf("invalid instance for telemetry key: [%s]", key)
+		// 缓存不存在，需要写入，使用写锁
+		s.reflectMethodMutex.Lock()
+		// 双重检查，防止其他goroutine已经写入
+		if method, ok = s.reflectMethodCache[key]; !ok {
+			functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
+
+			// 获取实例的反射值
+			instanceValue := reflect.ValueOf(instance)
+			if !instanceValue.IsValid() {
+				return nil, errors.Errorf("invalid instance for telemetry key: [%s]", key)
+			}
+
+			// 获取方法
+			method = instanceValue.MethodByName(functionName)
+			if !method.IsValid() {
+				return nil, errors.Errorf("TelemetryKey: [%s] method [%s] not found", key, functionName)
+			}
+
+			// 检查方法是否可以被调用
+			if !method.CanInterface() {
+				return nil, errors.Errorf("TelemetryKey: [%s] method [%s] cannot be called", key, functionName)
+			}
+
+			// 缓存方法
+			s.reflectMethodCache[key] = method
 		}
-
-		// 获取方法
-		method = instanceValue.MethodByName(functionName)
-		if !method.IsValid() {
-			return nil, errors.Errorf("TelemetryKey: [%s] method [%s] not found", key, functionName)
-		}
-
-		// 检查方法是否可以被调用
-		if !method.CanInterface() {
-			return nil, errors.Errorf("TelemetryKey: [%s] method [%s] cannot be called", key, functionName)
-		}
-
-		// 缓存方法
-		s.reflectMethodCache[key] = method
+		s.reflectMethodMutex.Unlock()
 	}
 
 	// 使用defer recover处理可能的panic
@@ -195,8 +206,8 @@ func (s *SDriverInfo) getTelemetry(key string, instance IDevice) (any, error) {
 
 		if len(values) == 1 {
 			// 只有返回值，没有error
-			// 检查返回值是否为 nil 指针
-			if values[0].IsNil() {
+			// 检查返回值是否为 nil 指针（仅对指针类型检查）
+			if values[0].Kind() == reflect.Ptr && values[0].IsNil() {
 				result = nil
 			} else {
 				result = values[0].Interface()
@@ -221,8 +232,8 @@ func (s *SDriverInfo) getTelemetry(key string, instance IDevice) (any, error) {
 		}
 
 		// 返回成功结果
-		// 检查返回值是否为 nil 指针
-		if values[0].IsNil() {
+		// 检查返回值是否为 nil 指针（仅对指针类型检查）
+		if values[0].Kind() == reflect.Ptr && values[0].IsNil() {
 			result = nil
 		} else {
 			result = values[0].Interface()
@@ -276,14 +287,26 @@ func (s *SDriverInfo) ExecuteCustomService(functionName string, instance IDevice
 		ok     bool
 	)
 
-	// 如果缓冲中不存在，就反射新增
-	if method, ok = s.reflectMethodCache[functionName]; !ok {
-		method = reflect.ValueOf(instance).MethodByName(functionName)
-		if !method.IsValid() {
-			c_log.BizInfof(ctx, "执行自定义服务[%s]失败！原因该服务对应的方法[%s]不存在！", service.Key, service.Name)
-			return errors.Errorf("service %s not found", functionName)
+	// 先尝试读锁获取缓存
+	s.reflectMethodMutex.RLock()
+	if method, ok = s.reflectMethodCache[functionName]; ok {
+		s.reflectMethodMutex.RUnlock()
+	} else {
+		s.reflectMethodMutex.RUnlock()
+
+		// 缓存不存在，需要写入，使用写锁
+		s.reflectMethodMutex.Lock()
+		// 双重检查，防止其他goroutine已经写入
+		if method, ok = s.reflectMethodCache[functionName]; !ok {
+			method = reflect.ValueOf(instance).MethodByName(functionName)
+			if !method.IsValid() {
+				s.reflectMethodMutex.Unlock()
+				c_log.BizInfof(ctx, "执行自定义服务[%s]失败！原因该服务对应的方法[%s]不存在！", service.Key, service.Name)
+				return errors.Errorf("service %s not found", functionName)
+			}
+			s.reflectMethodCache[functionName] = method
 		}
-		s.reflectMethodCache[functionName] = method
+		s.reflectMethodMutex.Unlock()
 	}
 
 	// 空参数调用

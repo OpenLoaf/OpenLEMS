@@ -3,6 +3,7 @@ package c_base
 import (
 	"common/c_enum"
 	"reflect"
+	"sync"
 )
 
 type SDriverInfo struct {
@@ -29,6 +30,7 @@ type SDriverInfo struct {
 
 	configStructFields []*SConfigStructFields   // 不能从yaml中倒入
 	reflectMethodCache map[string]reflect.Value // 反射方法缓存
+	reflectMethodMutex sync.RWMutex             // 反射方法缓存读写锁
 }
 
 func (s *SDriverInfo) SetConfigStructFields(configStructFields []*SConfigStructFields) {

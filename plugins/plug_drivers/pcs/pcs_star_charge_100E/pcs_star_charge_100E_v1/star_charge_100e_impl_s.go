@@ -186,24 +186,24 @@ func (s *sPcsStarCharge100E) GetMaxOutputPower() (*float32, error) {
 
 func (s *sPcsStarCharge100E) GetTodayIncomingQuantity() (*float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.ReadSingleSync(DailyBatteryDischargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
+		return protocol.ReadSingleSync(DailyBatteryDischargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, true)
 	})
 }
 
 func (s *sPcsStarCharge100E) GetHistoryIncomingQuantity() (*float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.ReadSingleSync(TotalBatteryDischargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
+		return protocol.ReadSingleSync(TotalBatteryDischargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, true)
 	})
 }
 
 func (s *sPcsStarCharge100E) GetTodayOutgoingQuantity() (*float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.ReadSingleSync(DailyBatteryChargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
+		return protocol.ReadSingleSync(DailyBatteryChargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, true)
 	})
 }
 
 func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (*float64, error) {
 	return s.GetFromProtocolFloat64(func(protocol c_proto.IModbusProtocol) (any, error) {
-		return protocol.ReadSingleSync(TotalBatteryChargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, false)
+		return protocol.ReadSingleSync(TotalBatteryChargeEnergy, c_enum.EMqHoldingRegisters, time.Minute, true)
 	})
 }

@@ -46,7 +46,44 @@ func (s *SVirtualDeviceImpl) Reset() error {
 }
 
 func (s *SVirtualDeviceImpl) GetProtocolStatus() c_enum.EProtocolStatus {
-	return c_enum.EProtocolConnected
+	var status = make([]c_enum.EProtocolStatus, 0)
+	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
+		child := s.GetChildById(childDevice.Id)
+		if child == nil {
+			continue
+		}
+		status = append(status, child.GetProtocolStatus())
+	}
+
+	// 如果没有子设备，返回断开状态
+	if len(status) == 0 {
+		return c_enum.EProtocolDisconnected
+	}
+
+	// 检查所有状态是否相同
+	firstStatus := status[0]
+	allSame := true
+	for _, s := range status {
+		if s != firstStatus {
+			allSame = false
+			break
+		}
+	}
+
+	// 如果所有状态都相同，返回该状态
+	if allSame {
+		return firstStatus
+	}
+
+	// 否则返回数值最低的状态（最差的状态）
+	minStatus := status[0]
+	for _, s := range status {
+		if s < minStatus {
+			minStatus = s
+		}
+	}
+
+	return minStatus
 }
 
 func (s *SVirtualDeviceImpl) GetPointValueList() []*c_base.SPointValue {
