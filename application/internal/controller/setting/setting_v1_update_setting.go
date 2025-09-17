@@ -21,10 +21,6 @@ func (c *ControllerV1) UpdateSetting(ctx context.Context, req *v1.UpdateSettingR
 		g.Log().Error(ctx, "设置ID不能为空")
 		return nil, errors.New("设置ID不能为空")
 	}
-	if req.Value == "" {
-		g.Log().Error(ctx, "设置值不能为空")
-		return nil, errors.New("设置值不能为空")
-	}
 	if req.Group == "" {
 		g.Log().Error(ctx, "分组不能为空")
 		return nil, errors.New("分组不能为空")
