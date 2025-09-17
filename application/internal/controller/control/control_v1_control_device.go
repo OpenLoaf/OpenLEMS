@@ -25,12 +25,6 @@ func (c *ControllerV1) ControlDevice(ctx context.Context, req *v1.ControlDeviceR
 		return nil, gerror.NewCode(gcode.CodeNotFound, "device not found")
 	}
 
-	// 检查设备是否处于手动模式
-	if config.ManualMode {
-		c_log.BizInfof(ctx, "手动控制设备跳过！设备[%s]处于手动模式，跳过[%s]服务执行", config.Name, req.CommandName)
-		return &v1.ControlDeviceRes{}, nil
-	}
-
 	// 记录开始执行服务
 	c_log.BizInfof(ctx, "手动控制设备开始执行服务！设备[%s]，服务[%s]，参数[%v]",
 		config.Name, req.CommandName, req.Parameters)

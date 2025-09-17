@@ -240,7 +240,7 @@ func (m *SManager) SetInterfaceState(ctx context.Context, id public.InterfaceID,
 	// 使用 PowerShell 启用或禁用网络适配器
 	var action string
 	if up {
-		action = "Enable"
+		action = "Enabled"
 	} else {
 		action = "Disable"
 	}

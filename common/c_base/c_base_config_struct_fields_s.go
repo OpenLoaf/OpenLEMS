@@ -10,21 +10,21 @@ import (
 )
 
 type SConfigStructFields struct {
-	Name               string                            `json:"name" required:"true"`
-	Code               string                            `json:"code" required:"true"`
-	Group              string                            `json:"group"`
-	ValueType          string                            `json:"valueType" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
-	ComponentType      c_enum.EConfigFieldsComponentType `json:"componentType" dc:"组件类型" required:"true"`
-	Step               *float32                          `json:"step" required:"true" default:"1" dc:"步长（小步长）"`
-	Required           bool                              `json:"required" required:"true" dc:"是否必填"`
-	Unit               *string                           `json:"unit" dc:"单位"`
-	Min                *int64                            `json:"min"`
-	Max                *int64                            `json:"max"`
-	Default            *string                           `json:"default"`
-	SelectOptions      []string                          `json:"selectOptions"`
-	Regex              *string                           `json:"regex" dc:"正则表达式"`
-	RegexFailedMessage *string                           `json:"regexFailedMessage" dc:"正则表达式失败提醒"`
-	Description        string                            `json:"description" required:"true"`
+	Name               string                            `json:"name" yaml:"name" short:"name" required:"true"`
+	Code               string                            `json:"code" yaml:"code" short:"code" required:"true"`
+	Group              string                            `json:"group" yaml:"group" short:"group"`
+	ValueType          string                            `json:"valueType" yaml:"value_type" short:"vt" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
+	ComponentType      c_enum.EConfigFieldsComponentType `json:"componentType" yaml:"component_type" short:"ct" dc:"组件类型" required:"true"`
+	Step               *float32                          `json:"step" yaml:"step" short:"step" required:"true" default:"1" dc:"步长（小步长）"`
+	Required           bool                              `json:"required" yaml:"required" short:"req" required:"true" dc:"是否必填"`
+	Unit               *string                           `json:"unit" yaml:"unit" short:"unit" dc:"单位"`
+	Min                *int64                            `json:"min" yaml:"min" short:"min"`
+	Max                *int64                            `json:"max" yaml:"max" short:"max"`
+	Default            *string                           `json:"default" yaml:"default" short:"def"`
+	SelectOptions      []string                          `json:"selectOptions" yaml:"select_options" short:"opts"`
+	Regex              *string                           `json:"regex" yaml:"regex" short:"regex" dc:"正则表达式"`
+	RegexFailedMessage *string                           `json:"regexFailedMessage" yaml:"regex_failed_message" short:"rfm" dc:"正则表达式失败提醒"`
+	Description        string                            `json:"description" yaml:"description" short:"desc" required:"true"`
 }
 
 func (s *SConfigStructFields) String() string {
