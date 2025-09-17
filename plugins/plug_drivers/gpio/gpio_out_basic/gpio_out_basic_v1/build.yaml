@@ -10,6 +10,10 @@ desc: "基础GPIO输出驱动，支持GPIO输出控制"
 telemetry:
   - key: status
     name: "状态"
+    paramExplain:
+      true: triggerName
+      false: clearName
+
 service:
   - key: SetLow
     name: "低电平"
