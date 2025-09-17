@@ -23,7 +23,7 @@ type SAutomationModel struct {
 	TimeRangeValue string      `json:"timeRangeValue" orm:"time_range_value"`
 	TriggerRule    string      `json:"triggerRule" orm:"trigger_rule"`
 	ExecuteRule    string      `json:"executeRule" orm:"execute_rule"`
-	Enable         bool        `json:"enable" orm:"enable"`
+	Enabled        bool        `json:"enabled" orm:"enabled"`
 	CreatedAt      *gtime.Time `json:"createdAt" orm:"created_at"`
 	UpdatedAt      *gtime.Time `json:"updatedAt" orm:"updated_at"`
 }
@@ -85,12 +85,12 @@ func (s *SAutomationModel) SetExecuteRule(executeRule string) {
 	s.ExecuteRule = executeRule
 }
 
-func (s *SAutomationModel) GetEnable() bool {
-	return s.Enable
+func (s *SAutomationModel) GetEnabled() bool {
+	return s.Enabled
 }
 
 func (s *SAutomationModel) SetEnable(enable bool) {
-	s.Enable = enable
+	s.Enabled = enable
 }
 
 func (s *SAutomationModel) GetCreatedAt() *gtime.Time {

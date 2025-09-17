@@ -296,7 +296,7 @@ func (m *SAutomationManager) executeAutomations() {
 	m.mu.RLock()
 	enabledTasks := make([]*SAutomationTask, 0)
 	for _, task := range m.automations {
-		if task.GetEnable() {
+		if task.GetEnabled() {
 			enabledTasks = append(enabledTasks, task)
 		}
 	}

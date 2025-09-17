@@ -3,6 +3,7 @@ package internal
 // SAutomationTriggerCondition 自动化触发条件结构体
 type SAutomationTriggerCondition struct {
 	DeviceId string `json:"deviceId"` // 设备ID
+	From     string `json:"from"`     // 是从哪里去取值
 	Rule     string `json:"rule"`     // 规则表达式，如 "P>30", "Ia<100"
 }
 

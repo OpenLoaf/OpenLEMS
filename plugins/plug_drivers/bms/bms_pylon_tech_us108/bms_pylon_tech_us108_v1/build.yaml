@@ -55,3 +55,15 @@ service:
     name: "测试温度告警消除"
   - key: CustomNoFunction
     name: "测试不存在服务"
+  - key: CustomSetParamFunction
+    name: "测试参数设置"
+    params:
+      - name: 测试数字
+        value_type:  int
+        component_type: number
+        required: true
+        step: 10
+        uint: kW
+        min: 0
+        max: 100
+        description: 输入测试数字

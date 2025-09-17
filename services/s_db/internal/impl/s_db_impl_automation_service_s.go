@@ -46,7 +46,7 @@ func (s *sAutomationServiceImpl) CreateAutomation(ctx context.Context, startTime
 		TimeRangeValue: timeRangeValue,
 		TriggerRule:    triggerRule,
 		ExecuteRule:    executeRule,
-		Enable:         true,
+		Enabled:        true,
 		CreatedAt:      now,
 		UpdatedAt:      now,
 	}
@@ -113,7 +113,7 @@ func (s *sAutomationServiceImpl) UpdateAutomation(ctx context.Context, id int, d
 		automation.ExecuteRule = value
 	}
 	if value, ok := data["enable"].(bool); ok {
-		automation.Enable = value
+		automation.Enabled = value
 	}
 
 	// 更新 updated_at
