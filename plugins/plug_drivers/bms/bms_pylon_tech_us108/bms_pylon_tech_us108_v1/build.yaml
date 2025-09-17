@@ -17,8 +17,6 @@ telemetry:
         3: "充电中|#29A634"
         4: "放电中|#0098FA"
         5: "故障|#FF5D5D"
-        6: "同步中|#FF5D5D"
-        7: "启动中|#FF5D5D"
     - key: soc
       unit: "%"
       name: "SOC"

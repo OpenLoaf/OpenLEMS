@@ -9,16 +9,22 @@ import (
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/shockerli/cvt"
 )
 
 func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq) (res *v1.UpdateDeviceRes, err error) {
 	// 构建更新数据 - 只更新有值的字段
 	data := make(map[string]interface{})
 
+	config := common.GetDeviceManager().GetDeviceConfigById(req.DeviceId)
+
 	needRestart := false
 	// 字符串字段：只有非空字符串才更新
 	if req.Name != "" {
 		data["name"] = req.Name
+		if config != nil {
+			config.Name = req.Name
+		}
 	}
 	if req.ProtocolId != "" {
 		data["protocolId"] = req.ProtocolId
@@ -30,6 +36,9 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 	}
 	if req.LogLevel != "" {
 		data["logLevel"] = req.LogLevel
+		if config != nil {
+			config.LogLevel = req.LogLevel
+		}
 	}
 	if req.Params != "" {
 		data["params"] = req.Params
@@ -37,8 +46,11 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 	}
 
 	// 指针字段：只有非nil才更新
-	if req.ManualMode != nil {
-		data["manualMode"] = *req.ManualMode
+	if manualMode, er := cvt.BoolE(req.ManualMode); er == nil {
+		data["manualMode"] = manualMode
+		if config != nil {
+			config.ManualMode = manualMode
+		}
 	}
 	if req.Enabled != nil {
 		data["enabled"] = *req.Enabled
@@ -46,6 +58,12 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 	}
 	if req.Sort != nil {
 		data["sort"] = *req.Sort
+	}
+	if sort, er := cvt.IntE(req.Sort); er == nil {
+		data["sort"] = sort
+		if config != nil {
+			config.Sort = sort
+		}
 	}
 
 	// 调用数据库服务更新设备

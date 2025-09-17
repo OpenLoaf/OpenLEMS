@@ -44,21 +44,45 @@ func (s *SPoint) TriggerAlarm(value any) (trigger bool, level c_enum.EAlarmLevel
 }
 
 func (s *SPoint) GetValueExplain(value any) (string, error) {
+	// 1. 将value转换为字符串，如果是枚举之类的，转为int的字符串
+	var valueStr string
+	var err error
+
+	// 检查值是否为数值类型（整数或浮点数）
+	switch value.(type) {
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+		// 数值类型直接转换为字符串
+		valueStr, err = cvt.StringE(value)
+		if err != nil {
+			return "", err
+		}
+	case *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64:
+		// 指针类型先解引用再转换
+		valueStr, err = cvt.StringE(value)
+		if err != nil {
+			return "", err
+		}
+	default:
+		// 非数值类型（如枚举）先转为int再转为字符串
+		intVal, err := cvt.IntE(value)
+		if err != nil {
+			return "", err
+		}
+		valueStr, err = cvt.StringE(intVal)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// 2. 从ValueExplain中判断是否和value匹配，匹配的话返回ValueExplain的值
 	if s.ValueExplain != nil {
-		if v, ok := s.ValueExplain[cvt.String(value)]; ok {
+		if v, ok := s.ValueExplain[valueStr]; ok {
 			return v, nil
 		}
 	}
-	// 检查值是否为数值类型（整数或浮点数）
-	switch value.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
-	case *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64, *float32, *float64:
-	default:
-		// 非数值类型使用默认的字符串转换
-		return cvt.StringE(value)
-	}
 
-	// 尝试将值转换为浮点数
+	// 3. 浮点数据进行格式化输出
+	// 尝试将值转换为浮点数进行格式化
 	if floatVal, err := cvt.Float64E(value); err == nil {
 		// 使用 strconv.FormatFloat 进行精确格式化
 		// 'f' 表示固定小数点格式，s.Precise 表示精度
@@ -66,8 +90,8 @@ func (s *SPoint) GetValueExplain(value any) (string, error) {
 		return formatted, nil
 	}
 
-	// 如果无法转换为浮点数，使用默认的字符串转换
-	return cvt.StringE(value)
+	// 如果无法转换为浮点数，返回转换后的字符串
+	return valueStr, nil
 }
 
 func (s *SPoint) GetKey() string {

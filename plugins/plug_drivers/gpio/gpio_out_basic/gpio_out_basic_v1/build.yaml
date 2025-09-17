@@ -11,8 +11,8 @@ telemetry:
   - key: status
     name: "状态"
     paramExplain:
-      true: triggerName
-      false: clearName
+      1: triggerName
+      0: clearName
 
 service:
   - key: SetLow
