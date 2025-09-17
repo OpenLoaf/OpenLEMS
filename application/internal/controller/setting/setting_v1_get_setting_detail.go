@@ -27,7 +27,7 @@ func (c *ControllerV1) GetSettingDetail(ctx context.Context, req *v1.GetSettingD
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取设置详情失败")
 	}
 	if setting == nil {
-		return &v1.GetSettingDetailRes{}, nil
+		return nil, nil
 	}
 
 	// 转换为响应格式
