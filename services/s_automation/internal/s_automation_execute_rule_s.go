@@ -2,9 +2,9 @@ package internal
 
 // SAutomationExecuteRule 自动化执行规则结构体
 type SAutomationExecuteRule struct {
-	DeviceId string   `json:"deviceId"` // 设备ID
-	Service  string   `json:"service"`  // 服务名称
-	Params   []string `json:"params"`   // 参数列表
+	DeviceId string `json:"deviceId"` // 设备ID
+	Service  string `json:"service"`  // 服务名称
+	Params   []any  `json:"params"`   // 参数列表
 }
 
 // SAutomationExecuteConfig 自动化执行配置结构体，包含多个执行规则
@@ -13,7 +13,7 @@ type SAutomationExecuteConfig struct {
 }
 
 // NewAutomationExecuteRule 创建新的执行规则
-func NewAutomationExecuteRule(deviceId, service string, params []string) *SAutomationExecuteRule {
+func NewAutomationExecuteRule(deviceId, service string, params []any) *SAutomationExecuteRule {
 	return &SAutomationExecuteRule{
 		DeviceId: deviceId,
 		Service:  service,
@@ -69,12 +69,12 @@ func (r *SAutomationExecuteRule) SetService(service string) {
 }
 
 // GetParams 获取参数列表
-func (r *SAutomationExecuteRule) GetParams() []string {
+func (r *SAutomationExecuteRule) GetParams() []any {
 	return r.Params
 }
 
 // SetParams 设置参数列表
-func (r *SAutomationExecuteRule) SetParams(params []string) {
+func (r *SAutomationExecuteRule) SetParams(params []any) {
 	r.Params = params
 }
 

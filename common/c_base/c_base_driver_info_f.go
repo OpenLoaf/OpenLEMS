@@ -255,7 +255,7 @@ func capitalizeFirstLetter(s string) string {
 	return strings.ToUpper(s[:1]) + s[1:]
 }
 
-func ExecuteCustomService(functionName string, instance IDevice, params []string) error {
+func ExecuteCustomService(functionName string, instance IDevice, params []any) error {
 
 	// 执行自定义方法
 	if instance == nil {
