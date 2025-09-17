@@ -68,7 +68,7 @@ func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
 			continue
 		}
 
-		list = append(list, NewPointValue(instance.GetConfig().Id, telemetry.ToPoint(ResolvingValueType(value)), value))
+		list = append(list, NewPointValue(instance.GetConfig().Id, telemetry.ToPoint(ResolvingValueType(value), instance.GetConfig().Params), value))
 	}
 	return list
 }

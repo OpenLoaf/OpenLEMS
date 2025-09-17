@@ -12,19 +12,30 @@ type STelemetry struct {
 	ParamExplain map[string]string `json:"paramExplain,omitempty" yaml:"paramExplain"` // 从参数值中读取解释
 }
 
-func (s *STelemetry) ToPoint(valueType c_enum.EValueType) IPoint {
+func (s *STelemetry) ToPoint(valueType c_enum.EValueType, params map[string]any) IPoint {
+	valueExplain := make(map[string]string)
 	if s.ValueExplain != nil {
 		valueType = c_enum.EString
+		valueExplain = s.ValueExplain
+	}
+	if s.ParamExplain != nil {
+		valueType = c_enum.EString
+		for key, v := range s.ParamExplain {
+			if pv, ok := params[v]; ok && pv != nil {
+				valueExplain[key] = pv.(string)
+			}
+		}
 	}
 
 	return &SPoint{
-		Key:       s.Key,
-		Name:      s.Name,
-		Group:     GroupTotal,
-		Precise:   s.Precise,
-		Desc:      s.Desc,
-		Unit:      s.Unit,
-		ValueType: valueType,
+		Key:          s.Key,
+		Name:         s.Name,
+		Group:        GroupTotal,
+		Precise:      s.Precise,
+		Desc:         s.Desc,
+		Unit:         s.Unit,
+		ValueType:    valueType,
+		ValueExplain: valueExplain,
 	}
 }
 

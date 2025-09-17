@@ -6,11 +6,11 @@ import (
 
 // SGpioDeviceConfig gpio设备的配置
 type SGpioDeviceConfig struct {
-	HighTrigger bool               `json:"highTrigger" name:"高电平触发" ct:"switch" vt:"bool" default:"true" dc:"触发模式"`
-	Level       c_enum.EAlarmLevel `json:"level" name:"告警级别" ct:"select" vt:"int" selectOptions:"0:无告警,1:警告,2:警报,3:故障" default:"0" dc:"GPIO状态变化时的告警级别"`
-
 	TriggerName string `json:"triggerName" name:"触发显示内容" ct:"text" vt:"string" required:"true" dc:"信号触发时显示的名称"`
 	ClearName   string `json:"clearName" name:"消除显示内容" ct:"text" vt:"string" required:"true" dc:"信号消除时显示的名称"`
+	HighTrigger bool   `json:"highTrigger" name:"高电平触发" ct:"switch" vt:"bool" default:"true" dc:"触发模式"`
+
+	Level c_enum.EAlarmLevel `json:"level" name:"告警级别" ct:"select" vt:"int" selectOptions:"0:无告警,1:警告,2:警报,3:故障" default:"0" dc:"GPIO状态变化时的告警级别"`
 }
 
 // SGpiodProtocolConfig gpiod协议的配置

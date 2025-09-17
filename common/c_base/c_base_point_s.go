@@ -9,18 +9,19 @@ import (
 
 // SPoint 点位元数据
 type SPoint struct {
-	Key       string                                                                      `json:"key" v:"required" ` // 名称
-	Name      string                                                                      `json:"name" v:"required"` // 名称
-	ValueType c_enum.EValueType                                                           `json:"value_type,omitempty" v:"required"`
-	Group     *SPointGroup                                                                `json:"group" dc:"分组"`
-	Unit      string                                                                      `json:"unit,omitempty"`             // 单位
-	Desc      string                                                                      `json:"desc,omitempty"`             // 备注
-	Sort      int                                                                         `json:"sort"`                       // 排序
-	Min       int64                                                                       `json:"min,omitempty" dc:"正常范围最小值"` // 范围最小值,  默认为0
-	Max       int64                                                                       `json:"max,omitempty" dc:"正常范围最大值"` // 范围最大值，默认为0
-	Precise   uint8                                                                       `json:"precise,omitempty"`          // 设置浮点数精度（只是显示用）
-	Trigger   func(value interface{}) (trigger bool, level c_enum.EAlarmLevel, err error) `json:"-" dc:"告警触发函数"`
-	Hidden    bool                                                                        `json:"hidden" dc:"是否显示"`
+	Key          string                                                                      `json:"key" v:"required" ` // 名称
+	Name         string                                                                      `json:"name" v:"required"` // 名称
+	ValueType    c_enum.EValueType                                                           `json:"value_type,omitempty" v:"required"`
+	Group        *SPointGroup                                                                `json:"group" dc:"分组"`
+	Unit         string                                                                      `json:"unit,omitempty"`             // 单位
+	Desc         string                                                                      `json:"desc,omitempty"`             // 备注
+	Sort         int                                                                         `json:"sort"`                       // 排序
+	Min          int64                                                                       `json:"min,omitempty" dc:"正常范围最小值"` // 范围最小值,  默认为0
+	Max          int64                                                                       `json:"max,omitempty" dc:"正常范围最大值"` // 范围最大值，默认为0
+	Precise      uint8                                                                       `json:"precise,omitempty"`          // 设置浮点数精度（只是显示用）
+	Trigger      func(value interface{}) (trigger bool, level c_enum.EAlarmLevel, err error) `json:"-" dc:"告警触发函数"`
+	Hidden       bool                                                                        `json:"hidden" dc:"是否显示"`
+	ValueExplain map[string]string                                                           `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
 }
 
 func (s *SPoint) IsHidden() bool {
@@ -43,6 +44,11 @@ func (s *SPoint) TriggerAlarm(value any) (trigger bool, level c_enum.EAlarmLevel
 }
 
 func (s *SPoint) GetValueExplain(value any) (string, error) {
+	if s.ValueExplain != nil {
+		if v, ok := s.ValueExplain[cvt.String(value)]; ok {
+			return v, nil
+		}
+	}
 	// 检查值是否为数值类型（整数或浮点数）
 	switch value.(type) {
 	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64:
