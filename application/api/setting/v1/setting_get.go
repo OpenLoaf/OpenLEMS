@@ -44,7 +44,7 @@ type GetSettingDetailRes struct {
 type UpdateSettingReq struct {
 	g.Meta   `path:"/setting/update" method:"post" tags:"设置相关" summary:"更新设置信息"`
 	Id       string `json:"id" v:"required" dc:"设置ID"`
-	Value    string `json:"value" v:"required" dc:"设置值"`
+	Value    string `json:"value" dc:"设置值"`
 	Group    string `json:"group" v:"required" dc:"分组"`
 	IsPublic *bool  `json:"isPublic" dc:"是否公开，默认为false"`
 	Enabled  *bool  `json:"enabled" dc:"是否启用，默认为true"`
