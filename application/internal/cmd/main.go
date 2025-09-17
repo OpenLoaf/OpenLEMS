@@ -6,7 +6,6 @@ import (
 	"context"
 	"os"
 	"runtime"
-	"syscall"
 	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -81,8 +80,10 @@ var (
 				go func() {
 					time.Sleep(3 * time.Second)
 					g.Log().Infof(ctx, "===> 测试模式：发送shutdown信号")
-					// 发送SIGTERM信号来触发优雅关闭
-					_ = syscall.Kill(os.Getpid(), syscall.SIGTERM)
+					// 使用跨平台的进程终止函数
+					if err := utils.KillProcess(); err != nil {
+						g.Log().Errorf(ctx, "发送终止信号失败: %v", err)
+					}
 				}()
 			}
 

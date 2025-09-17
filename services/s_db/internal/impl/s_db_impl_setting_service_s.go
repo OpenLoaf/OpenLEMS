@@ -38,6 +38,19 @@ func (s *sSettingServiceImpl) GetAllSettings(ctx context.Context) ([]*s_db_model
 	return settings, nil
 }
 
+// GetSettingById 根据ID获取设置详情
+func (s *sSettingServiceImpl) GetSettingById(ctx context.Context, id string) (*s_db_model.SSettingModel, error) {
+	setting := &s_db_model.SSettingModel{}
+	err := setting.GetById(ctx, id)
+	if err != nil {
+		g.Log().Errorf(ctx, "获取设置详情失败 - 设置ID: %s, 错误: %+v", id, err)
+		return nil, err
+	}
+
+	g.Log().Infof(ctx, "成功获取设置详情 - 设置ID: %s", id)
+	return setting, nil
+}
+
 // 获取设置配置通过名称
 func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string) string {
 	setting := &s_db_model.SSettingModel{}

@@ -22,6 +22,7 @@ type ISystemV1 interface {
 	RebootApply(ctx context.Context, req *v1.RebootApplyReq) (res *v1.RebootApplyRes, err error)
 	RebootExecute(ctx context.Context, req *v1.RebootExecuteReq) (res *v1.RebootExecuteRes, err error)
 	GetSetting(ctx context.Context, req *v1.GetSettingReq) (res *v1.GetSettingRes, err error)
+	GetSettingDetail(ctx context.Context, req *v1.GetSettingDetailReq) (res *v1.GetSettingDetailRes, err error)
 	UpdateStorageTime(ctx context.Context, req *v1.UpdateStorageTimeReq) (res *v1.UpdateStorageTimeRes, err error)
 	GetStorageStats(ctx context.Context, req *v1.GetStorageStatsReq) (res *v1.GetStorageStatsRes, err error)
 }

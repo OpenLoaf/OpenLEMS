@@ -333,6 +333,35 @@ func (c *ControllerV1) GetSetting(ctx context.Context, req *v1.GetSettingReq) (r
 	return
 }
 
+// GetSettingDetail 获取设置详情
+func (c *ControllerV1) GetSettingDetail(ctx context.Context, req *v1.GetSettingDetailReq) (res *v1.GetSettingDetailRes, err error) {
+	// 参数验证
+	if req.Id == "" {
+		return nil, errors.New("设置ID不能为空")
+	}
+
+	// 调用服务层获取设置详情
+	setting, err := s_db.GetSettingService().GetSettingById(ctx, req.Id)
+	if err != nil {
+		return nil, errors.Errorf("获取设置详情失败: %+v", err)
+	}
+
+	// 转换为响应格式
+	res = &v1.GetSettingDetailRes{
+		Id:        setting.Id,
+		Value:     setting.Value,
+		IsPublic:  setting.IsPublic,
+		Enabled:   setting.Enabled,
+		Remark:    setting.Remark,
+		Sort:      setting.Sort,
+		Group:     setting.Group,
+		CreatedAt: &setting.CreatedAt.Time,
+		UpdatedAt: &setting.UpdatedAt.Time,
+	}
+
+	return res, nil
+}
+
 func (c *ControllerV1) UpdateStorageTime(ctx context.Context, req *v1.UpdateStorageTimeReq) (res *v1.UpdateStorageTimeRes, err error) {
 	// 更新设备数据保留天数
 	err = s_db.GetSettingService().SetSettingValueById(ctx, s_db_basic.SettingDeviceRetentionDays, fmt.Sprintf("%d", req.DeviceRetentionDays))
