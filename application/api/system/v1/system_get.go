@@ -135,10 +135,18 @@ type SysInfo struct {
 }
 
 type GetSettingReq struct {
-	g.Meta `path:"/system/setting" method:"post" tags:"系统相关" summary:"获取设置信息"`
+	g.Meta `path:"/system/setting" method:"get" tags:"系统相关" summary:"获取公开设置信息"`
 }
 type GetSettingRes struct {
-	Settings map[string]string `json:"settings" dc:"设置信息映射，key为设置ID，value为设置值"`
+	Settings []SettingItem `json:"settings" dc:"公开设置信息列表"`
+}
+
+// SettingItem 设置项结构体
+type SettingItem struct {
+	Id        string `json:"id" dc:"设置ID"`
+	Value     string `json:"value" dc:"设置值"`
+	GroupName string `json:"groupName" dc:"分组名称"`
+	Remark    string `json:"remark" dc:"备注"`
 }
 
 // GetSettingDetailReq 获取设置详情请求

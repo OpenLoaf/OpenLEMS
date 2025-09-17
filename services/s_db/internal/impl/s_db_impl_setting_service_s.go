@@ -129,6 +129,19 @@ func (s *sSettingServiceImpl) GetRootPolicyId(ctx context.Context) string {
 	return s.GetSettingValueById(ctx, s_db_basic.SettingActivePolicyIdKey)
 }
 
+// GetPublicEnabledSettings 获取公开且启用的设置
+func (s *sSettingServiceImpl) GetPublicEnabledSettings(ctx context.Context) ([]*s_db_model.SSettingModel, error) {
+	// 调用模型层的 GetPublicEnabledSettings 方法
+	settings, err := s_db_model.GetPublicEnabledSettings(ctx)
+	if err != nil {
+		g.Log().Errorf(ctx, "获取公开且启用的设置失败 - 错误: %+v", err)
+		return nil, err
+	}
+
+	g.Log().Infof(ctx, "成功获取公开且启用的设置，共 %d 条记录", len(settings))
+	return settings, nil
+}
+
 /*func (s *sSettingServiceImpl) GetProtocolsConfigList(ctx context.Context) []*c_base.SProtocolConfig {
 	protocols, err := GetProtocolService().GetAllProtocols(ctx)
 	if err != nil {

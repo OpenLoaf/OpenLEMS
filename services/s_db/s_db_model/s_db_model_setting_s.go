@@ -173,3 +173,10 @@ func (s *SSettingModel) UpdateGroup(ctx context.Context, group string) error {
 	s.Group = group
 	return s.UpdateFields(ctx, g.Map{FieldGroup: group})
 }
+
+// GetPublicEnabledSettings 获取公开且启用的设置记录
+func GetPublicEnabledSettings(ctx context.Context) ([]*SSettingModel, error) {
+	var settings []*SSettingModel
+	err := g.Model(TableSetting).Ctx(ctx).Where("is_public", true).Where(FieldEnable, true).Scan(&settings)
+	return settings, err
+}

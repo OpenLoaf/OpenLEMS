@@ -406,7 +406,6 @@ func (m *SAutomationManager) checkTriggerCondition(condition *SAutomationTrigger
 	// 获取设备的遥测数据
 	telemetryMap := c_base.GetAllTelemetry(deviceInstance)
 	if telemetryMap == nil || len(telemetryMap) == 0 {
-		g.Log().Warningf(m.ctx, "设备遥测数据为空: %s", condition.DeviceId)
 		return false
 	}
 

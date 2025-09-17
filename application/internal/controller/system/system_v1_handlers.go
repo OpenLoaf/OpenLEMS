@@ -312,23 +312,25 @@ func (c *ControllerV1) RebootExecute(ctx context.Context, req *v1.RebootExecuteR
 }
 
 func (c *ControllerV1) GetSetting(ctx context.Context, req *v1.GetSettingReq) (res *v1.GetSettingRes, err error) {
-	// 获取所有设置信息
-	settings, err := s_db.GetSettingService().GetAllSettings(ctx)
+	// 获取公开且启用的设置信息
+	settings, err := s_db.GetSettingService().GetPublicEnabledSettings(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// 构建设置映射
-	settingsMap := make(map[string]string)
+	// 构建设置列表
+	var settingsList []v1.SettingItem
 	for _, setting := range settings {
-		// 只返回启用的设置
-		if setting.Enabled {
-			settingsMap[setting.Id] = setting.Value
-		}
+		settingsList = append(settingsList, v1.SettingItem{
+			Id:        setting.Id,
+			Value:     setting.Value,
+			GroupName: setting.Group,
+			Remark:    setting.Remark,
+		})
 	}
 
 	res = &v1.GetSettingRes{
-		Settings: settingsMap,
+		Settings: settingsList,
 	}
 	return
 }
