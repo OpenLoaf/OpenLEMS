@@ -74,11 +74,10 @@ func StartServices(ctx context.Context) {
 		time.Sleep(2 * time.Second)
 
 		// 启动自动化管理器，每秒执行一次
-		err := s_automation.StartAutomationManager(ctx, time.Second)
+		err := s_automation.StartAutomationManager(ctx, 500*time.Millisecond)
 		if err != nil {
 			g.Log().Errorf(ctx, "启动自动化管理器失败: %+v", err)
 		} else {
-			g.Log().Infof(ctx, "自动化管理器启动成功")
 			c_log.BizInfof(ctx, "自动化服务启动成功！")
 		}
 	}()
