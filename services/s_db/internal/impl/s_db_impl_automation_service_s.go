@@ -193,7 +193,7 @@ func (s *sAutomationServiceImpl) GetAutomationPage(ctx context.Context, page, pa
 			model = model.Where(s_db_model.FieldTimeRangeType, timeRangeType)
 		}
 		if enable, ok := filters["enable"].(bool); ok {
-			model = model.Where(s_db_model.FieldEnable, enable)
+			model = model.Where(s_db_model.FieldEnabled, enable)
 		}
 	}
 

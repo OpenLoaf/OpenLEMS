@@ -10,7 +10,7 @@ const (
 	FieldName = "name"
 	FieldType = "type"
 
-	FieldEnable = "enable"
+	FieldEnabled = "enabled"
 
 	FieldCreatedAt = "created_at"
 	FieldUpdatedAt = "updated_at"

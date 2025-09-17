@@ -46,7 +46,7 @@ func initConfigDatabase() {
 			log_level VARCHAR(255) NOT NULL DEFAULT 'INFO',
 			sort INTEGER DEFAULT 0,
 			params TEXT DEFAULT '{}',
-		    enable BOOLEAN DEFAULT 1,
+		    enabled BOOLEAN DEFAULT 1,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)
@@ -154,7 +154,7 @@ func initConfigDatabase() {
 			time_range_value VARCHAR(255),
 			trigger_rule TEXT NOT NULL,
 			execute_rule TEXT NOT NULL,
-			enable BOOLEAN DEFAULT 1,
+			enabled BOOLEAN DEFAULT 1,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)

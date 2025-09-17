@@ -161,7 +161,7 @@ func (s *sDeviceServiceImpl) GetDevicesByProtocolId(ctx context.Context, protoco
 // GetEnabledDevices 获取所有启用的设备
 func (s *sDeviceServiceImpl) GetEnabledDevices(ctx context.Context) ([]*s_db_model.SDeviceModel, error) {
 	var devices []*s_db_model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldEnable, true).Scan(&devices)
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldEnabled, true).Scan(&devices)
 	return devices, err
 }
 
@@ -194,7 +194,7 @@ func (s *sDeviceServiceImpl) GetAllDevicesOrderBySort(ctx context.Context) ([]*s
 // GetAllDevicesOrderBySortAndEnable 获取所有设备记录，按sort字段排序，enable参数控制是否只获取启用的设备
 func (s *sDeviceServiceImpl) GetAllDevicesOrderBySortAndEnable(ctx context.Context, enable bool) ([]*s_db_model.SDeviceModel, error) {
 	var devices []*s_db_model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldEnable, enable).Order(s_db_model.FieldSort).Scan(&devices)
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldEnabled, enable).Order(s_db_model.FieldSort).Scan(&devices)
 	return devices, err
 }
 

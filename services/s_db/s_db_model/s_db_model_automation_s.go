@@ -160,7 +160,7 @@ func GetAutomationsByTimeRangeType(ctx context.Context, timeRangeType string) ([
 
 func GetEnabledAutomations(ctx context.Context) ([]*SAutomationModel, error) {
 	var automations []*SAutomationModel
-	err := g.Model(TableAutomation).Ctx(ctx).Where(FieldEnable, true).Scan(&automations)
+	err := g.Model(TableAutomation).Ctx(ctx).Where(FieldEnabled, true).Scan(&automations)
 	return automations, err
 }
 

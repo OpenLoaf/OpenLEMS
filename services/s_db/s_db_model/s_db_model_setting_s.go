@@ -102,7 +102,7 @@ func GetSettingsByCondition(ctx context.Context, condition g.Map) ([]*SSettingMo
 // GetEnabledSettings 获取所有启用的设置
 func GetEnabledSettings(ctx context.Context) ([]*SSettingModel, error) {
 	var settings []*SSettingModel
-	err := g.Model(TableSetting).Ctx(ctx).Where(FieldEnable, true).Scan(&settings)
+	err := g.Model(TableSetting).Ctx(ctx).Where(FieldEnabled, true).Scan(&settings)
 	return settings, err
 }
 
@@ -132,7 +132,7 @@ func (s *SSettingModel) IsEnabled() bool {
 
 // SetEnabled 设置启用状态
 func (s *SSettingModel) SetEnabled(ctx context.Context, enabled bool) error {
-	return s.UpdateFields(ctx, g.Map{FieldEnable: enabled})
+	return s.UpdateFields(ctx, g.Map{FieldEnabled: enabled})
 }
 
 // UpdateValue 更新设置值
@@ -164,7 +164,7 @@ func GetSettingsByGroup(ctx context.Context, group string) ([]*SSettingModel, er
 // GetEnabledSettingsByGroup 根据分组获取启用的设置记录
 func GetEnabledSettingsByGroup(ctx context.Context, group string) ([]*SSettingModel, error) {
 	var settings []*SSettingModel
-	err := g.Model(TableSetting).Ctx(ctx).Where(FieldGroup, group).Where(FieldEnable, true).Scan(&settings)
+	err := g.Model(TableSetting).Ctx(ctx).Where(FieldGroup, group).Where(FieldEnabled, true).Scan(&settings)
 	return settings, err
 }
 
@@ -177,6 +177,6 @@ func (s *SSettingModel) UpdateGroup(ctx context.Context, group string) error {
 // GetPublicEnabledSettings 获取公开且启用的设置记录
 func GetPublicEnabledSettings(ctx context.Context) ([]*SSettingModel, error) {
 	var settings []*SSettingModel
-	err := g.Model(TableSetting).Ctx(ctx).Where("is_public", true).Where(FieldEnable, true).Scan(&settings)
+	err := g.Model(TableSetting).Ctx(ctx).Where("is_public", true).Where(FieldEnabled, true).Scan(&settings)
 	return settings, err
 }
