@@ -311,59 +311,6 @@ func (c *ControllerV1) RebootExecute(ctx context.Context, req *v1.RebootExecuteR
 	return &v1.RebootExecuteRes{}, nil
 }
 
-func (c *ControllerV1) GetSetting(ctx context.Context, req *v1.GetSettingReq) (res *v1.GetSettingRes, err error) {
-	// 获取公开且启用的设置信息
-	settings, err := s_db.GetSettingService().GetPublicEnabledSettings(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// 构建设置列表
-	var settingsList []v1.SettingItem
-	for _, setting := range settings {
-		settingsList = append(settingsList, v1.SettingItem{
-			Id:        setting.Id,
-			Value:     setting.Value,
-			GroupName: setting.Group,
-			Remark:    setting.Remark,
-		})
-	}
-
-	res = &v1.GetSettingRes{
-		Settings: settingsList,
-	}
-	return
-}
-
-// GetSettingDetail 获取设置详情
-func (c *ControllerV1) GetSettingDetail(ctx context.Context, req *v1.GetSettingDetailReq) (res *v1.GetSettingDetailRes, err error) {
-	// 参数验证
-	if req.Id == "" {
-		return nil, errors.New("设置ID不能为空")
-	}
-
-	// 调用服务层获取设置详情
-	setting, err := s_db.GetSettingService().GetSettingById(ctx, req.Id)
-	if err != nil {
-		return nil, errors.Errorf("获取设置详情失败: %+v", err)
-	}
-
-	// 转换为响应格式
-	res = &v1.GetSettingDetailRes{
-		Id:        setting.Id,
-		Value:     setting.Value,
-		IsPublic:  setting.IsPublic,
-		Enabled:   setting.Enabled,
-		Remark:    setting.Remark,
-		Sort:      setting.Sort,
-		Group:     setting.Group,
-		CreatedAt: &setting.CreatedAt.Time,
-		UpdatedAt: &setting.UpdatedAt.Time,
-	}
-
-	return res, nil
-}
-
 func (c *ControllerV1) UpdateStorageTime(ctx context.Context, req *v1.UpdateStorageTimeReq) (res *v1.UpdateStorageTimeRes, err error) {
 	// 更新设备数据保留天数
 	err = s_db.GetSettingService().SetSettingValueById(ctx, s_db_basic.SettingDeviceRetentionDays, fmt.Sprintf("%d", req.DeviceRetentionDays))
