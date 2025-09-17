@@ -1,6 +1,6 @@
 database:
   default:
-    debug: true
+    debug: false
 
 server:
   address: ":15880"

@@ -477,15 +477,29 @@ func (m *SAutomationManager) executeAutomationRules(task *SAutomationTask) {
 	for _, rule := range executeConfig.Rules {
 		deviceInstance := common.GetDeviceManager().GetDeviceById(rule.DeviceId)
 		if deviceInstance == nil {
+			c_log.BizErrorf(m.ctx, "自动化任务执行失败！设备[%s]不存在", rule.DeviceId)
 			continue
 		}
 
+		if deviceInstance.GetConfig().ManualMode {
+			c_log.BizInfof(m.ctx, "自动化任务执行跳过！设备[%s]处于手动模式，跳过[%s]服务执行", deviceInstance.GetConfig().Name, rule.Service)
+			continue
+		}
+
+		// 记录开始执行服务
+		c_log.BizInfof(m.ctx, "自动化任务开始执行服务！设备[%s]，服务[%s]，参数[%v]",
+			deviceInstance.GetConfig().Name, rule.Service, rule.Params)
+
 		err := c_base.ExecuteCustomService(rule.Service, deviceInstance, rule.Params)
 		if err != nil {
-			c_log.BizErrorf(m.ctx, "执行服务[%s]失败！原因：%v", rule.DeviceId, err)
+			c_log.BizErrorf(m.ctx, "自动化任务执行服务失败！设备[%s]，服务[%s]，原因：%v",
+				deviceInstance.GetConfig().Name, rule.Service, err)
+		} else {
+			c_log.BizInfof(m.ctx, "自动化任务执行服务成功！设备[%s]，服务[%s]",
+				deviceInstance.GetConfig().Name, rule.Service)
 		}
 	}
 
-	c_log.Infof(m.ctx, "执行自动化任务成功！%+v", executeConfig)
+	//c_log.BizInfof(m.ctx, "自动化任务执行完成！任务ID[%d]，执行规则数量[%d]", task.GetId(), len(executeConfig.Rules))
 
 }

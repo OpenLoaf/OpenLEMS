@@ -255,7 +255,7 @@ func capitalizeFirstLetter(s string) string {
 	return strings.ToUpper(s[:1]) + s[1:]
 }
 
-func ExecuteCustomService(functionName string, instance IDevice, params any) error {
+func ExecuteCustomService(functionName string, instance IDevice, params []string) error {
 
 	// 执行自定义方法
 	if instance == nil {
@@ -316,8 +316,18 @@ func ExecuteCustomService(functionName string, instance IDevice, params any) err
 		s.reflectMethodMutex.Unlock()
 	}
 
-	// 空参数调用
-	values := method.Call(nil)
+	// 准备反射调用的参数
+	var callArgs []reflect.Value
+	if len(params) > 0 {
+		// 将字符串参数转换为reflect.Value切片
+		callArgs = make([]reflect.Value, len(params))
+		for i, param := range params {
+			callArgs[i] = reflect.ValueOf(param)
+		}
+	}
+
+	// 执行方法调用
+	values := method.Call(callArgs)
 	if len(values) == 1 {
 		if err, ok := values[0].Interface().(error); ok {
 			c_log.BizInfof(ctx, "执行自定义服务[%s]失败！原因：%s", service.Key, err.Error())
@@ -327,7 +337,7 @@ func ExecuteCustomService(functionName string, instance IDevice, params any) err
 		return nil
 	}
 
-	c_log.BizInfof(ctx, "执行自定义服务[%s]成功！", service.Key)
+	//c_log.BizInfof(ctx, "执行自定义服务[%s]成功！", service.Key)
 
 	fmt.Printf("当前函数: %s 返回的参数数据不为1 ！返回的内容为: %v", functionName, values)
 
