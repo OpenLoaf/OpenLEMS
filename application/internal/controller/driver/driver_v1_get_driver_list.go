@@ -13,11 +13,11 @@ func (c *ControllerV1) GetDriverList(ctx context.Context, req *v1.GetDriverListR
 
 	var driverInfoList []*entity.SDriver
 
-	for _, driver := range driverList {
-		driverInfo, err := driverManager.GetDriverInfo(driver.Name)
-		if err != nil {
-			continue
-		}
+	for _, driverInfo := range driverList {
+		//driverInfo, err := driverManager.GetDriverInfo(driver.Name)
+		//if err != nil {
+		//	continue
+		//}
 
 		// 转换为entity.SDriver结构
 		sDriver := &entity.SDriver{

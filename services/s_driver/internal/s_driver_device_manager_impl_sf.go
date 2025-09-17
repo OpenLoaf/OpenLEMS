@@ -90,7 +90,10 @@ func (m *SDeviceManager) GetAllDriversInfo() []*c_base.SDriverInfo {
 
 	// 将map转换为切片
 	var drivers []*c_base.SDriverInfo
-	for _, driver := range allDriversMap {
+	for key, driver := range allDriversMap {
+		if driver.Name == "" {
+			driver.Name = key
+		}
 		drivers = append(drivers, driver)
 	}
 
