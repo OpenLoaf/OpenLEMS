@@ -237,7 +237,12 @@ func (s *sGpiodInLinuxProvider) GetStatusUnsafe() *bool {
 		return nil
 	}
 
-	// 实时读取GPIO状态
+	// 手动模式下直接从缓存读取状态
+	if s.deviceConfig.ManualMode {
+		return s.currentStatus
+	}
+
+	// 自动模式下实时读取GPIO状态
 	if value, err := s.line.Value(); err == nil {
 		status := value == 1
 		// 更新缓存状态和时间戳
@@ -281,13 +286,37 @@ func (s *sGpiodInLinuxProvider) updateStatus(status bool) {
 }
 
 func (s *sGpiodInLinuxProvider) SetHigh() error {
-	c_log.Warningf(s.ctx, "Attempted to set high on input GPIO pin %d - operation not supported", s.gpiodConfig.Pin)
-	return fmt.Errorf("cannot set value on input GPIO pin")
+	// 检查是否为手动模式
+	if !s.deviceConfig.ManualMode {
+		c_log.Warningf(s.ctx, "Attempted to set high on input GPIO pin %d - operation not supported in auto mode", s.gpiodConfig.Pin)
+		return fmt.Errorf("cannot set value on input GPIO pin in auto mode")
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// 手动模式下直接更新缓存状态
+	status := true
+	s.updateStatus(status)
+	c_log.Infof(s.ctx, "Manually set GPIO input pin %d to HIGH in manual mode", s.gpiodConfig.Pin)
+	return nil
 }
 
 func (s *sGpiodInLinuxProvider) SetLow() error {
-	c_log.Warningf(s.ctx, "Attempted to set low on input GPIO pin %d - operation not supported", s.gpiodConfig.Pin)
-	return fmt.Errorf("cannot set value on input GPIO pin")
+	// 检查是否为手动模式
+	if !s.deviceConfig.ManualMode {
+		c_log.Warningf(s.ctx, "Attempted to set low on input GPIO pin %d - operation not supported in auto mode", s.gpiodConfig.Pin)
+		return fmt.Errorf("cannot set value on input GPIO pin in auto mode")
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// 手动模式下直接更新缓存状态
+	status := false
+	s.updateStatus(status)
+	c_log.Infof(s.ctx, "Manually set GPIO input pin %d to LOW in manual mode", s.gpiodConfig.Pin)
+	return nil
 }
 
 // Close 关闭GPIO资源

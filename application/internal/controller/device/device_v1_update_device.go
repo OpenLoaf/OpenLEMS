@@ -13,6 +13,9 @@ import (
 )
 
 func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq) (res *v1.UpdateDeviceRes, err error) {
+	// 记录业务操作开始
+	c_log.BizInfo(ctx, "设备更新操作开始", "deviceId", req.DeviceId)
+
 	// 构建更新数据 - 只更新有值的字段
 	data := make(map[string]interface{})
 
@@ -66,18 +69,34 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 		}
 	}
 
+	// 记录更新字段信息
+	if len(data) > 0 {
+		c_log.BizInfo(ctx, "设备更新字段", "deviceId", req.DeviceId, "fields", data)
+	} else {
+		c_log.BizWarning(ctx, "设备更新无有效字段", "deviceId", req.DeviceId)
+	}
+
 	// 调用数据库服务更新设备
 	err = s_db.GetDeviceService().UpdateDevice(ctx, req.DeviceId, data)
 	if err != nil {
+		c_log.BizError(ctx, "设备更新失败", "deviceId", req.DeviceId, "error", err)
 		c_log.Error(ctx, "Update Device Error", err)
 		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
 
 	if needRestart {
+		// 记录设备重启操作
+		c_log.BizInfo(ctx, "设备配置变更需要重启", "deviceId", req.DeviceId)
+
 		// 重启设备管理器以应用更改
 		common.GetDeviceManager().Shutdown()
 		common.GetDeviceManager().Start()
+
+		c_log.BizInfo(ctx, "设备重启完成", "deviceId", req.DeviceId)
 	}
+
+	// 记录业务操作成功
+	c_log.BizInfo(ctx, "设备更新操作成功", "deviceId", req.DeviceId, "updatedFields", len(data))
 
 	return &v1.UpdateDeviceRes{
 		DeviceId: req.DeviceId,

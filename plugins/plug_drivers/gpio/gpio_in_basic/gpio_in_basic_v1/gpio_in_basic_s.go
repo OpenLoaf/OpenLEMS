@@ -17,6 +17,20 @@ type sBasicGpioIn struct {
 	GpioDeviceConfig *c_proto.SGpioDeviceConfig
 }
 
+func (s *sBasicGpioIn) SetHigh() error {
+	//  调用协议层的SetHigh方法
+	return s.ExecuteProtocolMethod(func(protocol c_proto.IGpiodProtocol) error {
+		return protocol.SetHigh()
+	})
+}
+
+func (s *sBasicGpioIn) SetLow() error {
+	// 调用协议层的SetLow方法
+	return s.ExecuteProtocolMethod(func(protocol c_proto.IGpiodProtocol) error {
+		return protocol.SetLow()
+	})
+}
+
 var gpioPoint = &c_base.SPoint{
 	Key:     "pin",
 	Name:    "状态",
@@ -25,7 +39,7 @@ var gpioPoint = &c_base.SPoint{
 	Hidden:  true,
 }
 
-var _ c_type.IGpioIn = (*sBasicGpioIn)(nil)
+var _ c_type.IGpioOut = (*sBasicGpioIn)(nil)
 
 func (s *sBasicGpioIn) Shutdown() {
 

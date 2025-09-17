@@ -15,8 +15,8 @@ telemetry:
       0: clearName
 service:
   - key: SetLow
-    name: "测试低电平"
+    name: "模拟低电平"
     description: "测试设置为低电平"
   - key: SetHigh
-    name: "测试高电平"
+    name: "模拟高电平"
     description: "测试设置为高电平"

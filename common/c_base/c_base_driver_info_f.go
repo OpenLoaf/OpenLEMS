@@ -255,7 +255,7 @@ func capitalizeFirstLetter(s string) string {
 	return strings.ToUpper(s[:1]) + s[1:]
 }
 
-func (s *SDriverInfo) ExecuteCustomService(functionName string, instance IDevice, params any) error {
+func ExecuteCustomService(functionName string, instance IDevice, params any) error {
 
 	// 执行自定义方法
 	if instance == nil {
@@ -264,6 +264,12 @@ func (s *SDriverInfo) ExecuteCustomService(functionName string, instance IDevice
 	}
 
 	ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
+
+	s := instance.GetConfig().DriverInfo
+	if s == nil {
+		c_log.Errorf(ctx, "ExecuteCustomService [%s] instance is nil", functionName)
+		return errors.Errorf("custom service %s not support", functionName)
+	}
 
 	// 判断一下是否允许这个方法调用
 	var service *SDriverService

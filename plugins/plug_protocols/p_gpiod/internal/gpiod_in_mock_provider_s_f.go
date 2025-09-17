@@ -103,11 +103,27 @@ func (s *sGpiodInMockProvider) GetStatus() *bool {
 }
 
 func (s *sGpiodInMockProvider) SetHigh() error {
-	return fmt.Errorf("cannot set value on input GPIO pin")
+	// 检查是否为手动模式
+	if !s.deviceConfig.ManualMode {
+		return fmt.Errorf("cannot set value on input GPIO pin in auto mode")
+	}
+
+	// 手动模式下直接更新缓存状态
+	status := true
+	s.updateStatus(status)
+	return nil
 }
 
 func (s *sGpiodInMockProvider) SetLow() error {
-	return fmt.Errorf("cannot set value on input GPIO pin")
+	// 检查是否为手动模式
+	if !s.deviceConfig.ManualMode {
+		return fmt.Errorf("cannot set value on input GPIO pin in auto mode")
+	}
+
+	// 手动模式下直接更新缓存状态
+	status := false
+	s.updateStatus(status)
+	return nil
 }
 
 // updateStatus 更新GPIO状态和时间戳，并处理状态变化
@@ -137,4 +153,10 @@ func (s *sGpiodInMockProvider) updateStatus(status bool) {
 	if s.handler != nil {
 		s.handler(status, isChange)
 	}
+}
+
+// Close 关闭GPIO资源（Mock实现）
+func (s *sGpiodInMockProvider) Close() error {
+	// Mock provider不需要清理资源
+	return nil
 }

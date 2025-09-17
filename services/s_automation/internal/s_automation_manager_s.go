@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"common"
+	"common/c_base"
 	"common/c_log"
 	"context"
 	"encoding/json"
@@ -9,6 +11,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/expr-lang/expr"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 )
@@ -249,6 +252,7 @@ func (m *SAutomationManager) createAutomationTask(automation *s_db_model.SAutoma
 	task := &SAutomationTask{
 		SAutomationModel: automation,
 		TriggerConfig:    nil,
+		ExecuteConfig:    nil,
 	}
 
 	// 预解析触发配置
@@ -259,6 +263,16 @@ func (m *SAutomationManager) createAutomationTask(automation *s_db_model.SAutoma
 			return nil, err
 		}
 		task.SetTriggerConfig(&triggerConfig)
+	}
+
+	// 预解析执行配置
+	if automation.GetExecuteRule() != "" {
+		var executeConfig SAutomationExecuteConfig
+		err := json.Unmarshal([]byte(automation.GetExecuteRule()), &executeConfig)
+		if err != nil {
+			return nil, err
+		}
+		task.SetExecuteConfig(&executeConfig)
 	}
 
 	return task, nil
@@ -295,6 +309,9 @@ func (m *SAutomationManager) executeAutomations() {
 
 // executeAutomation 执行单个自动化任务
 func (m *SAutomationManager) executeAutomation(task *SAutomationTask) {
+	if task.ExecuteConfig == nil || task.TriggerConfig == nil {
+		return
+	}
 	// 检查时间范围
 	if !m.isInTimeRange(task.SAutomationModel) {
 		return
@@ -379,18 +396,68 @@ func (m *SAutomationManager) checkTriggerConfig(task *SAutomationTask) bool {
 
 // checkTriggerCondition 检查触发条件
 func (m *SAutomationManager) checkTriggerCondition(condition *SAutomationTriggerCondition) bool {
-	// TODO: 根据设备ID和规则表达式检查触发条件
-	// 这里需要集成设备管理器和数据访问接口
-	// 示例逻辑：
-	// 1. 获取设备的遥测数据
-	// 2. 解析规则表达式（如 "P>30", "Ia<100"）
-	// 3. 比较遥测数据与规则条件
-	// 4. 返回是否满足触发条件
+	// 获取设备实例
+	deviceInstance := common.GetDeviceManager().GetDeviceById(condition.DeviceId)
+	if deviceInstance == nil {
+		g.Log().Warningf(m.ctx, "设备不存在: %s", condition.DeviceId)
+		return false
+	}
 
-	g.Log().Debugf(m.ctx, "检查触发条件 - 设备: %s, 规则: %s",
-		condition.DeviceId, condition.Rule)
+	// 获取设备的遥测数据
+	telemetryMap := c_base.GetAllTelemetry(deviceInstance)
+	if telemetryMap == nil || len(telemetryMap) == 0 {
+		g.Log().Warningf(m.ctx, "设备遥测数据为空: %s", condition.DeviceId)
+		return false
+	}
 
-	return true // 临时返回 true
+	g.Log().Infof(m.ctx, "检查触发条件 - 设备: %s, 规则: %s, 遥测数据: %+v",
+		condition.DeviceId, condition.Rule, telemetryMap)
+
+	// 使用 expr 包解析和验证规则表达式
+	result, err := m.evaluateRuleExpression(condition.Rule, telemetryMap)
+	if err != nil {
+		g.Log().Errorf(m.ctx, "规则表达式解析失败 - 设备: %s, 规则: %s, 错误: %+v",
+			condition.DeviceId, condition.Rule, err)
+		return false
+	}
+
+	g.Log().Infof(m.ctx, "触发条件检查结果 - 设备: %s, 规则: %s, 结果: %v",
+		condition.DeviceId, condition.Rule, result)
+
+	return result
+}
+
+// evaluateRuleExpression 使用 expr 包评估规则表达式
+func (m *SAutomationManager) evaluateRuleExpression(rule string, telemetryMap map[string]any) (bool, error) {
+	// 编译表达式
+	program, err := expr.Compile(rule, expr.Env(telemetryMap))
+	if err != nil {
+		return false, err
+	}
+
+	// 执行表达式
+	result, err := expr.Run(program, telemetryMap)
+	if err != nil {
+		return false, err
+	}
+
+	// 将结果转换为布尔值
+	switch v := result.(type) {
+	case bool:
+		return v, nil
+	case string:
+		// 处理字符串类型的布尔值
+		return v == "true" || v == "1", nil
+	case int, int8, int16, int32, int64:
+		// 处理整数类型：非零为 true
+		return v != 0, nil
+	case float32, float64:
+		// 处理浮点数类型：非零为 true
+		return v != 0.0, nil
+	default:
+		// 其他类型尝试转换为字符串再判断
+		return false, nil
+	}
 }
 
 // executeAutomationRules 执行自动化规则
@@ -402,12 +469,23 @@ func (m *SAutomationManager) executeAutomationRules(task *SAutomationTask) {
 	// 2. 根据解析结果执行相应的设备操作
 	// 3. 处理执行结果
 
-	executeRule := task.GetExecuteRule()
-	if executeRule == "" {
+	executeConfig := task.ExecuteConfig
+	if executeConfig == nil {
 		return
 	}
-	g.Log().Debugf(m.ctx, "gLog执行自动化任务，ID: %d, 执行规则: %s",
-		task.GetId(), executeRule)
-	c_log.Debugf(m.ctx, "执行自动化任务，ID: %d, 执行规则: %s",
-		task.GetId(), executeRule)
+
+	for _, rule := range executeConfig.Rules {
+		deviceInstance := common.GetDeviceManager().GetDeviceById(rule.DeviceId)
+		if deviceInstance == nil {
+			continue
+		}
+
+		err := c_base.ExecuteCustomService(rule.Service, deviceInstance, rule.Params)
+		if err != nil {
+			c_log.BizErrorf(m.ctx, "执行服务[%s]失败！原因：%v", rule.DeviceId, err)
+		}
+	}
+
+	c_log.Infof(m.ctx, "执行自动化任务成功！%+v", executeConfig)
+
 }

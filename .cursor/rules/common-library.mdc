@@ -59,6 +59,113 @@ description: Common library structure and conventions for the EMS plan project
 - **包级别变量**: 小写开头的驼峰命名 - 如 `deviceManager`
 - **常量**: 全大写字母和下划线 - 如 `DEFAULT_TIMEOUT`
 
+## 代码注解规范
+
+### 方法注解规范
+
+所有公共方法都应该添加简洁明了的注释，说明方法的功能和用途：
+
+```go
+// Start 启动管理器
+Start(ctx context.Context, interval time.Duration) error
+
+// GetDeviceById 根据设备ID获取设备实例
+GetDeviceById(deviceId string) c_base.IDevice
+
+// IsVirtualDevice 判断是否为虚拟设备
+IsVirtualDevice() bool
+
+// CreateDevice 创建设备实例
+CreateDevice(config *SDeviceConfig) (c_base.IDevice, error)
+```
+
+**方法注解要求**：
+
+- **格式**: `// 方法名 功能描述`
+- **语言**: 使用中文描述，简洁明了
+- **内容**: 说明方法的主要功能和用途
+- **位置**: 紧贴方法定义上方
+- **一致性**: 所有公共方法都必须有注解
+
+### 字段注解规范
+
+结构体字段的注解应该放在字段后面，使用 `json` 和 `orm` 标签：
+
+```go
+type SDeviceConfig struct {
+    DeviceId    string      `json:"deviceId" orm:"device_id"`           // 设备唯一标识
+    DeviceType  EDeviceType `json:"deviceType" orm:"device_type"`       // 设备类型
+    DeviceName  string      `json:"deviceName" orm:"device_name"`       // 设备名称
+    IsEnabled   bool        `json:"isEnabled" orm:"is_enabled"`         // 是否启用
+    CreatedAt   *gtime.Time `json:"createdAt" orm:"created_at"`         // 创建时间
+    UpdatedAt   *gtime.Time `json:"updatedAt" orm:"updated_at"`         // 更新时间
+}
+```
+
+**字段注解要求**：
+
+- **位置**: 放在字段定义行的末尾
+- **格式**: `// 字段功能描述`
+- **语言**: 使用中文描述
+- **内容**: 简洁说明字段的用途和含义
+- **一致性**: 所有公共字段都应该有注解
+
+### 接口注解规范
+
+接口定义应该包含整体功能说明：
+
+```go
+// IDeviceManager 设备管理器接口，负责设备的生命周期管理
+type IDeviceManager interface {
+    // Start 启动管理器
+    Start(ctx context.Context, interval time.Duration) error
+    
+    // Shutdown 关闭管理器
+    Shutdown(ctx context.Context) error
+    
+    // GetDeviceById 根据设备ID获取设备实例
+    GetDeviceById(deviceId string) c_base.IDevice
+}
+```
+
+### 结构体注解规范
+
+结构体定义应该包含用途说明：
+
+```go
+// SDeviceConfig 设备配置结构体，包含设备的基本配置信息
+type SDeviceConfig struct {
+    DeviceId   string      `json:"deviceId" orm:"device_id"`     // 设备唯一标识
+    DeviceType EDeviceType `json:"deviceType" orm:"device_type"` // 设备类型
+    // ... 其他字段
+}
+```
+
+### 常量注解规范
+
+常量定义应该说明其用途：
+
+```go
+const (
+    // CDeviceTypeAmmeter 电表设备类型
+    CDeviceTypeAmmeter = "ammeter"
+    
+    // CDeviceTypePCS 储能变流器设备类型
+    CDeviceTypePCS = "pcs"
+    
+    // CDefaultTimeout 默认超时时间（秒）
+    CDefaultTimeout = 30
+)
+```
+
+### 注解最佳实践
+
+1. **简洁明了**: 注解应该简洁，避免冗长的描述
+2. **中文优先**: 使用中文进行注解，便于团队理解
+3. **功能导向**: 重点说明"做什么"而不是"怎么做"
+4. **一致性**: 保持注解风格的一致性
+5. **及时更新**: 代码修改时同步更新注解
+
 ## 核心接口
 
 ### 设备管理
@@ -277,7 +384,7 @@ go build -o ems main.go
 - **Cursor AI 测试**: AI 助手验证程序启动状态
 - **部署前检查**: 生产环境部署前的启动验证
 
-### 注意事项
+### 测试模式注意事项
 
 - 测试模式仅验证启动流程，不执行完整的业务逻辑
 - 3秒的延迟确保所有服务都有足够时间完成初始化
@@ -299,6 +406,7 @@ go build -o ems main.go
 3. **错误处理**: 统一使用 `github.com/pkg/errors`
 4. **接口实现**: 确保所有接口都有对应实现
 5. **日志使用**: 正确使用 `c_log` 进行日志记录
+6. **注解规范**: 确保所有公共方法、字段、接口和结构体都有适当的注解
 
 ## 注意事项
 
@@ -309,6 +417,8 @@ go build -o ems main.go
 - 错误处理要统一使用 `github.com/pkg/errors`
 - 单例模式要确保线程安全
 - 配置结构体要支持 YAML 序列化
+- 所有公共方法、字段、接口和结构体都必须有清晰的中文注解
+- 注解要简洁明了，重点说明功能和用途
 
 ### 命名规范要求
 

@@ -7,6 +7,7 @@ require (
 	github.com/gogf/gf/v2 v2.9.3
 	github.com/pkg/errors v0.9.1
 	github.com/shirou/gopsutil/v4 v4.25.8
+	github.com/shockerli/cvt v0.2.8
 	github.com/webview/webview_go v0.0.0-20240831120633-6173450d4dd6
 	gopkg.in/yaml.v3 v3.0.1
 	t_network_manager v0.0.0-00010101000000-000000000000
@@ -40,7 +41,6 @@ require (
 	github.com/olekukonko/tablewriter v1.0.9 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
-	github.com/shockerli/cvt v0.2.8 // indirect
 	github.com/tklauser/go-sysconf v0.3.15 // indirect
 	github.com/tklauser/numcpus v0.10.0 // indirect
 	github.com/vishvananda/netlink v1.3.1 // indirect
