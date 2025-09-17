@@ -208,6 +208,10 @@ func (s *sGpiodOutLinuxProvider) GetStatusUnsafe() *bool {
 	// 实时读取GPIO状态
 	if value, err := s.line.Value(); err == nil {
 		status := value == 1
+		// 更新缓存状态和时间戳
+		s.currentStatus = &status
+		now := time.Now()
+		s.lastUpdateTime = &now
 		return &status
 	}
 
