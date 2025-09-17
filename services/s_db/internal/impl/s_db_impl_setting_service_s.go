@@ -43,8 +43,8 @@ func (s *sSettingServiceImpl) GetSettingById(ctx context.Context, id string) (*s
 	setting := &s_db_model.SSettingModel{}
 	err := setting.GetById(ctx, id)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取设置详情失败 - 设置ID: %s, 错误: %+v", id, err)
-		return nil, err
+		g.Log().Errorf(ctx, "获取设置详情失败 - 设置ID: %s, 错误: %s", id, err.Error())
+		return nil, nil
 	}
 
 	g.Log().Infof(ctx, "成功获取设置详情 - 设置ID: %s", id)
