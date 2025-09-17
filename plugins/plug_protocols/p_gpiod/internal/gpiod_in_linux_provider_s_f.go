@@ -98,9 +98,7 @@ func (s *sGpiodInLinuxProvider) initializeGPIO() error {
 	if s.gpiodConfig.LowActive {
 		options = append(options, gpiocdev.AsActiveLow)
 	}
-	if s.handler != nil {
-		options = append(options, gpiocdev.WithBothEdges, gpiocdev.WithEventHandler(s.handleGPIOEvent))
-	}
+	options = append(options, gpiocdev.WithBothEdges, gpiocdev.WithEventHandler(s.handleGPIOEvent))
 
 	line, err := gpiocdev.RequestLine(s.chipName, pinOffset, options...)
 	if err != nil {
@@ -128,6 +126,7 @@ func (s *sGpiodInLinuxProvider) handleGPIOEvent(evt gpiocdev.LineEvent) {
 
 	// 更新状态并处理状态变化
 	status := evt.Type == gpiocdev.LineEventRisingEdge
+	c_log.Infof(s.ctx, "gpiochip event type: %v", evt.Type)
 	s.updateStatus(status)
 }
 
@@ -241,7 +240,6 @@ func (s *sGpiodInLinuxProvider) GetStatusUnsafe() *bool {
 	// 实时读取GPIO状态
 	if value, err := s.line.Value(); err == nil {
 		status := value == 1
-		c_log.Infof(s.ctx, "GPIO input state: %v", status)
 		return &status
 	}
 

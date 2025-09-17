@@ -10,3 +10,6 @@ desc: "基础GPIO输入驱动，支持GPIO输入监控和告警"
 telemetry:
   - key: status
     name: "状态"
+    paramExplain:
+      true: triggerName
+      false: clearName

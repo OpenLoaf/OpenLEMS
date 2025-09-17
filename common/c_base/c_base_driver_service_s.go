@@ -9,6 +9,7 @@ type STelemetry struct {
 	Unit         string            `json:"unit,omitempty" yaml:"unit"`                 // 单位
 	Desc         string            `json:"desc,omitempty" yaml:"desc"`                 // 备注
 	ValueExplain map[string]string `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
+	ParamExplain map[string]string `json:"paramExplain,omitempty" yaml:"paramExplain"` // 从参数值中读取解释
 }
 
 func (s *STelemetry) ToPoint(valueType c_enum.EValueType) IPoint {
