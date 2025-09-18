@@ -125,7 +125,7 @@ func (s *sSettingServiceImpl) SetSettingValueById(ctx context.Context, id string
 
 // GetRootDeviceId 获取根设备ID
 func (s *sSettingServiceImpl) GetRootDeviceId(ctx context.Context) string {
-	return s.GetSettingValueByIdWithDefaultValue(ctx, s_db_basic.SettingActiveDeviceRootIdKey, c_enum.ESettingGroupSystem, s_db_basic.DefaultActiveDeviceRootId)
+	return s.GetSettingValueByIdWithDefaultValue(ctx, s_db_basic.SettingActiveDeviceRootIdKey, c_enum.ESettingGroupSystem, s_db_basic.DefaultActiveDeviceRootId, "默认激活的根设备ID")
 }
 
 // GetRootPolicyId 获取激活的策略ID

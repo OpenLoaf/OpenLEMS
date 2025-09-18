@@ -20,6 +20,7 @@ description: Common library structure and conventions for the EMS plan project
 - **c_alarm/**: 告警管理
 - **c_log/**: 日志接口
 - **c_timer/**: 定时器功能
+- **c_enum/**: 枚举定义和常量
 
 ## 命名约定
 
@@ -37,12 +38,13 @@ description: Common library structure and conventions for the EMS plan project
 - `*_si.go`: 单例接口
 - `*_impl_s.go`: 实现结构体
 - `*_config_s.go`: 配置结构体
+- `*_e_string.go`: 枚举字符串方法 (由 stringer 工具生成)
 
 ### 类型命名规范
 
 - **接口**: `I` 前缀 - 如 `IDevice`, `IDriver`, `IStorage`
 - **结构体**: `S` 前缀 - 如 `SDeviceConfig`, `SDriverInfo`
-- **枚举**: `E` 前缀 - 如 `EDeviceType`, `EProtocolType`
+- **枚举**: `E` 前缀 - 如 `EDeviceType`, `EProtocolType`, `EAlarmLevel`
 - **常量**: `C` 前缀 - 如 `CDeviceTypeAmmeter`
 
 ### 方法命名规范
@@ -165,6 +167,59 @@ const (
 3. **功能导向**: 重点说明"做什么"而不是"怎么做"
 4. **一致性**: 保持注解风格的一致性
 5. **及时更新**: 代码修改时同步更新注解
+
+## 常用枚举
+
+### 设备相关枚举
+
+- **EDeviceType**: 设备类型枚举，定义系统中支持的各种设备类型（如电表、储能、光伏等）
+- **EBmsStatus**: 电池管理系统状态，用于表示BMS设备的运行状态
+- **EPvStatus**: 光伏设备状态，用于表示光伏设备的连接和运行状态
+- **ECoolingI**: 制冷设备状态，用于表示空调和液冷机组的运行状态
+
+### 协议相关枚举
+
+- **EProtocolType**: 协议类型，定义支持的通信协议（如Modbus TCP/RTU、CAN总线等）
+- **EDataFormat**: 数据格式，定义Modbus等协议中数据的编码格式
+- **EEndianness**: 字节序，定义数据的大端/小端存储方式
+- **EByteEndian**: 字节序类型，用于数据解析时的字节序处理
+- **EWordOrder**: 字序，定义多字节数据的排列顺序
+
+### 系统状态枚举
+
+- **EServerState**: 服务器状态，定义各种Manager服务的运行状态
+- **EAlarmLevel**: 告警级别，定义告警的严重程度等级
+- **EAlarmAction**: 告警动作，定义告警触发时的处理动作
+- **ELogLevel**: 日志级别，定义日志输出的详细程度
+
+### 数据存储枚举
+
+- **EStorageType**: 存储类型，定义支持的数据存储后端
+- **EValueType**: 值类型，定义数据在系统中的标准类型
+- **EPointSystemType**: 点位系统类型，定义数据点的系统分类
+- **EPointDirection**: 点位方向，定义数据点的读写方向
+
+### 配置相关枚举
+
+- **ESettingGroup**: 设置分组，定义系统配置的分组类型
+- **EConfigFieldsValueType**: 配置字段值类型，定义配置项的数据类型
+- **EConfigFieldsComponentType**: 配置字段组件类型，定义前端组件的类型
+
+### 枚举使用规范
+
+1. **文件命名**: 枚举文件使用 `c_enum_<描述>_e.go` 格式
+2. **类型命名**: 枚举类型使用 `E` 前缀，如 `EDeviceType`
+3. **字符串方法**: 使用 `//go:generate stringer` 自动生成字符串方法
+4. **JSON序列化**: 支持自定义JSON序列化/反序列化方法
+5. **常量定义**: 枚举值使用有意义的常量名，并添加中文注释
+
+### 枚举最佳实践
+
+- 所有枚举都应该有清晰的中文注释说明用途
+- 使用 `stringer` 工具生成字符串方法便于调试
+- 对于需要JSON序列化的枚举，实现自定义的 `MarshalJSON` 和 `UnmarshalJSON` 方法
+- 枚举值应该具有明确的语义，避免使用魔法数字
+- 新增枚举值时保持向后兼容性
 
 ## 核心接口
 
