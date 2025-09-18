@@ -234,22 +234,12 @@ func populateFieldConfigFromTags(field reflect.StructField, fieldConfig *SFieldD
 				targetField.Set(reflect.ValueOf(&value))
 			}
 
-		case reflect.Map:
+		case reflect.Slice:
 			// 处理 ValueExplain 和 ParamExplain 字段
 			if structField.Name == "ValueExplain" || structField.Name == "ParamExplain" {
-				// 解析 key:value 格式的字符串
-				pairs := strings.Split(tagValue, ",")
-				explainMap := make(map[string]string)
-				for _, pair := range pairs {
-					trimmedPair := strings.TrimSpace(pair)
-					if trimmedPair != "" {
-						parts := strings.SplitN(trimmedPair, ":", 2)
-						if len(parts) == 2 {
-							explainMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
-						}
-					}
-				}
-				targetField.Set(reflect.ValueOf(explainMap))
+				// 解析 Explain 字符串格式为 []*SFieldExplain 对象数组
+				explains := ParseExplainString(tagValue)
+				targetField.Set(reflect.ValueOf(explains))
 			}
 
 		default:

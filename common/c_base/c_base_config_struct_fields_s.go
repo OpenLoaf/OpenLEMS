@@ -4,8 +4,10 @@ import (
 	"common/c_enum"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/pkg/errors"
+	"gopkg.in/yaml.v3"
 )
 
 type SFieldDefinition struct {
@@ -20,8 +22,8 @@ type SFieldDefinition struct {
 	Min                *int64                            `json:"min" yaml:"min" short:"min"`
 	Max                *int64                            `json:"max" yaml:"max" short:"max"`
 	Default            *string                           `json:"default" yaml:"default" short:"def"`
-	ValueExplain       map[string]string                 `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
-	ParamExplain       map[string]string                 `json:"paramExplain,omitempty" yaml:"paramExplain"` // 从参数值中读取解释
+	ValueExplain       []*SFieldExplain                  `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
+	ParamExplain       []*SFieldExplain                  `json:"paramExplain,omitempty" yaml:"paramExplain"` // 从参数值中读取解释
 	Regex              *string                           `json:"regex" yaml:"regex" short:"regex" dc:"正则表达式"`
 	RegexFailedMessage *string                           `json:"regexFailedMessage" yaml:"regex_failed_message" short:"rfm" dc:"正则表达式失败提醒"`
 	Description        string                            `json:"description" yaml:"description" short:"desc" required:"true"`
@@ -96,15 +98,17 @@ func (s *SFieldDefinition) Check() error {
 // ToPoint 将配置字段转换为点位信息
 func (s *SFieldDefinition) ToPoint(valueType c_enum.EValueType, params map[string]any) IPoint {
 	valueExplain := make(map[string]string)
-	if s.ValueExplain != nil {
+	if len(s.ValueExplain) > 0 {
 		valueType = c_enum.EString
-		valueExplain = s.ValueExplain
+		for _, explain := range s.ValueExplain {
+			valueExplain[explain.Key] = explain.Value
+		}
 	}
-	if s.ParamExplain != nil {
+	if len(s.ParamExplain) > 0 {
 		valueType = c_enum.EString
-		for key, v := range s.ParamExplain {
-			if pv, ok := params[v]; ok && pv != nil {
-				valueExplain[key] = pv.(string)
+		for _, explain := range s.ParamExplain {
+			if pv, ok := params[explain.Value]; ok && pv != nil {
+				valueExplain[explain.Key] = pv.(string)
 			}
 		}
 	}
@@ -125,4 +129,182 @@ func (s *SFieldDefinition) ToPoint(valueType c_enum.EValueType, params map[strin
 		ValueType:    valueType,
 		ValueExplain: valueExplain,
 	}
+}
+
+// ParseExplainString 解析 Explain 字符串格式为 []*SFieldExplain 对象数组
+// 支持两种格式：
+// 1. 简单格式：N:无校验,E:偶校验,O:奇校验
+// 2. 带颜色格式：N:无校验|#52c41a,E:偶校验|#1890ff,O:奇校验|#f5222d
+func ParseExplainString(explainStr string) []*SFieldExplain {
+	if explainStr == "" {
+		return nil
+	}
+
+	var explains []*SFieldExplain
+	pairs := strings.Split(explainStr, ",")
+
+	for _, pair := range pairs {
+		trimmedPair := strings.TrimSpace(pair)
+		if trimmedPair == "" {
+			continue
+		}
+
+		// 检查是否包含颜色信息（| 分隔符）
+		var key, value, color string
+		if strings.Contains(trimmedPair, "|") {
+			// 带颜色格式：key:value|#color
+			parts := strings.SplitN(trimmedPair, "|", 2)
+			if len(parts) == 2 {
+				color = strings.TrimSpace(parts[1])
+				keyValuePart := strings.TrimSpace(parts[0])
+				keyValue := strings.SplitN(keyValuePart, ":", 2)
+				if len(keyValue) == 2 {
+					key = strings.TrimSpace(keyValue[0])
+					value = strings.TrimSpace(keyValue[1])
+				}
+			}
+		} else {
+			// 简单格式：key:value
+			keyValue := strings.SplitN(trimmedPair, ":", 2)
+			if len(keyValue) == 2 {
+				key = strings.TrimSpace(keyValue[0])
+				value = strings.TrimSpace(keyValue[1])
+			}
+		}
+
+		if key != "" && value != "" {
+			explains = append(explains, &SFieldExplain{
+				Key:   key,
+				Value: value,
+				Color: color,
+			})
+		}
+	}
+
+	return explains
+}
+
+// UnmarshalYAML 自定义 YAML 反序列化方法，支持向后兼容
+func (s *SFieldDefinition) UnmarshalYAML(value *yaml.Node) error {
+	// 创建一个临时结构体来处理 YAML 解析
+	type TempFieldDefinition struct {
+		Key                string                            `yaml:"key"`
+		Name               string                            `yaml:"name"`
+		Group              string                            `yaml:"group"`
+		ValueType          c_enum.EConfigFieldsValueType     `yaml:"valueType"`
+		ComponentType      c_enum.EConfigFieldsComponentType `yaml:"componentType"`
+		Step               *float32                          `yaml:"step"`
+		Required           bool                              `yaml:"required"`
+		Unit               *string                           `yaml:"unit"`
+		Min                *int64                            `yaml:"min"`
+		Max                *int64                            `yaml:"max"`
+		Default            *string                           `yaml:"default"`
+		ValueExplain       interface{}                       `yaml:"valueExplain"` // 使用 interface{} 来处理不同的格式
+		ParamExplain       interface{}                       `yaml:"paramExplain"` // 使用 interface{} 来处理不同的格式
+		Regex              *string                           `yaml:"regex"`
+		RegexFailedMessage *string                           `yaml:"regexFailedMessage"`
+		Description        string                            `yaml:"description"`
+	}
+
+	var temp TempFieldDefinition
+	if err := value.Decode(&temp); err != nil {
+		return err
+	}
+
+	// 复制基本字段
+	s.Key = temp.Key
+	s.Name = temp.Name
+	s.Group = temp.Group
+	s.ValueType = temp.ValueType
+	s.ComponentType = temp.ComponentType
+	s.Step = temp.Step
+	s.Required = temp.Required
+	s.Unit = temp.Unit
+	s.Min = temp.Min
+	s.Max = temp.Max
+	s.Default = temp.Default
+	s.Regex = temp.Regex
+	s.RegexFailedMessage = temp.RegexFailedMessage
+	s.Description = temp.Description
+
+	// 处理 ValueExplain 字段
+	if temp.ValueExplain != nil {
+		s.ValueExplain = convertToFieldExplainArray(temp.ValueExplain)
+	}
+
+	// 处理 ParamExplain 字段
+	if temp.ParamExplain != nil {
+		s.ParamExplain = convertToFieldExplainArray(temp.ParamExplain)
+	}
+
+	return nil
+}
+
+// convertToFieldExplainArray 将不同格式的 explain 数据转换为 []*SFieldExplain
+func convertToFieldExplainArray(data interface{}) []*SFieldExplain {
+	if data == nil {
+		return nil
+	}
+
+	// 如果是字符串，使用 ParseExplainString 解析
+	if str, ok := data.(string); ok {
+		return ParseExplainString(str)
+	}
+
+	// 如果是 map，转换为新的格式
+	if mapData, ok := data.(map[string]interface{}); ok {
+		var explains []*SFieldExplain
+		for key, value := range mapData {
+			if valueStr, ok := value.(string); ok {
+				// 检查是否包含颜色信息
+				var explainValue, color string
+				if strings.Contains(valueStr, "|") {
+					parts := strings.SplitN(valueStr, "|", 2)
+					if len(parts) == 2 {
+						explainValue = strings.TrimSpace(parts[0])
+						color = strings.TrimSpace(parts[1])
+					}
+				} else {
+					explainValue = valueStr
+				}
+
+				explains = append(explains, &SFieldExplain{
+					Key:   key,
+					Value: explainValue,
+					Color: color,
+				})
+			}
+		}
+		return explains
+	}
+
+	// 如果已经是 []*SFieldExplain 格式，直接返回
+	if explains, ok := data.([]*SFieldExplain); ok {
+		return explains
+	}
+
+	// 如果是 []interface{}，尝试转换
+	if slice, ok := data.([]interface{}); ok {
+		var explains []*SFieldExplain
+		for _, item := range slice {
+			if explain, ok := item.(*SFieldExplain); ok {
+				explains = append(explains, explain)
+			} else if mapItem, ok := item.(map[string]interface{}); ok {
+				explain := &SFieldExplain{}
+				if key, ok := mapItem["key"].(string); ok {
+					explain.Key = key
+				}
+				if value, ok := mapItem["value"].(string); ok {
+					explain.Value = value
+				}
+				if color, ok := mapItem["color"].(string); ok {
+					explain.Color = color
+				}
+				explains = append(explains, explain)
+			}
+		}
+		return explains
+	}
+
+	return nil
 }
