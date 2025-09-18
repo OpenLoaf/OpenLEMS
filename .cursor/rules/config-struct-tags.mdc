@@ -7,9 +7,12 @@ globs: *config*.go,*Config*.go
 
 ## 概述
 
-本规则定义了 EMS 项目中配置结构体字段标签的使用规范，基于 [c_base_config_struct_fields_s.go](mdc:common/c_base/c_base_config_struct_fields_s.go) 中定义的 `SConfigStructFields` 结构体。
+本规则定义了 EMS 项目中配置结构体字段标签的使用规范，基于 [c_base_config_struct_fields_s.go](mdc:common/c_base/c_base_config_struct_fields_s.go) 中定义的 `SFieldDefinition` 结构体。
 
-**重要更新**：现在使用完全动态化的标签解析系统，所有标签定义都来自 `SConfigStructFields` 结构体，支持 `json`、`yaml`、`short` 三种标签格式。
+**重要更新**：
+
+1. 现在使用完全动态化的标签解析系统，所有标签定义都来自 `SFieldDefinition` 结构体，支持 `json`、`yaml`、`short` 三种标签格式
+2. **ValueExplain 和 ParamExplain 字段已升级为数组格式**：从 `map[string]string` 改为 `[]*SFieldExplain`，支持更丰富的数据结构
 
 ## 动态标签解析系统
 
@@ -20,6 +23,7 @@ globs: *config*.go,*Config*.go
 ### 标签优先级
 
 解析时按以下优先级查找标签：
+
 1. **SHORT标签** - 最高优先级（如 `ct`, `vt`, `req`）
 2. **JSON标签** - 中等优先级（如 `componentType`, `valueType`）
 3. **YAML标签** - 最低优先级（如 `component_type`, `value_type`）
@@ -41,7 +45,8 @@ globs: *config*.go,*Config*.go
 `code:"fieldName" component_type:"组件类型"`
 ```
 
-**必需标签说明：**
+**必需标签说明**：
+
 - `code/code/code` - JSON序列化字段名（必需）
 - `ct/componentType/component_type` - 组件类型（必需），告诉前端使用什么组件渲染
 
@@ -182,6 +187,53 @@ type ProtocolConfig struct {
 }
 ```
 
+### ValueExplain 和 ParamExplain 配置
+
+**新格式支持**：现在支持数组格式的 `ValueExplain` 和 `ParamExplain`，提供更丰富的数据结构：
+
+```go
+type DeviceConfig struct {
+    // 使用 ValueExplain 标签（新格式）
+    Status string `code:"status" name:"设备状态" ct:"label" ve:"0:未知|#FF5D5D,1:正常|#52c41a,2:故障|#f5222d"`
+    
+    // 使用 ParamExplain 标签（新格式）
+    AlarmLevel string `code:"alarmLevel" name:"告警级别" ct:"singleSelect" pe:"1:levelName,2:levelDesc"`
+}
+```
+
+**标签格式说明**：
+
+- `ve` (ValueExplain): 值解释，格式为 `key:value|#color,key:value|#color`
+- `pe` (ParamExplain): 参数解释，格式为 `key:paramName,key:paramName`
+
+**YAML 配置格式**：
+
+```yaml
+# build.yaml 中的新格式
+- key: status
+  name: "设备状态"
+  componentType: label
+  valueExplain:
+    - key: "0"
+      value: "未知"
+      color: "#FF5D5D"
+    - key: "1"
+      value: "正常"
+      color: "#52c41a"
+    - key: "2"
+      value: "故障"
+      color: "#f5222d"
+
+- key: alarmLevel
+  name: "告警级别"
+  componentType: singleSelect
+  paramExplain:
+    - key: "1"
+      value: "levelName"
+    - key: "2"
+      value: "levelDesc"
+```
+
 ### 数值范围和单位
 
 ```go
@@ -241,6 +293,8 @@ type LegacyConfig struct {
 - [ ] 数值字段添加 `min/max` 范围限制
 - [ ] 重要字段添加 `desc` 描述信息
 - [ ] 必填字段标记 `req:"true"`
+- [ ] **状态字段使用 `ve` 标签** - 为状态字段提供值解释和颜色
+- [ ] **参数字段使用 `pe` 标签** - 为参数字段提供动态解释
 
 ### 3. 代码组织建议
 
@@ -257,6 +311,10 @@ type DeviceConfig struct {
     // 功能配置 - 使用选择组件
     Protocol string `code:"protocol" name:"协议类型" ct:"singleSelect" group:"功能配置" opts:"tcp:TCP,rtu:RTU,ascii:ASCII" def:"tcp"`
     Enabled  bool   `code:"enabled" name:"启用状态" ct:"switch" group:"功能配置" def:"true"`
+    
+    // 状态配置 - 使用新的 ValueExplain 标签
+    Status   string `code:"status" name:"设备状态" ct:"label" group:"状态配置" ve:"0:未知|#FF5D5D,1:正常|#52c41a,2:故障|#f5222d"`
+    AlarmLevel string `code:"alarmLevel" name:"告警级别" ct:"singleSelect" group:"状态配置" pe:"1:levelName,2:levelDesc"`
     
     // 高级配置 - 数值范围和单位
     Timeout  int     `code:"timeout" name:"超时时间" ct:"number" group:"高级配置" unit:"毫秒" min:"100" max:"10000" def:"3000"`
@@ -295,6 +353,7 @@ func TestConfigStructFields() {
 ### 扩展性
 
 当需要添加新的配置字段类型时：
+
 1. 在 `SConfigStructFields` 中添加新字段
 2. 设置对应的 `json`、`yaml`、`short` 标签
 3. 系统自动支持新字段的动态解析
