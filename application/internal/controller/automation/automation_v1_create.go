@@ -17,12 +17,6 @@ func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomat
 	g.Log().Infof(ctx, "创建自动化任务 - 时间范围类型: %s, 启用状态: %t", req.TimeRangeType, req.Enabled)
 
 	// 参数验证
-	if req.TimeRangeType == "" {
-		return nil, errors.New("时间范围类型不能为空")
-	}
-	if req.TimeRangeValue == "" {
-		return nil, errors.New("时间范围值不能为空")
-	}
 	if req.TriggerRule == "" {
 		return nil, errors.New("触发规则不能为空")
 	}
