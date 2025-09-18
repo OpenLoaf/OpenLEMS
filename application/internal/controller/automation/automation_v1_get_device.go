@@ -3,8 +3,8 @@ package automation
 import (
 	v1 "application/api/automation/v1"
 	"application/internal/model/entity"
-	"application/internal/service"
 	"context"
+	"s_db"
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -17,10 +17,13 @@ func (c *Controller) GetAutomationsByDevice(ctx context.Context, req *v1.GetAuto
 
 	// 构建过滤条件
 	filters := make(map[string]interface{})
-	filters["deviceId"] = req.DeviceId
+	// 注意：这里需要根据实际的业务逻辑来过滤设备相关的自动化任务
+	// 可能需要从触发规则或执行规则中解析设备ID
+	// 暂时使用空的过滤条件，获取所有自动化任务
+	filters = nil
 
 	// 调用服务层获取数据
-	automations, err := service.Automation().GetAutomationsByFilters(ctx, req.DeviceId, filters)
+	automations, err := s_db.GetAutomationService().GetAutomationsByFilters(ctx, req.DeviceId, filters)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取设备自动化列表失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取设备自动化列表失败")

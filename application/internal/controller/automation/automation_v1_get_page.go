@@ -3,8 +3,9 @@ package automation
 import (
 	v1 "application/api/automation/v1"
 	"application/internal/model/entity"
-	"application/internal/service"
 	"context"
+	"s_db"
+	"s_db/s_db_model"
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -20,14 +21,14 @@ func (c *Controller) GetAutomationPage(ctx context.Context, req *v1.GetAutomatio
 	if req.DeviceId != "" {
 		// 这里需要根据实际的业务逻辑来过滤设备相关的自动化任务
 		// 可能需要从触发规则或执行规则中解析设备ID
-		filters["deviceId"] = req.DeviceId
+		// 暂时不进行设备过滤，因为自动化任务表中没有直接的设备ID字段
 	}
 	if req.Enabled != nil {
-		filters["enabled"] = *req.Enabled
+		filters[s_db_model.FieldEnabled] = *req.Enabled
 	}
 
 	// 调用服务层获取数据
-	automations, total, err := service.Automation().GetAutomationPage(ctx, req.Page, req.PageSize, req.DeviceId, filters)
+	automations, total, err := s_db.GetAutomationService().GetAutomationPage(ctx, req.Page, req.PageSize, req.DeviceId, filters)
 	if err != nil {
 		g.Log().Errorf(ctx, "获取自动化分页列表失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取自动化列表失败")

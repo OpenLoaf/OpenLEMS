@@ -2,8 +2,9 @@ package automation
 
 import (
 	v1 "application/api/automation/v1"
-	"application/internal/service"
 	"context"
+	"errors"
+	"s_db"
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -16,11 +17,11 @@ func (c *Controller) DeleteAutomation(ctx context.Context, req *v1.DeleteAutomat
 
 	// 参数验证
 	if req.Id <= 0 {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "自动化任务ID必须大于0")
+		return nil, errors.New("自动化任务ID必须大于0")
 	}
 
 	// 调用服务层删除自动化任务
-	err = service.Automation().DeleteAutomation(ctx, req.Id)
+	err = s_db.GetAutomationService().DeleteAutomation(ctx, req.Id)
 	if err != nil {
 		g.Log().Errorf(ctx, "删除自动化任务失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "删除自动化任务失败")

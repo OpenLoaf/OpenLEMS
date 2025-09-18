@@ -2,8 +2,10 @@ package automation
 
 import (
 	v1 "application/api/automation/v1"
-	"application/internal/service"
 	"context"
+	"errors"
+	"s_db"
+	"s_db/s_db_model"
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
@@ -16,16 +18,16 @@ func (c *Controller) ToggleAutomation(ctx context.Context, req *v1.ToggleAutomat
 
 	// 参数验证
 	if req.Id <= 0 {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "自动化任务ID必须大于0")
+		return nil, errors.New("自动化任务ID必须大于0")
 	}
 
 	// 构建更新数据
 	updateData := map[string]interface{}{
-		"enabled": req.Enable,
+		s_db_model.FieldEnabled: req.Enable,
 	}
 
 	// 调用服务层更新自动化任务状态
-	err = service.Automation().UpdateAutomation(ctx, req.Id, updateData)
+	err = s_db.GetAutomationService().UpdateAutomation(ctx, req.Id, updateData)
 	if err != nil {
 		g.Log().Errorf(ctx, "切换自动化任务状态失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "切换自动化任务状态失败")

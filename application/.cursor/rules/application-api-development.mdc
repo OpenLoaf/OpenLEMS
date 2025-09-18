@@ -91,12 +91,143 @@ application/
    - 支持 `nil` 值表示未设置状态
    - 从 `gtime.Time` 转换为 `*time.Time`: `&model.CreatedAt.Time`
 
+### 参数验证规范
+
+**重要**: 判断传入参数是否为必填时，必须先查看对应的 Model 定义。如果 Model 中定义了必填字段，则该参数为必填。
+
+#### 1. 基于 Model 定义的参数验证
+
+```go
+// ✅ 正确 - 基于 Model 定义进行参数验证
+func (c *Controller) CreateDevice(ctx context.Context, req *v1.CreateDeviceReq) (*v1.CreateDeviceRes, error) {
+    // 查看 s_db_model.SDeviceModel 的定义
+    // 如果 Model 中 Name 字段有 required 标签或非空约束，则验证必填
+    if req.Name == "" {
+        return nil, errors.New("设备名称不能为空")
+    }
+    
+    // 如果 Model 中 Type 字段有 required 标签，则验证必填
+    if req.Type == "" {
+        return nil, errors.New("设备类型不能为空")
+    }
+    
+    // 如果 Model 中 Enabled 字段有默认值，则可以为空
+    // 如果 Model 中 Enabled 字段没有默认值且非空约束，则验证必填
+    
+    deviceId, err := s_db.GetDeviceService().CreateDevice(ctx, req.Name, req.Type, req.Enabled)
+    if err != nil {
+        return nil, gerror.WrapCode(gcode.CodeInternalError, err, "创建设备失败")
+    }
+    
+    return &v1.CreateDeviceRes{Id: deviceId}, nil
+}
+```
+
+#### 2. Model 字段验证规则
+
+**查看 Model 定义的方法**:
+
+1. **检查结构体标签**:
+```go
+type SDeviceModel struct {
+    Name    string `json:"name" orm:"name" required:"true"`     // 必填
+    Type    string `json:"type" orm:"type" required:"true"`     // 必填
+    Enabled bool   `json:"enabled" orm:"enabled" default:"true"` // 有默认值，非必填
+}
+```
+
+2. **检查数据库约束**:
+```sql
+CREATE TABLE device (
+    name VARCHAR(255) NOT NULL,     -- 必填
+    type VARCHAR(255) NOT NULL,     -- 必填
+    enabled BOOLEAN DEFAULT 1       -- 有默认值，非必填
+)
+```
+
+3. **检查字段类型**:
+```go
+// 指针类型通常表示可选字段
+StartTime *time.Time `json:"startTime"`  // 可选
+// 非指针类型通常表示必填字段
+Name      string     `json:"name"`       // 必填
+```
+
+#### 3. 参数验证最佳实践
+
+```go
+// ✅ 正确 - 基于 Model 定义进行验证
+func (c *Controller) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq) (*v1.UpdateDeviceRes, error) {
+    // 1. 先查看 SDeviceModel 的字段定义
+    // 2. 根据 Model 中的约束进行验证
+    
+    updateData := map[string]interface{}{}
+    
+    // 如果 Model 中 Name 字段有 required 标签，则验证
+    if req.Name != "" {
+        updateData[s_db_model.FieldName] = req.Name
+    }
+    
+    // 如果 Model 中 Enabled 字段有约束，则验证
+    if req.Enabled != nil {
+        updateData[s_db_model.FieldEnabled] = *req.Enabled
+    }
+    
+    err := s_db.GetDeviceService().UpdateDevice(ctx, req.Id, updateData)
+    if err != nil {
+        return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新设备失败")
+    }
+    
+    return &v1.UpdateDeviceRes{}, nil
+}
+```
+
+#### 4. 参数验证检查清单
+
+- [ ] **查看对应 Model 定义**: 检查 `s_db_model` 中的相关 Model 结构体
+- [ ] **检查结构体标签**: 查看 `required`、`default` 等标签
+- [ ] **检查数据库约束**: 查看 SQL 创建语句中的 `NOT NULL`、`DEFAULT` 约束
+- [ ] **检查字段类型**: 指针类型通常表示可选，非指针类型通常表示必填
+- [ ] **验证必填参数**: 根据 Model 定义验证必填参数
+- [ ] **处理可选参数**: 根据 Model 定义处理可选参数
+- [ ] **使用字段常量**: 在验证和更新时使用 `s_db_model` 中的字段常量
+
 ### 错误处理
 
 - 参数验证错误: `errors.New("参数不能为空")`
 - 业务逻辑错误: `gerror.NewCode(gcode.CodeNotFound, err, "资源不存在")`
 - 内部错误: `gerror.WrapCode(gcode.CodeInternalError, err, "操作失败")`
-- 所有错误都有详细日志记录
+
+#### 错误处理最佳实践
+
+**重要**: 当返回 error 时，不需要在控制器层重复添加日志输出。GoFrame 会自动处理错误响应。
+
+```go
+// ✅ 正确 - 参数验证错误，直接返回，不记录日志
+if req.Id <= 0 {
+    return nil, errors.New("自动化任务ID必须大于0")
+}
+
+// ✅ 正确 - 业务逻辑错误，记录日志并包装错误
+err = s_db.GetAutomationService().UpdateAutomation(ctx, req.Id, updateData)
+if err != nil {
+    g.Log().Errorf(ctx, "更新自动化任务失败: %+v", err)
+    return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新自动化任务失败")
+}
+
+// ❌ 错误 - 不要在返回错误前重复记录日志
+if req.Id <= 0 {
+    g.Log().Error(ctx, "自动化任务ID必须大于0")  // 不需要这行
+    return nil, errors.New("自动化任务ID必须大于0")
+}
+```
+
+#### 错误处理规则
+
+1. **参数验证错误**: 直接返回 `errors.New()`，让 GoFrame 自动处理错误响应
+2. **业务逻辑错误**: 使用 `gerror.WrapCode()` 包装并记录日志用于系统监控
+3. **成功操作**: 记录成功日志用于业务监控
+4. **避免重复日志**: 不要在返回错误前重复记录日志，GoFrame 会自动处理
 
 ### 数据库字段常量使用规范
 
@@ -260,8 +391,19 @@ filters := map[string]interface{}{
 ### 错误处理检查
 
 - [ ] 统一使用 `gerror` 进行错误处理
-- [ ] 添加详细的日志记录
+- [ ] 参数验证错误直接返回 `errors.New()`，不记录日志
+- [ ] 业务逻辑错误使用 `gerror.WrapCode()` 包装并记录日志
+- [ ] 避免在返回错误前重复记录日志
 - [ ] 错误信息支持多语言（如需要）
+
+### 参数验证检查
+
+- [ ] **查看对应 Model 定义**：检查 `s_db_model` 中的相关 Model 结构体
+- [ ] **检查结构体标签**：查看 `required`、`default` 等标签
+- [ ] **检查数据库约束**：查看 SQL 创建语句中的 `NOT NULL`、`DEFAULT` 约束
+- [ ] **检查字段类型**：指针类型通常表示可选，非指针类型通常表示必填
+- [ ] **验证必填参数**：根据 Model 定义验证必填参数
+- [ ] **处理可选参数**：根据 Model 定义处理可选参数
 
 ### 数据库字段常量使用检查
 
@@ -283,246 +425,39 @@ filters := map[string]interface{}{
 - [setting_v1_update_setting.go](mdc:application/internal/controller/setting/setting_v1_update_setting.go) - 操作类接口实现
 - [setting.go](mdc:application/internal/model/entity/setting.go) - 实体模型示例
 
-## GoFrame Web 开发规范
+## GoFrame 开发规范
 
-### 控制器结构
+### RESTful API 设计
 
-**基础控制器结构**:
-
-```go
-type Controller struct {
-    Request  *ghttp.Request  // 请求数据对象
-    Response *ghttp.Response // 返回数据对象
-    Server   *ghttp.Server   // WebServer对象
-    Cookie   *ghttp.Cookie   // COOKIE操作对象
-    Session  *ghttp.Session  // SESSION操作对象
-    View     *View           // 视图对象
-}
-```
-
-### RESTful API 设计规范
-
-**标准 RESTful 接口映射**:
-
-| 接口名称 | Method | Path |
-|---------|--------|------|
-| 创建资源 | PUT | /resource |
-| 资源列表 | GET | /resource |
-| 资源详情 | GET | /resource/{id} |
-| 修改资源 | POST | /resource/{id} |
-| 删除资源 | DELETE | /resource/{id} |
+**标准接口映射**:
+- 创建资源: `PUT /resource`
+- 资源列表: `GET /resource`  
+- 资源详情: `GET /resource/{id}`
+- 修改资源: `POST /resource/{id}`
+- 删除资源: `DELETE /resource/{id}`
 
 **设计原则**:
-
 - 一个 API 只执行一个任务
-- 不绑定多个 HTTP 方法
 - 使用标准的 HTTP 状态码
 
-### 中间件规范
+### 代码生成
 
-**错误处理中间件**:
-
-```go
-func ErrorHandler(r *ghttp.Request) {
-    r.Middleware.Next()
-    
-    if err := r.GetError(); err != nil {
-        r.Response.Write("Error: ", err.Error())
-        return
-    }
-}
-```
-
-**CORS 中间件**:
-
-```go
-func MiddlewareCORS(r *ghttp.Request) {
-    r.Response.CORSDefault()
-    r.Middleware.Next()
-}
-```
-
-**认证中间件**:
-
-```go
-func MiddlewareAuth(r *ghttp.Request) {
-    token := r.Get("token")
-    if token.String() == "valid_token" {
-        r.Middleware.Next()
-    } else {
-        r.Response.WriteStatus(http.StatusForbidden)
-    }
-}
-```
-
-### 错误处理最佳实践
-
-**错误包装规范**:
-
-```go
-// ✅ 正确：简洁的错误包装
-err2 := gerror.Wrap(err1, "操作失败")
-
-// ❌ 错误：重复的错误信息
-err2 := gerror.Wrapf(err1, "操作失败: %v", err1)
-```
-
-**错误日志记录**:
-
-```go
-// 包含堆栈信息的错误日志
-g.Log().Errorf(ctx, "操作失败: %+v", err)
-
-// 简洁的错误日志
-g.Log().Errorf(ctx, "操作失败: %v", err)
-```
-
-### 路由规则
-
-**高级路由规则示例**:
-
-```go
-// 路径参数和通配符
-s.BindHandler("/{class}-{course}/:name/*act", func(r *ghttp.Request) {
-    r.Response.Writef(
-        "%v %v %v %v",
-        r.Get("class"),
-        r.Get("course"),
-        r.Get("name"),
-        r.Get("act"),
-    )
-})
-```
-
-**路由匹配规则**:
-
-- `{field}`: 路径参数匹配
-- `:name`: 命名参数
-- `*act`: 通配符匹配
-
-### 事务处理规范
-
-**事务范围最佳实践**:
-
-```go
-// ✅ 好的实践：事务内只做必要的数据库操作
-g.DB().Transaction(ctx, func(ctx context.Context, tx *gdb.TX) error {
-    // 事务前的准备工作（如参数验证、数据准备）应该在事务外完成
-    
-    // 只在事务内执行必要的数据库操作
-    return nil
-})
-```
-
-### 上下文处理
-
-**从请求上下文获取用户信息**:
-
-```go
-type contextKey string
-const userContextKey = contextKey("user")
-
-func contextGetUser(r *http.Request) user.User {
-    user, ok := r.Context().Value(userContextKey).(user.User)
-    if !ok {
-        panic("missing user value in request context")
-    }
-    return user
-}
-```
-
-## GoFrame 自动生成代码规范
-
-### 代码生成命令
-
-**主要生成命令**:
-
+**主要命令**:
 ```bash
-# 生成控制器代码
-gf gen ctrl
-
-# 生成服务接口代码
-gf gen service
+gf gen ctrl    # 生成控制器代码
+gf gen service # 生成服务接口代码
 ```
-
-### 控制器代码生成 (gen ctrl)
-
-**命令选项**:
-
-| 选项 | 必需 | 默认值 | 描述 |
-|------|------|--------|------|
-| `srcFolder` | 否 | `api` | API 接口定义源文件夹路径 |
-| `dstFolder` | 否 | `internal/controller` | 生成的控制器文件目标文件夹 |
-| `watchFile` | 否 | `""` | 文件监听模式，仅重新生成指定文件 |
-| `clear` | 否 | `false` | 是否删除无对应 API 定义的控制器文件 |
-| `merge` | 否 | `false` | 是否按 API 层文件结构生成控制器代码 |
-
-**生成文件示例**:
-
-```bash
-$ gf gen ctrl
-generated: /path/to/project/api/user/user.go
-generated: /path/to/project/internal/controller/user/user.go
-generated: /path/to/project/internal/controller/user/user_new.go
-generated: /path/to/project/internal/controller/user/user_v1_create.go
-generated: /path/to/project/internal/controller/user/user_v1_update.go
-generated: /path/to/project/internal/controller/user/user_v1_delete.go
-generated: /path/to/project/internal/controller/user/user_v1_get_one.go
-generated: /path/to/project/internal/controller/user/user_v1_get_list.go
-done!
-```
-
-### 服务接口生成 (gen service)
-
-**功能特性**:
-
-- 解析 `logic` 目录中的结构体和函数
-- 按业务模块生成接口对象
-- 支持 `--clear` 参数清理无对应实现的接口代码
-
-**VS Code 自动生成配置**:
-
-```json
-{
-    "emeraldwalk.runonsave": {
-        "commands": [
-            {
-                "match": ".*logic.*go",
-                "isAsync": true,
-                "cmd": "gf gen service"
-            }
-        ]
-    }
-}
-```
-
-### 开发工作流集成
-
-**Makefile 集成**:
-
-```makefile
-# 生成服务接口
-make service
-
-# 生成控制器代码
-make ctrl
-```
-
-### 代码生成最佳实践
 
 **开发流程**:
-
-1. **定义 API 接口**: 在 `api/` 目录定义接口结构
-2. **生成控制器**: 使用 `gf gen ctrl` 生成控制器代码
-3. **实现业务逻辑**: 在 `logic/` 目录实现具体业务
-4. **生成服务接口**: 使用 `gf gen service` 生成服务接口
+1. 在 `api/` 目录定义接口结构
+2. 使用 `gf gen ctrl` 生成控制器代码
+3. 实现具体业务逻辑
+4. 使用 `gf gen service` 生成服务接口
 
 **注意事项**:
-
 - 生成的代码文件不要手动修改
-- 使用 `--clear` 参数清理无用的生成文件
+- 使用 `--clear` 参数清理无用文件
 - 定期运行生成命令保持代码同步
-- 集成到开发工具实现自动化生成
 
 ## 技术栈
 

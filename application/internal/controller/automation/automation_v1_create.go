@@ -2,13 +2,14 @@ package automation
 
 import (
 	v1 "application/api/automation/v1"
-	"application/internal/service"
 	"context"
+	"errors"
+	"s_db"
+	"time"
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/gogf/gf/v2/os/gtime"
 )
 
 // CreateAutomation 创建自动化任务
@@ -17,29 +18,35 @@ func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomat
 
 	// 参数验证
 	if req.TimeRangeType == "" {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "时间范围类型不能为空")
+		return nil, errors.New("时间范围类型不能为空")
 	}
 	if req.TimeRangeValue == "" {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "时间范围值不能为空")
+		return nil, errors.New("时间范围值不能为空")
 	}
 	if req.TriggerRule == "" {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "触发规则不能为空")
+		return nil, errors.New("触发规则不能为空")
 	}
 	if req.ExecuteRule == "" {
-		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "执行规则不能为空")
+		return nil, errors.New("执行规则不能为空")
 	}
 
-	// 转换时间字段
-	var startTime, endTime *gtime.Time
+	// 转换时间字段为 *time.Time 类型
+	var startTime, endTime *time.Time
 	if req.StartTime != nil {
-		startTime = gtime.New(req.StartTime)
+		startTime = &req.StartTime.Time
 	}
 	if req.EndTime != nil {
-		endTime = gtime.New(req.EndTime)
+		endTime = &req.EndTime.Time
 	}
 
 	// 调用服务层创建自动化任务
-	id, err := service.Automation().CreateAutomation(ctx, startTime, endTime, req.TimeRangeType, req.TimeRangeValue, req.TriggerRule, req.ExecuteRule)
+	id, err := s_db.GetAutomationService().CreateAutomation(ctx,
+		startTime,
+		endTime,
+		req.TimeRangeType,
+		req.TimeRangeValue,
+		req.TriggerRule,
+		req.ExecuteRule)
 	if err != nil {
 		g.Log().Errorf(ctx, "创建自动化任务失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "创建自动化任务失败")
