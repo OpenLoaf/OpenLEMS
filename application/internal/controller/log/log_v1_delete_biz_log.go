@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	apiv1 "application/api/log/v1"
+	"common/c_enum"
 	"s_db"
 	"s_db/s_db_basic"
 
@@ -59,28 +60,38 @@ type DeleteParams struct {
 func (c *ControllerV1) validateDeleteRequest(req *apiv1.DeleteBizLogReq) error {
 	// 验证类型参数
 	if req.Type != "" {
-		validTypes := map[string]bool{
-			"ems":      true,
-			"device":   true,
-			"protocol": true,
-			"policy":   true,
-			"all":      true,
+		// 检查是否为"all"（特殊值）
+		if strings.EqualFold(req.Type, "all") {
+			return nil
 		}
-		if !validTypes[strings.ToLower(req.Type)] {
-			return errors.New("无效的业务类型，支持的类型: ems, device, protocol, policy, all")
+
+		// 使用枚举验证类型
+		validType := false
+		switch c_enum.ESystemGroupType(req.Type) {
+		case c_enum.ELogTypeEms, c_enum.ELogTypeDevice, c_enum.ELogTypeProtocol, c_enum.ELogTypePolicy, c_enum.ELogTypeAutomation:
+			validType = true
+		}
+
+		if !validType {
+			return errors.New("无效的业务类型，支持的类型: Ems, Device, Protocol, Policy, Automation, all")
 		}
 	}
 
 	// 验证级别参数
 	if req.Level != "" {
-		validLevels := map[string]bool{
-			"DEBUG": true,
-			"INFO":  true,
-			"WARN":  true,
-			"ERROR": true,
-			"ALL":   true,
+		// 检查是否为"ALL"（特殊值）
+		if strings.EqualFold(req.Level, "ALL") {
+			return nil
 		}
-		if !validLevels[strings.ToUpper(req.Level)] {
+
+		// 使用枚举验证级别
+		validLevel := false
+		switch c_enum.ELogLevel(strings.ToUpper(req.Level)) {
+		case c_enum.Debug, c_enum.Info, c_enum.Warn, c_enum.Error:
+			validLevel = true
+		}
+
+		if !validLevel {
 			return errors.New("无效的日志级别，支持的级别: DEBUG, INFO, WARN, ERROR, ALL")
 		}
 	}

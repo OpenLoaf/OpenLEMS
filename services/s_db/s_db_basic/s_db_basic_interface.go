@@ -17,9 +17,9 @@ type IDeviceService interface {
 
 type ISettingService interface {
 	GetAllSettings(ctx context.Context) ([]*s_db_model.SSettingModel, error)
-	GetSettingById(ctx context.Context, id string) (*s_db_model.SSettingModel, error)               // 根据ID获取设置详情
-	GetSettingValueById(ctx context.Context, id string) string                                      // 获取设置，如果获取不到，返回空字符串
-	GetSettingValueByIdWithDefaultValue(ctx context.Context, id, group, defaultValue string) string // 获取设置，如果获取不到，就设置为默认值
+	GetSettingById(ctx context.Context, id string) (*s_db_model.SSettingModel, error)                                 // 根据ID获取设置详情
+	GetSettingValueById(ctx context.Context, id string) string                                                        // 获取设置，如果获取不到，返回空字符串
+	GetSettingValueByIdWithDefaultValue(ctx context.Context, id, group, defaultValue string, remark ...string) string // 获取设置，如果获取不到，就设置为默认值
 	SetSettingValueById(ctx context.Context, id string, value string) error
 	GetRootDeviceId(ctx context.Context) string                                        // 获取根设备ID
 	GetRootPolicyId(ctx context.Context) string                                        // 获取激活的策略ID

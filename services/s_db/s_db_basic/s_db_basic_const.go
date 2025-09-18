@@ -8,6 +8,9 @@ const (
 
 	SettingActivePolicyIdKey = "active_policy_id" // 激活的策略ID
 
+	SettingAutomationInternalMillisecondsKey = "automation_internal_milliseconds"
+	DefaultAutomationInternalMilliseconds    = "1000"
+
 	SettingDeviceRetentionDays = "DeviceRetentionDays"
 	DefaultDeviceRetentionDays = "100" // 默认设备保存天数
 

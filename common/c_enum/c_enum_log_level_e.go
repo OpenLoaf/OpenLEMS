@@ -3,8 +3,8 @@ package c_enum
 type ELogLevel string
 
 const (
-	Debug ELogLevel = "debug"
-	Info  ELogLevel = "info"
-	Warn  ELogLevel = "warn"
-	Error ELogLevel = "error"
+	Debug ELogLevel = "DEBUG"
+	Info  ELogLevel = "INFO"
+	Warn  ELogLevel = "WARN"
+	Error ELogLevel = "ERROR"
 )

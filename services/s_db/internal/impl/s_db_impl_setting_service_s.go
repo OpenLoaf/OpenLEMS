@@ -72,7 +72,7 @@ func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string
 }
 
 // 获取设置配置通过名称，支持默认值和分组
-func (s *sSettingServiceImpl) GetSettingValueByIdWithDefaultValue(ctx context.Context, id, group, defaultValue string) string {
+func (s *sSettingServiceImpl) GetSettingValueByIdWithDefaultValue(ctx context.Context, id, group, defaultValue string, remark ...string) string {
 	setting := &s_db_model.SSettingModel{}
 	// 通过 id 获取设置，如果设置不存在，则创建默认设置
 	err := setting.GetById(ctx, id)
@@ -88,6 +88,10 @@ func (s *sSettingServiceImpl) GetSettingValueByIdWithDefaultValue(ctx context.Co
 		setting.Enabled = true
 		setting.Sort = 999
 		setting.Group = group
+
+		if len(remark) > 0 {
+			setting.Remark = remark[0]
+		}
 
 		err = setting.Create(ctx)
 		if err != nil {

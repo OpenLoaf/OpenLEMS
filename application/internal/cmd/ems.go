@@ -13,6 +13,7 @@ import (
 	"runtime"
 	"s_automation"
 	"s_db"
+	"s_db/s_db_basic"
 	"s_driver"
 	"s_storage"
 	"time"
@@ -21,6 +22,7 @@ import (
 	"github.com/gogf/gf/v2/i18n/gi18n"
 	"github.com/gogf/gf/v2/os/gcmd"
 	"github.com/gogf/gf/v2/os/gproc"
+	"github.com/shockerli/cvt"
 )
 
 // InitSystem 初始化系统
@@ -73,8 +75,17 @@ func StartServices(ctx context.Context) {
 		// 等待设备管理器启动完成
 		time.Sleep(2 * time.Second)
 
-		// 启动自动化管理器，每秒执行一次
-		err := s_automation.StartAutomationManager(ctx, 500*time.Millisecond)
+		internalMillisecondsStr := s_db.GetSettingService().GetSettingValueByIdWithDefaultValue(ctx,
+			s_db_basic.SettingAutomationInternalMillisecondsKey, c_enum.ESettingGroupSystem,
+			s_db_basic.DefaultAutomationInternalMilliseconds, "自动化任务轮询周期（毫秒）")
+
+		internalMilliseconds := cvt.Int64(internalMillisecondsStr)
+		if internalMilliseconds < 0 {
+			internalMilliseconds = cvt.Int64(s_db_basic.DefaultAutomationInternalMilliseconds)
+		}
+
+		// 启动自动化管理器，按配置间隔执行
+		err := s_automation.StartAutomationManager(ctx, time.Duration(internalMilliseconds)*time.Millisecond)
 		if err != nil {
 			g.Log().Errorf(ctx, "启动自动化管理器失败: %+v", err)
 		} else {
