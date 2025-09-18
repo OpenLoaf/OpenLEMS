@@ -4,13 +4,12 @@ import (
 	"common/c_enum"
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/pkg/errors"
 )
 
 type SConfigStructFields struct {
-	Code               string                            `json:"code" yaml:"code" short:"code" `
+	Key                string                            `json:"key" yaml:"key" short:"key"`
 	Name               string                            `json:"name" yaml:"name" short:"name" required:"true"`
 	Group              string                            `json:"group" yaml:"group" short:"group"`
 	ValueType          c_enum.EConfigFieldsValueType     `json:"valueType" yaml:"value_type" short:"vt" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
@@ -21,7 +20,6 @@ type SConfigStructFields struct {
 	Min                *int64                            `json:"min" yaml:"min" short:"min"`
 	Max                *int64                            `json:"max" yaml:"max" short:"max"`
 	Default            *string                           `json:"default" yaml:"default" short:"def"`
-	SelectOptions      []string                          `json:"selectOptions" yaml:"select_options" short:"opts"`
 	ValueExplain       map[string]string                 `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
 	ParamExplain       map[string]string                 `json:"paramExplain,omitempty" yaml:"paramExplain"` // 从参数值中读取解释
 	Regex              *string                           `json:"regex" yaml:"regex" short:"regex" dc:"正则表达式"`
@@ -51,16 +49,8 @@ func (s *SConfigStructFields) String() string {
 		regexVal = *s.Regex
 	}
 
-	// 处理 SelectOptions 字段
-	var selectOptionsStr string
-	if len(s.SelectOptions) > 0 {
-		selectOptionsStr = fmt.Sprintf("[%s]", strings.Join(s.SelectOptions, ", "))
-	} else {
-		selectOptionsStr = "[]"
-	}
-
-	return fmt.Sprintf("SConfigStructFields{Key:%s, Code:%s, ValueType:%s, ComponentType:%s, After:%d, Before:%d, Default:%s, Regex:%s, SelectOptions:%s}",
-		s.Name, s.Code, s.ValueType, s.ComponentType, minVal, maxVal, defaultVal, regexVal, selectOptionsStr)
+	return fmt.Sprintf("SConfigStructFields{Key:%s, Key:%s, ValueType:%s, ComponentType:%s, After:%d, Before:%d, Default:%s, Regex:%s}",
+		s.Name, s.Key, s.ValueType, s.ComponentType, minVal, maxVal, defaultVal, regexVal)
 }
 
 func (s *SConfigStructFields) Check() error {
@@ -75,8 +65,8 @@ func (s *SConfigStructFields) Check() error {
 	if s.Description == "" {
 		return errors.New("Description is required")
 	}
-	if s.Code == "" {
-		return errors.New("Code is required")
+	if s.Key == "" {
+		return errors.New("Key is required")
 	}
 	if s.ValueType == "" {
 		return errors.New("ValueType is required")

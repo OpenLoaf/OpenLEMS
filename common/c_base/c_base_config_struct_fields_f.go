@@ -192,7 +192,7 @@ func populateFieldConfigFromTags(field reflect.StructField, fieldConfig *SConfig
 		}
 
 		// 跳过Code字段，因为它已经在外部处理了
-		if structField.Name == "Code" {
+		if structField.Name == "Key" {
 			continue
 		}
 
@@ -279,7 +279,7 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 		}
 
 		// 动态获取json标签，用于确定字段的JSON序列化名称
-		jsonName := parseFieldTagValue(field, "Code") // Code字段对应json标签
+		jsonName := parseFieldTagValue(field, "Key") // Code字段对应json标签
 		if jsonName == "" {
 			// 如果没有找到对应的标签，尝试使用传统的json标签作为后备
 			jsonTag := field.Tag.Get("json")
@@ -301,7 +301,7 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 		componentType, valueType := getFieldTypeInfo(field.Type)
 
 		fieldConfig := &SConfigStructFields{
-			Code:          jsonName,
+			Key:           jsonName,
 			ValueType:     valueType,
 			ComponentType: componentType,
 		}
