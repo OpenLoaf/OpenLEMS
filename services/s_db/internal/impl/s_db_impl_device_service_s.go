@@ -121,7 +121,7 @@ func (s *sDeviceServiceImpl) GetDevicesByCondition(ctx context.Context, conditio
 
 func (s *sDeviceServiceImpl) GetRecursiveDevicesByPid(ctx context.Context, pid string) ([]*s_db_model.SDeviceModel, error) {
 	var devices []*s_db_model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldPid, pid).Scan(&devices)
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldDevicePid, pid).Scan(&devices)
 	if err != nil {
 		return nil, err
 	}
@@ -147,14 +147,14 @@ func (s *sDeviceServiceImpl) GetDeviceById(ctx context.Context, id string) (*s_d
 // GetDevicesByPid 根据父设备ID获取子设备列表
 func (s *sDeviceServiceImpl) GetDevicesByPid(ctx context.Context, pid string) ([]*s_db_model.SDeviceModel, error) {
 	var devices []*s_db_model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldPid, pid).Scan(&devices)
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldDevicePid, pid).Scan(&devices)
 	return devices, err
 }
 
 // GetByProtocolId 根据协议ID获取设备列表
 func (s *sDeviceServiceImpl) GetDevicesByProtocolId(ctx context.Context, protocolId string) ([]*s_db_model.SDeviceModel, error) {
 	var devices []*s_db_model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldProtocolId, protocolId).Scan(&devices)
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldDeviceProtocolId, protocolId).Scan(&devices)
 	return devices, err
 }
 
@@ -201,6 +201,6 @@ func (s *sDeviceServiceImpl) GetAllDevicesOrderBySortAndEnable(ctx context.Conte
 // GetDevicesByPidOrderBySort 根据父设备ID获取子设备列表，按sort字段排序
 func (s *sDeviceServiceImpl) GetDevicesByPidOrderBySort(ctx context.Context, pid string) ([]*s_db_model.SDeviceModel, error) {
 	var devices []*s_db_model.SDeviceModel
-	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldPid, pid).Order(s_db_model.FieldSort).Scan(&devices)
+	err := g.Model(s.deviceModel).Ctx(ctx).Where(s_db_model.FieldDevicePid, pid).Order(s_db_model.FieldSort).Scan(&devices)
 	return devices, err
 }

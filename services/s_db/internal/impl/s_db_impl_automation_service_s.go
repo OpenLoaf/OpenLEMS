@@ -191,7 +191,7 @@ func (s *sAutomationServiceImpl) buildAutomationQuery(ctx context.Context, devic
 	// 应用其他过滤条件
 	if filters != nil {
 		if timeRangeType, ok := filters["timeRangeType"].(string); ok && timeRangeType != "" {
-			model = model.Where(s_db_model.FieldTimeRangeType, timeRangeType)
+			model = model.Where(s_db_model.FieldAutomationTimeRangeType, timeRangeType)
 		}
 		if enable, ok := filters["enable"].(bool); ok {
 			model = model.Where(s_db_model.FieldEnabled, enable)
