@@ -9,6 +9,7 @@ protocolType: "modbus"
 telemetry:
   - key: status
     name: "状态"
+    icon: "sun"
     displayType: label
     valueExplain:
       0: "未知|#FF5D5D"
@@ -19,15 +20,19 @@ telemetry:
   - key: power
     unit: "kW"
     name: "发电功率"
+    icon: "zap"
   - key: irradiance
     name: "当前辐照度"
     unit: "W/m²"
+    icon: "sun"
   - key: temperature
     name: "当前温度"
     unit: "°C"
+    icon: "thermometer"
   - key: historyOutgoingQuantity
     name: "历史发电量"
     unit: "kWh"
+    icon: "sun"
 
 service:
   - key: CustomPowerZeroService

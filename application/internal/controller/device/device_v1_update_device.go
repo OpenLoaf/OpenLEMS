@@ -49,10 +49,12 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 	}
 
 	// 指针字段：只有非nil才更新
-	if manualMode, er := cvt.BoolE(req.ManualMode); er == nil {
-		data["manualMode"] = manualMode
-		if config != nil {
-			config.ManualMode = manualMode
+	if req.ManualMode != nil {
+		if manualMode, er := cvt.BoolE(req.ManualMode); er == nil {
+			data["manualMode"] = manualMode
+			if config != nil {
+				config.ManualMode = manualMode
+			}
 		}
 	}
 	if req.Enabled != nil {
@@ -61,11 +63,8 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 	}
 	if req.Sort != nil {
 		data["sort"] = *req.Sort
-	}
-	if sort, er := cvt.IntE(req.Sort); er == nil {
-		data["sort"] = sort
 		if config != nil {
-			config.Sort = sort
+			config.Sort = cvt.Int(req.Sort)
 		}
 	}
 

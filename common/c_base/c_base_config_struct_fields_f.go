@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/shockerli/cvt"
+	"gopkg.in/yaml.v3"
 
 	"github.com/pkg/errors"
 )
@@ -22,6 +23,23 @@ var (
 	// 缓存SConfigStructFields的标签映射，避免重复反射
 	configFieldsTagCache map[string]*TagMapping
 )
+
+func BuildDescriptionFromYaml(yamlData []byte, deviceConfig ...any) *SDriverInfo {
+	info := &SDriverInfo{}
+	err := yaml.Unmarshal(yamlData, info)
+	if err != nil {
+		panic(errors.Errorf("解析版本信息失败！请检查build.yaml文件!%+v", err))
+	}
+
+	if len(deviceConfig) > 0 && deviceConfig[0] != nil {
+		f, err := BuildConfigStructFields(deviceConfig[0])
+		if err != nil {
+			panic(errors.Errorf("配置对象中的Fileds解析失败!%+v", err))
+		}
+		info.SetConfigStructFields(f)
+	}
+	return info
+}
 
 // initConfigFieldsTagCache 初始化SConfigStructFields的标签映射缓存
 func initConfigFieldsTagCache() {

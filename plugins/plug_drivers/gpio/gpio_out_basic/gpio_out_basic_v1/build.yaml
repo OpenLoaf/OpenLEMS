@@ -10,6 +10,7 @@ desc: "基础GPIO输出驱动，支持GPIO输出控制"
 telemetry:
   - key: status
     name: "状态"
+    icon: "power"
     paramExplain:
       1: triggerName
       0: clearName

@@ -9,6 +9,7 @@ protocolType: "modbus"
 telemetry:
   - key: status
     name: "状态"
+    icon: "battery"
     displayType: label
     valueExplain:
       0: "未知|#FF5D5D"
@@ -20,3 +21,4 @@ telemetry:
   - key: power
     unit: "kW"
     name: "发电功率"
+    icon: "zap"

@@ -11,25 +11,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"gopkg.in/yaml.v3"
 )
-
-func BuildDescriptionFromYaml(yamlData []byte, deviceConfig ...any) *SDriverInfo {
-	info := &SDriverInfo{}
-	err := yaml.Unmarshal(yamlData, info)
-	if err != nil {
-		panic(errors.Errorf("解析版本信息失败！请检查build.yaml文件!%+v", err))
-	}
-
-	if len(deviceConfig) > 0 && deviceConfig[0] != nil {
-		f, err := BuildConfigStructFields(deviceConfig[0])
-		if err != nil {
-			panic(errors.Errorf("配置对象中的Fileds解析失败!%+v", err))
-		}
-		info.SetConfigStructFields(f)
-	}
-	return info
-}
 
 func GetAllTelemetry(instance IDevice) map[string]any {
 
@@ -39,7 +21,7 @@ func GetAllTelemetry(instance IDevice) map[string]any {
 	driverInfo := instance.GetConfig().DriverInfo
 	telemetryMap := make(map[string]any, len(driverInfo.Telemetry))
 	for _, telemetry := range driverInfo.Telemetry {
-		value, err := driverInfo.getTelemetry(telemetry.Key, instance)
+		value, err := getTelemetry(telemetry.Key, instance)
 		if err != nil {
 			// 这里有时候err也是正常的，比如系统刚启动，但是页面一直在请求
 			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
@@ -61,7 +43,7 @@ func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
 	driverInfo := instance.GetConfig().DriverInfo
 	var list []*SPointValue
 	for _, telemetry := range driverInfo.Telemetry {
-		value, err := driverInfo.getTelemetry(telemetry.Key, instance)
+		value, err := getTelemetry(telemetry.Key, instance)
 		if err != nil {
 			// 这里有时候err也是正常的，比如系统刚启动，但是页面一直在请求
 			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
@@ -133,13 +115,18 @@ func ResolvingValueType(value any) c_enum.EValueType {
 }
 
 // getTelemetry 反射获取遥测信息 用于实现IDriver接口
-func (s *SDriverInfo) getTelemetry(key string, instance IDevice) (any, error) {
+func getTelemetry(key string, instance IDevice) (any, error) {
 	// 输入参数验证
 	if key == "" {
 		return nil, errors.New("telemetry key cannot be empty")
 	}
 	if instance == nil {
 		return nil, errors.New("instance cannot be nil")
+	}
+
+	s := instance.GetConfig().DriverInfo
+	if s == nil {
+		return nil, errors.New("driver info is nil")
 	}
 
 	// 反射前先判断缓存中是否存在

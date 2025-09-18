@@ -10,9 +10,11 @@ telemetry:
   - key: power
     unit: "kW"
     desc: "功率"
+    icon: "zap"
   - key: frequency
     unit: "Hz"
     desc: "频率"
+    icon: "activity"
 Service:
   - key: CustomShutdownService
     name: "关机"

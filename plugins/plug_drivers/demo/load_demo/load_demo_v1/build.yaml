@@ -10,9 +10,11 @@ telemetry:
   - key: power
     unit: "kW"
     name: "功率"
+    icon: "zap"
   - key: historyIncomingQuantity
     name: "历史用电量"
     unit: "kWh"
+    icon: "trending-up"
 
 
 #service:

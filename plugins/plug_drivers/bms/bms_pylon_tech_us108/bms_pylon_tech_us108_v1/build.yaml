@@ -9,6 +9,7 @@ protocolType: "modbus"
 telemetry:
     - key: bmsStatus
       name: "电池状态"
+      icon: "battery"
       displayType: label
       valueExplain:
         0: "未知|#FF5D5D"
@@ -20,24 +21,31 @@ telemetry:
     - key: soc
       unit: "%"
       name: "SOC"
+      icon: "gauge"
     - key: capacity
       unit: "kWh"
       name: "电池容量"
+      icon: "battery"
     - key: dcPower
       unit: "kW"
       name: "直流功率"
+      icon: "zap"
     - key: dcVoltage
       unit: "V"
       name: "直流电压"
+      icon: "zap"
     - key: dcCurrent
       unit: "A"
       name: "直流电流"
+      icon: "flash"
     - key: historyIncomingQuantity
       unit: "kWh"
       name: "充电量"
+      icon: "battery-charging"
     - key: historyOutgoingQuantity
       unit: "kWh"
       name: "放电量"
+      icon: "battery"
 
 
 service:

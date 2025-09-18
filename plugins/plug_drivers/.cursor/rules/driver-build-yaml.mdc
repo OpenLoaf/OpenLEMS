@@ -33,6 +33,7 @@ telemetry:
   - key: "遥测名称"                    # 遥测字段名，对应Get方法名
     name: "显示名称"                   # 前端显示名称
     unit: "单位"                       # 数据单位，如 "kW", "kWh", "V", "A", "%"
+    icon: "图标名称"                   # 图标名称，使用 lucide-icons 图标库
     valueExplain:                      # 状态映射（用于label类型）
       "0": "未知|#FF5D5D"
       "1": "关机|#9CBF30"
@@ -44,6 +45,21 @@ telemetry:
 
 1. **无 valueExplain**：前端直接显示原始数据值，适用于数值类型数据
 2. **有 valueExplain**：前端使用 label 组件显示，根据 `valueExplain` 进行数据映射
+
+**图标选择规则：**
+
+1. **图标来源**：使用 [lucide-icons](https://lucide.dev/icons/) 图标库中的图标名称
+2. **选择原则**：
+   - 根据设备类型和遥测内容选择相关图标
+   - 相同遥测在不同设备类型中可使用不同图标
+   - 状态类遥测优先选择状态相关图标（如 `power`、`activity`、`zap`）
+   - 数值类遥测选择数据相关图标（如 `gauge`、`trending-up`、`battery`）
+3. **常用图标示例**：
+   - 状态：`power`、`activity`、`zap`、`circle-dot`
+   - 电池：`battery`、`battery-charging`、`battery-low`
+   - 功率：`gauge`、`trending-up`、`trending-down`
+   - 温度：`thermometer`、`snowflake`
+   - 电压/电流：`zap`、`flash`
 
 **状态映射 (valueExplain) 规则：**
 
@@ -151,6 +167,7 @@ telemetry:
   # 状态类数据 - 使用 valueExplain 映射
   - key: bmsStatus
     name: "电池状态"
+    icon: "battery"
     valueExplain:
       "0": "未知|#FF5D5D"
       "1": "关机|#9CBF30"
@@ -162,12 +179,15 @@ telemetry:
   - key: soc
     unit: "%"
     name: "SOC"
+    icon: "gauge"
   - key: capacity
     unit: "kWh"
     name: "电池容量"
+    icon: "battery-charging"
   - key: dcPower
     unit: "kW"
     name: "直流功率"
+    icon: "zap"
 service:
   - key: CustomDcOffService
     name: "g18n:dc-off"
@@ -192,6 +212,7 @@ telemetry:
   # 布尔值状态 - 使用布尔值映射
   - key: gpioStatus
     name: "状态"
+    icon: "power"
     valueExplain:
       "false": "关|#9CBF30"
       "true": "开|#0098FA"
@@ -199,6 +220,7 @@ telemetry:
   - key: voltage
     unit: "V"
     name: "电压"
+    icon: "zap"
 service:
   - key: SetLow
     name: "低电平"
@@ -219,7 +241,12 @@ service:
    - 状态类数据使用 `valueExplain` 映射
    - 数值类数据不设置 `valueExplain`，直接显示原始值
    - 布尔值状态使用 `valueExplain` 配合布尔值映射
-2. **状态映射设计**:
+2. **图标选择**:
+   - 根据设备类型和遥测内容选择相关图标
+   - 状态类遥测使用状态相关图标（`power`、`activity`、`zap`）
+   - 数值类遥测使用数据相关图标（`gauge`、`trending-up`、`battery`）
+   - 相同遥测在不同设备类型中可使用不同图标
+3. **状态映射设计**:
    - 为所有可能的状态值提供完整的映射关系
    - 使用语义化的显示名称，避免技术术语
    - 颜色选择应符合用户直觉（绿色=正常，红色=故障等）

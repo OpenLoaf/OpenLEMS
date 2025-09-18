@@ -10,6 +10,7 @@ protocolType: "virtual"
 telemetry:
   - key: status
     name: "状态"
+    icon: "battery"
     displayType: label
     valueExplain:
       0: "未知|#FF5D5D"
@@ -21,29 +22,38 @@ telemetry:
   - key: soc
     unit: "%"
     name: "SOC"
+    icon: "gauge"
   - key: power
     unit: "kW"
     name: "功率"
+    icon: "zap"
   - key: targetPower
     unit: "kW"
     name: "目标功率"
+    icon: "target"
   - key: apparentPower
     unit: "kVA"
     name: "视在功率"
+    icon: "trending-up"
   - key: reactivePower
     unit: "kVar"
     name: "无功功率"
+    icon: "activity"
   - key: todayIncomingQuantity
     unit: "kWh"
     name: "当日充电量"
+    icon: "battery-charging"
   - key: todayOutgoingQuantity
     name: "当日放电量"
     unit: "kWh"
+    icon: "battery"
   - key: historyIncomingQuantity
     name: "历史充电量"
     unit: "kWh"
+    icon: "battery-charging"
     desc: "历史充电量"
   - key: historyOutgoingQuantity
     name: "历史放电量"
     unit: "kWh"
+    icon: "battery"
     desc: "历史放电量"

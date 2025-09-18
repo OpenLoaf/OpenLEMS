@@ -10,13 +10,14 @@ desc: "基础GPIO输入驱动，支持GPIO输入监控和告警"
 telemetry:
   - key: status
     name: "状态"
+    icon: "power"
     paramExplain:
       1: triggerName
       0: clearName
 service:
   - key: SetLow
-    name: "模拟低电平"
+    name: "模拟触发低电平"
     description: "测试设置为低电平"
   - key: SetHigh
-    name: "模拟高电平"
+    name: "模拟触发高电平"
     description: "测试设置为高电平"

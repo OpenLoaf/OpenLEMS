@@ -10,16 +10,21 @@ telemetry:
   - key: pTotal
     unit: "kW"
     name: "功率"
+    icon: "zap"
   - key: frequency
     name: "频率"
+    icon: "activity"
   - key: pfTotal
     name: "功率因素"
+    icon: "gauge"
   - key: historyIncomingQuantity
     name: "正向总有功电能"
     unit: "kWh"
+    icon: "trending-up"
   - key: historyOutgoingQuantity
     name: "反向总有功电能"
     unit: "kWh"
+    icon: "trending-down"
 
 
 #service:
