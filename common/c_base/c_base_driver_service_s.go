@@ -3,13 +3,14 @@ package c_base
 import "common/c_enum"
 
 type STelemetry struct {
-	Key          string            `json:"key,omitempty" yaml:"key"`                   // 遥测名称
-	Name         string            `json:"name" yaml:"name"`                           // 遥测名称的国际化覆盖
-	Precise      uint8             `json:"precise" yaml:"precise"`                     // 浮点数精度，默认0
-	Unit         string            `json:"unit,omitempty" yaml:"unit"`                 // 单位
-	Desc         string            `json:"desc,omitempty" yaml:"desc"`                 // 备注
-	ValueExplain map[string]string `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
-	ParamExplain map[string]string `json:"paramExplain,omitempty" yaml:"paramExplain"` // 从参数值中读取解释
+	Key          string               `json:"key,omitempty" yaml:"key"`                   // 遥测名称
+	Name         string               `json:"name" yaml:"name"`                           // 遥测名称的国际化覆盖
+	Precise      uint8                `json:"precise" yaml:"precise"`                     // 浮点数精度，默认0
+	Unit         string               `json:"unit,omitempty" yaml:"unit"`                 // 单位
+	Desc         string               `json:"desc,omitempty" yaml:"desc"`                 // 备注
+	ValueExplain map[string]string    `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
+	ParamExplain map[string]string    `json:"paramExplain,omitempty" yaml:"paramExplain"` // 从参数值中读取解释
+	Config       *SConfigStructFields `json:"config,omitempty" yaml:"config"`             // 配置字段
 }
 
 func (s *STelemetry) ToPoint(valueType c_enum.EValueType, params map[string]any) IPoint {

@@ -4,8 +4,10 @@ import (
 	"common/c_enum"
 	"common/c_log"
 	"context"
+	"encoding/json"
 	"fmt"
 	"reflect"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -319,10 +321,25 @@ func ExecuteCustomService(functionName string, instance IDevice, params []any) e
 	// 准备反射调用的参数
 	var callArgs []reflect.Value
 	if len(params) > 0 {
-		// 将字符串参数转换为reflect.Value切片
+		// 获取方法类型信息以进行参数类型转换
+		methodType := method.Type()
 		callArgs = make([]reflect.Value, len(params))
+
 		for i, param := range params {
-			callArgs[i] = reflect.ValueOf(param)
+			// 获取目标参数类型
+			var targetType reflect.Type
+			if i < methodType.NumIn() {
+				targetType = methodType.In(i)
+			}
+
+			// 进行类型转换
+			convertedParam, err := convertParameterType(param, targetType)
+			if err != nil {
+				c_log.BizInfof(ctx, "执行自定义服务[%s]失败！参数[%d]类型转换失败：%v", service.Key, i, err)
+				return errors.Errorf("parameter %d type conversion failed: %v", i, err)
+			}
+
+			callArgs[i] = reflect.ValueOf(convertedParam)
 		}
 	}
 
@@ -342,4 +359,161 @@ func ExecuteCustomService(functionName string, instance IDevice, params []any) e
 	fmt.Printf("当前函数: %s 返回的参数数据不为1 ！返回的内容为: %v", functionName, values)
 
 	return nil
+}
+
+// convertParameterType 将参数转换为目标类型
+func convertParameterType(param interface{}, targetType reflect.Type) (interface{}, error) {
+	if param == nil {
+		return nil, nil
+	}
+
+	// 如果目标类型为空，直接返回原参数
+	if targetType == nil {
+		return param, nil
+	}
+
+	// 处理 json.Number 类型
+	if jsonNum, ok := param.(json.Number); ok {
+		switch targetType.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			val, err := jsonNum.Int64()
+			if err != nil {
+				return nil, errors.Wrapf(err, "无法将 json.Number 转换为 %s", targetType.String())
+			}
+			return convertIntValue(val, targetType)
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			val, err := jsonNum.Int64()
+			if err != nil {
+				return nil, errors.Wrapf(err, "无法将 json.Number 转换为 %s", targetType.String())
+			}
+			if val < 0 {
+				return nil, errors.Errorf("无法将负数 %d 转换为无符号类型 %s", val, targetType.String())
+			}
+			return convertUintValue(uint64(val), targetType)
+		case reflect.Float32, reflect.Float64:
+			val, err := jsonNum.Float64()
+			if err != nil {
+				return nil, errors.Wrapf(err, "无法将 json.Number 转换为 %s", targetType.String())
+			}
+			return convertFloatValue(val, targetType)
+		case reflect.String:
+			return string(jsonNum), nil
+		}
+	}
+
+	// 处理字符串转换
+	if str, ok := param.(string); ok {
+		switch targetType.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			val, err := strconv.ParseInt(str, 10, 64)
+			if err != nil {
+				return nil, errors.Wrapf(err, "无法将字符串 '%s' 转换为 %s", str, targetType.String())
+			}
+			return convertIntValue(val, targetType)
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			val, err := strconv.ParseUint(str, 10, 64)
+			if err != nil {
+				return nil, errors.Wrapf(err, "无法将字符串 '%s' 转换为 %s", str, targetType.String())
+			}
+			return convertUintValue(val, targetType)
+		case reflect.Float32, reflect.Float64:
+			val, err := strconv.ParseFloat(str, 64)
+			if err != nil {
+				return nil, errors.Wrapf(err, "无法将字符串 '%s' 转换为 %s", str, targetType.String())
+			}
+			return convertFloatValue(val, targetType)
+		case reflect.Bool:
+			val, err := strconv.ParseBool(str)
+			if err != nil {
+				return nil, errors.Wrapf(err, "无法将字符串 '%s' 转换为 bool", str)
+			}
+			return val, nil
+		case reflect.String:
+			return str, nil
+		}
+	}
+
+	// 处理布尔值
+	if boolVal, ok := param.(bool); ok && targetType.Kind() == reflect.Bool {
+		return boolVal, nil
+	}
+
+	// 处理数值类型的直接转换
+	paramValue := reflect.ValueOf(param)
+	if paramValue.Type().ConvertibleTo(targetType) {
+		return paramValue.Convert(targetType).Interface(), nil
+	}
+
+	// 如果类型已经匹配，直接返回
+	if paramValue.Type() == targetType {
+		return param, nil
+	}
+
+	return nil, errors.Errorf("无法将类型 %s 转换为 %s", paramValue.Type().String(), targetType.String())
+}
+
+// convertIntValue 将 int64 值转换为指定的整数类型
+func convertIntValue(val int64, targetType reflect.Type) (interface{}, error) {
+	switch targetType.Kind() {
+	case reflect.Int:
+		return int(val), nil
+	case reflect.Int8:
+		if val < -128 || val > 127 {
+			return nil, errors.Errorf("值 %d 超出 int8 范围", val)
+		}
+		return int8(val), nil
+	case reflect.Int16:
+		if val < -32768 || val > 32767 {
+			return nil, errors.Errorf("值 %d 超出 int16 范围", val)
+		}
+		return int16(val), nil
+	case reflect.Int32:
+		if val < -2147483648 || val > 2147483647 {
+			return nil, errors.Errorf("值 %d 超出 int32 范围", val)
+		}
+		return int32(val), nil
+	case reflect.Int64:
+		return val, nil
+	default:
+		return nil, errors.Errorf("不支持的整数类型: %s", targetType.String())
+	}
+}
+
+// convertUintValue 将 uint64 值转换为指定的无符号整数类型
+func convertUintValue(val uint64, targetType reflect.Type) (interface{}, error) {
+	switch targetType.Kind() {
+	case reflect.Uint:
+		return uint(val), nil
+	case reflect.Uint8:
+		if val > 255 {
+			return nil, errors.Errorf("值 %d 超出 uint8 范围", val)
+		}
+		return uint8(val), nil
+	case reflect.Uint16:
+		if val > 65535 {
+			return nil, errors.Errorf("值 %d 超出 uint16 范围", val)
+		}
+		return uint16(val), nil
+	case reflect.Uint32:
+		if val > 4294967295 {
+			return nil, errors.Errorf("值 %d 超出 uint32 范围", val)
+		}
+		return uint32(val), nil
+	case reflect.Uint64:
+		return val, nil
+	default:
+		return nil, errors.Errorf("不支持的无符号整数类型: %s", targetType.String())
+	}
+}
+
+// convertFloatValue 将 float64 值转换为指定的浮点数类型
+func convertFloatValue(val float64, targetType reflect.Type) (interface{}, error) {
+	switch targetType.Kind() {
+	case reflect.Float32:
+		return float32(val), nil
+	case reflect.Float64:
+		return val, nil
+	default:
+		return nil, errors.Errorf("不支持的浮点数类型: %s", targetType.String())
+	}
 }
