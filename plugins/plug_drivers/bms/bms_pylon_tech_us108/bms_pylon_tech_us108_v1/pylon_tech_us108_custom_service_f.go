@@ -43,3 +43,10 @@ func (p *sBmsPylonTechUs108) CustomTestClear() error {
 		}, 0x1002)
 	})
 }
+
+// CustomSetParamFunction 测试参数设置功能
+func (p *sBmsPylonTechUs108) CustomSetParamFunction(testNumber int) error {
+	c_log.BizInfo(p.DeviceCtx, fmt.Sprintf("触发测试参数设置指令，参数值: %d kW", testNumber))
+	fmt.Printf("CustomSetParamFunction 被调用，接收到的测试数字参数: %d\n", testNumber)
+	return nil
+}
