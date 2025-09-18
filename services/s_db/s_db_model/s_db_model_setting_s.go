@@ -10,6 +10,9 @@ import (
 const (
 	// 表名
 	TableSetting = "setting"
+
+	// 设置表特有字段
+	FieldSettingIsPublic = "is_public"
 )
 
 // 设置表结构
@@ -177,6 +180,6 @@ func (s *SSettingModel) UpdateGroup(ctx context.Context, group string) error {
 // GetPublicEnabledSettings 获取公开且启用的设置记录
 func GetPublicEnabledSettings(ctx context.Context) ([]*SSettingModel, error) {
 	var settings []*SSettingModel
-	err := g.Model(TableSetting).Ctx(ctx).Where("is_public", true).Where(FieldEnabled, true).Scan(&settings)
+	err := g.Model(TableSetting).Ctx(ctx).Where(FieldSettingIsPublic, true).Where(FieldEnabled, true).Scan(&settings)
 	return settings, err
 }

@@ -13,8 +13,10 @@ const (
 	// 表名
 	TableLog = "log"
 
-	// 字段名
-	FieldContent = "content"
+	// 日志表特有字段
+	FieldLogDeviceId = "device_id"
+	FieldLogLevel    = "level"
+	FieldLogContent  = "content"
 )
 
 // 日志表结构
@@ -43,7 +45,7 @@ func (l *SLogModel) GetById(ctx context.Context, id int) error {
 // GetByDeviceId 根据设备ID获取日志记录
 func (l *SLogModel) GetByDeviceId(ctx context.Context, deviceId string) ([]*SLogModel, error) {
 	var records []*SLogModel
-	err := g.Model(TableLog).Ctx(ctx).Where(FieldDeviceId, deviceId).Scan(&records)
+	err := g.Model(TableLog).Ctx(ctx).Where(FieldLogDeviceId, deviceId).Scan(&records)
 	return records, err
 }
 
@@ -57,14 +59,14 @@ func (l *SLogModel) GetByType(ctx context.Context, logType string) ([]*SLogModel
 // GetByLevel 根据日志等级获取日志记录
 func (l *SLogModel) GetByLevel(ctx context.Context, level string) ([]*SLogModel, error) {
 	var records []*SLogModel
-	err := g.Model(TableLog).Ctx(ctx).Where(FieldLevel, level).Scan(&records)
+	err := g.Model(TableLog).Ctx(ctx).Where(FieldLogLevel, level).Scan(&records)
 	return records, err
 }
 
 // GetByDeviceIdAndType 根据设备ID和日志类型获取日志记录
 func (l *SLogModel) GetByDeviceIdAndType(ctx context.Context, deviceId, logType string) ([]*SLogModel, error) {
 	var records []*SLogModel
-	err := g.Model(TableLog).Ctx(ctx).Where(FieldDeviceId, deviceId).Where(FieldType, logType).Scan(&records)
+	err := g.Model(TableLog).Ctx(ctx).Where(FieldLogDeviceId, deviceId).Where(FieldType, logType).Scan(&records)
 	return records, err
 }
 
@@ -82,7 +84,7 @@ func (l *SLogModel) Delete(ctx context.Context) error {
 
 // DeleteByDeviceId 根据设备ID删除日志记录
 func (l *SLogModel) DeleteByDeviceId(ctx context.Context, deviceId string) error {
-	_, err := g.Model(TableLog).Ctx(ctx).Where(FieldDeviceId, deviceId).Delete()
+	_, err := g.Model(TableLog).Ctx(ctx).Where(FieldLogDeviceId, deviceId).Delete()
 	return err
 }
 
@@ -100,20 +102,20 @@ func (l *SLogModel) DeleteByFilters(ctx context.Context, filters map[string]inte
 	// 应用过滤条件
 	if filters != nil {
 		// 类型过滤
-		if logType, ok := filters["type"].(string); ok && logType != "" {
+		if logType, ok := filters[FieldType].(string); ok && logType != "" {
 			model = model.Where(FieldType, logType)
 			hasValidFilter = true
 		}
 
 		// 级别过滤
-		if level, ok := filters["level"].(string); ok && level != "" {
-			model = model.Where(FieldLevel, level)
+		if level, ok := filters[FieldLogLevel].(string); ok && level != "" {
+			model = model.Where(FieldLogLevel, level)
 			hasValidFilter = true
 		}
 
 		// 设备ID过滤
-		if deviceId, ok := filters["device_id"].(string); ok && deviceId != "" {
-			model = model.Where(FieldDeviceId, deviceId)
+		if deviceId, ok := filters[FieldLogDeviceId].(string); ok && deviceId != "" {
+			model = model.Where(FieldLogDeviceId, deviceId)
 			hasValidFilter = true
 		}
 
@@ -128,8 +130,8 @@ func (l *SLogModel) DeleteByFilters(ctx context.Context, filters map[string]inte
 		}
 
 		// 内容模糊搜索
-		if content, ok := filters["content"].(string); ok && content != "" {
-			model = model.Where(FieldContent+" LIKE ?", "%"+content+"%")
+		if content, ok := filters[FieldLogContent].(string); ok && content != "" {
+			model = model.Where(FieldLogContent+" LIKE ?", "%"+content+"%")
 			hasValidFilter = true
 		}
 	}
@@ -172,23 +174,23 @@ func (l *SLogModel) GetPage(ctx context.Context, page, pageSize int, filters map
 		}
 
 		// 类型过滤
-		if logType, ok := filters["type"].(string); ok && logType != "" {
+		if logType, ok := filters[FieldType].(string); ok && logType != "" {
 			model = model.Where(FieldType, logType)
 		}
 
 		// 级别过滤
-		if level, ok := filters["level"].(string); ok && level != "" {
-			model = model.Where(FieldLevel, level)
+		if level, ok := filters[FieldLogLevel].(string); ok && level != "" {
+			model = model.Where(FieldLogLevel, level)
 		}
 
 		// 设备ID过滤
-		if deviceId, ok := filters["device_id"].(string); ok && deviceId != "" {
-			model = model.Where(FieldDeviceId, deviceId)
+		if deviceId, ok := filters[FieldLogDeviceId].(string); ok && deviceId != "" {
+			model = model.Where(FieldLogDeviceId, deviceId)
 		}
 
 		// 内容模糊搜索
-		if content, ok := filters["content"].(string); ok && content != "" {
-			model = model.Where(FieldContent+" LIKE ?", "%"+content+"%")
+		if content, ok := filters[FieldLogContent].(string); ok && content != "" {
+			model = model.Where(FieldLogContent+" LIKE ?", "%"+content+"%")
 		}
 	}
 

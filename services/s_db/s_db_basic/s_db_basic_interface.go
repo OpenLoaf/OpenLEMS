@@ -82,6 +82,7 @@ type IAutomationService interface {
 	GetAllAutomations(ctx context.Context) ([]*s_db_model.SAutomationModel, error)
 	GetAutomationsByTimeRangeType(ctx context.Context, timeRangeType string) ([]*s_db_model.SAutomationModel, error)
 	GetEnabledAutomations(ctx context.Context) ([]*s_db_model.SAutomationModel, error)
+	GetAutomationsByFilters(ctx context.Context, deviceId string, filters map[string]interface{}) ([]*s_db_model.SAutomationModel, error)
 	GetAutomationPage(ctx context.Context, page, pageSize int, deviceId string, filters map[string]interface{}) ([]*s_db_model.SAutomationModel, int, error)
 
 	// 统计方法

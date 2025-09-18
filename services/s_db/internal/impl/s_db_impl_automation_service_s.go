@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gogf/gf/v2/database/gdb"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 )
@@ -171,8 +172,8 @@ func (s *sAutomationServiceImpl) GetEnabledAutomations(ctx context.Context) ([]*
 	return automations, nil
 }
 
-// GetAutomationPage 分页获取自动化规则
-func (s *sAutomationServiceImpl) GetAutomationPage(ctx context.Context, page, pageSize int, deviceId string, filters map[string]interface{}) ([]*s_db_model.SAutomationModel, int, error) {
+// buildAutomationQuery 构建自动化规则查询条件
+func (s *sAutomationServiceImpl) buildAutomationQuery(ctx context.Context, deviceId string, filters map[string]interface{}) *gdb.Model {
 	// 构建查询条件
 	model := g.Model(s_db_model.TableAutomation).Ctx(ctx)
 
@@ -196,6 +197,31 @@ func (s *sAutomationServiceImpl) GetAutomationPage(ctx context.Context, page, pa
 			model = model.Where(s_db_model.FieldEnabled, enable)
 		}
 	}
+
+	return model
+}
+
+// GetAutomationsByFilters 根据过滤条件获取自动化规则（不分页）
+func (s *sAutomationServiceImpl) GetAutomationsByFilters(ctx context.Context, deviceId string, filters map[string]interface{}) ([]*s_db_model.SAutomationModel, error) {
+	// 使用公共的查询构建逻辑
+	model := s.buildAutomationQuery(ctx, deviceId, filters)
+
+	// 查询所有符合条件的记录
+	var automations []*s_db_model.SAutomationModel
+	err := model.Scan(&automations)
+	if err != nil {
+		g.Log().Errorf(ctx, "根据过滤条件获取自动化规则失败 - 错误: %+v", err)
+		return nil, err
+	}
+
+	g.Log().Infof(ctx, "成功获取自动化规则，数量: %d", len(automations))
+	return automations, nil
+}
+
+// GetAutomationPage 分页获取自动化规则
+func (s *sAutomationServiceImpl) GetAutomationPage(ctx context.Context, page, pageSize int, deviceId string, filters map[string]interface{}) ([]*s_db_model.SAutomationModel, int, error) {
+	// 使用公共的查询构建逻辑
+	model := s.buildAutomationQuery(ctx, deviceId, filters)
 
 	// 获取总数
 	total, err := model.Count()

@@ -2,6 +2,8 @@ package cmd
 
 import (
 	applog "application/internal/log"
+	"application/internal/logic"
+	"application/internal/service"
 	_ "application/manifest"
 	"common"
 	"common/c_base"
@@ -54,6 +56,9 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 
 	// 初始化自动化服务
 	s_automation.Init()
+
+	// 注册自动化服务
+	service.RegisterAutomation(logic.NewAutomation())
 
 	return nil
 }

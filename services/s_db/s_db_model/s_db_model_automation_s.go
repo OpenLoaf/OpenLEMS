@@ -11,6 +11,14 @@ import (
 const (
 	// 表名
 	TableAutomation = "automation"
+
+	// 自动化表特有字段
+	FieldAutomationStartTime      = "start_time"
+	FieldAutomationEndTime        = "end_time"
+	FieldAutomationTimeRangeType  = "time_range_type"
+	FieldAutomationTimeRangeValue = "time_range_value"
+	FieldAutomationTriggerRule    = "trigger_rule"
+	FieldAutomationExecuteRule    = "execute_rule"
 )
 
 // 自动化表结构
@@ -154,7 +162,7 @@ func GetAutomationsByCondition(ctx context.Context, condition g.Map) ([]*SAutoma
 
 func GetAutomationsByTimeRangeType(ctx context.Context, timeRangeType string) ([]*SAutomationModel, error) {
 	var automations []*SAutomationModel
-	err := g.Model(TableAutomation).Ctx(ctx).Where(FieldTimeRangeType, timeRangeType).Scan(&automations)
+	err := g.Model(TableAutomation).Ctx(ctx).Where(FieldAutomationTimeRangeType, timeRangeType).Scan(&automations)
 	return automations, err
 }
 

@@ -31,37 +31,35 @@ ems-plan/
 
 ### 1. 命名约定
 
-#### 文件命名
+**详细命名规范请参考**: [common-library.mdc](mdc:.cursor/rules/common-library.mdc)
 
-- 接口文件：`*_i.go` (Interface)
-- 结构体文件：`*_s.go` (Struct)
-- 枚举文件：`*_e.go` (Enum)
-- 函数文件：`*_f.go` (Function)
-- 常量文件：`*_c.go` (Constant)
-- 测试文件：`*_test.go`
+#### 核心命名原则
 
-#### 类型命名
+- **接口**: `I*` 前缀 (如 `IDevice`, `IDriver`)
+- **结构体**: `S*` 前缀 (如 `SDeviceConfig`, `SDriverInfo`)  
+- **枚举**: `E*` 前缀 (如 `EDeviceType`, `EProtocolType`)
+- **常量**: `C*` 前缀 (如 `CDeviceTypeAmmeter`)
 
-- 接口：`I*` (如 `IDevice`, `IDriver`)
-- 结构体：`S*` (如 `SDeviceConfig`, `SDriverInfo`)
-- 枚举：`E*` (如 `EDeviceType`, `EProtocolType`)
+#### 文件命名规范
+
+- `*_i.go`: 接口定义 (Interface)
+- `*_s.go`: 结构体定义 (Struct)
+- `*_e.go`: 枚举定义 (Enum)
+- `*_f.go`: 函数定义 (Function)
+- `*_c.go`: 常量定义 (Constant)
+- `*_test.go`: 测试文件
 
 ### 2. 服务开发流程
 
-#### s_db 服务 (数据库服务)
+**详细服务开发规范请参考**:
+- [services-architecture.mdc](mdc:.cursor/rules/services-architecture.mdc) - 服务架构指南
+- [s-db-development.mdc](mdc:services/s_db/.cursor/rules/s-db-development.mdc) - 数据库服务开发规则
 
-1. 在 `s_db_init_f.go` 中添加 SQL 表创建语句
-2. 在 `s_db_model/` 中创建模型文件
-3. 在 `s_db_basic_interface.go` 中定义服务接口
-4. 在 `internal/impl/` 中实现服务
-5. 在 `s_db_export_f.go` 中添加导出函数
+#### 核心开发流程
 
-#### 插件开发
-
-1. 在对应的 `plug_*/` 目录下创建插件
-2. 实现相应的接口
-3. 添加配置文件
-4. 注册到系统中
+1. **服务层开发**: 在 `services/` 目录下创建独立模块
+2. **插件开发**: 在 `plugins/` 目录下实现插件功能
+3. **应用层开发**: 在 `application/` 目录下实现 Web 接口
 
 ### 3. 技术栈
 
@@ -69,14 +67,16 @@ ems-plan/
 - **SQLite**: 轻量级数据库
 - **Go Modules**: 依赖管理
 - **CGO**: C++ 扩展支持
+- **Context**: 上下文传递和生命周期管理
 
 ### 4. 代码规范
 
 - 使用 `context.Context` 进行上下文传递
 - 统一错误处理使用 `github.com/pkg/errors`
-- 日志记录使用 GoFrame 的 `g.Log()`
+- 日志记录使用 `c_log` 包进行统一日志管理
 - 单例模式用于服务管理
 - 接口分离原则
+- 数据库操作使用 `s_db_model` 中的字段常量
 
 ### 5. 启动方式
 

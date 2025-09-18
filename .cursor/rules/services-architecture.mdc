@@ -35,34 +35,20 @@ func RegisterStorageDriver(deviceConfig *c_base.SDeviceConfig)
 ### 2. s_db - 数据库服务
 **职责**: 提供数据持久化和业务数据访问
 
+**详细开发规范请参考**: [s-db-development.mdc](mdc:services/s_db/.cursor/rules/s-db-development.mdc)
+
 **核心文件**:
 - [s_db_export_f.go](mdc:services/s_db/s_db_export_f.go) - 服务导出接口
 - [s_db_basic_interface.go](mdc:services/s_db/s_db_basic/s_db_basic_interface.go) - 服务接口定义
 - [s_db_model/](mdc:services/s_db/s_db_model/) - 数据模型层
 
-**服务接口**:
-```go
-// 设备服务
-type IDeviceService interface {
-    GetEnableDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error)
-    GetAllDevices(ctx context.Context) ([]*s_db_model.SDeviceModel, error)
-    UpdateDevice(ctx context.Context, deviceId string, data map[string]interface{}) error
-}
-
-// 告警服务
-type IAlarmService interface {
-    CreateAlarmHistory(ctx context.Context, deviceId, sourceDeviceId string, meta *c_proto.SCanbusPoint, detail string, triggerAt *time.Time) error
-    GetAlarmHistoryByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmHistoryModel, error)
-    // ... 更多告警相关方法
-}
-
-// 协议服务
-type IProtocolService interface {
-    GetProtocolList(ctx context.Context, type_ string) ([]*s_db_model.SProtocolModel, error)
-    CreateProtocol(ctx context.Context, data map[string]interface{}) (string, error)
-    // ... 更多协议相关方法
-}
-```
+**主要服务接口**:
+- `IDeviceService` - 设备数据管理
+- `IAlarmService` - 告警数据管理
+- `IProtocolService` - 协议配置管理
+- `ILogService` - 日志数据管理
+- `ISettingService` - 系统设置管理
+- `IAutomationService` - 自动化任务管理
 
 **数据模型**:
 - `SDeviceModel` - 设备数据模型
@@ -70,6 +56,7 @@ type IProtocolService interface {
 - `SProtocolModel` - 协议配置模型
 - `SLogModel` - 日志数据模型
 - `SSettingModel` - 系统设置模型
+- `SAutomationModel` - 自动化任务模型
 
 ### 3. s_driver - 驱动服务
 **职责**: 设备驱动管理和设备实例创建

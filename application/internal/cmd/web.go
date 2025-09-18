@@ -3,6 +3,7 @@ package cmd
 import (
 	"application/internal/consts"
 	"application/internal/controller/alarm"
+	"application/internal/controller/automation"
 	"application/internal/controller/control"
 	"application/internal/controller/device"
 	"application/internal/controller/driver"
@@ -120,6 +121,7 @@ func setupAPIRoutes(s *ghttp.Server) {
 		group.Bind(alarm.NewV1())
 		group.Bind(policy.NewV1())
 		group.Bind(setting.NewV1())
+		group.Bind(automation.NewV1())
 	})
 }
 

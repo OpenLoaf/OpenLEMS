@@ -12,12 +12,16 @@ const (
 	// 表名
 	TableAlarmHistory = "alarm_history"
 
-	// 字段名
-	FieldDeviceId = "device_id"
-	FieldPoint    = "point"
-	FieldLevel    = "level"
-	FieldTitle    = "title"
-	FieldDetail   = "detail"
+	// 告警历史表特有字段
+	FieldAlarmHistoryDeviceId       = "device_id"
+	FieldAlarmHistorySourceDeviceId = "source_device_id"
+	FieldAlarmHistoryPoint          = "point"
+	FieldAlarmHistoryPointName      = "point_name"
+	FieldAlarmHistoryLevel          = "level"
+	FieldAlarmHistoryTitle          = "title"
+	FieldAlarmHistoryDetail         = "detail"
+	FieldAlarmHistoryTriggerAt      = "trigger_at"
+	FieldAlarmHistoryClearAt        = "clear_at"
 )
 
 // 告警历史表结构
@@ -49,14 +53,14 @@ func (a *SAlarmHistoryModel) GetById(ctx context.Context, id int) error {
 // GetByDeviceId 根据设备ID获取告警历史记录
 func (a *SAlarmHistoryModel) GetByDeviceId(ctx context.Context, deviceId string) ([]*SAlarmHistoryModel, error) {
 	var records []*SAlarmHistoryModel
-	err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldDeviceId, deviceId).Scan(&records)
+	err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldAlarmHistoryDeviceId, deviceId).Scan(&records)
 	return records, err
 }
 
 // GetByDeviceIdAndPoint 根据设备ID和点位获取告警历史记录
 func (a *SAlarmHistoryModel) GetByDeviceIdAndPoint(ctx context.Context, deviceId, point string) ([]*SAlarmHistoryModel, error) {
 	var records []*SAlarmHistoryModel
-	err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldDeviceId, deviceId).Where(FieldPoint, point).Scan(&records)
+	err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldAlarmHistoryDeviceId, deviceId).Where(FieldAlarmHistoryPoint, point).Scan(&records)
 	return records, err
 }
 
@@ -74,7 +78,7 @@ func (a *SAlarmHistoryModel) Delete(ctx context.Context) error {
 
 // DeleteByDeviceId 根据设备ID删除告警历史记录
 func (a *SAlarmHistoryModel) DeleteByDeviceId(ctx context.Context, deviceId string) error {
-	_, err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldDeviceId, deviceId).Delete()
+	_, err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldAlarmHistoryDeviceId, deviceId).Delete()
 	return err
 }
 
@@ -97,23 +101,23 @@ func (a *SAlarmHistoryModel) GetPage(ctx context.Context, page, pageSize int, fi
 		}
 
 		// 设备ID过滤
-		if deviceId, ok := filters["device_id"].(string); ok && deviceId != "" {
-			model = model.Where(FieldDeviceId, deviceId)
+		if deviceId, ok := filters[FieldAlarmHistoryDeviceId].(string); ok && deviceId != "" {
+			model = model.Where(FieldAlarmHistoryDeviceId, deviceId)
 		}
 
 		// 级别过滤
-		if level, ok := filters["level"].(string); ok && level != "" {
-			model = model.Where(FieldLevel, level)
+		if level, ok := filters[FieldAlarmHistoryLevel].(string); ok && level != "" {
+			model = model.Where(FieldAlarmHistoryLevel, level)
 		}
 
 		// 点位过滤
-		if point, ok := filters["point"].(string); ok && point != "" {
-			model = model.Where(FieldPoint, point)
+		if point, ok := filters[FieldAlarmHistoryPoint].(string); ok && point != "" {
+			model = model.Where(FieldAlarmHistoryPoint, point)
 		}
 
 		// 标题模糊搜索
-		if title, ok := filters["title"].(string); ok && title != "" {
-			model = model.Where(FieldTitle+" LIKE ?", "%"+title+"%")
+		if title, ok := filters[FieldAlarmHistoryTitle].(string); ok && title != "" {
+			model = model.Where(FieldAlarmHistoryTitle+" LIKE ?", "%"+title+"%")
 		}
 	}
 
@@ -160,7 +164,7 @@ func (a *SAlarmHistoryModel) GetCount(ctx context.Context) (int, error) {
 
 // GetCountByDeviceId 根据设备ID获取告警历史表记录总数
 func (a *SAlarmHistoryModel) GetCountByDeviceId(ctx context.Context, deviceId string) (int, error) {
-	count, err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldDeviceId, deviceId).Count()
+	count, err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldAlarmHistoryDeviceId, deviceId).Count()
 	if err != nil {
 		return 0, err
 	}

@@ -3,29 +3,17 @@ package s_db_model
 import "github.com/gogf/gf/v2/os/gtime"
 
 const (
-	FieldId = "id"
-
-	FieldSort = "sort"
-
-	FieldName = "name"
-	FieldType = "type"
-
-	FieldEnabled = "enabled"
-
+	// 通用字段 - 在2个以上表中都使用的字段
+	FieldId        = "id"
+	FieldName      = "name"
+	FieldType      = "type"
+	FieldEnabled   = "enabled"
+	FieldSort      = "sort"
 	FieldCreatedAt = "created_at"
 	FieldUpdatedAt = "updated_at"
-
-	FieldValue  = "value"
-	FieldRemark = "remark"
-	FieldGroup  = "group_name"
-
-	// Automation 相关字段
-	FieldStartTime      = "start_time"
-	FieldEndTime        = "end_time"
-	FieldTimeRangeType  = "time_range_type"
-	FieldTimeRangeValue = "time_range_value"
-	FieldTriggerRule    = "trigger_rule"
-	FieldExecuteRule    = "execute_rule"
+	FieldValue     = "value"
+	FieldRemark    = "remark"
+	FieldGroup     = "group_name"
 )
 
 const ( // 特殊值

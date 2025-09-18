@@ -13,12 +13,15 @@ const (
 	// 表名
 	TableDevice = "device"
 
-	// 字段名
-	FieldPid        = "pid"
-	FieldProtocolId = "protocol_id"
-	FieldDriver     = "driver"
-	FieldLogLevel   = "log_level"
-	FieldParams     = "params"
+	// 设备表特有字段
+	FieldDevicePid                = "pid"
+	FieldDeviceProtocolId         = "protocol_id"
+	FieldDeviceDriver             = "driver"
+	FieldDeviceLogLevel           = "log_level"
+	FieldDeviceParams             = "params"
+	FieldDeviceManualMode         = "manual_mode"
+	FieldDeviceStorageEnable      = "storage_enable"
+	FieldDeviceStorageIntervalSec = "storage_interval_sec"
 )
 
 // 设备表结构

@@ -72,6 +72,8 @@ import (
 // 数据库相关常量
 const (
     Table[TableName] = "[table_name]"
+    // 表特有字段常量（如果适用）
+    Field[TableName][FieldName] = "[field_name]"
 )
 
 // [TableName] 表结构
@@ -84,68 +86,8 @@ type S[TableName]Model struct {
     UpdatedAt    *gtime.Time `json:"updatedAt" orm:"updated_at"`
 }
 
-// Getter/Setter 方法
-func (s *S[TableName]Model) Get[Field1]() string {
-    return s.[Field1]
-}
-
-func (s *S[TableName]Model) Set[Field1]([field1] string) {
-    s.[Field1] = [field1]
-}
-
-// CRUD 方法
-func (s *S[TableName]Model) Create(ctx context.Context) error {
-    _, err := g.Model(Table[TableName]).Ctx(ctx).Insert(s)
-    return err
-}
-
-func (s *S[TableName]Model) GetById(ctx context.Context, id int) error {
-    return g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, id).Scan(s)
-}
-
-func (s *S[TableName]Model) Update(ctx context.Context) error {
-    _, err := g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, s.Id).Update(s)
-    return err
-}
-
-func (s *S[TableName]Model) UpdateFields(ctx context.Context, data g.Map) error {
-    _, err := g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, s.Id).Update(data)
-    return err
-}
-
-func (s *S[TableName]Model) Delete(ctx context.Context) error {
-    _, err := g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, s.Id).Delete()
-    return err
-}
-
-// 静态方法
-func Delete[TableName]ById(ctx context.Context, id int) error {
-    _, err := g.Model(Table[TableName]).Ctx(ctx).Where(FieldId, id).Delete()
-    return err
-}
-
-func GetAll[TableName]s(ctx context.Context) ([]*S[TableName]Model, error) {
-    var [tableName]s []*S[TableName]Model
-    err := g.Model(Table[TableName]).Ctx(ctx).Scan(&[tableName]s)
-    return [tableName]s, err
-}
-
-func Get[TableName]sByCondition(ctx context.Context, condition g.Map) ([]*S[TableName]Model, error) {
-    var [tableName]s []*S[TableName]Model
-    err := g.Model(Table[TableName]).Ctx(ctx).Where(condition).Scan(&[tableName]s)
-    return [tableName]s, err
-}
-
-func Count[TableName]s(ctx context.Context) (int, error) {
-    count, err := g.Model(Table[TableName]).Ctx(ctx).Count()
-    return count, err
-}
-
-func Paginate[TableName]s(ctx context.Context, page, pageSize int) ([]*S[TableName]Model, error) {
-    var [tableName]s []*S[TableName]Model
-    err := g.Model(Table[TableName]).Ctx(ctx).Page(page, pageSize).Scan(&[tableName]s)
-    return [tableName]s, err
-}
+// 必须实现的方法：Create, GetById, Update, UpdateFields, Delete
+// 必须使用字段常量进行数据库操作
 ```
 
 **Model 规范**：
@@ -155,8 +97,129 @@ func Paginate[TableName]s(ctx context.Context, page, pageSize int) ([]*S[TableNa
 - 必须包含 `g.Meta` 和 ORM 标签
 - 提供完整的 Getter/Setter 方法
 - 实现标准 CRUD 操作
-- 提供静态查询方法
-- 使用 [s_db_model_const_c.go](mdc:services/s_db/s_db_model/s_db_model_const_c.go) 中定义的字段常量
+- **必须使用字段常量进行数据库操作**
+
+## 字段常量规范
+
+### 字段常量定义原则
+
+数据库字段常量按照使用范围分为两类：
+
+#### 1. 通用字段常量
+在2个以上表中都使用的字段，定义在 `s_db_model_const_c.go` 文件中：
+
+```go
+const (
+    // 通用字段 - 在2个以上表中都使用的字段
+    FieldId        = "id"
+    FieldName      = "name"
+    FieldType      = "type"
+    FieldEnabled   = "enabled"
+    FieldSort      = "sort"
+    FieldCreatedAt = "created_at"
+    FieldUpdatedAt = "updated_at"
+    FieldValue     = "value"
+    FieldRemark    = "remark"
+    FieldGroup     = "group_name"
+)
+```
+
+#### 2. 表特有字段常量
+只在特定表中使用的字段，定义在各自的模型文件中：
+
+```go
+// 在 s_db_model_alarm_history_s.go 中
+const (
+    // 表名
+    TableAlarmHistory = "alarm_history"
+
+    // 告警历史表特有字段
+    FieldAlarmHistoryDeviceId       = "device_id"
+    FieldAlarmHistorySourceDeviceId = "source_device_id"
+    FieldAlarmHistoryPoint          = "point"
+    FieldAlarmHistoryLevel          = "level"
+    FieldAlarmHistoryTitle          = "title"
+    FieldAlarmHistoryDetail         = "detail"
+    FieldAlarmHistoryTriggerAt      = "trigger_at"
+    FieldAlarmHistoryClearAt        = "clear_at"
+)
+```
+
+### 字段常量命名规范
+
+1. **通用字段命名格式**：`Field + 字段名（驼峰命名）`
+   - 适用于在2个以上表中都使用的字段
+   - 示例：`FieldId`, `FieldName`, `FieldType`, `FieldEnabled`
+
+2. **表特有字段命名格式**：`Field + 表名 + 字段名（驼峰命名）`
+   - 适用于只在特定表中使用的字段
+   - 示例：`FieldAlarmHistoryDeviceId`, `FieldLogLevel`, `FieldDeviceParams`
+
+3. **字段名转换规则**：数据库字段名（下划线）转换为 Go 常量名（驼峰）
+   - 数据库字段：`device_id` → 表特有常量：`FieldAlarmHistoryDeviceId`
+   - 数据库字段：`created_at` → 通用常量：`FieldCreatedAt`
+   - 数据库字段：`is_public` → 表特有常量：`FieldSettingIsPublic`
+
+### 字段常量使用规范
+
+1. **查询条件中使用字段常量**：
+```go
+// ✅ 正确 - 使用字段常量
+err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldAlarmHistoryDeviceId, deviceId).Scan(&records)
+
+// ❌ 错误 - 直接使用字符串
+err := g.Model(TableAlarmHistory).Ctx(ctx).Where("device_id", deviceId).Scan(&records)
+```
+
+2. **Map 过滤和更新中使用字段常量**：
+```go
+// ✅ 正确 - 使用字段常量作为 Map 的 key
+filters := map[string]interface{}{
+    FieldAlarmHistoryDeviceId: deviceId,
+    FieldAlarmHistoryLevel:    level,
+    FieldAlarmHistoryPoint:    point,
+}
+
+// 更新操作
+updateData := g.Map{
+    FieldEnabled: true,
+    FieldValue:   newValue,
+}
+
+// ❌ 错误 - 直接使用字符串
+filters := map[string]interface{}{
+    "device_id": deviceId,  // 应该使用 FieldAlarmHistoryDeviceId
+    "level":     level,     // 应该使用 FieldAlarmHistoryLevel
+}
+```
+
+3. **分页查询中的过滤条件**：
+```go
+func (a *SAlarmHistoryModel) GetPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*SAlarmHistoryModel, int, error) {
+    model := g.Model(TableAlarmHistory).Ctx(ctx)
+    
+    if filters != nil {
+        // 使用字段常量进行过滤
+        if deviceId, ok := filters[FieldAlarmHistoryDeviceId].(string); ok && deviceId != "" {
+            model = model.Where(FieldAlarmHistoryDeviceId, deviceId)
+        }
+        
+        if level, ok := filters[FieldAlarmHistoryLevel].(string); ok && level != "" {
+            model = model.Where(FieldAlarmHistoryLevel, level)
+        }
+    }
+    
+    // ... 其他逻辑
+}
+```
+
+### 字段常量使用的好处
+
+1. **统一管理**：通用字段统一管理，表特有字段各自管理
+2. **类型安全**：避免字符串拼写错误
+3. **重构友好**：字段名变更时只需修改常量定义
+4. **代码可读性**：使用有意义的常量名提高代码可读性
+5. **IDE 支持**：IDE 可以提供自动补全和重构支持
 
 ### 3. 定义 Service 接口
 
@@ -170,24 +233,12 @@ type I[TableName]Service interface {
     Update[TableName](ctx context.Context, id int, data map[string]interface{}) error
     Delete[TableName](ctx context.Context, id int) error
     
-    // 查询方法
+    // 查询和统计方法
     GetAll[TableName]s(ctx context.Context) ([]*s_db_model.S[TableName]Model, error)
-    Get[TableName]sBy[Condition](ctx context.Context, [param] string) ([]*s_db_model.S[TableName]Model, error)
     Get[TableName]Page(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.S[TableName]Model, int, error)
-    
-    // 统计方法
-    ClearAll[TableName]s(ctx context.Context) error
     Get[TableName]Count(ctx context.Context) (int, error)
 }
 ```
-
-**接口规范**：
-
-- 接口命名：`I[TableName]Service`
-- 方法命名使用动词开头
-- 所有方法必须接受 `context.Context` 参数
-- 返回错误信息要详细
-- 分页方法返回数据和总数
 
 ### 4. 实现 Service
 
@@ -205,8 +256,7 @@ import (
     "github.com/gogf/gf/v2/os/gtime"
 )
 
-type s[TableName]ServiceImpl struct {
-}
+type s[TableName]ServiceImpl struct {}
 
 var (
     [tableName]ServiceInstance s_db_basic.I[TableName]Service
@@ -220,52 +270,14 @@ func Get[TableName]Service() s_db_basic.I[TableName]Service {
     return [tableName]ServiceInstance
 }
 
-// Create[TableName] 创建[TableName]
-func (s *s[TableName]ServiceImpl) Create[TableName](ctx context.Context, [params]) (int, error) {
-    now := gtime.Now()
-    [tableName]Model := &s_db_model.S[TableName]Model{
-        [Field1]: [field1],
-        [Field2]: [field2],
-        CreatedAt: now,
-        UpdatedAt: now,
-    }
-
-    err := [tableName]Model.Create(ctx)
-    if err != nil {
-        g.Log().Errorf(ctx, "创建[TableName]失败 - 错误: %+v", err)
-        return 0, err
-    }
-
-    // 获取刚插入的记录ID
-    var lastId int
-    err = g.Model(s_db_model.Table[TableName]).Ctx(ctx).Order("id DESC").Limit(1).Scan(&lastId)
-    if err != nil {
-        g.Log().Errorf(ctx, "获取[TableName]ID失败 - 错误: %+v", err)
-        return 0, err
-    }
-
-    g.Log().Infof(ctx, "成功创建[TableName]，ID: %d", lastId)
-    return lastId, nil
-}
-
-// 其他方法实现...
+// 实现接口方法，使用单例模式，添加详细日志记录
 ```
-
-**Service 实现规范**：
-
-- 实现类命名：`s[TableName]ServiceImpl`
-- 使用单例模式确保全局唯一性
-- 所有方法都要有详细的日志记录
-- 错误处理要统一使用 `g.Log().Errorf`
-- 成功操作使用 `g.Log().Infof`
-- 自动设置 `created_at` 和 `updated_at` 时间戳
 
 ### 5. 导出 Service
 
 在 [s_db_export_f.go](mdc:services/s_db/s_db_export_f.go) 中添加导出函数：
 
 ```go
-// Get[TableName]Service 获取[TableName]service对象
 func Get[TableName]Service() s_db_basic.I[TableName]Service {
     return impl.Get[TableName]Service()
 }
@@ -311,7 +323,15 @@ func Get[TableName]Service() s_db_basic.I[TableName]Service {
 - [ ] 在 `s_db_basic_interface.go` 中定义服务接口
 - [ ] 在 `internal/impl/` 中实现服务
 - [ ] 在 `s_db_export_f.go` 中添加导出函数
-- [ ] 添加必要的常量到 `s_db_model_const_c.go`
+- [ ] **字段常量规范**：
+  - [ ] 通用字段在 `s_db_model_const_c.go` 中定义，表特有字段在各自模型文件中定义
+  - [ ] 通用字段使用 `Field + 字段名` 命名格式
+  - [ ] 表特有字段使用 `Field + 表名 + 字段名` 命名格式
+  - [ ] 查询条件中使用字段常量而非硬编码字符串
+  - [ ] Map 过滤条件中的 key 使用字段常量
+  - [ ] 更新操作中的字段名使用字段常量
+  - [ ] 分页查询中的过滤条件使用字段常量
+  - [ ] 通用字段判断标准：只有真正在2个以上表中都使用的字段才能定义为通用字段
 - [ ] 确保所有方法都有适当的日志记录
 - [ ] 测试 CRUD 操作的正确性
 

@@ -11,11 +11,12 @@ import (
 const (
 	// 表名
 	TableAlarmIgnore = "alarm_ignore"
-)
 
-// 字段名
-const (
-	FieldSourceDeviceId = "source_device_id"
+	// 告警忽略表特有字段
+	FieldAlarmIgnoreDeviceId       = "device_id"
+	FieldAlarmIgnoreSourceDeviceId = "source_device_id"
+	FieldAlarmIgnorePoint          = "point"
+	FieldAlarmIgnorePointName      = "point_name"
 )
 
 // 告警忽略表结构
@@ -44,21 +45,21 @@ func (a *SAlarmIgnoreModel) GetById(ctx context.Context, id int) error {
 // GetByDeviceId 根据设备ID获取告警忽略记录
 func (a *SAlarmIgnoreModel) GetByDeviceId(ctx context.Context, deviceId string) ([]*SAlarmIgnoreModel, error) {
 	var records []*SAlarmIgnoreModel
-	err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldDeviceId, deviceId).Scan(&records)
+	err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldAlarmIgnoreDeviceId, deviceId).Scan(&records)
 	return records, err
 }
 
 // GetByDeviceIdAndPoint 根据设备ID和点位获取告警忽略记录
 func (a *SAlarmIgnoreModel) GetByDeviceIdAndPoint(ctx context.Context, deviceId, point string) error {
-	return g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldDeviceId, deviceId).Where(FieldPoint, point).Scan(a)
+	return g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldAlarmIgnoreDeviceId, deviceId).Where(FieldAlarmIgnorePoint, point).Scan(a)
 }
 
 // IsIgnored 检查是否被忽略（设备+源设备+点位）
 func (a *SAlarmIgnoreModel) IsIgnored(ctx context.Context, deviceId, sourceDeviceId, point string) (bool, error) {
 	count, err := g.Model(TableAlarmIgnore).Ctx(ctx).
-		Where(FieldDeviceId, deviceId).
-		Where(FieldSourceDeviceId, sourceDeviceId).
-		Where(FieldPoint, point).Count()
+		Where(FieldAlarmIgnoreDeviceId, deviceId).
+		Where(FieldAlarmIgnoreSourceDeviceId, sourceDeviceId).
+		Where(FieldAlarmIgnorePoint, point).Count()
 	return count > 0, err
 }
 
@@ -76,13 +77,13 @@ func (a *SAlarmIgnoreModel) Delete(ctx context.Context) error {
 
 // DeleteByDeviceId 根据设备ID删除告警忽略记录
 func (a *SAlarmIgnoreModel) DeleteByDeviceId(ctx context.Context, deviceId string) error {
-	_, err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldDeviceId, deviceId).Delete()
+	_, err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldAlarmIgnoreDeviceId, deviceId).Delete()
 	return err
 }
 
 // DeleteByDeviceIdAndPoint 根据设备ID和点位删除告警忽略记录
 func (a *SAlarmIgnoreModel) DeleteByDeviceIdAndPoint(ctx context.Context, deviceId, point string) error {
-	_, err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldDeviceId, deviceId).Where(FieldPoint, point).Delete()
+	_, err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldAlarmIgnoreDeviceId, deviceId).Where(FieldAlarmIgnorePoint, point).Delete()
 	return err
 }
 
@@ -105,13 +106,13 @@ func (a *SAlarmIgnoreModel) GetPage(ctx context.Context, page, pageSize int, fil
 		}
 
 		// 设备ID过滤
-		if deviceId, ok := filters["device_id"].(string); ok && deviceId != "" {
-			model = model.Where(FieldDeviceId, deviceId)
+		if deviceId, ok := filters[FieldAlarmIgnoreDeviceId].(string); ok && deviceId != "" {
+			model = model.Where(FieldAlarmIgnoreDeviceId, deviceId)
 		}
 
 		// 点位过滤
-		if point, ok := filters["point"].(string); ok && point != "" {
-			model = model.Where(FieldPoint, point)
+		if point, ok := filters[FieldAlarmIgnorePoint].(string); ok && point != "" {
+			model = model.Where(FieldAlarmIgnorePoint, point)
 		}
 	}
 
@@ -145,7 +146,7 @@ func (a *SAlarmIgnoreModel) GetCount(ctx context.Context) (int, error) {
 
 // GetCountByDeviceId 根据设备ID获取告警忽略表记录总数
 func (a *SAlarmIgnoreModel) GetCountByDeviceId(ctx context.Context, deviceId string) (int, error) {
-	count, err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldDeviceId, deviceId).Count()
+	count, err := g.Model(TableAlarmIgnore).Ctx(ctx).Where(FieldAlarmIgnoreDeviceId, deviceId).Count()
 	if err != nil {
 		return 0, err
 	}

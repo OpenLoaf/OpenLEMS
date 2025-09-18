@@ -98,6 +98,140 @@ application/
 - 内部错误: `gerror.WrapCode(gcode.CodeInternalError, err, "操作失败")`
 - 所有错误都有详细日志记录
 
+### 数据库字段常量使用规范
+
+**重要**: 在查询、更新、创建操作中，必须使用 `s_db_model` 中定义的字段常量，而不是直接使用字符串。
+
+#### 1. 查询操作中使用字段常量
+
+```go
+// ✅ 正确 - 使用字段常量
+func (c *Controller) GetDeviceById(ctx context.Context, req *v1.GetDeviceByIdReq) (*v1.GetDeviceByIdRes, error) {
+    device, err := s_db.GetDeviceService().GetDeviceById(ctx, req.Id)
+    if err != nil {
+        return nil, gerror.WrapCode(gcode.CodeNotFound, err, "设备不存在")
+    }
+    
+    // 使用字段常量进行查询
+    filters := map[string]interface{}{
+        s_db_model.FieldDeviceId: device.Id,
+        s_db_model.FieldEnabled:  true,
+    }
+    
+    return &v1.GetDeviceByIdRes{
+        Device: device,
+    }, nil
+}
+
+// ❌ 错误 - 直接使用字符串
+filters := map[string]interface{}{
+    "device_id": device.Id,  // 应该使用 s_db_model.FieldDeviceId
+    "enabled":   true,       // 应该使用 s_db_model.FieldEnabled
+}
+```
+
+#### 2. 更新操作中使用字段常量
+
+```go
+// ✅ 正确 - 使用字段常量
+func (c *Controller) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq) (*v1.UpdateDeviceRes, error) {
+    updateData := map[string]interface{}{
+        s_db_model.FieldName:    req.Name,
+        s_db_model.FieldEnabled: req.Enabled,
+        s_db_model.FieldSort:    req.Sort,
+    }
+    
+    err := s_db.GetDeviceService().UpdateDevice(ctx, req.Id, updateData)
+    if err != nil {
+        return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新设备失败")
+    }
+    
+    return &v1.UpdateDeviceRes{}, nil
+}
+
+// ❌ 错误 - 直接使用字符串
+updateData := map[string]interface{}{
+    "name":    req.Name,    // 应该使用 s_db_model.FieldName
+    "enabled": req.Enabled, // 应该使用 s_db_model.FieldEnabled
+    "sort":    req.Sort,    // 应该使用 s_db_model.FieldSort
+}
+```
+
+#### 3. 创建操作中使用字段常量
+
+```go
+// ✅ 正确 - 使用字段常量
+func (c *Controller) CreateDevice(ctx context.Context, req *v1.CreateDeviceReq) (*v1.CreateDeviceRes, error) {
+    deviceId, err := s_db.GetDeviceService().CreateDevice(ctx, 
+        req.Name,
+        req.Type,
+        req.Enabled,
+        req.Sort,
+    )
+    if err != nil {
+        return nil, gerror.WrapCode(gcode.CodeInternalError, err, "创建设备失败")
+    }
+    
+    return &v1.CreateDeviceRes{
+        Id: deviceId,
+    }, nil
+}
+```
+
+#### 4. 分页查询中使用字段常量
+
+```go
+// ✅ 正确 - 使用字段常量
+func (c *Controller) GetDevicePage(ctx context.Context, req *v1.GetDevicePageReq) (*v1.GetDevicePageRes, error) {
+    filters := map[string]interface{}{}
+    
+    if req.Name != "" {
+        filters[s_db_model.FieldName] = req.Name
+    }
+    
+    if req.Type != "" {
+        filters[s_db_model.FieldType] = req.Type
+    }
+    
+    if req.Enabled != nil {
+        filters[s_db_model.FieldEnabled] = *req.Enabled
+    }
+    
+    devices, total, err := s_db.GetDeviceService().GetDevicePage(ctx, req.Page, req.PageSize, filters)
+    if err != nil {
+        return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取设备列表失败")
+    }
+    
+    return &v1.GetDevicePageRes{
+        Devices: devices,
+        Total:   total,
+    }, nil
+}
+```
+
+#### 5. 字段常量导入规范
+
+```go
+import (
+    "s_db/s_db_model"  // 导入字段常量
+)
+
+// 使用字段常量
+filters := map[string]interface{}{
+    s_db_model.FieldId:      id,
+    s_db_model.FieldName:    name,
+    s_db_model.FieldEnabled: enabled,
+}
+```
+
+#### 6. 字段常量使用的好处
+
+1. **类型安全**: 避免字符串拼写错误
+2. **重构友好**: 字段名变更时只需修改常量定义
+3. **代码可读性**: 使用有意义的常量名提高代码可读性
+4. **IDE 支持**: IDE 可以提供自动补全和重构支持
+5. **统一管理**: 所有字段名在 `s_db_model` 中统一管理
+
 ### 命名约定
 
 - **文件命名**: `[module]_v1_[action].go`
@@ -128,6 +262,16 @@ application/
 - [ ] 统一使用 `gerror` 进行错误处理
 - [ ] 添加详细的日志记录
 - [ ] 错误信息支持多语言（如需要）
+
+### 数据库字段常量使用检查
+
+- [ ] **查询操作中使用字段常量**：所有查询条件都使用 `s_db_model` 中的字段常量
+- [ ] **更新操作中使用字段常量**：所有更新数据的 Map 都使用字段常量作为 key
+- [ ] **创建操作中使用字段常量**：创建时传递的参数使用字段常量
+- [ ] **分页查询中使用字段常量**：分页查询的过滤条件使用字段常量
+- [ ] **导入字段常量包**：正确导入 `s_db/s_db_model` 包
+- [ ] **避免硬编码字符串**：不使用硬编码的数据库字段名字符串
+- [ ] **使用正确的字段常量**：根据字段类型使用通用字段常量或表特有字段常量
 
 ## 最佳实践示例
 

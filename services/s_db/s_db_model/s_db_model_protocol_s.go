@@ -14,11 +14,11 @@ const (
 	// 表名
 	TableProtocol = "protocol"
 
-	// 字段名
-	ProtocolFieldAddress  = "address"
-	ProtocolFieldTimeout  = "timeout"
-	ProtocolFieldLogLevel = "log_level"
-	ProtocolFieldParams   = "params"
+	// 协议表特有字段
+	FieldProtocolAddress  = "address"
+	FieldProtocolTimeout  = "timeout"
+	FieldProtocolLogLevel = "log_level"
+	FieldProtocolParams   = "params"
 )
 
 // 协议表结构
