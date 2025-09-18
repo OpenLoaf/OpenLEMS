@@ -33,7 +33,6 @@ telemetry:
   - key: "遥测名称"                    # 遥测字段名，对应Get方法名
     name: "显示名称"                   # 前端显示名称
     unit: "单位"                       # 数据单位，如 "kW", "kWh", "V", "A", "%"
-    icon: "图标名称"                   # 图标名称，使用 lucide-icons 图标库
     valueExplain:                      # 状态映射（用于label类型）
       "0": "未知|#FF5D5D"
       "1": "关机|#9CBF30"
@@ -45,21 +44,6 @@ telemetry:
 
 1. **无 valueExplain**：前端直接显示原始数据值，适用于数值类型数据
 2. **有 valueExplain**：前端使用 label 组件显示，根据 `valueExplain` 进行数据映射
-
-**图标选择规则：**
-
-1. **图标来源**：使用 [lucide-icons](https://lucide.dev/icons/) 图标库中的图标名称
-2. **选择原则**：
-   - 根据设备类型和遥测内容选择相关图标
-   - 相同遥测在不同设备类型中可使用不同图标
-   - 状态类遥测优先选择状态相关图标（如 `power`、`activity`、`zap`）
-   - 数值类遥测选择数据相关图标（如 `gauge`、`trending-up`、`battery`）
-3. **常用图标示例**：
-   - 状态：`power`、`activity`、`zap`、`circle-dot`
-   - 电池：`battery`、`battery-charging`、`battery-low`
-   - 功率：`gauge`、`trending-up`、`trending-down`
-   - 温度：`thermometer`、`snowflake`
-   - 电压/电流：`zap`、`flash`
 
 **状态映射 (valueExplain) 规则：**
 
@@ -85,6 +69,7 @@ service:
   - key: "服务方法名"                  # 对应驱动中的方法名
     name: "显示名称"                   # 前端显示名称，支持i18n
     description: "服务描述"            # 服务功能描述
+    icon: "power"                     # 图标名称，使用 Lucide 图标库
 ```
 
 **服务命名规范：**
@@ -92,6 +77,23 @@ service:
 - 推荐使用 `Custom` 前缀，如 `CustomShutdownService`
 - 方法名应具有语义性，如 `SetHigh`、`SetLow`、`Start`、`Stop`
 - 支持国际化，使用 `g18n:key` 格式
+
+**图标设置规范：**
+
+- 使用 [Lucide 图标库](https://lucide.dev/icons/) 中的图标名称
+- 图标名称应与设备类型和服务功能相关
+- 不同设备类型的相同服务应使用不同的图标
+
+**常用图标示例：**
+
+- **电源控制**: `power`、`power-off`、`power-on`
+- **开关控制**: `toggle-left`、`toggle-right`、`switch`
+- **灯光控制**: `lightbulb`、`lightbulb-off`、`sun`、`moon`
+- **温度控制**: `thermometer`、`snowflake`、`flame`
+- **风扇控制**: `fan`、`wind`
+- **门锁控制**: `lock`、`unlock`、`key`
+- **窗帘控制**: `blinds`、`window`
+- **通用控制**: `play`、`pause`、`stop`、`refresh`、`settings`
 
 ## 反射机制
 
@@ -167,7 +169,6 @@ telemetry:
   # 状态类数据 - 使用 valueExplain 映射
   - key: bmsStatus
     name: "电池状态"
-    icon: "battery"
     valueExplain:
       "0": "未知|#FF5D5D"
       "1": "关机|#9CBF30"
@@ -179,22 +180,21 @@ telemetry:
   - key: soc
     unit: "%"
     name: "SOC"
-    icon: "gauge"
   - key: capacity
     unit: "kWh"
     name: "电池容量"
-    icon: "battery-charging"
   - key: dcPower
     unit: "kW"
     name: "直流功率"
-    icon: "zap"
 service:
   - key: CustomDcOffService
     name: "g18n:dc-off"
     description: "电池下电指令"
+    icon: "power-off"
   - key: CustomDcOnService
     name: "g18n:dc-on"
     description: "电池上电指令"
+    icon: "power"
 ```
 
 ### GPIO 驱动示例
@@ -212,7 +212,6 @@ telemetry:
   # 布尔值状态 - 使用布尔值映射
   - key: gpioStatus
     name: "状态"
-    icon: "power"
     valueExplain:
       "false": "关|#9CBF30"
       "true": "开|#0098FA"
@@ -220,17 +219,19 @@ telemetry:
   - key: voltage
     unit: "V"
     name: "电压"
-    icon: "zap"
 service:
   - key: SetLow
     name: "低电平"
     description: "设置为低电平"
+    icon: "toggle-left"
   - key: SetHigh
     name: "高电平"
     description: "设置为高电平"
+    icon: "toggle-right"
   - key: CustomToggleService
     name: "g18n:toggle"
     description: "切换状态"
+    icon: "switch"
 ```
 
 ## 最佳实践
@@ -241,12 +242,7 @@ service:
    - 状态类数据使用 `valueExplain` 映射
    - 数值类数据不设置 `valueExplain`，直接显示原始值
    - 布尔值状态使用 `valueExplain` 配合布尔值映射
-2. **图标选择**:
-   - 根据设备类型和遥测内容选择相关图标
-   - 状态类遥测使用状态相关图标（`power`、`activity`、`zap`）
-   - 数值类遥测使用数据相关图标（`gauge`、`trending-up`、`battery`）
-   - 相同遥测在不同设备类型中可使用不同图标
-3. **状态映射设计**:
+2. **状态映射设计**:
    - 为所有可能的状态值提供完整的映射关系
    - 使用语义化的显示名称，避免技术术语
    - 颜色选择应符合用户直觉（绿色=正常，红色=故障等）
@@ -256,6 +252,7 @@ service:
 1. **功能明确**: 每个服务应有明确的功能定义
 2. **命名规范**: 推荐使用 `Custom` 前缀和语义化命名
 3. **国际化支持**: 使用 `g18n:key` 格式支持多语言
+4. **图标选择**: 根据设备类型和服务功能选择合适的图标
 
 ### 配置字段设计
 
@@ -271,8 +268,13 @@ service:
    - `valueExplain` 中的键值必须是字符串格式，即使原始数据是数字
    - 确保 `valueExplain` 覆盖所有可能的返回值，避免显示空白
    - 颜色代码必须是有效的十六进制格式
-3. **性能考虑**: 避免在遥测方法中执行耗时操作
-4. **向后兼容**: 修改现有字段时考虑向后兼容性
+3. **图标使用**:
+   - 图标名称必须使用 Lucide 图标库中存在的图标名称
+   - 图标选择应考虑设备类型和功能语义，避免使用不相关的图标
+   - 相同功能在不同设备类型中可以使用不同的图标来区分
+   - 图标名称区分大小写，建议使用小写字母和连字符
+4. **性能考虑**: 避免在遥测方法中执行耗时操作
+5. **向后兼容**: 修改现有字段时考虑向后兼容性
 
 ## 相关文件
 

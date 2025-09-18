@@ -9,7 +9,6 @@ protocolType: "modbus"
 telemetry:
   - key: status
     name: "状态"
-    icon: "battery"
     displayType: label
     valueExplain:
       0: "未知|#FF5D5D"
@@ -23,25 +22,25 @@ telemetry:
   - key: soc
     unit: "%"
     name: "SOC"
-    icon: "gauge"
   - key: power
     unit: "kW"
     name: "功率"
-    icon: "zap"
   - key: historyIncomingQuantity
     name: "历史充电量"
     unit: "kWh"
-    icon: "battery-charging"
     desc: "历史充电量"
   - key: historyOutgoingQuantity
     name: "历史放电量"
     unit: "kWh"
-    icon: "battery"
     desc: "历史放电量"
 
 
 service:
   - key: CustomPowerZeroService
     name: "零功率"
+    description: "设置功率为零"
+    icon: "power-off"
   - key:  CustomPowerRandomService
     name: "随机功率"
+    description: "设置随机功率"
+    icon: "shuffle"

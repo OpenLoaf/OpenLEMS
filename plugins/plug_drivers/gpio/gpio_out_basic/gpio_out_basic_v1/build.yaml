@@ -10,7 +10,6 @@ desc: "基础GPIO输出驱动，支持GPIO输出控制"
 telemetry:
   - key: status
     name: "状态"
-    icon: "power"
     paramExplain:
       1: triggerName
       0: clearName
@@ -19,9 +18,12 @@ service:
   - key: SetLow
     name: "低电平"
     description: "设置为低电平"
+    icon: "toggle-left"
   - key: SetHigh
     name: "高电平"
     description: "设置为高电平"
+    icon: "toggle-right"
   - key: StatusToggle
     name: "状态切换"
     description: "状态值互相切换"
+    icon: "switch"
