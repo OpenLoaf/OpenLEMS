@@ -15,25 +15,7 @@ globs: *config*.go,*Config*.go
 
 ### 标签映射表
 
-基于 `SConfigStructFields` 结构体的定义，系统支持以下标签映射：
-
-| 字段名 | JSON标签 | YAML标签 | SHORT标签 | 说明 |
-|--------|----------|----------|-----------|------|
-| Name | `name` | `name` | `name` | 字段显示名称 |
-| Code | `code` | `code` | `code` | JSON序列化字段名（必需） |
-| Group | `group` | `group` | `group` | 字段分组 |
-| ValueType | `valueType` | `value_type` | `vt` | 值类型 |
-| ComponentType | `componentType` | `component_type` | `ct` | 组件类型（必需） |
-| Step | `step` | `step` | `step` | 数值步长 |
-| Required | `required` | `required` | `req` | 是否必填 |
-| Unit | `unit` | `unit` | `unit` | 单位信息 |
-| Min | `min` | `min` | `min` | 最小值 |
-| Max | `max` | `max` | `max` | 最大值 |
-| Default | `default` | `default` | `def` | 默认值 |
-| SelectOptions | `selectOptions` | `select_options` | `opts` | 选择选项 |
-| Regex | `regex` | `regex` | `regex` | 正则表达式 |
-| RegexFailedMessage | `regexFailedMessage` | `regex_failed_message` | `rfm` | 正则验证失败提示 |
-| Description | `description` | `description` | `desc` | 字段描述 |
+基于 `SConfigStructFields` 结构体的定义,通过tag定义映射关系
 
 ### 标签优先级
 
