@@ -34,7 +34,7 @@ type SDeviceTree struct {
 	DriverBrand     string                        `json:"driverBrand,omitempty" dc:"驱动品牌"`
 	DriverModel     string                        `json:"driverModel" yaml:"model" dc:"驱动型号"`
 	DriverVersion   string                        `json:"driverVersion" yaml:"version" v:"required" dc:"驱动版本"`
-	DriverTelemetry []*c_base.STelemetry          `json:"driverTelemetry" yaml:"telemetry" dc:"遥测"`
+	DriverTelemetry []*c_base.SConfigStructFields `json:"driverTelemetry" yaml:"telemetry" dc:"遥测"`
 	DriverService   []*c_base.SDriverService      `json:"driverService" yaml:"customService" dc:"自定义服务"`
 
 	ProtocolName    string `json:"protocolName" dc:"协议名称"`

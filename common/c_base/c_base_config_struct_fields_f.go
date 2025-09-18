@@ -102,7 +102,7 @@ func getTagMappingByTag(tagValue string) *TagMapping {
 //
 // 支持的标签字段（基于SConfigStructFields定义）：
 //   - name/name/name: 字段显示名称
-//   - code/code/code: JSON序列化字段名，必需标签
+//   - key/key/key: JSON序列化字段名，必需标签
 //   - group/group/group: 字段分组
 //   - valueType/value_type/vt: 值类型，可选值：string、int、float、bool
 //   - componentType/component_type/ct: 组件类型，如text、number、switch等
@@ -112,7 +112,8 @@ func getTagMappingByTag(tagValue string) *TagMapping {
 //   - min/min/min: 最小值限制
 //   - max/max/max: 最大值限制
 //   - default/default/def: 默认值
-//   - selectOptions/select_options/opts: 选择项配置
+//   - valueExplain/valueExplain/ve: 值解释配置，格式：key1:value1,key2:value2
+//   - paramExplain/paramExplain/pe: 参数解释配置，格式：key1:value1,key2:value2
 //   - regex/regex/regex: 正则表达式验证规则
 //   - regexFailedMessage/regex_failed_message/rfm: 正则验证失败提示
 //   - description/description/desc: 字段描述信息
@@ -120,14 +121,14 @@ func getTagMappingByTag(tagValue string) *TagMapping {
 // 示例：
 //
 //	type BaseConfig struct {
-//	    UnitId uint8 `code:"unitId" name:"ModbusID" min:"1" max:"255" def:"1"`
+//	    UnitId uint8 `key:"unitId" name:"ModbusID" min:"1" max:"255" def:"1"`
 //	}
 //
 //	type GpioDeviceConfig struct {
 //	    BaseConfig                    // 匿名嵌入，字段会被平铺展开
-//	    Key string `code:"name" name:"设备名称" desc:"设备的显示名称" ct:"text" vt:"string" regex:"^[a-zA-Z0-9_-]+$" rfm:"只能包含字母、数字、下划线和连字符"`
-//	    Port int    `code:"port" name:"端口号" desc:"设备通信端口" ct:"number" vt:"int" min:"1" max:"65535" def:"8080"`
-//	    Enabled bool `code:"enable" name:"启用状态" desc:"是否启用设备" ct:"switch" vt:"bool" def:"true"`
+//	    Key string `key:"name" name:"设备名称" desc:"设备的显示名称" ct:"text" vt:"string" regex:"^[a-zA-Z0-9_-]+$" rfm:"只能包含字母、数字、下划线和连字符"`
+//	    Port int    `key:"port" name:"端口号" desc:"设备通信端口" ct:"number" vt:"int" min:"1" max:"65535" def:"8080"`
+//	    Enabled bool `key:"enable" name:"启用状态" desc:"是否启用设备" ct:"switch" vt:"bool" def:"true"`
 //	}
 func BuildConfigStructFields(config any) ([]*SConfigStructFields, error) {
 	if config == nil {
@@ -233,18 +234,22 @@ func populateFieldConfigFromTags(field reflect.StructField, fieldConfig *SConfig
 				targetField.Set(reflect.ValueOf(&value))
 			}
 
-		case reflect.Slice:
-			// 处理SelectOptions字段
-			if structField.Name == "SelectOptions" {
+		case reflect.Map:
+			// 处理 ValueExplain 和 ParamExplain 字段
+			if structField.Name == "ValueExplain" || structField.Name == "ParamExplain" {
+				// 解析 key:value 格式的字符串
 				pairs := strings.Split(tagValue, ",")
-				options := make([]string, 0, len(pairs))
+				explainMap := make(map[string]string)
 				for _, pair := range pairs {
 					trimmedPair := strings.TrimSpace(pair)
 					if trimmedPair != "" {
-						options = append(options, trimmedPair)
+						parts := strings.SplitN(trimmedPair, ":", 2)
+						if len(parts) == 2 {
+							explainMap[strings.TrimSpace(parts[0])] = strings.TrimSpace(parts[1])
+						}
 					}
 				}
-				targetField.Set(reflect.ValueOf(options))
+				targetField.Set(reflect.ValueOf(explainMap))
 			}
 
 		default:
