@@ -50,6 +50,7 @@ type AutomationTriggerConfig struct {
 // CreateAutomationReq 创建自动化任务请求
 type CreateAutomationReq struct {
 	g.Meta         `path:"/automation" method:"post" tags:"自动化相关" summary:"创建自动化任务"`
+	Name           string                   `json:"name" v:"required" dc:"自动化任务名称"`
 	StartTime      *gtime.Time              `json:"startTime,omitempty" dc:"开始时间"`
 	EndTime        *gtime.Time              `json:"endTime,omitempty" dc:"结束时间"`
 	TimeRangeType  string                   `json:"timeRangeType,omitempty" dc:"时间范围类型"`

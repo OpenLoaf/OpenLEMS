@@ -73,7 +73,7 @@ type ILogService interface {
 
 type IAutomationService interface {
 	// 基础 CRUD 方法
-	CreateAutomation(ctx context.Context, startTime, endTime *time.Time, timeRangeType, timeRangeValue, triggerRule, executeRule string, executionInterval int) (int, error)
+	CreateAutomation(ctx context.Context, name string, startTime, endTime *time.Time, timeRangeType, timeRangeValue, triggerRule, executeRule string, executionInterval int) (int, error)
 	GetAutomationById(ctx context.Context, id int) (*s_db_model.SAutomationModel, error)
 	UpdateAutomation(ctx context.Context, id int, data map[string]interface{}) error
 	DeleteAutomation(ctx context.Context, id int) error

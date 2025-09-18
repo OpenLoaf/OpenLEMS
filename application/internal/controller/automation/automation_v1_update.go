@@ -26,6 +26,9 @@ func (c *Controller) UpdateAutomation(ctx context.Context, req *v1.UpdateAutomat
 	// 构建更新数据
 	updateData := make(map[string]interface{})
 
+	if req.Name != "" {
+		updateData[s_db_model.FieldAutomationName] = req.Name
+	}
 	if req.StartTime != nil {
 		updateData[s_db_model.FieldAutomationStartTime] = gtime.New(req.StartTime)
 	}

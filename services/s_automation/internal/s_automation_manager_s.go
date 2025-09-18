@@ -120,6 +120,7 @@ func (m *SAutomationManager) AddAutomation(ctx context.Context, automation *s_db
 
 	id, err := s_db.GetAutomationService().CreateAutomation(
 		ctx,
+		automation.GetName(),
 		startTime,
 		endTime,
 		automation.GetTimeRangeType(),

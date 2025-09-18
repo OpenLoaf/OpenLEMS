@@ -43,6 +43,7 @@ func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomat
 
 	// 调用服务层创建自动化任务
 	id, err := s_db.GetAutomationService().CreateAutomation(ctx,
+		req.Name,
 		startTime,
 		endTime,
 		req.TimeRangeType,

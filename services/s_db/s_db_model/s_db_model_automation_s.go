@@ -13,6 +13,7 @@ const (
 	TableAutomation = "automation"
 
 	// 自动化表特有字段
+	FieldAutomationName              = "name"
 	FieldAutomationStartTime         = "start_time"
 	FieldAutomationEndTime           = "end_time"
 	FieldAutomationTimeRangeType     = "time_range_type"
@@ -26,6 +27,7 @@ const (
 type SAutomationModel struct {
 	g.Meta            `orm:"table:automation"`
 	Id                int         `json:"id" orm:"id"`
+	Name              string      `json:"name" orm:"name"`
 	StartTime         *gtime.Time `json:"startTime" orm:"start_time"`
 	EndTime           *gtime.Time `json:"endTime" orm:"end_time"`
 	TimeRangeType     string      `json:"timeRangeType" orm:"time_range_type"`
@@ -45,6 +47,14 @@ func (s *SAutomationModel) GetId() int {
 
 func (s *SAutomationModel) SetId(id int) {
 	s.Id = id
+}
+
+func (s *SAutomationModel) GetName() string {
+	return s.Name
+}
+
+func (s *SAutomationModel) SetName(name string) {
+	s.Name = name
 }
 
 func (s *SAutomationModel) GetStartTime() *gtime.Time {

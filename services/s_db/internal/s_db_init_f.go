@@ -148,6 +148,7 @@ func initConfigDatabase() {
 	_, err = g.DB().Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS automation (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
 			start_time DATETIME,
 			end_time DATETIME,
 			time_range_type VARCHAR(255) ,
