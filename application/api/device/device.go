@@ -7,7 +7,7 @@ package device
 import (
 	"context"
 
-	"application/api/device/v1"
+	v1 "application/api/device/v1"
 )
 
 type IDeviceV1 interface {
@@ -21,6 +21,7 @@ type IDeviceV1 interface {
 	GetRealDeviceCache(ctx context.Context, req *v1.GetRealDeviceCacheReq) (res *v1.GetRealDeviceCacheRes, err error)
 	GetRealDeviceList(ctx context.Context, req *v1.GetRealDeviceListReq) (res *v1.GetRealDeviceListRes, err error)
 	GetDeviceTelemetry(ctx context.Context, req *v1.GetDeviceTelemetryReq) (res *v1.GetDeviceTelemetryRes, err error)
+	GetDeviceTelemetryService(ctx context.Context, req *v1.GetDeviceTelemetryServiceReq) (res *v1.GetDeviceTelemetryServiceRes, err error)
 	UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq) (res *v1.UpdateDeviceRes, err error)
 	GetVirtualDeviceCache(ctx context.Context, req *v1.GetVirtualDeviceCacheReq) (res *v1.GetVirtualDeviceCacheRes, err error)
 }
