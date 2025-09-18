@@ -3,6 +3,7 @@ package automation
 import (
 	v1 "application/api/automation/v1"
 	"context"
+	"encoding/json"
 	"errors"
 	"s_db"
 	"s_db/s_db_model"
@@ -37,8 +38,16 @@ func (c *Controller) UpdateAutomation(ctx context.Context, req *v1.UpdateAutomat
 	if req.TimeRangeValue != "" {
 		updateData[s_db_model.FieldAutomationTimeRangeValue] = req.TimeRangeValue
 	}
-	if req.TriggerRule != "" {
-		updateData[s_db_model.FieldAutomationTriggerRule] = req.TriggerRule
+	if req.TriggerConfig != nil {
+		// 将触发配置序列化为 JSON 字符串
+		triggerRuleJson, err := json.Marshal(req.TriggerConfig)
+		if err != nil {
+			g.Log().Errorf(ctx, "序列化触发配置失败: %+v", err)
+			return nil, gerror.WrapCode(gcode.CodeInternalError, err, "序列化触发配置失败")
+		}
+		updateData[s_db_model.FieldAutomationTriggerRule] = string(triggerRuleJson)
+		// 同时更新执行间隔字段
+		updateData[s_db_model.FieldAutomationExecutionInterval] = req.TriggerConfig.ExecutionInterval
 	}
 	if req.ExecuteRule != "" {
 		updateData[s_db_model.FieldAutomationExecuteRule] = req.ExecuteRule

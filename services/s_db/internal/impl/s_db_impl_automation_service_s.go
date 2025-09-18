@@ -28,7 +28,7 @@ func GetAutomationService() s_db_basic.IAutomationService {
 }
 
 // CreateAutomation 创建自动化规则
-func (s *sAutomationServiceImpl) CreateAutomation(ctx context.Context, startTime, endTime *time.Time, timeRangeType, timeRangeValue, triggerRule, executeRule string) (int, error) {
+func (s *sAutomationServiceImpl) CreateAutomation(ctx context.Context, startTime, endTime *time.Time, timeRangeType, timeRangeValue, triggerRule, executeRule string, executionInterval int) (int, error) {
 	now := gtime.Now()
 
 	// 转换 time.Time 为 gtime.Time
@@ -41,15 +41,16 @@ func (s *sAutomationServiceImpl) CreateAutomation(ctx context.Context, startTime
 	}
 
 	automationModel := &s_db_model.SAutomationModel{
-		StartTime:      startGTime,
-		EndTime:        endGTime,
-		TimeRangeType:  timeRangeType,
-		TimeRangeValue: timeRangeValue,
-		TriggerRule:    triggerRule,
-		ExecuteRule:    executeRule,
-		Enabled:        true,
-		CreatedAt:      now,
-		UpdatedAt:      now,
+		StartTime:         startGTime,
+		EndTime:           endGTime,
+		TimeRangeType:     timeRangeType,
+		TimeRangeValue:    timeRangeValue,
+		TriggerRule:       triggerRule,
+		ExecuteRule:       executeRule,
+		ExecutionInterval: executionInterval,
+		Enabled:           true,
+		CreatedAt:         now,
+		UpdatedAt:         now,
 	}
 
 	err := automationModel.Create(ctx)

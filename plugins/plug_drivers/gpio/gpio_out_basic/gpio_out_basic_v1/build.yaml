@@ -21,3 +21,6 @@ service:
   - key: SetHigh
     name: "高电平"
     description: "设置为高电平"
+  - key: StatusToggle
+    name: "状态切换"
+    description: "状态值互相切换"

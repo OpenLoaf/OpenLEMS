@@ -13,27 +13,29 @@ const (
 	TableAutomation = "automation"
 
 	// 自动化表特有字段
-	FieldAutomationStartTime      = "start_time"
-	FieldAutomationEndTime        = "end_time"
-	FieldAutomationTimeRangeType  = "time_range_type"
-	FieldAutomationTimeRangeValue = "time_range_value"
-	FieldAutomationTriggerRule    = "trigger_rule"
-	FieldAutomationExecuteRule    = "execute_rule"
+	FieldAutomationStartTime         = "start_time"
+	FieldAutomationEndTime           = "end_time"
+	FieldAutomationTimeRangeType     = "time_range_type"
+	FieldAutomationTimeRangeValue    = "time_range_value"
+	FieldAutomationTriggerRule       = "trigger_rule"
+	FieldAutomationExecuteRule       = "execute_rule"
+	FieldAutomationExecutionInterval = "execution_interval"
 )
 
 // 自动化表结构
 type SAutomationModel struct {
-	g.Meta         `orm:"table:automation"`
-	Id             int         `json:"id" orm:"id"`
-	StartTime      *gtime.Time `json:"startTime" orm:"start_time"`
-	EndTime        *gtime.Time `json:"endTime" orm:"end_time"`
-	TimeRangeType  string      `json:"timeRangeType" orm:"time_range_type"`
-	TimeRangeValue string      `json:"timeRangeValue" orm:"time_range_value"`
-	TriggerRule    string      `json:"triggerRule" orm:"trigger_rule"`
-	ExecuteRule    string      `json:"executeRule" orm:"execute_rule"`
-	Enabled        bool        `json:"enabled" orm:"enabled"`
-	CreatedAt      *gtime.Time `json:"createdAt" orm:"created_at"`
-	UpdatedAt      *gtime.Time `json:"updatedAt" orm:"updated_at"`
+	g.Meta            `orm:"table:automation"`
+	Id                int         `json:"id" orm:"id"`
+	StartTime         *gtime.Time `json:"startTime" orm:"start_time"`
+	EndTime           *gtime.Time `json:"endTime" orm:"end_time"`
+	TimeRangeType     string      `json:"timeRangeType" orm:"time_range_type"`
+	TimeRangeValue    string      `json:"timeRangeValue" orm:"time_range_value"`
+	TriggerRule       string      `json:"triggerRule" orm:"trigger_rule"`
+	ExecuteRule       string      `json:"executeRule" orm:"execute_rule"`
+	ExecutionInterval int         `json:"executionInterval" orm:"execution_interval"`
+	Enabled           bool        `json:"enabled" orm:"enabled"`
+	CreatedAt         *gtime.Time `json:"createdAt" orm:"created_at"`
+	UpdatedAt         *gtime.Time `json:"updatedAt" orm:"updated_at"`
 }
 
 // Getter/Setter 方法
@@ -91,6 +93,14 @@ func (s *SAutomationModel) GetExecuteRule() string {
 
 func (s *SAutomationModel) SetExecuteRule(executeRule string) {
 	s.ExecuteRule = executeRule
+}
+
+func (s *SAutomationModel) GetExecutionInterval() int {
+	return s.ExecutionInterval
+}
+
+func (s *SAutomationModel) SetExecutionInterval(executionInterval int) {
+	s.ExecutionInterval = executionInterval
 }
 
 func (s *SAutomationModel) GetEnabled() bool {

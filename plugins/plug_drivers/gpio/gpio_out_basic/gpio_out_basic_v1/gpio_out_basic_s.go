@@ -1,6 +1,8 @@
 package gpio_out_basic_v1
 
 import (
+	"errors"
+
 	"common/c_base"
 	"common/c_device"
 	"common/c_log"
@@ -70,4 +72,23 @@ func (s *sBasicGpioOut) GetStatus() *bool {
 		return nil
 	}
 	return v
+}
+
+func (s *sBasicGpioOut) StatusToggle() error {
+	// 获取当前状态
+	currentStatus := s.GetStatus()
+	if currentStatus == nil {
+		return errors.New("无法获取当前GPIO状态")
+	}
+
+	// 根据当前状态切换到相反状态
+	if *currentStatus {
+		// 当前是高电平，切换到低电平
+		c_log.BizInfo(s.DeviceCtx, "从高电平切换到低电平")
+		return s.SetLow()
+	} else {
+		// 当前是低电平，切换到高电平
+		c_log.BizInfo(s.DeviceCtx, "从低电平切换到高电平")
+		return s.SetHigh()
+	}
 }

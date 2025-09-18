@@ -211,13 +211,13 @@ if req.Id <= 0 {
 // ✅ 正确 - 业务逻辑错误，记录日志并包装错误
 err = s_db.GetAutomationService().UpdateAutomation(ctx, req.Id, updateData)
 if err != nil {
-    g.Log().Errorf(ctx, "更新自动化任务失败: %+v", err)
+    c_log.Errorf(ctx, "更新自动化任务失败: %+v", err)
     return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新自动化任务失败")
 }
 
 // ❌ 错误 - 不要在返回错误前重复记录日志
 if req.Id <= 0 {
-    g.Log().Error(ctx, "自动化任务ID必须大于0")  // 不需要这行
+    c_log.Error(ctx, "自动化任务ID必须大于0")  // 不需要这行
     return nil, errors.New("自动化任务ID必须大于0")
 }
 ```
@@ -464,4 +464,4 @@ gf gen service # 生成服务接口代码
 - **GoFrame v2**: Web 框架和路由管理
 - **Context**: 上下文传递和生命周期管理
 - **gerror**: 错误处理
-- **g.Log()**: 日志记录
+- **c_log**: 日志记录

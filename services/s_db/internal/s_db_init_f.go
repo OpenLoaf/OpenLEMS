@@ -154,6 +154,7 @@ func initConfigDatabase() {
 			time_range_value VARCHAR(255),
 			trigger_rule TEXT NOT NULL,
 			execute_rule TEXT NOT NULL,
+			execution_interval INTEGER DEFAULT 0,
 			enabled BOOLEAN DEFAULT 1,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP

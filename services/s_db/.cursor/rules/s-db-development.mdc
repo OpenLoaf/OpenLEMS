@@ -43,7 +43,7 @@ _, err = g.DB().Exec(ctx, `
     )
 `)
 if err != nil {
-    g.Log().Fatal(ctx, err)
+    c_log.Fatal(ctx, err)
 }
 ```
 

@@ -126,6 +126,7 @@ func (m *SAutomationManager) AddAutomation(ctx context.Context, automation *s_db
 		automation.GetTimeRangeValue(),
 		automation.GetTriggerRule(),
 		automation.GetExecuteRule(),
+		automation.GetExecutionInterval(),
 	)
 	if err != nil {
 		g.Log().Errorf(ctx, "创建自动化任务失败: %+v", err)
@@ -396,32 +397,78 @@ func (m *SAutomationManager) checkTriggerConfig(task *SAutomationTask) bool {
 
 // checkTriggerCondition 检查触发条件
 func (m *SAutomationManager) checkTriggerCondition(condition *SAutomationTriggerCondition) bool {
+	// 验证触发条件
+	if err := condition.Validate(); err != nil {
+		g.Log().Errorf(m.ctx, "触发条件验证失败: %+v", err)
+		return false
+	}
+
+	// 检查设备条件
+	deviceResult := true
+	if condition.IsDeviceCondition() {
+		deviceResult = m.checkDeviceCondition(condition.DeviceCondition)
+	}
+
+	// 检查时间条件
+	timeResult := true
+	if condition.IsTimeCondition() {
+		timeResult = m.checkTimeCondition(condition.TimeCondition)
+	}
+
+	// 如果同时设置了设备条件和时间条件，需要都满足
+	// 如果只设置了一种条件，只需要该条件满足
+	finalResult := deviceResult && timeResult
+
+	g.Log().Infof(m.ctx, "触发条件检查结果 - 设备条件: %v, 时间条件: %v, 最终结果: %v",
+		deviceResult, timeResult, finalResult)
+
+	return finalResult
+}
+
+// checkDeviceCondition 检查设备条件
+func (m *SAutomationManager) checkDeviceCondition(deviceCondition *SAutomationDeviceCondition) bool {
 	// 获取设备实例
-	deviceInstance := common.GetDeviceManager().GetDeviceById(condition.DeviceId)
+	deviceInstance := common.GetDeviceManager().GetDeviceById(deviceCondition.DeviceId)
 	if deviceInstance == nil {
-		g.Log().Warningf(m.ctx, "设备不存在: %s", condition.DeviceId)
+		g.Log().Warningf(m.ctx, "设备不存在: %s", deviceCondition.DeviceId)
 		return false
 	}
 
 	// 获取设备的遥测数据
 	telemetryMap := c_base.GetAllTelemetry(deviceInstance)
-	if telemetryMap == nil || len(telemetryMap) == 0 {
+	if len(telemetryMap) == 0 {
+		g.Log().Warningf(m.ctx, "设备遥测数据为空: %s", deviceCondition.DeviceId)
 		return false
 	}
 
-	g.Log().Infof(m.ctx, "检查触发条件 - 设备: %s, 规则: %s, 遥测数据: %+v",
-		condition.DeviceId, condition.Rule, telemetryMap)
+	g.Log().Infof(m.ctx, "检查设备条件 - 设备: %s, 规则: %s, 遥测数据: %+v",
+		deviceCondition.DeviceId, deviceCondition.Rule, telemetryMap)
 
 	// 使用 expr 包解析和验证规则表达式
-	result, err := m.evaluateRuleExpression(condition.Rule, telemetryMap)
+	result, err := m.evaluateRuleExpression(deviceCondition.Rule, telemetryMap)
 	if err != nil {
 		g.Log().Errorf(m.ctx, "规则表达式解析失败 - 设备: %s, 规则: %s, 错误: %+v",
-			condition.DeviceId, condition.Rule, err)
+			deviceCondition.DeviceId, deviceCondition.Rule, err)
 		return false
 	}
 
-	g.Log().Infof(m.ctx, "触发条件检查结果 - 设备: %s, 规则: %s, 结果: %v",
-		condition.DeviceId, condition.Rule, result)
+	g.Log().Infof(m.ctx, "设备条件检查结果 - 设备: %s, 规则: %s, 结果: %v",
+		deviceCondition.DeviceId, deviceCondition.Rule, result)
+
+	return result
+}
+
+// checkTimeCondition 检查时间条件
+func (m *SAutomationManager) checkTimeCondition(timeCondition *SAutomationTimeCondition) bool {
+	now := time.Now()
+
+	g.Log().Infof(m.ctx, "检查时间条件 - 当前时间: %s, 条件: %+v",
+		now.Format("2006-01-02 15:04:05"), timeCondition)
+
+	result := timeCondition.IsTimeMatch(now)
+
+	g.Log().Infof(m.ctx, "时间条件检查结果 - 当前时间: %s, 结果: %v",
+		now.Format("2006-01-02 15:04:05"), result)
 
 	return result
 }
