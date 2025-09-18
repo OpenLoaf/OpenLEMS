@@ -7,7 +7,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-func SConfigStructFieldsToI18n(ctx context.Context, s *c_base.SConfigStructFields) *c_base.SConfigStructFields {
+func SConfigStructFieldsToI18n(ctx context.Context, s *c_base.SFieldDefinition) *c_base.SFieldDefinition {
 	key := g.I18n().T(ctx, s.Name)
 	if key == "" {
 		key = s.Description
@@ -19,7 +19,7 @@ func SConfigStructFieldsToI18n(ctx context.Context, s *c_base.SConfigStructField
 		unit = s.Unit
 	}
 
-	return &c_base.SConfigStructFields{
+	return &c_base.SFieldDefinition{
 		Key:                s.Key,
 		Name:               key,
 		Group:              s.Group,
@@ -39,8 +39,8 @@ func SConfigStructFieldsToI18n(ctx context.Context, s *c_base.SConfigStructField
 	}
 }
 
-func ConfigStructFieldsListI18n(ctx context.Context, list []*c_base.SConfigStructFields) []*c_base.SConfigStructFields {
-	var result []*c_base.SConfigStructFields
+func ConfigStructFieldsListI18n(ctx context.Context, list []*c_base.SFieldDefinition) []*c_base.SFieldDefinition {
+	var result []*c_base.SFieldDefinition
 	for _, item := range list {
 		result = append(result, SConfigStructFieldsToI18n(ctx, item))
 	}

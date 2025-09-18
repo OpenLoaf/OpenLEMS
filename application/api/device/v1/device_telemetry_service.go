@@ -12,8 +12,8 @@ type GetDeviceTelemetryServiceReq struct {
 }
 
 type GetDeviceTelemetryServiceRes struct {
-	DeviceId   string                        `json:"deviceId" dc:"设备ID"`
-	DeviceName string                        `json:"deviceName" dc:"设备名称"`
-	Telemetry  []*c_base.SConfigStructFields `json:"telemetry" dc:"遥测信息列表"`
-	Service    []*c_base.SDriverService      `json:"service" dc:"自定义服务列表"`
+	DeviceId   string                     `json:"deviceId" dc:"设备ID"`
+	DeviceName string                     `json:"deviceName" dc:"设备名称"`
+	Telemetry  []*c_base.SFieldDefinition `json:"telemetry" dc:"遥测信息列表"`
+	Service    []*c_base.SDriverService   `json:"service" dc:"自定义服务列表"`
 }

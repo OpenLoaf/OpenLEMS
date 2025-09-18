@@ -21,7 +21,7 @@ func NewModbusProvider(ctx context.Context, clientConfig *c_base.SProtocolConfig
 }
 
 // GetModbusDeviceConfigFields 获取modbus的设备配置
-func GetModbusDeviceConfigFields() []*c_base.SConfigStructFields {
+func GetModbusDeviceConfigFields() []*c_base.SFieldDefinition {
 	modbusDeviceConfig := &c_proto.SModbusDeviceConfig{}
 	fields, err := c_base.BuildConfigStructFields(modbusDeviceConfig)
 	if err != nil {

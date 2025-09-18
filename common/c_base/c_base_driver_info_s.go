@@ -7,14 +7,14 @@ import (
 )
 
 type SDriverInfo struct {
-	Name         string                 `json:"name" yaml:"name" v:"required|length:6,40"`     // 驱动名称
-	Type         c_enum.EDeviceType     `json:"type" yaml:"type" v:"required"`                 // 驱动类型
-	ProtocolType c_enum.EProtocolType   `json:"protocolType" yaml:"protocolType" v:"required"` // 协议类型
-	Brand        string                 `json:"brand" yaml:"brand"`                            // 品牌
-	Model        string                 `json:"model" yaml:"model"`                            // 型号
-	Version      string                 `json:"version" yaml:"version" v:"required"`           // 版本
-	Telemetry    []*SConfigStructFields `json:"telemetry" yaml:"telemetry"`                    // 遥测
-	Service      []*SDriverService      `json:"service" yaml:"service"`                        // 自定义服务
+	Name         string               `json:"name" yaml:"name" v:"required|length:6,40"`     // 驱动名称
+	Type         c_enum.EDeviceType   `json:"type" yaml:"type" v:"required"`                 // 驱动类型
+	ProtocolType c_enum.EProtocolType `json:"protocolType" yaml:"protocolType" v:"required"` // 协议类型
+	Brand        string               `json:"brand" yaml:"brand"`                            // 品牌
+	Model        string               `json:"model" yaml:"model"`                            // 型号
+	Version      string               `json:"version" yaml:"version" v:"required"`           // 版本
+	Telemetry    []*SFieldDefinition  `json:"telemetry" yaml:"telemetry"`                    // 遥测
+	Service      []*SDriverService    `json:"service" yaml:"service"`                        // 自定义服务
 
 	Enabled      bool   `json:"enabled" yaml:"enabled" v:"required"`
 	Path         string `json:"path"`         // 路径
@@ -28,14 +28,14 @@ type SDriverInfo struct {
 	Author     string `json:"author" yaml:"author"`         // 作者
 	Remark     string `json:"remark" yaml:"remark"`         // 备注
 
-	configStructFields []*SConfigStructFields   // 不能从yaml中倒入
+	configStructFields []*SFieldDefinition      // 不能从yaml中倒入
 	reflectMethodCache map[string]reflect.Value // 反射方法缓存
 	reflectMethodMutex sync.RWMutex             // 反射方法缓存读写锁
 }
 
-func (s *SDriverInfo) SetConfigStructFields(configStructFields []*SConfigStructFields) {
+func (s *SDriverInfo) SetConfigStructFields(configStructFields []*SFieldDefinition) {
 	s.configStructFields = configStructFields
 }
-func (s *SDriverInfo) GetConfigStructFields() []*SConfigStructFields {
+func (s *SDriverInfo) GetConfigStructFields() []*SFieldDefinition {
 	return s.configStructFields
 }

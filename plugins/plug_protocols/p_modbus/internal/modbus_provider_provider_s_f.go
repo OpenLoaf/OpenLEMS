@@ -93,7 +93,7 @@ func (p *ModbusProtocolProvider) GetConfig() *c_base.SDeviceConfig {
 	return p.deviceConfig
 }
 
-func (p *ModbusProtocolProvider) GetDeviceConfigFields() []*c_base.SConfigStructFields {
+func (p *ModbusProtocolProvider) GetDeviceConfigFields() []*c_base.SFieldDefinition {
 	modbusDeviceConfig := &c_proto.SModbusDeviceConfig{}
 	fields, err := c_base.BuildConfigStructFields(modbusDeviceConfig)
 	if err != nil {

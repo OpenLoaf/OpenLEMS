@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-type SConfigStructFields struct {
+type SFieldDefinition struct {
 	Key                string                            `json:"key" yaml:"key" short:"key"`
 	Name               string                            `json:"name" yaml:"name" short:"name" required:"true"`
 	Group              string                            `json:"group" yaml:"group" short:"group"`
@@ -27,9 +27,15 @@ type SConfigStructFields struct {
 	Description        string                            `json:"description" yaml:"description" short:"desc" required:"true"`
 }
 
-func (s *SConfigStructFields) String() string {
+type SFieldExplain struct {
+	Key   string `json:"key" yaml:"key" short:"key" required:"true"`
+	Value string `json:"value" yaml:"value" short:"value" required:"true"`
+	Color string `json:"color" yaml:"color" short:"color" required:"true"`
+}
+
+func (s *SFieldDefinition) String() string {
 	if s == nil {
-		return "SConfigStructFields(nil)"
+		return "SFieldDefinition(nil)"
 	}
 
 	// 处理指针字段
@@ -49,13 +55,13 @@ func (s *SConfigStructFields) String() string {
 		regexVal = *s.Regex
 	}
 
-	return fmt.Sprintf("SConfigStructFields{Key:%s, Name:%s, ValueType:%s, ComponentType:%s, Min:%d, Max:%d, Default:%s, Regex:%s}",
+	return fmt.Sprintf("SFieldDefinition{Key:%s, Name:%s, ValueType:%s, ComponentType:%s, Min:%d, Max:%d, Default:%s, Regex:%s}",
 		s.Key, s.Name, s.ValueType, s.ComponentType, minVal, maxVal, defaultVal, regexVal)
 }
 
-func (s *SConfigStructFields) Check() error {
+func (s *SFieldDefinition) Check() error {
 	if s == nil {
-		return errors.New("SConfigStructFields is nil")
+		return errors.New("SFieldDefinition is nil")
 	}
 
 	// 检查必填字段
@@ -88,7 +94,7 @@ func (s *SConfigStructFields) Check() error {
 }
 
 // ToPoint 将配置字段转换为点位信息
-func (s *SConfigStructFields) ToPoint(valueType c_enum.EValueType, params map[string]any) IPoint {
+func (s *SFieldDefinition) ToPoint(valueType c_enum.EValueType, params map[string]any) IPoint {
 	valueExplain := make(map[string]string)
 	if s.ValueExplain != nil {
 		valueType = c_enum.EString
@@ -113,7 +119,7 @@ func (s *SConfigStructFields) ToPoint(valueType c_enum.EValueType, params map[st
 		Key:          s.Key,
 		Name:         s.Name,
 		Group:        &SPointGroup{GroupName: s.Group}, // 将字符串转换为 SPointGroup 指针
-		Precise:      0,                                // SConfigStructFields 没有精度字段，使用默认值
+		Precise:      0,                                // SFieldDefinition 没有精度字段，使用默认值
 		Desc:         s.Description,
 		Unit:         unit,
 		ValueType:    valueType,

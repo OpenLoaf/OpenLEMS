@@ -5,7 +5,7 @@ import (
 	"p_policy_mircogrid/internal"
 )
 
-func GetMicrogridConfigFields() []*c_base.SConfigStructFields {
+func GetMicrogridConfigFields() []*c_base.SFieldDefinition {
 	f, err := c_base.BuildConfigStructFields(&internal.SPolicyMircogridConfig{})
 	if err != nil {
 		return nil

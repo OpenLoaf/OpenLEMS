@@ -19,7 +19,7 @@ func NewGpiodOutProvider(ctx context.Context, clientConfig *c_base.SProtocolConf
 }
 
 // GetGpiodDeviceConfigFields 获取gpiod的设备配置
-func GetGpiodDeviceConfigFields() []*c_base.SConfigStructFields {
+func GetGpiodDeviceConfigFields() []*c_base.SFieldDefinition {
 	gpiodDeviceConfig := &c_proto.SGpiodProtocolConfig{}
 	fields, err := c_base.BuildConfigStructFields(gpiodDeviceConfig)
 	if err != nil {

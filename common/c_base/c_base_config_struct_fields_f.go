@@ -48,7 +48,7 @@ func initConfigFieldsTagCache() {
 	}
 
 	configFieldsTagCache = make(map[string]*TagMapping)
-	structType := reflect.TypeOf(SConfigStructFields{})
+	structType := reflect.TypeOf(SFieldDefinition{})
 
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
@@ -130,7 +130,7 @@ func getTagMappingByTag(tagValue string) *TagMapping {
 //	    Port int    `key:"port" name:"端口号" desc:"设备通信端口" ct:"number" vt:"int" min:"1" max:"65535" def:"8080"`
 //	    Enabled bool `key:"enable" name:"启用状态" desc:"是否启用设备" ct:"switch" vt:"bool" def:"true"`
 //	}
-func BuildConfigStructFields(config any) ([]*SConfigStructFields, error) {
+func BuildConfigStructFields(config any) ([]*SFieldDefinition, error) {
 	if config == nil {
 		return nil, errors.New("config is nil")
 	}
@@ -181,8 +181,8 @@ func parseFieldTagValue(field reflect.StructField, targetFieldName string) strin
 
 // populateFieldConfigFromTags 动态填充字段配置
 // 通过反射SConfigStructFields结构体，动态解析所有支持的标签
-func populateFieldConfigFromTags(field reflect.StructField, fieldConfig *SConfigStructFields) {
-	structType := reflect.TypeOf(SConfigStructFields{})
+func populateFieldConfigFromTags(field reflect.StructField, fieldConfig *SFieldDefinition) {
+	structType := reflect.TypeOf(SFieldDefinition{})
 	fieldConfigValue := reflect.ValueOf(fieldConfig).Elem()
 
 	// 遍历SConfigStructFields的所有字段
@@ -263,8 +263,8 @@ func populateFieldConfigFromTags(field reflect.StructField, fieldConfig *SConfig
 }
 
 // buildConfigStructFieldsRecursive 递归处理结构体字段，支持嵌套结构体的平铺展开
-func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([]*SConfigStructFields, error) {
-	var fields []*SConfigStructFields
+func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([]*SFieldDefinition, error) {
+	var fields []*SFieldDefinition
 
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
@@ -305,7 +305,7 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 		// 根据字段类型确定组件类型和值类型
 		componentType, valueType := getFieldTypeInfo(field.Type)
 
-		fieldConfig := &SConfigStructFields{
+		fieldConfig := &SFieldDefinition{
 			Key:           jsonName,
 			ValueType:     valueType,
 			ComponentType: componentType,
