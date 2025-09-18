@@ -10,8 +10,8 @@ import (
 )
 
 type SConfigStructFields struct {
-	Name               string                            `json:"name" yaml:"name" short:"name" required:"true"`
 	Code               string                            `json:"code" yaml:"code" short:"code" `
+	Name               string                            `json:"name" yaml:"name" short:"name" required:"true"`
 	Group              string                            `json:"group" yaml:"group" short:"group"`
 	ValueType          c_enum.EConfigFieldsValueType     `json:"valueType" yaml:"value_type" short:"vt" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
 	ComponentType      c_enum.EConfigFieldsComponentType `json:"componentType" yaml:"component_type" short:"ct" dc:"组件类型" required:"true"`
@@ -22,6 +22,8 @@ type SConfigStructFields struct {
 	Max                *int64                            `json:"max" yaml:"max" short:"max"`
 	Default            *string                           `json:"default" yaml:"default" short:"def"`
 	SelectOptions      []string                          `json:"selectOptions" yaml:"select_options" short:"opts"`
+	ValueExplain       map[string]string                 `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
+	ParamExplain       map[string]string                 `json:"paramExplain,omitempty" yaml:"paramExplain"` // 从参数值中读取解释
 	Regex              *string                           `json:"regex" yaml:"regex" short:"regex" dc:"正则表达式"`
 	RegexFailedMessage *string                           `json:"regexFailedMessage" yaml:"regex_failed_message" short:"rfm" dc:"正则表达式失败提醒"`
 	Description        string                            `json:"description" yaml:"description" short:"desc" required:"true"`
