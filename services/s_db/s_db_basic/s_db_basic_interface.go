@@ -10,8 +10,8 @@ import (
 
 // IDeviceService 设备服务
 type IDeviceService interface {
-	GetEnableDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) // 获取所有设备列表
-	GetAllDevices(ctx context.Context) ([]*s_db_model.SDeviceModel, error)                                     // 获取所有设备
+	GetDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) // 获取所有设备列表（包括enabled=false）
+	GetAllDevices(ctx context.Context) ([]*s_db_model.SDeviceModel, error)                               // 获取所有设备
 	UpdateDevice(ctx context.Context, deviceId string, data map[string]interface{}) error
 }
 

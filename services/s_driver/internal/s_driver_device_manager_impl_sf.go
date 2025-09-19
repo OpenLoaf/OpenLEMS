@@ -200,7 +200,7 @@ func (m *SDeviceManager) Start() {
 	m.deviceConfigTree.Clear()
 
 	rootDeviceID := s_db.GetSettingService().GetRootDeviceId(m.ctx)
-	deviceConfigs, err := s_db.GetDeviceService().GetEnableDeviceConfigsWithRecursion(m.ctx, rootDeviceID)
+	deviceConfigs, err := s_db.GetDeviceService().GetDeviceConfigsWithRecursion(m.ctx, rootDeviceID)
 	if err != nil {
 		m.state = c_enum.EStateError
 		g.Log().Errorf(m.ctx, "初始化失败！获取设备配置失败！%+v", err)
@@ -236,36 +236,11 @@ func (m *SDeviceManager) Start() {
 		m.deviceConfigTree.PushBack(config)
 	}
 
-	// 从底部开始初始化设备
-	m.ExecuteFromBottom(func(deviceConfig *c_base.SDeviceConfig) {
-		c_log.BizInfof(m.ctx, "加载设备：[%s] 准备初始化！", deviceConfig.Name)
+	// 递归初始化设备（从最底部开始）
+	m.InitializeDevicesRecursively(treeConfigs)
 
-		if deviceConfig.Enabled == false {
-			c_log.BizWarningf(m.ctx, "设备[%s]未启用！", deviceConfig.Name)
-			return
-		}
-		if deviceConfig.DriverInfo == nil {
-			c_log.BizErrorf(m.ctx, "设备[%s]驱动未找到！", deviceConfig.Name)
-			// todo 虚拟节点启动失败的话，子节点都需要关机 （可以做成全局参数）
-			return
-		}
-
-		deviceCtx := context.WithValue(m.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
-		deviceCtx = context.WithValue(deviceCtx, c_base.ConstCtxKeyDeviceName, deviceConfig.Name)
-
-		if deviceConfig.ProtocolConfig == nil {
-			m.BuildVirtualDevice(deviceCtx, deviceConfig)
-		} else {
-			m.BuildRealDevice(deviceCtx, deviceConfig)
-		}
-	})
-
-	// 从底部开始注册存储驱动
-	m.ExecuteFromBottom(func(deviceConfig *c_base.SDeviceConfig) {
-		if deviceConfig.StorageEnable {
-			s_storage.RegisterStorageDriver(deviceConfig)
-		}
-	})
+	// 递归注册存储驱动
+	m.RegisterStorageDriversRecursively(treeConfigs)
 
 	m.state = c_enum.EStateRunning
 }
@@ -374,4 +349,68 @@ func (m *SDeviceManager) GetSupportedDeviceTypes(ctx context.Context) []c_enum.E
 	}
 
 	return deviceTypes
+}
+
+// InitializeDevicesRecursively 递归初始化设备，从最底部开始
+func (m *SDeviceManager) InitializeDevicesRecursively(devices []*c_base.SDeviceConfig) {
+	for _, deviceConfig := range devices {
+		// 递归初始化子设备
+		if len(deviceConfig.ChildDeviceConfig) > 0 {
+			m.InitializeDevicesRecursively(deviceConfig.ChildDeviceConfig)
+		}
+
+		// 初始化当前设备
+		m.initializeSingleDevice(deviceConfig)
+	}
+}
+
+// initializeSingleDevice 初始化单个设备
+func (m *SDeviceManager) initializeSingleDevice(deviceConfig *c_base.SDeviceConfig) {
+	c_log.BizInfof(m.ctx, "加载设备：[%s] 准备初始化！", deviceConfig.Name)
+
+	// 检查当前设备是否启用
+	if !deviceConfig.Enabled {
+		c_log.BizWarningf(m.ctx, "设备[%s]未启用，跳过初始化！", deviceConfig.Name)
+		return
+	}
+
+	// 检查父设备是否启用（如果父设备未启用，子设备也不应该初始化）
+	if deviceConfig.Pid != "" && deviceConfig.Pid != deviceConfig.Id {
+		parentConfig := m.GetDeviceConfigById(deviceConfig.Pid)
+		if parentConfig != nil && !parentConfig.Enabled {
+			c_log.BizWarningf(m.ctx, "设备[%s]的父设备[%s]未启用，跳过初始化！", deviceConfig.Name, parentConfig.Name)
+			return
+		}
+	}
+
+	// 检查驱动信息
+	if deviceConfig.DriverInfo == nil {
+		c_log.BizErrorf(m.ctx, "设备[%s]驱动未找到！", deviceConfig.Name)
+		return
+	}
+
+	deviceCtx := context.WithValue(m.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
+	deviceCtx = context.WithValue(deviceCtx, c_base.ConstCtxKeyDeviceName, deviceConfig.Name)
+
+	// 根据协议配置选择初始化方式
+	if deviceConfig.ProtocolConfig == nil {
+		m.BuildVirtualDevice(deviceCtx, deviceConfig)
+	} else {
+		m.BuildRealDevice(deviceCtx, deviceConfig)
+	}
+}
+
+// RegisterStorageDriversRecursively 递归注册存储驱动
+func (m *SDeviceManager) RegisterStorageDriversRecursively(devices []*c_base.SDeviceConfig) {
+	for _, deviceConfig := range devices {
+		// 递归注册子设备的存储驱动
+		if len(deviceConfig.ChildDeviceConfig) > 0 {
+			m.RegisterStorageDriversRecursively(deviceConfig.ChildDeviceConfig)
+		}
+
+		// 注册当前设备的存储驱动
+		if deviceConfig.StorageEnable {
+			s_storage.RegisterStorageDriver(deviceConfig)
+		}
+	}
 }

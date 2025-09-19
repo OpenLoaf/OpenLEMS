@@ -69,20 +69,17 @@ func (s *sDeviceServiceImpl) UpdateDevice(ctx context.Context, deviceId string, 
 	return device.Update(ctx)
 }
 
-func (s *sDeviceServiceImpl) GetEnableDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) {
-
-	// devices, err := s.GetAllDevicesOrderBySortAndEnable(ctx, true)
-
+func (s *sDeviceServiceImpl) GetDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) {
+	// 查询所有设备（包括enabled=false）
 	list, err := g.DB().GetAll(ctx, `
 		WITH RECURSIVE DeviceDescendants AS (
 			SELECT *
 			FROM device
-			WHERE id = ?  OR pid = ? AND enabled =true
+			WHERE id = ?  OR pid = ?
 			UNION ALL
 			SELECT d.*
 			FROM device AS d
 					 JOIN DeviceDescendants AS dd ON d.pid = dd.id
-			where d.enabled = true
 		)
 		SELECT * FROM DeviceDescendants order by sort
 `, g.Slice{parentId, parentId})
