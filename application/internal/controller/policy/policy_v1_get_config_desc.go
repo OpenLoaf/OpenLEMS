@@ -11,7 +11,7 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 )
 
-func (c *ControllerV1) GetPolicyConfigDesc(ctx context.Context, req *v1.GetPolicyConfigDescReq) (res *v1.GetPolicyConfigDescRes, err error) {
+func (c *ControllerV1) GetPolicyConfig(ctx context.Context, req *v1.GetPolicyConfigReq) (res *v1.GetPolicyConfigRes, err error) {
 	var policyId string
 	var settingId string
 
@@ -27,7 +27,7 @@ func (c *ControllerV1) GetPolicyConfigDesc(ctx context.Context, req *v1.GetPolic
 			}
 
 			if len(settings) == 0 {
-				return &v1.GetPolicyConfigDescRes{
+				return &v1.GetPolicyConfigRes{
 					SettingId: "",
 					Config:    nil,
 				}, nil
@@ -38,7 +38,7 @@ func (c *ControllerV1) GetPolicyConfigDesc(ctx context.Context, req *v1.GetPolic
 			policyConfigStr := settings[0].GetValue()
 
 			if policyConfigStr == "" {
-				return &v1.GetPolicyConfigDescRes{
+				return &v1.GetPolicyConfigRes{
 					SettingId: settingId,
 					Config:    nil,
 				}, nil
@@ -52,7 +52,7 @@ func (c *ControllerV1) GetPolicyConfigDesc(ctx context.Context, req *v1.GetPolic
 			}
 
 			g.Log().Infof(ctx, "成功获取策略配置 - 设置ID: %s", settingId)
-			return &v1.GetPolicyConfigDescRes{
+			return &v1.GetPolicyConfigRes{
 				SettingId: settingId,
 				Config:    policyConfig,
 			}, nil
@@ -66,7 +66,7 @@ func (c *ControllerV1) GetPolicyConfigDesc(ctx context.Context, req *v1.GetPolic
 	// 获取策略配置字符串
 	policyConfigStr := s_db.GetSettingService().GetSettingValueById(ctx, policyId)
 	if policyConfigStr == "" {
-		return &v1.GetPolicyConfigDescRes{
+		return &v1.GetPolicyConfigRes{
 			SettingId: settingId,
 			Config:    nil,
 		}, nil
@@ -80,7 +80,7 @@ func (c *ControllerV1) GetPolicyConfigDesc(ctx context.Context, req *v1.GetPolic
 	}
 
 	g.Log().Infof(ctx, "成功获取策略配置 - 策略ID: %s", policyId)
-	return &v1.GetPolicyConfigDescRes{
+	return &v1.GetPolicyConfigRes{
 		SettingId: settingId,
 		Config:    policyConfig,
 	}, nil
