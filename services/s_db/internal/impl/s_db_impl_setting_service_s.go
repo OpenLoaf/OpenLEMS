@@ -2,6 +2,7 @@ package impl
 
 import (
 	"common/c_enum"
+	"common/c_log"
 	"context"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
@@ -34,7 +35,20 @@ func (s *sSettingServiceImpl) GetAllSettings(ctx context.Context) ([]*s_db_model
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取所有设置，共 %d 条记录", len(settings))
+	c_log.Debugf(ctx, "成功获取所有设置，共 %d 条记录", len(settings))
+	return settings, nil
+}
+
+// GetAllSettingsByGroup 根据分组获取所有设置
+func (s *sSettingServiceImpl) GetAllSettingsByGroup(ctx context.Context, group string) ([]*s_db_model.SSettingModel, error) {
+	// 调用模型层的 GetSettingsByGroup 方法获取指定分组的设置
+	settings, err := s_db_model.GetSettingsByGroup(ctx, group)
+	if err != nil {
+		g.Log().Errorf(ctx, "获取分组设置失败 - 分组: %s, 错误: %+v", group, err)
+		return nil, err
+	}
+
+	c_log.Debugf(ctx, "成功获取分组设置 - 分组: %s, 共 %d 条记录", group, len(settings))
 	return settings, nil
 }
 
@@ -43,11 +57,11 @@ func (s *sSettingServiceImpl) GetSettingById(ctx context.Context, id string) (*s
 	setting := &s_db_model.SSettingModel{}
 	err := setting.GetById(ctx, id)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取设置详情失败 - 设置ID: %s, 错误: %s", id, err.Error())
+		c_log.Debugf(ctx, "获取设置详情失败 - 设置ID: %s, 错误: %s", id, err.Error())
 		return nil, nil
 	}
 
-	g.Log().Infof(ctx, "成功获取设置详情 - 设置ID: %s", id)
+	c_log.Debugf(ctx, "成功获取设置详情 - 设置ID: %s", id)
 	return setting, nil
 }
 
@@ -97,7 +111,7 @@ func (s *sSettingServiceImpl) GetSettingValueByIdWithDefaultValue(ctx context.Co
 		if err != nil {
 			g.Log().Errorf(ctx, "保存设置失败！设置名称：%s，值：%v 错误：%v", id, defaultValue, err)
 		}
-		g.Log().Infof(ctx, "保存默认设置成功！设置名称：%s，值：%s，分组：%s", id, defaultValue, group)
+		c_log.Infof(ctx, "保存默认设置成功！设置名称：%s，值：%s，分组：%s", id, defaultValue, group)
 		return defaultValue
 	}
 
@@ -142,6 +156,6 @@ func (s *sSettingServiceImpl) GetPublicEnabledSettings(ctx context.Context) ([]*
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取公开且启用的设置，共 %d 条记录", len(settings))
+	c_log.Infof(ctx, "成功获取公开且启用的设置，共 %d 条记录", len(settings))
 	return settings, nil
 }

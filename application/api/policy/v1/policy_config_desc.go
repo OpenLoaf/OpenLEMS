@@ -10,7 +10,8 @@ type GetPolicyConfigDescReq struct {
 }
 
 type GetPolicyConfigDescRes struct {
-	Config any `json:"config" dc:"策略配置JSON对象"`
+	SettingId string `json:"settingId" dc:"设置ID"`
+	Config    any    `json:"config" dc:"策略配置JSON对象"`
 }
 
 type UpdatePolicyConfigReq struct {

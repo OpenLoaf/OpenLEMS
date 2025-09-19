@@ -420,7 +420,7 @@ func (m *SAutomationManager) checkTriggerCondition(condition *SAutomationTrigger
 	// 如果只设置了一种条件，只需要该条件满足
 	finalResult := deviceResult && timeResult
 
-	g.Log().Infof(m.ctx, "触发条件检查结果 - 设备条件: %v, 时间条件: %v, 最终结果: %v",
+	g.Log().Debugf(m.ctx, "触发条件检查结果 - 设备条件: %v, 时间条件: %v, 最终结果: %v",
 		deviceResult, timeResult, finalResult)
 
 	return finalResult
@@ -438,7 +438,7 @@ func (m *SAutomationManager) checkDeviceCondition(deviceCondition *SAutomationDe
 	// 获取设备的遥测数据
 	telemetryMap := c_base.GetAllTelemetry(deviceInstance)
 	if len(telemetryMap) == 0 {
-		g.Log().Warningf(m.ctx, "设备遥测数据为空: %s", deviceCondition.DeviceId)
+		g.Log().Debugf(m.ctx, "设备遥测数据为空: %s", deviceCondition.DeviceId)
 		return false
 	}
 
