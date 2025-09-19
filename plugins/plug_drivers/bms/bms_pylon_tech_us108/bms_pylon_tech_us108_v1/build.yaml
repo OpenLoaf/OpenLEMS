@@ -10,6 +10,8 @@ telemetry:
     - key: bmsStatus
       name: "电池状态"
       displayType: label
+      component_type: singleSelect
+      value_type: int
       valueExplain:
         - key: "0"
           value: "未知"
