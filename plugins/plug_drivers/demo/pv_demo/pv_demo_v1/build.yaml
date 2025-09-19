@@ -10,6 +10,8 @@ telemetry:
   - key: status
     name: "状态"
     displayType: label
+    value_type: int
+    component_type: singleSelect
     valueExplain:
       - key: "0"
         value: "未知"
@@ -29,15 +31,23 @@ telemetry:
   - key: power
     unit: "kW"
     name: "发电功率"
+    value_type: float
+    component_type: number
   - key: irradiance
     name: "当前辐照度"
     unit: "W/m²"
+    value_type: float
+    component_type: number
   - key: temperature
     name: "当前温度"
     unit: "°C"
+    value_type: float
+    component_type: number
   - key: historyOutgoingQuantity
     name: "历史发电量"
     unit: "kWh"
+    value_type: float
+    component_type: number
 
 service:
   - key: CustomPowerZeroService

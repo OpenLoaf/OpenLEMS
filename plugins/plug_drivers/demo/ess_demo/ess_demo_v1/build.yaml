@@ -10,6 +10,8 @@ telemetry:
   - key: status
     name: "状态"
     displayType: label
+    value_type: int
+    component_type: singleSelect
     valueExplain:
       - key: "0"
         value: "未知"
@@ -38,17 +40,25 @@ telemetry:
   - key: soc
     unit: "%"
     name: "SOC"
+    value_type: float
+    component_type: number
   - key: power
     unit: "kW"
     name: "功率"
+    value_type: float
+    component_type: number
   - key: historyIncomingQuantity
     name: "历史充电量"
     unit: "kWh"
     desc: "历史充电量"
+    value_type: float
+    component_type: number
   - key: historyOutgoingQuantity
     name: "历史放电量"
     unit: "kWh"
     desc: "历史放电量"
+    value_type: float
+    component_type: number
 
 
 service:

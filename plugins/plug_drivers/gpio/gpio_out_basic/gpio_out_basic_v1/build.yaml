@@ -10,6 +10,8 @@ desc: "基础GPIO输出驱动，支持GPIO输出控制"
 telemetry:
   - key: status
     name: "状态"
+    value_type: int
+    component_type: singleSelect
     paramExplain:
       - key: "1"
         value: "triggerName"

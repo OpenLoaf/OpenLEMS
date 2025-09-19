@@ -32,3 +32,5 @@ telemetry:
   - key: power
     unit: "kW"
     name: "发电功率"
+    value_type: float
+    component_type: number

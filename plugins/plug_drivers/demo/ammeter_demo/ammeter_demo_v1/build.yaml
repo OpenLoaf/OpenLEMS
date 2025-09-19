@@ -10,16 +10,26 @@ telemetry:
   - key: pTotal
     unit: "kW"
     name: "功率"
+    value_type: float
+    component_type: number
   - key: frequency
     name: "频率"
+    value_type: float
+    component_type: number
   - key: pfTotal
     name: "功率因素"
+    value_type: float
+    component_type: number
   - key: historyIncomingQuantity
     name: "正向总有功电能"
     unit: "kWh"
+    value_type: float
+    component_type: number
   - key: historyOutgoingQuantity
     name: "反向总有功电能"
     unit: "kWh"
+    value_type: float
+    component_type: number
 
 
 service:

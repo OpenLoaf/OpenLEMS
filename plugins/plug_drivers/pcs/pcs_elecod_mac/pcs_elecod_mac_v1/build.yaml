@@ -10,9 +10,13 @@ telemetry:
   - key: power
     unit: "kW"
     desc: "功率"
+    value_type: float
+    component_type: number
   - key: frequency
     unit: "Hz"
     desc: "频率"
+    value_type: float
+    component_type: number
 service:
   - key: CustomShutdownService
     name: "关机"
