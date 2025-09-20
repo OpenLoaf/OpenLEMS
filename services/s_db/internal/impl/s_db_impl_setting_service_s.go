@@ -10,7 +10,6 @@ import (
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
-	"github.com/gogf/gf/v2/os/gtime"
 )
 
 type sSettingServiceImpl struct {
@@ -209,9 +208,35 @@ func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.C
 		return ""
 	}
 
-	// 使用现有的方法获取设置值，支持默认值自动创建
-	value := s.GetSettingValueByIdWithDefaultValue(ctx, settingDefine.Id, settingDefine.Group, settingDefine.DefaultValue, settingDefine.Remark)
+	// 先尝试从缓存获取
+	if setting, found := s.getFromCache(ctx, settingDefine.Id); found {
+		// 检查设置是否启用
+		if !setting.Enabled {
+			g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", settingDefine.Id)
+			return settingDefine.DefaultValue
+		}
+		c_log.Debugf(ctx, "通过系统设置定义获取设置值成功 - 设置ID: %s, 值: %s", settingDefine.Id, setting.GetValue())
+		return setting.GetValue()
+	}
 
-	c_log.Debugf(ctx, "通过系统设置定义获取设置值成功 - 设置ID: %s, 值: %s", settingDefine.Id, value)
-	return value
+	// 缓存未命中，从数据库获取
+	setting := &s_db_model.SSettingModel{}
+	err := setting.GetById(ctx, settingDefine.Id)
+	if err != nil {
+		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", settingDefine.Id, err)
+		// 系统启动时已初始化所有设置，如果获取失败说明数据库有问题
+		return settingDefine.DefaultValue
+	}
+
+	// 将结果存入缓存
+	s.setToCache(ctx, settingDefine.Id, setting)
+
+	// 检查设置是否启用
+	if !setting.Enabled {
+		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", settingDefine.Id)
+		return settingDefine.DefaultValue
+	}
+
+	c_log.Debugf(ctx, "通过系统设置定义获取设置值成功 - 设置ID: %s, 值: %s", settingDefine.Id, setting.GetValue())
+	return setting.GetValue()
 }
