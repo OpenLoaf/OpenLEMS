@@ -51,12 +51,12 @@ func (c *ControllerV1) GetDeviceDetailedList(ctx context.Context, req *v1.GetDev
 
 		// 构建设备详细信息
 		deviceInfo := &v1.DeviceDetailedInfo{
-			Id:         device.Id,
-			Pid:        device.Pid,
-			Name:       device.Name,
-			ProtocolId: device.ProtocolId,
-			Driver:     device.Driver,
-			LogLevel:   device.LogLevel,
+			Id:          device.Id,
+			Pid:         device.Pid,
+			Name:        device.Name,
+			ProtocolId:  device.ProtocolId,
+			Driver:      device.Driver,
+			EnableDebug: device.EnableDebug,
 			//Strategy:           device.Strategy,
 			StorageEnable:      device.StorageEnable,
 			StorageIntervalSec: device.StorageIntervalSec,

@@ -63,7 +63,7 @@ func initConfigDatabase() {
 			protocol_id VARCHAR(255),
 			name VARCHAR(255) NOT NULL,
 			driver VARCHAR(255),
-			log_level VARCHAR(255) DEFAULT 'INFO',
+			enable_debug BOOLEAN DEFAULT 0,
 		    manual_mode BOOLEAN DEFAULT FALSE,
 			params TEXT DEFAULT '{}',
 		    storage_enable BOOLEAN DEFAULT 1,

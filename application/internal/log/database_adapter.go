@@ -12,6 +12,7 @@ import (
 	"sync"
 
 	"github.com/gogf/gf/v2/frame/g"
+	"github.com/shockerli/cvt"
 )
 
 // DbLoggerAdapter 数据库日志适配器：将日志保存到数据库中
@@ -71,13 +72,34 @@ func (d *DbLoggerAdapter) getLogInfo(ctx context.Context) (logType, deviceId str
 }
 
 // saveToDb 保存日志到数据库
-func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level, content string) {
+func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level c_enum.ELogLevel, content string) {
 	// 参数验证
 	if content == "" {
 		return
 	}
 
 	logType, deviceId := d.getLogInfo(ctx)
+
+	// 检查是否为 EMS 系统的 DEBUG 级别日志，如果是则需要检查系统调试日志开关
+	if level == c_enum.Debug && logType == c_enum.ELogTypeEms.String() {
+		// 获取系统调试日志开关设置
+		settingService := s_db.GetSettingService()
+		debugEnabled := settingService.GetSettingValueByIdWithDefaultValue(
+			ctx,
+			s_db_basic.SettingSystemEnableDebugLog,
+			c_enum.ESettingGroupSystem,
+			s_db_basic.DefaultSystemEnableDebugLog,
+		)
+
+		// 如果系统调试日志未启用，则不保存此日志
+		if cvt.Bool(debugEnabled) {
+			// 仍然输出到标准输出（如果启用）
+			if d.stdout && d.stdoutLogger != nil {
+				d.outputToStdout(ctx, level, content)
+			}
+			return
+		}
+	}
 
 	// 如果启用标准输出，先输出到标准输出
 	if d.stdout && d.stdoutLogger != nil {
@@ -88,17 +110,18 @@ func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level, content string) {
 	go func() {
 		// 创建新的上下文用于数据库操作
 		dbCtx := context.Background()
-		err := d.logService.CreateLog(dbCtx, logType, deviceId, level, content)
+		// 在保存到数据库时将枚举转换为字符串
+		err := d.logService.CreateLog(dbCtx, logType, deviceId, string(level), content)
 		if err != nil {
 			// 如果数据库保存失败，记录错误但不阻塞主流程
 			fmt.Printf("保存日志到数据库失败 [类型:%s, ID:%s, 级别:%s]: %v\n",
-				logType, deviceId, level, err)
+				logType, deviceId, string(level), err)
 		}
 	}()
 }
 
 // outputToStdout 输出日志到标准输出
-func (d *DbLoggerAdapter) outputToStdout(ctx context.Context, level, content string) {
+func (d *DbLoggerAdapter) outputToStdout(ctx context.Context, level c_enum.ELogLevel, content string) {
 	if d.stdoutLogger == nil {
 		return
 	}
@@ -109,13 +132,13 @@ func (d *DbLoggerAdapter) outputToStdout(ctx context.Context, level, content str
 	content = "BIZ ====> " + content
 	// 根据日志级别调用对应的输出方法
 	switch level {
-	case "DEBUG":
+	case c_enum.Debug:
 		d.stdoutLogger.Debug(ctx, content)
-	case "INFO":
+	case c_enum.Info:
 		d.stdoutLogger.Info(ctx, content)
-	case "WARN":
+	case c_enum.Warn:
 		d.stdoutLogger.Warning(ctx, content)
-	case "ERROR":
+	case c_enum.Error:
 		d.stdoutLogger.Error(ctx, content)
 	default:
 		d.stdoutLogger.Info(ctx, content)
@@ -125,49 +148,49 @@ func (d *DbLoggerAdapter) outputToStdout(ctx context.Context, level, content str
 // Debug 调试级别日志
 func (d *DbLoggerAdapter) Debug(ctx context.Context, v ...interface{}) {
 	content := fmt.Sprint(v...)
-	d.saveToDb(ctx, "DEBUG", content)
+	d.saveToDb(ctx, c_enum.Debug, content)
 }
 
 // Debugf 调试级别格式化日志
 func (d *DbLoggerAdapter) Debugf(ctx context.Context, format string, v ...interface{}) {
 	content := fmt.Sprintf(format, v...)
-	d.saveToDb(ctx, "DEBUG", content)
+	d.saveToDb(ctx, c_enum.Debug, content)
 }
 
 // Info 信息级别日志
 func (d *DbLoggerAdapter) Info(ctx context.Context, v ...interface{}) {
 	content := fmt.Sprint(v...)
-	d.saveToDb(ctx, "INFO", content)
+	d.saveToDb(ctx, c_enum.Info, content)
 }
 
 // Infof 信息级别格式化日志
 func (d *DbLoggerAdapter) Infof(ctx context.Context, format string, v ...interface{}) {
 	content := fmt.Sprintf(format, v...)
-	d.saveToDb(ctx, "INFO", content)
+	d.saveToDb(ctx, c_enum.Info, content)
 }
 
 // Warning 警告级别日志
 func (d *DbLoggerAdapter) Warning(ctx context.Context, v ...interface{}) {
 	content := fmt.Sprint(v...)
-	d.saveToDb(ctx, "WARN", content)
+	d.saveToDb(ctx, c_enum.Warn, content)
 }
 
 // Warningf 警告级别格式化日志
 func (d *DbLoggerAdapter) Warningf(ctx context.Context, format string, v ...interface{}) {
 	content := fmt.Sprintf(format, v...)
-	d.saveToDb(ctx, "WARN", content)
+	d.saveToDb(ctx, c_enum.Warn, content)
 }
 
 // Error 错误级别日志
 func (d *DbLoggerAdapter) Error(ctx context.Context, v ...interface{}) {
 	content := fmt.Sprint(v...)
-	d.saveToDb(ctx, "ERROR", content)
+	d.saveToDb(ctx, c_enum.Error, content)
 }
 
 // Errorf 错误级别格式化日志
 func (d *DbLoggerAdapter) Errorf(ctx context.Context, format string, v ...interface{}) {
 	content := fmt.Sprintf(format, v...)
-	d.saveToDb(ctx, "ERROR", content)
+	d.saveToDb(ctx, c_enum.Error, content)
 }
 
 // QueryLogs 查询数据库日志

@@ -17,7 +17,7 @@ const (
 	FieldDevicePid                = "pid"
 	FieldDeviceProtocolId         = "protocol_id"
 	FieldDeviceDriver             = "driver"
-	FieldDeviceLogLevel           = "log_level"
+	FieldDeviceEnableDebug        = "enable_debug"
 	FieldDeviceParams             = "params"
 	FieldDeviceManualMode         = "manual_mode"
 	FieldDeviceStorageEnable      = "storage_enable"
@@ -32,7 +32,7 @@ type SDeviceModel struct {
 	Name               string `json:"name" orm:"name"`
 	ProtocolId         string `json:"protocol_id" orm:"protocol_id"`
 	Driver             string `json:"driver" orm:"driver"`
-	LogLevel           string `json:"logLevel" orm:"log_level"`
+	EnableDebug        bool   `json:"enableDebug" orm:"enable_debug"`
 	ManualMode         bool   `json:"manualMode" orm:"manual_mode"`                  // 手动模式
 	StorageEnable      bool   `json:"storageEnable" orm:"storage_enable"`            // 是否存储
 	StorageIntervalSec int32  `json:"storageIntervalSec" orm:"storage_interval_sec"` // 存储间隔(秒),0代表默认1分钟，负数代表不存储

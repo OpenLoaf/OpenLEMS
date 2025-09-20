@@ -12,12 +12,12 @@ import (
 )
 
 type SDeviceTree struct {
-	Id         string `json:"id,omitempty" dc:"设备ID"`
-	Pid        string `json:"pid,omitempty" dc:"父设备Id"`
-	Name       string `json:"name,omitempty" dc:"设备名称"`
-	ProtocolId string `json:"protocolId,omitempty" dc:"协议配置ID,如果配置了肯定是实体设备"`
-	Driver     string `json:"driver,omitempty" dc:"驱动名称"`
-	LogLevel   string `json:"logLevel,omitempty" dc:"日志等级"`
+	Id          string `json:"id,omitempty" dc:"设备ID"`
+	Pid         string `json:"pid,omitempty" dc:"父设备Id"`
+	Name        string `json:"name,omitempty" dc:"设备名称"`
+	ProtocolId  string `json:"protocolId,omitempty" dc:"协议配置ID,如果配置了肯定是实体设备"`
+	Driver      string `json:"driver,omitempty" dc:"驱动名称"`
+	EnableDebug bool   `json:"enableDebug" dc:"启用调试模式"`
 	//Strategy           string         `json:"strategy,omitempty" dc:"策略名称"`
 	ManualMode         bool           `json:"manualMode" dc:"手动模式"`
 	StorageEnable      bool           `json:"StorageEnable" dc:"是否存储"`
@@ -48,12 +48,12 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 	if record, ok := value.(*c_base.SDeviceConfig); ok {
 
 		*t = SDeviceTree{
-			Id:         record.Id,
-			Pid:        record.Pid,
-			Name:       record.Name,
-			ProtocolId: record.ProtocolId,
-			Driver:     record.Driver,
-			LogLevel:   record.LogLevel,
+			Id:          record.Id,
+			Pid:         record.Pid,
+			Name:        record.Name,
+			ProtocolId:  record.ProtocolId,
+			Driver:      record.Driver,
+			EnableDebug: record.EnableDebug,
 			//Strategy:           record.Strategy,
 			ManualMode:         record.ManualMode,
 			StorageEnable:      record.StorageEnable,

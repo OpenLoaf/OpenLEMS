@@ -37,10 +37,10 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 		data["driver"] = req.Driver
 		needRestart = true
 	}
-	if req.LogLevel != "" {
-		data["logLevel"] = req.LogLevel
+	if req.EnableDebug {
+		data["enableDebug"] = req.EnableDebug
 		if config != nil {
-			config.LogLevel = req.LogLevel
+			config.EnableDebug = req.EnableDebug
 		}
 	}
 	if req.Params != "" {

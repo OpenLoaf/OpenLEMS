@@ -19,7 +19,7 @@ type DeviceDetailedInfo struct {
 	Name               string         `json:"name" dc:"设备名称"`
 	ProtocolId         string         `json:"protocolId" dc:"协议配置ID"`
 	Driver             string         `json:"driver" dc:"驱动名称"`
-	LogLevel           string         `json:"logLevel" dc:"日志等级"`
+	EnableDebug        bool           `json:"enableDebug" dc:"启用调试模式"`
 	Strategy           string         `json:"strategy" dc:"策略名称"`
 	StorageEnable      bool           `json:"storageEnable" dc:"是否存储"`
 	StorageIntervalSec int32          `json:"storageIntervalSec" dc:"存储间隔(秒)"`
