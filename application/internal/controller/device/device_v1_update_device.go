@@ -67,6 +67,18 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 			config.Sort = cvt.Int(req.Sort)
 		}
 	}
+	if req.ExternalModbusAddr != nil {
+		data["externalModbusAddr"] = *req.ExternalModbusAddr
+		if config != nil {
+			config.ExternalModbusAddr = *req.ExternalModbusAddr
+		}
+	}
+	if req.ExternalModbusId != nil {
+		data["externalModbusId"] = *req.ExternalModbusId
+		if config != nil {
+			config.ExternalModbusId = *req.ExternalModbusId
+		}
+	}
 
 	// 记录更新字段信息
 	if len(data) > 0 {

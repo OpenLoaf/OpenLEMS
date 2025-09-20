@@ -66,6 +66,12 @@ func (s *sDeviceServiceImpl) UpdateDevice(ctx context.Context, deviceId string, 
 	if value, ok := data["manualMode"].(bool); ok {
 		device.ManualMode = value
 	}
+	if value, ok := data["externalModbusAddr"].(uint); ok {
+		device.ExternalModbusAddr = value
+	}
+	if value, ok := data["externalModbusId"].(uint8); ok {
+		device.ExternalModbusId = value
+	}
 	return device.Update(ctx)
 }
 
