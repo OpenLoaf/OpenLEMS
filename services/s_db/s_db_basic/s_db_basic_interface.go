@@ -8,6 +8,15 @@ import (
 	"time"
 )
 
+// SSystemSettingDefine 系统设置定义结构体
+type SSystemSettingDefine struct {
+	Id           string // 设置ID
+	Group        string // 设置分组
+	DefaultValue string // 默认值
+	IsPublic     bool   // 是否公开
+	Remark       string // 备注
+}
+
 // IDeviceService 设备服务
 type IDeviceService interface {
 	GetDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) // 获取所有设备列表（包括enabled=false）
@@ -18,14 +27,14 @@ type IDeviceService interface {
 
 type ISettingService interface {
 	GetAllSettings(ctx context.Context) ([]*s_db_model.SSettingModel, error)
-	GetAllSettingsByGroup(ctx context.Context, group string) ([]*s_db_model.SSettingModel, error)                     // 根据分组获取所有设置
-	GetSettingById(ctx context.Context, id string) (*s_db_model.SSettingModel, error)                                 // 根据ID获取设置详情
-	GetSettingValueById(ctx context.Context, id string) string                                                        // 获取设置，如果获取不到，返回空字符串
-	GetSettingValueByIdWithDefaultValue(ctx context.Context, id, group, defaultValue string, remark ...string) string // 获取设置，如果获取不到，就设置为默认值
+	GetAllSettingsByGroup(ctx context.Context, group string) ([]*s_db_model.SSettingModel, error) // 根据分组获取所有设置
+	GetSettingById(ctx context.Context, id string) (*s_db_model.SSettingModel, error)             // 根据ID获取设置详情
+	GetSettingValueById(ctx context.Context, id string) string                                    // 获取设置，如果获取不到，返回空字符串
 	SetSettingValueById(ctx context.Context, id string, value string) error
-	GetRootDeviceId(ctx context.Context) string                                        // 获取根设备ID
-	GetRootPolicyId(ctx context.Context) string                                        // 获取激活的策略ID
-	GetPublicEnabledSettings(ctx context.Context) ([]*s_db_model.SSettingModel, error) // 获取公开且启用的设置
+	GetSettingValueBySystemSettingDefine(ctx context.Context, settingDefine *SSystemSettingDefine) string // 通过系统设置定义获取设置值
+	GetRootDeviceId(ctx context.Context) string                                                           // 获取根设备ID
+	GetRootPolicyId(ctx context.Context) string                                                           // 获取激活的策略ID
+	GetPublicEnabledSettings(ctx context.Context) ([]*s_db_model.SSettingModel, error)                    // 获取公开且启用的设置
 }
 
 type IProtocolService interface {

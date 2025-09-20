@@ -1,0 +1,184 @@
+---
+description: 系统设置管理规范和最佳实践
+---
+
+# 系统设置管理规范
+
+## 概述
+
+系统设置管理采用统一的 `SSystemSettingDefine` 结构体模式，所有设置定义都集中在 [s_db_basic_const.go](mdc:services/s_db/s_db_basic/s_db_basic_const.go) 中管理。
+
+## 核心结构
+
+### SSystemSettingDefine 结构体
+
+定义在 [s_db_basic_interface.go](mdc:services/s_db/s_db_basic/s_db_basic_interface.go) 中：
+
+```go
+type SSystemSettingDefine struct {
+    Id           string // 设置ID
+    Group        string // 设置分组
+    DefaultValue string // 默认值
+    IsPublic     bool   // 是否公开
+    Remark       string // 备注
+}
+```
+
+## 设置定义规范
+
+### 1. 文件位置
+所有系统设置定义变量必须定义在 [s_db_basic_const.go](mdc:services/s_db/s_db_basic/s_db_basic_const.go) 中。
+
+### 2. 命名规范
+- 变量名格式：`SystemSetting + 功能描述`
+- 示例：`SystemSettingLicenseKey`、`SystemSettingUserPassword`
+
+### 3. 字段规范
+- **Id**: 设置唯一标识符，使用下划线命名法
+- **Group**: 统一使用 `c_enum.ESettingGroupSystem`
+- **DefaultValue**: 默认值，字符串格式
+- **IsPublic**: 是否公开给前端
+  - `true`: 公开设置（如系统配置、密码长度等）
+  - `false`: 私有设置（如密码、许可证等）
+- **Remark**: 中文描述，说明设置用途
+
+### 4. 设置分类
+
+#### 系统核心设置
+- `SystemSettingActiveDeviceRootId` - 根设备ID
+- `SystemSettingActivePolicyId` - 激活的策略ID
+- `SystemSettingAutomationInternalMilliseconds` - 自动化任务轮询周期
+
+#### 数据保留设置
+- `SystemSettingDeviceRetentionDays` - 设备数据保留天数
+- `SystemSettingSystemRetentionDays` - 系统数据保留天数
+- `SystemSettingLogRetentionDays` - 日志数据保留天数
+
+#### 系统功能设置
+- `SystemSettingSystemEnableDebugLog` - 系统调试日志开关
+
+#### 用户认证设置
+- `SystemSettingLicenseKey` - 软件许可证号（私有）
+- `SystemSettingUserPassword` - 普通用户密码（私有）
+- `SystemSettingAdminPassword` - 管理员用户密码（私有）
+- `SystemSettingPasswordLength` - 密码长度（公开）
+
+## 服务接口
+
+### ISettingService 接口
+
+定义在 [s_db_basic_interface.go](mdc:services/s_db/s_db_basic/s_db_basic_interface.go) 中：
+
+```go
+type ISettingService interface {
+    // 通过系统设置定义获取设置值
+    GetSettingValueBySystemSettingDefine(ctx context.Context, settingDefine *SSystemSettingDefine) string
+    // 其他方法...
+}
+```
+
+## 使用方式
+
+### 1. 获取设置值
+
+```go
+import "s_db/s_db_basic"
+
+// 获取软件许可证号
+licenseKey := settingService.GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingLicenseKey)
+
+// 获取密码长度
+passwordLength := settingService.GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingPasswordLength)
+```
+
+### 2. 设置值更新
+
+对于需要更新的设置，使用 `SetSettingValueById` 方法：
+
+```go
+// 更新设备数据保留天数
+err := settingService.SetSettingValueById(ctx, s_db_basic.SystemSettingDeviceRetentionDays.Id, "30")
+```
+
+## 实现细节
+
+### 1. 自动创建机制
+- 如果设置不存在，系统会自动使用默认值创建
+- 创建时会自动设置分组、备注等信息
+
+### 2. 缓存机制
+- 设置值会被缓存 5 分钟
+- 更新设置后会自动清除缓存
+
+### 3. 日志记录
+- 所有设置操作都有详细的日志记录
+- 包括获取、创建、更新等操作
+
+## 开发规范
+
+### 1. 新增设置
+1. 在 [s_db_basic_const.go](mdc:services/s_db/s_db_basic/s_db_basic_const.go) 中定义新的 `SSystemSettingDefine` 变量
+2. 按照命名规范命名变量
+3. 设置合适的 `IsPublic` 值
+4. 添加清晰的中文备注
+
+### 2. 使用设置
+1. 优先使用 `GetSettingValueBySystemSettingDefine` 方法
+2. 避免直接使用字符串常量
+3. 确保正确处理空值和默认值
+
+### 3. 更新设置
+1. 使用 `SetSettingValueById` 方法
+2. 通过 `settingDefine.Id` 获取设置ID
+3. 确保值格式正确（通常为字符串）
+
+## 示例参考
+
+### 完整的设置定义示例
+
+```go
+// 软件许可证号设置定义
+SystemSettingLicenseKey = &SSystemSettingDefine{
+    Id:           "license_key",
+    Group:        c_enum.ESettingGroupSystem,
+    DefaultValue: "",
+    IsPublic:     false,
+    Remark:       "软件许可证号",
+}
+```
+
+### 服务方法实现示例
+
+参考 [s_db_impl_setting_service_s.go](mdc:services/s_db/internal/impl/s_db_impl_setting_service_s.go) 中的实现：
+
+```go
+// GetSettingValueBySystemSettingDefine 通过系统设置定义获取设置值
+func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.Context, settingDefine *s_db_basic.SSystemSettingDefine) string {
+    if settingDefine == nil {
+        c_log.Warning(ctx, "系统设置定义为空")
+        return ""
+    }
+
+    // 使用现有的方法获取设置值，支持默认值自动创建
+    value := s.GetSettingValueByIdWithDefaultValue(ctx, settingDefine.Id, settingDefine.Group, settingDefine.DefaultValue, settingDefine.Remark)
+    
+    c_log.Debugf(ctx, "通过系统设置定义获取设置值成功 - 设置ID: %s, 值: %s", settingDefine.Id, value)
+    return value
+}
+```
+
+## 注意事项
+
+1. **类型安全**: 始终使用 `SSystemSettingDefine` 对象，避免硬编码字符串
+2. **统一管理**: 所有设置定义必须集中在 `s_db_basic_const.go` 中
+3. **权限控制**: 根据设置性质正确设置 `IsPublic` 字段
+4. **默认值**: 确保所有设置都有合理的默认值
+5. **日志记录**: 重要设置操作要有日志记录
+6. **缓存一致性**: 更新设置后要清除相关缓存
+
+## 相关文件
+
+- [s_db_basic_const.go](mdc:services/s_db/s_db_basic/s_db_basic_const.go) - 设置定义
+- [s_db_basic_interface.go](mdc:services/s_db/s_db_basic/s_db_basic_interface.go) - 服务接口
+- [s_db_impl_setting_service_s.go](mdc:services/s_db/internal/impl/s_db_impl_setting_service_s.go) - 服务实现
+- [s_db_model_setting_s.go](mdc:services/s_db/s_db_model/s_db_model_setting_s.go) - 数据模型

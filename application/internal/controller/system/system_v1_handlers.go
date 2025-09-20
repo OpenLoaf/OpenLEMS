@@ -313,19 +313,19 @@ func (c *ControllerV1) RebootExecute(ctx context.Context, req *v1.RebootExecuteR
 
 func (c *ControllerV1) UpdateStorageTime(ctx context.Context, req *v1.UpdateStorageTimeReq) (res *v1.UpdateStorageTimeRes, err error) {
 	// 更新设备数据保留天数
-	err = s_db.GetSettingService().SetSettingValueById(ctx, s_db_basic.SettingDeviceRetentionDays, fmt.Sprintf("%d", req.DeviceRetentionDays))
+	err = s_db.GetSettingService().SetSettingValueById(ctx, s_db_basic.SystemSettingDeviceRetentionDays.Id, fmt.Sprintf("%d", req.DeviceRetentionDays))
 	if err != nil {
 		return nil, errors.Errorf("更新设备数据保留天数失败: %+v", err)
 	}
 
 	// 更新系统数据保留天数
-	err = s_db.GetSettingService().SetSettingValueById(ctx, s_db_basic.SettingSystemRetentionDays, fmt.Sprintf("%d", req.SystemRetentionDays))
+	err = s_db.GetSettingService().SetSettingValueById(ctx, s_db_basic.SystemSettingSystemRetentionDays.Id, fmt.Sprintf("%d", req.SystemRetentionDays))
 	if err != nil {
 		return nil, errors.Errorf("更新系统数据保留天数失败: %+v", err)
 	}
 
 	// 更新日志数据保留天数
-	err = s_db.GetSettingService().SetSettingValueById(ctx, s_db_basic.SettingLogRetentionDays, fmt.Sprintf("%d", req.LogRetentionDays))
+	err = s_db.GetSettingService().SetSettingValueById(ctx, s_db_basic.SystemSettingLogRetentionDays.Id, fmt.Sprintf("%d", req.LogRetentionDays))
 	if err != nil {
 		return nil, errors.Errorf("更新日志数据保留天数失败: %+v", err)
 	}

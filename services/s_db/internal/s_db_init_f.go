@@ -1,8 +1,12 @@
 package internal
 
 import (
+	"context"
 	"os"
 	"path/filepath"
+
+	"s_db/s_db_basic"
+	"s_db/s_db_model"
 
 	_ "github.com/gogf/gf/contrib/drivers/sqlite/v2"
 	"github.com/gogf/gf/v2/frame/g"
@@ -165,5 +169,84 @@ func initConfigDatabase() {
 		g.Log().Fatal(ctx, err)
 	}
 
-	g.Log().Info(ctx, "GpioDeviceConfig tables created successfully")
+	g.Log().Info(ctx, "Database tables created successfully")
+
+	// 初始化系统设置数据
+	initSystemSettings(context.Background())
+}
+
+// initSystemSettings 初始化系统设置数据
+func initSystemSettings(ctx context.Context) {
+	// 获取所有系统设置定义
+	systemSettings := []*s_db_basic.SSystemSettingDefine{
+		s_db_basic.SystemSettingActiveDeviceRootId,
+		s_db_basic.SystemSettingActivePolicyId,
+		s_db_basic.SystemSettingAutomationInternalMilliseconds,
+		s_db_basic.SystemSettingDeviceRetentionDays,
+		s_db_basic.SystemSettingSystemRetentionDays,
+		s_db_basic.SystemSettingLogRetentionDays,
+		s_db_basic.SystemSettingSystemEnableDebugLog,
+		s_db_basic.SystemSettingLicenseKey,
+		s_db_basic.SystemSettingUserPassword,
+		s_db_basic.SystemSettingAdminPassword,
+		s_db_basic.SystemSettingPasswordLength,
+	}
+
+	// 遍历所有系统设置定义，创建默认设置记录
+	for index, settingDefine := range systemSettings {
+		// 检查设置是否已存在
+		existingSetting := &s_db_model.SSettingModel{}
+		err := existingSetting.GetById(ctx, settingDefine.Id)
+		if err != nil {
+			// 设置不存在，创建新的设置记录
+			newSetting := &s_db_model.SSettingModel{
+				SDatabaseBasic: s_db_model.SDatabaseBasic{
+					Id: settingDefine.Id,
+				},
+				Value:    settingDefine.DefaultValue,
+				IsPublic: settingDefine.IsPublic,
+				Enabled:  true,
+				Remark:   settingDefine.Remark,
+				Sort:     index, // 使用数组中的顺序作为排序
+				Group:    settingDefine.Group,
+			}
+
+			err = newSetting.Create(ctx)
+			if err != nil {
+				g.Log().Errorf(ctx, "创建系统设置失败 - 设置ID: %s, 错误: %+v", settingDefine.Id, err)
+			} else {
+				g.Log().Infof(ctx, "创建系统设置成功 - 设置ID: %s, 默认值: %s", settingDefine.Id, settingDefine.DefaultValue)
+			}
+		} else {
+			// 设置已存在，检查是否需要更新分组、备注、排序和公开状态信息
+			needUpdate := false
+			if existingSetting.Group != settingDefine.Group {
+				existingSetting.Group = settingDefine.Group
+				needUpdate = true
+			}
+			if existingSetting.Remark != settingDefine.Remark {
+				existingSetting.Remark = settingDefine.Remark
+				needUpdate = true
+			}
+			if existingSetting.IsPublic != settingDefine.IsPublic {
+				existingSetting.IsPublic = settingDefine.IsPublic
+				needUpdate = true
+			}
+			if existingSetting.Sort != index {
+				existingSetting.Sort = index
+				needUpdate = true
+			}
+
+			if needUpdate {
+				err = existingSetting.Update(ctx)
+				if err != nil {
+					g.Log().Errorf(ctx, "更新系统设置失败 - 设置ID: %s, 错误: %+v", settingDefine.Id, err)
+				} else {
+					g.Log().Infof(ctx, "更新系统设置成功 - 设置ID: %s", settingDefine.Id)
+				}
+			}
+		}
+	}
+
+	g.Log().Info(ctx, "System settings initialized successfully")
 }

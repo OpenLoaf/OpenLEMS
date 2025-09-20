@@ -85,11 +85,9 @@ func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level c_enum.ELogLevel, 
 	if level == c_enum.Debug && logType == c_enum.ELogTypeEms.String() {
 		// 获取系统调试日志开关设置
 		settingService := s_db.GetSettingService()
-		debugEnabled := settingService.GetSettingValueByIdWithDefaultValue(
+		debugEnabled := settingService.GetSettingValueBySystemSettingDefine(
 			ctx,
-			s_db_basic.SettingSystemEnableDebugLog,
-			c_enum.ESettingGroupSystem,
-			s_db_basic.DefaultSystemEnableDebugLog,
+			s_db_basic.SystemSettingSystemEnableDebugLog,
 		)
 
 		// 如果系统调试日志未启用，则不保存此日志

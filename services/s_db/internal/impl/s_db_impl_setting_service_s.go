@@ -1,7 +1,6 @@
 package impl
 
 import (
-	"common/c_enum"
 	"common/c_log"
 	"context"
 	"s_db/s_db_basic"
@@ -159,60 +158,6 @@ func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string
 	return setting.GetValue()
 }
 
-// 获取设置配置通过名称，支持默认值和分组
-func (s *sSettingServiceImpl) GetSettingValueByIdWithDefaultValue(ctx context.Context, id, group, defaultValue string, remark ...string) string {
-	// 先尝试从缓存获取
-	if setting, found := s.getFromCache(ctx, id); found {
-		// 检查设置是否启用
-		if !setting.Enabled {
-			g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", id)
-			return defaultValue
-		}
-		return setting.GetValue()
-	}
-
-	// 缓存未命中，从数据库获取
-	setting := &s_db_model.SSettingModel{}
-	err := setting.GetById(ctx, id)
-	if err != nil {
-		g.Log().Warningf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", id, err)
-		setting.SDatabaseBasic = s_db_model.SDatabaseBasic{
-			Id:        id,
-			CreatedAt: gtime.Now(),
-			UpdatedAt: gtime.Now(),
-		}
-		setting.Value = defaultValue
-		setting.Enabled = true
-		setting.Sort = 999
-		setting.Group = group
-
-		if len(remark) > 0 {
-			setting.Remark = remark[0]
-		}
-
-		err = setting.Create(ctx)
-		if err != nil {
-			g.Log().Errorf(ctx, "保存设置失败！设置名称：%s，值：%v 错误：%v", id, defaultValue, err)
-		} else {
-			// 创建成功后，将新设置存入缓存
-			s.setToCache(ctx, id, setting)
-		}
-		c_log.Infof(ctx, "保存默认设置成功！设置名称：%s，值：%s，分组：%s", id, defaultValue, group)
-		return defaultValue
-	}
-
-	// 将结果存入缓存
-	s.setToCache(ctx, id, setting)
-
-	// 检查设置是否启用
-	if !setting.Enabled {
-		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", id)
-		return defaultValue
-	}
-
-	return setting.GetValue()
-}
-
 // 设置设置值通过名称
 func (s *sSettingServiceImpl) SetSettingValueById(ctx context.Context, id string, value string) error {
 	setting := &s_db_model.SSettingModel{}
@@ -236,12 +181,12 @@ func (s *sSettingServiceImpl) SetSettingValueById(ctx context.Context, id string
 
 // GetRootDeviceId 获取根设备ID
 func (s *sSettingServiceImpl) GetRootDeviceId(ctx context.Context) string {
-	return s.GetSettingValueByIdWithDefaultValue(ctx, s_db_basic.SettingActiveDeviceRootIdKey, c_enum.ESettingGroupSystem, s_db_basic.DefaultActiveDeviceRootId, "默认激活的根设备ID")
+	return s.GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingActiveDeviceRootId)
 }
 
 // GetRootPolicyId 获取激活的策略ID
 func (s *sSettingServiceImpl) GetRootPolicyId(ctx context.Context) string {
-	return s.GetSettingValueById(ctx, s_db_basic.SettingActivePolicyIdKey)
+	return s.GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingActivePolicyId)
 }
 
 // GetPublicEnabledSettings 获取公开且启用的设置
@@ -255,4 +200,18 @@ func (s *sSettingServiceImpl) GetPublicEnabledSettings(ctx context.Context) ([]*
 
 	c_log.Infof(ctx, "成功获取公开且启用的设置，共 %d 条记录", len(settings))
 	return settings, nil
+}
+
+// GetSettingValueBySystemSettingDefine 通过系统设置定义获取设置值
+func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.Context, settingDefine *s_db_basic.SSystemSettingDefine) string {
+	if settingDefine == nil {
+		c_log.Warning(ctx, "系统设置定义为空")
+		return ""
+	}
+
+	// 使用现有的方法获取设置值，支持默认值自动创建
+	value := s.GetSettingValueByIdWithDefaultValue(ctx, settingDefine.Id, settingDefine.Group, settingDefine.DefaultValue, settingDefine.Remark)
+
+	c_log.Debugf(ctx, "通过系统设置定义获取设置值成功 - 设置ID: %s, 值: %s", settingDefine.Id, value)
+	return value
 }
