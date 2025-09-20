@@ -72,6 +72,8 @@ func initConfigDatabase() {
 			params TEXT DEFAULT '{}',
 		    storage_enable BOOLEAN DEFAULT 1,
 			storage_interval_sec INTEGER NOT NULL DEFAULT 60,
+			external_modbus_addr INTEGER NOT NULL DEFAULT 40000,
+			external_modbus_id INTEGER NOT NULL DEFAULT 1,
 			sort INTEGER DEFAULT 0,
 		    enabled BOOLEAN DEFAULT 1,
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,

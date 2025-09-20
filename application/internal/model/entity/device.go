@@ -1,6 +1,7 @@
 package entity
 
 import (
+	"common"
 	"common/c_base"
 	"common/c_enum"
 	"p_modbus"
@@ -22,6 +23,8 @@ type SDeviceTree struct {
 	ManualMode         bool           `json:"manualMode" dc:"手动模式"`
 	StorageEnable      bool           `json:"StorageEnable" dc:"是否存储"`
 	StorageIntervalSec int32          `json:"storageIntervalSec" dc:"存储间隔(秒),0代表默认1分钟，负数代表不存储"`
+	ExternalModbusAddr uint           `json:"externalModbusAddr" dc:"对外提供的modbus起始地址"`
+	ExternalModbusId   uint8          `json:"externalModbusId" dc:"对外提供的modbus设备ID"`
 	Sort               int            `json:"sort" dc:"排序"`
 	Enabled            bool           `json:"enabled" dc:"是否启用"`
 	Params             map[string]any `json:"params,omitempty" dc:"设备参数"`
@@ -41,6 +44,9 @@ type SDeviceTree struct {
 	ProtocolType    string `json:"protocolType,omitempty" dc:"协议类型"`
 	ProtocolAddress string `json:"protocolAddress" dc:"协议地址"`
 
+	AlarmLevel     string `json:"alarmLevel" dc:"告警等级"`
+	ProtocolStatus string `json:"protocolStatus" dc:"协议状态"`
+
 	Children []*SDeviceTree `json:"children" dc:"子设备列表"`
 }
 
@@ -58,6 +64,8 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			ManualMode:         record.ManualMode,
 			StorageEnable:      record.StorageEnable,
 			StorageIntervalSec: record.StorageIntervalSec,
+			ExternalModbusAddr: record.ExternalModbusAddr,
+			ExternalModbusId:   record.ExternalModbusId,
 			Sort:               record.Sort,
 			Enabled:            record.Enabled,
 			Params:             record.Params,
@@ -111,6 +119,13 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			}
 			t.Children = children
 		}
+
+		// 获取设备的告警等级和协议状态
+		if device := common.GetDeviceManager().GetDeviceById(record.Id); device != nil {
+			t.AlarmLevel = device.GetAlarmLevel().String()
+			t.ProtocolStatus = device.GetProtocolStatus().String()
+		}
+
 		return nil
 	}
 	return errors.Errorf(`unsupported value type for UnmarshalValue: %v`, reflect.TypeOf(value))

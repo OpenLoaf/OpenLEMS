@@ -19,6 +19,8 @@ type SDeviceConfig struct { // 设备配置
 	ManualMode         bool           `json:"manualMode" orm:"manual_mode"`                  // 手动模式
 	StorageEnable      bool           `json:"StorageEnable" orm:"storage_enable"`            // 是否存储
 	StorageIntervalSec int32          `json:"storageIntervalSec" orm:"storage_interval_sec"` // 存储间隔(秒),0代表默认1分钟，负数代表不存储
+	ExternalModbusAddr uint           `json:"externalModbusAddr" orm:"external_modbus_addr"` // 对外提供的modbus起始地址
+	ExternalModbusId   uint8          `json:"externalModbusId" orm:"external_modbus_id"`     // 对外提供的modbus设备ID
 	Sort               int            `json:"sort" orm:"sort"`
 	Enabled            bool           `json:"enabled" orm:"enabled"`         // 是否启用
 	Params             map[string]any `json:"params,omitempty" orm:"params"` // 额外参数

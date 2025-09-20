@@ -43,6 +43,5 @@ func (c *ControllerV1) GetSettingDetail(ctx context.Context, req *v1.GetSettingD
 		UpdatedAt: &setting.UpdatedAt.Time,
 	}
 
-	g.Log().Infof(ctx, "成功获取设置详情 - 设置ID: %s", req.Id)
 	return res, nil
 }
