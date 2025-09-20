@@ -1,6 +1,7 @@
 package log
 
 import (
+	"common"
 	"common/c_base"
 	"common/c_enum"
 	"common/c_log"
@@ -92,11 +93,17 @@ func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level c_enum.ELogLevel, 
 		)
 
 		// 如果系统调试日志未启用，则不保存此日志
-		if cvt.Bool(debugEnabled) {
-			// 仍然输出到标准输出（如果启用）
-			if d.stdout && d.stdoutLogger != nil {
-				d.outputToStdout(ctx, level, content)
-			}
+		if !cvt.Bool(debugEnabled) {
+			return
+		}
+	}
+
+	// 检查是否为设备日志，如果是则需要检查设备的调试模式开关
+	if logType == c_enum.ELogTypeDevice.String() && deviceId != "" {
+		// 通过设备管理器获取设备配置
+		deviceConfig := common.GetDeviceManager().GetDeviceConfigById(deviceId)
+		if deviceConfig != nil && !deviceConfig.EnableDebug {
+			// 如果设备未启用调试模式，则不保存此日志到数据库
 			return
 		}
 	}
