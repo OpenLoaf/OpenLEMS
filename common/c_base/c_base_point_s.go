@@ -50,14 +50,8 @@ func (s *SPoint) GetValueExplain(value any) (string, error) {
 
 	// 检查值是否为数值类型（整数或浮点数）
 	switch value.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64:
+	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, bool, *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64, *bool:
 		// 数值类型直接转换为字符串
-		valueStr, err = cvt.StringE(value)
-		if err != nil {
-			return "", err
-		}
-	case *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64:
-		// 指针类型先解引用再转换
 		valueStr, err = cvt.StringE(value)
 		if err != nil {
 			return "", err
