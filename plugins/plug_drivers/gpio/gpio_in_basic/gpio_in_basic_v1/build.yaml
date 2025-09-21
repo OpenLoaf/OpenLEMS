@@ -13,9 +13,9 @@ telemetry:
     value_type: int
     component_type: singleSelect
     paramExplain:
-      - key: "1"
+      - key: "true"
         value: "triggerName"
-      - key: "0"
+      - key: "false"
         value: "clearName"
 service:
   - key: SetLow
