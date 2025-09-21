@@ -8,15 +8,6 @@ import (
 	"time"
 )
 
-// SSystemSettingDefine 系统设置定义结构体
-type SSystemSettingDefine struct {
-	Id           string // 设置ID
-	Group        string // 设置分组
-	DefaultValue string // 默认值
-	IsPublic     bool   // 是否公开
-	Remark       string // 备注
-}
-
 // IDeviceService 设备服务
 type IDeviceService interface {
 	GetDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) // 获取所有设备列表（包括enabled=false）

@@ -29,9 +29,10 @@ type SFieldDefinition struct {
 }
 
 type SFieldExplain struct {
-	Key   string `json:"key" yaml:"key" short:"key" required:"true"`
-	Value string `json:"value" yaml:"value" short:"value" required:"true"`
-	Color string `json:"color" yaml:"color" short:"color" required:"true"`
+	Key       string `json:"key" yaml:"key" short:"key" required:"true"`
+	Value     string `json:"value" yaml:"value" short:"value" required:"true"`
+	FromParam bool   `json:"fromParam" yaml:"fromParam" short:"fromParam" required:"true"`
+	Color     string `json:"color" yaml:"color" short:"color" required:"true"`
 }
 
 func (s *SFieldDefinition) String() string {

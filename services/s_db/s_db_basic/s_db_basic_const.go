@@ -11,6 +11,7 @@ var (
 		DefaultValue: "0",
 		IsPublic:     true,
 		Remark:       "根设备ID",
+		FieldType:    c_enum.ESettingFieldTypeText,
 	}
 
 	// 激活的策略ID设置定义
@@ -20,6 +21,7 @@ var (
 		DefaultValue: "",
 		IsPublic:     true,
 		Remark:       "激活的策略ID",
+		FieldType:    c_enum.ESettingFieldTypeText,
 	}
 
 	// 自动化任务轮询周期设置定义
@@ -29,6 +31,7 @@ var (
 		DefaultValue: "1000",
 		IsPublic:     true,
 		Remark:       "自动化任务轮询周期（毫秒）",
+		FieldType:    c_enum.ESettingFieldTypeNumber,
 	}
 
 	// 设备数据保留天数设置定义
@@ -38,6 +41,7 @@ var (
 		DefaultValue: "100",
 		IsPublic:     true,
 		Remark:       "设备数据保留天数",
+		FieldType:    c_enum.ESettingFieldTypeNumber,
 	}
 
 	// 系统数据保留天数设置定义
@@ -47,6 +51,7 @@ var (
 		DefaultValue: "7",
 		IsPublic:     true,
 		Remark:       "系统数据保留天数",
+		FieldType:    c_enum.ESettingFieldTypeNumber,
 	}
 
 	// 日志数据保留天数设置定义
@@ -56,6 +61,7 @@ var (
 		DefaultValue: "30",
 		IsPublic:     true,
 		Remark:       "日志数据保留天数",
+		FieldType:    c_enum.ESettingFieldTypeNumber,
 	}
 
 	// 系统调试日志开关设置定义
@@ -65,6 +71,7 @@ var (
 		DefaultValue: "false",
 		IsPublic:     true,
 		Remark:       "启用系统调试日志",
+		FieldType:    c_enum.ESettingFieldTypeBoolean,
 	}
 
 	// 软件许可证号设置定义
@@ -74,6 +81,7 @@ var (
 		DefaultValue: "",
 		IsPublic:     false,
 		Remark:       "软件许可证号",
+		FieldType:    c_enum.ESettingFieldTypeText,
 	}
 
 	// 普通用户密码设置定义
@@ -83,6 +91,7 @@ var (
 		DefaultValue: "1111111",
 		IsPublic:     false,
 		Remark:       "普通用户密码",
+		FieldType:    c_enum.ESettingFieldTypeText,
 	}
 
 	// 管理员用户密码设置定义
@@ -92,6 +101,7 @@ var (
 		DefaultValue: "888888",
 		IsPublic:     false,
 		Remark:       "管理员用户密码",
+		FieldType:    c_enum.ESettingFieldTypeText,
 	}
 
 	// 密码长度设置定义
@@ -101,5 +111,26 @@ var (
 		DefaultValue: "6",
 		IsPublic:     true,
 		Remark:       "密码长度",
+		FieldType:    c_enum.ESettingFieldTypeNumber,
+	}
+
+	// MQTT配置设置定义
+	SystemSettingMqttConfigList = &SSystemSettingDefine{
+		Id:           "mqtt_config_list",
+		Group:        c_enum.ESettingGroupSystem,
+		DefaultValue: "[]",
+		IsPublic:     false,
+		Remark:       "MQTT配置列表",
+		FieldType:    c_enum.ESettingFieldTypeJsonArray,
+	}
+
+	// Modbus配置设置定义
+	SystemSettingModbusConfig = &SSystemSettingDefine{
+		Id:           "modbus_config",
+		Group:        c_enum.ESettingGroupSystem,
+		DefaultValue: "{}",
+		IsPublic:     false,
+		Remark:       "Modbus配置",
+		FieldType:    c_enum.ESettingFieldTypeJson,
 	}
 )
