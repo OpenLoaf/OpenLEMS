@@ -16,16 +16,15 @@ type SDeviceConfig struct { // 设备配置
 
 	EnableDebug bool `json:"enableDebug" orm:"enable_debug"` // 启用调试模式
 	//Strategy           string         `json:"strategy,omitempty" orm:"strategy"`             // 	策略名称
-	ManualMode         bool           `json:"manualMode" orm:"manual_mode"`                  // 手动模式
-	StorageEnable      bool           `json:"StorageEnable" orm:"storage_enable"`            // 是否存储
-	StorageIntervalSec int32          `json:"storageIntervalSec" orm:"storage_interval_sec"` // 存储间隔(秒),0代表默认1分钟，负数代表不存储
-	ExternalModbusAddr uint           `json:"externalModbusAddr" orm:"external_modbus_addr"` // 对外提供的modbus起始地址
-	ExternalModbusId   uint8          `json:"externalModbusId" orm:"external_modbus_id"`     // 对外提供的modbus设备ID
-	Sort               int            `json:"sort" orm:"sort"`
-	Enabled            bool           `json:"enabled" orm:"enabled"`         // 是否启用
-	Params             map[string]any `json:"params,omitempty" orm:"params"` // 额外参数
-	CreatedAt          string         `json:"created_at" orm:"created_at"`
-	UpdatedAt          string         `json:"updated_at" orm:"updated_at"`
+	ManualMode         bool            `json:"manualMode" orm:"manual_mode"`                  // 手动模式
+	StorageEnable      bool            `json:"storageEnable" orm:"storage_enable"`            // 是否存储
+	StorageIntervalSec int32           `json:"storageIntervalSec" orm:"storage_interval_sec"` // 存储间隔(秒),0代表默认1分钟，负数代表不存储
+	ExternalParam      *SExternalParam `json:"externalParam,omitempty" orm:"external_param"`  // 对外参数，存储JSON格式数据
+	Sort               int             `json:"sort" orm:"sort"`
+	Enabled            bool            `json:"enabled" orm:"enabled"`         // 是否启用
+	Params             map[string]any  `json:"params,omitempty" orm:"params"` // 额外参数
+	CreatedAt          string          `json:"created_at" orm:"created_at"`
+	UpdatedAt          string          `json:"updated_at" orm:"updated_at"`
 
 	// 后面的都是动态更新的数据
 	DriverInfo        *SDriverInfo     `json:"driverInfo,omitempty" orm:"driver_info"`         // 驱动信息
@@ -39,7 +38,7 @@ func (s *SDeviceConfig) ScanParams(target any) error {
 	if target == nil {
 		return errors.New("config target cannot be nil")
 	}
-	if s.Params == nil || len(s.Params) == 0 {
+	if len(s.Params) == 0 {
 		return nil
 	}
 

@@ -22,8 +22,7 @@ const (
 	FieldDeviceManualMode         = "manual_mode"
 	FieldDeviceStorageEnable      = "storage_enable"
 	FieldDeviceStorageIntervalSec = "storage_interval_sec"
-	FieldDeviceExternalModbusAddr = "external_modbus_addr"
-	FieldDeviceExternalModbusId   = "external_modbus_id"
+	FieldDeviceExternalParam      = "external_param"
 )
 
 // 设备表结构
@@ -38,8 +37,7 @@ type SDeviceModel struct {
 	ManualMode         bool   `json:"manualMode" orm:"manual_mode"`                  // 手动模式
 	StorageEnable      bool   `json:"storageEnable" orm:"storage_enable"`            // 是否存储
 	StorageIntervalSec int32  `json:"storageIntervalSec" orm:"storage_interval_sec"` // 存储间隔(秒),0代表默认1分钟，负数代表不存储
-	ExternalModbusAddr uint   `json:"externalModbusAddr" orm:"external_modbus_addr"` // 对外提供的modbus起始地址
-	ExternalModbusId   uint8  `json:"externalModbusId" orm:"external_modbus_id"`     // 对外提供的modbus设备ID
+	ExternalParam      string `json:"externalParam" orm:"external_param"`            // 对外参数，存储JSON格式数据
 	Sort               int    `json:"sort" orm:"sort"`
 	Enabled            bool   `json:"enabled" orm:"enabled"`
 	Params             string `json:"params" orm:"params"` // 在sqlite中以json字符串形式存储设备参数

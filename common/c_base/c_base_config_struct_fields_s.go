@@ -10,7 +10,7 @@ import (
 )
 
 type SFieldDefinition struct {
-	Key                string                            `json:"key" yaml:"key" short:"key"`
+	Key                string                            `json:"key" yaml:"key" short:"code"`
 	Name               string                            `json:"name,omitempty" yaml:"name" short:"name" required:"true"`
 	Group              string                            `json:"group,omitempty" yaml:"group" short:"group"`
 	ValueType          c_enum.EConfigFieldsValueType     `json:"valueType" yaml:"value_type" short:"vt" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
@@ -21,8 +21,8 @@ type SFieldDefinition struct {
 	Min                *int64                            `json:"min,omitempty" yaml:"min" short:"min"`
 	Max                *int64                            `json:"max,omitempty" yaml:"max" short:"max"`
 	Default            *string                           `json:"default,omitempty" yaml:"default" short:"def"`
-	ValueExplain       []*SFieldExplain                  `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
-	ParamExplain       []*SFieldExplain                  `json:"paramExplain,omitempty" yaml:"paramExplain"` // 从参数值中读取解释
+	ValueExplain       []*SFieldExplain                  `json:"valueExplain,omitempty" yaml:"valueExplain" short:"ve"` // 值解释
+	ParamExplain       []*SFieldExplain                  `json:"paramExplain,omitempty" yaml:"paramExplain" short:"pe"` // 从参数值中读取解释
 	Regex              *string                           `json:"regex,omitempty" yaml:"regex" short:"regex" dc:"正则表达式"`
 	RegexFailedMessage *string                           `json:"regexFailedMessage,omitempty" yaml:"regex_failed_message" short:"rfm" dc:"正则表达式失败提醒"`
 	Description        string                            `json:"description,omitempty" yaml:"description" short:"desc" required:"true"`

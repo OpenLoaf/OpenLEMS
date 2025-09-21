@@ -20,16 +20,15 @@ type SDeviceTree struct {
 	Driver      string `json:"driver,omitempty" dc:"驱动名称"`
 	EnableDebug bool   `json:"enableDebug" dc:"启用调试模式"`
 	//Strategy           string         `json:"strategy,omitempty" dc:"策略名称"`
-	ManualMode         bool           `json:"manualMode" dc:"手动模式"`
-	StorageEnable      bool           `json:"StorageEnable" dc:"是否存储"`
-	StorageIntervalSec int32          `json:"storageIntervalSec" dc:"存储间隔(秒),0代表默认1分钟，负数代表不存储"`
-	ExternalModbusAddr uint           `json:"externalModbusAddr" dc:"对外提供的modbus起始地址"`
-	ExternalModbusId   uint8          `json:"externalModbusId" dc:"对外提供的modbus设备ID"`
-	Sort               int            `json:"sort" dc:"排序"`
-	Enabled            bool           `json:"enabled" dc:"是否启用"`
-	Params             map[string]any `json:"params,omitempty" dc:"设备参数"`
-	CreatedAt          string         `json:"created_at" dc:"创建时间"`
-	UpdatedAt          string         `json:"updated_at" dc:"更新时间"`
+	ManualMode         bool                   `json:"manualMode" dc:"手动模式"`
+	StorageEnable      bool                   `json:"storageEnable" dc:"是否存储"`
+	StorageIntervalSec int32                  `json:"storageIntervalSec" dc:"存储间隔(秒),0代表默认1分钟，负数代表不存储"`
+	ExternalParam      *c_base.SExternalParam `json:"externalParam,omitempty" dc:"对外参数，存储JSON格式数据"`
+	Sort               int                    `json:"sort" dc:"排序"`
+	Enabled            bool                   `json:"enabled" dc:"是否启用"`
+	Params             map[string]any         `json:"params,omitempty" dc:"设备参数"`
+	CreatedAt          string                 `json:"created_at" dc:"创建时间"`
+	UpdatedAt          string                 `json:"updated_at" dc:"更新时间"`
 
 	ConfigFields    []*c_base.SFieldDefinition `json:"configFields" yaml:"fields" dc:"配置字段信息"`
 	IsVirtualDevice bool                       `json:"isVirtualDevice" dc:"是否是虚拟设备"`
@@ -64,8 +63,7 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			ManualMode:         record.ManualMode,
 			StorageEnable:      record.StorageEnable,
 			StorageIntervalSec: record.StorageIntervalSec,
-			ExternalModbusAddr: record.ExternalModbusAddr,
-			ExternalModbusId:   record.ExternalModbusId,
+			ExternalParam:      record.ExternalParam,
 			Sort:               record.Sort,
 			Enabled:            record.Enabled,
 			Params:             record.Params,

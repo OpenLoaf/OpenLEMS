@@ -7,6 +7,7 @@ import (
 	"s_db/s_db_model"
 	"sync"
 
+	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -66,11 +67,31 @@ func (s *sDeviceServiceImpl) UpdateDevice(ctx context.Context, deviceId string, 
 	if value, ok := data["manualMode"].(bool); ok {
 		device.ManualMode = value
 	}
-	if value, ok := data["externalModbusAddr"].(uint); ok {
-		device.ExternalModbusAddr = value
-	}
-	if value, ok := data["externalModbusId"].(uint8); ok {
-		device.ExternalModbusId = value
+	if value, ok := data["externalParam"].(*c_base.SExternalParam); ok {
+		// 获取现有的externalParam数据
+		var existingParam c_base.SExternalParam
+		if device.ExternalParam != "" && device.ExternalParam != "{}" {
+			if err := gjson.DecodeTo(device.ExternalParam, &existingParam); err != nil {
+				// 如果解析失败，使用空结构体
+				existingParam = c_base.SExternalParam{}
+			}
+		}
+
+		// 合并新的参数到现有参数中
+		if value.ModbusRegisterAddr != 0 {
+			existingParam.ModbusRegisterAddr = value.ModbusRegisterAddr
+		}
+		if value.ModbusId != 0 {
+			existingParam.ModbusId = value.ModbusId
+		}
+		if value.ModbusAllowControl {
+			existingParam.ModbusAllowControl = value.ModbusAllowControl
+		}
+
+		// 将合并后的结构体转换为JSON字符串存储
+		if jsonStr, err := gjson.Encode(existingParam); err == nil {
+			device.ExternalParam = string(jsonStr)
+		}
 	}
 	return device.Update(ctx)
 }

@@ -3,6 +3,7 @@ package c_base
 import (
 	"common/c_enum"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/shockerli/cvt"
@@ -160,23 +161,33 @@ func parseFieldTagValue(field reflect.StructField, targetFieldName string) strin
 		// 按优先级检查标签：short > json > yaml
 		if mapping.ShortTag != "" {
 			if value := field.Tag.Get(mapping.ShortTag); value != "" {
-				return strings.Split(value, ",")[0] // 移除omitempty等选项
+				return parseTagValue(value, mapping.FieldName)
 			}
 		}
 		if mapping.JsonTag != "" {
 			if value := field.Tag.Get(mapping.JsonTag); value != "" {
-				return strings.Split(value, ",")[0] // 移除omitempty等选项
+				return parseTagValue(value, mapping.FieldName)
 			}
 		}
 		if mapping.YamlTag != "" {
 			if value := field.Tag.Get(mapping.YamlTag); value != "" {
-				return strings.Split(value, ",")[0] // 移除omitempty等选项
+				return parseTagValue(value, mapping.FieldName)
 			}
 		}
 		break
 	}
 
 	return ""
+}
+
+// parseTagValue 解析标签值，对于某些字段类型不进行逗号分割
+func parseTagValue(value, fieldName string) string {
+	// 对于正则表达式和正则表达式失败消息字段，不进行逗号分割
+	if fieldName == "Regex" || fieldName == "RegexFailedMessage" {
+		return value
+	}
+	// 对于其他字段，按逗号分割并取第一部分（移除omitempty等选项）
+	return strings.Split(value, ",")[0]
 }
 
 // populateFieldConfigFromTags 动态填充字段配置
@@ -317,6 +328,332 @@ func buildConfigStructFieldsRecursive(structType reflect.Type, prefix string) ([
 	}
 
 	return fields, nil
+}
+
+// ValidateConfigStructFields 验证配置结构体字段定义是否正确
+// 用于验证给前端的数据结构是否正常
+// 参数：
+//   - config: 配置结构体实例
+//
+// 返回值：
+//   - bool: 验证是否通过
+//   - error: 验证失败的错误信息
+func ValidateConfigStructFields(config any) (bool, error) {
+	if config == nil {
+		return false, errors.New("config is nil")
+	}
+
+	// 构建字段定义
+	fields, err := BuildConfigStructFields(config)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to build config struct fields")
+	}
+
+	// 验证每个字段定义
+	for _, field := range fields {
+		if err := validateFieldDefinition(field); err != nil {
+			return false, errors.Wrapf(err, "field '%s' validation failed", field.Key)
+		}
+	}
+
+	return true, nil
+}
+
+// ValidateConfigData 验证前端传递的数据是否符合字段定义要求
+// 用于验证前端传递过来的数据是否正常
+// 参数：
+//   - config: 配置结构体实例（用于获取字段定义）
+//   - data: 前端传递的数据（map格式）
+//
+// 返回值：
+//   - bool: 验证是否通过
+//   - error: 验证失败的错误信息
+func ValidateConfigData(config any, data map[string]any) (bool, error) {
+	if config == nil {
+		return false, errors.New("config is nil")
+	}
+	if data == nil {
+		return false, errors.New("data is nil")
+	}
+
+	// 构建字段定义
+	fields, err := BuildConfigStructFields(config)
+	if err != nil {
+		return false, errors.Wrap(err, "failed to build config struct fields")
+	}
+
+	// 创建字段映射，便于快速查找
+	fieldMap := make(map[string]*SFieldDefinition)
+	for _, field := range fields {
+		fieldMap[field.Key] = field
+	}
+
+	// 验证每个数据字段
+	for key, value := range data {
+		field, exists := fieldMap[key]
+		if !exists {
+			// 如果字段不在定义中，跳过验证（允许额外字段）
+			continue
+		}
+
+		if err := validateFieldValue(field, value); err != nil {
+			return false, errors.Wrapf(err, "field '%s' value validation failed", key)
+		}
+	}
+
+	// 检查必填字段
+	for _, field := range fields {
+		if field.Required {
+			if _, exists := data[field.Key]; !exists {
+				return false, errors.Errorf("required field '%s' is missing", field.Key)
+			}
+		}
+	}
+
+	return true, nil
+}
+
+// validateFieldDefinition 验证字段定义是否正确
+func validateFieldDefinition(field *SFieldDefinition) error {
+	if field == nil {
+		return errors.New("field definition is nil")
+	}
+
+	// 检查必需字段
+	if field.Key == "" {
+		return errors.New("field key is required")
+	}
+	if field.ComponentType == "" {
+		return errors.New("component type is required")
+	}
+	if field.ValueType == "" {
+		return errors.New("value type is required")
+	}
+
+	// 检查组件类型和值类型的匹配性
+	if err := validateComponentValueTypeMatch(field.ComponentType, field.ValueType); err != nil {
+		return errors.Wrap(err, "component type and value type mismatch")
+	}
+
+	// 检查数值范围
+	if field.Min != nil && field.Max != nil && *field.Min > *field.Max {
+		return errors.New("min value cannot be greater than max value")
+	}
+
+	// 检查正则表达式
+	if field.Regex != nil && *field.Regex != "" {
+		if _, err := regexp.Compile(*field.Regex); err != nil {
+			return errors.Errorf("invalid regex pattern: %v", err)
+		}
+	}
+
+	// 检查选择组件的选项配置
+	if err := validateSelectOptions(field); err != nil {
+		return errors.Wrap(err, "select options validation failed")
+	}
+
+	return nil
+}
+
+// validateFieldValue 验证字段值是否符合定义要求
+func validateFieldValue(field *SFieldDefinition, value any) error {
+	if field == nil {
+		return errors.New("field definition is nil")
+	}
+
+	// 处理nil值
+	if value == nil {
+		if field.Required {
+			return errors.New("required field cannot be nil")
+		}
+		return nil // 非必填字段允许nil值
+	}
+
+	// 类型转换和验证
+	switch field.ValueType {
+	case c_enum.EConfigFieldsValueTypeString:
+		return validateStringValue(field, value)
+	case c_enum.EConfigFieldsValueTypeInt:
+		return validateIntValue(field, value)
+	case c_enum.EConfigFieldsValueTypeFloat:
+		return validateFloatValue(field, value)
+	case c_enum.EConfigFieldsValueTypeBoolean:
+		return validateBoolValue(field, value)
+	default:
+		return errors.Errorf("unsupported value type: %s", field.ValueType)
+	}
+}
+
+// validateComponentValueTypeMatch 验证组件类型和值类型是否匹配
+func validateComponentValueTypeMatch(componentType c_enum.EConfigFieldsComponentType, valueType c_enum.EConfigFieldsValueType) error {
+	switch componentType {
+	case c_enum.EConfigFieldsComponentTypeText:
+		if valueType != c_enum.EConfigFieldsValueTypeString {
+			return errors.Errorf("text component requires string value type, got %s", valueType)
+		}
+	case c_enum.EConfigFieldsComponentTypeNumber:
+		if valueType != c_enum.EConfigFieldsValueTypeInt && valueType != c_enum.EConfigFieldsValueTypeFloat {
+			return errors.Errorf("number component requires int or float value type, got %s", valueType)
+		}
+	case c_enum.EConfigFieldsComponentTypeSwitch:
+		if valueType != c_enum.EConfigFieldsValueTypeBoolean {
+			return errors.Errorf("switch component requires bool value type, got %s", valueType)
+		}
+	case c_enum.EConfigFieldsComponentTypeSingleSelect, c_enum.EConfigFieldsComponentTypeMultiSelect:
+		if valueType != c_enum.EConfigFieldsValueTypeString {
+			return errors.Errorf("select component requires string value type, got %s", valueType)
+		}
+	case c_enum.EConfigFieldsComponentTypeDate, c_enum.EConfigFieldsComponentTypeTime, c_enum.EConfigFieldsComponentTypeDateTime:
+		if valueType != c_enum.EConfigFieldsValueTypeString {
+			return errors.Errorf("date/time component requires string value type, got %s", valueType)
+		}
+	}
+	return nil
+}
+
+// validateSelectOptions 验证选择组件的选项配置
+func validateSelectOptions(field *SFieldDefinition) error {
+	if field.ComponentType != c_enum.EConfigFieldsComponentTypeSingleSelect &&
+		field.ComponentType != c_enum.EConfigFieldsComponentTypeMultiSelect {
+		return nil // 非选择组件不需要验证选项
+	}
+
+	// 检查是否有选项配置（通过ValueExplain或ParamExplain）
+	hasOptions := len(field.ValueExplain) > 0 || len(field.ParamExplain) > 0
+	if !hasOptions {
+		return errors.New("select component must have options configured via ValueExplain or ParamExplain")
+	}
+
+	// 验证ValueExplain格式
+	for _, explain := range field.ValueExplain {
+		if explain.Key == "" || explain.Value == "" {
+			return errors.New("ValueExplain entries must have both key and value")
+		}
+	}
+
+	// 验证ParamExplain格式
+	for _, explain := range field.ParamExplain {
+		if explain.Key == "" || explain.Value == "" {
+			return errors.New("ParamExplain entries must have both key and value")
+		}
+	}
+
+	return nil
+}
+
+// validateStringValue 验证字符串值
+func validateStringValue(field *SFieldDefinition, value any) error {
+	strValue, ok := value.(string)
+	if !ok {
+		return errors.Errorf("expected string value, got %T", value)
+	}
+
+	// 长度验证（使用min/max作为长度限制）
+	if field.Min != nil && int64(len(strValue)) < *field.Min {
+		return errors.Errorf("string length %d is below minimum %d", len(strValue), *field.Min)
+	}
+	if field.Max != nil && int64(len(strValue)) > *field.Max {
+		return errors.Errorf("string length %d is above maximum %d", len(strValue), *field.Max)
+	}
+
+	// 正则表达式验证
+	if field.Regex != nil && *field.Regex != "" {
+		matched, err := regexp.MatchString(*field.Regex, strValue)
+		if err != nil {
+			return errors.Errorf("regex validation error: %v", err)
+		}
+		if !matched {
+			if field.RegexFailedMessage != nil && *field.RegexFailedMessage != "" {
+				return errors.New(*field.RegexFailedMessage)
+			}
+			return errors.Errorf("value '%s' does not match regex pattern", strValue)
+		}
+	}
+
+	// 选择组件选项验证
+	if field.ComponentType == c_enum.EConfigFieldsComponentTypeSingleSelect {
+		return validateSingleSelectValue(field, strValue)
+	}
+	if field.ComponentType == c_enum.EConfigFieldsComponentTypeMultiSelect {
+		return validateMultiSelectValue(field, strValue)
+	}
+
+	return nil
+}
+
+// validateIntValue 验证整数值
+func validateIntValue(field *SFieldDefinition, value any) error {
+	intValue := cvt.Int64(value)
+
+	// 范围验证
+	if field.Min != nil && intValue < *field.Min {
+		return errors.Errorf("value %d is below minimum %d", intValue, *field.Min)
+	}
+	if field.Max != nil && intValue > *field.Max {
+		return errors.Errorf("value %d is above maximum %d", intValue, *field.Max)
+	}
+
+	return nil
+}
+
+// validateFloatValue 验证浮点数值
+func validateFloatValue(field *SFieldDefinition, value any) error {
+	floatValue := cvt.Float64(value)
+
+	// 范围验证
+	if field.Min != nil && floatValue < float64(*field.Min) {
+		return errors.Errorf("value %f is below minimum %d", floatValue, *field.Min)
+	}
+	if field.Max != nil && floatValue > float64(*field.Max) {
+		return errors.Errorf("value %f is above maximum %d", floatValue, *field.Max)
+	}
+
+	return nil
+}
+
+// validateBoolValue 验证布尔值
+func validateBoolValue(field *SFieldDefinition, value any) error {
+	_, ok := value.(bool)
+	if !ok {
+		return errors.Errorf("expected bool value, got %T", value)
+	}
+	return nil
+}
+
+// validateSingleSelectValue 验证单选值
+func validateSingleSelectValue(field *SFieldDefinition, value string) error {
+	// 检查值是否在ValueExplain中
+	for _, explain := range field.ValueExplain {
+		if explain.Key == value {
+			return nil
+		}
+	}
+	return errors.Errorf("value '%s' is not a valid option", value)
+}
+
+// validateMultiSelectValue 验证多选值
+func validateMultiSelectValue(field *SFieldDefinition, value string) error {
+	// 多选值通常是逗号分隔的字符串
+	values := strings.Split(value, ",")
+	validKeys := make(map[string]bool)
+
+	// 构建有效选项映射
+	for _, explain := range field.ValueExplain {
+		validKeys[explain.Key] = true
+	}
+
+	// 验证每个值
+	for _, v := range values {
+		v = strings.TrimSpace(v)
+		if v == "" {
+			continue
+		}
+		if !validKeys[v] {
+			return errors.Errorf("value '%s' is not a valid option", v)
+		}
+	}
+
+	return nil
 }
 
 // getFieldTypeInfo 根据反射类型自动推断组件类型和值类型
