@@ -139,7 +139,8 @@ func (s *SAutomationModel) SetUpdatedAt(updatedAt *gtime.Time) {
 
 // CRUD 方法
 func (s *SAutomationModel) Create(ctx context.Context) error {
-	_, err := g.Model(TableAutomation).Ctx(ctx).Insert(s)
+	// 排除ID字段，让数据库自动生成
+	_, err := g.Model(TableAutomation).Ctx(ctx).FieldsEx("id").Insert(s)
 	return err
 }
 
