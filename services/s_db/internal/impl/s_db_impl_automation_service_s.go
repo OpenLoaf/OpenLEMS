@@ -98,31 +98,27 @@ func (s *sAutomationServiceImpl) UpdateAutomation(ctx context.Context, id int, d
 	g.Log().Infof(ctx, "获取到自动化规则，当前状态: Enabled=%t", automation.Enabled)
 
 	// 更新字段
-	if value, ok := data["startTime"].(*time.Time); ok && value != nil {
-		automation.StartTime = gtime.New(*value)
+	if value, ok := data[s_db_model.FieldAutomationStartTime].(*gtime.Time); ok && value != nil {
+		automation.StartTime = value
 		g.Log().Infof(ctx, "更新 startTime: %v", value)
 	}
-	if value, ok := data["endTime"].(*time.Time); ok {
-		if value != nil {
-			automation.EndTime = gtime.New(*value)
-		} else {
-			automation.EndTime = nil
-		}
+	if value, ok := data[s_db_model.FieldAutomationEndTime].(*gtime.Time); ok {
+		automation.EndTime = value
 		g.Log().Infof(ctx, "更新 endTime: %v", value)
 	}
-	if value, ok := data["timeRangeType"].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationTimeRangeType].(string); ok {
 		automation.TimeRangeType = value
 		g.Log().Infof(ctx, "更新 timeRangeType: %s", value)
 	}
-	if value, ok := data["timeRangeValue"].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationTimeRangeValue].(string); ok {
 		automation.TimeRangeValue = value
 		g.Log().Infof(ctx, "更新 timeRangeValue: %s", value)
 	}
-	if value, ok := data["triggerRule"].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationTriggerRule].(string); ok {
 		automation.TriggerRule = value
 		g.Log().Infof(ctx, "更新 triggerRule: %s", value)
 	}
-	if value, ok := data["executeRule"].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationExecuteRule].(string); ok {
 		automation.ExecuteRule = value
 		g.Log().Infof(ctx, "更新 executeRule: %s", value)
 	}
@@ -132,6 +128,10 @@ func (s *sAutomationServiceImpl) UpdateAutomation(ctx context.Context, id int, d
 		g.Log().Infof(ctx, "更新 enabled: %t", value)
 	} else {
 		g.Log().Warningf(ctx, "未找到 enabled 字段，数据中的键: %v", getMapKeys(data))
+	}
+	if value, ok := data[s_db_model.FieldAutomationExecutionInterval].(int); ok {
+		automation.ExecutionInterval = value
+		g.Log().Infof(ctx, "更新 executionInterval: %d", value)
 	}
 
 	// 更新 updated_at
@@ -163,6 +163,9 @@ func (s *sAutomationServiceImpl) UpdateAutomation(ctx context.Context, id int, d
 	}
 	if automation.ExecuteRule != "" {
 		updateFields[s_db_model.FieldAutomationExecuteRule] = automation.ExecuteRule
+	}
+	if automation.ExecutionInterval > 0 {
+		updateFields[s_db_model.FieldAutomationExecutionInterval] = automation.ExecutionInterval
 	}
 
 	g.Log().Infof(ctx, "更新字段: %+v", updateFields)
