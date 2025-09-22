@@ -14,6 +14,9 @@ type IAutomationV1 interface {
 	// 获取所有的自动化分页接口（包括enabled = false）
 	GetAutomationPage(ctx context.Context, req *v1.GetAutomationPageReq) (res *v1.GetAutomationPageRes, err error)
 
+	// 根据ID获取自动化任务详情
+	GetAutomationById(ctx context.Context, req *v1.GetAutomationByIdReq) (res *v1.GetAutomationByIdRes, err error)
+
 	// 获取某个设备的所有自动化列表（包括enabled = false）
 	GetAutomationsByDevice(ctx context.Context, req *v1.GetAutomationsByDeviceReq) (res *v1.GetAutomationsByDeviceRes, err error)
 
