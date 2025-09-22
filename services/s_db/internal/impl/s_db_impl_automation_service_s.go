@@ -61,12 +61,13 @@ func (s *sAutomationServiceImpl) CreateAutomation(ctx context.Context, name stri
 	}
 
 	// 获取刚插入的记录ID
-	var lastId int
-	err = g.Model(s_db_model.TableAutomation).Ctx(ctx).Order("id DESC").Limit(1).Scan(&lastId)
+	lastIdValue, err := g.Model(s_db_model.TableAutomation).Ctx(ctx).Fields(s_db_model.FieldId).Order("id DESC").Limit(1).Value()
 	if err != nil {
 		g.Log().Errorf(ctx, "获取自动化规则ID失败 - 错误: %+v", err)
 		return 0, err
 	}
+
+	lastId := lastIdValue.Int()
 
 	g.Log().Infof(ctx, "成功创建自动化规则，ID: %d", lastId)
 	return lastId, nil
