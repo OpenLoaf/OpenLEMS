@@ -11,6 +11,7 @@ import (
 // SAutomation 自动化任务实体
 type SAutomation struct {
 	Id             int        `json:"id" dc:"任务ID"`
+	Name           string     `json:"name" dc:"任务名称"`
 	StartTime      *time.Time `json:"startTime,omitempty" dc:"开始时间"`
 	EndTime        *time.Time `json:"endTime,omitempty" dc:"结束时间"`
 	TimeRangeType  string     `json:"timeRangeType" dc:"时间范围类型"`
@@ -27,6 +28,7 @@ func (a *SAutomation) UnmarshalValue(value interface{}) error {
 	if model, ok := value.(*s_db_model.SAutomationModel); ok {
 		*a = SAutomation{
 			Id:             model.Id,
+			Name:           model.Name,
 			TimeRangeType:  model.TimeRangeType,
 			TimeRangeValue: model.TimeRangeValue,
 			TriggerRule:    model.TriggerRule,
