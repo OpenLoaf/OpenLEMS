@@ -180,28 +180,76 @@ func (s *sAutomationServiceImpl) buildAutomationQuery(ctx context.Context, devic
 	// 构建查询条件
 	model := g.Model(s_db_model.TableAutomation).Ctx(ctx)
 
-	// 如果提供了 deviceId，使用 json_extract 从 trigger_rule 和 execute_rule 中查找
+	// 如果提供了 deviceId，使用优化的JSON查询从 trigger_rule 和 execute_rule 中查找
 	if deviceId != "" {
-		// 使用 OR 条件查找 deviceId 在 trigger_rule 或 execute_rule 中的记录
-		// json_extract 用于从 JSON 数组中提取 deviceId
-		model = model.WhereOr(
-			"json_extract(trigger_rule, '$[*].deviceId') LIKE ?", "%"+deviceId+"%",
-		).WhereOr(
-			"json_extract(execute_rule, '$[*].deviceId') LIKE ?", "%"+deviceId+"%",
-		)
+		g.Log().Infof(ctx, "构建设备ID过滤条件: %s", deviceId)
+
+		// 使用优化的JSON查询条件
+		model = s.buildDeviceIdQuery(model, deviceId)
+		g.Log().Infof(ctx, "应用设备ID过滤条件完成")
 	}
 
 	// 应用其他过滤条件
 	if filters != nil {
 		if timeRangeType, ok := filters["timeRangeType"].(string); ok && timeRangeType != "" {
 			model = model.Where(s_db_model.FieldAutomationTimeRangeType, timeRangeType)
+			g.Log().Infof(ctx, "应用时间范围类型过滤: %s", timeRangeType)
 		}
 		if enable, ok := filters["enable"].(bool); ok {
 			model = model.Where(s_db_model.FieldEnabled, enable)
+			g.Log().Infof(ctx, "应用启用状态过滤: %t", enable)
 		}
 	}
 
 	return model
+}
+
+// buildDeviceIdQuery 构建设备ID查询条件
+// 使用优化的JSON查询，支持多种JSON格式的动态查找
+func (s *sAutomationServiceImpl) buildDeviceIdQuery(model *gdb.Model, deviceId string) *gdb.Model {
+	// 使用SQLite的JSON函数进行动态查询，支持以下格式：
+	// 1. trigger_rule: $.anyMatch[*].deviceCondition.deviceId, $.subMatch[*].deviceCondition.deviceId
+	// 2. execute_rule: $[*].deviceId (数组格式), $.rules[*].deviceId (对象格式)
+	// 3. 字符串匹配: trigger_rule 或 execute_rule 中包含 deviceId
+
+	// 构建优化的OR条件查询
+	orCondition := `(
+		-- trigger_rule 中的 anyMatch 数组查询
+		EXISTS (
+			SELECT 1 FROM json_each(trigger_rule, '$.anyMatch') 
+			WHERE json_extract(value, '$.deviceCondition.deviceId') = ?
+		) OR
+		-- trigger_rule 中的 subMatch 数组查询  
+		EXISTS (
+			SELECT 1 FROM json_each(trigger_rule, '$.subMatch') 
+			WHERE json_extract(value, '$.deviceCondition.deviceId') = ?
+		) OR
+		-- execute_rule 数组格式查询
+		EXISTS (
+			SELECT 1 FROM json_each(execute_rule) 
+			WHERE json_extract(value, '$.deviceId') = ?
+		) OR
+		-- execute_rule 对象格式查询
+		EXISTS (
+			SELECT 1 FROM json_each(execute_rule, '$.rules') 
+			WHERE json_extract(value, '$.deviceId') = ?
+		) OR
+		-- 字符串匹配查询（兜底方案）
+		trigger_rule LIKE ? OR
+		execute_rule LIKE ?
+	)`
+
+	// 构建参数数组
+	params := []interface{}{
+		deviceId,             // anyMatch 查询
+		deviceId,             // subMatch 查询
+		deviceId,             // execute_rule 数组查询
+		deviceId,             // execute_rule 对象查询
+		"%" + deviceId + "%", // trigger_rule 字符串匹配
+		"%" + deviceId + "%", // execute_rule 字符串匹配
+	}
+
+	return model.Where(orCondition, params...)
 }
 
 // GetAutomationsByFilters 根据过滤条件获取自动化规则（不分页）
@@ -223,6 +271,8 @@ func (s *sAutomationServiceImpl) GetAutomationsByFilters(ctx context.Context, de
 
 // GetAutomationPage 分页获取自动化规则
 func (s *sAutomationServiceImpl) GetAutomationPage(ctx context.Context, page, pageSize int, deviceId string, filters map[string]interface{}) ([]*s_db_model.SAutomationModel, int, error) {
+	g.Log().Infof(ctx, "开始分页查询自动化规则 - 页码: %d, 每页数量: %d, 设备ID: %s", page, pageSize, deviceId)
+
 	// 使用公共的查询构建逻辑
 	model := s.buildAutomationQuery(ctx, deviceId, filters)
 
@@ -233,6 +283,8 @@ func (s *sAutomationServiceImpl) GetAutomationPage(ctx context.Context, page, pa
 		return nil, 0, err
 	}
 
+	g.Log().Infof(ctx, "查询到自动化规则总数: %d", total)
+
 	// 分页查询
 	var automations []*s_db_model.SAutomationModel
 	err = model.Page(page, pageSize).Scan(&automations)
@@ -241,6 +293,7 @@ func (s *sAutomationServiceImpl) GetAutomationPage(ctx context.Context, page, pa
 		return nil, 0, err
 	}
 
+	g.Log().Infof(ctx, "成功获取自动化规则分页数据 - 返回数量: %d", len(automations))
 	return automations, total, nil
 }
 
