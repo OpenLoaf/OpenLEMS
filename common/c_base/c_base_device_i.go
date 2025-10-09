@@ -17,7 +17,5 @@ type IDevice interface {
 	IsVirtualDevice() bool // 是否是虚拟设备
 
 	// 统一点位管理方法
-	GetTelemetryPoints() []IPoint     // 获取遥测点位列表
-	GetProtocolPoints() []IPoint      // 获取协议点位列表
-	GetConfigPoints() []*SConfigPoint // 获取配置点位列表
+	GetTelemetryPoints() []IPoint // 获取所有点位列表（遥测点位+协议点位）
 }

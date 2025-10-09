@@ -35,11 +35,3 @@ func (s *SRealGpio) IsVirtualDevice() bool {
 func (s *SRealGpio) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{}
 }
-
-func (s *SRealGpio) GetProtocolPoints() []c_base.IPoint {
-	return []c_base.IPoint{}
-}
-
-func (s *SRealGpio) GetConfigPoints() []*c_base.SConfigPoint {
-	return []*c_base.SConfigPoint{}
-}

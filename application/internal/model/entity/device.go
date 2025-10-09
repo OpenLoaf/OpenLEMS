@@ -79,8 +79,17 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			t.DriverService = driverInfo.Service
 			t.DriverType = string(driverInfo.Type)
 
-			if driverInfo.GetConfigStructFields() != nil {
-				t.ConfigFields = driverInfo.GetConfigStructFields()
+			// 处理驱动配置点位
+			if driverInfo.ConfigPoints != nil {
+				t.ConfigFields = make([]*c_base.SFieldDefinition, 0, len(driverInfo.ConfigPoints))
+				for _, configPoint := range driverInfo.ConfigPoints {
+					if configPoint != nil {
+						fieldDef := configPoint.ToFieldDefinition()
+						if fieldDef != nil {
+							t.ConfigFields = append(t.ConfigFields, fieldDef)
+						}
+					}
+				}
 			}
 		}
 		protocolConfig := record.ProtocolConfig
@@ -90,6 +99,9 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			t.ProtocolAddress = protocolConfig.Address
 			if t.ConfigFields == nil {
 				t.ConfigFields = make([]*c_base.SFieldDefinition, 0)
+
+				//c_base.BuildConfigStructFields()
+
 				switch protocolConfig.GetProtocol() {
 				// 添加modbus的设备配置
 				case c_enum.EModbusTcp, c_enum.EModbusRtu:

@@ -180,6 +180,15 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 			r.Response.WriteStatus(http.StatusNotFound)
 			return
 		}
+		// 跳过静态资源路由 - 这些应该由具体的静态资源处理器处理
+		if strings.HasPrefix(r.URL.Path, "/assets/") ||
+			strings.HasPrefix(r.URL.Path, "/images/") ||
+			strings.HasPrefix(r.URL.Path, "/config/") ||
+			strings.HasPrefix(r.URL.Path, "/demo/") ||
+			r.URL.Path == "/favicon.ico" {
+			r.Response.WriteStatus(http.StatusNotFound)
+			return
+		}
 
 		f, err := webfs.Open("index.html")
 		if err != nil {

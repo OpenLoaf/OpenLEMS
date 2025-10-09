@@ -249,6 +249,9 @@ func (m *SDeviceManager) Start() {
 func (m *SDeviceManager) BuildVirtualDevice(deviceCtx context.Context, deviceConfig *c_base.SDeviceConfig) {
 	// 先判断子设备是否都注册成功，如果成功了就创建。否则不创建虚拟设备
 	for _, child := range deviceConfig.ChildDeviceConfig {
+		if child.Enabled == false {
+			continue
+		}
 		if !m.deviceInstanceMap.Contains(child.Id) {
 			c_log.BizErrorf(deviceCtx, "设备启动失败！原因：子设备[%s(%s) ]启动失败!", child.Name, child.Id)
 			return

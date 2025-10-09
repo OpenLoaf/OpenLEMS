@@ -38,6 +38,7 @@ func (s *SSingleDeviceValue) UnmarshalValue(value interface{}) error {
 		if point := record.IPoint; point != nil {
 			// 尝试获取具体的SPoint实例以访问Min、Before、Precise字段
 			s.Meta = &SSingleDeviceMeta{
+				Key:        point.GetKey(),
 				Name:       point.GetName(),
 				Cn:         point.GetName(),               // 暂时使用Name作为中文名称
 				SystemType: point.GetValueType().String(), // 默认自动系统类型
@@ -57,6 +58,7 @@ func (s *SSingleDeviceValue) UnmarshalValue(value interface{}) error {
 
 // Meta 点位元数据
 type SSingleDeviceMeta struct {
+	Key        string `json:"key"`            // key
 	Name       string `json:"name"`           // 名称
 	Cn         string `json:"cn"`             // 中文名称, TODO 以后改成I18N
 	SystemType string `json:"systemType"`     // 格式化类型,默认为SUseReadType!自动使用ReadType的类型。

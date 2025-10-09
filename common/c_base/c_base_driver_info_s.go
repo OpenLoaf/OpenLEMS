@@ -37,43 +37,6 @@ type SDriverInfo struct {
 	reflectMethodMutex sync.RWMutex             // 反射方法缓存读写锁
 }
 
-// 注意：configStructFields字段已移除，现在使用ConfigPoints字段
-// 如果需要兼容旧代码，可以保留这些方法但返回空值
-func (s *SDriverInfo) SetConfigStructFields(configStructFields []*SFieldDefinition) {
-	// 已废弃：configStructFields字段已移除，现在使用ConfigPoints字段
-}
-func (s *SDriverInfo) GetConfigStructFields() []*SFieldDefinition {
-	// 已废弃：configStructFields字段已移除，现在使用ConfigPoints字段
-	return nil
-}
-
-// SetConfigPoints 设置配置点位列表
-func (s *SDriverInfo) SetConfigPoints(configPoints []*SConfigPoint) {
-	s.ConfigPoints = configPoints
-}
-
-// GetConfigPoints 获取配置点位列表
-func (s *SDriverInfo) GetConfigPoints() []*SConfigPoint {
-	return s.ConfigPoints
-}
-
-// AddConfigPoint 添加配置点位
-func (s *SDriverInfo) AddConfigPoint(configPoint *SConfigPoint) {
-	if configPoint != nil {
-		s.ConfigPoints = append(s.ConfigPoints, configPoint)
-	}
-}
-
-// RemoveConfigPoint 移除配置点位
-func (s *SDriverInfo) RemoveConfigPoint(key string) {
-	for i, point := range s.ConfigPoints {
-		if point != nil && point.GetKey() == key {
-			s.ConfigPoints = append(s.ConfigPoints[:i], s.ConfigPoints[i+1:]...)
-			break
-		}
-	}
-}
-
 // GetConfigPointByKey 根据key获取配置点位
 func (s *SDriverInfo) GetConfigPointByKey(key string) *SConfigPoint {
 	for _, point := range s.ConfigPoints {

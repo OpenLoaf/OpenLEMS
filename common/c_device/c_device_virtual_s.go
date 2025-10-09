@@ -130,14 +130,6 @@ func (s *SVirtualDeviceImpl) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{}
 }
 
-func (s *SVirtualDeviceImpl) GetProtocolPoints() []c_base.IPoint {
-	return []c_base.IPoint{}
-}
-
-func (s *SVirtualDeviceImpl) GetConfigPoints() []*c_base.SConfigPoint {
-	return []*c_base.SConfigPoint{}
-}
-
 func (s *SVirtualDeviceImpl) GetFromChildDeviceId(childDeviceId string, processFunction func(device c_base.IDevice) (any, error)) (any, error) {
 	child := s.GetChildById(childDeviceId)
 	if child == nil {

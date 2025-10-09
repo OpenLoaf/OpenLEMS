@@ -210,11 +210,6 @@ func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (*float64, error) {
 
 // 实现新的IDevice接口方法
 func (s *sPcsStarCharge100E) GetTelemetryPoints() []c_base.IPoint {
-	// PCS驱动没有遥测点位，返回空列表
-	return []c_base.IPoint{}
-}
-
-func (s *sPcsStarCharge100E) GetProtocolPoints() []c_base.IPoint {
 	// 返回Modbus协议点位
 	return []c_base.IPoint{
 		InverterOperationStatus,
@@ -227,9 +222,4 @@ func (s *sPcsStarCharge100E) GetProtocolPoints() []c_base.IPoint {
 		OnOffCommand,
 		// 可以继续添加其他协议点位
 	}
-}
-
-func (s *sPcsStarCharge100E) GetConfigPoints() []*c_base.SConfigPoint {
-	// PCS驱动没有配置点位，返回空列表
-	return []*c_base.SConfigPoint{}
 }

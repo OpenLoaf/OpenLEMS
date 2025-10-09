@@ -442,7 +442,7 @@ func (m *SAutomationManager) checkDeviceCondition(deviceCondition *SAutomationDe
 		return false
 	}
 
-	g.Log().Infof(m.ctx, "检查设备条件 - 设备: %s, 规则: %s, 遥测数据: %+v",
+	g.Log().Debugf(m.ctx, "检查设备条件 - 设备: %s, 规则: %s, 遥测数据: %+v",
 		deviceCondition.DeviceId, deviceCondition.Rule, telemetryMap)
 
 	// 使用 expr 包解析和验证规则表达式

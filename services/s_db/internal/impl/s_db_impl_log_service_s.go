@@ -55,7 +55,6 @@ func (s *sLogServiceImpl) GetLogByDeviceId(ctx context.Context, deviceId string)
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取日志记录 - 设备ID: %s, 共 %d 条记录", deviceId, len(records))
 	return records, nil
 }
 
@@ -68,7 +67,6 @@ func (s *sLogServiceImpl) GetLogByType(ctx context.Context, logType string) ([]*
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取日志记录 - 类型: %s, 共 %d 条记录", logType, len(records))
 	return records, nil
 }
 
@@ -81,7 +79,6 @@ func (s *sLogServiceImpl) GetLogByLevel(ctx context.Context, level string) ([]*s
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取日志记录 - 等级: %s, 共 %d 条记录", level, len(records))
 	return records, nil
 }
 
@@ -94,7 +91,6 @@ func (s *sLogServiceImpl) GetLogByDeviceIdAndType(ctx context.Context, deviceId,
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取日志记录 - 设备ID: %s, 类型: %s, 共 %d 条记录", deviceId, logType, len(records))
 	return records, nil
 }
 
@@ -120,7 +116,6 @@ func (s *sLogServiceImpl) DeleteLogByType(ctx context.Context, logType string) e
 		return err
 	}
 
-	g.Log().Infof(ctx, "成功删除日志记录 - 类型: %s", logType)
 	return nil
 }
 
@@ -133,7 +128,6 @@ func (s *sLogServiceImpl) DeleteLogByFilters(ctx context.Context, filters map[st
 		return 0, err
 	}
 
-	g.Log().Infof(ctx, "成功根据条件删除日志记录 - 过滤条件: %+v, 删除数量: %d", filters, deletedCount)
 	return deletedCount, nil
 }
 
@@ -146,7 +140,6 @@ func (s *sLogServiceImpl) GetAllLog(ctx context.Context) ([]*s_db_model.SLogMode
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取所有日志记录，共 %d 条记录", len(records))
 	return records, nil
 }
 
@@ -159,7 +152,6 @@ func (s *sLogServiceImpl) GetLogPage(ctx context.Context, page, pageSize int, fi
 		return nil, 0, err
 	}
 
-	g.Log().Infof(ctx, "成功分页获取日志记录 - 页码: %d, 页大小: %d, 总数: %d, 当前页记录数: %d, 过滤条件: %+v", page, pageSize, total, len(records), filters)
 	return records, total, nil
 }
 
@@ -185,6 +177,5 @@ func (s *sLogServiceImpl) GetLogCount(ctx context.Context) (int, error) {
 		return 0, err
 	}
 
-	g.Log().Infof(ctx, "成功获取日志表记录总数: %d", count)
 	return count, nil
 }

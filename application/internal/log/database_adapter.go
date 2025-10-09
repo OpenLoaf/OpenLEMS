@@ -97,7 +97,7 @@ func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level c_enum.ELogLevel, 
 	}
 
 	// 检查是否为设备日志，如果是则需要检查设备的调试模式开关
-	if logType == c_enum.ELogTypeDevice.String() && deviceId != "" {
+	if logType == c_enum.ELogTypeDevice.String() && deviceId != "" && level == c_enum.Debug {
 		// 通过设备管理器获取设备配置
 		deviceConfig := common.GetDeviceManager().GetDeviceConfigById(deviceId)
 		if deviceConfig != nil && !deviceConfig.EnableDebug {

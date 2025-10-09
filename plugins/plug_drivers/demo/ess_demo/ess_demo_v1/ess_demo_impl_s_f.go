@@ -209,15 +209,12 @@ func (s *sEssDemo) HasSmoke() (*bool, error) {
 // 实现新的IDevice接口方法
 func (s *sEssDemo) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{
+		// 遥测点位
 		telemetryPowerPoint,
 		telemetrySocPoint,
 		telemetryGeneratedEnergyPoint,
 		telemetryConsumedEnergyPoint,
-	}
-}
-
-func (s *sEssDemo) GetProtocolPoints() []c_base.IPoint {
-	return []c_base.IPoint{
+		// 协议点位
 		Status,
 		Power,
 		SOC,
@@ -233,9 +230,4 @@ func (s *sEssDemo) GetProtocolPoints() []c_base.IPoint {
 		MaxSOC,
 		ChargeEfficiency,
 	}
-}
-
-func (s *sEssDemo) GetConfigPoints() []*c_base.SConfigPoint {
-	// ESS驱动没有配置点位，返回空列表
-	return []*c_base.SConfigPoint{}
 }

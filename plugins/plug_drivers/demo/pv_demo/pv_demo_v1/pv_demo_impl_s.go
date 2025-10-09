@@ -117,17 +117,14 @@ func (s *sPvDemo) GetIrradiance() (*uint32, error) {
 // 实现新的IDevice接口方法
 func (s *sPvDemo) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{
+		// 遥测点位
 		telemetryPowerPoint,
 		telemetryGeneratedEnergyPoint,
 		telemetryPowerLimitPoint,
 		telemetryCapacityPoint,
 		telemetryTemperaturePoint,
 		telemetryIrradiancePoint,
-	}
-}
-
-func (s *sPvDemo) GetProtocolPoints() []c_base.IPoint {
-	return []c_base.IPoint{
+		// 协议点位
 		Status,
 		Power,
 		GeneratedEnergy,
@@ -138,9 +135,4 @@ func (s *sPvDemo) GetProtocolPoints() []c_base.IPoint {
 		Temperature,
 		Efficiency,
 	}
-}
-
-func (s *sPvDemo) GetConfigPoints() []*c_base.SConfigPoint {
-	// 光伏驱动没有配置点位，返回空列表
-	return []*c_base.SConfigPoint{}
 }

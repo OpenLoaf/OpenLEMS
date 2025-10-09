@@ -3,6 +3,8 @@ package c_base
 import (
 	"strconv"
 
+	"common/c_enum"
+
 	"github.com/shockerli/cvt"
 )
 
@@ -97,4 +99,88 @@ func (s *SConfigPoint) GetValueExplainWithParams(value any, params map[string]an
 
 	// 如果无法转换为浮点数，返回转换后的字符串
 	return valueStr, "", nil
+}
+
+// ToFieldDefinition 将SConfigPoint转换为SFieldDefinition对象
+func (s *SConfigPoint) ToFieldDefinition() *SFieldDefinition {
+	if s == nil || s.SPoint == nil {
+		return nil
+	}
+
+	// 转换值类型
+	valueType := s.convertEValueTypeToConfigFieldsValueType(s.SPoint.ValueType)
+
+	// 根据值类型推断组件类型
+	componentType := s.inferComponentType(valueType)
+
+	// 处理指针类型字段
+	var unit *string
+	if s.SPoint.Unit != "" {
+		unit = &s.SPoint.Unit
+	}
+
+	var min, max *int64
+	if s.SPoint.Min != 0 {
+		min = &s.SPoint.Min
+	}
+	if s.SPoint.Max != 0 {
+		max = &s.SPoint.Max
+	}
+
+	// 创建SFieldDefinition
+	fieldDef := &SFieldDefinition{
+		Key:                s.SPoint.Key,
+		Name:               s.SPoint.Name,
+		Group:              s.getGroupName(),
+		ValueType:          valueType,
+		ComponentType:      componentType,
+		Step:               s.Step,
+		Required:           s.Required,
+		Unit:               unit,
+		Min:                min,
+		Max:                max,
+		Default:            s.Default,
+		ValueExplain:       s.SPoint.ValueExplain,
+		Regex:              s.Regex,
+		RegexFailedMessage: s.RegexFailedMessage,
+		Description:        s.SPoint.Desc,
+	}
+
+	return fieldDef
+}
+
+// convertEValueTypeToConfigFieldsValueType 将EValueType转换为EConfigFieldsValueType
+func (s *SConfigPoint) convertEValueTypeToConfigFieldsValueType(valueType c_enum.EValueType) c_enum.EConfigFieldsValueType {
+	switch valueType {
+	case c_enum.EBool:
+		return c_enum.EConfigFieldsValueTypeBoolean
+	case c_enum.EInt8, c_enum.EUint8, c_enum.EInt16, c_enum.EUint16, c_enum.EInt32, c_enum.EUint32, c_enum.EInt64, c_enum.EUint64:
+		return c_enum.EConfigFieldsValueTypeInt
+	case c_enum.EFloat32, c_enum.EFloat64:
+		return c_enum.EConfigFieldsValueTypeFloat
+	case c_enum.EString:
+		return c_enum.EConfigFieldsValueTypeString
+	default:
+		return c_enum.EConfigFieldsValueTypeString
+	}
+}
+
+// inferComponentType 根据值类型推断组件类型
+func (s *SConfigPoint) inferComponentType(valueType c_enum.EConfigFieldsValueType) c_enum.EConfigFieldsComponentType {
+	switch valueType {
+	case c_enum.EConfigFieldsValueTypeBoolean:
+		return c_enum.EConfigFieldsComponentTypeSwitch
+	case c_enum.EConfigFieldsValueTypeInt, c_enum.EConfigFieldsValueTypeFloat:
+		return c_enum.EConfigFieldsComponentTypeNumber
+	default:
+		return c_enum.EConfigFieldsComponentTypeText
+	}
+}
+
+// getGroupName 获取分组名称
+func (s *SConfigPoint) getGroupName() string {
+	if s.SPoint.Group != nil {
+		return s.SPoint.Group.GroupName
+	}
+	return ""
 }

@@ -136,16 +136,13 @@ func (s *sAmmeterDemo) GetHistoryOutgoingQuantity() (*float64, error) {
 // 实现新的IDevice接口方法
 func (s *sAmmeterDemo) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{
+		// 遥测点位
 		telemetryPTotalPoint,
 		telemetryFrequencyPoint,
 		telemetryPfTotalPoint,
 		telemetryHistoryIncomingQuantityPoint,
 		telemetryHistoryOutgoingQuantityPoint,
-	}
-}
-
-func (s *sAmmeterDemo) GetProtocolPoints() []c_base.IPoint {
-	return []c_base.IPoint{
+		// 协议点位
 		Status,
 		PhaseAVoltage,
 		PhaseBVoltage,
@@ -172,9 +169,4 @@ func (s *sAmmeterDemo) GetProtocolPoints() []c_base.IPoint {
 		RatedLineVoltage,
 		RatedFrequency,
 	}
-}
-
-func (s *sAmmeterDemo) GetConfigPoints() []*c_base.SConfigPoint {
-	// 电表驱动没有配置点位，返回空列表
-	return []*c_base.SConfigPoint{}
 }

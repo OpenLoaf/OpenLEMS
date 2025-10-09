@@ -95,23 +95,8 @@ func (s *sBasicGpioOut) StatusToggle() error {
 
 // 实现新的IDevice接口方法
 func (s *sBasicGpioOut) GetTelemetryPoints() []c_base.IPoint {
-	// GPIO驱动没有遥测点位，返回空列表
-	return []c_base.IPoint{}
-}
-
-func (s *sBasicGpioOut) GetProtocolPoints() []c_base.IPoint {
 	// 返回GPIO协议点位
 	return []c_base.IPoint{
 		gpioPoint,
 	}
-}
-
-func (s *sBasicGpioOut) GetConfigPoints() []*c_base.SConfigPoint {
-	// 从配置结构体转换而来
-	configPoints, err := c_base.BuildConfigPoints(s.GpioDeviceConfig)
-	if err != nil {
-		c_log.Errorf(s.DeviceCtx, "构建配置点位失败: %v", err)
-		return []*c_base.SConfigPoint{}
-	}
-	return configPoints
 }

@@ -322,21 +322,6 @@ func (p *sEssPylonCheckwatt) HasSmoke() (*bool, error) {
 
 // 实现新的IDevice接口方法
 func (p *sEssPylonCheckwatt) GetTelemetryPoints() []c_base.IPoint {
-	// 虚拟ESS驱动没有遥测点位，返回空列表
+	// 虚拟ESS驱动没有点位，返回空列表
 	return []c_base.IPoint{}
-}
-
-func (p *sEssPylonCheckwatt) GetProtocolPoints() []c_base.IPoint {
-	// 虚拟ESS驱动没有协议点位，返回空列表
-	return []c_base.IPoint{}
-}
-
-func (p *sEssPylonCheckwatt) GetConfigPoints() []*c_base.SConfigPoint {
-	// 从配置结构体转换而来
-	configPoints, err := c_base.BuildConfigPoints(p.essConfig)
-	if err != nil {
-		c_log.Errorf(p.DeviceCtx, "构建配置点位失败: %v", err)
-		return []*c_base.SConfigPoint{}
-	}
-	return configPoints
 }

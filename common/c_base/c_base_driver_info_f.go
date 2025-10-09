@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
-	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -20,25 +19,8 @@ func GetAllTelemetry(instance IDevice) map[string]any {
 
 	result := make(map[string]any)
 
-	// 获取遥测点位数据
-	telemetryPoints := instance.GetTelemetryPoints()
-	for _, point := range telemetryPoints {
-		// 检查是否是SReflectPoint类型
-		if reflectPoint, ok := point.(*SReflectPoint); ok {
-			// 通过反射获取遥测数据
-			value, err := getTelemetryByReflect(reflectPoint.MethodName, instance)
-			if err != nil {
-				c_log.Warningf(context.Background(), "获取遥测数据失败: 点位=%s, 方法=%s, 错误=%v",
-					point.GetKey(), reflectPoint.MethodName, err)
-				continue
-			}
-
-			result[point.GetKey()] = value
-		}
-	}
-
-	// 获取协议点位数据（从缓存）
-	protocolPoints := instance.GetProtocolPoints()
+	// 获取所有点位数据
+	allPoints := instance.GetTelemetryPoints()
 	pointValueList := instance.GetPointValueList()
 
 	// 创建点位值映射，便于查找
@@ -47,10 +29,22 @@ func GetAllTelemetry(instance IDevice) map[string]any {
 		pointValueMap[pv.GetKey()] = pv
 	}
 
-	for _, point := range protocolPoints {
-		// 从缓存中获取数据
-		if pv, exists := pointValueMap[point.GetKey()]; exists && pv != nil {
-			result[point.GetKey()] = pv.GetValue()
+	for _, point := range allPoints {
+		// 检查是否是SReflectPoint类型（遥测点位）
+		if reflectPoint, ok := point.(*SReflectPoint); ok {
+			// 通过反射获取遥测数据
+			value, err := getTelemetryByReflect(reflectPoint.MethodName, instance)
+			if err != nil {
+				c_log.Warningf(context.Background(), "=>获取遥测数据失败: 点位=%s, 方法=%s, 错误=%v",
+					point.GetKey(), reflectPoint.MethodName, err)
+				continue
+			}
+			result[point.GetKey()] = value
+		} else {
+			// 协议点位，从缓存中获取数据
+			if pv, exists := pointValueMap[point.GetKey()]; exists && pv != nil {
+				result[point.GetKey()] = pv.GetValue()
+			}
 		}
 	}
 
@@ -64,10 +58,18 @@ func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
 
 	var result []*SPointValue
 
-	// 获取遥测点位数据
-	telemetryPoints := instance.GetTelemetryPoints()
-	for _, point := range telemetryPoints {
-		// 检查是否是SReflectPoint类型
+	// 获取所有点位数据
+	allPoints := instance.GetTelemetryPoints()
+	pointValueList := instance.GetPointValueList()
+
+	// 创建点位值映射，便于查找
+	pointValueMap := make(map[string]*SPointValue)
+	for _, pv := range pointValueList {
+		pointValueMap[pv.GetKey()] = pv
+	}
+
+	for _, point := range allPoints {
+		// 检查是否是SReflectPoint类型（遥测点位）
 		if reflectPoint, ok := point.(*SReflectPoint); ok {
 			// 通过反射获取遥测数据
 			value, err := getTelemetryByReflect(reflectPoint.MethodName, instance)
@@ -83,23 +85,11 @@ func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
 				value:  value,
 			}
 			result = append(result, pointValue)
-		}
-	}
-
-	// 获取协议点位数据（从缓存）
-	protocolPoints := instance.GetProtocolPoints()
-	pointValueList := instance.GetPointValueList()
-
-	// 创建点位值映射，便于查找
-	pointValueMap := make(map[string]*SPointValue)
-	for _, pv := range pointValueList {
-		pointValueMap[pv.GetKey()] = pv
-	}
-
-	for _, point := range protocolPoints {
-		// 从缓存中获取数据
-		if pv, exists := pointValueMap[point.GetKey()]; exists && pv != nil {
-			result = append(result, pv)
+		} else {
+			// 协议点位，从缓存中获取数据
+			if pv, exists := pointValueMap[point.GetKey()]; exists && pv != nil {
+				result = append(result, pv)
+			}
 		}
 	}
 
@@ -161,136 +151,6 @@ func ResolvingValueType(value any) c_enum.EValueType {
 		// 对于其他类型（如结构体、切片、映射等），默认返回字符串类型
 		return c_enum.EString
 	}
-}
-
-// getTelemetry 反射获取遥测信息 用于实现IDriver接口
-func getTelemetry(key string, instance IDevice) (any, error) {
-	// 输入参数验证
-	if key == "" {
-		return nil, errors.New("telemetry key cannot be empty")
-	}
-	if instance == nil {
-		return nil, errors.New("instance cannot be nil")
-	}
-
-	s := instance.GetConfig().DriverInfo
-	if s == nil {
-		return nil, errors.New("driver info is nil")
-	}
-
-	// 反射前先判断缓存中是否存在
-	if s.reflectMethodCache == nil {
-		s.reflectMethodCache = make(map[string]reflect.Value)
-	}
-
-	var (
-		method reflect.Value
-		ok     bool
-	)
-
-	cacheKey := instance.GetConfig().Id + "_" + key
-	// 先尝试读锁获取缓存
-	s.reflectMethodMutex.RLock()
-	if method, ok = s.reflectMethodCache[cacheKey]; ok {
-		s.reflectMethodMutex.RUnlock()
-	} else {
-		s.reflectMethodMutex.RUnlock()
-
-		// 缓存不存在，需要写入，使用写锁
-		s.reflectMethodMutex.Lock()
-		// 双重检查，防止其他goroutine已经写入
-		if method, ok = s.reflectMethodCache[cacheKey]; !ok {
-			functionName := fmt.Sprintf("Get%s", capitalizeFirstLetter(key))
-
-			// 获取实例的反射值
-			instanceValue := reflect.ValueOf(instance)
-			if !instanceValue.IsValid() {
-				return nil, errors.Errorf("invalid instance for telemetry key: [%s]", key)
-			}
-
-			// 获取方法
-			method = instanceValue.MethodByName(functionName)
-			if !method.IsValid() {
-				return nil, errors.Errorf("TelemetryKey: [%s] method [%s] not found", key, functionName)
-			}
-
-			// 检查方法是否可以被调用
-			if !method.CanInterface() {
-				return nil, errors.Errorf("TelemetryKey: [%s] method [%s] cannot be called", key, functionName)
-			}
-
-			// 缓存方法
-			s.reflectMethodCache[cacheKey] = method
-		}
-		s.reflectMethodMutex.Unlock()
-	}
-
-	// 使用defer recover处理可能的panic
-	var result any
-	var callErr error
-	func() {
-		defer func() {
-			if r := recover(); r != nil {
-				callErr = errors.Errorf("getTelemetry panic! key: %s, error: %+v", key, r)
-				//c_log.Errorf(context.Background(), "getTelemetry panic! key: %s, error: %+v", key, r)
-			}
-		}()
-
-		// 空参数调用
-		values := method.Call(nil)
-		if len(values) == 0 {
-			callErr = errors.Errorf("function %s returned no values", key)
-			return
-		}
-
-		if len(values) == 1 {
-			// 只有返回值，没有error
-			// 检查返回值是否为 nil 指针（仅对指针类型检查）
-			if values[0].Kind() == reflect.Ptr && values[0].IsNil() {
-				result = nil
-			} else {
-				result = values[0].Interface()
-			}
-			return
-		}
-
-		if len(values) != 2 {
-			callErr = errors.Errorf("function %s return value length is not 1 or 2, got %d", key, len(values))
-			return
-		}
-
-		// 检查第二个返回值是否为error
-		if values[1].Interface() != nil {
-			// 安全地转换为error类型
-			if err, ok := values[1].Interface().(error); ok {
-				callErr = err
-			} else {
-				callErr = errors.Errorf("function %s second return value is not error type", key)
-			}
-			return
-		}
-
-		// 返回成功结果
-		// 检查返回值是否为 nil 指针（仅对指针类型检查）
-		if values[0].Kind() == reflect.Ptr && values[0].IsNil() {
-			result = nil
-		} else {
-			result = values[0].Interface()
-		}
-	}()
-
-	if callErr != nil {
-		return nil, callErr
-	}
-
-	return result, nil
-}
-
-func capitalizeFirstLetter(s string) string {
-	if len(s) == 0 {
-		return s
-	}
-	return strings.ToUpper(s[:1]) + s[1:]
 }
 
 func ExecuteCustomService(functionName string, instance IDevice, params []any) error {
@@ -434,6 +294,8 @@ func convertParameterType(param interface{}, targetType reflect.Type) (interface
 			return convertFloatValue(val, targetType)
 		case reflect.String:
 			return string(jsonNum), nil
+		default:
+			return string(jsonNum), nil
 		}
 	}
 
@@ -465,6 +327,8 @@ func convertParameterType(param interface{}, targetType reflect.Type) (interface
 			}
 			return val, nil
 		case reflect.String:
+			return str, nil
+		default:
 			return str, nil
 		}
 	}
@@ -562,9 +426,9 @@ func getTelemetryByReflect(methodName string, instance IDevice) (any, error) {
 
 	// 获取实例的反射值
 	instanceValue := reflect.ValueOf(instance)
-	if instanceValue.Kind() == reflect.Ptr {
-		instanceValue = instanceValue.Elem()
-	}
+	//if instanceValue.Kind() == reflect.Ptr {
+	//	instanceValue = instanceValue.Elem()
+	//}
 
 	// 查找方法
 	method := instanceValue.MethodByName(methodName)

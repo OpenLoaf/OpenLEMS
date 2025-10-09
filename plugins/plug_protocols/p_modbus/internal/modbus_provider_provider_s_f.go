@@ -4,7 +4,6 @@ import (
 	"common/c_base"
 	"common/c_device"
 	"common/c_enum"
-	"common/c_log"
 	"common/c_proto"
 	"context"
 	"p_base"
@@ -91,16 +90,6 @@ func NewModbusProvider(ctx context.Context, protocolConfig *c_base.SProtocolConf
 
 func (p *ModbusProtocolProvider) GetConfig() *c_base.SDeviceConfig {
 	return p.deviceConfig
-}
-
-func (p *ModbusProtocolProvider) GetDeviceConfigFields() []*c_base.SFieldDefinition {
-	modbusDeviceConfig := &c_proto.SModbusDeviceConfig{}
-	fields, err := c_base.BuildConfigStructFields(modbusDeviceConfig)
-	if err != nil {
-		c_log.BizErrorf(p.ctx, "解析Modbus配置信息结构失败！")
-		return nil
-	}
-	return fields
 }
 
 func (p *ModbusProtocolProvider) GetProtocolStatus() c_enum.EProtocolStatus {

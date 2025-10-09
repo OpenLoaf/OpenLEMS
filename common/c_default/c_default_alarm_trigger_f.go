@@ -15,7 +15,7 @@ func fAlarmTriggerBool(value interface{}, l c_enum.EAlarmLevel) (trigger bool, l
 func fAlarmTriggerNotZero(value interface{}, l c_enum.EAlarmLevel) (trigger bool, level c_enum.EAlarmLevel, err error) {
 	level = l
 	if v, err := cvt.IntE(value); err == nil {
-		trigger = v == 0
+		trigger = v != 0
 	}
 	return
 }

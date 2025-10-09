@@ -34,11 +34,11 @@ func BuildDescriptionFromYaml(yamlData []byte, deviceConfig ...any) *SDriverInfo
 	}
 
 	if len(deviceConfig) > 0 && deviceConfig[0] != nil {
-		f, err := BuildConfigStructFields(deviceConfig[0])
+		f, err := BuildConfigPoints(deviceConfig[0])
 		if err != nil {
 			panic(errors.Errorf("配置对象中的Fileds解析失败!%+v", err))
 		}
-		info.SetConfigStructFields(f)
+		info.ConfigPoints = f
 	}
 	return info
 }
@@ -85,12 +85,6 @@ func initConfigFieldsTagCache() {
 			configFieldsTagCache[shortTag] = mapping
 		}
 	}
-}
-
-// getTagMappingByTag 根据标签值获取对应的标签映射
-func getTagMappingByTag(tagValue string) *TagMapping {
-	initConfigFieldsTagCache()
-	return configFieldsTagCache[tagValue]
 }
 
 // BuildConfigStructFields 通过反射解析结构体字段，构建配置字段列表
@@ -230,7 +224,7 @@ func parseGoFrameValidationTag(vTag, fieldName string) string {
 						if intVal, err := strconv.ParseInt(parts[0], 10, 64); err == nil {
 							return strconv.FormatInt(intVal, 10)
 						}
-					} else if fieldName == "Max" {
+					} else {
 						if intVal, err := strconv.ParseInt(parts[1], 10, 64); err == nil {
 							return strconv.FormatInt(intVal, 10)
 						}

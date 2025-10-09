@@ -102,14 +102,6 @@ func (s *SRealDeviceImpl[P]) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{}
 }
 
-func (s *SRealDeviceImpl[P]) GetProtocolPoints() []c_base.IPoint {
-	return []c_base.IPoint{}
-}
-
-func (s *SRealDeviceImpl[P]) GetConfigPoints() []*c_base.SConfigPoint {
-	return []*c_base.SConfigPoint{}
-}
-
 func (s *SRealDeviceImpl[P]) isProtocolNil() bool {
 	// 对于泛型类型，需要特殊处理 nil 检查
 	// 由于泛型约束，我们需要通过接口来检查
