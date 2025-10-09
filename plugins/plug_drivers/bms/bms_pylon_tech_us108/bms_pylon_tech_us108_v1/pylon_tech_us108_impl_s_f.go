@@ -340,7 +340,7 @@ func (p *sBmsPylonTechUs108) _syncTime() error {
 }
 
 // 实现新的IDevice接口方法
-func (p *sBmsPylonTechUs108) GetTelemetryPoints() []c_base.IPoint {
+func (p *sBmsPylonTechUs108) GetPoints() []c_base.IPoint {
 	return []c_base.IPoint{
 		// 遥测点位
 		telemetryBmsStatusPoint,
@@ -364,5 +364,14 @@ func (p *sBmsPylonTechUs108) GetTelemetryPoints() []c_base.IPoint {
 		Minute,
 		Second,
 		// 可以继续添加其他协议点位
+	}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
+func (p *sBmsPylonTechUs108) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		telemetryBmsStatusPoint, // 电池状态 - 最重要的状态信息
+		telemetrySocPoint,       // SOC - 电池电量百分比
+		telemetryDcPowerPoint,   // 直流功率 - 运行状态指标
 	}
 }

@@ -90,9 +90,16 @@ func (s *sBasicGpioIn) GetStatus() *bool {
 }
 
 // 实现新的IDevice接口方法
-func (s *sBasicGpioIn) GetTelemetryPoints() []c_base.IPoint {
+func (s *sBasicGpioIn) GetPoints() []c_base.IPoint {
 	// 返回GPIO协议点位
 	return []c_base.IPoint{
 		gpioPoint,
+	}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
+func (s *sBasicGpioIn) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		gpioPoint, // GPIO状态 - 最重要的状态信息
 	}
 }

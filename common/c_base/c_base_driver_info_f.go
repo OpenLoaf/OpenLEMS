@@ -20,7 +20,7 @@ func GetAllTelemetry(instance IDevice) map[string]any {
 	result := make(map[string]any)
 
 	// 获取所有点位数据
-	allPoints := instance.GetTelemetryPoints()
+	allPoints := instance.GetPoints()
 	pointValueList := instance.GetPointValueList()
 
 	// 创建点位值映射，便于查找
@@ -59,7 +59,7 @@ func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
 	var result []*SPointValue
 
 	// 获取所有点位数据
-	allPoints := instance.GetTelemetryPoints()
+	allPoints := instance.GetPoints()
 	pointValueList := instance.GetPointValueList()
 
 	// 创建点位值映射，便于查找

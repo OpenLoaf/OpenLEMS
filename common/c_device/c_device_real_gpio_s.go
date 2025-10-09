@@ -32,6 +32,11 @@ func (s *SRealGpio) IsVirtualDevice() bool {
 }
 
 // 实现新的IDevice接口方法 - GPIO设备默认实现
+func (s *SRealGpio) GetPoints() []c_base.IPoint {
+	return []c_base.IPoint{}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）- GPIO设备默认实现
 func (s *SRealGpio) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{}
 }

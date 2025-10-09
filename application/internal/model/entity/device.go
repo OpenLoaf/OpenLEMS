@@ -91,6 +91,7 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 					}
 				}
 			}
+
 		}
 		protocolConfig := record.ProtocolConfig
 		if protocolConfig != nil {
@@ -134,9 +135,101 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 		if device := common.GetDeviceManager().GetDeviceById(record.Id); device != nil {
 			t.AlarmLevel = device.GetAlarmLevel().String()
 			t.ProtocolStatus = device.GetProtocolStatus().String()
+
+			// 从telemetry中获取所有遥测点位并转换为DriverTelemetry
+			telemetryPoints := device.GetTelemetryPoints()
+			if len(telemetryPoints) > 0 {
+				t.DriverTelemetry = make([]*c_base.SFieldDefinition, 0, len(telemetryPoints))
+				for _, point := range telemetryPoints {
+					if point != nil {
+						fieldDef := convertIPointToFieldDefinition(point)
+						if fieldDef != nil {
+							t.DriverTelemetry = append(t.DriverTelemetry, fieldDef)
+						}
+					}
+				}
+			}
 		}
 
 		return nil
 	}
 	return errors.Errorf(`unsupported value type for UnmarshalValue: %v`, reflect.TypeOf(value))
+}
+
+// convertIPointToFieldDefinition 将IPoint转换为SFieldDefinition
+// 参考SConfigPoint.ToFieldDefinition()方法的实现逻辑
+func convertIPointToFieldDefinition(point c_base.IPoint) *c_base.SFieldDefinition {
+	if point == nil {
+		return nil
+	}
+
+	// 转换值类型
+	valueType := convertEValueTypeToConfigFieldsValueType(point.GetValueType())
+
+	// 根据值类型推断组件类型
+	componentType := inferComponentTypeFromValueType(valueType)
+
+	// 处理指针类型字段
+	var unit *string
+	if unitStr := point.GetUnit(); unitStr != "" {
+		unit = &unitStr
+	}
+
+	var min, max *int64
+	if minVal := point.GetMin(); minVal != 0 {
+		min = &minVal
+	}
+	if maxVal := point.GetMax(); maxVal != 0 {
+		max = &maxVal
+	}
+
+	// 获取分组信息
+	var group string
+	if groupInfo := point.GetGroup(); groupInfo != nil {
+		group = groupInfo.GroupName
+	}
+
+	// 创建SFieldDefinition
+	fieldDef := &c_base.SFieldDefinition{
+		Key:           point.GetKey(),
+		Name:          point.GetName(),
+		Group:         group,
+		ValueType:     valueType,
+		ComponentType: componentType,
+		Unit:          unit,
+		Min:           min,
+		Max:           max,
+		Description:   point.GetDesc(),
+		Required:      false, // 遥测点位通常不是必填的
+	}
+
+	return fieldDef
+}
+
+// convertEValueTypeToConfigFieldsValueType 将EValueType转换为EConfigFieldsValueType
+func convertEValueTypeToConfigFieldsValueType(valueType c_enum.EValueType) c_enum.EConfigFieldsValueType {
+	switch valueType {
+	case c_enum.EBool:
+		return c_enum.EConfigFieldsValueTypeBoolean
+	case c_enum.EInt8, c_enum.EUint8, c_enum.EInt16, c_enum.EUint16, c_enum.EInt32, c_enum.EUint32, c_enum.EInt64, c_enum.EUint64:
+		return c_enum.EConfigFieldsValueTypeInt
+	case c_enum.EFloat32, c_enum.EFloat64:
+		return c_enum.EConfigFieldsValueTypeFloat
+	case c_enum.EString:
+		return c_enum.EConfigFieldsValueTypeString
+	default:
+		return c_enum.EConfigFieldsValueTypeString
+	}
+}
+
+// inferComponentTypeFromValueType 根据值类型推断组件类型
+func inferComponentTypeFromValueType(valueType c_enum.EConfigFieldsValueType) c_enum.EConfigFieldsComponentType {
+	switch valueType {
+	case c_enum.EConfigFieldsValueTypeBoolean:
+		return c_enum.EConfigFieldsComponentTypeSwitch
+	case c_enum.EConfigFieldsValueTypeInt, c_enum.EConfigFieldsValueTypeFloat:
+		return c_enum.EConfigFieldsComponentTypeNumber
+	default:
+		return c_enum.EConfigFieldsComponentTypeText
+	}
 }

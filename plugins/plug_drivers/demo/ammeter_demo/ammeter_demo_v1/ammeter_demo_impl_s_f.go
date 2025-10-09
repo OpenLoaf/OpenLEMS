@@ -134,7 +134,7 @@ func (s *sAmmeterDemo) GetHistoryOutgoingQuantity() (*float64, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sAmmeterDemo) GetTelemetryPoints() []c_base.IPoint {
+func (s *sAmmeterDemo) GetPoints() []c_base.IPoint {
 	return []c_base.IPoint{
 		// 遥测点位
 		telemetryPTotalPoint,
@@ -168,5 +168,13 @@ func (s *sAmmeterDemo) GetTelemetryPoints() []c_base.IPoint {
 		PowerFactor,
 		RatedLineVoltage,
 		RatedFrequency,
+	}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
+func (s *sAmmeterDemo) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		telemetryPTotalPoint,    // 总功率 - 核心测量值
+		telemetryFrequencyPoint, // 频率 - 电网质量指标
 	}
 }

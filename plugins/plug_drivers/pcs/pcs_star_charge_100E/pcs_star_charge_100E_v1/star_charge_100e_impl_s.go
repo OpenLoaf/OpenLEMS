@@ -209,7 +209,7 @@ func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (*float64, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sPcsStarCharge100E) GetTelemetryPoints() []c_base.IPoint {
+func (s *sPcsStarCharge100E) GetPoints() []c_base.IPoint {
 	// 返回Modbus协议点位
 	return []c_base.IPoint{
 		InverterOperationStatus,
@@ -221,5 +221,14 @@ func (s *sPcsStarCharge100E) GetTelemetryPoints() []c_base.IPoint {
 		ReactivePowerSetting,
 		OnOffCommand,
 		// 可以继续添加其他协议点位
+	}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
+func (s *sPcsStarCharge100E) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		TotalActivePowerInverterSide, // 总有功功率 - 核心运行参数
+		InverterOperationStatus,      // 运行状态 - 设备状态信息
+		AverageFrequency,             // 频率 - 电网质量指标
 	}
 }

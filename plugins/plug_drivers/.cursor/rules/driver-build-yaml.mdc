@@ -467,7 +467,7 @@ func (b *BmsPylonTechUs108Impl) GetStatus() (*int32, error) {
 }
 
 // 实现IDevice接口方法
-func (b *BmsPylonTechUs108Impl) GetTelemetryPoints() []c_base.IPoint {
+func (b *BmsPylonTechUs108Impl) GetPoints() []c_base.IPoint {
     return []c_base.IPoint{
         telemetrySocPoint,
         telemetryVoltagePoint,
@@ -582,7 +582,7 @@ func (d *DeviceImpl) GetConfigPoints() []*SConfigPoint {
 
 ```go
 // 在驱动中实现IDevice接口的新方法
-func (d *DeviceImpl) GetTelemetryPoints() []*SReflectPoint {
+func (d *DeviceImpl) GetPoints() []*SReflectPoint {
     return []*SReflectPoint{
         telemetrySocPoint,
         telemetryVoltagePoint,
@@ -681,7 +681,7 @@ func ValidateAllPoints(deviceManager IDeviceManager) error {
    - 将配置结构体转换为SConfigPoint定义
 
 3. **实现新接口方法**：
-   - 实现GetTelemetryPoints()方法
+   - 实现GetPoints()方法
    - 实现GetProtocolPoints()方法
    - 实现GetConfigPoints()方法
 
@@ -738,7 +738,7 @@ protocolCurrentPoint = &SModbusPoint{
 
 ```go
 // ✅ 正确 - 实现所有必需的接口方法
-func (d *DeviceImpl) GetTelemetryPoints() []*SReflectPoint {
+func (d *DeviceImpl) GetPoints() []*SReflectPoint {
     return []*SReflectPoint{
         telemetrySocPoint,
         telemetryVoltagePoint,

@@ -98,6 +98,11 @@ func (s *SRealDeviceImpl[P]) GetConfig() *c_base.SDeviceConfig {
 }
 
 // 实现新的IDevice接口方法 - 默认实现，子类可以覆盖
+func (s *SRealDeviceImpl[P]) GetPoints() []c_base.IPoint {
+	return []c_base.IPoint{}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）- 默认实现，子类可以覆盖
 func (s *SRealDeviceImpl[P]) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{}
 }

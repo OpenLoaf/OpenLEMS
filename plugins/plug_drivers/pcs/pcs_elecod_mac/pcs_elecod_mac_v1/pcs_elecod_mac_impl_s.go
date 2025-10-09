@@ -171,7 +171,7 @@ func (s *sPcsElecodMac) GetIGBTTemperature() (*float32, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sPcsElecodMac) GetTelemetryPoints() []c_base.IPoint {
+func (s *sPcsElecodMac) GetPoints() []c_base.IPoint {
 	// 返回CAN总线协议点位
 	return []c_base.IPoint{
 		elecod_mac_defined.AnalogTotalActivePower,
@@ -179,5 +179,14 @@ func (s *sPcsElecodMac) GetTelemetryPoints() []c_base.IPoint {
 		elecod_mac_defined.AnalogTotalApparentPower,
 		elecod_mac_defined.AnalogTotalPowerFactor,
 		// 可以继续添加其他协议点位
+	}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
+func (s *sPcsElecodMac) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		elecod_mac_defined.AnalogTotalActivePower,   // 总有功功率 - 核心运行参数
+		elecod_mac_defined.AnalogTotalReactivePower, // 总无功功率 - 运行状态指标
+		elecod_mac_defined.AnalogTotalPowerFactor,   // 总功率因数 - 效率指标
 	}
 }

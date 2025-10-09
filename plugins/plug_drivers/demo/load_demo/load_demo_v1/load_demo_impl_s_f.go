@@ -86,7 +86,7 @@ func (s *sLoadDemo) GetMaxOutputPower() (*float64, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sLoadDemo) GetTelemetryPoints() []c_base.IPoint {
+func (s *sLoadDemo) GetPoints() []c_base.IPoint {
 	return []c_base.IPoint{
 		// 遥测点位
 		telemetryPowerPoint,
@@ -99,5 +99,13 @@ func (s *sLoadDemo) GetTelemetryPoints() []c_base.IPoint {
 		MaxLoad,
 		PowerFactor,
 		LoadRate,
+	}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
+func (s *sLoadDemo) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		telemetryPowerPoint,  // 功率 - 核心运行参数
+		telemetryEnergyPoint, // 电量 - 累计统计
 	}
 }

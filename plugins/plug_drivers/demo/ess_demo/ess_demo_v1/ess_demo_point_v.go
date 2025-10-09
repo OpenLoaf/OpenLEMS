@@ -42,7 +42,7 @@ var (
 			ValueType: c_enum.EFloat32,
 			Desc:      "当前SOC",
 		},
-		MethodName: "GetSOC",
+		MethodName: "GetSoc",
 	}
 
 	telemetryGeneratedEnergyPoint = &c_base.SReflectPoint{

@@ -321,6 +321,12 @@ func (p *sEssPylonCheckwatt) HasSmoke() (*bool, error) {
 }
 
 // 实现新的IDevice接口方法
+func (p *sEssPylonCheckwatt) GetPoints() []c_base.IPoint {
+	// 虚拟ESS驱动没有点位，返回空列表
+	return []c_base.IPoint{}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
 func (p *sEssPylonCheckwatt) GetTelemetryPoints() []c_base.IPoint {
 	// 虚拟ESS驱动没有点位，返回空列表
 	return []c_base.IPoint{}

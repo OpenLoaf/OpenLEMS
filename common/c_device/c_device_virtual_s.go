@@ -126,6 +126,11 @@ func (s *SVirtualDeviceImpl) GetConfig() *c_base.SDeviceConfig {
 }
 
 // 实现新的IDevice接口方法 - 虚拟设备默认实现
+func (s *SVirtualDeviceImpl) GetPoints() []c_base.IPoint {
+	return []c_base.IPoint{}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）- 虚拟设备默认实现
 func (s *SVirtualDeviceImpl) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{}
 }

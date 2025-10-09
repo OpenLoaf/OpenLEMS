@@ -115,7 +115,7 @@ func (s *sPvDemo) GetIrradiance() (*uint32, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sPvDemo) GetTelemetryPoints() []c_base.IPoint {
+func (s *sPvDemo) GetPoints() []c_base.IPoint {
 	return []c_base.IPoint{
 		// 遥测点位
 		telemetryPowerPoint,
@@ -134,5 +134,13 @@ func (s *sPvDemo) GetTelemetryPoints() []c_base.IPoint {
 		Irradiance,
 		Temperature,
 		Efficiency,
+	}
+}
+
+// GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
+func (s *sPvDemo) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		telemetryPowerPoint,           // 发电功率 - 核心输出
+		telemetryGeneratedEnergyPoint, // 发电量 - 累计统计
 	}
 }
