@@ -86,6 +86,8 @@ func (s *sAutomationServiceImpl) GetAutomationById(ctx context.Context, id int) 
 
 // UpdateAutomation 更新自动化规则
 func (s *sAutomationServiceImpl) UpdateAutomation(ctx context.Context, id int, data map[string]interface{}) error {
+	g.Log().Infof(ctx, "开始更新自动化规则，ID: %d, 数据: %+v", id, data)
+
 	automation := &s_db_model.SAutomationModel{}
 	err := automation.GetById(ctx, id)
 	if err != nil {
@@ -93,44 +95,97 @@ func (s *sAutomationServiceImpl) UpdateAutomation(ctx context.Context, id int, d
 		return err
 	}
 
+	g.Log().Infof(ctx, "获取到自动化规则，当前状态: Enabled=%t", automation.Enabled)
+
 	// 更新字段
-	if value, ok := data["startTime"].(*time.Time); ok && value != nil {
-		automation.StartTime = gtime.New(*value)
+	if value, ok := data[s_db_model.FieldAutomationStartTime].(*gtime.Time); ok && value != nil {
+		automation.StartTime = value
+		g.Log().Infof(ctx, "更新 startTime: %v", value)
 	}
-	if value, ok := data["endTime"].(*time.Time); ok {
-		if value != nil {
-			automation.EndTime = gtime.New(*value)
-		} else {
-			automation.EndTime = nil
-		}
+	if value, ok := data[s_db_model.FieldAutomationEndTime].(*gtime.Time); ok {
+		automation.EndTime = value
+		g.Log().Infof(ctx, "更新 endTime: %v", value)
 	}
-	if value, ok := data["timeRangeType"].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationTimeRangeType].(string); ok {
 		automation.TimeRangeType = value
+		g.Log().Infof(ctx, "更新 timeRangeType: %s", value)
 	}
-	if value, ok := data["timeRangeValue"].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationTimeRangeValue].(string); ok {
 		automation.TimeRangeValue = value
+		g.Log().Infof(ctx, "更新 timeRangeValue: %s", value)
 	}
-	if value, ok := data["triggerRule"].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationTriggerRule].(string); ok {
 		automation.TriggerRule = value
+		g.Log().Infof(ctx, "更新 triggerRule: %s", value)
 	}
-	if value, ok := data["executeRule"].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationExecuteRule].(string); ok {
 		automation.ExecuteRule = value
+		g.Log().Infof(ctx, "更新 executeRule: %s", value)
 	}
-	if value, ok := data["enable"].(bool); ok {
+	if value, ok := data[s_db_model.FieldEnabled].(bool); ok {
+		g.Log().Infof(ctx, "找到 enabled 字段，值: %t, 当前值: %t", value, automation.Enabled)
 		automation.Enabled = value
+		g.Log().Infof(ctx, "更新 enabled: %t", value)
+	} else {
+		g.Log().Warningf(ctx, "未找到 enabled 字段，数据中的键: %v", getMapKeys(data))
+	}
+	if value, ok := data[s_db_model.FieldAutomationExecutionInterval].(int); ok {
+		automation.ExecutionInterval = value
+		g.Log().Infof(ctx, "更新 executionInterval: %d", value)
 	}
 
 	// 更新 updated_at
 	automation.UpdatedAt = gtime.Now()
 
-	err = automation.Update(ctx)
+	g.Log().Infof(ctx, "准备更新数据库，最终状态: Enabled=%t", automation.Enabled)
+
+	// 使用 UpdateFields 方法，只更新需要的字段
+	updateFields := g.Map{
+		s_db_model.FieldEnabled:   automation.Enabled,
+		s_db_model.FieldUpdatedAt: automation.UpdatedAt,
+	}
+
+	// 如果有其他字段需要更新，也添加到 updateFields 中
+	if automation.StartTime != nil {
+		updateFields[s_db_model.FieldAutomationStartTime] = automation.StartTime
+	}
+	if automation.EndTime != nil {
+		updateFields[s_db_model.FieldAutomationEndTime] = automation.EndTime
+	}
+	if automation.TimeRangeType != "" {
+		updateFields[s_db_model.FieldAutomationTimeRangeType] = automation.TimeRangeType
+	}
+	if automation.TimeRangeValue != "" {
+		updateFields[s_db_model.FieldAutomationTimeRangeValue] = automation.TimeRangeValue
+	}
+	if automation.TriggerRule != "" {
+		updateFields[s_db_model.FieldAutomationTriggerRule] = automation.TriggerRule
+	}
+	if automation.ExecuteRule != "" {
+		updateFields[s_db_model.FieldAutomationExecuteRule] = automation.ExecuteRule
+	}
+	if automation.ExecutionInterval > 0 {
+		updateFields[s_db_model.FieldAutomationExecutionInterval] = automation.ExecutionInterval
+	}
+
+	g.Log().Infof(ctx, "更新字段: %+v", updateFields)
+	err = automation.UpdateFields(ctx, updateFields)
 	if err != nil {
 		g.Log().Errorf(ctx, "更新自动化规则失败，ID: %d - 错误: %+v", id, err)
 		return err
 	}
 
-	g.Log().Infof(ctx, "成功更新自动化规则，ID: %d", id)
+	g.Log().Infof(ctx, "成功更新自动化规则，ID: %d, 最终状态: Enabled=%t", id, automation.Enabled)
 	return nil
+}
+
+// getMapKeys 获取 map 的所有键
+func getMapKeys(m map[string]interface{}) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
 // DeleteAutomation 删除自动化规则
@@ -195,7 +250,7 @@ func (s *sAutomationServiceImpl) buildAutomationQuery(ctx context.Context, devic
 			model = model.Where(s_db_model.FieldAutomationTimeRangeType, timeRangeType)
 			g.Log().Infof(ctx, "应用时间范围类型过滤: %s", timeRangeType)
 		}
-		if enable, ok := filters["enable"].(bool); ok {
+		if enable, ok := filters[s_db_model.FieldEnabled].(bool); ok {
 			model = model.Where(s_db_model.FieldEnabled, enable)
 			g.Log().Infof(ctx, "应用启用状态过滤: %t", enable)
 		}

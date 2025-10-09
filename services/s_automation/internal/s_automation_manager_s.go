@@ -204,16 +204,16 @@ func (m *SAutomationManager) UpdateAutomation(ctx context.Context, id int, data 
 // EnableAutomation 启用自动化任务
 func (m *SAutomationManager) EnableAutomation(ctx context.Context, id int) error {
 	return m.UpdateAutomation(ctx, id, map[string]interface{}{
-		"enable":     true,
-		"updated_at": gtime.Now(),
+		s_db_model.FieldEnabled:   true,
+		s_db_model.FieldUpdatedAt: gtime.Now(),
 	})
 }
 
 // DisableAutomation 停用自动化任务
 func (m *SAutomationManager) DisableAutomation(ctx context.Context, id int) error {
 	return m.UpdateAutomation(ctx, id, map[string]interface{}{
-		"enable":     false,
-		"updated_at": gtime.Now(),
+		s_db_model.FieldEnabled:   false,
+		s_db_model.FieldUpdatedAt: gtime.Now(),
 	})
 }
 
