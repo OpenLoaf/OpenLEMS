@@ -15,4 +15,9 @@ type IDevice interface {
 	GetLastUpdateTime() *time.Time     // 获取最后更新时间
 
 	IsVirtualDevice() bool // 是否是虚拟设备
+
+	// 统一点位管理方法
+	GetTelemetryPoints() []IPoint     // 获取遥测点位列表
+	GetProtocolPoints() []IPoint      // 获取协议点位列表
+	GetConfigPoints() []*SConfigPoint // 获取配置点位列表
 }

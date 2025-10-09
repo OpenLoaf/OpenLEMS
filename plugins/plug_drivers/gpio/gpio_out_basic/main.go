@@ -3,6 +3,7 @@ package main
 import (
 	driver "basic_gpio_out/gpio_out_basic_v1" // 修改此处
 	"common/c_base"
+	"fmt"
 )
 
 // 通过构建脚本自动注入
@@ -21,4 +22,8 @@ func GetDriverInfo() *c_base.SDriverInfo {
 	info.BuildTime = buildTime
 	info.CommitHash = commitHash
 	return info
+}
+
+func main() {
+	fmt.Println(GetDriverInfo())
 }

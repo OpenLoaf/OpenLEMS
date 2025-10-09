@@ -75,7 +75,7 @@ func (t *SDeviceTree) UnmarshalValue(value interface{}) error {
 			t.DriverModel = driverInfo.Model
 			t.DriverBrand = driverInfo.Brand
 			t.DriverVersion = driverInfo.Version
-			t.DriverTelemetry = driverInfo.Telemetry
+			// t.DriverTelemetry = driverInfo.Telemetry // 已移除Telemetry字段
 			t.DriverService = driverInfo.Service
 			t.DriverType = string(driverInfo.Type)
 

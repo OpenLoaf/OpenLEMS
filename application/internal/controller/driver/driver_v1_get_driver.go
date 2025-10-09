@@ -31,7 +31,7 @@ func (c *ControllerV1) GetDriver(ctx context.Context, req *v1.GetDriverReq) (res
 	sDriver.BuildTime = driverInfo.BuildTime
 	sDriver.CommitHash = driverInfo.CommitHash
 	sDriver.Author = driverInfo.Author
-	sDriver.Telemetry = driverInfo.Telemetry
+	// sDriver.Telemetry = driverInfo.Telemetry // 已移除Telemetry字段
 
 	return &v1.GetDriverRes{Driver: sDriver}, nil
 }

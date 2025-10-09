@@ -3,6 +3,7 @@ package main
 import (
 	"common/c_base"
 	driver "ess_demo/ess_demo_v1" // 修改此处
+	"fmt"
 )
 
 // 通过构建脚本自动注入
@@ -21,4 +22,8 @@ func GetDriverInfo() *c_base.SDriverInfo {
 	info.BuildTime = buildTime
 	info.CommitHash = commitHash
 	return info
+}
+
+func main() {
+	fmt.Println(GetDriverInfo())
 }

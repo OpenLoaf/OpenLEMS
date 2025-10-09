@@ -14,47 +14,96 @@ import (
 )
 
 func GetAllTelemetry(instance IDevice) map[string]any {
-
-	if instance == nil || instance.GetProtocolStatus() != c_enum.EProtocolConnected { // 如果实例不是连接成功的，就不要返回数据了
+	if instance == nil || instance.GetProtocolStatus() != c_enum.EProtocolConnected {
 		return nil
 	}
-	driverInfo := instance.GetConfig().DriverInfo
-	telemetryMap := make(map[string]any, len(driverInfo.Telemetry))
-	for _, telemetry := range driverInfo.Telemetry {
-		value, err := getTelemetry(telemetry.Key, instance)
-		if err != nil {
-			// 这里有时候err也是正常的，比如系统刚启动，但是页面一直在请求
-			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
-			c_log.Warningf(ctx, "Get telemetry %driverInfo error: %+v", telemetry.Key, err)
-			//fmt.Printf("Get telemetry %driverInfo error: %+v\n", telemetry.Key, err)
-			continue
-		}
-		if value != nil {
-			telemetryMap[telemetry.Key] = value
+
+	result := make(map[string]any)
+
+	// 获取遥测点位数据
+	telemetryPoints := instance.GetTelemetryPoints()
+	for _, point := range telemetryPoints {
+		// 检查是否是SReflectPoint类型
+		if reflectPoint, ok := point.(*SReflectPoint); ok {
+			// 通过反射获取遥测数据
+			value, err := getTelemetryByReflect(reflectPoint.MethodName, instance)
+			if err != nil {
+				c_log.Warningf(context.Background(), "获取遥测数据失败: 点位=%s, 方法=%s, 错误=%v",
+					point.GetKey(), reflectPoint.MethodName, err)
+				continue
+			}
+
+			result[point.GetKey()] = value
 		}
 	}
-	return telemetryMap
+
+	// 获取协议点位数据（从缓存）
+	protocolPoints := instance.GetProtocolPoints()
+	pointValueList := instance.GetPointValueList()
+
+	// 创建点位值映射，便于查找
+	pointValueMap := make(map[string]*SPointValue)
+	for _, pv := range pointValueList {
+		pointValueMap[pv.GetKey()] = pv
+	}
+
+	for _, point := range protocolPoints {
+		// 从缓存中获取数据
+		if pv, exists := pointValueMap[point.GetKey()]; exists && pv != nil {
+			result[point.GetKey()] = pv.GetValue()
+		}
+	}
+
+	return result
 }
 
 func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
-	if instance == nil { // 如果实例不是连接成功的，就不要返回数据了
+	if instance == nil {
 		return nil
 	}
-	driverInfo := instance.GetConfig().DriverInfo
-	var list []*SPointValue
-	for _, telemetry := range driverInfo.Telemetry {
-		value, err := getTelemetry(telemetry.Key, instance)
-		if err != nil {
-			// 这里有时候err也是正常的，比如系统刚启动，但是页面一直在请求
-			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
-			c_log.Warningf(ctx, "Get telemetry %driverInfo error: %+v", telemetry.Key, err)
-			//fmt.Printf("Get telemetry %driverInfo error: %+v\n", telemetry.Key, err)
-			continue
-		}
 
-		list = append(list, NewPointValue(instance.GetConfig().Id, telemetry.ToPointWithValueType(ResolvingValueType(value), instance.GetConfig().Params), value))
+	var result []*SPointValue
+
+	// 获取遥测点位数据
+	telemetryPoints := instance.GetTelemetryPoints()
+	for _, point := range telemetryPoints {
+		// 检查是否是SReflectPoint类型
+		if reflectPoint, ok := point.(*SReflectPoint); ok {
+			// 通过反射获取遥测数据
+			value, err := getTelemetryByReflect(reflectPoint.MethodName, instance)
+			if err != nil {
+				c_log.Warningf(context.Background(), "获取遥测数据失败: 点位=%s, 方法=%s, 错误=%v",
+					point.GetKey(), reflectPoint.MethodName, err)
+				continue
+			}
+
+			// 创建SPointValue
+			pointValue := &SPointValue{
+				IPoint: point,
+				value:  value,
+			}
+			result = append(result, pointValue)
+		}
 	}
-	return list
+
+	// 获取协议点位数据（从缓存）
+	protocolPoints := instance.GetProtocolPoints()
+	pointValueList := instance.GetPointValueList()
+
+	// 创建点位值映射，便于查找
+	pointValueMap := make(map[string]*SPointValue)
+	for _, pv := range pointValueList {
+		pointValueMap[pv.GetKey()] = pv
+	}
+
+	for _, point := range protocolPoints {
+		// 从缓存中获取数据
+		if pv, exists := pointValueMap[point.GetKey()]; exists && pv != nil {
+			result = append(result, pv)
+		}
+	}
+
+	return result
 }
 
 // ResolvingValueType TODO 提出来
@@ -503,4 +552,32 @@ func convertFloatValue(val float64, targetType reflect.Type) (interface{}, error
 	default:
 		return nil, errors.Errorf("不支持的浮点数类型: %s", targetType.String())
 	}
+}
+
+// getTelemetryByReflect 通过反射获取遥测数据
+func getTelemetryByReflect(methodName string, instance IDevice) (any, error) {
+	if instance == nil || methodName == "" {
+		return nil, errors.New("instance or methodName is nil")
+	}
+
+	// 获取实例的反射值
+	instanceValue := reflect.ValueOf(instance)
+	if instanceValue.Kind() == reflect.Ptr {
+		instanceValue = instanceValue.Elem()
+	}
+
+	// 查找方法
+	method := instanceValue.MethodByName(methodName)
+	if !method.IsValid() {
+		return nil, errors.Errorf("method %s not found", methodName)
+	}
+
+	// 调用方法
+	results := method.Call(nil)
+	if len(results) == 0 {
+		return nil, errors.Errorf("method %s returned no values", methodName)
+	}
+
+	// 返回第一个结果
+	return results[0].Interface(), nil
 }

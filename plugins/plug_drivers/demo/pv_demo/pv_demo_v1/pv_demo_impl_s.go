@@ -113,3 +113,34 @@ func (s *sPvDemo) GetTemperature() (*uint32, error) {
 func (s *sPvDemo) GetIrradiance() (*uint32, error) {
 	return s.GetFromPointUint32(InstalledCapacity)
 }
+
+// 实现新的IDevice接口方法
+func (s *sPvDemo) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		telemetryPowerPoint,
+		telemetryGeneratedEnergyPoint,
+		telemetryPowerLimitPoint,
+		telemetryCapacityPoint,
+		telemetryTemperaturePoint,
+		telemetryIrradiancePoint,
+	}
+}
+
+func (s *sPvDemo) GetProtocolPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		Status,
+		Power,
+		GeneratedEnergy,
+		OnOffState,
+		PowerLimit,
+		InstalledCapacity,
+		Irradiance,
+		Temperature,
+		Efficiency,
+	}
+}
+
+func (s *sPvDemo) GetConfigPoints() []*c_base.SConfigPoint {
+	// 光伏驱动没有配置点位，返回空列表
+	return []*c_base.SConfigPoint{}
+}

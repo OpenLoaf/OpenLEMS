@@ -1,6 +1,7 @@
 package bms_pylon_tech_us108_v1
 
 import (
+	"common/c_base"
 	"common/c_device"
 	"common/c_enum"
 	"common/c_log"
@@ -336,4 +337,47 @@ func (p *sBmsPylonTechUs108) _syncTime() error {
 		c_log.Infof(p.DeviceCtx, "同步时间成功！")
 		return nil
 	})
+}
+
+// 实现新的IDevice接口方法
+func (p *sBmsPylonTechUs108) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		telemetryBmsStatusPoint,
+		telemetrySocPoint,
+		telemetryCapacityPoint,
+		telemetryDcPowerPoint,
+		telemetryDcVoltagePoint,
+		telemetryDcCurrentPoint,
+		telemetryHistoryIncomingQuantityPoint,
+		telemetryHistoryOutgoingQuantityPoint,
+	}
+}
+
+func (p *sBmsPylonTechUs108) GetProtocolPoints() []c_base.IPoint {
+	// 由于点位定义很多，这里只返回一些主要的协议点位
+	// 实际使用时可以根据需要添加更多点位
+	return []c_base.IPoint{
+		SleepControl,
+		AllowCharge,
+		AllowDischarge,
+		TempShield,
+		AllowRun,
+		Year,
+		Month,
+		Day,
+		Hour,
+		Minute,
+		Second,
+		// 可以继续添加其他协议点位
+	}
+}
+
+func (p *sBmsPylonTechUs108) GetConfigPoints() []*c_base.SConfigPoint {
+	// 从配置结构体转换而来
+	configPoints, err := c_base.BuildConfigPoints(p.bmsConfig)
+	if err != nil {
+		c_log.Errorf(p.DeviceCtx, "构建配置点位失败: %v", err)
+		return []*c_base.SConfigPoint{}
+	}
+	return configPoints
 }

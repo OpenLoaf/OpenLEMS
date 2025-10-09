@@ -199,9 +199,11 @@ func TriggerOfflineAlarm(protocolId string, trigger bool) {
 
 		// 触发或清除离线告警
 		device.UpdateAlarm(device.GetConfig().Id, &c_proto.SModbusPoint{
-			SPoint: &c_base.SPoint{
-				Key:  "Offline",
-				Name: "设备连接状态告警",
+			SProtocolPoint: &c_base.SProtocolPoint{
+				SPoint: &c_base.SPoint{
+					Key:  "Offline",
+					Name: "设备连接状态告警",
+				},
 			},
 			Trigger: func(value interface{}) (trigger bool, level c_enum.EAlarmLevel, err error) {
 				trigger, err = cvt.BoolE(value)

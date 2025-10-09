@@ -169,3 +169,30 @@ func (s *sPcsElecodMac) GetIGBTTemperature() (*float32, error) {
 	// TODO: 实现IGBT温度获取逻辑
 	return nil, nil
 }
+
+// 实现新的IDevice接口方法
+func (s *sPcsElecodMac) GetTelemetryPoints() []c_base.IPoint {
+	// PCS驱动没有遥测点位，返回空列表
+	return []c_base.IPoint{}
+}
+
+func (s *sPcsElecodMac) GetProtocolPoints() []c_base.IPoint {
+	// 返回CAN总线协议点位
+	return []c_base.IPoint{
+		elecod_mac_defined.AnalogTotalActivePower,
+		elecod_mac_defined.AnalogTotalReactivePower,
+		elecod_mac_defined.AnalogTotalApparentPower,
+		elecod_mac_defined.AnalogTotalPowerFactor,
+		// 可以继续添加其他协议点位
+	}
+}
+
+func (s *sPcsElecodMac) GetConfigPoints() []*c_base.SConfigPoint {
+	// 从配置结构体转换而来
+	configPoints, err := c_base.BuildConfigPoints(s.pcsConfig)
+	if err != nil {
+		c_log.Errorf(s.DeviceCtx, "构建配置点位失败: %v", err)
+		return []*c_base.SConfigPoint{}
+	}
+	return configPoints
+}

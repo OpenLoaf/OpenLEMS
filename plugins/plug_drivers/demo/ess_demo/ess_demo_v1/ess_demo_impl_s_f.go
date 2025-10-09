@@ -1,6 +1,7 @@
 package ess_demo_v1
 
 import (
+	"common/c_base"
 	"common/c_device"
 	"common/c_enum"
 	"common/c_proto"
@@ -203,4 +204,38 @@ func (s *sEssDemo) GetCarbonMonoxideConcentration() (*float64, error) {
 
 func (s *sEssDemo) HasSmoke() (*bool, error) {
 	return nil, nil
+}
+
+// 实现新的IDevice接口方法
+func (s *sEssDemo) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		telemetryPowerPoint,
+		telemetrySocPoint,
+		telemetryGeneratedEnergyPoint,
+		telemetryConsumedEnergyPoint,
+	}
+}
+
+func (s *sEssDemo) GetProtocolPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		Status,
+		Power,
+		SOC,
+		GeneratedEnergy,
+		ConsumedEnergy,
+		MaxChargePower,
+		MaxDischargePower,
+		DeviceControl,
+		TargetPower,
+		PowerCapacity,
+		EnergyCapacity,
+		MinSOC,
+		MaxSOC,
+		ChargeEfficiency,
+	}
+}
+
+func (s *sEssDemo) GetConfigPoints() []*c_base.SConfigPoint {
+	// ESS驱动没有配置点位，返回空列表
+	return []*c_base.SConfigPoint{}
 }

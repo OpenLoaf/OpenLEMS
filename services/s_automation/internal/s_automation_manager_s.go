@@ -453,7 +453,7 @@ func (m *SAutomationManager) checkDeviceCondition(deviceCondition *SAutomationDe
 		return false
 	}
 
-	g.Log().Infof(m.ctx, "设备条件检查结果 - 设备: %s, 规则: %s, 结果: %v",
+	g.Log().Debugf(m.ctx, "设备条件检查结果 - 设备: %s, 规则: %s, 结果: %v",
 		deviceCondition.DeviceId, deviceCondition.Rule, result)
 
 	return result

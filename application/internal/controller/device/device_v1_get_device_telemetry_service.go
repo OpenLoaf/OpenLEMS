@@ -36,8 +36,8 @@ func (c *ControllerV1) GetDeviceTelemetryService(ctx context.Context, req *v1.Ge
 	res = &v1.GetDeviceTelemetryServiceRes{
 		DeviceId:   req.DeviceId,
 		DeviceName: deviceConfig.Name,
-		Telemetry:  driverInfo.Telemetry,
-		Service:    driverInfo.Service,
+		// Telemetry:  driverInfo.Telemetry, // 已移除Telemetry字段
+		Service: driverInfo.Service,
 	}
 
 	return res, nil

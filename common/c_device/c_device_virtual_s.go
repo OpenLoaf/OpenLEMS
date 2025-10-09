@@ -125,6 +125,19 @@ func (s *SVirtualDeviceImpl) GetConfig() *c_base.SDeviceConfig {
 	return s.deviceConfig
 }
 
+// 实现新的IDevice接口方法 - 虚拟设备默认实现
+func (s *SVirtualDeviceImpl) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{}
+}
+
+func (s *SVirtualDeviceImpl) GetProtocolPoints() []c_base.IPoint {
+	return []c_base.IPoint{}
+}
+
+func (s *SVirtualDeviceImpl) GetConfigPoints() []*c_base.SConfigPoint {
+	return []*c_base.SConfigPoint{}
+}
+
 func (s *SVirtualDeviceImpl) GetFromChildDeviceId(childDeviceId string, processFunction func(device c_base.IDevice) (any, error)) (any, error) {
 	child := s.GetChildById(childDeviceId)
 	if child == nil {

@@ -7,17 +7,15 @@ import (
 )
 
 type SModbusPoint struct {
-	// 地址配置
+	// 继承协议点位基础结构
+	*c_base.SProtocolPoint
+
+	// Modbus特定配置
 	Addr uint16 `json:"addr" v:"required" dc:"Modbus起始地址"`
 
-	// 点位信息
-	*c_base.SPoint
-
+	// 覆盖字段（如果需要与基础结构不同的行为）
 	Sort  int                 `json:"sort"`          // 覆盖SPoint的Sort
 	Group *c_base.SPointGroup `json:"group" dc:"分组"` // 覆盖SPoint的Group
-
-	// 数据访问配置
-	DataAccess *c_base.SDataAccess `json:"dataAccess" v:"required" dc:"数据访问配置"`
 
 	// 功能函数
 	StatusExplain func(value any) (text string, err error)                                    `json:"-" dc:"状态解释函数"`
@@ -25,7 +23,10 @@ type SModbusPoint struct {
 }
 
 func (s *SModbusPoint) GetDataAccess() *c_base.SDataAccess {
-	return s.DataAccess
+	if s.SProtocolPoint != nil {
+		return s.SProtocolPoint.DataAccess
+	}
+	return nil
 }
 
 func (s *SModbusPoint) String() string {
@@ -34,20 +35,29 @@ func (s *SModbusPoint) String() string {
 
 func (s *SModbusPoint) GetValueExplain(value any) (string, error) {
 	if s.StatusExplain == nil {
-		return s.SPoint.GetValueExplain(value)
+		if s.SProtocolPoint != nil && s.SProtocolPoint.SPoint != nil {
+			return s.SProtocolPoint.SPoint.GetValueExplain(value)
+		}
+		return "", fmt.Errorf("SPoint not initialized")
 	}
 	return s.StatusExplain(value)
 }
 func (s *SModbusPoint) IsAlarmPoint() bool {
-	return s.Trigger != nil || s.SPoint.IsAlarmPoint()
+	if s.Trigger != nil {
+		return true
+	}
+	if s.SProtocolPoint != nil && s.SProtocolPoint.SPoint != nil {
+		return s.SProtocolPoint.SPoint.IsAlarmPoint()
+	}
+	return false
 }
 
-func (s *SModbusPoint) AlarmTrigger(value any) (trigger bool, level c_enum.EAlarmLevel, err error) {
+func (s *SModbusPoint) TriggerAlarm(value any) (trigger bool, level c_enum.EAlarmLevel, err error) {
 	if s.Trigger != nil {
 		return s.Trigger(value)
 	}
-	if s.SPoint.Trigger != nil {
-		return s.SPoint.Trigger(value)
+	if s.SProtocolPoint != nil && s.SProtocolPoint.SPoint != nil && s.SProtocolPoint.SPoint.Trigger != nil {
+		return s.SProtocolPoint.SPoint.Trigger(value)
 	}
 	return false, level, nil
 }
@@ -55,11 +65,17 @@ func (s *SModbusPoint) GetGroup() *c_base.SPointGroup {
 	if s.Group != nil {
 		return s.Group
 	}
-	return s.SPoint.Group
+	if s.SProtocolPoint != nil && s.SProtocolPoint.SPoint != nil {
+		return s.SProtocolPoint.SPoint.Group
+	}
+	return nil
 }
 func (s *SModbusPoint) GetSort() int {
 	if s.Sort != 0 {
 		return s.Sort
 	}
-	return s.SPoint.Sort
+	if s.SProtocolPoint != nil && s.SProtocolPoint.SPoint != nil {
+		return s.SProtocolPoint.SPoint.Sort
+	}
+	return 0
 }

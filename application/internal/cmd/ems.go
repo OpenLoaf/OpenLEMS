@@ -71,6 +71,15 @@ func StartServices(ctx context.Context) {
 	// 启动设备
 	go func() {
 		common.GetDeviceManager().Start()
+
+		// 启动时验证所有点位的SPoint字段是否设置
+		if err := c_base.ValidateAllPoints(common.GetDeviceManager()); err != nil {
+			g.Log().Errorf(ctx, "点位验证失败: %+v", err)
+			panic(err)
+		} else {
+			g.Log().Infof(ctx, "所有点位验证通过")
+		}
+
 		c_log.BizInfof(ctx, "EMS系统启动成功！")
 		g.Log().Infof(ctx, "DeviceManger State : %s", common.GetDeviceManager().Status())
 	}()

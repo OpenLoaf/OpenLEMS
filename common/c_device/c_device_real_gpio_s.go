@@ -30,3 +30,16 @@ func NewRealGpio(ctx context.Context, protocol c_proto.IGpiodProtocol) (*SRealGp
 func (s *SRealGpio) IsVirtualDevice() bool {
 	return false
 }
+
+// 实现新的IDevice接口方法 - GPIO设备默认实现
+func (s *SRealGpio) GetTelemetryPoints() []c_base.IPoint {
+	return []c_base.IPoint{}
+}
+
+func (s *SRealGpio) GetProtocolPoints() []c_base.IPoint {
+	return []c_base.IPoint{}
+}
+
+func (s *SRealGpio) GetConfigPoints() []*c_base.SConfigPoint {
+	return []*c_base.SConfigPoint{}
+}

@@ -276,9 +276,503 @@ service:
 4. **性能考虑**: 避免在遥测方法中执行耗时操作
 5. **向后兼容**: 修改现有字段时考虑向后兼容性
 
+## 统一点位管理系统支持
+
+### 概述
+
+统一点位管理系统通过结构体嵌套和类型判断实现统一管理，支持反射遥测点位、协议点位、配置点位的统一管理。系统不再依赖YAML文件中的telemetry配置，改为使用代码化的点位定义。
+
+### 新的点位结构体层次
+
+```text
+SPoint (基础点位信息)
+├── SReflectPoint (反射遥测点位)
+├── SProtocolPoint (协议点位基础)
+│   ├── SModbusPoint (Modbus协议点位)
+│   ├── SCanbusPoint (CAN总线协议点位)
+│   └── SDidioPoint (DIDO协议点位)
+└── SConfigPoint (配置点位)
+```
+
+### 遥测点位代码化
+
+#### 旧方式（YAML配置）
+
+```yaml
+# build.yaml
+telemetry:
+  - key: soc
+    name: "SOC"
+    unit: "%"
+    valueExplain:
+      "0": "未知|#FF5D5D"
+      "1": "正常|#52c41a"
+```
+
+#### 新方式（代码化定义）
+
+```go
+// 包级别点位定义，优先使用预定义配置
+var (
+    // 遥测点位定义 - 直接创建，启动时验证SPoint字段
+    telemetrySocPoint = &SReflectPoint{
+        SPoint: &SPoint{
+            Key:       "soc",
+            Name:      "SOC",
+            Unit:      "%",
+            ValueType: c_enum.EFloat32,
+            Desc:      "电池电量",
+            Min:       0,
+            Max:       100,
+            ValueExplain: []*SFieldExplain{
+                {
+                    Key:       "0",
+                    Value:     "未知",
+                    Color:     "#FF5D5D",
+                    FromParam: false,
+                },
+                {
+                    Key:       "1",
+                    Value:     "正常",
+                    Color:     "#52c41a",
+                    FromParam: false,
+                },
+            },
+        },
+        MethodName: "GetSoc",
+    }
+)
+```
+
+#### 完整驱动示例
+
+```go
+// bms_pylon_tech_us108_impl_s.go
+package main
+
+import (
+    "c_base"
+    "c_enum"
+    "c_default"
+)
+
+// 包级别点位定义
+var (
+    // 遥测点位定义
+    telemetrySocPoint = &c_base.SReflectPoint{
+        SPoint: &c_base.SPoint{
+            Key:       "soc",
+            Name:      "SOC",
+            Unit:      "%",
+            ValueType: c_enum.EFloat32,
+            Desc:      "电池电量",
+            Min:       0,
+            Max:       100,
+        },
+        MethodName: "GetSoc",
+    }
+
+    telemetryVoltagePoint = &c_base.SReflectPoint{
+        SPoint: &c_base.SPoint{
+            Key:       "voltage",
+            Name:      "电压",
+            Unit:      "V",
+            ValueType: c_enum.EFloat32,
+            Desc:      "电池电压",
+            Min:       0,
+            Max:       1000,
+        },
+        MethodName: "GetVoltage",
+    }
+
+    telemetryStatusPoint = &c_base.SReflectPoint{
+        SPoint: &c_base.SPoint{
+            Key:       "status",
+            Name:      "状态",
+            ValueType: c_enum.EInt32,
+            Desc:      "电池状态",
+            ValueExplain: []*c_base.SFieldExplain{
+                {
+                    Key:       "0",
+                    Value:     "未知",
+                    Color:     "#FF5D5D",
+                    FromParam: false,
+                },
+                {
+                    Key:       "1",
+                    Value:     "关机",
+                    Color:     "#9CBF30",
+                    FromParam: false,
+                },
+                {
+                    Key:       "2",
+                    Value:     "待机",
+                    Color:     "#6967EE",
+                    FromParam: false,
+                },
+                {
+                    Key:       "3",
+                    Value:     "充电中",
+                    Color:     "#29A634",
+                    FromParam: false,
+                },
+                {
+                    Key:       "4",
+                    Value:     "放电中",
+                    Color:     "#0098FA",
+                    FromParam: false,
+                },
+            },
+        },
+        MethodName: "GetStatus",
+    }
+
+    // 协议点位定义
+    protocolCurrentPoint = &c_proto.SModbusPoint{
+        SProtocolPoint: &c_base.SProtocolPoint{
+            SPoint:     c_default.VPointIa,        // 使用预定义A相电流点位
+            DataAccess: c_default.VDataAccessFloat32, // 使用预定义浮点数数据访问配置
+        },
+        Addr: 0x1001,
+    }
+
+    protocolVoltagePoint = &c_proto.SModbusPoint{
+        SProtocolPoint: &c_base.SProtocolPoint{
+            SPoint:     c_default.VPointUa,         // 使用预定义A相电压点位
+            DataAccess: c_default.VDataAccessFloat32, // 使用预定义浮点数数据访问配置
+        },
+        Addr: 0x1002,
+    }
+)
+
+// 设备实现
+type BmsPylonTechUs108Impl struct {
+    // 设备字段
+}
+
+// 实现遥测方法
+func (b *BmsPylonTechUs108Impl) GetSoc() (*float32, error) {
+    // 遥测获取逻辑
+    return b.getFromProtocolPoint(protocolCurrentPoint)
+}
+
+func (b *BmsPylonTechUs108Impl) GetVoltage() (*float32, error) {
+    // 遥测获取逻辑
+    return b.getFromProtocolPoint(protocolVoltagePoint)
+}
+
+func (b *BmsPylonTechUs108Impl) GetStatus() (*int32, error) {
+    // 状态获取逻辑
+    return b.getStatusFromProtocol()
+}
+
+// 实现IDevice接口方法
+func (b *BmsPylonTechUs108Impl) GetTelemetryPoints() []c_base.IPoint {
+    return []c_base.IPoint{
+        telemetrySocPoint,
+        telemetryVoltagePoint,
+        telemetryStatusPoint,
+    }
+}
+
+func (b *BmsPylonTechUs108Impl) GetProtocolPoints() []c_base.IPoint {
+    return []c_base.IPoint{
+        protocolCurrentPoint,
+        protocolVoltagePoint,
+    }
+}
+
+func (b *BmsPylonTechUs108Impl) GetConfigPoints() []c_base.IPoint {
+    // 从配置结构体转换而来
+    return []c_base.IPoint{
+        // 配置点位定义
+    }
+}
+```
+
+### 协议点位定义
+
+#### 使用预定义配置
+
+```go
+// 协议点位定义 - 直接创建，启动时验证SPoint字段
+var (
+    protocolCurrentPoint = &SModbusPoint{
+        SProtocolPoint: &SProtocolPoint{
+            SPoint:     c_default.VPointIa,        // 使用预定义A相电流点位
+            DataAccess: c_default.VDataAccessFloat32, // 使用预定义浮点数数据访问配置
+        },
+        Addr: 0x1001,
+    }
+)
+```
+
+#### 自定义协议点位
+
+```go
+// 自定义协议点位
+var (
+    customVoltagePoint = &SModbusPoint{
+        SProtocolPoint: &SProtocolPoint{
+            SPoint: &SPoint{
+                Key:       "customVoltage",
+                Name:      "自定义电压",
+                Unit:      "V",
+                ValueType: c_enum.EFloat32,
+                Desc:      "自定义电压点位",
+                Min:       0,
+                Max:       1000,
+            },
+            DataAccess: &SDataAccess{
+                DataFormat: c_enum.EDataFormatFloat32,
+                ByteEndian: c_enum.EByteEndianBig,
+                WordOrder:  c_enum.EWordOrderHighLow,
+            },
+        },
+        Addr: 0x2001,
+    }
+)
+```
+
+### 配置点位定义
+
+#### 从配置结构体转换
+
+```go
+// 配置结构体定义
+type DeviceConfig struct {
+    Name   string `code:"name" name:"设备名称" ct:"text" v:"required|length:2,50"`
+    Port   int    `code:"port" name:"端口号" ct:"number" v:"required|between:1,65535"`
+    Email  string `code:"email" name:"邮箱" ct:"text" v:"required|email"`
+    Enable bool   `code:"enable" name:"启用状态" ct:"switch" v:"required"`
+}
+
+// 转换为配置点位
+func (d *DeviceImpl) GetConfigPoints() []*SConfigPoint {
+    return []*SConfigPoint{
+        {
+            SPoint: &SPoint{
+                Key:       "name",
+                Name:      "设备名称",
+                ValueType: c_enum.EString,
+                Desc:      "设备的显示名称",
+            },
+            Required: true,
+        },
+        {
+            SPoint: &SPoint{
+                Key:       "port",
+                Name:      "端口号",
+                ValueType: c_enum.EInt32,
+                Unit:      "",
+                Desc:      "设备通信端口",
+                Min:       1,
+                Max:       65535,
+            },
+            Required: true,
+            Default:  stringPtr("502"),
+        },
+    }
+}
+```
+
+### 驱动实现示例
+
+#### 实现新的IDevice接口方法
+
+```go
+// 在驱动中实现IDevice接口的新方法
+func (d *DeviceImpl) GetTelemetryPoints() []*SReflectPoint {
+    return []*SReflectPoint{
+        telemetrySocPoint,
+        telemetryVoltagePoint,
+    }
+}
+
+func (d *DeviceImpl) GetProtocolPoints() []*SProtocolPoint {
+    return []*SProtocolPoint{
+        protocolCurrentPoint.SProtocolPoint,
+        protocolVoltagePoint.SProtocolPoint,
+    }
+}
+
+func (d *DeviceImpl) GetConfigPoints() []*SConfigPoint {
+    return []*SConfigPoint{
+        // 配置点位定义
+    }
+}
+```
+
+### 预定义配置使用规范
+
+#### 优先使用预定义配置
+
+在创建点位时，应优先使用 `c_default` 包中的预定义配置：
+
+```go
+// ✅ 推荐 - 使用预定义配置
+protocolCurrentPoint = &SModbusPoint{
+    SProtocolPoint: &SProtocolPoint{
+        SPoint:     c_default.VPointIa,        // 使用预定义A相电流点位
+        DataAccess: c_default.VDataAccessFloat32, // 使用预定义浮点数数据访问配置
+    },
+    Addr: 0x1001,
+}
+
+// ❌ 不推荐 - 手动创建配置
+protocolCurrentPoint = &SModbusPoint{
+    SProtocolPoint: &SProtocolPoint{
+        SPoint: &SPoint{
+            Key:       "current",
+            Name:      "电流",
+            Unit:      "A",
+            ValueType: c_enum.EFloat32,
+            // ... 手动定义所有字段
+        },
+        DataAccess: &SDataAccess{
+            DataFormat: c_enum.EDataFormatFloat32,
+            // ... 手动定义所有字段
+        },
+    },
+    Addr: 0x1001,
+}
+```
+
+#### 预定义配置优势
+
+1. **标准化**：使用经过验证的标准配置
+2. **一致性**：确保相同类型点位使用相同配置
+3. **维护性**：集中管理，便于更新和维护
+4. **告警功能**：预定义点位已包含告警触发逻辑
+
+### 启动时验证
+
+#### 验证机制
+
+系统启动时会验证所有点位的SPoint字段是否设置：
+
+```go
+// 在系统启动时调用
+func ValidateAllPoints(deviceManager IDeviceManager) error {
+    // 遍历所有设备
+    // 验证遥测点位、协议点位、配置点位的SPoint字段是否设置
+    // 如果未设置，返回错误信息
+}
+```
+
+#### 验证要求
+
+1. **SPoint字段必须设置**：所有点位的SPoint字段都必须在创建时设置
+2. **不可变设计**：点位创建后不允许修改，确保数据一致性
+3. **类型安全**：通过类型判断确定获取方式，避免配置错误
+
+### 迁移指南
+
+#### 从YAML配置迁移到代码化定义
+
+1. **分析现有YAML配置**：
+   - 识别telemetry配置中的遥测点位
+   - 分析现有的协议点位定义
+   - 理解配置结构体的字段定义
+
+2. **创建代码化点位定义**：
+   - 将YAML中的telemetry转换为SReflectPoint定义
+   - 将现有的协议点位更新为SProtocolPoint结构
+   - 将配置结构体转换为SConfigPoint定义
+
+3. **实现新接口方法**：
+   - 实现GetTelemetryPoints()方法
+   - 实现GetProtocolPoints()方法
+   - 实现GetConfigPoints()方法
+
+4. **验证和测试**：
+   - 运行启动时验证，确保所有SPoint字段都已设置
+   - 测试遥测数据获取功能
+   - 测试协议通信功能
+   - 测试配置功能
+
+### 最佳实践
+
+#### 1. 点位定义规范
+
+```go
+// ✅ 正确 - 完整的点位定义
+var (
+    telemetrySocPoint = &SReflectPoint{
+        SPoint: &SPoint{
+            Key:       "soc",
+            Name:      "SOC",
+            Unit:      "%",
+            ValueType: c_enum.EFloat32,
+            Desc:      "电池电量",
+            Min:       0,
+            Max:       100,
+        },
+        MethodName: "GetSoc",
+    }
+)
+
+// ❌ 错误 - SPoint字段未设置
+var (
+    telemetrySocPoint = &SReflectPoint{
+        MethodName: "GetSoc",
+        // SPoint字段未设置，启动时验证会失败
+    }
+)
+```
+
+#### 2. 预定义配置使用
+
+```go
+// ✅ 推荐 - 使用预定义配置
+protocolCurrentPoint = &SModbusPoint{
+    SProtocolPoint: &SProtocolPoint{
+        SPoint:     c_default.VPointIa,        // 使用预定义配置
+        DataAccess: c_default.VDataAccessFloat32, // 使用预定义配置
+    },
+    Addr: 0x1001,
+}
+```
+
+#### 3. 接口方法实现
+
+```go
+// ✅ 正确 - 实现所有必需的接口方法
+func (d *DeviceImpl) GetTelemetryPoints() []*SReflectPoint {
+    return []*SReflectPoint{
+        telemetrySocPoint,
+        telemetryVoltagePoint,
+    }
+}
+
+func (d *DeviceImpl) GetProtocolPoints() []*SProtocolPoint {
+    return []*SProtocolPoint{
+        protocolCurrentPoint.SProtocolPoint,
+    }
+}
+
+func (d *DeviceImpl) GetConfigPoints() []*SConfigPoint {
+    return []*SConfigPoint{
+        // 配置点位定义
+    }
+}
+```
+
+### 注意事项
+
+1. **不向前兼容**：完全移除v1兼容性，直接使用新的统一结构体
+2. **启动时验证**：在系统启动时验证所有*SPoint字段是否设置，确保数据完整性
+3. **不可变设计**：所有结构体数据在创建后不允许修改，确保数据一致性
+4. **预定义配置优先**：优先使用c_default包中的预定义配置，避免手动创建
+5. **类型安全**：通过类型判断确定获取方式，避免配置错误
+
 ## 相关文件
 
 - [c_base_driver_info_s.go](mdc:common/c_base/c_base_driver_info_s.go) - 驱动信息结构体定义
 - [c_base_driver_info_f.go](mdc:common/c_base/c_base_driver_info_f.go) - 驱动信息处理函数
 - [c_base_config_struct_fields_s.go](mdc:common/c_base/c_base_config_struct_fields_s.go) - 配置字段结构体
 - [c_base_config_struct_fields_f.go](mdc:common/c_base/c_base_config_struct_fields_f.go) - 配置字段处理函数
+- [c_base_reflect_point_s.go](mdc:common/c_base/c_base_reflect_point_s.go) - 反射遥测点位结构体
+- [c_base_protocol_point_s.go](mdc:common/c_base/c_base_protocol_point_s.go) - 协议点位基础结构体
+- [c_base_config_point_s.go](mdc:common/c_base/c_base_config_point_s.go) - 配置点位结构体
+- [c_base_point_validation_f.go](mdc:common/c_base/c_base_point_validation_f.go) - 启动时验证机制

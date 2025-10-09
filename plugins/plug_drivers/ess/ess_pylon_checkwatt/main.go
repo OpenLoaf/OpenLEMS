@@ -2,6 +2,7 @@ package main
 
 import (
 	"common/c_base"
+	"fmt"
 	driver "pylon_checkwatt_v1/ess_pylon_checkwatt_v1" // 修改此处
 )
 
@@ -23,14 +24,6 @@ func GetDriverInfo() *c_base.SDriverInfo {
 	return info
 }
 
-/*
 func main() {
-	command := c_base.PluginDriverCommand(func() c_base.IDevice {
-		return NewPlugin(context.Background())
-	})
-
-	// 此处可添加自定义命令
-	//command.AddCommand()
-	command.Run(context.Background())
+	fmt.Println(GetDriverInfo())
 }
-*/

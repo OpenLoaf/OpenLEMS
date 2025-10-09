@@ -2,6 +2,7 @@ package main
 
 import (
 	"common/c_base"
+	"fmt"
 	driver "starCharge100E_v1/pcs_star_charge_100E_v1" // 修改此处
 )
 
@@ -21,4 +22,8 @@ func GetDriverInfo() *c_base.SDriverInfo {
 	info.BuildTime = buildTime
 	info.CommitHash = commitHash
 	return info
+}
+
+func main() {
+	fmt.Println(GetDriverInfo())
 }

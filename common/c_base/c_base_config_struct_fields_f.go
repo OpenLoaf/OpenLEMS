@@ -4,6 +4,7 @@ import (
 	"common/c_enum"
 	"reflect"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/shockerli/cvt"
@@ -158,7 +159,7 @@ func parseFieldTagValue(field reflect.StructField, targetFieldName string) strin
 			continue
 		}
 
-		// 按优先级检查标签：short > json > yaml
+		// 按优先级检查标签：short > json > yaml > v
 		if mapping.ShortTag != "" {
 			if value := field.Tag.Get(mapping.ShortTag); value != "" {
 				return parseTagValue(value, mapping.FieldName)
@@ -174,7 +175,75 @@ func parseFieldTagValue(field reflect.StructField, targetFieldName string) strin
 				return parseTagValue(value, mapping.FieldName)
 			}
 		}
+		// 支持GoFrame验证规则v标签
+		if value := field.Tag.Get("v"); value != "" {
+			return parseGoFrameValidationTag(value, mapping.FieldName)
+		}
 		break
+	}
+
+	return ""
+}
+
+// parseGoFrameValidationTag 解析GoFrame验证规则v标签
+// 支持常见的验证规则：required、min、max、length等
+func parseGoFrameValidationTag(vTag, fieldName string) string {
+	if vTag == "" {
+		return ""
+	}
+
+	// 解析验证规则
+	rules := strings.Split(vTag, "|")
+
+	for _, rule := range rules {
+		rule = strings.TrimSpace(rule)
+
+		switch {
+		case rule == "required":
+			// required规则表示必填
+			if fieldName == "Required" {
+				return "true"
+			}
+		case strings.HasPrefix(rule, "min:"):
+			// min规则，如 min:1
+			if fieldName == "Min" {
+				value := strings.TrimPrefix(rule, "min:")
+				if intVal, err := strconv.ParseInt(value, 10, 64); err == nil {
+					return strconv.FormatInt(intVal, 10)
+				}
+			}
+		case strings.HasPrefix(rule, "max:"):
+			// max规则，如 max:255
+			if fieldName == "Max" {
+				value := strings.TrimPrefix(rule, "max:")
+				if intVal, err := strconv.ParseInt(value, 10, 64); err == nil {
+					return strconv.FormatInt(intVal, 10)
+				}
+			}
+		case strings.HasPrefix(rule, "length:"):
+			// length规则，如 length:6,40
+			if fieldName == "Min" || fieldName == "Max" {
+				value := strings.TrimPrefix(rule, "length:")
+				parts := strings.Split(value, ",")
+				if len(parts) == 2 {
+					if fieldName == "Min" {
+						if intVal, err := strconv.ParseInt(parts[0], 10, 64); err == nil {
+							return strconv.FormatInt(intVal, 10)
+						}
+					} else if fieldName == "Max" {
+						if intVal, err := strconv.ParseInt(parts[1], 10, 64); err == nil {
+							return strconv.FormatInt(intVal, 10)
+						}
+					}
+				}
+			}
+		case strings.HasPrefix(rule, "regex:"):
+			// regex规则，如 regex:^[a-zA-Z0-9_-]+$
+			if fieldName == "Regex" {
+				value := strings.TrimPrefix(rule, "regex:")
+				return value
+			}
+		}
 	}
 
 	return ""
@@ -689,4 +758,108 @@ func getFieldTypeInfo(fieldType reflect.Type) (c_enum.EConfigFieldsComponentType
 	default:
 		return c_enum.EConfigFieldsComponentTypeText, c_enum.EConfigFieldsValueTypeString
 	}
+}
+
+// BuildConfigPoints 将配置结构体转换为SConfigPoint列表
+// 这是新的统一点位管理系统的一部分，用于替代原有的BuildConfigStructFields方法
+func BuildConfigPoints(config any) ([]*SConfigPoint, error) {
+	if config == nil {
+		return nil, errors.New("config is nil")
+	}
+
+	// 先获取字段定义
+	fields, err := BuildConfigStructFields(config)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to build config struct fields")
+	}
+
+	// 转换为SConfigPoint
+	var configPoints []*SConfigPoint
+	for _, field := range fields {
+		configPoint := convertFieldDefinitionToConfigPoint(field)
+		configPoints = append(configPoints, configPoint)
+	}
+
+	return configPoints, nil
+}
+
+// convertFieldDefinitionToConfigPoint 将SFieldDefinition转换为SConfigPoint
+func convertFieldDefinitionToConfigPoint(field *SFieldDefinition) *SConfigPoint {
+	// 创建基础SPoint
+	basePoint := &SPoint{
+		Key:          field.Key,
+		Name:         field.Name,
+		ValueType:    convertConfigValueTypeToEValueType(field.ValueType),
+		Unit:         getStringValue(field.Unit),
+		Desc:         field.Description,
+		Min:          getInt64Value(field.Min),
+		Max:          getInt64Value(field.Max),
+		Precise:      getPrecisionFromStep(field.Step),
+		ValueExplain: field.ValueExplain,
+	}
+
+	// 创建SConfigPoint
+	configPoint := &SConfigPoint{
+		SPoint:             basePoint,
+		Required:           field.Required,
+		Default:            field.Default,
+		Regex:              field.Regex,
+		RegexFailedMessage: field.RegexFailedMessage,
+		Step:               field.Step,
+	}
+
+	return configPoint
+}
+
+// convertConfigValueTypeToEValueType 将EConfigFieldsValueType转换为EValueType
+func convertConfigValueTypeToEValueType(valueType c_enum.EConfigFieldsValueType) c_enum.EValueType {
+	switch valueType {
+	case c_enum.EConfigFieldsValueTypeString:
+		return c_enum.EString
+	case c_enum.EConfigFieldsValueTypeInt:
+		return c_enum.EInt32
+	case c_enum.EConfigFieldsValueTypeFloat:
+		return c_enum.EFloat32
+	case c_enum.EConfigFieldsValueTypeBoolean:
+		return c_enum.EBool
+	default:
+		return c_enum.EString
+	}
+}
+
+// getPrecisionFromStep 从步长中获取精度
+func getPrecisionFromStep(step *float32) uint8 {
+	if step == nil {
+		return 0
+	}
+
+	// 根据步长计算精度
+	stepVal := *step
+	if stepVal >= 1 {
+		return 0
+	} else if stepVal >= 0.1 {
+		return 1
+	} else if stepVal >= 0.01 {
+		return 2
+	} else if stepVal >= 0.001 {
+		return 3
+	} else {
+		return 4
+	}
+}
+
+// getStringValue 获取字符串值，处理指针类型
+func getStringValue(ptr *string) string {
+	if ptr != nil {
+		return *ptr
+	}
+	return ""
+}
+
+// getInt64Value 获取int64值，处理指针类型
+func getInt64Value(ptr *int64) int64 {
+	if ptr != nil {
+		return *ptr
+	}
+	return 0
 }

@@ -187,24 +187,25 @@ type ProtocolConfig struct {
 }
 ```
 
-### ValueExplain 和 ParamExplain 配置
+### ValueExplain 配置
 
-**新格式支持**：现在支持数组格式的 `ValueExplain` 和 `ParamExplain`，提供更丰富的数据结构：
+**新格式支持**：现在支持数组格式的 `ValueExplain`，提供更丰富的数据结构，包括颜色信息和参数支持：
 
 ```go
 type DeviceConfig struct {
     // 使用 ValueExplain 标签（新格式）
     Status string `code:"status" name:"设备状态" ct:"label" ve:"0:未知|#FF5D5D,1:正常|#52c41a,2:故障|#f5222d"`
     
-    // 使用 ParamExplain 标签（新格式）
-    AlarmLevel string `code:"alarmLevel" name:"告警级别" ct:"singleSelect" pe:"1:levelName,2:levelDesc"`
+    // 使用 ValueExplain 标签支持参数（FromParam=true）
+    AlarmLevel string `code:"alarmLevel" name:"告警级别" ct:"singleSelect" ve:"1:levelName|#1890ff,2:levelDesc|#f5222d"`
 }
 ```
 
 **标签格式说明**：
 
 - `ve` (ValueExplain): 值解释，格式为 `key:value|#color,key:value|#color`
-- `pe` (ParamExplain): 参数解释，格式为 `key:paramName,key:paramName`
+- 支持 `FromParam` 字段：当 `FromParam=true` 时，`value` 字段表示参数名，从动态参数中获取实际值
+- 颜色信息：使用 `|#color` 格式指定颜色，如 `|#52c41a`、`|#f5222d` 等
 
 **YAML 配置格式**：
 
@@ -217,21 +218,28 @@ type DeviceConfig struct {
     - key: "0"
       value: "未知"
       color: "#FF5D5D"
+      fromParam: false
     - key: "1"
       value: "正常"
       color: "#52c41a"
+      fromParam: false
     - key: "2"
       value: "故障"
       color: "#f5222d"
+      fromParam: false
 
 - key: alarmLevel
   name: "告警级别"
   componentType: singleSelect
-  paramExplain:
+  valueExplain:
     - key: "1"
       value: "levelName"
+      color: "#1890ff"
+      fromParam: true  # 从参数中获取实际值
     - key: "2"
       value: "levelDesc"
+      color: "#f5222d"
+      fromParam: true  # 从参数中获取实际值
 ```
 
 ### 数值范围和单位
@@ -359,3 +367,329 @@ func TestConfigStructFields() {
 3. 系统自动支持新字段的动态解析
 
 这种设计确保了配置系统的高度可扩展性和维护性。
+
+## SConfigPoint 统一点位管理系统
+
+### 概述
+
+SConfigPoint 是统一点位管理系统中的配置点位结构体，用于配置结构体字段描述。它继承自 SPoint 基础点位信息，并添加了配置特定的字段。
+
+### SConfigPoint 结构体定义
+
+```go
+// SConfigPoint 配置点位，用于配置结构体字段描述
+type SConfigPoint struct {
+    *SPoint // 嵌套基础点位信息
+    
+    // 配置特定的字段（不重复SPoint中已有的字段）
+    Required           bool     `json:"required" dc:"是否必填"`                    // 是否必填
+    Default            *string  `json:"default,omitempty" dc:"默认值"`             // 默认值
+    Regex              *string  `json:"regex,omitempty" dc:"正则表达式验证"`        // 正则表达式验证
+    RegexFailedMessage *string  `json:"regexFailedMessage,omitempty" dc:"正则验证失败提示"` // 正则验证失败提示
+    Step               *float32 `json:"step,omitempty" dc:"步长（用于数字输入）"`     // 步长（用于数字输入）
+}
+```
+
+### SConfigPoint 标签规范
+
+#### 基础标签
+
+SConfigPoint 继承 SPoint 的所有标签，并支持以下配置特定标签：
+
+```go
+type DeviceConfig struct {
+    // 基础配置字段
+    Name string `code:"name" name:"设备名称" ct:"text" v:"required|length:2,50"`
+    Port int    `code:"port" name:"端口号" ct:"number" v:"required|between:1,65535"`
+    
+    // 配置点位定义
+    ConfigPoint *SConfigPoint `json:"configPoint" dc:"配置点位"`
+}
+```
+
+#### GoFrame 验证规则支持
+
+SConfigPoint 支持 GoFrame 验证规则（`v` 标签），提供更强大的验证能力：
+
+```go
+type DeviceConfig struct {
+    // 使用 GoFrame 验证规则
+    Name   string `code:"name" name:"设备名称" ct:"text" v:"required|length:2,50"`
+    Port   int    `code:"port" name:"端口号" ct:"number" v:"required|between:1,65535"`
+    Email  string `code:"email" name:"邮箱" ct:"text" v:"required|email"`
+    Enable bool   `code:"enable" name:"启用状态" ct:"switch" v:"required"`
+}
+```
+
+#### 验证规则映射表
+
+| GoFrame规则 | SConfigPoint字段 | 说明 |
+|------------|-----------------|------|
+| `required` | `Required: true` | 必填字段 |
+| `min:value` | `Min: value` | 最小值 |
+| `max:value` | `Max: value` | 最大值 |
+| `between:min,max` | `Min: min, Max: max` | 范围 |
+| `regex:pattern` | `Regex: pattern` | 正则表达式 |
+| `length:min,max` | 转换为Min/Max | 长度范围 |
+| `email` | `Regex: email_pattern` | 邮箱格式 |
+| `integer` | `ValueType: EInt32` | 整数类型 |
+| `float` | `ValueType: EFloat32` | 浮点类型 |
+
+### SConfigPoint 使用示例
+
+#### 基础使用
+
+```go
+// 创建配置点位
+configPoint := &SConfigPoint{
+    SPoint: &SPoint{
+        Key:       "deviceName",
+        Name:      "设备名称",
+        ValueType: c_enum.EString,
+        Unit:      "",
+        Desc:      "设备的显示名称",
+        ValueExplain: []*SFieldExplain{
+            {
+                Key:       "0",
+                Value:     "未知",
+                Color:     "#FF5D5D",
+                FromParam: false,
+            },
+            {
+                Key:       "1",
+                Value:     "正常",
+                Color:     "#52c41a",
+                FromParam: false,
+            },
+        },
+    },
+    Required: true,
+    Default:  nil,
+    Regex:    nil,
+    Step:     nil,
+}
+```
+
+#### 从配置结构体转换
+
+```go
+// 配置结构体定义
+type DeviceConfig struct {
+    Name   string `code:"name" name:"设备名称" ct:"text" v:"required|length:2,50"`
+    Port   int    `code:"port" name:"端口号" ct:"number" v:"required|between:1,65535"`
+    Email  string `code:"email" name:"邮箱" ct:"text" v:"required|email"`
+    Enable bool   `code:"enable" name:"启用状态" ct:"switch" v:"required"`
+}
+
+// 转换为 SConfigPoint 列表
+func BuildConfigStructFields(config interface{}) ([]*SConfigPoint, error) {
+    // 使用反射解析配置结构体
+    // 将字段转换为 SConfigPoint
+    // 支持组件类型标签（ct）
+    // 支持 GoFrame 验证规则（v标签）
+    // 自动解析标签：json、name、ct、v等
+}
+```
+
+#### 验证规则转换器
+
+```go
+// 验证规则转换器（在application层实现，common包不依赖GoFrame）
+type ValidationRuleConverter struct {
+    // 将GoFrame验证规则转换为SConfigPoint字段
+}
+
+func (c *ValidationRuleConverter) ConvertValidationRules(vTag string) (*SConfigPoint, error) {
+    // 解析GoFrame验证规则
+    // 转换为SConfigPoint的Required、Min、Max、Regex等字段
+}
+```
+
+### SConfigPoint 最佳实践
+
+#### 1. 字段定义规范
+
+```go
+// ✅ 正确 - 使用完整的配置点位定义
+configPoint := &SConfigPoint{
+    SPoint: &SPoint{
+        Key:       "deviceName",
+        Name:      "设备名称",
+        ValueType: c_enum.EString,
+        Unit:      "",
+        Desc:      "设备的显示名称",
+        Min:       0,
+        Max:       0,
+        Precise:   0,
+    },
+    Required: true,
+    Default:  nil,
+    Regex:    nil,
+    Step:     nil,
+}
+
+// ❌ 错误 - SPoint字段未设置
+configPoint := &SConfigPoint{
+    Required: true,
+    // SPoint字段未设置，启动时验证会失败
+}
+```
+
+#### 2. 启动时验证
+
+```go
+// 在系统启动时验证所有SConfigPoint的SPoint字段是否设置
+func ValidateAllConfigPoints() error {
+    // 遍历所有设备的配置点位
+    // 验证每个SConfigPoint的SPoint字段是否设置
+    // 如果未设置，返回错误信息
+}
+```
+
+#### 3. 配置点位复用
+
+```go
+// 定义可复用的配置点位
+var (
+    DeviceNameConfigPoint = &SConfigPoint{
+        SPoint: &SPoint{
+            Key:       "deviceName",
+            Name:      "设备名称",
+            ValueType: c_enum.EString,
+            Desc:      "设备的显示名称",
+        },
+        Required: true,
+    }
+    
+    PortConfigPoint = &SConfigPoint{
+        SPoint: &SPoint{
+            Key:       "port",
+            Name:      "端口号",
+            ValueType: c_enum.EInt32,
+            Unit:      "",
+            Desc:      "设备通信端口",
+            Min:       1,
+            Max:       65535,
+        },
+        Required: true,
+        Default:  stringPtr("502"),
+    }
+)
+
+// 在多个配置结构体中复用
+type ModbusConfig struct {
+    DeviceName *SConfigPoint `json:"deviceName"`
+    Port       *SConfigPoint `json:"port"`
+}
+
+func NewModbusConfig() *ModbusConfig {
+    return &ModbusConfig{
+        DeviceName: DeviceNameConfigPoint,
+        Port:       PortConfigPoint,
+    }
+}
+```
+
+### 与现有系统的集成
+
+#### 1. 替换 SFieldDefinition
+
+SConfigPoint 可以逐步替换现有的 SFieldDefinition 系统：
+
+```go
+// 旧系统
+type SDriverInfo struct {
+    Telemetry []*SFieldDefinition `json:"telemetry" yaml:"telemetry"`
+}
+
+// 新系统
+type SDriverInfo struct {
+    ConfigPoints []*SConfigPoint `json:"configPoints" yaml:"configPoints"`
+}
+```
+
+#### 2. 兼容性支持
+
+为了保持向后兼容性，可以保留旧的方法但标记为废弃：
+
+```go
+func (s *SDriverInfo) SetConfigStructFields(configStructFields []*SFieldDefinition) {
+    // 已废弃：configStructFields字段已移除，现在使用ConfigPoints字段
+}
+
+func (s *SDriverInfo) GetConfigStructFields() []*SFieldDefinition {
+    // 已废弃：configStructFields字段已移除，现在使用ConfigPoints字段
+    return nil
+}
+```
+
+### 注意事项
+
+1. **SPoint字段必须设置**：所有SConfigPoint的SPoint字段都必须在创建时设置，启动时验证会检查这一点
+2. **不可变设计**：SConfigPoint创建后不允许修改，确保数据一致性
+3. **验证规则转换**：GoFrame验证规则转换器应放在application层，避免common包依赖GoFrame
+4. **启动时验证**：在系统启动时验证所有SConfigPoint的SPoint字段是否设置，确保数据完整性
+
+## 统一点位管理系统集成
+
+### SConfigPoint 使用示例
+
+在新的统一点位管理系统中，配置结构体可以自动转换为 `SConfigPoint` 列表：
+
+```go
+// 配置结构体定义
+type DeviceConfig struct {
+    Name   string `json:"name" name:"设备名称" ct:"text" v:"required|length:2,50"`
+    Port   int    `json:"port" name:"端口号" ct:"number" v:"required|between:1,65535"`
+    Email  string `json:"email" name:"邮箱" ct:"text" v:"required|email"`
+    Enable bool   `json:"enable" name:"启用状态" ct:"switch" v:"required"`
+}
+
+// 自动转换为 SConfigPoint 列表
+func (d *DeviceImpl) GetConfigPoints() []*c_base.SConfigPoint {
+    configPoints, err := c_base.BuildConfigPoints(d.config)
+    if err != nil {
+        c_log.Errorf(d.DeviceCtx, "构建配置点位失败: %v", err)
+        return []*c_base.SConfigPoint{}
+    }
+    return configPoints
+}
+```
+
+### GoFrame 验证规则映射
+
+| GoFrame规则 | SConfigPoint字段 | 说明 |
+|------------|-----------------|------|
+| `required` | `Required: true` | 必填字段 |
+| `min:value` | `Min: value` | 最小值 |
+| `max:value` | `Max: value` | 最大值 |
+| `between:min,max` | `Min: min, Max: max` | 范围 |
+| `regex:pattern` | `Regex: pattern` | 正则表达式 |
+| `length:min,max` | 转换为Min/Max | 长度范围 |
+| `email` | `Regex: email_pattern` | 邮箱格式 |
+| `integer` | `ValueType: EInt32` | 整数类型 |
+| `float` | `ValueType: EFloat32` | 浮点类型 |
+
+### 实际驱动示例
+
+参考 [bms_pylon_tech_us108_config_s.go](mdc:plugins/plug_drivers/bms/bms_pylon_tech_us108/bms_pylon_tech_us108_v1/pylon_tech_us108_config_s.go)：
+
+```go
+type sPylonTechUs108BmsConfig struct {
+    c_proto.SModbusDeviceConfig
+    SyncTime       bool    `json:"syncTime" name:"是否同步时间" ct:"switch" v:"required" default:"false"`
+    RatedPower     *uint32 `json:"ratedPower" name:"额定功率" ct:"number" v:"required|between:0,1000" step:"10" default:"100" unit:"kW"`
+    Capacity       *uint32 `json:"capacity" name:"容量" ct:"number" v:"required|between:0,2000" default:"232" unit:"kWh" step:"1"`
+    MaxInputPower  *uint32 `json:"maxInputPower" name:"最大输入功率" ct:"number" v:"min:0" unit:"kW" step:"1"`
+    MaxOutputPower *uint32 `json:"maxOutputPower" name:"最大输出功率" ct:"number" v:"min:0" unit:"kW" step:"1"`
+}
+```
+
+## 相关文件
+
+- [c_base_config_struct_fields_s.go](mdc:common/c_base/c_base_config_struct_fields_s.go) - 配置字段结构体定义
+- [c_base_config_struct_fields_f.go](mdc:common/c_base/c_base_config_struct_fields_f.go) - 配置字段处理函数
+- [c_base_config_point_s.go](mdc:common/c_base/c_base_config_point_s.go) - 配置点位结构体
+- [c_base_reflect_point_s.go](mdc:common/c_base/c_base_reflect_point_s.go) - 反射遥测点位结构体
+- [c_base_protocol_point_s.go](mdc:common/c_base/c_base_protocol_point_s.go) - 协议点位基础结构体
+- [validation_converter.go](mdc:application/internal/utils/validation_converter.go) - GoFrame验证规则转换器
