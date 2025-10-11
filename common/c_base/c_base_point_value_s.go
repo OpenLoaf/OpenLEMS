@@ -65,7 +65,7 @@ func (s *SPointValue) IsAlarmTrigger() bool {
 // GetActualValueExplain 获取实际的值解释
 func (s *SPointValue) GetActualValueExplain() (string, error) {
 	if s.IPoint != nil {
-		return s.IPoint.GetValueExplain(s.value)
+		return s.IPoint.GetValueExplainByValue(s.value)
 	}
 	return cvt.StringE(s.value)
 }

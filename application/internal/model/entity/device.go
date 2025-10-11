@@ -201,6 +201,7 @@ func convertIPointToFieldDefinition(point c_base.IPoint) *c_base.SFieldDefinitio
 		Max:           max,
 		Description:   point.GetDesc(),
 		Required:      false, // 遥测点位通常不是必填的
+		ValueExplain:  point.GetValueExplain(),
 	}
 
 	return fieldDef

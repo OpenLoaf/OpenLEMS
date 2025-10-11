@@ -38,6 +38,10 @@ type SFieldExplain struct {
 	Color     string `json:"color" yaml:"color" short:"color" required:"true"`
 }
 
+func (s *SFieldDefinition) GetValueExplain() []*SFieldExplain {
+	return s.ValueExplain
+}
+
 func (s *SFieldDefinition) String() string {
 	if s == nil {
 		return "SFieldDefinition(nil)"
@@ -223,7 +227,7 @@ func (s *SFieldDefinition) GetValueType() c_enum.EValueType {
 }
 
 // GetValueExplain 获取Value解释
-func (s *SFieldDefinition) GetValueExplain(value any) (string, error) {
+func (s *SFieldDefinition) GetValueExplainByValue(value any) (string, error) {
 	return s.GetValueExplainWithParams(value, nil)
 }
 

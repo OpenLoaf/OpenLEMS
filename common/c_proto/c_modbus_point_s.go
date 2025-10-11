@@ -33,10 +33,10 @@ func (s *SModbusPoint) String() string {
 	return fmt.Sprintf("%s[0x%x]", s.GetName(), s.Addr)
 }
 
-func (s *SModbusPoint) GetValueExplain(value any) (string, error) {
+func (s *SModbusPoint) GetValueExplainByValue(value any) (string, error) {
 	if s.StatusExplain == nil {
 		if s.SProtocolPoint != nil && s.SProtocolPoint.SPoint != nil {
-			return s.SProtocolPoint.SPoint.GetValueExplain(value)
+			return s.SProtocolPoint.SPoint.GetValueExplainByValue(value)
 		}
 		return "", fmt.Errorf("SPoint not initialized")
 	}

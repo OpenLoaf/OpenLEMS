@@ -43,7 +43,14 @@ func (s *SPoint) TriggerAlarm(value any) (trigger bool, level c_enum.EAlarmLevel
 	return false, c_enum.EAlarmLevelNone, nil
 }
 
-func (s *SPoint) GetValueExplain(value any) (string, error) {
+func (s *SPoint) GetValueExplain() []*SFieldExplain {
+	if s.ValueExplain == nil {
+		s.ValueExplain = []*SFieldExplain{}
+	}
+	return s.ValueExplain
+}
+
+func (s *SPoint) GetValueExplainByValue(value any) (string, error) {
 	// 1. 将value转换为字符串，如果是枚举之类的，转为int的字符串
 	var valueStr string
 	var err error

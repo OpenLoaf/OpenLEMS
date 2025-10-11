@@ -75,27 +75,35 @@ var (
 				Name:      "状态",
 				ValueType: c_enum.EInt16,
 				Desc:      "设备状态",
+				ValueExplain: []*c_base.SFieldExplain{
+					{Key: "0", Value: "关机", FromParam: false, Color: ""},
+					{Key: "1", Value: "待机", FromParam: false, Color: ""},
+					{Key: "2", Value: "充电中", FromParam: false, Color: ""},
+					{Key: "3", Value: "放电中", FromParam: false, Color: ""},
+					{Key: "4", Value: "故障", FromParam: false, Color: ""},
+				},
 			},
 			DataAccess: c_default.VDataAccessInt16,
 		},
 		Addr: 0xC8,
-		StatusExplain: func(value any) (string, error) {
-			if v, err := cvt.Uint8E(value); err == nil {
-				switch v {
-				case 0:
-					return "关机", nil
-				case 1:
-					return "待机", nil
-				case 2:
-					return "充电中", nil
-				case 3:
-					return "放电中", nil
-				case 4:
-					return "故障", nil
-				}
-			}
-			return fmt.Sprintf("未知值: %v", value), nil
-		},
+		// 改为ValueExplain
+		//StatusExplain: func(value any) (string, error) {
+		//	if v, err := cvt.Uint8E(value); err == nil {
+		//		switch v {
+		//		case 0:
+		//			return "关机", nil
+		//		case 1:
+		//			return "待机", nil
+		//		case 2:
+		//			return "充电中", nil
+		//		case 3:
+		//			return "放电中", nil
+		//		case 4:
+		//			return "故障", nil
+		//		}
+		//	}
+		//	return fmt.Sprintf("未知值: %v", value), nil
+		//},
 	}
 
 	Power = &c_proto.SModbusPoint{

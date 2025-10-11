@@ -26,6 +26,7 @@ func PrintWebServerInfo(ctx context.Context, serverAddress string) {
 
 	// 打印所有IPv4地址的服务器访问地址
 	g.Log().Infof(ctx, "📡 服务器地址:")
+	g.Log().Infof(ctx, "   http://localhost%s", serverAddress)
 	for _, ip := range ipv4Addrs {
 		g.Log().Infof(ctx, "   http://%s%s", ip, serverAddress)
 	}
