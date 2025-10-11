@@ -5,10 +5,7 @@ import (
 	"common/c_default"
 	"common/c_enum"
 	"common/c_proto"
-	"fmt"
 	"time"
-
-	"github.com/shockerli/cvt"
 )
 
 var ReadTask = &c_proto.SModbusPointTask{
@@ -70,40 +67,17 @@ var (
 	// 协议点位定义 - 直接创建，启动时验证SPoint字段
 	Status = &c_proto.SModbusPoint{
 		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Status",
-				Name:      "状态",
-				ValueType: c_enum.EInt16,
-				Desc:      "设备状态",
-				ValueExplain: []*c_base.SFieldExplain{
-					{Key: "0", Value: "关机", FromParam: false, Color: ""},
-					{Key: "1", Value: "待机", FromParam: false, Color: ""},
-					{Key: "2", Value: "充电中", FromParam: false, Color: ""},
-					{Key: "3", Value: "放电中", FromParam: false, Color: ""},
-					{Key: "4", Value: "故障", FromParam: false, Color: ""},
-				},
-			},
+			SPoint:     c_default.VPointStatus, // 使用预定义状态点位
 			DataAccess: c_default.VDataAccessInt16,
+			ValueExplain: []*c_base.SFieldExplain{
+				{Key: "0", Value: "关机", FromParam: false, Color: "#9CBF30"},
+				{Key: "1", Value: "待机", FromParam: false, Color: "#6967EE"},
+				{Key: "2", Value: "充电中", FromParam: false, Color: "#29A634"},
+				{Key: "3", Value: "放电中", FromParam: false, Color: "#0098FA"},
+				{Key: "4", Value: "故障", FromParam: false, Color: "#FF5D5D"},
+			},
 		},
 		Addr: 0xC8,
-		// 改为ValueExplain
-		//StatusExplain: func(value any) (string, error) {
-		//	if v, err := cvt.Uint8E(value); err == nil {
-		//		switch v {
-		//		case 0:
-		//			return "关机", nil
-		//		case 1:
-		//			return "待机", nil
-		//		case 2:
-		//			return "充电中", nil
-		//		case 3:
-		//			return "放电中", nil
-		//		case 4:
-		//			return "故障", nil
-		//		}
-		//	}
-		//	return fmt.Sprintf("未知值: %v", value), nil
-		//},
 	}
 
 	Power = &c_proto.SModbusPoint{
@@ -199,19 +173,12 @@ var (
 				Desc:      "设备状态控制",
 			},
 			DataAccess: c_default.VDataAccessInt16,
+			ValueExplain: []*c_base.SFieldExplain{
+				{Key: "0", Value: "关机", FromParam: false, Color: "#9CBF30"},
+				{Key: "1", Value: "开机", FromParam: false, Color: "#29A634"},
+			},
 		},
 		Addr: 0xCF,
-		StatusExplain: func(value any) (string, error) {
-			if v, err := cvt.Uint8E(value); err == nil {
-				switch v {
-				case 0:
-					return "关机", nil
-				case 1:
-					return "开机", nil
-				}
-			}
-			return fmt.Sprintf("未知值: %v", value), nil
-		},
 	}
 
 	TargetPower = &c_proto.SModbusPoint{
