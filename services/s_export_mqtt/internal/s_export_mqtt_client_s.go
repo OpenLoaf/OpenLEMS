@@ -2,6 +2,7 @@ package internal
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"strings"
 	"time"
@@ -40,13 +41,44 @@ func (c *SMqttClient) Start(ctx context.Context) error {
 
 	// 创建MQTT客户端
 	opts := mqtt.NewClientOptions()
-	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", c.config.ServerAddress, c.config.ServerPort))
-	opts.SetClientID(fmt.Sprintf("ems_mqtt_export_%d", time.Now().Unix()))
+
+	// 根据SSL配置选择协议
+	var brokerURL string
+	if c.config.UseSSL {
+		brokerURL = fmt.Sprintf("ssl://%s:%d", c.config.ServerAddress, c.config.ServerPort)
+	} else {
+		brokerURL = fmt.Sprintf("tcp://%s:%d", c.config.ServerAddress, c.config.ServerPort)
+	}
+	opts.AddBroker(brokerURL)
+	opts.SetClientID(fmt.Sprintf("lems_%s", c.systemNumber))
 	opts.SetAutoReconnect(true)
-	opts.SetConnectRetryInterval(5 * time.Second)
-	opts.SetMaxReconnectInterval(30 * time.Second)
-	opts.SetKeepAlive(60 * time.Second)
+
+	// 使用配置的超时和重连参数
+	connectTimeout := time.Duration(c.config.ConnectTimeout) * time.Second
+	reconnectInterval := time.Duration(c.config.ReconnectInterval) * time.Second
+	keepAliveTimeout := time.Duration(c.config.KeepAliveTimeout) * time.Second
+
+	opts.SetConnectTimeout(connectTimeout)
+	opts.SetConnectRetryInterval(reconnectInterval)
+	opts.SetMaxReconnectInterval(reconnectInterval)
+	opts.SetKeepAlive(keepAliveTimeout)
 	opts.SetPingTimeout(10 * time.Second)
+
+	// 配置SSL/TLS（如果启用）
+	if c.config.UseSSL {
+		tlsConfig := &tls.Config{
+			InsecureSkipVerify: c.config.InsecureSkipVerify,
+		}
+		opts.SetTLSConfig(tlsConfig)
+	}
+
+	// 设置用户名和密码认证（如果提供）
+	if c.config.Username != "" {
+		opts.SetUsername(c.config.Username)
+		if c.config.Password != "" {
+			opts.SetPassword(c.config.Password)
+		}
+	}
 
 	// 设置连接丢失处理
 	opts.SetConnectionLostHandler(func(client mqtt.Client, err error) {
@@ -55,21 +87,39 @@ func (c *SMqttClient) Start(ctx context.Context) error {
 
 	// 设置连接成功处理
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
-		c_log.Infof(c.ctx, "MQTT连接成功: %s:%d", c.config.ServerAddress, c.config.ServerPort)
+		clientId := fmt.Sprintf("lems_%s", c.systemNumber)
+		protocol := "TCP"
+		if c.config.UseSSL {
+			protocol = "SSL/TLS"
+		}
+
+		if c.config.Username != "" {
+			c_log.Infof(c.ctx, "MQTT连接成功: %s:%d (ClientID: %s, 协议: %s, 用户: %s)", c.config.ServerAddress, c.config.ServerPort, clientId, protocol, c.config.Username)
+		} else {
+			c_log.Infof(c.ctx, "MQTT连接成功: %s:%d (ClientID: %s, 协议: %s, 匿名连接)", c.config.ServerAddress, c.config.ServerPort, clientId, protocol)
+		}
 	})
 
 	c.client = mqtt.NewClient(opts)
 
 	// 连接到MQTT服务器
 	if token := c.client.Connect(); token.Wait() && token.Error() != nil {
-		return errors.Wrapf(token.Error(), "连接MQTT服务器失败: %s:%d", c.config.ServerAddress, c.config.ServerPort)
+		clientId := fmt.Sprintf("lems_%s", c.systemNumber)
+		authInfo := ""
+		if c.config.Username != "" {
+			authInfo = fmt.Sprintf(" (用户: %s)", c.config.Username)
+		}
+		return errors.Wrapf(token.Error(), "连接MQTT服务器失败: %s:%d (ClientID: %s)%s", c.config.ServerAddress, c.config.ServerPort, clientId, authInfo)
 	}
 
 	// 启动定时推送
 	c.ticker = time.NewTicker(time.Duration(c.config.UploadPeriod) * time.Second)
 	go c.publishLoop()
 
-	c_log.Infof(c.ctx, "MQTT客户端启动成功: %s:%d, 推送周期: %d秒", c.config.ServerAddress, c.config.ServerPort, c.config.UploadPeriod)
+	clientId := fmt.Sprintf("lems_%s", c.systemNumber)
+	c_log.Infof(c.ctx, "MQTT客户端启动成功: %s:%d (ClientID: %s), 推送周期: %d秒, 连接超时: %d秒, 重连间隔: %d秒, 保活超时: %d秒",
+		c.config.ServerAddress, c.config.ServerPort, clientId, c.config.UploadPeriod,
+		c.config.ConnectTimeout, c.config.ReconnectInterval, c.config.KeepAliveTimeout)
 	return nil
 }
 
@@ -87,7 +137,8 @@ func (c *SMqttClient) Stop() error {
 		c.client.Disconnect(250)
 	}
 
-	c_log.Infof(c.ctx, "MQTT客户端已停止: %s:%d", c.config.ServerAddress, c.config.ServerPort)
+	clientId := fmt.Sprintf("lems_%s", c.systemNumber)
+	c_log.Infof(c.ctx, "MQTT客户端已停止: %s:%d (ClientID: %s)", c.config.ServerAddress, c.config.ServerPort, clientId)
 	return nil
 }
 

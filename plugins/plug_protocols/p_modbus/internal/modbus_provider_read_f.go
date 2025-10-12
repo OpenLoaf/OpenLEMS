@@ -253,7 +253,7 @@ func decoder(deviceId string, bytes []byte, addr, quantity uint16, point *c_prot
 		return nil, errors.Errorf("unsupported mode: neither bit mode nor byte mode for point %s", point.GetKey())
 	}
 
-	// 使用导出的DecoderBytes函数
+	// 使用的DecoderBytes函数
 	value, err = p_base.DecoderBytes(
 		bytes,
 		byteIndex,
@@ -271,7 +271,7 @@ func decoder(deviceId string, bytes []byte, addr, quantity uint16, point *c_prot
 		return nil, errors.Wrapf(err, "failed to decode point %s", point.GetKey())
 	}
 
-	// 使用导出的ValidateValueRange函数
+	// 使用的ValidateValueRange函数
 	err = p_base.ValidateValueRange(value, point.GetMin(), point.GetMax())
 	if err != nil {
 		return nil, errors.Wrapf(err, "value %v out of range", value)

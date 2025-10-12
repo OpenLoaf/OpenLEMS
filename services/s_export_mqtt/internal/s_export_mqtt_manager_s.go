@@ -10,7 +10,7 @@ import (
 	"s_db/s_db_basic"
 )
 
-// SMqttExportManager MQTT导出管理器
+// SMqttExportManager MQTT管理器
 type SMqttExportManager struct {
 	clients   map[int]*SMqttClient // 配置索引 -> 客户端
 	mu        sync.RWMutex         // 读写锁
@@ -24,7 +24,7 @@ var (
 	mqttExportManagerOnce     sync.Once
 )
 
-// GetMqttExportManager 获取MQTT导出管理器单例
+// GetMqttExportManager 获取MQTT管理器单例
 func GetMqttExportManager() *SMqttExportManager {
 	mqttExportManagerOnce.Do(func() {
 		mqttExportManagerInstance = &SMqttExportManager{
@@ -34,13 +34,13 @@ func GetMqttExportManager() *SMqttExportManager {
 	return mqttExportManagerInstance
 }
 
-// Start 启动MQTT导出管理器
+// Start 启动MQTT管理器
 func (m *SMqttExportManager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	if m.isRunning {
-		c_log.Warning(ctx, "MQTT导出管理器已经在运行中")
+		c_log.Warning(ctx, "MQTT管理器已经在运行中")
 		return nil
 	}
 
@@ -55,17 +55,17 @@ func (m *SMqttExportManager) Start(ctx context.Context) error {
 	}
 
 	m.isRunning = true
-	c_log.Infof(m.ctx, "MQTT导出管理器启动成功，共 %d 个客户端", len(m.clients))
+	c_log.Infof(m.ctx, "MQTT管理器启动成功，共 %d 个客户端", len(m.clients))
 	return nil
 }
 
-// Stop 停止MQTT导出管理器
+// Stop 停止MQTT管理器
 func (m *SMqttExportManager) Stop(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
 	if !m.isRunning {
-		c_log.Warning(ctx, "MQTT导出管理器未运行")
+		c_log.Warning(ctx, "MQTT管理器未运行")
 		return nil
 	}
 
@@ -85,7 +85,7 @@ func (m *SMqttExportManager) Stop(ctx context.Context) error {
 	}
 
 	m.isRunning = false
-	c_log.Infof(ctx, "MQTT导出管理器已停止")
+	c_log.Infof(ctx, "MQTT管理器已停止")
 	return nil
 }
 
@@ -95,7 +95,7 @@ func (m *SMqttExportManager) Reload(ctx context.Context) error {
 	defer m.mu.Unlock()
 
 	if !m.isRunning {
-		c_log.Warning(ctx, "MQTT导出管理器未运行，无法重载")
+		c_log.Warning(ctx, "MQTT管理器未运行，无法重载")
 		return nil
 	}
 
@@ -165,7 +165,10 @@ func (m *SMqttExportManager) loadConfigs(ctx context.Context) error {
 
 		// 保存客户端
 		m.clients[index] = client
-		c_log.Infof(ctx, "MQTT客户端启动成功: 索引=%d, 服务器=%s:%d, 设备数量=%d", index, config.ServerAddress, config.ServerPort, len(config.DeviceIds))
+
+		// 获取topic地址
+		topic := client.buildTopic()
+		c_log.Infof(ctx, "MQTT客户端启动成功: 索引=%d, 服务器=%s:%d, 设备数量=%d, Topic=%s", index, config.ServerAddress, config.ServerPort, len(config.DeviceIds), topic)
 	}
 
 	return nil

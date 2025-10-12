@@ -21,8 +21,15 @@ MQTT配置存储在数据库的`mqtt_config_list`设置中，JSON格式如下：
 ```json
 [
   {
-    "serverAddress": "127.0.0.1",
-    "serverPort": 1883,
+    "serverAddress": "emqx-test.hexems.com",
+    "serverPort": 8883,
+    "username": "lems",
+    "password": "12345678q",
+    "useSSL": true,
+    "insecureSkipVerify": false,
+    "connectTimeout": 30,
+    "reconnectInterval": 30,
+    "keepAliveTimeout": 60,
     "serviceStandard": "standard",
     "allowControl": false,
     "enabled": true,
@@ -30,6 +37,22 @@ MQTT配置存储在数据库的`mqtt_config_list`设置中，JSON格式如下：
     "rewriteChannel": false,
     "pushChannel": "111",
     "subscribeChannel": "222",
+    "uploadPeriod": 60
+  },
+  {
+    "serverAddress": "127.0.0.1",
+    "serverPort": 1883,
+    "useSSL": false,
+    "connectTimeout": 30,
+    "reconnectInterval": 30,
+    "keepAliveTimeout": 60,
+    "serviceStandard": "standard",
+    "allowControl": false,
+    "enabled": false,
+    "deviceIds": ["led_green"],
+    "rewriteChannel": false,
+    "pushChannel": "",
+    "subscribeChannel": "",
     "uploadPeriod": 60
   }
 ]
@@ -39,6 +62,13 @@ MQTT配置存储在数据库的`mqtt_config_list`设置中，JSON格式如下：
 
 - `serverAddress`: MQTT服务器地址
 - `serverPort`: MQTT服务器端口
+- `username`: MQTT用户名（可选，用于认证）
+- `password`: MQTT密码（可选，用于认证）
+- `useSSL`: 是否使用SSL/TLS连接
+- `insecureSkipVerify`: 是否跳过SSL证书验证
+- `connectTimeout`: 连接超时时间（秒）
+- `reconnectInterval`: 重连间隔时间（秒）
+- `keepAliveTimeout`: 保活超时时间（秒）
 - `serviceStandard`: 服务标准（目前支持"standard"）
 - `allowControl`: 是否允许控制（本期不实现）
 - `enabled`: 是否启用该配置
@@ -48,11 +78,42 @@ MQTT配置存储在数据库的`mqtt_config_list`设置中，JSON格式如下：
 - `subscribeChannel`: 订阅通道（本期不实现）
 - `uploadPeriod`: 上传周期（秒）
 
+### 认证配置
+
+- **用户名和密码**：`username` 和 `password` 字段用于MQTT服务器认证
+- **可选认证**：如果不提供用户名，将使用匿名连接
+- **安全建议**：生产环境中建议使用强密码，并定期更换
+- **连接日志**：系统会记录连接时使用的认证方式（用户名认证或匿名连接）
+
+### SSL/TLS配置
+
+- **SSL开关**：`useSSL` 字段控制是否使用SSL/TLS加密连接
+- **证书验证**：`insecureSkipVerify` 字段控制是否跳过SSL证书验证
+- **端口配置**：
+  - SSL连接通常使用8883端口
+  - 非SSL连接通常使用1883端口
+- **安全建议**：
+  - 生产环境建议启用SSL（`useSSL: true`）
+  - 生产环境建议启用证书验证（`insecureSkipVerify: false`）
+  - 开发环境可以跳过证书验证（`insecureSkipVerify: true`）
+- **连接日志**：系统会记录连接时使用的协议（TCP或SSL/TLS）
+
+### 超时和重连配置
+
+- **连接超时**：`connectTimeout` 设置连接MQTT服务器的超时时间（秒）
+- **重连间隔**：`reconnectInterval` 设置连接断开后的重连间隔时间（秒）
+- **保活超时**：`keepAliveTimeout` 设置MQTT保活心跳的超时时间（秒）
+- **推荐值**：
+  - `connectTimeout`: 30秒（网络较慢时可适当增加）
+  - `reconnectInterval`: 30秒（避免频繁重连）
+  - `keepAliveTimeout`: 60秒（标准MQTT保活时间）
+
 ## 数据格式
 
 ### Standard格式
 
 推送的数据格式为：
+
 ```json
 {
   "sn": "设备ID",
@@ -146,6 +207,7 @@ fmt.Printf("服务运行状态: %v, 客户端数量: %d\n", isRunning, clientCou
 ## 日志记录
 
 服务会记录以下日志：
+
 - MQTT连接成功/失败
 - 数据推送成功/失败
 - 配置加载和重载
