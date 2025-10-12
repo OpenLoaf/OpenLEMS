@@ -10,6 +10,13 @@ type GetMqttStatusReq struct {
 	g.Meta `path:"/remote/mqtt/status" method:"get" tags:"远程管理" summary:"获取MQTT服务状态列表"`
 }
 
+type ReloadMqttReq struct {
+	g.Meta `path:"/remote/mqtt/reload" method:"post" tags:"远程管理" summary:"重新加载MQTT服务配置"`
+}
+
+type ReloadMqttRes struct {
+}
+
 type GetMqttStatusRes struct {
 	IsRunning    bool                `json:"isRunning" dc:"MQTT服务是否正在运行"`
 	ClientCount  int                 `json:"clientCount" dc:"MQTT客户端数量"`
