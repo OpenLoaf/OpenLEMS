@@ -115,7 +115,7 @@ func (s *sPvDemo) GetIrradiance() (*uint32, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sPvDemo) GetPoints() []c_base.IPoint {
+func (s *sPvDemo) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{
 		// 遥测点位
 		telemetryPowerPoint,

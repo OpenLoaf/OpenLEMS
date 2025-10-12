@@ -31,6 +31,10 @@ func NewVirtualDevice(ctx context.Context, deviceConfig *c_base.SDeviceConfig) *
 	}
 }
 
+func (s *SVirtualDeviceImpl) GetExportModbusPoints() []c_base.IPoint {
+	return s.GetDevicePoints() // 直接使用设备point， 如果想自定义，就复写此方法
+}
+
 func (s *SVirtualDeviceImpl) IsVirtualDevice() bool {
 	return true
 }
@@ -126,7 +130,7 @@ func (s *SVirtualDeviceImpl) GetConfig() *c_base.SDeviceConfig {
 }
 
 // 实现新的IDevice接口方法 - 虚拟设备默认实现
-func (s *SVirtualDeviceImpl) GetPoints() []c_base.IPoint {
+func (s *SVirtualDeviceImpl) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{}
 }
 

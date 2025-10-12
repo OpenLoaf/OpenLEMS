@@ -209,7 +209,7 @@ func (s *sPcsStarCharge100E) GetHistoryOutgoingQuantity() (*float64, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sPcsStarCharge100E) GetPoints() []c_base.IPoint {
+func (s *sPcsStarCharge100E) GetDevicePoints() []c_base.IPoint {
 	// 返回Modbus协议点位
 	return []c_base.IPoint{
 		InverterOperationStatus,

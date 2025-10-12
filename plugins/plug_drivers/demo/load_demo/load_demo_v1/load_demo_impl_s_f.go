@@ -86,7 +86,7 @@ func (s *sLoadDemo) GetMaxOutputPower() (*float64, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sLoadDemo) GetPoints() []c_base.IPoint {
+func (s *sLoadDemo) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{
 		// 遥测点位
 		telemetryPowerPoint,

@@ -207,7 +207,7 @@ func (s *sEssDemo) HasSmoke() (*bool, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sEssDemo) GetPoints() []c_base.IPoint {
+func (s *sEssDemo) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{
 		// 遥测点位
 		telemetryPowerPoint,

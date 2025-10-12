@@ -104,7 +104,7 @@ func (s *sBasicGpioIn) GetStatus() *bool {
 	return v
 }
 
-func (s *sBasicGpioIn) GetPoints() []c_base.IPoint {
+func (s *sBasicGpioIn) GetDevicePoints() []c_base.IPoint {
 	// 返回GPIO协议点位
 	return []c_base.IPoint{
 		s.gpioPoint,

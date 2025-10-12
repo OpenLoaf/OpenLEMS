@@ -27,12 +27,16 @@ func NewRealGpio(ctx context.Context, protocol c_proto.IGpiodProtocol) (*SRealGp
 	return device, nil
 }
 
+func (s *SRealGpio) GetExportModbusPoints() []c_base.IPoint {
+	return s.GetDevicePoints() // 直接使用设备point， 如果想自定义，就复写此方法
+}
+
 func (s *SRealGpio) IsVirtualDevice() bool {
 	return false
 }
 
 // 实现新的IDevice接口方法 - GPIO设备默认实现
-func (s *SRealGpio) GetPoints() []c_base.IPoint {
+func (s *SRealGpio) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{}
 }
 

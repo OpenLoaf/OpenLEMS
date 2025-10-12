@@ -11,6 +11,7 @@ import (
 	"application/internal/controller/network"
 	"application/internal/controller/policy"
 	"application/internal/controller/protocol"
+	"application/internal/controller/remote"
 	"application/internal/controller/setting"
 	"application/internal/controller/system"
 	"application/internal/utils"
@@ -122,6 +123,7 @@ func setupAPIRoutes(s *ghttp.Server) {
 		group.Bind(policy.NewV1())
 		group.Bind(setting.NewV1())
 		group.Bind(automation.NewV1())
+		group.Bind(remote.NewV1())
 	})
 }
 

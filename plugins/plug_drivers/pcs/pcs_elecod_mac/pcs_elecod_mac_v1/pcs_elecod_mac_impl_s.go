@@ -171,7 +171,7 @@ func (s *sPcsElecodMac) GetIGBTTemperature() (*float32, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sPcsElecodMac) GetPoints() []c_base.IPoint {
+func (s *sPcsElecodMac) GetDevicePoints() []c_base.IPoint {
 	// 返回CAN总线协议点位
 	return []c_base.IPoint{
 		elecod_mac_defined.AnalogTotalActivePower,

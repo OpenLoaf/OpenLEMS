@@ -123,7 +123,7 @@ func (s *sBasicGpioOut) StatusToggle() error {
 }
 
 // 实现新的IDevice接口方法
-func (s *sBasicGpioOut) GetPoints() []c_base.IPoint {
+func (s *sBasicGpioOut) GetDevicePoints() []c_base.IPoint {
 	// 返回GPIO协议点位
 	return []c_base.IPoint{
 		s.gpioPoint,

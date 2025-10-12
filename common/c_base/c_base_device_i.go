@@ -16,6 +16,7 @@ type IDevice interface {
 
 	IsVirtualDevice() bool // 是否是虚拟设备
 
-	GetPoints() []IPoint          // 获取所有点位列表（遥测点位+协议点位）
-	GetTelemetryPoints() []IPoint // 获取主要遥测点位列表（只返回关键点位，如BMS的状态和SOC）
+	GetDevicePoints() []IPoint       // 获取设备点位列表（遥测点位+协议点位）
+	GetExportModbusPoints() []IPoint // 获取暴露出去的modbus点位
+	GetTelemetryPoints() []IPoint    // 获取主要遥测点位列表（只返回关键点位，如BMS的状态和SOC）
 }

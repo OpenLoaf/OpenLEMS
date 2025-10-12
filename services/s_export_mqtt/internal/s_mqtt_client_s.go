@@ -4,7 +4,9 @@ import (
 	"context"
 	"crypto/tls"
 	"fmt"
+	"math"
 	"strings"
+	"sync"
 	"time"
 
 	"common"
@@ -45,6 +47,7 @@ type SMqttClient struct {
 	lastPublishAt *time.Time         // 最后发布时间
 	publishCount  int64              // 发布消息总数
 	errorCount    int64              // 错误次数
+	countMutex    sync.RWMutex       // 计数器读写锁，保证并发安全
 }
 
 // NewMqttClient 创建新的MQTT客户端
@@ -54,6 +57,48 @@ func NewMqttClient(config *SMqttConfig, formatter IDataFormatter, systemNumber s
 		formatter:    formatter,
 		systemNumber: systemNumber,
 	}
+}
+
+// safeIncrementPublishCount 安全递增发布计数器，防止溢出
+func (c *SMqttClient) safeIncrementPublishCount() {
+	c.countMutex.Lock()
+	defer c.countMutex.Unlock()
+
+	// 检查是否接近int64最大值，提前重置避免溢出
+	if c.publishCount >= math.MaxInt64-1000 {
+		c_log.Warningf(c.ctx, "MQTT发布计数器即将溢出，重置为0: 当前值=%d", c.publishCount)
+		c.publishCount = 0
+	} else {
+		c.publishCount++
+	}
+}
+
+// safeIncrementErrorCount 安全递增错误计数器，防止溢出
+func (c *SMqttClient) safeIncrementErrorCount() {
+	c.countMutex.Lock()
+	defer c.countMutex.Unlock()
+
+	// 检查是否接近int64最大值，提前重置避免溢出
+	if c.errorCount >= math.MaxInt64-1000 {
+		c_log.Warningf(c.ctx, "MQTT错误计数器即将溢出，重置为0: 当前值=%d", c.errorCount)
+		c.errorCount = 0
+	} else {
+		c.errorCount++
+	}
+}
+
+// getPublishCount 安全获取发布计数器值
+func (c *SMqttClient) getPublishCount() int64 {
+	c.countMutex.RLock()
+	defer c.countMutex.RUnlock()
+	return c.publishCount
+}
+
+// getErrorCount 安全获取错误计数器值
+func (c *SMqttClient) getErrorCount() int64 {
+	c.countMutex.RLock()
+	defer c.countMutex.RUnlock()
+	return c.errorCount
 }
 
 // Start 启动MQTT客户端
@@ -230,13 +275,13 @@ func (c *SMqttClient) publishDeviceData() error {
 
 		// 发布MQTT消息
 		if token := c.client.Publish(topic, 0, false, jsonData); token.Wait() && token.Error() != nil {
-			c.errorCount++
+			c.safeIncrementErrorCount()
 			c_log.Errorf(c.ctx, "发布MQTT消息失败: 设备ID=%s, Topic=%s, 错误=%v", deviceId, topic, token.Error())
 			continue
 		}
 
 		// 更新发布统计
-		c.publishCount++
+		c.safeIncrementPublishCount()
 		now := time.Now()
 		c.lastPublishAt = &now
 
@@ -279,8 +324,8 @@ func (c *SMqttClient) GetStatus() *SMqttClientStatus {
 		DeviceCount:   len(c.config.DeviceIds),
 		UploadPeriod:  c.config.UploadPeriod,
 		LastPublishAt: c.lastPublishAt,
-		PublishCount:  c.publishCount,
-		ErrorCount:    c.errorCount,
+		PublishCount:  c.getPublishCount(),
+		ErrorCount:    c.getErrorCount(),
 		StartTime:     c.startTime,
 	}
 }

@@ -29,6 +29,10 @@ func NewRealDevice[P c_base.IProtocol](ctx context.Context, protocol P) (*SRealD
 	return device, nil
 }
 
+func (s *SRealDeviceImpl[P]) GetExportModbusPoints() []c_base.IPoint {
+	return s.GetDevicePoints() // 直接使用设备point， 如果想自定义，就复写此方法
+}
+
 func (s *SRealDeviceImpl[P]) IsVirtualDevice() bool {
 	return false
 }
@@ -98,7 +102,7 @@ func (s *SRealDeviceImpl[P]) GetConfig() *c_base.SDeviceConfig {
 }
 
 // 实现新的IDevice接口方法 - 默认实现，子类可以覆盖
-func (s *SRealDeviceImpl[P]) GetPoints() []c_base.IPoint {
+func (s *SRealDeviceImpl[P]) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{}
 }
 

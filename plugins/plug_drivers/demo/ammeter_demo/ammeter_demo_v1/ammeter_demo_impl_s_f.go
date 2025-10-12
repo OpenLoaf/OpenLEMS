@@ -134,7 +134,7 @@ func (s *sAmmeterDemo) GetHistoryOutgoingQuantity() (*float64, error) {
 }
 
 // 实现新的IDevice接口方法
-func (s *sAmmeterDemo) GetPoints() []c_base.IPoint {
+func (s *sAmmeterDemo) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{
 		// 遥测点位
 		telemetryPTotalPoint,
