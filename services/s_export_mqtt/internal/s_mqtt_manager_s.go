@@ -10,8 +10,8 @@ import (
 	"s_db/s_db_basic"
 )
 
-// SMqttExportManager MQTT管理器
-type SMqttExportManager struct {
+// SMqttManager MQTT管理器
+type SMqttManager struct {
 	clients   map[int]*SMqttClient // 配置索引 -> 客户端
 	mu        sync.RWMutex         // 读写锁
 	ctx       context.Context      // 上下文
@@ -20,22 +20,22 @@ type SMqttExportManager struct {
 }
 
 var (
-	mqttExportManagerInstance *SMqttExportManager
-	mqttExportManagerOnce     sync.Once
+	mqttManagerInstance *SMqttManager
+	mqttManagerOnce     sync.Once
 )
 
-// GetMqttExportManager 获取MQTT管理器单例
-func GetMqttExportManager() *SMqttExportManager {
-	mqttExportManagerOnce.Do(func() {
-		mqttExportManagerInstance = &SMqttExportManager{
+// GetMqttManager 获取MQTT管理器单例
+func GetMqttManager() *SMqttManager {
+	mqttManagerOnce.Do(func() {
+		mqttManagerInstance = &SMqttManager{
 			clients: make(map[int]*SMqttClient),
 		}
 	})
-	return mqttExportManagerInstance
+	return mqttManagerInstance
 }
 
 // Start 启动MQTT管理器
-func (m *SMqttExportManager) Start(ctx context.Context) error {
+func (m *SMqttManager) Start(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -60,7 +60,7 @@ func (m *SMqttExportManager) Start(ctx context.Context) error {
 }
 
 // Stop 停止MQTT管理器
-func (m *SMqttExportManager) Stop(ctx context.Context) error {
+func (m *SMqttManager) Stop(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -90,7 +90,7 @@ func (m *SMqttExportManager) Stop(ctx context.Context) error {
 }
 
 // Reload 重新加载配置
-func (m *SMqttExportManager) Reload(ctx context.Context) error {
+func (m *SMqttManager) Reload(ctx context.Context) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -121,7 +121,7 @@ func (m *SMqttExportManager) Reload(ctx context.Context) error {
 }
 
 // loadConfigs 从数据库加载配置
-func (m *SMqttExportManager) loadConfigs(ctx context.Context) error {
+func (m *SMqttManager) loadConfigs(ctx context.Context) error {
 	// 获取MQTT配置列表
 	configJson := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingMqttConfigList)
 	if configJson == "" {
@@ -130,7 +130,7 @@ func (m *SMqttExportManager) loadConfigs(ctx context.Context) error {
 	}
 
 	// 解析JSON配置
-	var configs []SMqttExportConfig
+	var configs []SMqttConfig
 	err := json.Unmarshal([]byte(configJson), &configs)
 	if err != nil {
 		return err
@@ -175,7 +175,7 @@ func (m *SMqttExportManager) loadConfigs(ctx context.Context) error {
 }
 
 // createFormatter 根据服务标准创建格式化器
-func (m *SMqttExportManager) createFormatter(standard string) IDataFormatter {
+func (m *SMqttManager) createFormatter(standard string) IDataFormatter {
 	switch standard {
 	case "standard":
 		return &SStandardFormatter{}
@@ -186,15 +186,28 @@ func (m *SMqttExportManager) createFormatter(standard string) IDataFormatter {
 }
 
 // GetClientCount 获取客户端数量
-func (m *SMqttExportManager) GetClientCount() int {
+func (m *SMqttManager) GetClientCount() int {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return len(m.clients)
 }
 
 // IsRunning 检查是否正在运行
-func (m *SMqttExportManager) IsRunning() bool {
+func (m *SMqttManager) IsRunning() bool {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	return m.isRunning
+}
+
+// GetAllClientStatus 获取所有客户端状态
+func (m *SMqttManager) GetAllClientStatus() []*SMqttClientStatus {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	var statusList []*SMqttClientStatus
+	for _, client := range m.clients {
+		statusList = append(statusList, client.GetStatus())
+	}
+
+	return statusList
 }

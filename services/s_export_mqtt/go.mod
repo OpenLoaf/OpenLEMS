@@ -1,4 +1,4 @@
-module s_export_mqtt
+module s_mqtt
 
 go 1.25
 

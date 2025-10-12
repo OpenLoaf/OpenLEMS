@@ -1,4 +1,4 @@
-# MQTT数据推送服务 (s_export_mqtt)
+# MQTT数据推送服务 (s_mqtt)
 
 ## 概述
 
@@ -138,29 +138,29 @@ MQTT配置存储在数据库的`mqtt_config_list`设置中，JSON格式如下：
 ### 1. 初始化服务
 
 ```go
-import "s_export_mqtt"
+import "s_mqtt"
 
-// 初始化MQTT导出服务
-s_export_mqtt.Init()
+// 初始化MQTT服务
+s_mqtt.Init()
 ```
 
 ### 2. 启动服务
 
 ```go
-// 启动MQTT导出服务
-err := s_export_mqtt.StartMqttExporter(ctx)
+// 启动MQTT服务
+err := s_mqtt.StartMqtt(ctx)
 if err != nil {
-    log.Fatalf("启动MQTT导出服务失败: %v", err)
+    log.Fatalf("启动MQTT服务失败: %v", err)
 }
 ```
 
 ### 3. 停止服务
 
 ```go
-// 停止MQTT导出服务
-err := s_export_mqtt.StopMqttExporter(ctx)
+// 停止MQTT服务
+err := s_mqtt.StopMqtt(ctx)
 if err != nil {
-    log.Errorf("停止MQTT导出服务失败: %v", err)
+    log.Errorf("停止MQTT服务失败: %v", err)
 }
 ```
 
@@ -168,7 +168,7 @@ if err != nil {
 
 ```go
 // 重新加载MQTT配置
-err := s_export_mqtt.ReloadMqttExporter(ctx)
+err := s_mqtt.ReloadMqtt(ctx)
 if err != nil {
     log.Errorf("重新加载MQTT配置失败: %v", err)
 }
@@ -177,20 +177,26 @@ if err != nil {
 ### 5. 获取服务状态
 
 ```go
-// 获取MQTT导出服务状态
-isRunning, clientCount := s_export_mqtt.GetMqttExporterStatus()
+// 获取MQTT服务状态
+isRunning, clientCount, clientStatusList := s_mqtt.GetMqttStatus()
 fmt.Printf("服务运行状态: %v, 客户端数量: %d\n", isRunning, clientCount)
+
+// 遍历每个客户端的状态
+for i, status := range clientStatusList {
+    fmt.Printf("客户端 %d: 连接状态=%v, Topic=%s, 设备数量=%d\n", 
+        i, status.IsConnected, status.Topic, status.DeviceCount)
+}
 ```
 
 ## 架构设计
 
 ### 核心组件
 
-1. **SMqttExportConfig**: MQTT配置结构体
+1. **SMqttConfig**: MQTT配置结构体
 2. **IDataFormatter**: 数据格式化器接口
 3. **SStandardFormatter**: Standard格式实现
 4. **SMqttClient**: 单个MQTT连接管理
-5. **SMqttExportManager**: MQTT导出管理器
+5. **SMqttManager**: MQTT管理器
 
 ### 扩展性
 

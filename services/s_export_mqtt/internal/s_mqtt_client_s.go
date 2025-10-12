@@ -15,19 +15,40 @@ import (
 	"github.com/pkg/errors"
 )
 
+// SMqttClientStatus MQTT客户端状态结构体
+type SMqttClientStatus struct {
+	Config        *SMqttConfig `json:"config"`        // MQTT配置信息
+	IsConnected   bool         `json:"isConnected"`   // 是否已连接
+	IsRunning     bool         `json:"isRunning"`     // 是否正在运行
+	ClientID      string       `json:"clientId"`      // 客户端ID
+	SystemNumber  string       `json:"systemNumber"`  // 系统序列号
+	Topic         string       `json:"topic"`         // 当前使用的Topic
+	DeviceCount   int          `json:"deviceCount"`   // 设备数量
+	UploadPeriod  int          `json:"uploadPeriod"`  // 上传周期（秒）
+	LastPublishAt *time.Time   `json:"lastPublishAt"` // 最后发布时间
+	PublishCount  int64        `json:"publishCount"`  // 发布消息总数
+	ErrorCount    int64        `json:"errorCount"`    // 错误次数
+	StartTime     *time.Time   `json:"startTime"`     // 启动时间
+}
+
 // SMqttClient MQTT客户端封装
 type SMqttClient struct {
-	config       *SMqttExportConfig // MQTT配置
-	client       mqtt.Client        // MQTT客户端
-	ticker       *time.Ticker       // 定时器
-	ctx          context.Context    // 上下文
-	cancel       context.CancelFunc // 取消函数
-	formatter    IDataFormatter     // 数据格式化器
-	systemNumber string             // 系统序列号
+	config        *SMqttConfig       // MQTT配置
+	client        mqtt.Client        // MQTT客户端
+	ticker        *time.Ticker       // 定时器
+	ctx           context.Context    // 上下文
+	cancel        context.CancelFunc // 取消函数
+	formatter     IDataFormatter     // 数据格式化器
+	systemNumber  string             // 系统序列号
+	isRunning     bool               // 运行状态
+	startTime     *time.Time         // 启动时间
+	lastPublishAt *time.Time         // 最后发布时间
+	publishCount  int64              // 发布消息总数
+	errorCount    int64              // 错误次数
 }
 
 // NewMqttClient 创建新的MQTT客户端
-func NewMqttClient(config *SMqttExportConfig, formatter IDataFormatter, systemNumber string) *SMqttClient {
+func NewMqttClient(config *SMqttConfig, formatter IDataFormatter, systemNumber string) *SMqttClient {
 	return &SMqttClient{
 		config:       config,
 		formatter:    formatter,
@@ -116,6 +137,11 @@ func (c *SMqttClient) Start(ctx context.Context) error {
 	c.ticker = time.NewTicker(time.Duration(c.config.UploadPeriod) * time.Second)
 	go c.publishLoop()
 
+	// 设置运行状态和启动时间
+	c.isRunning = true
+	now := time.Now()
+	c.startTime = &now
+
 	clientId := fmt.Sprintf("lems_%s", c.systemNumber)
 	c_log.Infof(c.ctx, "MQTT客户端启动成功: %s:%d (ClientID: %s), 推送周期: %d秒, 连接超时: %d秒, 重连间隔: %d秒, 保活超时: %d秒",
 		c.config.ServerAddress, c.config.ServerPort, clientId, c.config.UploadPeriod,
@@ -136,6 +162,9 @@ func (c *SMqttClient) Stop() error {
 	if c.client != nil && c.client.IsConnected() {
 		c.client.Disconnect(250)
 	}
+
+	// 设置运行状态为false
+	c.isRunning = false
 
 	clientId := fmt.Sprintf("lems_%s", c.systemNumber)
 	c_log.Infof(c.ctx, "MQTT客户端已停止: %s:%d (ClientID: %s)", c.config.ServerAddress, c.config.ServerPort, clientId)
@@ -201,9 +230,15 @@ func (c *SMqttClient) publishDeviceData() error {
 
 		// 发布MQTT消息
 		if token := c.client.Publish(topic, 0, false, jsonData); token.Wait() && token.Error() != nil {
+			c.errorCount++
 			c_log.Errorf(c.ctx, "发布MQTT消息失败: 设备ID=%s, Topic=%s, 错误=%v", deviceId, topic, token.Error())
 			continue
 		}
+
+		// 更新发布统计
+		c.publishCount++
+		now := time.Now()
+		c.lastPublishAt = &now
 
 		c_log.Debugf(c.ctx, "成功推送设备数据: 设备ID=%s, Topic=%s, 数据长度=%d", deviceId, topic, len(jsonData))
 	}
@@ -221,4 +256,31 @@ func (c *SMqttClient) buildTopic() string {
 	// 使用formatter的模板，替换{system_number}为实际值
 	topicTemplate := c.formatter.GetTopicTemplate()
 	return strings.Replace(topicTemplate, "{system_number}", c.systemNumber, -1)
+}
+
+// GetStatus 获取MQTT客户端状态
+func (c *SMqttClient) GetStatus() *SMqttClientStatus {
+	clientId := fmt.Sprintf("lems_%s", c.systemNumber)
+	topic := c.buildTopic()
+
+	// 检查连接状态
+	isConnected := false
+	if c.client != nil {
+		isConnected = c.client.IsConnected()
+	}
+
+	return &SMqttClientStatus{
+		Config:        c.config,
+		IsConnected:   isConnected,
+		IsRunning:     c.isRunning,
+		ClientID:      clientId,
+		SystemNumber:  c.systemNumber,
+		Topic:         topic,
+		DeviceCount:   len(c.config.DeviceIds),
+		UploadPeriod:  c.config.UploadPeriod,
+		LastPublishAt: c.lastPublishAt,
+		PublishCount:  c.publishCount,
+		ErrorCount:    c.errorCount,
+		StartTime:     c.startTime,
+	}
 }

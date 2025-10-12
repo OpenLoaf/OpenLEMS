@@ -18,7 +18,7 @@ import (
 	"s_db"
 	"s_db/s_db_basic"
 	"s_driver"
-	"s_export_mqtt"
+	s_export_mqtt "s_mqtt"
 	"s_storage"
 	"time"
 
@@ -108,7 +108,7 @@ func StartServices(ctx context.Context) {
 		// 等待设备管理器启动完成
 		time.Sleep(3 * time.Second)
 
-		err := s_export_mqtt.StartMqttExporter(ctx)
+		err := s_export_mqtt.StartMqtt(ctx)
 		if err != nil {
 			g.Log().Errorf(ctx, "启动MQTT服务失败: %+v", err)
 		} else {
@@ -132,7 +132,7 @@ func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 		}
 
 		// 停止MQTT服务
-		err = s_export_mqtt.StopMqttExporter(ctx)
+		err = s_export_mqtt.StopMqtt(ctx)
 		if err != nil {
 			g.Log().Errorf(ctx, "停止MQTT服务失败: %+v", err)
 		} else {

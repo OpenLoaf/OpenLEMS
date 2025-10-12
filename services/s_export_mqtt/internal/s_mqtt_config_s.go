@@ -1,7 +1,7 @@
 package internal
 
-// SMqttExportConfig MQTT配置结构体
-type SMqttExportConfig struct {
+// SMqttConfig MQTT配置结构体
+type SMqttConfig struct {
 	ServerAddress      string   `json:"serverAddress"`      // MQTT服务器地址
 	ServerPort         int      `json:"serverPort"`         // MQTT服务器端口
 	Username           string   `json:"username"`           // MQTT用户名（可选）
