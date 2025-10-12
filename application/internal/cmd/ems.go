@@ -18,6 +18,7 @@ import (
 	"s_db"
 	"s_db/s_db_basic"
 	"s_driver"
+	"s_export_mqtt"
 	"s_storage"
 	"time"
 
@@ -61,6 +62,9 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 	// 注册自动化服务
 	service.RegisterAutomation(logic.NewAutomation())
 
+	// 初始化MQTT导出服务（在其他服务初始化之后）
+	s_export_mqtt.Init()
+
 	return nil
 }
 
@@ -98,6 +102,19 @@ func StartServices(ctx context.Context) {
 			c_log.BizInfof(ctx, "自动化服务启动成功！")
 		}
 	}()
+
+	// 启动MQTT导出服务
+	go func() {
+		// 等待设备管理器启动完成
+		time.Sleep(3 * time.Second)
+
+		err := s_export_mqtt.StartMqttExporter(ctx)
+		if err != nil {
+			g.Log().Errorf(ctx, "启动MQTT导出服务失败: %+v", err)
+		} else {
+			c_log.BizInfof(ctx, "MQTT导出服务启动成功！")
+		}
+	}()
 }
 
 // SetupShutdownHandler 设置关闭信号处理
@@ -112,6 +129,15 @@ func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 		} else {
 			g.Log().Infof(ctx, "自动化管理器已停止")
 			c_log.BizInfof(ctx, "自动化服务已停止")
+		}
+
+		// 停止MQTT导出服务
+		err = s_export_mqtt.StopMqttExporter(ctx)
+		if err != nil {
+			g.Log().Errorf(ctx, "停止MQTT导出服务失败: %+v", err)
+		} else {
+			g.Log().Infof(ctx, "MQTT导出服务已停止")
+			c_log.BizInfof(ctx, "MQTT导出服务已停止")
 		}
 
 		common.GetDeviceManager().Shutdown()

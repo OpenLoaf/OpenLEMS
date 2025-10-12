@@ -29,10 +29,10 @@ use (
 	./services/s_automation
 	./services/s_db
 	./services/s_driver
-	./services/s_storage
 
 	./services/s_export_modbus
 	./services/s_export_mqtt
+	./services/s_storage
 
 	./tools/t_network_manager
 	./tools/t_time_task

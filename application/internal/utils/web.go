@@ -5,6 +5,9 @@ import (
 	"os"
 	"time"
 
+	"s_db"
+	"s_db/s_db_basic"
+
 	"github.com/gogf/gf/v2/frame/g"
 )
 
@@ -20,9 +23,13 @@ func PrintWebServerInfo(ctx context.Context, serverAddress string) {
 		ipv4Addrs = []string{"localhost"}
 	}
 
+	// 获取系统序列号
+	systemNumber := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingSystemNumber)
+
 	// 打印服务器访问地址
 	g.Log().Infof(ctx, "==========================================")
-	g.Log().Infof(ctx, "🚀 EMS Web服务已启动！PID: %d", os.Getpid())
+	g.Log().Infof(ctx, "🚀 LEMS Web服务已启动！PID: %d", os.Getpid())
+	g.Log().Infof(ctx, "🔢 系统序列号: %s", systemNumber)
 
 	// 打印所有IPv4地址的服务器访问地址
 	g.Log().Infof(ctx, "📡 服务器地址:")

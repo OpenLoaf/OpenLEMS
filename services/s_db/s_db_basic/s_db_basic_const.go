@@ -1,6 +1,21 @@
 package s_db_basic
 
-import "common/c_enum"
+import (
+	"common/c_enum"
+	"math/rand"
+	"time"
+)
+
+// generateRandomString 生成指定长度的随机字符串
+func generateRandomString(length int) string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[r.Intn(len(charset))]
+	}
+	return string(b)
+}
 
 // 系统设置定义变量
 var (
@@ -132,5 +147,15 @@ var (
 		IsPublic:     false,
 		Remark:       "Modbus配置",
 		FieldType:    c_enum.ESettingFieldTypeJson,
+	}
+
+	// 系统序列号设置定义
+	SystemSettingSystemNumber = &SSystemSettingDefine{
+		Id:           "system_number",
+		Group:        c_enum.ESettingGroupSystem,
+		DefaultValue: generateRandomString(10),
+		IsPublic:     true,
+		Remark:       "系统序列号",
+		FieldType:    c_enum.ESettingFieldTypeText,
 	}
 )
