@@ -4,6 +4,7 @@ import (
 	applog "application/internal/log"
 	"application/internal/logic"
 	"application/internal/service"
+	"application/internal/utils"
 	_ "application/manifest"
 	"common"
 	"common/c_base"
@@ -114,6 +115,15 @@ func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 		}
 
 		common.GetDeviceManager().Shutdown()
+
+		// 清理PID文件
+		pidFile := utils.GetPidFilePath(ctx)
+		if err := utils.RemovePidFile(pidFile); err != nil {
+			g.Log().Warningf(ctx, "清理PID文件失败: %v", err)
+		} else {
+			g.Log().Infof(ctx, "PID文件已清理: %s", pidFile)
+		}
+
 		cancelFunc()
 		time.Sleep(1 * time.Second)
 		g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())

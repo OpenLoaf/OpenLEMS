@@ -4,7 +4,6 @@ use (
 	./@cpp
 	./@cpp/hexlib
 	./application
-	./application-gui
 	./common
 	./plugins/plug_drivers/bms/bms_pylon_tech_us108
 	./plugins/plug_drivers/demo/ammeter_demo

@@ -35,6 +35,10 @@ database:
   default:
     link: "sqlite::@file(out/data)"
     timezone: "Local"
+
+# PID文件配置
+pid:
+  file: "out/ems.pid"  # PID文件路径，支持相对路径和绝对路径
     
 
 server:

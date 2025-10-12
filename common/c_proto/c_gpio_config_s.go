@@ -15,7 +15,7 @@ type SGpioDeviceConfig struct {
 
 // SGpiodProtocolConfig gpiod协议的配置
 type SGpiodProtocolConfig struct {
-	Direction c_enum.EGpioDirection `json:"direction" required:"true" name:"方向" ct:"singleSelect" vt:"string" valueExplain:"in:输入,out:输出" required:"true" dc:"GPIO引脚方向：输入用于读取状态，输出用于控制"`
+	Direction c_enum.EGpioDirection `json:"direction" required:"true" name:"方向" ct:"singleSelect" vt:"string" valueExplain:"in:输入,out:输出" dc:"GPIO引脚方向：输入用于读取状态，输出用于控制"`
 	ChipIndex uint8                 `json:"chipIndex" dc:"GPIO芯片名称，如gpiochip0"`
 	Pin       uint8                 `json:"pin" dc:"GPIO引脚编号，范围0-99"`
 	LowActive bool                  `json:"lowActive" dc:"低电平有效"`

@@ -25,7 +25,7 @@ const (
 	ArgActiveDeviceRootId = "active-device-root-id" // 强制激活根设备
 	ArgProfile            = "profile"               // 配置profile: default/dev/prod等
 	ArgTest               = "test"                  // 测试模式：启动3秒后自动关闭
-	DefaultPidFile        = "out/ems.pid"           // 默认PID文件路径
+	ArgForce              = "force"                 // 强制启动：忽略PID检查
 )
 
 var MainCtx context.Context
@@ -46,23 +46,33 @@ var (
 			{Name: ArgActiveDeviceRootId, Brief: "强制激活根设备ID ", IsArg: false, Orphan: false},
 			{Name: ArgProfile, Brief: "Default: prod 选择配置profile (dev/prod等)", IsArg: false, Orphan: false},
 			{Name: ArgTest, Short: "t", Brief: "Default: false 测试模式：启动3秒后自动关闭", IsArg: false, Orphan: false},
+			{Name: ArgForce, Brief: "Default: false 强制启动：忽略PID检查，允许重复启动", IsArg: false, Orphan: false},
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			// 初始化context
 			ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Main")
 			MainCtx = ctx
 			ctx, cancelFunc := context.WithCancel(context.Background())
+			defer cancelFunc() // 确保在所有退出路径中调用 cancelFunc
 
 			// 初始化系统
 			if err := InitSystem(ctx, parser); err != nil {
 				panic(err)
 			}
 
-			// 写入PID文件
+			// 检查是否强制启动
+			forceStart := parser.GetOpt(ArgForce).Bool()
+
+			// 写入PID文件（带检查）
 			pid := os.Getpid()
-			pidFile := DefaultPidFile
-			if err := utils.WritePidFile(pidFile, pid); err != nil {
-				g.Log().Warningf(ctx, "写入PID文件失败: %v", err)
+			pidFile := utils.GetPidFilePath(ctx)
+			if err := utils.WritePidFileWithCheck(pidFile, pid, forceStart); err != nil {
+				if forceStart {
+					g.Log().Warningf(ctx, "强制启动：%v", err)
+				} else {
+					g.Log().Errorf(ctx, "启动失败：%v", err)
+					return err
+				}
 			} else {
 				g.Log().Infof(ctx, "PID已保存到文件: %s", pidFile)
 			}
