@@ -4,7 +4,10 @@ import (
 	"context"
 	"errors"
 	"s_db"
+	"s_db/s_db_basic"
 	"s_db/s_db_model"
+	"s_export_modbus"
+	s_export_mqtt "s_mqtt"
 
 	v1 "application/api/setting/v1"
 
@@ -62,6 +65,14 @@ func (c *ControllerV1) UpdateSetting(ctx context.Context, req *v1.UpdateSettingR
 		}
 
 		c_log.Infof(ctx, "成功创建设置 - 设置ID: %s", req.Id)
+
+		// 根据设置ID触发相应的重载操作
+		err = c.triggerReloadIfNeeded(ctx, req.Id)
+		if err != nil {
+			c_log.Errorf(ctx, "触发重载操作失败 - 设置ID: %s, 错误: %+v", req.Id, err)
+			// 注意：这里不返回错误，因为设置已经成功创建，重载失败不应该影响设置创建
+		}
+
 		return &v1.UpdateSettingRes{}, nil
 	}
 
@@ -85,5 +96,44 @@ func (c *ControllerV1) UpdateSetting(ctx context.Context, req *v1.UpdateSettingR
 	}
 
 	c_log.Infof(ctx, "成功更新设置 - 设置ID: %s", req.Id)
+
+	// 根据设置ID触发相应的重载操作
+	err = c.triggerReloadIfNeeded(ctx, req.Id)
+	if err != nil {
+		c_log.Errorf(ctx, "触发重载操作失败 - 设置ID: %s, 错误: %+v", req.Id, err)
+		// 注意：这里不返回错误，因为设置已经成功更新，重载失败不应该影响设置更新
+	}
+
 	return &v1.UpdateSettingRes{}, nil
+}
+
+// triggerReloadIfNeeded 根据设置ID触发相应的重载操作
+func (c *ControllerV1) triggerReloadIfNeeded(ctx context.Context, settingId string) error {
+	// 检查是否为Modbus配置
+	if settingId == s_db_basic.SystemSettingModbusConfig.Id {
+		c_log.Info(ctx, "检测到Modbus配置更新，开始重新加载Modbus服务")
+		err := s_export_modbus.ReloadModbus(ctx)
+		if err != nil {
+			c_log.Errorf(ctx, "重新加载Modbus服务失败: %+v", err)
+			return err
+		}
+		c_log.Info(ctx, "Modbus服务重新加载成功")
+		return nil
+	}
+
+	// 检查是否为MQTT配置
+	if settingId == s_db_basic.SystemSettingMqttConfigList.Id {
+		c_log.Info(ctx, "检测到MQTT配置更新，开始重新加载MQTT服务")
+		err := s_export_mqtt.ReloadMqtt(ctx)
+		if err != nil {
+			c_log.Errorf(ctx, "重新加载MQTT服务失败: %+v", err)
+			return err
+		}
+		c_log.Info(ctx, "MQTT服务重新加载成功")
+		return nil
+	}
+
+	// 其他配置不需要重载操作
+	c_log.Debugf(ctx, "设置ID %s 不需要触发重载操作", settingId)
+	return nil
 }
