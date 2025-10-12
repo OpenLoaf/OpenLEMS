@@ -109,3 +109,20 @@ func (s *sLoadDemo) GetTelemetryPoints() []c_base.IPoint {
 		telemetryEnergyPoint, // 电量 - 累计统计
 	}
 }
+
+// GetExportModbusPoints 获取暴露出去的modbus点位
+func (s *sLoadDemo) GetExportModbusPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		// 遥测点位 - 基本运行参数
+		telemetryPowerPoint,   // 功率
+		telemetryEnergyPoint,  // 电量
+		telemetryMaxLoadPoint, // 最大负载
+		// 协议点位 - 控制参数
+		Status,      // 设备状态
+		Power,       // 功率
+		Energy,      // 电量
+		MaxLoad,     // 最大负载
+		PowerFactor, // 功率因数
+		LoadRate,    // 负载率
+	}
+}

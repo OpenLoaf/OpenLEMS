@@ -375,3 +375,24 @@ func (p *sBmsPylonTechUs108) GetTelemetryPoints() []c_base.IPoint {
 		telemetryDcPowerPoint,   // 直流功率 - 运行状态指标
 	}
 }
+
+// GetExportModbusPoints 获取暴露出去的modbus点位
+func (p *sBmsPylonTechUs108) GetExportModbusPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		// 遥测点位 - 基本运行参数
+		telemetryBmsStatusPoint,               // 电池状态
+		telemetrySocPoint,                     // SOC - 电池电量百分比
+		telemetryCapacityPoint,                // 电池容量
+		telemetryDcPowerPoint,                 // 直流功率
+		telemetryDcVoltagePoint,               // 直流电压
+		telemetryDcCurrentPoint,               // 直流电流
+		telemetryHistoryIncomingQuantityPoint, // 历史充电量
+		telemetryHistoryOutgoingQuantityPoint, // 历史放电量
+		// 协议点位 - 控制参数
+		SleepControl,   // 睡眠控制
+		AllowCharge,    // 允许充电
+		AllowDischarge, // 允许放电
+		TempShield,     // 温度保护
+		AllowRun,       // 允许运行
+	}
+}

@@ -295,3 +295,17 @@ func (m *SModbusManager) GetServerStatus() (bool, int, int) {
 
 	return m.server.IsRunning(), m.server.GetConnectionCount(), len(m.deviceMaps)
 }
+
+// GetAllDeviceMaps 获取所有设备映射信息
+func (m *SModbusManager) GetAllDeviceMaps() map[string]*SDeviceRegisterMap {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	// 返回设备映射的副本，避免外部修改
+	deviceMapsCopy := make(map[string]*SDeviceRegisterMap)
+	for deviceId, deviceMap := range m.deviceMaps {
+		deviceMapsCopy[deviceId] = deviceMap
+	}
+
+	return deviceMapsCopy
+}

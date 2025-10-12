@@ -178,3 +178,32 @@ func (s *sAmmeterDemo) GetTelemetryPoints() []c_base.IPoint {
 		telemetryFrequencyPoint, // 频率 - 电网质量指标
 	}
 }
+
+// GetExportModbusPoints 获取暴露出去的modbus点位
+func (s *sAmmeterDemo) GetExportModbusPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		// 遥测点位 - 基本测量参数
+		telemetryPTotalPoint,                  // 总功率
+		telemetryFrequencyPoint,               // 频率
+		telemetryPfTotalPoint,                 // 总功率因数
+		telemetryHistoryIncomingQuantityPoint, // 历史正向电量
+		telemetryHistoryOutgoingQuantityPoint, // 历史反向电量
+		// 协议点位 - 详细测量数据
+		Status,              // 设备状态
+		PhaseAVoltage,       // A相电压
+		PhaseBVoltage,       // B相电压
+		PhaseCVoltage,       // C相电压
+		PhaseACurrent,       // A相电流
+		PhaseBCurrent,       // B相电流
+		PhaseCCurrent,       // C相电流
+		TotalActivePower,    // 总有功功率
+		TotalReactivePower,  // 总无功功率
+		TotalApparentPower,  // 总视在功率
+		ForwardActiveEnergy, // 正向有功电量
+		ReverseActiveEnergy, // 反向有功电量
+		Frequency,           // 频率
+		PowerFactor,         // 功率因数
+		RatedLineVoltage,    // 额定线电压
+		RatedFrequency,      // 额定频率
+	}
+}

@@ -13,4 +13,5 @@ import (
 type IRemoteV1 interface {
 	GetMqttStatus(ctx context.Context, req *v1.GetMqttStatusReq) (res *v1.GetMqttStatusRes, err error)
 	ReloadMqtt(ctx context.Context, req *v1.ReloadMqttReq) (res *v1.ReloadMqttRes, err error)
+	GetModbusStatus(ctx context.Context, req *v1.GetModbusStatusReq) (res *v1.GetModbusStatusRes, err error)
 }

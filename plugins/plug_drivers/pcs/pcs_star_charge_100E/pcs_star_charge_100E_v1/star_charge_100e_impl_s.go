@@ -232,3 +232,19 @@ func (s *sPcsStarCharge100E) GetTelemetryPoints() []c_base.IPoint {
 		AverageFrequency,             // 频率 - 电网质量指标
 	}
 }
+
+// GetExportModbusPoints 获取暴露出去的modbus点位
+func (s *sPcsStarCharge100E) GetExportModbusPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		// 协议点位 - 基本运行参数
+		InverterOperationStatus,        // 逆变器运行状态
+		TotalActivePowerInverterSide,   // 总有功功率
+		TotalApparentPowerInverterSide, // 总视在功率
+		TotalReactivePowerInverterSide, // 总无功功率
+		AverageFrequency,               // 平均频率
+		// 控制参数
+		ActivePowerSetting,   // 有功功率设定
+		ReactivePowerSetting, // 无功功率设定
+		OnOffCommand,         // 开关机命令
+	}
+}

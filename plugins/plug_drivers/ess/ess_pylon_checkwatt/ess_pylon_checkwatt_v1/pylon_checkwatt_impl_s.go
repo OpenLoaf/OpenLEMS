@@ -331,3 +331,9 @@ func (p *sEssPylonCheckwatt) GetTelemetryPoints() []c_base.IPoint {
 	// 虚拟ESS驱动没有点位，返回空列表
 	return []c_base.IPoint{}
 }
+
+// GetExportModbusPoints 获取暴露出去的modbus点位
+func (p *sEssPylonCheckwatt) GetExportModbusPoints() []c_base.IPoint {
+	// 虚拟ESS驱动没有点位，返回空列表
+	return []c_base.IPoint{}
+}

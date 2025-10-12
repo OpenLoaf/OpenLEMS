@@ -240,3 +240,29 @@ func (s *sEssDemo) GetTelemetryPoints() []c_base.IPoint {
 		telemetrySocPoint,   // SOC - 电池电量百分比
 	}
 }
+
+// GetExportModbusPoints 获取暴露出去的modbus点位
+func (s *sEssDemo) GetExportModbusPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		// 遥测点位 - 基本运行参数
+		telemetryPowerPoint,           // 功率
+		telemetrySocPoint,             // SOC - 电池电量百分比
+		telemetryGeneratedEnergyPoint, // 累计放电量
+		telemetryConsumedEnergyPoint,  // 累计用电量
+		// 协议点位 - 控制参数
+		Status,            // 设备状态
+		Power,             // 功率
+		SOC,               // SOC
+		GeneratedEnergy,   // 发电量
+		ConsumedEnergy,    // 用电量
+		MaxChargePower,    // 最大充电功率
+		MaxDischargePower, // 最大放电功率
+		DeviceControl,     // 设备控制
+		TargetPower,       // 目标功率
+		PowerCapacity,     // 功率容量
+		EnergyCapacity,    // 能量容量
+		MinSOC,            // 最小SOC
+		MaxSOC,            // 最大SOC
+		ChargeEfficiency,  // 充电效率
+	}
+}

@@ -48,3 +48,9 @@ func GetModbusDeviceStatus() []*internal.SModbusDeviceStatus {
 	manager := internal.GetModbusManager()
 	return manager.GetAllDeviceStatus()
 }
+
+// GetModbusDeviceMaps 获取所有设备映射信息
+func GetModbusDeviceMaps() map[string]*internal.SDeviceRegisterMap {
+	manager := internal.GetModbusManager()
+	return manager.GetAllDeviceMaps()
+}

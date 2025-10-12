@@ -137,6 +137,13 @@ func (s *sBasicGpioOut) GetTelemetryPoints() []c_base.IPoint {
 	}
 }
 
+// GetExportModbusPoints 获取暴露出去的modbus点位
+func (s *sBasicGpioOut) GetExportModbusPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		s.gpioPoint, // GPIO状态 - 基本状态信息
+	}
+}
+
 // parseLabelName 解析标签名称，从 "名称|#颜色代码" 格式中提取名称
 func (s *sBasicGpioOut) parseLabelName(label string) string {
 	if strings.Contains(label, "|") {

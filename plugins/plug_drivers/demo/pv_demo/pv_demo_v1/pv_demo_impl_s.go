@@ -144,3 +144,26 @@ func (s *sPvDemo) GetTelemetryPoints() []c_base.IPoint {
 		telemetryGeneratedEnergyPoint, // 发电量 - 累计统计
 	}
 }
+
+// GetExportModbusPoints 获取暴露出去的modbus点位
+func (s *sPvDemo) GetExportModbusPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		// 遥测点位 - 基本运行参数
+		telemetryPowerPoint,           // 发电功率
+		telemetryGeneratedEnergyPoint, // 累计发电量
+		telemetryPowerLimitPoint,      // 功率限制
+		telemetryCapacityPoint,        // 装机容量
+		telemetryTemperaturePoint,     // 温度
+		telemetryIrradiancePoint,      // 辐照度
+		// 协议点位 - 控制参数
+		Status,            // 设备状态
+		Power,             // 功率
+		GeneratedEnergy,   // 发电量
+		OnOffState,        // 开关状态
+		PowerLimit,        // 功率限制
+		InstalledCapacity, // 装机容量
+		Irradiance,        // 辐照度
+		Temperature,       // 温度
+		Efficiency,        // 效率
+	}
+}

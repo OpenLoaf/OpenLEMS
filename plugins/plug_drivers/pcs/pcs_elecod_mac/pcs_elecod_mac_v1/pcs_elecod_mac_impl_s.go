@@ -190,3 +190,14 @@ func (s *sPcsElecodMac) GetTelemetryPoints() []c_base.IPoint {
 		elecod_mac_defined.AnalogTotalPowerFactor,   // 总功率因数 - 效率指标
 	}
 }
+
+// GetExportModbusPoints 获取暴露出去的modbus点位
+func (s *sPcsElecodMac) GetExportModbusPoints() []c_base.IPoint {
+	return []c_base.IPoint{
+		// 协议点位 - 基本运行参数
+		elecod_mac_defined.AnalogTotalActivePower,   // 总有功功率
+		elecod_mac_defined.AnalogTotalReactivePower, // 总无功功率
+		elecod_mac_defined.AnalogTotalApparentPower, // 总视在功率
+		elecod_mac_defined.AnalogTotalPowerFactor,   // 总功率因数
+	}
+}
