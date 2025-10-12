@@ -12,6 +12,56 @@ import (
 	"github.com/pkg/errors"
 )
 
+// GetPointValue 获取单个点位的值
+func GetPointValue(instance IDevice, point IPoint) *SPointValue {
+	if instance == nil || point == nil {
+		return nil
+	}
+
+	// 检查是否是SProtocolPoint类型（协议点位）
+	if protocolPoint, ok := point.(*SProtocolPoint); ok {
+		// 使用实例的GetProtocolPointValue方法获取协议点位缓存值
+		return instance.GetProtocolPointValue(protocolPoint)
+	} else if reflectPoint, ok := point.(*SReflectPoint); ok {
+		// 检查是否是SReflectPoint类型（遥测点位）
+		// 通过反射获取遥测数据
+		value, err := getTelemetryByReflect(reflectPoint.MethodName, instance)
+		if err != nil {
+			c_log.Warningf(context.Background(), "获取遥测数据失败: 点位=%s, 方法=%s, 错误=%v",
+				point.GetKey(), reflectPoint.MethodName, err)
+			return nil
+		}
+
+		// 创建SPointValue
+		pointValue := &SPointValue{
+			IPoint: point,
+			value:  value,
+		}
+		return pointValue
+	}
+
+	return nil
+}
+
+// GetPointValueList 获取所有点位的值列表（辅助函数）
+func GetPointValueList(instance IDevice) []*SPointValue {
+	if instance == nil {
+		return nil
+	}
+
+	var result []*SPointValue
+	allPoints := instance.GetDevicePoints()
+
+	for _, point := range allPoints {
+		pointValue := GetPointValue(instance, point)
+		if pointValue != nil {
+			result = append(result, pointValue)
+		}
+	}
+
+	return result
+}
+
 func GetAllTelemetry(instance IDevice) map[string]any {
 	if instance == nil || instance.GetProtocolStatus() != c_enum.EProtocolConnected {
 		return nil
@@ -21,30 +71,11 @@ func GetAllTelemetry(instance IDevice) map[string]any {
 
 	// 获取所有点位数据
 	allPoints := instance.GetDevicePoints()
-	pointValueList := instance.GetPointValueList()
-
-	// 创建点位值映射，便于查找
-	pointValueMap := make(map[string]*SPointValue)
-	for _, pv := range pointValueList {
-		pointValueMap[pv.GetKey()] = pv
-	}
 
 	for _, point := range allPoints {
-		// 检查是否是SReflectPoint类型（遥测点位）
-		if reflectPoint, ok := point.(*SReflectPoint); ok {
-			// 通过反射获取遥测数据
-			value, err := getTelemetryByReflect(reflectPoint.MethodName, instance)
-			if err != nil {
-				c_log.Warningf(context.Background(), "=>获取遥测数据失败: 点位=%s, 方法=%s, 错误=%v",
-					point.GetKey(), reflectPoint.MethodName, err)
-				continue
-			}
-			result[point.GetKey()] = value
-		} else {
-			// 协议点位，从缓存中获取数据
-			if pv, exists := pointValueMap[point.GetKey()]; exists && pv != nil {
-				result[point.GetKey()] = pv.GetValue()
-			}
+		pointValue := GetPointValue(instance, point)
+		if pointValue != nil {
+			result[point.GetKey()] = pointValue.GetValue()
 		}
 	}
 
@@ -56,44 +87,7 @@ func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
 		return nil
 	}
 
-	var result []*SPointValue
-
-	// 获取所有点位数据
-	allPoints := instance.GetDevicePoints()
-	pointValueList := instance.GetPointValueList()
-
-	// 创建点位值映射，便于查找
-	pointValueMap := make(map[string]*SPointValue)
-	for _, pv := range pointValueList {
-		pointValueMap[pv.GetKey()] = pv
-	}
-
-	for _, point := range allPoints {
-		// 检查是否是SReflectPoint类型（遥测点位）
-		if reflectPoint, ok := point.(*SReflectPoint); ok {
-			// 通过反射获取遥测数据
-			value, err := getTelemetryByReflect(reflectPoint.MethodName, instance)
-			if err != nil {
-				c_log.Warningf(context.Background(), "获取遥测数据失败: 点位=%s, 方法=%s, 错误=%v",
-					point.GetKey(), reflectPoint.MethodName, err)
-				continue
-			}
-
-			// 创建SPointValue
-			pointValue := &SPointValue{
-				IPoint: point,
-				value:  value,
-			}
-			result = append(result, pointValue)
-		} else {
-			// 协议点位，从缓存中获取数据
-			if pv, exists := pointValueMap[point.GetKey()]; exists && pv != nil {
-				result = append(result, pv)
-			}
-		}
-	}
-
-	return result
+	return GetPointValueList(instance)
 }
 
 // ResolvingValueType TODO 提出来

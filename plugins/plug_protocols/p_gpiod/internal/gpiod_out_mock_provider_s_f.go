@@ -71,8 +71,13 @@ func (s *sGpiodOutMockProvider) GetLastUpdateTime() *time.Time {
 	return s.lastUpdateTime
 }
 
-func (s *sGpiodOutMockProvider) GetPointValueList() []*c_base.SPointValue {
-	if s.point == nil {
+func (s *sGpiodOutMockProvider) GetProtocolPointValue(protocolPoint *c_base.SProtocolPoint) *c_base.SPointValue {
+	if s.point == nil || protocolPoint == nil {
+		return nil
+	}
+
+	// GPIO是单点位设备，检查protocolPoint是否匹配当前点位
+	if protocolPoint.GetKey() != s.point.GetKey() {
 		return nil
 	}
 
@@ -83,7 +88,7 @@ func (s *sGpiodOutMockProvider) GetPointValueList() []*c_base.SPointValue {
 		point = c_base.NewPointValue(s.deviceConfig.Id, s.point, nil)
 	}
 
-	return []*c_base.SPointValue{point}
+	return point
 }
 
 func (s *sGpiodOutMockProvider) GetValue(point c_base.IPoint) (any, error) {

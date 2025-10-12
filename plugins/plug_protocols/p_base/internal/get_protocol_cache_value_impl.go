@@ -7,7 +7,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gogf/gf/v2/container/garray"
 	"github.com/gogf/gf/v2/os/gcache"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/pkg/errors"
@@ -77,52 +76,20 @@ func (s *SGetProtocolCacheValueImpl) CacheValue(value *c_base.SPointValue, lifet
 	return err
 }
 
-func (s *SGetProtocolCacheValueImpl) GetPointValueList() []*c_base.SPointValue {
-	// 排序
-	_sortValues := garray.NewSortedArray(func(v1, v2 interface{}) int {
-		v1Meta := v1.(*c_base.SPointValue)
-		v2Meta := v2.(*c_base.SPointValue)
-
-		// 先比较 Sort
-		if v1Meta.GetSort() > v2Meta.GetSort() {
-			return 1
-		} else if v1Meta.GetSort() < v2Meta.GetSort() {
-			return -1
-		}
-
-		// Sort 相等时，使用名称排序
-		if v1Meta.GetKey() > v2Meta.GetKey() {
-			return 1
-		} else if v1Meta.GetKey() < v2Meta.GetKey() {
-			return -1
-		}
-		return 0
-	})
-
-	s.mu.RLock()
-	// 创建 pointMap 的副本，避免在遍历时被修改
-	pointMapCopy := make(map[string]struct{})
-	for key := range s.pointMap {
-		pointMapCopy[key] = struct{}{}
-	}
-	s.mu.RUnlock()
-
-	for key, _ := range pointMapCopy {
-
-		_varValue, err := pointCache.Get(s.ctx, key) // MetaValue类型
-		if err != nil || _varValue == nil {
-			continue
-		}
-
-		_sortValues.Add(_varValue.Val())
+func (s *SGetProtocolCacheValueImpl) GetProtocolPointValue(protocolPoint *c_base.SProtocolPoint) *c_base.SPointValue {
+	if protocolPoint == nil {
+		return nil
 	}
 
-	result := make([]*c_base.SPointValue, _sortValues.Len())
-	for i, v := range _sortValues.Slice() {
-		result[i] = v.(*c_base.SPointValue)
+	// 使用GetValue方法获取缓存值
+	value, err := s.GetValue(protocolPoint)
+	if err != nil || value == nil {
+		return nil
 	}
 
-	return result
+	// 创建SPointValue并返回
+	pointValue := c_base.NewPointValue(s.deviceId, protocolPoint, value)
+	return pointValue
 }
 
 func (s *SGetProtocolCacheValueImpl) GetValue(point c_base.IPoint) (any, error) {

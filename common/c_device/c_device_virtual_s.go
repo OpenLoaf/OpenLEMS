@@ -90,19 +90,19 @@ func (s *SVirtualDeviceImpl) GetProtocolStatus() c_enum.EProtocolStatus {
 	return minStatus
 }
 
-func (s *SVirtualDeviceImpl) GetPointValueList() []*c_base.SPointValue {
-	var list = make([]*c_base.SPointValue, 0)
+func (s *SVirtualDeviceImpl) GetProtocolPointValue(protocolPoint *c_base.SProtocolPoint) *c_base.SPointValue {
+	// 虚拟设备遍历子设备查找对应点位
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
 		child := common.GetDeviceManager().GetDeviceById(childDevice.Id)
 		if child == nil {
 			continue
 		}
-		childList := child.GetPointValueList()
-		if len(childList) > 0 {
-			list = append(list, childList[:]...)
+		pointValue := child.GetProtocolPointValue(protocolPoint)
+		if pointValue != nil {
+			return pointValue
 		}
 	}
-	return list
+	return nil
 }
 
 func (s *SVirtualDeviceImpl) GetLastUpdateTime() *time.Time {

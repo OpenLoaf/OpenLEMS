@@ -11,8 +11,8 @@ type IDevice interface {
 	GetConfig() *SDeviceConfig
 	GetProtocolStatus() c_enum.EProtocolStatus // 获取协议连接状态
 
-	GetPointValueList() []*SPointValue // 获取所有缓存的数据列表
-	GetLastUpdateTime() *time.Time     // 获取最后更新时间
+	GetProtocolPointValue(protocolPoint *SProtocolPoint) *SPointValue // 获取协议点位缓存值
+	GetLastUpdateTime() *time.Time                                    // 获取最后更新时间
 
 	IsVirtualDevice() bool // 是否是虚拟设备
 

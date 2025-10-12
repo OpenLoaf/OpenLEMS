@@ -143,19 +143,24 @@ func (s *sGpiodInLinuxProvider) GetLastUpdateTime() *time.Time {
 	return s.lastUpdateTime
 }
 
-func (s *sGpiodInLinuxProvider) GetPointValueList() []*c_base.SPointValue {
+func (s *sGpiodInLinuxProvider) GetProtocolPointValue(protocolPoint *c_base.SProtocolPoint) *c_base.SPointValue {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
-	// 如果协议未连接或没有点位，返回空列表
+	// 如果协议未连接或没有点位，返回nil
 	if s.protocolStatus != c_enum.EProtocolConnected || s.point == nil {
-		return []*c_base.SPointValue{}
+		return nil
+	}
+
+	// GPIO是单点位设备，检查protocolPoint是否匹配当前点位
+	if protocolPoint == nil || protocolPoint.GetKey() != s.point.GetKey() {
+		return nil
 	}
 
 	// 返回当前GPIO状态
 	status := s.GetStatusUnsafe()
 	if status == nil {
-		return []*c_base.SPointValue{}
+		return nil
 	}
 
 	pointValue := c_base.NewPointValue(s.deviceConfig.Id, s.point, *status)
@@ -163,7 +168,7 @@ func (s *sGpiodInLinuxProvider) GetPointValueList() []*c_base.SPointValue {
 		pointValue.SetHappenTime(*s.lastUpdateTime)
 	}
 
-	return []*c_base.SPointValue{pointValue}
+	return pointValue
 }
 
 func (s *sGpiodInLinuxProvider) GetValue(point c_base.IPoint) (any, error) {
