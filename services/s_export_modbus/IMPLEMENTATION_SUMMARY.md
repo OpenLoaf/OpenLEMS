@@ -126,10 +126,16 @@ if err != nil {
 ### 数据库配置
 ```json
 {
+  "enabled": true,
   "listenPort": 502,
   "deviceIds": ["pylon_bms", "pcs_1"]
 }
 ```
+
+**配置字段说明**：
+- `enabled`: 是否启用 Modbus 服务（true/false），当设置为 false 时，服务不会启动
+- `listenPort`: Modbus TCP 服务器监听端口
+- `deviceIds`: 要暴露的设备ID列表
 
 ### 设备配置
 每个设备需要在 `ExternalParam` 中配置：

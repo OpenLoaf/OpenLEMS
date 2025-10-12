@@ -20,6 +20,7 @@ Modbus 配置存储在数据库的 `modbus_config` 设置中，JSON 格式如下
 
 ```json
 {
+  "enabled": true,
   "listenPort": 502,
   "deviceIds": ["pylon_bms", "pcs_1"]
 }
@@ -27,6 +28,7 @@ Modbus 配置存储在数据库的 `modbus_config` 设置中，JSON 格式如下
 
 ### 配置字段说明
 
+- `enabled`: 是否启用 Modbus 服务（true/false）
 - `listenPort`: Modbus TCP 服务器监听端口（默认 502）
 - `deviceIds`: 要对外提供 Modbus 服务的设备ID列表
 

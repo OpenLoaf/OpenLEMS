@@ -60,6 +60,13 @@ func (m *SModbusManager) Start(ctx context.Context) error {
 		return err
 	}
 
+	// 检查是否有设备映射（如果enabled为false，设备映射为空）
+	if len(m.deviceMaps) == 0 {
+		c_log.Info(m.ctx, "Modbus服务未启用或无设备配置，跳过服务器启动")
+		m.isRunning = true // 标记为运行状态，但实际不启动服务器
+		return nil
+	}
+
 	// 创建设备处理器
 	m.handler = NewModbusDeviceHandler()
 	m.handler.UpdateDeviceMaps(m.deviceMaps)
@@ -87,7 +94,7 @@ func (m *SModbusManager) Stop(ctx context.Context) error {
 		return nil
 	}
 
-	// 停止服务器
+	// 停止服务器（如果服务器存在）
 	if m.server != nil {
 		err := m.server.Stop()
 		if err != nil {
@@ -149,6 +156,15 @@ func (m *SModbusManager) loadConfigs(ctx context.Context) error {
 	err := json.Unmarshal([]byte(configJson), &config)
 	if err != nil {
 		return fmt.Errorf("解析Modbus配置失败: %v", err)
+	}
+
+	// 检查是否启用Modbus服务
+	if !config.Enabled {
+		c_log.Info(ctx, "Modbus服务已禁用，跳过启动")
+		// 清空现有设备映射
+		m.deviceMaps = make(map[string]*SDeviceRegisterMap)
+		m.deviceStatus = make(map[string]*SModbusDeviceStatus)
+		return nil
 	}
 
 	// 清空现有设备映射
@@ -289,8 +305,14 @@ func (m *SModbusManager) GetServerStatus() (bool, int, int) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	if m.server == nil {
+	// 如果服务未运行，返回false
+	if !m.isRunning {
 		return false, 0, 0
+	}
+
+	// 如果服务器为nil（服务被禁用），返回运行状态但连接数为0
+	if m.server == nil {
+		return true, 0, len(m.deviceMaps)
 	}
 
 	return m.server.IsRunning(), m.server.GetConnectionCount(), len(m.deviceMaps)
