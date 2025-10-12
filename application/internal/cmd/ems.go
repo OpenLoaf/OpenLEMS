@@ -18,6 +18,7 @@ import (
 	"s_db"
 	"s_db/s_db_basic"
 	"s_driver"
+	s_export_modbus "s_export_modbus"
 	s_export_mqtt "s_mqtt"
 	"s_storage"
 	"time"
@@ -64,6 +65,9 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 
 	// 初始化MQTT服务（在其他服务初始化之后）
 	s_export_mqtt.Init()
+
+	// 初始化Modbus服务
+	s_export_modbus.Init()
 
 	return nil
 }
@@ -115,6 +119,19 @@ func StartServices(ctx context.Context) {
 			c_log.BizInfof(ctx, "MQTT服务启动成功！")
 		}
 	}()
+
+	// 启动Modbus服务
+	go func() {
+		// 等待设备管理器启动完成
+		time.Sleep(4 * time.Second)
+
+		err := s_export_modbus.StartModbus(ctx)
+		if err != nil {
+			g.Log().Errorf(ctx, "启动Modbus服务失败: %+v", err)
+		} else {
+			c_log.BizInfof(ctx, "Modbus服务启动成功！")
+		}
+	}()
 }
 
 // SetupShutdownHandler 设置关闭信号处理
@@ -138,6 +155,15 @@ func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 		} else {
 			g.Log().Infof(ctx, "MQTT服务已停止")
 			c_log.BizInfof(ctx, "MQTT服务已停止")
+		}
+
+		// 停止Modbus服务
+		err = s_export_modbus.StopModbus(ctx)
+		if err != nil {
+			g.Log().Errorf(ctx, "停止Modbus服务失败: %+v", err)
+		} else {
+			g.Log().Infof(ctx, "Modbus服务已停止")
+			c_log.BizInfof(ctx, "Modbus服务已停止")
 		}
 
 		common.GetDeviceManager().Shutdown()
