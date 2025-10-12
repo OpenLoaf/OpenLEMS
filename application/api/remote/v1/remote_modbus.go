@@ -10,6 +10,10 @@ type GetModbusStatusReq struct {
 	g.Meta `path:"/remote/modbus/status" method:"get" tags:"远程管理" summary:"获取Modbus服务状态"`
 }
 
+type ReloadModbusReq struct {
+	g.Meta `path:"/remote/modbus/reload" method:"post" tags:"远程管理" summary:"重新加载Modbus服务配置"`
+}
+
 type GetModbusStatusRes struct {
 	IsRunning       bool                  `json:"isRunning" dc:"Modbus服务是否正在运行"`
 	ListenPort      int                   `json:"listenPort" dc:"监听端口"`
@@ -39,4 +43,7 @@ type ModbusPointMapping struct {
 	RegisterCount uint16 `json:"registerCount" dc:"占用寄存器数量"`
 	IsSystemPoint bool   `json:"isSystemPoint" dc:"是否为系统固定点位"`
 	Description   string `json:"description" dc:"点位描述"`
+}
+
+type ReloadModbusRes struct {
 }
