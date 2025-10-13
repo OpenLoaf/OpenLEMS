@@ -28,7 +28,7 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 
 	list := c_base.GetPointValueList(device)
 	//var list = make([]*c_base.SPointValue, 0)
-	list = append(list, c_base.GetAllTelemetryPoint(device)...)
+	//list = append(list, c_base.GetAllTelemetryPoint(device)...)
 
 	for _, v := range list {
 

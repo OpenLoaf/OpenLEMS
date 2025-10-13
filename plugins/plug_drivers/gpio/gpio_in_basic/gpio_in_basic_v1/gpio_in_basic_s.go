@@ -15,7 +15,7 @@ import (
 
 type sBasicGpioIn struct {
 	*c_device.SRealDeviceImpl[c_proto.IGpiodProtocol]
-	gpioPoint        *c_base.SPoint
+	gpioPoint        *c_base.SProtocolPoint
 	GpioDeviceConfig *c_proto.SGpioDeviceConfig
 }
 
@@ -47,12 +47,19 @@ func (s *sBasicGpioIn) Init() error {
 		return err
 	}
 
-	s.gpioPoint = &c_base.SPoint{
-		Key:     "status",
-		Name:    "状态",
-		Group:   c_base.GroupTotal,
-		Precise: 0,
-		Hidden:  true,
+	s.gpioPoint = &c_base.SProtocolPoint{
+		SPoint: &c_base.SPoint{
+			Key:     "status",
+			Name:    "状态",
+			Group:   c_base.GroupTotal,
+			Precise: 0,
+			Hidden:  false,
+		},
+		DataAccess: &c_base.SDataAccess{
+			DataFormat: c_enum.DataFormatBits,
+			BitIndex:   0,
+			BitLength:  1,
+		},
 	}
 
 	// 设置状态解释
