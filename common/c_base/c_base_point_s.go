@@ -50,7 +50,8 @@ func (s *SPoint) GetValueExplain() []*SFieldExplain {
 	return s.ValueExplain
 }
 
-func (s *SPoint) GetValueExplainByValue(value any) (string, error) {
+// explainByValueCommon 公共的值解释逻辑：根据给定的 explains 列表匹配并返回解释
+func (s *SPoint) explainByValueCommon(value any, explains []*SFieldExplain, precise uint8) (string, error) {
 	// 1. 将value转换为字符串，如果是枚举之类的，转为int的字符串
 	var valueStr string
 	var err error
@@ -75,9 +76,9 @@ func (s *SPoint) GetValueExplainByValue(value any) (string, error) {
 		}
 	}
 
-	// 2. 从ValueExplain中判断是否和value匹配，匹配的话返回ValueExplain的值
-	if len(s.ValueExplain) > 0 {
-		for _, explain := range s.ValueExplain {
+	// 2. 从给定的 explains 中判断是否和value匹配
+	if len(explains) > 0 {
+		for _, explain := range explains {
 			if explain.Key == valueStr {
 				return explain.Value, nil
 			}
@@ -85,16 +86,17 @@ func (s *SPoint) GetValueExplainByValue(value any) (string, error) {
 	}
 
 	// 3. 浮点数据进行格式化输出
-	// 尝试将值转换为浮点数进行格式化
 	if floatVal, err := cvt.Float64E(value); err == nil {
-		// 使用 strconv.FormatFloat 进行精确格式化
-		// 'f' 表示固定小数点格式，s.Precise 表示精度
-		formatted := strconv.FormatFloat(floatVal, 'f', int(s.Precise), 64)
+		formatted := strconv.FormatFloat(floatVal, 'f', int(precise), 64)
 		return formatted, nil
 	}
 
 	// 如果无法转换为浮点数，返回转换后的字符串
 	return valueStr, nil
+}
+
+func (s *SPoint) GetValueExplainByValue(value any) (string, error) {
+	return s.explainByValueCommon(value, s.ValueExplain, s.Precise)
 }
 
 // GetValueExplainWithColor 获取Value解释，包含颜色信息
