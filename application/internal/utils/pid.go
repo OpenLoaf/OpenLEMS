@@ -41,11 +41,16 @@ func RemovePidFile(pidFile string) error {
 }
 
 // IsProcessRunning 检查指定PID的进程是否正在运行
-// 改进版本：能够正确识别僵尸进程
+// 改进版本：能够正确识别僵尸进程，支持跨平台
 func IsProcessRunning(pid int) bool {
-	// 方法1：使用 syscall.Kill(pid, 0) 检查进程是否存在
-	// 注意：信号 0 不发送实际信号，只是检查进程是否存在
-	err := syscall.Kill(pid, 0)
+	// 方法1：使用跨平台的 os.FindProcess + process.Signal 检查进程是否存在
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return false
+	}
+
+	// 使用 Signal(0) 检查进程是否存在（跨平台兼容）
+	err = process.Signal(syscall.Signal(0))
 	if err != nil {
 		return false
 	}
@@ -60,14 +65,13 @@ func IsProcessRunning(pid int) bool {
 		return checkProcessStatusDarwin(pid)
 	}
 
-	// 默认方法：使用原有的 Signal 检查
-	process, err := os.FindProcess(pid)
-	if err != nil {
-		return false
+	// 方法4：在 Windows 上使用特定检查
+	if runtime.GOOS == "windows" {
+		return checkProcessStatusWindows(pid)
 	}
 
-	err = process.Signal(syscall.Signal(0))
-	return err == nil
+	// 默认情况：如果前面的检查都通过，认为进程在运行
+	return true
 }
 
 // CheckPidFile 检查PID文件是否存在且对应的进程正在运行
@@ -187,4 +191,31 @@ func checkProcessStatusDarwin(pid int) bool {
 	}
 
 	return true
+}
+
+// checkProcessStatusWindows 在Windows系统上检查进程状态
+// 通过执行 tasklist 命令来检测进程是否存在
+func checkProcessStatusWindows(pid int) bool {
+	// 使用 tasklist 命令检查进程是否存在
+	// /FI "PID eq [pid]" 过滤指定PID的进程
+	cmd := exec.Command("tasklist", "/FI", "PID eq "+strconv.Itoa(pid), "/FO", "CSV")
+	output, err := cmd.Output()
+	if err != nil {
+		return false
+	}
+
+	// 解析输出，检查是否包含目标PID
+	// 输出格式：CSV格式，包含进程信息
+	lines := strings.Split(string(output), "\n")
+	
+	// 如果输出行数大于1（除了标题行），说明找到了进程
+	// 检查输出中是否包含目标PID
+	pidStr := strconv.Itoa(pid)
+	for _, line := range lines {
+		if strings.Contains(line, pidStr) && !strings.Contains(line, "PID") {
+			return true
+		}
+	}
+
+	return false
 }
