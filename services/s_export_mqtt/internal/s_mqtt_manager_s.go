@@ -58,7 +58,7 @@ func (m *SMqttManager) Start(ctx context.Context) error {
 	}
 
 	m.isRunning = true
-	c_log.Infof(m.ctx, "MQTT管理器启动成功，共 %d 个客户端", len(m.clients))
+	c_log.BizInfof(m.ctx, "MQTT管理器启动成功，共 %d 个客户端", len(m.clients))
 	return nil
 }
 
@@ -88,7 +88,7 @@ func (m *SMqttManager) Stop(ctx context.Context) error {
 	}
 
 	m.isRunning = false
-	c_log.Infof(ctx, "MQTT管理器已停止")
+	c_log.BizInfof(ctx, "MQTT管理器已停止")
 	return nil
 }
 
@@ -119,7 +119,7 @@ func (m *SMqttManager) Reload(ctx context.Context) error {
 		return err
 	}
 
-	c_log.Infof(ctx, "MQTT配置重载成功，共 %d 个客户端", len(m.clients))
+	c_log.BizInfof(ctx, "MQTT配置重载成功，共 %d 个客户端", len(m.clients))
 	return nil
 }
 
@@ -171,7 +171,7 @@ func (m *SMqttManager) loadConfigs(ctx context.Context) error {
 
 		// 获取topic地址
 		topic := client.buildTopic()
-		c_log.Infof(ctx, "MQTT客户端启动成功: 索引=%d, 服务器=%s:%d, 设备数量=%d, Topic=%s", index, config.ServerAddress, config.ServerPort, len(config.DeviceIds), topic)
+		c_log.BizInfof(ctx, "MQTT客户端启动成功: 索引=%d, 服务器=%s:%d, 设备数量=%d, Topic=%s", index, config.ServerAddress, config.ServerPort, len(config.DeviceIds), topic)
 	}
 
 	return nil

@@ -83,7 +83,7 @@ func (m *SModbusManager) Start(ctx context.Context) error {
 	}
 
 	m.isRunning = true
-	c_log.Infof(m.ctx, "Modbus管理器启动成功，共 %d 个设备", len(m.deviceMaps))
+	c_log.BizInfof(m.ctx, "Modbus管理器启动成功，共 %d 个设备", len(m.deviceMaps))
 	return nil
 }
 
@@ -115,7 +115,7 @@ func (m *SModbusManager) Stop(ctx context.Context) error {
 	m.deviceStatus = make(map[string]*SModbusDeviceStatus)
 
 	m.isRunning = false
-	c_log.Infof(ctx, "Modbus管理器已停止")
+	c_log.BizInfof(ctx, "Modbus管理器已停止")
 	return nil
 }
 
@@ -141,7 +141,7 @@ func (m *SModbusManager) Reload(ctx context.Context) error {
 		m.handler.UpdateDeviceMaps(m.deviceMaps)
 	}
 
-	c_log.Infof(ctx, "Modbus配置重载成功，共 %d 个设备", len(m.deviceMaps))
+	c_log.BizInfof(ctx, "Modbus配置重载成功，共 %d 个设备", len(m.deviceMaps))
 	return nil
 }
 
@@ -241,7 +241,7 @@ func (m *SModbusManager) buildDeviceMaps(ctx context.Context, config *SModbusCon
 			LastUpdateTime: deviceMap.LastUpdateTime,
 		}
 
-		c_log.Infof(ctx, "设备 %s 寄存器映射构建成功: ModbusId=%d, 起始地址=%d, 寄存器数量=%d",
+		c_log.BizInfof(ctx, "设备 %s 寄存器映射构建成功: ModbusId=%d, 起始地址=%d, 寄存器数量=%d",
 			deviceId, deviceMap.ModbusId, deviceMap.StartAddr, deviceMap.TotalRegisters)
 	}
 

@@ -163,9 +163,9 @@ func (c *SMqttClient) Start(ctx context.Context) error {
 		}
 
 		if c.config.Username != "" {
-			c_log.Infof(c.ctx, "MQTT连接成功: %s:%d (ClientID: %s, 协议: %s, 用户: %s)", c.config.ServerAddress, c.config.ServerPort, clientId, protocol, c.config.Username)
+			c_log.BizInfof(c.ctx, "MQTT连接成功: %s:%d (ClientID: %s, 协议: %s, 用户: %s)", c.config.ServerAddress, c.config.ServerPort, clientId, protocol, c.config.Username)
 		} else {
-			c_log.Infof(c.ctx, "MQTT连接成功: %s:%d (ClientID: %s, 协议: %s, 匿名连接)", c.config.ServerAddress, c.config.ServerPort, clientId, protocol)
+			c_log.BizInfof(c.ctx, "MQTT连接成功: %s:%d (ClientID: %s, 协议: %s, 匿名连接)", c.config.ServerAddress, c.config.ServerPort, clientId, protocol)
 		}
 	})
 
@@ -191,7 +191,7 @@ func (c *SMqttClient) Start(ctx context.Context) error {
 	c.startTime = &now
 
 	clientId := fmt.Sprintf("lems_%s", c.systemNumber)
-	c_log.Infof(c.ctx, "MQTT客户端启动成功: %s:%d (ClientID: %s), 推送周期: %d秒, 连接超时: %d秒, 重连间隔: %d秒, 保活超时: %d秒",
+	c_log.BizInfof(c.ctx, "MQTT客户端启动成功: %s:%d (ClientID: %s), 推送周期: %d秒, 连接超时: %d秒, 重连间隔: %d秒, 保活超时: %d秒",
 		c.config.ServerAddress, c.config.ServerPort, clientId, c.config.UploadPeriod,
 		c.config.ConnectTimeout, c.config.ReconnectInterval, c.config.KeepAliveTimeout)
 	return nil
@@ -215,7 +215,7 @@ func (c *SMqttClient) Stop() error {
 	c.isRunning = false
 
 	clientId := fmt.Sprintf("lems_%s", c.systemNumber)
-	c_log.Infof(c.ctx, "MQTT客户端已停止: %s:%d (ClientID: %s)", c.config.ServerAddress, c.config.ServerPort, clientId)
+	c_log.BizInfof(c.ctx, "MQTT客户端已停止: %s:%d (ClientID: %s)", c.config.ServerAddress, c.config.ServerPort, clientId)
 	return nil
 }
 
@@ -288,7 +288,7 @@ func (c *SMqttClient) publishDeviceData() error {
 		now := time.Now()
 		c.lastPublishAt = &now
 
-		c_log.Debugf(c.ctx, "成功推送设备数据: 设备ID=%s, Topic=%s, 数据长度=%d", deviceId, topic, len(jsonData))
+		c_log.BizDebugf(c.ctx, "成功推送设备数据: 设备ID=%s, Topic=%s, 数据长度=%d", deviceId, topic, len(jsonData))
 	}
 
 	return nil

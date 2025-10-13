@@ -61,7 +61,7 @@ func (s *SModbusServer) Start(ctx context.Context) error {
 	// 启动连接处理协程
 	go s.acceptConnections()
 
-	c_log.Infof(ctx, "Modbus TCP服务器启动成功，监听端口: %d", s.config.ListenPort)
+	c_log.BizInfof(ctx, "Modbus TCP服务器启动成功，监听端口: %d", s.config.ListenPort)
 	return nil
 }
 
@@ -94,7 +94,7 @@ func (s *SModbusServer) Stop() error {
 	s.connMu.Unlock()
 
 	s.isRunning = false
-	c_log.Info(context.Background(), "Modbus TCP服务器已停止")
+	c_log.BizInfo(context.Background(), "Modbus TCP服务器已停止")
 	return nil
 }
 
