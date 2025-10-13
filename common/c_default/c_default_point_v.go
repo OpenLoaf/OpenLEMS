@@ -233,3 +233,9 @@ var (
 	VPointMaxPower            = &c_base.SPoint{Key: "MaxPower", Name: "最大功率", Unit: "kW", Desc: "设备最大功率", Sort: 99, Precise: 2, Group: VPointGroupSystemBasic}               // 最大功率
 	VPointMaxCurrent          = &c_base.SPoint{Key: "MaxCurrent", Name: "最大电流", Unit: "A", Desc: "设备最大电流", Sort: 100, Precise: 2, Group: VPointGroupSystemBasic}             // 最大电流
 )
+
+// Modbus系统固定点位
+var (
+	VPointSystemOnlineStatus = &c_base.SPoint{Key: "ModbusOnlineStatus", Name: "设备在线状态", Unit: "", Desc: "设备在线状态：0=离线，1=在线", Sort: 1000, Min: 0, Max: 1, Precise: 0, Group: VPointGroupSystemBasic, ValueType: c_enum.EBool}         // 设备在线状态
+	VPointSystemTimestamp    = &c_base.SPoint{Key: "ModbusTimestamp", Name: "通讯时间戳", Unit: "s", Desc: "通讯时间戳：Unix时间戳（秒）", Sort: 1001, Min: 0, Max: 4294967295, Precise: 0, Group: VPointGroupSystemBasic, ValueType: c_enum.EUint32} // 通讯时间戳
+)

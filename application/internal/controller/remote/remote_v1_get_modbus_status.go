@@ -2,6 +2,7 @@ package remote
 
 import (
 	v1 "application/api/remote/v1"
+	"common/c_default"
 	"common/c_enum"
 	"common/c_log"
 	"context"
@@ -70,20 +71,36 @@ func (c *ControllerV1) getDevicePointMappings(ctx context.Context, deviceId stri
 		pointMapping := &v1.ModbusPointMapping{
 			StartOffset:   mapping.StartOffset,
 			RegisterCount: mapping.RegisterCount,
-			IsSystemPoint: mapping.Point == nil, // 系统固定点位没有Point信息
 		}
 
 		// 处理系统固定点位
 		if mapping.Point == nil {
-			pointMapping.PointKey = c.getSystemPointKey(mapping.StartOffset)
-			pointMapping.PointName = c.getSystemPointName(mapping.StartOffset)
-			pointMapping.ValueType = c.getSystemPointValueType(mapping.StartOffset)
-			pointMapping.Description = c.getSystemPointDescription(mapping.StartOffset)
+			switch mapping.StartOffset {
+			case 0:
+				pointMapping.PointKey = c_default.VPointSystemOnlineStatus.Key
+				pointMapping.PointName = c_default.VPointSystemOnlineStatus.Name
+				pointMapping.ValueType = c_default.VPointSystemOnlineStatus.ValueType.String()
+				pointMapping.Unit = c_default.VPointSystemOnlineStatus.Unit
+				pointMapping.Description = c_default.VPointSystemOnlineStatus.Desc
+			case 1:
+				pointMapping.PointKey = c_default.VPointSystemTimestamp.Key
+				pointMapping.PointName = c_default.VPointSystemTimestamp.Name
+				pointMapping.ValueType = c_default.VPointSystemTimestamp.ValueType.String()
+				pointMapping.Unit = c_default.VPointSystemTimestamp.Unit
+				pointMapping.Description = c_default.VPointSystemTimestamp.Desc
+			default:
+				pointMapping.PointKey = "system.unknown"
+				pointMapping.PointName = "未知系统点位"
+				pointMapping.ValueType = c_enum.EUint16.String()
+				pointMapping.Unit = ""
+				pointMapping.Description = "未知系统点位"
+			}
 		} else {
 			// 处理设备实际点位
 			pointMapping.PointKey = mapping.Point.GetKey()
 			pointMapping.PointName = mapping.Point.GetName()
 			pointMapping.ValueType = mapping.Point.GetValueType().String()
+			pointMapping.Unit = mapping.Point.GetUnit()
 			pointMapping.Description = mapping.Point.GetName() // 使用名称作为描述
 		}
 
@@ -91,54 +108,6 @@ func (c *ControllerV1) getDevicePointMappings(ctx context.Context, deviceId stri
 	}
 
 	return mappings
-}
-
-// getSystemPointKey 获取系统固定点位的键名
-func (c *ControllerV1) getSystemPointKey(offset uint16) string {
-	switch offset {
-	case 0:
-		return "system.online_status"
-	case 1:
-		return "system.timestamp"
-	default:
-		return "system.unknown"
-	}
-}
-
-// getSystemPointName 获取系统固定点位的名称
-func (c *ControllerV1) getSystemPointName(offset uint16) string {
-	switch offset {
-	case 0:
-		return "设备在线状态"
-	case 1:
-		return "通讯时间戳"
-	default:
-		return "未知系统点位"
-	}
-}
-
-// getSystemPointValueType 获取系统固定点位的数据类型
-func (c *ControllerV1) getSystemPointValueType(offset uint16) string {
-	switch offset {
-	case 0:
-		return c_enum.EBool.String()
-	case 1:
-		return c_enum.EUint32.String()
-	default:
-		return c_enum.EUint16.String()
-	}
-}
-
-// getSystemPointDescription 获取系统固定点位的描述
-func (c *ControllerV1) getSystemPointDescription(offset uint16) string {
-	switch offset {
-	case 0:
-		return "设备在线状态：0=离线，1=在线"
-	case 1:
-		return "通讯时间戳：Unix时间戳（秒）"
-	default:
-		return "未知系统点位"
-	}
 }
 
 // calculateTotalRegisters 计算总寄存器数量

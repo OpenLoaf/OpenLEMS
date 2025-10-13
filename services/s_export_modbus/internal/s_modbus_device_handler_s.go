@@ -3,6 +3,7 @@ package internal
 import (
 	"common"
 	"common/c_base"
+	"common/c_default"
 	"common/c_enum"
 	"common/c_log"
 	"context"
@@ -161,23 +162,39 @@ func (h *SModbusDeviceHandler) readFixedRegisters(device c_base.IDevice, offset,
 	// 第一个固定点位：设备在线状态
 	if offset == 0 && count >= 1 {
 		status := device.GetProtocolStatus()
+		var value interface{}
 		if status == c_enum.EProtocolConnected {
-			registers[0] = 1
+			value = true
 		} else {
-			registers[0] = 0
+			value = false
+		}
+
+		// 使用 default 点位进行编码
+		encodedRegisters, err := EncodeValueToRegisters(value, c_default.VPointSystemOnlineStatus.ValueType)
+		if err != nil {
+			return nil, fmt.Errorf("编码在线状态失败: %v", err)
+		}
+
+		if len(encodedRegisters) > 0 {
+			registers[0] = encodedRegisters[0]
 		}
 	}
 
 	// 第二个固定点位：通讯时间戳
 	if offset <= 1 && offset+count > 1 {
 		timestamp := uint32(time.Now().Unix())
-		if offset <= 1 && offset+count >= 2 {
-			// 需要返回时间戳的高16位
-			registers[1-offset] = uint16(timestamp >> 16)
+
+		// 使用 default 点位进行编码
+		encodedRegisters, err := EncodeValueToRegisters(timestamp, c_default.VPointSystemTimestamp.ValueType)
+		if err != nil {
+			return nil, fmt.Errorf("编码时间戳失败: %v", err)
 		}
-		if offset <= 2 && offset+count >= 3 {
-			// 需要返回时间戳的低16位
-			registers[2-offset] = uint16(timestamp & 0xFFFF)
+
+		// 复制编码后的寄存器数据
+		for i, register := range encodedRegisters {
+			if int(offset)+i < int(count) {
+				registers[i] = register
+			}
 		}
 	}
 

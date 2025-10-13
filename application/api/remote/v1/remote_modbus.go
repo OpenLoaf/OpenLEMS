@@ -39,9 +39,9 @@ type ModbusPointMapping struct {
 	PointKey      string `json:"pointKey" dc:"点位键名"`
 	PointName     string `json:"pointName" dc:"点位名称"`
 	ValueType     string `json:"valueType" dc:"数据类型"`
+	Unit          string `json:"unit" dc:"单位"`
 	StartOffset   uint16 `json:"startOffset" dc:"相对起始地址的偏移"`
 	RegisterCount uint16 `json:"registerCount" dc:"占用寄存器数量"`
-	IsSystemPoint bool   `json:"isSystemPoint" dc:"是否为系统固定点位"`
 	Description   string `json:"description" dc:"点位描述"`
 }
 
