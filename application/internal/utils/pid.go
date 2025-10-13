@@ -207,7 +207,7 @@ func checkProcessStatusWindows(pid int) bool {
 	// 解析输出，检查是否包含目标PID
 	// 输出格式：CSV格式，包含进程信息
 	lines := strings.Split(string(output), "\n")
-	
+
 	// 如果输出行数大于1（除了标题行），说明找到了进程
 	// 检查输出中是否包含目标PID
 	pidStr := strconv.Itoa(pid)
