@@ -392,8 +392,8 @@ func (m *SDeviceManager) initializeSingleDevice(deviceConfig *c_base.SDeviceConf
 		return
 	}
 
-	deviceCtx := context.WithValue(m.ctx, c_base.ConstCtxKeyDeviceId, deviceConfig.Id)
-	deviceCtx = context.WithValue(deviceCtx, c_base.ConstCtxKeyDeviceName, deviceConfig.Name)
+	deviceCtx := context.WithValue(m.ctx, c_enum.ELogTypeDevice, deviceConfig.Id)
+	deviceCtx = context.WithValue(deviceCtx, c_enum.ELogTypeEms, deviceConfig.Name)
 
 	// 根据协议配置选择初始化方式
 	if deviceConfig.ProtocolConfig == nil {

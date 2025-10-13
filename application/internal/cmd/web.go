@@ -16,7 +16,7 @@ import (
 	"application/internal/controller/system"
 	"application/internal/utils"
 	"application/manifest"
-	"common/c_base"
+	"common/c_enum"
 	"context"
 	"io"
 	"net/http"
@@ -37,7 +37,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 
 // startWebWithBinding 启动Web服务，可选择是否只绑定到本地地址
 func startWebWithBinding(ctx context.Context, localOnly bool) *ghttp.Server {
-	ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Web")
+	ctx = context.WithValue(ctx, c_enum.ELogTypeEms, "Web")
 	g.Log().Infof(ctx, "准备启动web程序！")
 
 	s := g.Server()

@@ -7,13 +7,6 @@ import (
 )
 
 const (
-	ConstCtxKeyGroupName    = "GroupName"
-	ConstCtxKeyProtocolId   = "ProtocolId"
-	ConstCtxKeyPolicyId     = "PolicyId"
-	ConstCtxKeyDeviceId     = "DeviceId"
-	ConstCtxKeyDeviceName   = "DeviceName"
-	ConstCtxKeyDeviceDetail = "DeviceDetail"
-
 	ConstNewPluginFunctionName = "NewPlugin"
 )
 
@@ -32,6 +25,12 @@ const (
 	ConstDeviceId        = "device_id"
 	ConstDeviceName      = "device_name"
 	ConstDeviceType      = "device_type"
+)
+
+const (
+	// 远程协议类型常量
+	ConstRemoteModbus = "modbus"
+	ConstRemoteMqtt   = "mqtt"
 )
 
 const DefaultCacheLifeTime = 10 * time.Second

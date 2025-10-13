@@ -2,7 +2,6 @@ package log
 
 import (
 	"common"
-	"common/c_base"
 	"common/c_enum"
 	"common/c_log"
 	"context"
@@ -43,33 +42,41 @@ func NewDatabaseAdapter() c_log.ILogger {
 }
 
 // getLogInfo 从上下文中提取日志信息
-func (d *DbLoggerAdapter) getLogInfo(ctx context.Context) (logType, deviceId string) {
+func (d *DbLoggerAdapter) getLogInfo(ctx context.Context) (logType c_enum.ESystemGroupType, deviceId string) {
 	if ctx == nil {
-		return "ems", ""
+		return c_enum.ELogTypeEms, ""
 	}
 
-	// 定义上下文键和对应的日志类型映射
-	type contextMapping struct {
-		key     interface{}
-		logType string
-	}
-
-	mappings := []contextMapping{
-		{c_base.ConstCtxKeyDeviceId, c_enum.ELogTypeDevice.String()},
-		{c_base.ConstCtxKeyProtocolId, c_enum.ELogTypeProtocol.String()},
-		{c_base.ConstCtxKeyPolicyId, c_enum.ELogTypePolicy.String()},
-	}
-
-	// 按优先级检查上下文键
-	for _, mapping := range mappings {
-		if v := ctx.Value(mapping.key); v != nil {
-			if s, ok := v.(string); ok && s != "" {
-				return mapping.logType, s
-			}
+	// 按优先级检查上下文键，直接使用枚举值作为键
+	// 检查设备ID
+	if v := ctx.Value(c_enum.ELogTypeDevice); v != nil {
+		if s, ok := v.(string); ok && s != "" {
+			return c_enum.ELogTypeDevice, s
 		}
 	}
 
-	return c_enum.ELogTypeEms.String(), ""
+	// 检查协议ID
+	if v := ctx.Value(c_enum.ELogTypeProtocol); v != nil {
+		if s, ok := v.(string); ok && s != "" {
+			return c_enum.ELogTypeProtocol, s
+		}
+	}
+
+	// 检查策略ID
+	if v := ctx.Value(c_enum.ELogTypePolicy); v != nil {
+		if s, ok := v.(string); ok && s != "" {
+			return c_enum.ELogTypePolicy, s
+		}
+	}
+
+	// 检查远程协议
+	if v := ctx.Value(c_enum.ELogTypeRemote); v != nil {
+		if s, ok := v.(string); ok && s != "" {
+			return c_enum.ELogTypeRemote, s
+		}
+	}
+
+	return c_enum.ELogTypeEms, ""
 }
 
 // saveToDb 保存日志到数据库
@@ -82,7 +89,7 @@ func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level c_enum.ELogLevel, 
 	logType, deviceId := d.getLogInfo(ctx)
 
 	// 检查是否为 EMS 系统的 DEBUG 级别日志，如果是则需要检查系统调试日志开关
-	if level == c_enum.Debug && logType == c_enum.ELogTypeEms.String() {
+	if level == c_enum.Debug && logType == c_enum.ELogTypeEms {
 		// 获取系统调试日志开关设置
 		settingService := s_db.GetSettingService()
 		debugEnabled := settingService.GetSettingValueBySystemSettingDefine(
@@ -97,7 +104,7 @@ func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level c_enum.ELogLevel, 
 	}
 
 	// 检查是否为设备日志，如果是则需要检查设备的调试模式开关
-	if logType == c_enum.ELogTypeDevice.String() && deviceId != "" && level == c_enum.Debug {
+	if logType == c_enum.ELogTypeDevice && deviceId != "" && level == c_enum.Debug {
 		// 通过设备管理器获取设备配置
 		deviceConfig := common.GetDeviceManager().GetDeviceConfigById(deviceId)
 		if deviceConfig != nil && !deviceConfig.EnableDebug {
@@ -116,7 +123,7 @@ func (d *DbLoggerAdapter) saveToDb(ctx context.Context, level c_enum.ELogLevel, 
 		// 创建新的上下文用于数据库操作
 		dbCtx := context.Background()
 		// 在保存到数据库时将枚举转换为字符串
-		err := d.logService.CreateLog(dbCtx, logType, deviceId, string(level), content)
+		err := d.logService.CreateLog(dbCtx, logType.String(), deviceId, string(level), content)
 		if err != nil {
 			// 如果数据库保存失败，记录错误但不阻塞主流程
 			fmt.Printf("保存日志到数据库失败 [类型:%s, ID:%s, 级别:%s]: %v\n",

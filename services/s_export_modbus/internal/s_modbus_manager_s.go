@@ -2,6 +2,8 @@ package internal
 
 import (
 	"common"
+	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
 	"context"
 	"encoding/json"
@@ -50,8 +52,9 @@ func (m *SModbusManager) Start(ctx context.Context) error {
 		return nil
 	}
 
-	// 创建可取消的上下文
+	// 创建可取消的上下文，并设置远程协议类型
 	m.ctx, m.cancel = context.WithCancel(ctx)
+	m.ctx = context.WithValue(m.ctx, c_enum.ELogTypeRemote, c_base.ConstRemoteModbus)
 
 	// 加载配置并构建设备映射
 	err := m.loadConfigs(m.ctx)

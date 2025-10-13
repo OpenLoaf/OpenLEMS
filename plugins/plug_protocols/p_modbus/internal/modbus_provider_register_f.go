@@ -1,7 +1,6 @@
 package internal
 
 import (
-	"common/c_base"
 	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
@@ -88,7 +87,7 @@ func (p *ModbusProtocolProvider) registerReadOne(group *c_proto.SModbusPointTask
 		isPermanent = !group.Transitory // 永久的查询
 		name        = group.Name
 	)
-	ctx := context.WithValue(p.ctx, c_base.ConstCtxKeyDeviceDetail, group.Name)
+	ctx := context.WithValue(p.ctx, c_enum.ELogTypeEms, group.Name)
 
 	if p.preQuery.Contains(name) {
 		// 如果存在就不再创建

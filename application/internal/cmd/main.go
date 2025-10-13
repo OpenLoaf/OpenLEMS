@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"application/internal/utils"
-	"common/c_base"
+	"common/c_enum"
 	"context"
 	"os"
 	"runtime"
@@ -50,7 +50,7 @@ var (
 		},
 		Func: func(ctx context.Context, parser *gcmd.Parser) (err error) {
 			// 初始化context
-			ctx = context.WithValue(ctx, c_base.ConstCtxKeyGroupName, "Main")
+			ctx = context.WithValue(ctx, c_enum.ELogTypeEms, "Main")
 			MainCtx = ctx
 			ctx, cancelFunc := context.WithCancel(context.Background())
 			defer cancelFunc() // 确保在所有退出路径中调用 cancelFunc

@@ -1,6 +1,8 @@
 package internal
 
 import (
+	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
 	"context"
 	"encoding/binary"
@@ -42,8 +44,9 @@ func (s *SModbusServer) Start(ctx context.Context) error {
 		return nil
 	}
 
-	// 创建可取消的上下文
+	// 创建可取消的上下文，并设置远程协议类型
 	s.ctx, s.cancel = context.WithCancel(ctx)
+	s.ctx = context.WithValue(s.ctx, c_enum.ELogTypeRemote, c_base.ConstRemoteModbus)
 
 	// 启动TCP监听器
 	address := fmt.Sprintf(":%d", s.config.ListenPort)

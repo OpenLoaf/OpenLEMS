@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"sync"
 
+	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
 	"s_db"
 	"s_db/s_db_basic"
@@ -44,8 +46,9 @@ func (m *SMqttManager) Start(ctx context.Context) error {
 		return nil
 	}
 
-	// 创建可取消的上下文
+	// 创建可取消的上下文，并设置远程协议类型
 	m.ctx, m.cancel = context.WithCancel(ctx)
+	m.ctx = context.WithValue(m.ctx, c_enum.ELogTypeRemote, c_base.ConstRemoteMqtt)
 
 	// 加载配置并启动客户端
 	err := m.loadConfigs(m.ctx)

@@ -52,7 +52,7 @@ func (s *SPointValue) IsAlarmTrigger() bool {
 	if s.isTrigger == nil {
 		trigger, level, err := s.TriggerAlarm(s.value)
 		if err != nil {
-			ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, s.deviceId)
+			ctx := context.WithValue(context.Background(), c_enum.ELogTypeDevice, s.deviceId)
 			c_log.BizErrorf(ctx, "告警触发函数错误: %v", err)
 			return false
 		}

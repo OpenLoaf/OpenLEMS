@@ -155,7 +155,7 @@ func ExecuteCustomService(functionName string, instance IDevice, params []any) e
 		return errors.Errorf("custom service instance is nil")
 	}
 
-	ctx := context.WithValue(context.Background(), ConstCtxKeyDeviceId, instance.GetConfig().Id)
+	ctx := context.WithValue(context.Background(), c_enum.ELogTypeDevice, instance.GetConfig().Id)
 
 	s := instance.GetConfig().DriverInfo
 	if s == nil {

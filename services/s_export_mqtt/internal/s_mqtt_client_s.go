@@ -11,6 +11,7 @@ import (
 
 	"common"
 	"common/c_base"
+	"common/c_enum"
 	"common/c_log"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -104,6 +105,8 @@ func (c *SMqttClient) getErrorCount() int64 {
 // Start 启动MQTT客户端
 func (c *SMqttClient) Start(ctx context.Context) error {
 	c.ctx, c.cancel = context.WithCancel(ctx)
+	// 设置远程协议类型上下文
+	c.ctx = context.WithValue(c.ctx, c_enum.ELogTypeRemote, c_base.ConstRemoteMqtt)
 
 	// 创建MQTT客户端
 	opts := mqtt.NewClientOptions()
