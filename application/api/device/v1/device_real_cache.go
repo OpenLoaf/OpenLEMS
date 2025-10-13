@@ -2,8 +2,9 @@ package v1
 
 import (
 	"application/internal/model/entity"
-	"github.com/gogf/gf/v2/frame/g"
 	"time"
+
+	"github.com/gogf/gf/v2/frame/g"
 )
 
 type GetRealDeviceCacheReq struct {
@@ -16,5 +17,5 @@ type GetRealDeviceCacheRes struct {
 	AlarmLevel        string                       `json:"alarmLevel" dc:"告警级别"`
 	DeviceServerState string                       `json:"deviceServerState,omitempty" dc:"设备服务状态"`
 	LastUpdateTime    *time.Time                   `json:"lastUpdateTime" dc:"数据最后更新时间"`
-	Groups            []*entity.SSingleDeviceGroup `json:"groups" dc:"数值"`
+	Values            []*entity.SSingleDeviceValue `json:"values" dc:"点位数值列表"`
 }

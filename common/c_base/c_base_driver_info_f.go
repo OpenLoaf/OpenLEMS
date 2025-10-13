@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -32,11 +33,25 @@ func GetPointValue(instance IDevice, point IPoint) *SPointValue {
 			return nil
 		}
 
-		// 创建SPointValue
+		// 创建SPointValue，并补充 deviceId 与发生时间
 		pointValue := &SPointValue{
 			IPoint: point,
 			value:  value,
 		}
+
+		// 设置设备ID（用于分组与标识）
+		if instance.GetConfig() != nil {
+			pointValue.deviceId = instance.GetConfig().Id
+		}
+
+		// 设置发生时间：优先使用设备的最后更新时间，若为空则使用当前时间
+		var ht time.Time
+		if t := instance.GetLastUpdateTime(); t != nil {
+			ht = *t
+		} else {
+			ht = time.Now()
+		}
+		pointValue.SetHappenTime(ht)
 		return pointValue
 	}
 

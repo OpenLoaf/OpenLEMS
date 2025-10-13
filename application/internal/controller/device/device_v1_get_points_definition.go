@@ -20,14 +20,28 @@ func (c *ControllerV1) GetDevicePointsDefinition(ctx context.Context, req *v1.Ge
 		return &v1.GetDevicePointsDefinitionRes{Fields: []*c_base.SFieldDefinition{}}, nil
 	}
 
-	points := device.GetDevicePoints()
-	if len(points) == 0 {
+	// 分别获取设备点位和遥测点位
+	devicePoints := device.GetDevicePoints()
+	telemetryPoints := device.GetTelemetryPoints()
+
+	if len(devicePoints) == 0 && len(telemetryPoints) == 0 {
 		return &v1.GetDevicePointsDefinitionRes{Fields: []*c_base.SFieldDefinition{}}, nil
 	}
 
-	fields := make([]*c_base.SFieldDefinition, 0, len(points))
-	for _, p := range points {
+	fields := make([]*c_base.SFieldDefinition, 0, len(devicePoints)+len(telemetryPoints))
+
+	// 处理设备点位（保持原有group设置）
+	for _, p := range devicePoints {
 		if fd := c_base.ConvertIPointToFieldDefinition(p); fd != nil {
+			fields = append(fields, fd)
+		}
+	}
+
+	// 处理遥测点位（强制设置group为"i18n:common.summary"）
+	for _, p := range telemetryPoints {
+		if fd := c_base.ConvertIPointToFieldDefinition(p); fd != nil {
+			// 强制设置group为"i18n:common.summary"
+			fd.Group = "i18n:common.summary"
 			fields = append(fields, fd)
 		}
 	}
