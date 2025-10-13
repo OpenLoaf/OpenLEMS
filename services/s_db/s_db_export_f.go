@@ -37,3 +37,8 @@ func GetLogService() s_db_basic.ILogService {
 func GetAutomationService() s_db_basic.IAutomationService {
 	return impl.GetAutomationService()
 }
+
+// GetEnergyStorageStrategyService 获取储能策略service对象
+func GetEnergyStorageStrategyService() s_db_basic.IEnergyStorageStrategyService {
+	return impl.GetEnergyStorageStrategyService()
+}

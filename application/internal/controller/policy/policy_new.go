@@ -8,7 +8,8 @@ import (
 	"application/api/policy"
 )
 
-type ControllerV1 struct{}
+type ControllerV1 struct {
+}
 
 func NewV1() policy.IPolicyV1 {
 	return &ControllerV1{}
