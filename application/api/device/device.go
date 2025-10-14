@@ -24,6 +24,5 @@ type IDeviceV1 interface {
 	GetDeviceStatus(ctx context.Context, req *v1.GetDeviceStatusReq) (res *v1.GetDeviceStatusRes, err error)
 	GetDeviceTelemetryService(ctx context.Context, req *v1.GetDeviceTelemetryServiceReq) (res *v1.GetDeviceTelemetryServiceRes, err error)
 	UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq) (res *v1.UpdateDeviceRes, err error)
-	GetVirtualDeviceCache(ctx context.Context, req *v1.GetVirtualDeviceCacheReq) (res *v1.GetVirtualDeviceCacheRes, err error)
 	GetDevicePointsDefinition(ctx context.Context, req *v1.GetDevicePointsDefinitionReq) (res *v1.GetDevicePointsDefinitionRes, err error)
 }

@@ -6,6 +6,7 @@ import (
 	"common/c_base"
 	"common/c_enum"
 	"context"
+	"fmt"
 )
 
 // GetDevicePointsDefinition 获取设备全部点位定义
@@ -18,6 +19,11 @@ func (c *ControllerV1) GetDevicePointsDefinition(ctx context.Context, req *v1.Ge
 	device := common.GetDeviceManager().GetDeviceById(req.DeviceId)
 	if device == nil {
 		return &v1.GetDevicePointsDefinitionRes{Fields: []*c_base.SFieldDefinition{}}, nil
+	}
+
+	// 检查是否为虚拟设备
+	if device.IsVirtualDevice() {
+		return c.getVirtualDevicePointsDefinition(device)
 	}
 
 	// 分别获取设备点位和遥测点位
@@ -47,4 +53,41 @@ func (c *ControllerV1) GetDevicePointsDefinition(ctx context.Context, req *v1.Ge
 	}
 
 	return &v1.GetDevicePointsDefinitionRes{Fields: fields}, nil
+}
+
+// getVirtualDevicePointsDefinition 获取虚拟设备点位定义
+func (c *ControllerV1) getVirtualDevicePointsDefinition(device c_base.IDevice) (*v1.GetDevicePointsDefinitionRes, error) {
+	deviceConfig := device.GetConfig()
+	if deviceConfig == nil {
+		return &v1.GetDevicePointsDefinitionRes{Fields: []*c_base.SFieldDefinition{}}, nil
+	}
+
+	var allFields []*c_base.SFieldDefinition
+
+	// 遍历所有子设备
+	for _, childConfig := range deviceConfig.ChildDeviceConfig {
+		childDevice := common.GetDeviceManager().GetDeviceById(childConfig.Id)
+		if childDevice == nil {
+			continue
+		}
+
+		// 获取子设备的遥测点位
+		telemetryPoints := childDevice.GetTelemetryPoints()
+		deviceName := childConfig.Name
+
+		for _, point := range telemetryPoints {
+			if point == nil || point.IsHidden() {
+				continue
+			}
+
+			// 转换为FieldDefinition
+			if fd := c_base.ConvertIPointToFieldDefinition(point); fd != nil {
+				// 设置分组信息：设备名:汇总
+				fd.Group = fmt.Sprintf("%s:汇总", deviceName)
+				allFields = append(allFields, fd)
+			}
+		}
+	}
+
+	return &v1.GetDevicePointsDefinitionRes{Fields: allFields, IsVirtualDevice: true}, nil
 }

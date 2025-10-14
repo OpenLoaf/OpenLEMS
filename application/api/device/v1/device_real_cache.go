@@ -8,9 +8,10 @@ import (
 )
 
 type GetRealDeviceCacheReq struct {
-	g.Meta           `path:"/device/real/cache" method:"post" tags:"设备相关" summary:"获取设备缓存值"`
-	DeviceId         string   `json:"deviceId" v:"required" dc:"设备Key"`
-	TelemetryKeyList []string `json:"telemetryKeyList"  dc:"遥测列表（空查询所有）"`
+	g.Meta   `path:"/device/real/cache" method:"post" tags:"设备相关" summary:"获取设备缓存值"`
+	DeviceId string `json:"deviceId" v:"required" dc:"设备Key"`
+
+	ShowTelemetryOnly bool `json:"showTelemetryOnly" dc:"是否只显示遥测点位，默认false显示所有点位"`
 }
 
 type GetRealDeviceCacheRes struct {

@@ -14,5 +14,6 @@ type GetDevicePointsDefinitionReq struct {
 
 // GetDevicePointsDefinitionRes 获取设备全部点位定义响应
 type GetDevicePointsDefinitionRes struct {
-	Fields []*c_base.SFieldDefinition `json:"fields" dc:"点位定义列表"`
+	IsVirtualDevice bool                       `json:"isVirtualDevice" dc:"是否是虚拟设备"`
+	Fields          []*c_base.SFieldDefinition `json:"fields" dc:"点位定义列表"`
 }

@@ -23,7 +23,12 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 	}
 
 	list := c_base.GetPointValueList(device)
-	list = append(list, c_base.GetAllTelemetryPoint(device)...)
+
+	// 根据showTelemetryOnly参数决定是否追加遥测点位
+	if !req.ShowTelemetryOnly {
+		list = append(list, c_base.GetAllTelemetryPoint(device)...)
+	}
+
 	values := make([]*entity.SSingleDeviceValue, 0, len(list))
 	for _, v := range list {
 		if v.IPoint == nil || v.IPoint.IsHidden() {
