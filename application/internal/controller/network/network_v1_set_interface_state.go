@@ -40,6 +40,9 @@ func (c *ControllerV1) SetInterfaceState(ctx context.Context, req *v1.SetInterfa
 	}
 	g.Log().Infof(ctx, "网络接口 %s %s成功", req.Name, action)
 
+	// 5. 清除网络接口缓存，确保下次获取最新数据
+	c.clearNetworkInterfaceCache(ctx)
+
 	return &v1.SetInterfaceStateRes{}, nil
 }
 

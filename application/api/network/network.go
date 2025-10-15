@@ -7,7 +7,7 @@ package network
 import (
 	"context"
 
-	"application/api/network/v1"
+	v1 "application/api/network/v1"
 )
 
 type INetworkV1 interface {

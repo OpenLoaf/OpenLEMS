@@ -36,6 +36,10 @@ func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.Updat
 	}
 
 	g.Log().Infof(ctx, "网络接口 %s 配置更新成功", req.Name)
+
+	// 4. 清除网络接口缓存，确保下次获取最新数据
+	c.clearNetworkInterfaceCache(ctx)
+
 	return &v1.UpdateNetworkInterfaceRes{}, nil
 }
 

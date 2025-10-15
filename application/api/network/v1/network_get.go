@@ -9,6 +9,7 @@ import (
 type GetNetworkInterfaceListReq struct {
 	g.Meta          `path:"/network/interface/list" method:"get" tags:"网络相关" summary:"获取本机网络接口列表"`
 	IncludeLoopback bool `json:"includeLoopback" dc:"是否包含回环接口，默认true"`
+	ForceRefresh    bool `json:"forceRefresh" dc:"是否强制刷新缓存，默认false"`
 }
 
 type GetNetworkInterfaceListRes struct {
