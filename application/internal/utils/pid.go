@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"syscall"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/pkg/errors"
@@ -115,7 +116,16 @@ func WritePidFileWithCheck(pidFile string, pid int, force bool) error {
 		if !force {
 			return errors.Errorf("进程已在运行中 (PID: %d)，请先停止现有进程或使用 --force 参数强制启动", existingPid)
 		}
-		// 强制启动时，删除旧的PID文件
+
+		// 强制启动时，温和地终止之前的进程
+		g.Log().Infof(context.Background(), "检测到已有进程运行 (PID: %d)，开始温和终止...", existingPid)
+
+		// 温和终止进程
+		if err := GracefulKillProcess(existingPid); err != nil {
+			g.Log().Warningf(context.Background(), "温和终止进程失败: %v", err)
+		}
+
+		// 删除旧的PID文件
 		if err := RemovePidFile(pidFile); err != nil {
 			return errors.Errorf("删除旧PID文件失败: %v", err)
 		}
@@ -218,4 +228,59 @@ func checkProcessStatusWindows(pid int) bool {
 	}
 
 	return false
+}
+
+// GracefulKillProcess 温和地终止指定PID的进程
+// 先发送SIGTERM信号，等待进程优雅关闭，如果超时则发送SIGKILL强制终止
+func GracefulKillProcess(pid int) error {
+	// 检查进程是否存在
+	if !IsProcessRunning(pid) {
+		g.Log().Infof(context.Background(), "进程 %d 已不存在，无需终止", pid)
+		return nil
+	}
+
+	// 获取进程对象
+	process, err := os.FindProcess(pid)
+	if err != nil {
+		return errors.Errorf("无法找到进程 %d: %v", pid, err)
+	}
+
+	// 第一步：发送SIGTERM信号，让进程优雅关闭
+	g.Log().Infof(context.Background(), "发送SIGTERM信号到进程 %d，等待优雅关闭...", pid)
+	err = process.Signal(syscall.SIGTERM)
+	if err != nil {
+		g.Log().Warningf(context.Background(), "发送SIGTERM信号失败: %v", err)
+	}
+
+	// 等待进程优雅关闭，最多等待10秒
+	timeout := 10 * time.Second
+	checkInterval := 500 * time.Millisecond
+	elapsed := 0 * time.Second
+
+	for elapsed < timeout {
+		time.Sleep(checkInterval)
+		elapsed += checkInterval
+
+		// 检查进程是否还在运行
+		if !IsProcessRunning(pid) {
+			g.Log().Infof(context.Background(), "进程 %d 已优雅关闭", pid)
+			return nil
+		}
+	}
+
+	// 如果进程仍然存在，发送SIGKILL强制终止
+	g.Log().Warningf(context.Background(), "进程 %d 在 %v 后仍未关闭，发送SIGKILL强制终止", pid, timeout)
+	err = process.Signal(syscall.SIGKILL)
+	if err != nil {
+		return errors.Errorf("发送SIGKILL信号失败: %v", err)
+	}
+
+	// 再等待一小段时间确保进程被终止
+	time.Sleep(1 * time.Second)
+	if IsProcessRunning(pid) {
+		return errors.Errorf("进程 %d 无法被终止", pid)
+	}
+
+	g.Log().Infof(context.Background(), "进程 %d 已被强制终止", pid)
+	return nil
 }

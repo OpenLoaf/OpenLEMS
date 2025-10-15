@@ -129,7 +129,7 @@ MQTT配置存储在数据库的`mqtt_config_list`设置中，JSON格式如下：
 
 默认topic格式：`lems/{system_number}/info`
 
-其中`{system_number}`会被替换为系统序列号（从数据库设置中获取）。
+其中`{system_number}`会被替换为系统序列号（基于机器硬件ID生成的10位唯一标识符）。
 
 如果配置了`rewriteChannel=true`且`pushChannel`不为空，则使用`pushChannel`作为topic。
 

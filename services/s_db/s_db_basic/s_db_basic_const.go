@@ -148,14 +148,4 @@ var (
 		Remark:       "Modbus配置",
 		FieldType:    c_enum.ESettingFieldTypeJson,
 	}
-
-	// 系统序列号设置定义
-	SystemSettingSystemNumber = &SSystemSettingDefine{
-		Id:           "system_number",
-		Group:        c_enum.ESettingGroupSystem,
-		DefaultValue: generateRandomString(10),
-		IsPublic:     true,
-		Remark:       "系统序列号",
-		FieldType:    c_enum.ESettingFieldTypeText,
-	}
 )

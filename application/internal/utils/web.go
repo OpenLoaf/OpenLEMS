@@ -5,8 +5,7 @@ import (
 	"os"
 	"time"
 
-	"s_db"
-	"s_db/s_db_basic"
+	"t_machine_id"
 
 	"github.com/gogf/gf/v2/frame/g"
 )
@@ -24,7 +23,7 @@ func PrintWebServerInfo(ctx context.Context, serverAddress string) {
 	}
 
 	// 获取系统序列号
-	systemNumber := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingSystemNumber)
+	systemNumber := t_machine_id.GetMachineId()
 
 	// 打印服务器访问地址
 	g.Log().Infof(ctx, "==========================================")

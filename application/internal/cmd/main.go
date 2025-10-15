@@ -55,15 +55,11 @@ var (
 			ctx, cancelFunc := context.WithCancel(context.Background())
 			defer cancelFunc() // 确保在所有退出路径中调用 cancelFunc
 
-			// 初始化系统
-			if err := InitSystem(ctx, parser); err != nil {
-				panic(err)
-			}
-
 			// 检查是否强制启动
 			forceStart := parser.GetOpt(ArgForce).Bool()
 
 			// 写入PID文件（带检查）
+			// 注意：必须在 InitSystem 之前执行，避免 TSDB 数据库锁冲突
 			pid := os.Getpid()
 			pidFile := utils.GetPidFilePath(ctx)
 			if err := utils.WritePidFileWithCheck(pidFile, pid, forceStart); err != nil {
@@ -77,6 +73,11 @@ var (
 				g.Log().Infof(ctx, "PID已保存到文件: %s", pidFile)
 			}
 
+			// 初始化系统（在 PID 检查之后执行，确保旧进程已被终止）
+			if err := InitSystem(ctx, parser); err != nil {
+				panic(err)
+			}
+
 			// 启动服务
 			StartServices(ctx)
 
@@ -86,9 +87,18 @@ var (
 			// 检查是否为测试模式
 			enableTest := parser.GetOpt(ArgTest).Bool()
 			if enableTest {
-				g.Log().Infof(ctx, "===> 测试模式已启用，程序将在3秒后自动关闭")
+				g.Log().Infof(ctx, "===> 测试模式已启用，程序将在5秒后自动关闭")
 				go func() {
 					time.Sleep(3 * time.Second)
+					// 倒计时5秒，每秒显示剩余时间
+					for i := 5; i > 0; i-- {
+						time.Sleep(1 * time.Second)
+						if i > 1 {
+							g.Log().Infof(ctx, "===> 测试模式倒计时：%d秒后自动关闭", i-1)
+						} else {
+							g.Log().Infof(ctx, "===> 测试模式：即将结束进程")
+						}
+					}
 					g.Log().Infof(ctx, "===> 测试模式：发送shutdown信号")
 					// 使用跨平台的进程终止函数
 					if err := utils.KillProcess(); err != nil {

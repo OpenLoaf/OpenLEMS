@@ -10,6 +10,7 @@ import (
 	"common/c_log"
 	"s_db"
 	"s_db/s_db_basic"
+	"t_machine_id"
 )
 
 // SMqttManager MQTT管理器
@@ -140,7 +141,7 @@ func (m *SMqttManager) loadConfigs(ctx context.Context) error {
 	}
 
 	// 获取系统序列号
-	systemNumber := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingSystemNumber)
+	systemNumber := t_machine_id.GetMachineId()
 
 	// 为每个启用的配置创建客户端
 	for index, config := range configs {

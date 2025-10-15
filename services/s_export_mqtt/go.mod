@@ -7,11 +7,13 @@ require (
 	github.com/eclipse/paho.mqtt.golang v1.4.3
 	github.com/pkg/errors v0.9.1
 	s_db v0.0.0
+	t_machine_id v0.0.0-00010101000000-000000000000
 )
 
 require (
 	github.com/BurntSushi/toml v1.5.0 // indirect
 	github.com/clbanning/mxj/v2 v2.7.0 // indirect
+	github.com/denisbrodbeck/machineid v1.0.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/fatih/color v1.18.0 // indirect
@@ -44,7 +46,7 @@ require (
 	golang.org/x/exp v0.0.0-20250911091902-df9299821621 // indirect
 	golang.org/x/net v0.44.0 // indirect
 	golang.org/x/sync v0.17.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
+	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.66.8 // indirect
@@ -56,3 +58,5 @@ require (
 replace common => ../../common
 
 replace s_db => ../s_db
+
+replace t_machine_id => ../../tools/t_machine_id
