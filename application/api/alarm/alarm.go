@@ -7,7 +7,7 @@ package alarm
 import (
 	"context"
 
-	"application/api/alarm/v1"
+	v1 "application/api/alarm/v1"
 )
 
 type IAlarmV1 interface {
@@ -16,4 +16,5 @@ type IAlarmV1 interface {
 	CreateAlarmIgnore(ctx context.Context, req *v1.CreateAlarmIgnoreReq) (res *v1.CreateAlarmIgnoreRes, err error)
 	DeleteAlarmIgnore(ctx context.Context, req *v1.DeleteAlarmIgnoreReq) (res *v1.DeleteAlarmIgnoreRes, err error)
 	GetAlarmIgnore(ctx context.Context, req *v1.GetAlarmIgnoreReq) (res *v1.GetAlarmIgnoreRes, err error)
+	ClearAlarm(ctx context.Context, req *v1.ClearAlarmReq) (res *v1.ClearAlarmRes, err error)
 }
