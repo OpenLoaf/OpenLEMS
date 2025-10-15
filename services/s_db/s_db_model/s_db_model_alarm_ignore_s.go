@@ -87,6 +87,22 @@ func (a *SAlarmIgnoreModel) DeleteByDeviceIdAndPoint(ctx context.Context, device
 	return err
 }
 
+// DeleteByFilters 根据过滤条件删除告警忽略记录
+// deviceId 为空表示所有设备，point 为空表示所有点位
+func (a *SAlarmIgnoreModel) DeleteByFilters(ctx context.Context, deviceId, point string) error {
+	model := g.Model(TableAlarmIgnore).Ctx(ctx)
+
+	if deviceId != "" {
+		model = model.Where(FieldAlarmIgnoreDeviceId, deviceId)
+	}
+	if point != "" {
+		model = model.Where(FieldAlarmIgnorePoint, point)
+	}
+
+	_, err := model.Delete()
+	return err
+}
+
 // GetAll 获取所有告警忽略记录
 func (a *SAlarmIgnoreModel) GetAll(ctx context.Context) ([]*SAlarmIgnoreModel, error) {
 	var records []*SAlarmIgnoreModel

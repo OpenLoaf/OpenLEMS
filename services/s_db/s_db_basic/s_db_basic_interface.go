@@ -42,6 +42,9 @@ type IAlarmService interface {
 	GetAlarmHistoryByDeviceId(ctx context.Context, deviceId string) ([]*s_db_model.SAlarmHistoryModel, error)
 	GetAlarmHistoryByDeviceIdAndPoint(ctx context.Context, deviceId, point string) ([]*s_db_model.SAlarmHistoryModel, error)
 	DeleteAlarmHistoryByDeviceId(ctx context.Context, deviceId string) error
+	DeleteAlarmHistoryByLevel(ctx context.Context, level string) error
+	DeleteAlarmHistoryByDeviceIdAndLevel(ctx context.Context, deviceId, level string) error
+	DeleteAlarmHistoryByFilters(ctx context.Context, deviceId, level string) error
 	GetAllAlarmHistory(ctx context.Context) ([]*s_db_model.SAlarmHistoryModel, error)
 	GetAlarmHistoryPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SAlarmHistoryModel, int, error)
 	ClearAllAlarmHistory(ctx context.Context) error
@@ -53,6 +56,7 @@ type IAlarmService interface {
 	IsAlarmIgnored(ctx context.Context, deviceId, sourceDeviceId, point string) (bool, error)
 	DeleteAlarmIgnoreByDeviceId(ctx context.Context, deviceId string) error
 	DeleteAlarmIgnoreByDeviceIdAndPoint(ctx context.Context, deviceId, point string) error
+	DeleteAlarmIgnoreByFilters(ctx context.Context, deviceId, point string) error
 	GetAllAlarmIgnore(ctx context.Context) ([]*s_db_model.SAlarmIgnoreModel, error)
 	GetAlarmIgnorePage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SAlarmIgnoreModel, int, error)
 	GetAlarmIgnoreCount(ctx context.Context, deviceId string) int

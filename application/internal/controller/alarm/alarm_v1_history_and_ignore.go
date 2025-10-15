@@ -6,6 +6,7 @@ import (
 	"common/c_base"
 	"common/c_log"
 	"context"
+	"fmt"
 	"s_db"
 	"strings"
 
@@ -65,23 +66,30 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 
 // ClearAlarmHistory 清除告警历史
 func (c *ControllerV1) ClearAlarmHistory(ctx context.Context, req *v1.ClearAlarmHistoryReq) (res *v1.ClearAlarmHistoryRes, err error) {
-	// 若 deviceId 为空，则清除全部历史；否则仅清除该设备的历史
-	// 可选 level：若提供则按级别过滤清除（当前 s_db 暂无按级别清除接口，先实现设备/全量清除）
-
 	// 统计清除数量用于业务日志（通过计数接口获取前置总数）
 	beforeCount := s_db.GetAlarmService().GetAlarmHistoryCount(ctx, req.DeviceId)
 
-	if strings.TrimSpace(req.DeviceId) == "" {
-		if err := s_db.GetAlarmService().ClearAllAlarmHistory(ctx); err != nil {
-			return nil, gerror.NewCode(gcode.CodeInternalError)
-		}
-		c_log.BizInfof(ctx, "清除所有设备的告警历史完成，受影响记录数(约): %d", beforeCount)
-	} else {
-		if err := s_db.GetAlarmService().DeleteAlarmHistoryByDeviceId(ctx, req.DeviceId); err != nil {
-			return nil, gerror.NewCode(gcode.CodeInternalError)
-		}
-		c_log.BizInfof(ctx, "清除设备[%s]的告警历史完成，受影响记录数(约): %d", req.DeviceId, beforeCount)
+	deviceId := strings.TrimSpace(req.DeviceId)
+	level := strings.TrimSpace(req.Level)
+
+	// 使用统一的过滤删除方法，数据库层处理所有逻辑
+	if err := s_db.GetAlarmService().DeleteAlarmHistoryByFilters(ctx, deviceId, level); err != nil {
+		return nil, gerror.NewCode(gcode.CodeInternalError)
 	}
+
+	// 根据参数生成日志描述
+	var logDesc string
+	if deviceId == "" && level == "" {
+		logDesc = "清除所有设备的全部级别告警历史完成"
+	} else if deviceId == "" && level != "" {
+		logDesc = fmt.Sprintf("清除所有设备的[%s]级别告警历史完成", level)
+	} else if deviceId != "" && level == "" {
+		logDesc = fmt.Sprintf("清除设备[%s]的全部级别告警历史完成", deviceId)
+	} else {
+		logDesc = fmt.Sprintf("清除设备[%s]的[%s]级别告警历史完成", deviceId, level)
+	}
+
+	c_log.BizInfof(ctx, "%s，受影响记录数(约): %d", logDesc, beforeCount)
 
 	return &v1.ClearAlarmHistoryRes{}, nil
 }
@@ -176,4 +184,31 @@ func (c *ControllerV1) GetAlarmIgnore(ctx context.Context, req *v1.GetAlarmIgnor
 		Total: total,
 		Items: items,
 	}, nil
+}
+
+// ClearAlarmIgnore 清除忽略告警
+func (c *ControllerV1) ClearAlarmIgnore(ctx context.Context, req *v1.ClearAlarmIgnoreReq) (res *v1.ClearAlarmIgnoreRes, err error) {
+	// 统计前的忽略总数（近似）
+	beforeCount := s_db.GetAlarmService().GetAlarmIgnoreCount(ctx, req.DeviceId)
+
+	deviceId := strings.TrimSpace(req.DeviceId)
+	point := strings.TrimSpace(req.Point)
+
+	if err := s_db.GetAlarmService().DeleteAlarmIgnoreByFilters(ctx, deviceId, point); err != nil {
+		return nil, gerror.NewCode(gcode.CodeInternalError)
+	}
+
+	var desc string
+	if deviceId == "" && point == "" {
+		desc = "清除所有设备的全部忽略记录完成"
+	} else if deviceId == "" && point != "" {
+		desc = fmt.Sprintf("清除所有设备的点位[%s]忽略记录完成", point)
+	} else if deviceId != "" && point == "" {
+		desc = fmt.Sprintf("清除设备[%s]的全部忽略记录完成", deviceId)
+	} else {
+		desc = fmt.Sprintf("清除设备[%s]的点位[%s]忽略记录完成", deviceId, point)
+	}
+
+	c_log.BizInfof(ctx, "%s，受影响记录数(约): %d", desc, beforeCount)
+	return &v1.ClearAlarmIgnoreRes{}, nil
 }

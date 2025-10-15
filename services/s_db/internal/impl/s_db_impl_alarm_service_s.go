@@ -134,6 +134,42 @@ func (s *sAlarmServiceImpl) DeleteAlarmHistoryByDeviceId(ctx context.Context, de
 	return nil
 }
 
+// DeleteAlarmHistoryByLevel 根据级别删除告警历史记录
+func (s *sAlarmServiceImpl) DeleteAlarmHistoryByLevel(ctx context.Context, level string) error {
+	alarmHistory := &s_db_model.SAlarmHistoryModel{}
+	if err := alarmHistory.DeleteByLevel(ctx, level); err != nil {
+		g.Log().Errorf(ctx, "按级别删除告警历史记录失败 - 级别: %s, 错误: %+v", level, err)
+		return err
+	}
+	s.clearCountCache(ctx)
+	g.Log().Infof(ctx, "成功按级别删除告警历史记录 - 级别: %s", level)
+	return nil
+}
+
+// DeleteAlarmHistoryByDeviceIdAndLevel 根据设备ID与级别删除告警历史记录
+func (s *sAlarmServiceImpl) DeleteAlarmHistoryByDeviceIdAndLevel(ctx context.Context, deviceId, level string) error {
+	alarmHistory := &s_db_model.SAlarmHistoryModel{}
+	if err := alarmHistory.DeleteByDeviceIdAndLevel(ctx, deviceId, level); err != nil {
+		g.Log().Errorf(ctx, "按设备与级别删除告警历史记录失败 - 设备ID: %s, 级别: %s, 错误: %+v", deviceId, level, err)
+		return err
+	}
+	s.clearCountCache(ctx)
+	g.Log().Infof(ctx, "成功按设备与级别删除告警历史记录 - 设备ID: %s, 级别: %s", deviceId, level)
+	return nil
+}
+
+// DeleteAlarmHistoryByFilters 根据过滤条件删除告警历史记录
+func (s *sAlarmServiceImpl) DeleteAlarmHistoryByFilters(ctx context.Context, deviceId, level string) error {
+	alarmHistory := &s_db_model.SAlarmHistoryModel{}
+	if err := alarmHistory.DeleteByFilters(ctx, deviceId, level); err != nil {
+		g.Log().Errorf(ctx, "按过滤条件删除告警历史记录失败 - 设备ID: %s, 级别: %s, 错误: %+v", deviceId, level, err)
+		return err
+	}
+	s.clearCountCache(ctx)
+	g.Log().Infof(ctx, "成功按过滤条件删除告警历史记录 - 设备ID: %s, 级别: %s", deviceId, level)
+	return nil
+}
+
 // GetAllAlarmHistory 获取所有告警历史记录
 func (s *sAlarmServiceImpl) GetAllAlarmHistory(ctx context.Context) ([]*s_db_model.SAlarmHistoryModel, error) {
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
@@ -331,6 +367,19 @@ func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByDeviceIdAndPoint(ctx context.Cont
 	g.Log().Infof(ctx, "成功删除告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
 	s.clearDeviceCache(ctx, deviceId) // 清除指定设备的缓存
 	s.clearCountCache(ctx)            // 清除计数缓存
+	return nil
+}
+
+// DeleteAlarmIgnoreByFilters 根据过滤条件删除告警忽略记录
+func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByFilters(ctx context.Context, deviceId, point string) error {
+	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
+	if err := alarmIgnore.DeleteByFilters(ctx, deviceId, point); err != nil {
+		g.Log().Errorf(ctx, "按过滤条件删除告警忽略记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point, err)
+		return err
+	}
+	s.clearDeviceCache(ctx, deviceId)
+	s.clearCountCache(ctx)
+	g.Log().Infof(ctx, "成功按过滤条件删除告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
 	return nil
 }
 

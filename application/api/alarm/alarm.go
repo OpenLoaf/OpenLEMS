@@ -18,4 +18,5 @@ type IAlarmV1 interface {
 	GetAlarmIgnore(ctx context.Context, req *v1.GetAlarmIgnoreReq) (res *v1.GetAlarmIgnoreRes, err error)
 	ClearAlarm(ctx context.Context, req *v1.ClearAlarmReq) (res *v1.ClearAlarmRes, err error)
 	ClearAlarmHistory(ctx context.Context, req *v1.ClearAlarmHistoryReq) (res *v1.ClearAlarmHistoryRes, err error)
+	ClearAlarmIgnore(ctx context.Context, req *v1.ClearAlarmIgnoreReq) (res *v1.ClearAlarmIgnoreRes, err error)
 }

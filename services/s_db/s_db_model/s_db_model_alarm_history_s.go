@@ -82,6 +82,40 @@ func (a *SAlarmHistoryModel) DeleteByDeviceId(ctx context.Context, deviceId stri
 	return err
 }
 
+// DeleteByLevel 根据级别删除告警历史记录
+func (a *SAlarmHistoryModel) DeleteByLevel(ctx context.Context, level string) error {
+	_, err := g.Model(TableAlarmHistory).Ctx(ctx).Where(FieldAlarmHistoryLevel, level).Delete()
+	return err
+}
+
+// DeleteByDeviceIdAndLevel 根据设备ID与级别删除告警历史记录
+func (a *SAlarmHistoryModel) DeleteByDeviceIdAndLevel(ctx context.Context, deviceId, level string) error {
+	_, err := g.Model(TableAlarmHistory).Ctx(ctx).
+		Where(FieldAlarmHistoryDeviceId, deviceId).
+		Where(FieldAlarmHistoryLevel, level).
+		Delete()
+	return err
+}
+
+// DeleteByFilters 根据过滤条件删除告警历史记录
+// deviceId 为空表示所有设备，level 为空表示所有级别
+func (a *SAlarmHistoryModel) DeleteByFilters(ctx context.Context, deviceId, level string) error {
+	model := g.Model(TableAlarmHistory).Ctx(ctx)
+
+	// 如果设备ID不为空，添加设备过滤条件
+	if deviceId != "" {
+		model = model.Where(FieldAlarmHistoryDeviceId, deviceId)
+	}
+
+	// 如果级别不为空，添加级别过滤条件
+	if level != "" {
+		model = model.Where(FieldAlarmHistoryLevel, level)
+	}
+
+	_, err := model.Delete()
+	return err
+}
+
 // GetAll 获取所有告警历史记录
 func (a *SAlarmHistoryModel) GetAll(ctx context.Context) ([]*SAlarmHistoryModel, error) {
 	var records []*SAlarmHistoryModel
