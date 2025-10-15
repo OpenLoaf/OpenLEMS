@@ -9,6 +9,6 @@ type SPointGroup struct {
 
 var GroupTotal = &SPointGroup{
 	GroupKey:  "Total",
-	GroupName: "汇总",
+	GroupName: "i18n:common.summary",
 	GroupSort: -1,
 }

@@ -52,7 +52,10 @@ func (c *ControllerV1) GetDevicePointsDefinition(ctx context.Context, req *v1.Ge
 		}
 	}
 
-	return &v1.GetDevicePointsDefinitionRes{Fields: fields}, nil
+	// 基于 group+key 去重
+	uniqueFields := deduplicateFieldsByGroupAndKey(fields)
+
+	return &v1.GetDevicePointsDefinitionRes{Fields: uniqueFields}, nil
 }
 
 // getVirtualDevicePointsDefinition 获取虚拟设备点位定义
@@ -89,5 +92,30 @@ func (c *ControllerV1) getVirtualDevicePointsDefinition(device c_base.IDevice) (
 		}
 	}
 
-	return &v1.GetDevicePointsDefinitionRes{Fields: allFields, IsVirtualDevice: true}, nil
+	// 基于 group+key 去重
+	uniqueFields := deduplicateFieldsByGroupAndKey(allFields)
+
+	return &v1.GetDevicePointsDefinitionRes{Fields: uniqueFields, IsVirtualDevice: true}, nil
+}
+
+// deduplicateFieldsByGroupAndKey 根据 group 与 key 进行去重，保留首次出现的字段
+func deduplicateFieldsByGroupAndKey(fields []*c_base.SFieldDefinition) []*c_base.SFieldDefinition {
+	if len(fields) <= 1 {
+		return fields
+	}
+
+	seen := make(map[string]struct{}, len(fields))
+	unique := make([]*c_base.SFieldDefinition, 0, len(fields))
+	for _, f := range fields {
+		if f == nil {
+			continue
+		}
+		key := f.Group + "\x00" + f.Key
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		unique = append(unique, f)
+	}
+	return unique
 }
