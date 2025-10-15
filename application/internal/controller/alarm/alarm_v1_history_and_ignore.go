@@ -4,6 +4,7 @@ import (
 	v1 "application/api/alarm/v1"
 	"common"
 	"common/c_base"
+	"common/c_log"
 	"context"
 	"s_db"
 	"strings"
@@ -60,6 +61,29 @@ func (c *ControllerV1) GetHistoryAlarms(ctx context.Context, req *v1.GetHistoryA
 		})
 	}
 	return &v1.GetHistoryAlarmsRes{Total: total, Items: items}, nil
+}
+
+// ClearAlarmHistory 清除告警历史
+func (c *ControllerV1) ClearAlarmHistory(ctx context.Context, req *v1.ClearAlarmHistoryReq) (res *v1.ClearAlarmHistoryRes, err error) {
+	// 若 deviceId 为空，则清除全部历史；否则仅清除该设备的历史
+	// 可选 level：若提供则按级别过滤清除（当前 s_db 暂无按级别清除接口，先实现设备/全量清除）
+
+	// 统计清除数量用于业务日志（通过计数接口获取前置总数）
+	beforeCount := s_db.GetAlarmService().GetAlarmHistoryCount(ctx, req.DeviceId)
+
+	if strings.TrimSpace(req.DeviceId) == "" {
+		if err := s_db.GetAlarmService().ClearAllAlarmHistory(ctx); err != nil {
+			return nil, gerror.NewCode(gcode.CodeInternalError)
+		}
+		c_log.BizInfof(ctx, "清除所有设备的告警历史完成，受影响记录数(约): %d", beforeCount)
+	} else {
+		if err := s_db.GetAlarmService().DeleteAlarmHistoryByDeviceId(ctx, req.DeviceId); err != nil {
+			return nil, gerror.NewCode(gcode.CodeInternalError)
+		}
+		c_log.BizInfof(ctx, "清除设备[%s]的告警历史完成，受影响记录数(约): %d", req.DeviceId, beforeCount)
+	}
+
+	return &v1.ClearAlarmHistoryRes{}, nil
 }
 
 // CreateAlarmIgnore 创建忽略告警
