@@ -7,18 +7,19 @@ import (
 	"common/c_enum"
 	"context"
 	"fmt"
+	"sort"
 )
 
 // GetDevicePointsDefinition 获取设备全部点位定义
 func (c *ControllerV1) GetDevicePointsDefinition(ctx context.Context, req *v1.GetDevicePointsDefinitionReq) (res *v1.GetDevicePointsDefinitionRes, err error) {
 	if common.GetDeviceManager().Status() == c_enum.EStateInit {
 		// 系统初始化中，返回空数据
-		return &v1.GetDevicePointsDefinitionRes{Fields: []*c_base.SFieldDefinition{}}, nil
+		return &v1.GetDevicePointsDefinitionRes{Groups: []*c_base.SPointGroup{}, Fields: []*v1.SDevicePointField{}}, nil
 	}
 
 	device := common.GetDeviceManager().GetDeviceById(req.DeviceId)
 	if device == nil {
-		return &v1.GetDevicePointsDefinitionRes{Fields: []*c_base.SFieldDefinition{}}, nil
+		return &v1.GetDevicePointsDefinitionRes{Groups: []*c_base.SPointGroup{}, Fields: []*v1.SDevicePointField{}}, nil
 	}
 
 	// 检查是否为虚拟设备
@@ -31,7 +32,7 @@ func (c *ControllerV1) GetDevicePointsDefinition(ctx context.Context, req *v1.Ge
 	telemetryPoints := device.GetTelemetryPoints()
 
 	if len(devicePoints) == 0 && len(telemetryPoints) == 0 {
-		return &v1.GetDevicePointsDefinitionRes{Fields: []*c_base.SFieldDefinition{}}, nil
+		return &v1.GetDevicePointsDefinitionRes{Groups: []*c_base.SPointGroup{}, Fields: []*v1.SDevicePointField{}}, nil
 	}
 
 	fields := make([]*c_base.SFieldDefinition, 0, len(devicePoints)+len(telemetryPoints))
@@ -47,7 +48,7 @@ func (c *ControllerV1) GetDevicePointsDefinition(ctx context.Context, req *v1.Ge
 	for _, p := range telemetryPoints {
 		if fd := c_base.ConvertIPointToFieldDefinition(p); fd != nil {
 			// 强制设置group为"i18n:common.summary"
-			fd.Group = "i18n:common.summary"
+			fd.Group = c_base.GroupTotal
 			fields = append(fields, fd)
 		}
 	}
@@ -55,14 +56,61 @@ func (c *ControllerV1) GetDevicePointsDefinition(ctx context.Context, req *v1.Ge
 	// 基于 group+key 去重
 	uniqueFields := deduplicateFieldsByGroupAndKey(fields)
 
-	return &v1.GetDevicePointsDefinitionRes{Fields: uniqueFields}, nil
+	// 构建分组列表并排序
+	groupMap := make(map[string]*c_base.SPointGroup)
+	for _, f := range uniqueFields {
+		if f != nil && f.Group != nil {
+			if _, ok := groupMap[f.Group.GroupKey]; !ok {
+				// 拷贝一份，避免外部修改
+				g := *f.Group
+				groupMap[g.GroupKey] = &g
+			}
+		}
+	}
+	groups := make([]*c_base.SPointGroup, 0, len(groupMap))
+	for _, g := range groupMap {
+		groups = append(groups, g)
+	}
+	sort.Slice(groups, func(i, j int) bool { return groups[i].GroupSort < groups[j].GroupSort })
+
+	// 转换为响应字段类型（使用 groupKey）
+	resFields := make([]*v1.SDevicePointField, 0, len(uniqueFields))
+	for _, f := range uniqueFields {
+		if f == nil {
+			continue
+		}
+		var groupKey string
+		if f.Group != nil {
+			groupKey = f.Group.GroupKey
+		}
+		resFields = append(resFields, &v1.SDevicePointField{
+			Key:                f.Key,
+			Name:               f.Name,
+			GroupKey:           groupKey,
+			ValueType:          f.ValueType,
+			ComponentType:      f.ComponentType,
+			Step:               f.Step,
+			Required:           f.Required,
+			Unit:               f.Unit,
+			Min:                f.Min,
+			Max:                f.Max,
+			Default:            f.Default,
+			ValueExplain:       f.ValueExplain,
+			ParamExplain:       f.ParamExplain,
+			Regex:              f.Regex,
+			RegexFailedMessage: f.RegexFailedMessage,
+			Description:        f.Description,
+		})
+	}
+
+	return &v1.GetDevicePointsDefinitionRes{Groups: groups, Fields: resFields}, nil
 }
 
 // getVirtualDevicePointsDefinition 获取虚拟设备点位定义
 func (c *ControllerV1) getVirtualDevicePointsDefinition(device c_base.IDevice) (*v1.GetDevicePointsDefinitionRes, error) {
 	deviceConfig := device.GetConfig()
 	if deviceConfig == nil {
-		return &v1.GetDevicePointsDefinitionRes{Fields: []*c_base.SFieldDefinition{}}, nil
+		return &v1.GetDevicePointsDefinitionRes{Groups: []*c_base.SPointGroup{}, Fields: []*v1.SDevicePointField{}}, nil
 	}
 
 	var allFields []*c_base.SFieldDefinition
@@ -86,7 +134,7 @@ func (c *ControllerV1) getVirtualDevicePointsDefinition(device c_base.IDevice) (
 			// 转换为FieldDefinition
 			if fd := c_base.ConvertIPointToFieldDefinition(point); fd != nil {
 				// 设置分组信息：设备名:汇总
-				fd.Group = fmt.Sprintf("%s:汇总", deviceName)
+				fd.Group = &c_base.SPointGroup{GroupKey: fmt.Sprintf("%s:汇总", deviceName), GroupName: fmt.Sprintf("%s:汇总", deviceName), GroupSort: 0}
 				allFields = append(allFields, fd)
 			}
 		}
@@ -95,7 +143,53 @@ func (c *ControllerV1) getVirtualDevicePointsDefinition(device c_base.IDevice) (
 	// 基于 group+key 去重
 	uniqueFields := deduplicateFieldsByGroupAndKey(allFields)
 
-	return &v1.GetDevicePointsDefinitionRes{Fields: uniqueFields, IsVirtualDevice: true}, nil
+	// 构建分组列表并排序
+	groupMap := make(map[string]*c_base.SPointGroup)
+	for _, f := range uniqueFields {
+		if f != nil && f.Group != nil {
+			if _, ok := groupMap[f.Group.GroupKey]; !ok {
+				g := *f.Group
+				groupMap[g.GroupKey] = &g
+			}
+		}
+	}
+	groups := make([]*c_base.SPointGroup, 0, len(groupMap))
+	for _, g := range groupMap {
+		groups = append(groups, g)
+	}
+	sort.Slice(groups, func(i, j int) bool { return groups[i].GroupSort < groups[j].GroupSort })
+
+	// 转换字段
+	resFields := make([]*v1.SDevicePointField, 0, len(uniqueFields))
+	for _, f := range uniqueFields {
+		if f == nil {
+			continue
+		}
+		var groupKey string
+		if f.Group != nil {
+			groupKey = f.Group.GroupKey
+		}
+		resFields = append(resFields, &v1.SDevicePointField{
+			Key:                f.Key,
+			Name:               f.Name,
+			GroupKey:           groupKey,
+			ValueType:          f.ValueType,
+			ComponentType:      f.ComponentType,
+			Step:               f.Step,
+			Required:           f.Required,
+			Unit:               f.Unit,
+			Min:                f.Min,
+			Max:                f.Max,
+			Default:            f.Default,
+			ValueExplain:       f.ValueExplain,
+			ParamExplain:       f.ParamExplain,
+			Regex:              f.Regex,
+			RegexFailedMessage: f.RegexFailedMessage,
+			Description:        f.Description,
+		})
+	}
+
+	return &v1.GetDevicePointsDefinitionRes{Groups: groups, Fields: resFields, IsVirtualDevice: true}, nil
 }
 
 // deduplicateFieldsByGroupAndKey 根据 group 与 key 进行去重，保留首次出现的字段
@@ -110,7 +204,11 @@ func deduplicateFieldsByGroupAndKey(fields []*c_base.SFieldDefinition) []*c_base
 		if f == nil {
 			continue
 		}
-		key := f.Group + "\x00" + f.Key
+		var groupKey string
+		if f.Group != nil {
+			groupKey = f.Group.GroupKey
+		}
+		key := groupKey + "\x00" + f.Key
 		if _, ok := seen[key]; ok {
 			continue
 		}

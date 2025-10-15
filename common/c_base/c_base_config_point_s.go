@@ -128,10 +128,20 @@ func (s *SConfigPoint) ToFieldDefinition() *SFieldDefinition {
 	}
 
 	// 创建SFieldDefinition
+	// 组信息
+	var group *SPointGroup
+	if s.SPoint.Group != nil {
+		group = &SPointGroup{
+			GroupKey:  s.SPoint.Group.GroupKey,
+			GroupName: s.SPoint.Group.GroupName,
+			GroupSort: s.SPoint.Group.GroupSort,
+			Disable:   s.SPoint.Group.Disable,
+		}
+	}
 	fieldDef := &SFieldDefinition{
 		Key:                s.SPoint.Key,
 		Name:               s.SPoint.Name,
-		Group:              s.getGroupName(),
+		Group:              group,
 		ValueType:          valueType,
 		ComponentType:      componentType,
 		Step:               s.Step,
@@ -177,10 +187,4 @@ func (s *SConfigPoint) inferComponentType(valueType c_enum.EConfigFieldsValueTyp
 	}
 }
 
-// getGroupName 获取分组名称
-func (s *SConfigPoint) getGroupName() string {
-	if s.SPoint.Group != nil {
-		return s.SPoint.Group.GroupName
-	}
-	return ""
-}
+// getGroupName 已废弃：Group 现在为 *SPointGroup

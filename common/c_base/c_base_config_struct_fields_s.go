@@ -15,7 +15,7 @@ import (
 type SFieldDefinition struct {
 	Key                string                            `json:"key" yaml:"key" short:"code"`
 	Name               string                            `json:"name,omitempty" yaml:"name" short:"name" required:"true"`
-	Group              string                            `json:"group,omitempty" yaml:"group" short:"group"`
+	Group              *SPointGroup                      `json:"group,omitempty" yaml:"group" short:"group"`
 	ValueType          c_enum.EConfigFieldsValueType     `json:"valueType" yaml:"value_type" short:"vt" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
 	ComponentType      c_enum.EConfigFieldsComponentType `json:"componentType" yaml:"component_type" short:"ct" dc:"组件类型" required:"true"`
 	Step               *float32                          `json:"step,omitempty" yaml:"step" short:"step" default:"1" dc:"步长（小步长）"`
@@ -169,15 +169,7 @@ func (s *SFieldDefinition) GetName() string {
 
 // GetGroup 获取分组
 func (s *SFieldDefinition) GetGroup() *SPointGroup {
-	if s.Group == "" {
-		return nil
-	}
-	return &SPointGroup{
-		GroupKey:  s.Group,
-		GroupName: s.Group,
-		GroupSort: 0,
-		Disable:   false,
-	}
+	return s.Group
 }
 
 // GetUnit 获取单位

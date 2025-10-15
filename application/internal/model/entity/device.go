@@ -184,16 +184,12 @@ func convertIPointToFieldDefinition(point c_base.IPoint) *c_base.SFieldDefinitio
 	}
 
 	// 获取分组信息
-	var group string
-	if groupInfo := point.GetGroup(); groupInfo != nil {
-		group = groupInfo.GroupName
-	}
 
 	// 创建SFieldDefinition
 	fieldDef := &c_base.SFieldDefinition{
 		Key:           point.GetKey(),
 		Name:          point.GetName(),
-		Group:         group,
+		Group:         point.GetGroup(),
 		ValueType:     valueType,
 		ComponentType: componentType,
 		Unit:          unit,

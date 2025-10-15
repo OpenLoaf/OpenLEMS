@@ -30,9 +30,15 @@ func ConvertIPointToFieldDefinition(point IPoint) *SFieldDefinition {
 	}
 
 	// 获取分组信息
-	var group string
+	var group *SPointGroup
 	if groupInfo := point.GetGroup(); groupInfo != nil {
-		group = groupInfo.GroupName
+		// 复制一份，避免外部修改影响原对象
+		group = &SPointGroup{
+			GroupKey:  groupInfo.GroupKey,
+			GroupName: groupInfo.GroupName,
+			GroupSort: groupInfo.GroupSort,
+			Disable:   groupInfo.Disable,
+		}
 	}
 
 	// 创建SFieldDefinition
