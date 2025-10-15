@@ -79,3 +79,8 @@ func (s *SModbusPoint) GetSort() int {
 	}
 	return 0
 }
+
+// AsProtocolPoint 转换为协议点位，返回嵌入的 SProtocolPoint
+func (s *SModbusPoint) AsProtocolPoint() *c_base.SProtocolPoint {
+	return s.SProtocolPoint
+}

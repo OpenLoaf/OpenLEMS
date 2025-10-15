@@ -19,12 +19,14 @@ func GetPointValue(instance IDevice, point IPoint) *SPointValue {
 		return nil
 	}
 
-	// 检查是否是SProtocolPoint类型（协议点位）
-	if protocolPoint, ok := point.(*SProtocolPoint); ok {
+	// 检查是否是协议点位（通过 AsProtocolPoint 方法）
+	if protocolPoint := point.AsProtocolPoint(); protocolPoint != nil {
 		// 使用实例的GetProtocolPointValue方法获取协议点位缓存值
 		return instance.GetProtocolPointValue(protocolPoint)
-	} else if reflectPoint, ok := point.(*SReflectPoint); ok {
-		// 检查是否是SReflectPoint类型（遥测点位）
+	}
+
+	// 检查是否是SReflectPoint类型（遥测点位）
+	if reflectPoint, ok := point.(*SReflectPoint); ok {
 		// 通过反射获取遥测数据
 		value, err := getTelemetryByReflect(reflectPoint.MethodName, instance)
 		if err != nil {

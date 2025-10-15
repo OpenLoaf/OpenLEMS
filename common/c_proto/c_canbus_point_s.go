@@ -81,3 +81,8 @@ func (s *SCanbusPoint) GetSort() int {
 	}
 	return 0
 }
+
+// AsProtocolPoint 转换为协议点位，返回嵌入的 SProtocolPoint
+func (s *SCanbusPoint) AsProtocolPoint() *c_base.SProtocolPoint {
+	return s.SProtocolPoint
+}

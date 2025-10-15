@@ -26,3 +26,8 @@ func (s *SProtocolPoint) GetValueExplainByValue(value any) (string, error) {
 	// 统一用 SPoint 的公共实现，优先自身 explains（GetValueExplain 已做回退）
 	return s.SPoint.explainByValueCommon(value, s.GetValueExplain(), s.SPoint.Precise)
 }
+
+// AsProtocolPoint 转换为协议点位，SProtocolPoint 本身就是协议点位，返回自身
+func (s *SProtocolPoint) AsProtocolPoint() *SProtocolPoint {
+	return s
+}

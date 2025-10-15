@@ -11,6 +11,11 @@ func (s *SReflectPoint) GetMethodName() string {
 	return s.MethodName
 }
 
+// AsProtocolPoint 转换为协议点位，SReflectPoint 不是协议点位，返回 nil
+func (s *SReflectPoint) AsProtocolPoint() *SProtocolPoint {
+	return nil
+}
+
 // 注意：不需要重复实现IPoint接口方法
 // 通过结构体嵌套自动继承SPoint的方法实现
 // SPoint字段将在启动时验证是否设置
