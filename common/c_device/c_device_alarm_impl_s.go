@@ -212,8 +212,8 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, point c_base.IPoint, value any
 
 			var historyMessage string
 
-			newValueExplain, _ := alarm.IPoint.GetValueExplainByValue(value)
-			oldValueExplain, _ := oldAlarm.IPoint.GetValueExplainByValue(oldAlarm.GetValue())
+			newValueExplain, _ := c_base.ExplainPointValue(alarm.IPoint, value)
+			oldValueExplain, _ := c_base.ExplainPointValue(oldAlarm.IPoint, oldAlarm.GetValue())
 
 			if newValueExplain != "" && oldValueExplain != "" {
 				historyMessage = fmt.Sprintf("触发值为:%v，告警清除后值为:%v", oldValueExplain, newValueExplain)

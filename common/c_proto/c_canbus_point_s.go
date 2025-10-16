@@ -33,15 +33,6 @@ func (s *SCanbusPoint) String() string {
 	return fmt.Sprintf("%s-%s", s.GetName(), s.GetDataAccess())
 }
 
-func (s *SCanbusPoint) GetValueExplainByValue(value any) (string, error) {
-	if s.StatusExplain == nil {
-		if s.SProtocolPoint != nil && s.SProtocolPoint.SPoint != nil {
-			return s.SProtocolPoint.GetValueExplainByValue(value)
-		}
-		return "", fmt.Errorf("SPoint not initialized")
-	}
-	return s.StatusExplain(value)
-}
 func (s *SCanbusPoint) IsAlarmPoint() bool {
 	if s.Trigger != nil {
 		return true

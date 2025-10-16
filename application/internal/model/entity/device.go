@@ -175,12 +175,12 @@ func convertIPointToFieldDefinition(point c_base.IPoint) *c_base.SFieldDefinitio
 		unit = &unitStr
 	}
 
-	var min, max *int64
+	var mi, mx *int64
 	if minVal := point.GetMin(); minVal != 0 {
-		min = &minVal
+		mi = &minVal
 	}
 	if maxVal := point.GetMax(); maxVal != 0 {
-		max = &maxVal
+		mx = &maxVal
 	}
 
 	// 获取分组信息
@@ -193,8 +193,8 @@ func convertIPointToFieldDefinition(point c_base.IPoint) *c_base.SFieldDefinitio
 		ValueType:     valueType,
 		ComponentType: componentType,
 		Unit:          unit,
-		Min:           min,
-		Max:           max,
+		Min:           mi,
+		Max:           mx,
 		Description:   point.GetDesc(),
 		Required:      false, // 遥测点位通常不是必填的
 		ValueExplain:  point.GetValueExplain(),

@@ -38,6 +38,8 @@ var (
 			Unit:      "%",
 			ValueType: c_enum.EFloat32,
 			Desc:      "当前SOC",
+			Min:       0,
+			Max:       100,
 		},
 		MethodName: "GetSoc",
 	}

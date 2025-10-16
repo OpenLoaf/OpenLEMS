@@ -39,6 +39,8 @@ var (
 			Unit:      "%",
 			ValueType: c_enum.EFloat32,
 			Desc:      "电池电量",
+			Min:       0,
+			Max:       100,
 		},
 		MethodName: "GetSoc",
 	}

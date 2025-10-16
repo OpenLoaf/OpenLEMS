@@ -36,7 +36,7 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 		}
 		d := &entity.SSingleDeviceValue{}
 		_ = gconv.Scan(v, d)
-		if explain, err := v.GetValueExplainByValue(v.GetValue()); err == nil && explain != "" {
+		if explain, err := c_base.ExplainPointValue(v.IPoint, v.GetValue()); err == nil && explain != "" {
 			d.StatueExplain = explain
 		}
 		values = append(values, d)

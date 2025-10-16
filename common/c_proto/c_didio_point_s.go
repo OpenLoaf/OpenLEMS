@@ -34,16 +34,6 @@ func (s *SDidioPoint) String() string {
 	return fmt.Sprintf("%s[chip%d-pin%d]", s.GetName(), s.ChipIndex, s.Pin)
 }
 
-func (s *SDidioPoint) GetValueExplainByValue(value any) (string, error) {
-	if s.StatusExplain == nil {
-		if s.SProtocolPoint != nil && s.SProtocolPoint.SPoint != nil {
-			return s.SProtocolPoint.GetValueExplainByValue(value)
-		}
-		return "", fmt.Errorf("SPoint not initialized")
-	}
-	return s.StatusExplain(value)
-}
-
 func (s *SDidioPoint) IsAlarmPoint() bool {
 	if s.Trigger != nil {
 		return true
