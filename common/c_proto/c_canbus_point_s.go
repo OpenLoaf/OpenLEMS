@@ -36,7 +36,7 @@ func (s *SCanbusPoint) String() string {
 func (s *SCanbusPoint) GetValueExplainByValue(value any) (string, error) {
 	if s.StatusExplain == nil {
 		if s.SProtocolPoint != nil && s.SProtocolPoint.SPoint != nil {
-			return s.SProtocolPoint.SPoint.GetValueExplainByValue(value)
+			return s.SProtocolPoint.GetValueExplainByValue(value)
 		}
 		return "", fmt.Errorf("SPoint not initialized")
 	}
