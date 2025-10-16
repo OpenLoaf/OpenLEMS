@@ -35,6 +35,10 @@ go run main.go --gui=true --force=true
 go run main.go --gui-full=true --force=true
 ```
 
+#### 注意
+
+如果是linux或者mac电脑，使用nohup &的方式，使得实例后台运行。防止阻塞进程。并且任务结束后手动关闭进程
+
 ### 完整参数列表
 
 | 参数 | 简写 | 默认值 | 说明 |

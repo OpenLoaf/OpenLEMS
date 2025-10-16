@@ -20,12 +20,8 @@ func MiddlewareAuth(r *ghttp.Request) {
 		}
 		token = strings.TrimSpace(token)
 		if token != "" {
-			const sessionCookieName = "ems_session_id"
-			if ck := r.Request.Header.Get("Cookie"); ck != "" {
-				r.Request.Header.Set("Cookie", ck+"; "+sessionCookieName+"="+token)
-			} else {
-				r.Request.Header.Set("Cookie", sessionCookieName+"="+token)
-			}
+			// 直接设置 SessionId，支持通过 Authorization header 认证
+			r.Session.SetId(token)
 		}
 	}
 

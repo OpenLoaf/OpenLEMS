@@ -7,9 +7,9 @@ import (
 
 // SAutomationDeviceCondition 设备触发条件结构体
 type SAutomationDeviceCondition struct {
-	DeviceId string `json:"deviceId"` // 设备ID
-	From     string `json:"from"`     // 是从哪里去取值
-	Rule     string `json:"rule"`     // 规则表达式，如 "P>30", "Ia<100"
+	DeviceId string `json:"deviceId" v:"required"` // 设备ID
+	From     string `json:"from"`                  // 是从哪里去取值
+	Rule     string `json:"rule" v:"required"`     // 规则表达式，如 "P>30", "Ia<100"
 }
 
 // SAutomationTriggerCondition 自动化触发条件结构体
@@ -24,15 +24,15 @@ type SAutomationTriggerCondition struct {
 // SAutomationTimeCondition 时间触发条件结构体
 type SAutomationTimeCondition struct {
 	// 基础时间条件
-	Hour   *int `json:"hour,omitempty"`   // 小时 (0-23)，nil 表示不限制
-	Minute *int `json:"minute,omitempty"` // 分钟 (0-59)，nil 表示不限制
+	Hour   *int `json:"hour,omitempty" v:"between:0,23"`   // 小时 (0-23)，nil 表示不限制
+	Minute *int `json:"minute,omitempty" v:"between:0,59"` // 分钟 (0-59)，nil 表示不限制
 
 	// 日期条件
-	DayOfWeek  *int `json:"dayOfWeek,omitempty"`  // 星期几 (0-6，0=周日)，nil 表示不限制
-	DayOfMonth *int `json:"dayOfMonth,omitempty"` // 月的第几天 (1-31)，nil 表示不限制
+	DayOfWeek  *int `json:"dayOfWeek,omitempty" v:"between:0,6"`   // 星期几 (0-6，0=周日)，nil 表示不限制
+	DayOfMonth *int `json:"dayOfMonth,omitempty" v:"between:1,31"` // 月的第几天 (1-31)，nil 表示不限制
 
 	// 月份条件
-	Month *int `json:"month,omitempty"` // 月份 (1-12)，nil 表示不限制
+	Month *int `json:"month,omitempty" v:"between:1,12"` // 月份 (1-12)，nil 表示不限制
 
 	// 时间范围条件
 	StartTime string `json:"startTime,omitempty"` // 开始时间 (HH:MM 格式)
@@ -41,10 +41,10 @@ type SAutomationTimeCondition struct {
 
 // SAutomationTriggerConfig 自动化触发配置结构体
 type SAutomationTriggerConfig struct {
-	AnyMatch          []*SAutomationTriggerCondition `json:"anyMatch"`          // 任意匹配条件（OR 逻辑）
-	SubMatch          []*SAutomationTriggerCondition `json:"subMatch"`          // 子匹配条件
-	SubMatchAll       *bool                          `json:"subMatchAll"`       // 子匹配是否全部满足
-	ExecutionInterval int                            `json:"executionInterval"` // 执行间隔（秒），0表示实时执行
+	AnyMatch          []*SAutomationTriggerCondition `json:"anyMatch" v:"required|min-length:1"` // 任意匹配条件（OR 逻辑）
+	SubMatch          []*SAutomationTriggerCondition `json:"subMatch"`                           // 子匹配条件
+	SubMatchAll       *bool                          `json:"subMatchAll"`                        // 子匹配是否全部满足
+	ExecutionInterval int                            `json:"executionInterval" v:"min:0"`        // 执行间隔（秒），0表示实时执行
 }
 
 // IsDeviceCondition 判断是否为设备值触发条件

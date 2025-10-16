@@ -2,14 +2,14 @@ package internal
 
 // SAutomationExecuteRule 自动化执行规则结构体
 type SAutomationExecuteRule struct {
-	DeviceId string `json:"deviceId"` // 设备ID
-	Service  string `json:"service"`  // 服务名称
-	Params   []any  `json:"params"`   // 参数列表
+	DeviceId string `json:"deviceId" v:"required"` // 设备ID
+	Service  string `json:"service" v:"required"`  // 服务名称
+	Params   []any  `json:"params"`                // 参数列表
 }
 
 // SAutomationExecuteConfig 自动化执行配置结构体，包含多个执行规则
 type SAutomationExecuteConfig struct {
-	Rules []*SAutomationExecuteRule `json:"rules"` // 执行规则列表
+	Rules []*SAutomationExecuteRule `json:"rules" v:"required|min-length:1"` // 执行规则列表
 }
 
 // NewAutomationExecuteRule 创建新的执行规则

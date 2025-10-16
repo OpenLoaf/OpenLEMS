@@ -14,6 +14,7 @@ import (
 	"github.com/expr-lang/expr"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/pkg/errors"
 )
 
 // SAutomationManager 自动化管理器实现
@@ -262,7 +263,7 @@ func (m *SAutomationManager) createAutomationTask(automation *s_db_model.SAutoma
 		var triggerConfig SAutomationTriggerConfig
 		err := json.Unmarshal([]byte(automation.GetTriggerRule()), &triggerConfig)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to unmarshal trigger rule")
 		}
 		task.SetTriggerConfig(&triggerConfig)
 	}
@@ -272,7 +273,7 @@ func (m *SAutomationManager) createAutomationTask(automation *s_db_model.SAutoma
 		var executeConfig SAutomationExecuteConfig
 		err := json.Unmarshal([]byte(automation.GetExecuteRule()), &executeConfig)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "failed to unmarshal execute rule")
 		}
 		task.SetExecuteConfig(&executeConfig)
 	}
