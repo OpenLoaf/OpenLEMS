@@ -7,7 +7,7 @@ import (
 )
 
 type UpdateDeviceReq struct {
-	g.Meta        `path:"/device/update" method:"put" tags:"设备相关" summary:"更新设备"`
+	g.Meta        `path:"/device/update" method:"put" tags:"设备相关" summary:"更新设备" role:"admin"`
 	DeviceId      string                 `json:"deviceId" v:"required" dc:"设备ID"`
 	Name          string                 `json:"name" dc:"设备名称"`
 	ProtocolId    string                 `json:"protocolId" dc:"协议ID"`

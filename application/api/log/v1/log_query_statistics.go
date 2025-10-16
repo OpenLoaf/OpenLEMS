@@ -5,7 +5,7 @@ import (
 )
 
 type QueryBizLogStatisticsReq struct {
-	g.Meta `path:"/log/biz/statistics" method:"get" tags:"日志" summary:"查询日志统计信息"`
+	g.Meta `path:"/log/biz/statistics" method:"get" tags:"日志" summary:"查询日志统计信息" role:"user"`
 }
 
 type QueryBizLogStatisticsRes struct {

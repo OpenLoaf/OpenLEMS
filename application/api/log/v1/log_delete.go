@@ -5,7 +5,7 @@ import (
 )
 
 type DeleteBizLogReq struct {
-	g.Meta `path:"/log/biz" method:"delete" tags:"日志" summary:"删除业务日志"`
+	g.Meta `path:"/log/biz" method:"delete" tags:"日志" summary:"删除业务日志" role:"admin"`
 	Type   string `json:"type"   v:"in:ems,device,protocol,policy,all" dc:"业务类型(全部) 可空"`
 	Level  string `json:"level"  v:"in:DEBUG,INFO,WARN,ERROR,ALL" dc:"日志等级(全部) 可空；仅支持: DEBUG/INFO/WARN/ERROR/ALL"`
 }

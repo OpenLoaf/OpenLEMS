@@ -7,7 +7,7 @@ import (
 )
 
 type GetDeviceTelemetryReq struct {
-	g.Meta   `path:"/device/telemetry" method:"get" tags:"设备相关" summary:"获取所有设备的遥测信息"`
+	g.Meta   `path:"/device/telemetry" method:"get" tags:"设备相关" summary:"获取所有设备的遥测信息" role:"user"`
 	DeviceId string `json:"deviceId" dc:"设备ID"`
 }
 
@@ -23,7 +23,7 @@ type GetDeviceTelemetryRes struct {
 }
 
 type GetDeviceStatusReq struct {
-	g.Meta   `path:"/device/status" method:"get" tags:"设备相关" summary:"获取设备状态信息"`
+	g.Meta   `path:"/device/status" method:"get" tags:"设备相关" summary:"获取设备状态信息" role:"admin"`
 	DeviceId string `json:"deviceId" dc:"设备ID，为空时返回所有设备状态"`
 }
 

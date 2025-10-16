@@ -7,7 +7,7 @@ import (
 )
 
 type GetDeviceTelemetryServiceReq struct {
-	g.Meta   `path:"/device/telemetry-service/{deviceId}" method:"get" tags:"设备相关" summary:"获取指定设备的所有 Telemetry 和 Service"`
+	g.Meta   `path:"/device/telemetry-service/{deviceId}" method:"get" tags:"设备相关" summary:"获取指定设备的所有 Telemetry 和 Service" role:"admin"`
 	DeviceId string `json:"deviceId" v:"required" dc:"设备ID"`
 }
 

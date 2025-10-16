@@ -7,7 +7,7 @@ import (
 )
 
 type GetDriverListReq struct {
-	g.Meta `path:"/driver/list" method:"get" tags:"驱动相关" summary:"获取驱动列表"`
+	g.Meta `path:"/driver/list" method:"get" tags:"驱动相关" summary:"获取驱动列表" role:"user"`
 }
 
 type GetDriverListRes struct {

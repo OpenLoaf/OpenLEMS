@@ -7,7 +7,7 @@ import (
 )
 
 type GetBizLogReq struct {
-	g.Meta   `path:"/log/biz" method:"get" tags:"日志" summary:"读取业务日志"`
+	g.Meta   `path:"/log/biz" method:"get" tags:"日志" summary:"读取业务日志" role:"user"`
 	Type     string `json:"type"   v:"in:ems,device,protocol,policy,remote,all" dc:"业务类型(可空/为all返回全部)"`
 	Id       string `json:"id"     dc:"相关ID(ems可空)"`
 	Date     string `json:"date"   dc:"日期，格式：2006-01-02，默认为今天"`

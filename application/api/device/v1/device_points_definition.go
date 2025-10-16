@@ -9,7 +9,7 @@ import (
 
 // GetDevicePointsDefinitionReq 获取设备全部点位定义请求
 type GetDevicePointsDefinitionReq struct {
-	g.Meta   `path:"/device/{deviceId}/points/definitions" method:"get" tags:"设备相关" summary:"获取设备全部点位定义"`
+	g.Meta   `path:"/device/{deviceId}/points/definitions" method:"get" tags:"设备相关" summary:"获取设备全部点位定义" role:"user"`
 	DeviceId string `json:"deviceId" v:"required" dc:"设备ID"`
 }
 
