@@ -33,6 +33,7 @@ type SDevicePointField struct {
 	Min                *int64                            `json:"min,omitempty"`
 	Max                *int64                            `json:"max,omitempty"`
 	Default            *string                           `json:"default,omitempty"`
+	ValueExplain       []*c_base.SFieldExplain           `json:"valueExplain,omitempty"`
 	ParamExplain       []*c_base.SFieldExplain           `json:"paramExplain,omitempty"`
 	Regex              *string                           `json:"regex,omitempty"`
 	RegexFailedMessage *string                           `json:"regexFailedMessage,omitempty"`

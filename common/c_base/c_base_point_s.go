@@ -43,6 +43,13 @@ func (s *SPoint) TriggerAlarm(value any) (trigger bool, level c_enum.EAlarmLevel
 	return false, c_enum.EAlarmLevelNone, nil
 }
 
+func (s *SPoint) GetValueExplain() []*SFieldExplain {
+	if s.ValueExplain == nil {
+		s.ValueExplain = []*SFieldExplain{}
+	}
+	return s.ValueExplain
+}
+
 // explainByValueCommon 公共的值解释逻辑：根据给定的 explains 列表匹配并返回解释
 func (s *SPoint) explainByValueCommon(value any, explains []*SFieldExplain, precise uint8) (string, error) {
 	// 1. 将value转换为字符串，如果是枚举之类的，转为int的字符串
