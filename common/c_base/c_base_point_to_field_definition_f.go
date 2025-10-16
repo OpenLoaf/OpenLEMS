@@ -76,6 +76,7 @@ func convertEValueTypeToConfigFieldsValueType(valueType c_enum.EValueType) c_enu
 }
 
 // inferComponentTypeFromValueType 根据值类型推断组件类型
+// 注意：label组件类型需要通过ct标签显式指定，不会自动推断
 func inferComponentTypeFromValueType(valueType c_enum.EConfigFieldsValueType) c_enum.EConfigFieldsComponentType {
 	switch valueType {
 	case c_enum.EConfigFieldsValueTypeBoolean:

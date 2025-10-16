@@ -554,6 +554,10 @@ func validateComponentValueTypeMatch(componentType c_enum.EConfigFieldsComponent
 		if valueType != c_enum.EConfigFieldsValueTypeString {
 			return errors.Errorf("text component requires string value type, got %s", valueType)
 		}
+	case c_enum.EConfigFieldsComponentTypeLabel:
+		if valueType != c_enum.EConfigFieldsValueTypeString {
+			return errors.Errorf("label component requires string value type, got %s", valueType)
+		}
 	case c_enum.EConfigFieldsComponentTypeNumber:
 		if valueType != c_enum.EConfigFieldsValueTypeInt && valueType != c_enum.EConfigFieldsValueTypeFloat {
 			return errors.Errorf("number component requires int or float value type, got %s", valueType)
@@ -735,6 +739,7 @@ func validateMultiSelectValue(field *SFieldDefinition, value string) error {
 //   - float32/float64/*float32/*float64 -> number组件, float值类型
 //   - bool/*bool -> switch组件, bool值类型
 //   - 其他类型 -> text组件, string值类型(默认)
+//   - 注意：label组件类型需要通过ct标签显式指定，不会自动推断
 func getFieldTypeInfo(fieldType reflect.Type) (c_enum.EConfigFieldsComponentType, c_enum.EConfigFieldsValueType) {
 	// 处理指针类型，获取指针指向的原始类型
 	originalType := fieldType
@@ -800,6 +805,7 @@ func convertFieldDefinitionToConfigPoint(field *SFieldDefinition) *SConfigPoint 
 		Regex:              field.Regex,
 		RegexFailedMessage: field.RegexFailedMessage,
 		Step:               field.Step,
+		ComponentType:      field.ComponentType,
 	}
 
 	return configPoint

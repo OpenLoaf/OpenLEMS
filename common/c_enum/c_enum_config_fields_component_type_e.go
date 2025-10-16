@@ -6,6 +6,7 @@ const (
 	EConfigFieldsComponentTypeText         EConfigFieldsComponentType = "text"         // 文本
 	EConfigFieldsComponentTypeNumber       EConfigFieldsComponentType = "number"       // 数字
 	EConfigFieldsComponentTypeSwitch       EConfigFieldsComponentType = "switch"       // 开关
+	EConfigFieldsComponentTypeLabel        EConfigFieldsComponentType = "label"        // 标签，带颜色
 	EConfigFieldsComponentTypeSingleSelect EConfigFieldsComponentType = "singleSelect" // 单选
 	EConfigFieldsComponentTypeMultiSelect  EConfigFieldsComponentType = "multiSelect"  // 多选
 	EConfigFieldsComponentTypeDate         EConfigFieldsComponentType = "date"         // 日期

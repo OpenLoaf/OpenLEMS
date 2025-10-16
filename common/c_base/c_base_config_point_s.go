@@ -13,11 +13,12 @@ type SConfigPoint struct {
 	*SPoint // 嵌套基础点位信息
 
 	// 配置特定的字段（不重复SPoint中已有的字段）
-	Required           bool     `json:"required" dc:"是否必填"`                         // 是否必填
-	Default            *string  `json:"default,omitempty" dc:"默认值"`                 // 默认值
-	Regex              *string  `json:"regex,omitempty" dc:"正则表达式验证"`               // 正则表达式验证
-	RegexFailedMessage *string  `json:"regexFailedMessage,omitempty" dc:"正则验证失败提示"` // 正则验证失败提示
-	Step               *float32 `json:"step,omitempty" dc:"步长（用于数字输入）"`             // 步长（用于数字输入）
+	Required           bool                              `json:"required" dc:"是否必填"`                         // 是否必填
+	Default            *string                           `json:"default,omitempty" dc:"默认值"`                 // 默认值
+	Regex              *string                           `json:"regex,omitempty" dc:"正则表达式验证"`               // 正则表达式验证
+	RegexFailedMessage *string                           `json:"regexFailedMessage,omitempty" dc:"正则验证失败提示"` // 正则验证失败提示
+	Step               *float32                          `json:"step,omitempty" dc:"步长（用于数字输入）"`             // 步长（用于数字输入）
+	ComponentType      c_enum.EConfigFieldsComponentType `json:"componentType" dc:"组件类型"`                    // 组件类型
 }
 
 // 注意：不需要重复实现IPoint接口方法
@@ -43,6 +44,10 @@ func (s *SConfigPoint) GetRegexFailedMessage() *string {
 
 func (s *SConfigPoint) GetStep() *float32 {
 	return s.Step
+}
+
+func (s *SConfigPoint) GetComponentType() c_enum.EConfigFieldsComponentType {
+	return s.ComponentType
 }
 
 // GetValueExplainWithParams 获取Value解释，支持动态参数
@@ -110,8 +115,11 @@ func (s *SConfigPoint) ToFieldDefinition() *SFieldDefinition {
 	// 转换值类型
 	valueType := s.convertEValueTypeToConfigFieldsValueType(s.SPoint.ValueType)
 
-	// 根据值类型推断组件类型
-	componentType := s.inferComponentType(valueType)
+	// 使用保存的组件类型，如果没有则根据值类型推断
+	componentType := s.ComponentType
+	if componentType == "" {
+		componentType = s.inferComponentType(valueType)
+	}
 
 	// 处理指针类型字段
 	var unit *string
@@ -176,6 +184,7 @@ func (s *SConfigPoint) convertEValueTypeToConfigFieldsValueType(valueType c_enum
 }
 
 // inferComponentType 根据值类型推断组件类型
+// 注意：label组件类型需要通过ct标签显式指定，不会自动推断
 func (s *SConfigPoint) inferComponentType(valueType c_enum.EConfigFieldsValueType) c_enum.EConfigFieldsComponentType {
 	switch valueType {
 	case c_enum.EConfigFieldsValueTypeBoolean:
