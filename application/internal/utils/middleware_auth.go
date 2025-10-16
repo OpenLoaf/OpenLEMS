@@ -3,6 +3,7 @@ package utils
 import (
 	v1 "application/api/auth/v1"
 	"common/c_enum"
+	"strings"
 
 	"github.com/gogf/gf/v2/net/ghttp"
 )
@@ -10,6 +11,23 @@ import (
 // MiddlewareAuth 认证与授权中间件
 func MiddlewareAuth(r *ghttp.Request) {
 	handler := r.GetServeHandler()
+
+	// 支持通过 Authorization 头传递会话ID（Bearer <token> 或 直接 <token>）
+	if auth := r.GetHeader("Authorization"); auth != "" {
+		token := auth
+		if strings.HasPrefix(strings.ToLower(token), "bearer ") {
+			token = strings.TrimSpace(token[7:])
+		}
+		token = strings.TrimSpace(token)
+		if token != "" {
+			const sessionCookieName = "ems_session_id"
+			if ck := r.Request.Header.Get("Cookie"); ck != "" {
+				r.Request.Header.Set("Cookie", ck+"; "+sessionCookieName+"="+token)
+			} else {
+				r.Request.Header.Set("Cookie", sessionCookieName+"="+token)
+			}
+		}
+	}
 
 	// 公共接口跳过鉴权
 	if handler != nil && handler.GetMetaTag("noAuth") == "true" {
