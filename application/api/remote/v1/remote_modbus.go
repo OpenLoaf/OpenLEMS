@@ -7,11 +7,11 @@ import (
 )
 
 type GetModbusStatusReq struct {
-	g.Meta `path:"/remote/modbus/status" method:"get" tags:"远程管理" summary:"获取Modbus服务状态"`
+	g.Meta `path:"/remote/modbus/status" method:"get" tags:"远程管理" summary:"获取Modbus服务状态" role:"user"`
 }
 
 type ReloadModbusReq struct {
-	g.Meta `path:"/remote/modbus/reload" method:"post" tags:"远程管理" summary:"重新加载Modbus服务配置"`
+	g.Meta `path:"/remote/modbus/reload" method:"post" tags:"远程管理" summary:"重新加载Modbus服务配置" role:"admin"`
 }
 
 type GetModbusStatusRes struct {

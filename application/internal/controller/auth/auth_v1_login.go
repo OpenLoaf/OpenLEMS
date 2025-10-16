@@ -1,0 +1,70 @@
+package auth
+
+import (
+	v1 "application/api/auth/v1"
+	"common/c_enum"
+	"common/c_log"
+	"context"
+	"s_db"
+	"s_db/s_db_basic"
+	"time"
+
+	"github.com/gogf/gf/v2/errors/gcode"
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/frame/g"
+)
+
+// Login 用户登录
+func (c *Controller) Login(ctx context.Context, req *v1.LoginReq) (res *v1.LoginRes, err error) {
+	role := req.Role
+	var settingDef *s_db_basic.SSystemSettingDefine
+	switch role {
+	case string(c_enum.EUserRoleAdmin):
+		settingDef = s_db_basic.SystemSettingAdminPassword
+	case string(c_enum.EUserRoleUser):
+		settingDef = s_db_basic.SystemSettingUserPassword
+	default:
+		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "角色不支持")
+	}
+
+	// 获取密码并比对
+	pwd := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, settingDef)
+	if pwd == "" || pwd != req.Password {
+		c_log.BizWarningf(ctx, "用户登录失败 - 角色:%s", role)
+		return nil, gerror.NewCode(gcode.CodeNotAuthorized, "用户名或密码错误")
+	}
+
+	// 读取会话过期时间（小时）
+	timeoutHours := 2
+	if role == string(c_enum.EUserRoleAdmin) {
+		if v := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingSessionAdminTimeout); v != "" {
+			if n := g.Cfg().MustGet(ctx, "int:"+v).Int(); n > 0 {
+				timeoutHours = n
+			}
+		}
+	} else {
+		if v := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingSessionUserTimeout); v != "" {
+			if n := g.Cfg().MustGet(ctx, "int:"+v).Int(); n > 0 {
+				timeoutHours = n
+			}
+		}
+	}
+
+	// 写入 Session
+	r := g.RequestFromCtx(ctx)
+	if r == nil {
+		return nil, gerror.NewCode(gcode.CodeInternalError, "请求上下文无效")
+	}
+	r.Session.Set("role", role)
+	expireSeconds := timeoutHours * 3600
+	r.Session.Set("expireSeconds", expireSeconds)
+
+	// 业务日志
+	c_log.BizInfof(ctx, "用户登录成功 - 角色:%s", role)
+
+	// 返回 Token 信息（SessionID）
+	token, _ := r.Session.Id()
+	expireAt := time.Now().Add(time.Duration(expireSeconds) * time.Second).Unix()
+
+	return &v1.LoginRes{Token: token, Role: role, ExpireAt: expireAt}, nil
+}

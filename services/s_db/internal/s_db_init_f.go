@@ -215,6 +215,8 @@ func initSystemSettings(ctx context.Context) {
 		s_db_basic.SystemSettingPasswordLength,
 		s_db_basic.SystemSettingMqttConfigList,
 		s_db_basic.SystemSettingModbusConfig,
+		s_db_basic.SystemSettingSessionAdminTimeout,
+		s_db_basic.SystemSettingSessionUserTimeout,
 	}
 
 	// 遍历所有系统设置定义，创建默认设置记录

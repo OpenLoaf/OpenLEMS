@@ -3,6 +3,7 @@ package cmd
 import (
 	"application/internal/consts"
 	"application/internal/controller/alarm"
+	appauth "application/internal/controller/auth"
 	"application/internal/controller/automation"
 	"application/internal/controller/control"
 	"application/internal/controller/device"
@@ -23,6 +24,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/i18n/gi18n"
@@ -52,6 +54,10 @@ func startWebWithBinding(ctx context.Context, localOnly bool) *ghttp.Server {
 		utils.MiddlewareErrorHandler,
 		utils.MiddlewareAccessLog,
 	)
+
+	// 配置 Session（默认2小时，登录后会按角色覆盖）
+	s.SetSessionMaxAge(2 * time.Hour)
+	s.SetSessionIdName("ems_session_id")
 
 	// 设置API路由
 	setupAPIRoutes(s)
@@ -109,9 +115,11 @@ func setupAPIRoutes(s *ghttp.Server) {
 				r.SetCtx(gi18n.WithLanguage(r.Context(), httpLanguage))
 				r.Middleware.Next()
 			},
+			utils.MiddlewareAuth,
 		)
 
 		// 绑定所有控制器
+		group.Bind(appauth.NewV1())
 		group.Bind(device.NewV1())
 		group.Bind(driver.NewV1())
 		group.Bind(network.NewV1())

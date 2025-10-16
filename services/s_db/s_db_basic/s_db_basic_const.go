@@ -148,4 +148,24 @@ var (
 		Remark:       "Modbus配置",
 		FieldType:    c_enum.ESettingFieldTypeJson,
 	}
+
+	// 管理员会话超时时间（小时）
+	SystemSettingSessionAdminTimeout = &SSystemSettingDefine{
+		Id:           "session_admin_timeout",
+		Group:        c_enum.ESettingGroupSystem,
+		DefaultValue: "2",
+		IsPublic:     false,
+		Remark:       "管理员Session过期时间（小时）",
+		FieldType:    c_enum.ESettingFieldTypeNumber,
+	}
+
+	// 普通用户会话超时时间（小时）
+	SystemSettingSessionUserTimeout = &SSystemSettingDefine{
+		Id:           "session_user_timeout",
+		Group:        c_enum.ESettingGroupSystem,
+		DefaultValue: "2",
+		IsPublic:     false,
+		Remark:       "普通用户Session过期时间（小时）",
+		FieldType:    c_enum.ESettingFieldTypeNumber,
+	}
 )

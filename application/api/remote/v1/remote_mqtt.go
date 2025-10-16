@@ -7,11 +7,11 @@ import (
 )
 
 type GetMqttStatusReq struct {
-	g.Meta `path:"/remote/mqtt/status" method:"get" tags:"远程管理" summary:"获取MQTT服务状态列表"`
+	g.Meta `path:"/remote/mqtt/status" method:"get" tags:"远程管理" summary:"获取MQTT服务状态列表" role:"user"`
 }
 
 type ReloadMqttReq struct {
-	g.Meta `path:"/remote/mqtt/reload" method:"post" tags:"远程管理" summary:"重新加载MQTT服务配置"`
+	g.Meta `path:"/remote/mqtt/reload" method:"post" tags:"远程管理" summary:"重新加载MQTT服务配置" role:"admin"`
 }
 
 type ReloadMqttRes struct {

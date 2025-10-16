@@ -7,7 +7,7 @@ import (
 )
 
 type PostDeviceHistoryReq struct {
-	g.Meta        `path:"/device/history" method:"post" tags:"设备相关" summary:"获取设备历史数据"`
+	g.Meta        `path:"/device/history" method:"post" tags:"设备相关" summary:"获取设备历史数据" role:"admin"`
 	DeviceId      string   `json:"deviceId" v:"required" dc:"设备ID"`
 	TelemetryKeys []string `json:"telemetryKeys" v:"required" dc:"遥测点位名称列表"`
 	StartTime     *int64   `json:"startTime" dc:"开始时间"`

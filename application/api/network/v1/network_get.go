@@ -7,7 +7,7 @@ import (
 )
 
 type GetNetworkInterfaceListReq struct {
-	g.Meta          `path:"/network/interface/list" method:"get" tags:"网络相关" summary:"获取本机网络接口列表"`
+	g.Meta          `path:"/network/interface/list" method:"get" tags:"网络相关" summary:"获取本机网络接口列表" role:"user"`
 	IncludeLoopback bool `json:"includeLoopback" dc:"是否包含回环接口，默认true"`
 	ForceRefresh    bool `json:"forceRefresh" dc:"是否强制刷新缓存，默认false"`
 }
@@ -17,7 +17,7 @@ type GetNetworkInterfaceListRes struct {
 }
 
 type UpdateNetworkInterfaceReq struct {
-	g.Meta `path:"/network/interface/update" method:"post" tags:"网络相关" summary:"更新网络接口配置"`
+	g.Meta `path:"/network/interface/update" method:"post" tags:"网络相关" summary:"更新网络接口配置" role:"admin"`
 	Name   string                  `json:"name" v:"required#接口名称必填"`
 	Config *public.InterfaceConfig `json:"config"`
 }
@@ -26,7 +26,7 @@ type UpdateNetworkInterfaceRes struct {
 }
 
 type SetInterfaceStateReq struct {
-	g.Meta `path:"/network/interface/state" method:"post" tags:"网络相关" summary:"设置网络接口状态（启用/禁用）"`
+	g.Meta `path:"/network/interface/state" method:"post" tags:"网络相关" summary:"设置网络接口状态（启用/禁用）" role:"admin"`
 	Name   string `json:"name" v:"required#接口名称必填"`
 	Up     bool   `json:"up" dc:"是否启用接口，true为启用，false为禁用"`
 }
@@ -35,7 +35,7 @@ type SetInterfaceStateRes struct {
 }
 
 type PingReq struct {
-	g.Meta `path:"/network/ping" method:"post" tags:"网络相关" summary:"执行ping测试"`
+	g.Meta `path:"/network/ping" method:"post" tags:"网络相关" summary:"执行ping测试" role:"admin"`
 	Target string `json:"target" v:"required#目标地址必填" dc:"目标IP地址或域名"`
 }
 

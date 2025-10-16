@@ -24,7 +24,7 @@ type EnergyStorageStrategy struct {
 }
 
 type CreateEnergyStorageStrategyReq struct {
-	g.Meta       `path:"/strategy/energy-storage" method:"post" tags:"策略相关" summary:"创建储能策略"`
+	g.Meta       `path:"/strategy/energy-storage" method:"post" tags:"策略相关" summary:"创建储能策略" role:"admin"`
 	Name         string      `json:"name"`
 	Description  string      `json:"description"`
 	Priority     int         `json:"priority"`
@@ -41,7 +41,7 @@ type CreateEnergyStorageStrategyRes struct {
 }
 
 type UpdateEnergyStorageStrategyReq struct {
-	g.Meta       `path:"/strategy/energy-storage/{id}" method:"put" tags:"策略相关" summary:"更新储能策略"`
+	g.Meta       `path:"/strategy/energy-storage/{id}" method:"put" tags:"策略相关" summary:"更新储能策略" role:"admin"`
 	Id           string      `json:"id" in:"path"`
 	Name         string      `json:"name"`
 	Description  string      `json:"description"`
@@ -59,7 +59,7 @@ type UpdateEnergyStorageStrategyRes struct {
 }
 
 type DeleteEnergyStorageStrategyReq struct {
-	g.Meta `path:"/strategy/energy-storage/{id}" method:"delete" tags:"策略相关" summary:"删除储能策略"`
+	g.Meta `path:"/strategy/energy-storage/{id}" method:"delete" tags:"策略相关" summary:"删除储能策略" role:"admin"`
 	Id     string `json:"id" in:"path"`
 }
 
@@ -87,7 +87,7 @@ type GetEnergyStorageStrategyDetailReq struct {
 type GetEnergyStorageStrategyDetailRes = EnergyStorageStrategy
 
 type DetectEnergyStorageStrategyConflictsReq struct {
-	g.Meta      `path:"/strategy/energy-storage/conflicts" method:"post" tags:"策略相关" summary:"储能策略冲突检测"`
+	g.Meta      `path:"/strategy/energy-storage/conflicts" method:"post" tags:"策略相关" summary:"储能策略冲突检测" role:"admin"`
 	StrategyIds []string                 `json:"strategyIds"`
 	Candidates  []*EnergyStorageStrategy `json:"candidates"`
 }
@@ -101,7 +101,7 @@ type DetectEnergyStorageStrategyConflictsRes struct {
 }
 
 type ActivateEnergyStorageStrategyReq struct {
-	g.Meta `path:"/strategy/energy-storage/activate" method:"post" tags:"策略相关" summary:"激活或停用储能策略"`
+	g.Meta `path:"/strategy/energy-storage/activate" method:"post" tags:"策略相关" summary:"激活或停用储能策略" role:"admin"`
 	Id     string `json:"id"`
 	Active bool   `json:"active"`
 }
