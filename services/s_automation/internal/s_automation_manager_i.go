@@ -12,6 +12,8 @@ type IAutomationManager interface {
 	Start(ctx context.Context, interval time.Duration) error
 	// 停止管理器
 	Stop(ctx context.Context) error
+	// 重启管理器
+	Restart(ctx context.Context, interval time.Duration) error
 	// 添加自动化任务
 	AddAutomation(ctx context.Context, automation *s_db_model.SAutomationModel) error
 	// 删除自动化任务

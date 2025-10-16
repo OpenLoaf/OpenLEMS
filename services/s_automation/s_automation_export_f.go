@@ -32,6 +32,12 @@ func StopAutomationManager(ctx context.Context) error {
 	return manager.Stop(ctx)
 }
 
+// RestartAutomationManager 重启自动化管理器
+func RestartAutomationManager(ctx context.Context, interval time.Duration) error {
+	manager := internal.GetAutomationManager()
+	return manager.Restart(ctx, interval)
+}
+
 // AddAutomation 添加自动化任务
 func AddAutomation(ctx context.Context, automation *s_db_model.SAutomationModel) error {
 	manager := internal.GetAutomationManager()

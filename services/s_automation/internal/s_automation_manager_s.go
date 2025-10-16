@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"s_db"
+	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"sync"
 	"time"
@@ -15,16 +16,18 @@ import (
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/pkg/errors"
+	"github.com/shockerli/cvt"
 )
 
 // SAutomationManager 自动化管理器实现
 type SAutomationManager struct {
-	automations map[int]*SAutomationTask // 内存中的任务缓存（预解析规则）
-	mu          sync.RWMutex             // 读写锁
-	ctx         context.Context          // 上下文
-	cancel      context.CancelFunc       // 取消函数
-	ticker      *time.Ticker             // 定时器
-	isRunning   bool                     // 运行状态
+	automations              map[int]*SAutomationTask // 内存中的任务缓存（预解析规则）
+	mu                       sync.RWMutex             // 读写锁
+	ctx                      context.Context          // 上下文
+	cancel                   context.CancelFunc       // 取消函数
+	ticker                   *time.Ticker             // 定时器
+	isRunning                bool                     // 运行状态
+	defaultExecutionInterval int64                    // 系统默认执行间隔（毫秒）
 }
 
 var (
@@ -55,6 +58,17 @@ func (m *SAutomationManager) Start(ctx context.Context, interval time.Duration) 
 	// 创建可取消的上下文
 	m.ctx, m.cancel = context.WithCancel(ctx)
 
+	// 获取系统默认执行间隔
+	internalMillisecondsStr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx,
+		s_db_basic.SystemSettingAutomationInternalMilliseconds)
+
+	m.defaultExecutionInterval = cvt.Int64(internalMillisecondsStr)
+	if m.defaultExecutionInterval <= 0 {
+		m.defaultExecutionInterval = cvt.Int64(s_db_basic.SystemSettingAutomationInternalMilliseconds.DefaultValue)
+	}
+
+	g.Log().Infof(m.ctx, "自动化管理器系统默认执行间隔: %d 毫秒", m.defaultExecutionInterval)
+
 	// 加载所有自动化任务
 	err := m.loadAllAutomations(m.ctx)
 	if err != nil {
@@ -69,7 +83,7 @@ func (m *SAutomationManager) Start(ctx context.Context, interval time.Duration) 
 	// 启动执行协程
 	go m.executionLoop()
 
-	g.Log().Infof(m.ctx, "自动化管理器启动成功，执行间隔: %v", interval)
+	g.Log().Infof(m.ctx, "自动化管理器启动成功，检查间隔: %v", interval)
 	return nil
 }
 
@@ -95,6 +109,31 @@ func (m *SAutomationManager) Stop(ctx context.Context) error {
 
 	m.isRunning = false
 	g.Log().Info(ctx, "自动化管理器已停止")
+	return nil
+}
+
+// Restart 重启自动化管理器
+func (m *SAutomationManager) Restart(ctx context.Context, interval time.Duration) error {
+	g.Log().Info(ctx, "开始重启自动化管理器")
+
+	// 先停止服务
+	err := m.Stop(ctx)
+	if err != nil {
+		g.Log().Errorf(ctx, "停止自动化管理器失败: %+v", err)
+		return err
+	}
+
+	// 等待一小段时间确保资源释放
+	time.Sleep(500 * time.Millisecond)
+
+	// 重新启动服务
+	err = m.Start(ctx, interval)
+	if err != nil {
+		g.Log().Errorf(ctx, "启动自动化管理器失败: %+v", err)
+		return err
+	}
+
+	g.Log().Info(ctx, "自动化管理器重启成功")
 	return nil
 }
 
@@ -306,7 +345,10 @@ func (m *SAutomationManager) executeAutomations() {
 	m.mu.RUnlock()
 
 	for _, task := range enabledTasks {
-		go m.executeAutomation(task)
+		// 判断任务是否应该执行（根据执行间隔）
+		if task.ShouldExecute(m.defaultExecutionInterval) {
+			go m.executeAutomation(task)
+		}
 	}
 }
 
@@ -315,6 +357,7 @@ func (m *SAutomationManager) executeAutomation(task *SAutomationTask) {
 	if task.ExecuteConfig == nil || task.TriggerConfig == nil {
 		return
 	}
+
 	// 检查时间范围
 	if !m.isInTimeRange(task.SAutomationModel) {
 		return
@@ -325,8 +368,11 @@ func (m *SAutomationManager) executeAutomation(task *SAutomationTask) {
 		return
 	}
 
-	// 执行规则（暂时留空，等待后续实现）
+	// 执行规则
 	m.executeAutomationRules(task)
+
+	// 更新上次执行时间
+	task.SetLastExecutionTime(time.Now())
 }
 
 // isInTimeRange 检查是否在时间范围内

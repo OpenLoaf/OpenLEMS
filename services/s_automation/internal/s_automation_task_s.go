@@ -2,13 +2,15 @@ package internal
 
 import (
 	"s_db/s_db_model"
+	"time"
 )
 
 // SAutomationTask 自动化任务结构体，包含预解析的规则
 type SAutomationTask struct {
 	*s_db_model.SAutomationModel
-	TriggerConfig *SAutomationTriggerConfig // 预解析的触发配置
-	ExecuteConfig *SAutomationExecuteConfig // 预解析的执行配置
+	TriggerConfig     *SAutomationTriggerConfig // 预解析的触发配置
+	ExecuteConfig     *SAutomationExecuteConfig // 预解析的执行配置
+	LastExecutionTime time.Time                 // 上次执行时间（内存缓存）
 }
 
 // NewAutomationTask 创建新的自动化任务
@@ -70,4 +72,37 @@ func (t *SAutomationTask) SetExecuteConfig(config *SAutomationExecuteConfig) {
 // GetExecuteConfig 获取执行配置
 func (t *SAutomationTask) GetExecuteConfig() *SAutomationExecuteConfig {
 	return t.ExecuteConfig
+}
+
+// GetLastExecutionTime 获取上次执行时间
+func (t *SAutomationTask) GetLastExecutionTime() time.Time {
+	return t.LastExecutionTime
+}
+
+// SetLastExecutionTime 设置上次执行时间
+func (t *SAutomationTask) SetLastExecutionTime(executionTime time.Time) {
+	t.LastExecutionTime = executionTime
+}
+
+// ShouldExecute 判断任务是否应该执行
+// defaultInterval: 系统默认执行间隔（毫秒）
+func (t *SAutomationTask) ShouldExecute(defaultInterval int64) bool {
+	// 如果上次执行时间是零值，说明是首次执行，应该立即执行
+	if t.LastExecutionTime.IsZero() {
+		return true
+	}
+
+	// 获取任务的执行间隔（毫秒）
+	interval := int64(t.GetExecutionInterval())
+
+	// 如果任务的执行间隔为0，使用系统默认间隔
+	if interval <= 0 {
+		interval = defaultInterval
+	}
+
+	// 计算距离上次执行的时间（毫秒）
+	elapsedMilliseconds := time.Since(t.LastExecutionTime).Milliseconds()
+
+	// 判断是否达到执行间隔
+	return elapsedMilliseconds >= interval
 }

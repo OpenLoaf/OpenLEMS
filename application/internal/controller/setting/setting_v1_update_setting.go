@@ -3,11 +3,13 @@ package setting
 import (
 	"context"
 	"errors"
+	"s_automation"
 	"s_db"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"s_export_modbus"
 	s_export_mqtt "s_mqtt"
+	"time"
 
 	v1 "application/api/setting/v1"
 
@@ -16,6 +18,7 @@ import (
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
 	"github.com/gogf/gf/v2/os/gtime"
+	"github.com/shockerli/cvt"
 )
 
 // UpdateSetting 更新设置信息
@@ -130,6 +133,32 @@ func (c *ControllerV1) triggerReloadIfNeeded(ctx context.Context, settingId stri
 			return err
 		}
 		c_log.Info(ctx, "MQTT服务重新加载成功")
+		return nil
+	}
+
+	// 检查是否为自动化任务轮询周期配置
+	if settingId == s_db_basic.SystemSettingAutomationInternalMilliseconds.Id {
+		c_log.Info(ctx, "检测到自动化任务轮询周期配置更新，开始重启自动化服务")
+
+		// 获取更新后的轮询周期
+		internalMillisecondsStr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx,
+			s_db_basic.SystemSettingAutomationInternalMilliseconds)
+
+		internalMilliseconds := cvt.Int64(internalMillisecondsStr)
+		if internalMilliseconds <= 0 {
+			internalMilliseconds = cvt.Int64(s_db_basic.SystemSettingAutomationInternalMilliseconds.DefaultValue)
+		}
+
+		c_log.Infof(ctx, "新的自动化任务轮询周期: %d 毫秒", internalMilliseconds)
+
+		// 重启自动化服务
+		err := s_automation.RestartAutomationManager(ctx, time.Duration(internalMilliseconds)*time.Millisecond)
+		if err != nil {
+			c_log.Errorf(ctx, "重启自动化服务失败: %+v", err)
+			return err
+		}
+
+		c_log.Info(ctx, "自动化服务重启成功")
 		return nil
 	}
 
