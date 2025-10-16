@@ -71,7 +71,7 @@ func (s *sGpiodOutMockProvider) GetLastUpdateTime() *time.Time {
 	return s.lastUpdateTime
 }
 
-func (s *sGpiodOutMockProvider) GetProtocolPointValue(protocolPoint *c_base.SProtocolPoint) *c_base.SPointValue {
+func (s *sGpiodOutMockProvider) GetProtocolPointValue(protocolPoint c_base.IPoint) *c_base.SPointValue {
 	if s.point == nil || protocolPoint == nil {
 		return nil
 	}

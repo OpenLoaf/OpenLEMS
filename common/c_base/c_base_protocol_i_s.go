@@ -7,9 +7,9 @@ import (
 
 type IProtocol interface {
 	IAlarm
-	GetProtocolStatus() c_enum.EProtocolStatus                        // 获取协议连接状态
-	GetLastUpdateTime() *time.Time                                    // 获取最后更新时间
-	GetProtocolPointValue(protocolPoint *SProtocolPoint) *SPointValue // 获取协议点位缓存值
+	GetProtocolStatus() c_enum.EProtocolStatus       // 获取协议连接状态
+	GetLastUpdateTime() *time.Time                   // 获取最后更新时间
+	GetProtocolPointValue(point IPoint) *SPointValue // 获取协议点位缓存值
 
 	GetValue(point IPoint) (any, error)
 
@@ -33,5 +33,5 @@ type IProtocolCacheValue interface {
 	GetFloat32Values(points ...IPoint) ([]*float32, error)
 	GetFloat64Value(point IPoint) (*float64, error)
 	GetFloat64Values(points ...IPoint) ([]*float64, error)
-	GetProtocolPointValue(protocolPoint *SProtocolPoint) *SPointValue // 获取协议点位缓存值
+	GetProtocolPointValue(point IPoint) *SPointValue // 获取协议点位缓存值
 }

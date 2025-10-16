@@ -31,12 +31,12 @@ func (c *ControllerV1) GetRealDeviceCache(ctx context.Context, req *v1.GetRealDe
 
 	values := make([]*entity.SSingleDeviceValue, 0, len(list))
 	for _, v := range list {
-		if v.IPoint == nil || v.IPoint.IsHidden() {
+		if v.IPoint == nil || v.IsHidden() {
 			continue
 		}
 		d := &entity.SSingleDeviceValue{}
 		_ = gconv.Scan(v, d)
-		if explain, err := v.IPoint.GetValueExplainByValue(v.GetValue()); err == nil && explain != "" {
+		if explain, err := v.GetValueExplainByValue(v.GetValue()); err == nil && explain != "" {
 			d.StatueExplain = explain
 		}
 		values = append(values, d)

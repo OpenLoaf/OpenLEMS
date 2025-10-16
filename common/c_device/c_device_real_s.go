@@ -101,11 +101,11 @@ func (s *SRealDeviceImpl[P]) GetLastUpdateTime() *time.Time {
 	return s.protocol.GetLastUpdateTime()
 }
 
-func (s *SRealDeviceImpl[P]) GetProtocolPointValue(protocolPoint *c_base.SProtocolPoint) *c_base.SPointValue {
+func (s *SRealDeviceImpl[P]) GetProtocolPointValue(point c_base.IPoint) *c_base.SPointValue {
 	if s.isProtocolNil() {
 		return nil
 	}
-	return s.protocol.GetProtocolPointValue(protocolPoint)
+	return s.protocol.GetProtocolPointValue(point)
 }
 
 func (s *SRealDeviceImpl[P]) GetConfig() *c_base.SDeviceConfig {

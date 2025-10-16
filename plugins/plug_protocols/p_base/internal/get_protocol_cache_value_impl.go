@@ -76,19 +76,19 @@ func (s *SGetProtocolCacheValueImpl) CacheValue(value *c_base.SPointValue, lifet
 	return err
 }
 
-func (s *SGetProtocolCacheValueImpl) GetProtocolPointValue(protocolPoint *c_base.SProtocolPoint) *c_base.SPointValue {
-	if protocolPoint == nil {
+func (s *SGetProtocolCacheValueImpl) GetProtocolPointValue(point c_base.IPoint) *c_base.SPointValue {
+	if point == nil {
 		return nil
 	}
 
 	// 使用GetValue方法获取缓存值
-	value, err := s.GetValue(protocolPoint)
+	value, err := s.GetValue(point)
 	if err != nil || value == nil {
 		return nil
 	}
 
 	// 创建SPointValue并返回
-	pointValue := c_base.NewPointValue(s.deviceId, protocolPoint, value)
+	pointValue := c_base.NewPointValue(s.deviceId, point, value)
 	return pointValue
 }
 

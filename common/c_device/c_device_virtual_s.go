@@ -90,14 +90,14 @@ func (s *SVirtualDeviceImpl) GetProtocolStatus() c_enum.EProtocolStatus {
 	return minStatus
 }
 
-func (s *SVirtualDeviceImpl) GetProtocolPointValue(protocolPoint *c_base.SProtocolPoint) *c_base.SPointValue {
+func (s *SVirtualDeviceImpl) GetProtocolPointValue(point c_base.IPoint) *c_base.SPointValue {
 	// 虚拟设备遍历子设备查找对应点位
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
 		child := common.GetDeviceManager().GetDeviceById(childDevice.Id)
 		if child == nil {
 			continue
 		}
-		pointValue := child.GetProtocolPointValue(protocolPoint)
+		pointValue := child.GetProtocolPointValue(point)
 		if pointValue != nil {
 			return pointValue
 		}
