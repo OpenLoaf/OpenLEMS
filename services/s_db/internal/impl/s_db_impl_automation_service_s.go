@@ -28,7 +28,7 @@ func GetAutomationService() s_db_basic.IAutomationService {
 }
 
 // CreateAutomation 创建自动化规则
-func (s *sAutomationServiceImpl) CreateAutomation(ctx context.Context, name string, startTime, endTime *time.Time, timeRangeType, timeRangeValue, triggerRule, executeRule string, executionInterval int) (int, error) {
+func (s *sAutomationServiceImpl) CreateAutomation(ctx context.Context, name string, startTime, endTime *time.Time, timeRangeType, timeRangeValue *string, triggerRule, executeRule string, executionInterval int) (int, error) {
 	now := gtime.Now()
 
 	// 转换 time.Time 为 gtime.Time
@@ -106,13 +106,17 @@ func (s *sAutomationServiceImpl) UpdateAutomation(ctx context.Context, id int, d
 		automation.EndTime = value
 		g.Log().Infof(ctx, "更新 endTime: %v", value)
 	}
-	if value, ok := data[s_db_model.FieldAutomationTimeRangeType].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationTimeRangeType].(*string); ok {
 		automation.TimeRangeType = value
-		g.Log().Infof(ctx, "更新 timeRangeType: %s", value)
+		if value != nil {
+			g.Log().Infof(ctx, "更新 timeRangeType: %s", *value)
+		}
 	}
-	if value, ok := data[s_db_model.FieldAutomationTimeRangeValue].(string); ok {
+	if value, ok := data[s_db_model.FieldAutomationTimeRangeValue].(*string); ok {
 		automation.TimeRangeValue = value
-		g.Log().Infof(ctx, "更新 timeRangeValue: %s", value)
+		if value != nil {
+			g.Log().Infof(ctx, "更新 timeRangeValue: %s", *value)
+		}
 	}
 	if value, ok := data[s_db_model.FieldAutomationTriggerRule].(string); ok {
 		automation.TriggerRule = value
@@ -152,10 +156,10 @@ func (s *sAutomationServiceImpl) UpdateAutomation(ctx context.Context, id int, d
 	if automation.EndTime != nil {
 		updateFields[s_db_model.FieldAutomationEndTime] = automation.EndTime
 	}
-	if automation.TimeRangeType != "" {
+	if automation.TimeRangeType != nil {
 		updateFields[s_db_model.FieldAutomationTimeRangeType] = automation.TimeRangeType
 	}
-	if automation.TimeRangeValue != "" {
+	if automation.TimeRangeValue != nil {
 		updateFields[s_db_model.FieldAutomationTimeRangeValue] = automation.TimeRangeValue
 	}
 	if automation.TriggerRule != "" {

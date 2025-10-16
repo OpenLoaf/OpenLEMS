@@ -30,8 +30,8 @@ type SAutomationModel struct {
 	Name              string      `json:"name" orm:"name"`
 	StartTime         *gtime.Time `json:"startTime" orm:"start_time"`
 	EndTime           *gtime.Time `json:"endTime" orm:"end_time"`
-	TimeRangeType     string      `json:"timeRangeType" orm:"time_range_type"`
-	TimeRangeValue    string      `json:"timeRangeValue" orm:"time_range_value"`
+	TimeRangeType     *string     `json:"timeRangeType" orm:"time_range_type"`
+	TimeRangeValue    *string     `json:"timeRangeValue" orm:"time_range_value"`
 	TriggerRule       string      `json:"triggerRule" orm:"trigger_rule"`
 	ExecuteRule       string      `json:"executeRule" orm:"execute_rule"`
 	ExecutionInterval int         `json:"executionInterval" orm:"execution_interval"`
@@ -73,19 +73,19 @@ func (s *SAutomationModel) SetEndTime(endTime *gtime.Time) {
 	s.EndTime = endTime
 }
 
-func (s *SAutomationModel) GetTimeRangeType() string {
+func (s *SAutomationModel) GetTimeRangeType() *string {
 	return s.TimeRangeType
 }
 
-func (s *SAutomationModel) SetTimeRangeType(timeRangeType string) {
+func (s *SAutomationModel) SetTimeRangeType(timeRangeType *string) {
 	s.TimeRangeType = timeRangeType
 }
 
-func (s *SAutomationModel) GetTimeRangeValue() string {
+func (s *SAutomationModel) GetTimeRangeValue() *string {
 	return s.TimeRangeValue
 }
 
-func (s *SAutomationModel) SetTimeRangeValue(timeRangeValue string) {
+func (s *SAutomationModel) SetTimeRangeValue(timeRangeValue *string) {
 	s.TimeRangeValue = timeRangeValue
 }
 

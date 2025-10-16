@@ -12,8 +12,8 @@ type UpdateAutomationReq struct {
 	Name           string                   `json:"name,omitempty" dc:"自动化任务名称"`
 	StartTime      *gtime.Time              `json:"startTime,omitempty" dc:"开始时间"`
 	EndTime        *gtime.Time              `json:"endTime,omitempty" dc:"结束时间"`
-	TimeRangeType  string                   `json:"timeRangeType,omitempty" dc:"时间范围类型"`
-	TimeRangeValue string                   `json:"timeRangeValue,omitempty" dc:"时间范围值"`
+	TimeRangeType  *string                  `json:"timeRangeType,omitempty" dc:"时间范围类型"`
+	TimeRangeValue *string                  `json:"timeRangeValue,omitempty" dc:"时间范围值"`
 	TriggerConfig  *AutomationTriggerConfig `json:"triggerConfig,omitempty" dc:"触发配置"`
 	ExecuteRule    string                   `json:"executeRule,omitempty" dc:"执行规则（JSON格式）"`
 	Enabled        *bool                    `json:"enabled,omitempty" dc:"是否启用"`

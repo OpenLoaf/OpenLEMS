@@ -35,10 +35,10 @@ func (c *Controller) UpdateAutomation(ctx context.Context, req *v1.UpdateAutomat
 	if req.EndTime != nil {
 		updateData[s_db_model.FieldAutomationEndTime] = gtime.New(req.EndTime)
 	}
-	if req.TimeRangeType != "" {
+	if req.TimeRangeType != nil {
 		updateData[s_db_model.FieldAutomationTimeRangeType] = req.TimeRangeType
 	}
-	if req.TimeRangeValue != "" {
+	if req.TimeRangeValue != nil {
 		updateData[s_db_model.FieldAutomationTimeRangeValue] = req.TimeRangeValue
 	}
 	if req.TriggerConfig != nil {
