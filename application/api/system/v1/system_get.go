@@ -19,7 +19,7 @@ type GetSummaryRes struct {
 }
 
 type GetNetworkTrafficReq struct {
-	g.Meta `path:"/system/net/traffic" method:"get" tags:"系统相关" summary:"网络流量信息" role:"user"`
+	g.Meta `path:"/system/net/traffic" method:"get" tags:"系统相关" summary:"网络流量信息" noAuth:"true"`
 }
 type GetNetworkTrafficRes struct {
 	Net NetBrief `json:"net" dc:"网络流量信息(累计字节与瞬时速率)"`
@@ -47,7 +47,7 @@ type GetSystemInfoRes struct {
 }
 
 type GetNowReq struct {
-	g.Meta `path:"/system/now" method:"get" tags:"系统相关" summary:"获取系统当前时间" role:"user"`
+	g.Meta `path:"/system/now" method:"get" tags:"系统相关" summary:"获取系统当前时间" noAuth:"true"`
 }
 type GetNowRes struct {
 	Now string `json:"now" dc:"当前时间(YYYY-MM-DD HH:mm:ss)"`
@@ -141,7 +141,7 @@ type SysInfo struct {
 }
 
 type UpdateStorageTimeReq struct {
-	g.Meta              `path:"/system/storage-time" method:"post" tags:"系统相关" summary:"更新存储时间参数" role:"user"`
+	g.Meta              `path:"/system/storage-time" method:"post" tags:"系统相关" summary:"更新存储时间参数" role:"admin"`
 	DeviceRetentionDays int `json:"deviceRetentionDays" v:"min:1#设备数据保留天数必须大于0" dc:"设备数据保留天数"`
 	SystemRetentionDays int `json:"systemRetentionDays" v:"min:1#系统数据保留天数必须大于0" dc:"系统数据保留天数"`
 	LogRetentionDays    int `json:"logRetentionDays" v:"min:1#日志数据保留天数必须大于0" dc:"日志数据保留天数"`
