@@ -1,6 +1,7 @@
 package internal
 
 import (
+	stypes "s_automation/types"
 	"s_db/s_db_model"
 	"time"
 )
@@ -8,9 +9,9 @@ import (
 // SAutomationTask 自动化任务结构体，包含预解析的规则
 type SAutomationTask struct {
 	*s_db_model.SAutomationModel
-	TriggerConfig     *SAutomationTriggerConfig // 预解析的触发配置
-	ExecuteConfig     *SAutomationExecuteConfig // 预解析的执行配置
-	LastExecutionTime time.Time                 // 上次执行时间（内存缓存）
+	TriggerConfig     *stypes.SAutomationTriggerConfig // 预解析的触发配置
+	ExecuteConfig     *stypes.SAutomationExecuteConfig // 预解析的执行配置
+	LastExecutionTime time.Time                        // 上次执行时间（内存缓存）
 }
 
 // NewAutomationTask 创建新的自动化任务
@@ -48,12 +49,12 @@ func (t *SAutomationTask) parseTriggerConfig() error {
 }
 
 // SetTriggerConfig 设置触发配置
-func (t *SAutomationTask) SetTriggerConfig(config *SAutomationTriggerConfig) {
+func (t *SAutomationTask) SetTriggerConfig(config *stypes.SAutomationTriggerConfig) {
 	t.TriggerConfig = config
 }
 
 // GetTriggerConfig 获取触发配置
-func (t *SAutomationTask) GetTriggerConfig() *SAutomationTriggerConfig {
+func (t *SAutomationTask) GetTriggerConfig() *stypes.SAutomationTriggerConfig {
 	return t.TriggerConfig
 }
 
@@ -65,12 +66,12 @@ func (t *SAutomationTask) parseExecuteConfig() error {
 }
 
 // SetExecuteConfig 设置执行配置
-func (t *SAutomationTask) SetExecuteConfig(config *SAutomationExecuteConfig) {
+func (t *SAutomationTask) SetExecuteConfig(config *stypes.SAutomationExecuteConfig) {
 	t.ExecuteConfig = config
 }
 
 // GetExecuteConfig 获取执行配置
-func (t *SAutomationTask) GetExecuteConfig() *SAutomationExecuteConfig {
+func (t *SAutomationTask) GetExecuteConfig() *stypes.SAutomationExecuteConfig {
 	return t.ExecuteConfig
 }
 

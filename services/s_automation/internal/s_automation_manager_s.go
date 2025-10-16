@@ -6,6 +6,7 @@ import (
 	"common/c_log"
 	"context"
 	"encoding/json"
+	stypes "s_automation/types"
 	"s_db"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
@@ -299,7 +300,7 @@ func (m *SAutomationManager) createAutomationTask(automation *s_db_model.SAutoma
 
 	// 预解析触发配置
 	if automation.GetTriggerRule() != "" {
-		var triggerConfig SAutomationTriggerConfig
+		var triggerConfig stypes.SAutomationTriggerConfig
 		err := json.Unmarshal([]byte(automation.GetTriggerRule()), &triggerConfig)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to unmarshal trigger rule")
@@ -309,7 +310,7 @@ func (m *SAutomationManager) createAutomationTask(automation *s_db_model.SAutoma
 
 	// 预解析执行配置
 	if automation.GetExecuteRule() != "" {
-		var executeConfig SAutomationExecuteConfig
+		var executeConfig stypes.SAutomationExecuteConfig
 		err := json.Unmarshal([]byte(automation.GetExecuteRule()), &executeConfig)
 		if err != nil {
 			return nil, errors.Wrap(err, "failed to unmarshal execute rule")
@@ -444,7 +445,7 @@ func (m *SAutomationManager) checkTriggerConfig(task *SAutomationTask) bool {
 }
 
 // checkTriggerCondition 检查触发条件
-func (m *SAutomationManager) checkTriggerCondition(condition *SAutomationTriggerCondition) bool {
+func (m *SAutomationManager) checkTriggerCondition(condition *stypes.SAutomationTriggerCondition) bool {
 	// 验证触发条件
 	if err := condition.Validate(); err != nil {
 		g.Log().Errorf(m.ctx, "触发条件验证失败: %+v", err)
@@ -474,7 +475,7 @@ func (m *SAutomationManager) checkTriggerCondition(condition *SAutomationTrigger
 }
 
 // checkDeviceCondition 检查设备条件
-func (m *SAutomationManager) checkDeviceCondition(deviceCondition *SAutomationDeviceCondition) bool {
+func (m *SAutomationManager) checkDeviceCondition(deviceCondition *stypes.SAutomationDeviceCondition) bool {
 	// 获取设备实例
 	deviceInstance := common.GetDeviceManager().GetDeviceById(deviceCondition.DeviceId)
 	if deviceInstance == nil {
@@ -507,7 +508,7 @@ func (m *SAutomationManager) checkDeviceCondition(deviceCondition *SAutomationDe
 }
 
 // checkTimeCondition 检查时间条件
-func (m *SAutomationManager) checkTimeCondition(timeCondition *SAutomationTimeCondition) bool {
+func (m *SAutomationManager) checkTimeCondition(timeCondition *stypes.SAutomationTimeCondition) bool {
 	now := time.Now()
 
 	g.Log().Infof(m.ctx, "检查时间条件 - 当前时间: %s, 条件: %+v",

@@ -1,14 +1,14 @@
 package automation
 
 import (
-	v1 "application/api/automation/v1"
 	"fmt"
+	"s_automation"
 
 	"github.com/expr-lang/expr"
 )
 
 // validateTriggerRule 验证触发规则中的所有设备条件规则语法
-func validateTriggerRule(triggerRule *v1.AutomationTriggerRule) error {
+func validateTriggerRule(triggerRule *s_automation.SAutomationTriggerConfig) error {
 	if triggerRule == nil {
 		return nil
 	}
