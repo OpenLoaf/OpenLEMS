@@ -141,7 +141,7 @@ type SysInfo struct {
 }
 
 type UpdateStorageTimeReq struct {
-	g.Meta              `path:"/system/storage-time" method:"post" tags:"系统相关" summary:"更新存储时间参数" role:"admin"`
+	g.Meta              `path:"/system/storage-time" method:"post" tags:"系统相关" summary:"更新存储时间参数" role:"user"`
 	DeviceRetentionDays int `json:"deviceRetentionDays" v:"min:1#设备数据保留天数必须大于0" dc:"设备数据保留天数"`
 	SystemRetentionDays int `json:"systemRetentionDays" v:"min:1#系统数据保留天数必须大于0" dc:"系统数据保留天数"`
 	LogRetentionDays    int `json:"logRetentionDays" v:"min:1#日志数据保留天数必须大于0" dc:"日志数据保留天数"`
