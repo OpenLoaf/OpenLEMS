@@ -104,7 +104,7 @@ func (s *SStorageManager) RegisterDriver(deviceConfig *c_base.SDeviceConfig) {
 			if dc.DriverInfo == nil {
 				return
 			}
-			_ = s.IStorage.SaveDevices(dc.Id, dc.GetType(), c_base.GetAllTelemetry(instance))
+			_ = s.IStorage.SaveDevices(dc.Id, c_base.GetAllTelemetry(instance))
 		})
 		g.Log().Infof(s.ctx, "设备[%s]存储间隔：%v", deviceConfig.Name, dur)
 	} else {

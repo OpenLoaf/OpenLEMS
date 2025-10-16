@@ -4,7 +4,6 @@ import (
 	"c_window_counter/public"
 	"common/c_base"
 	"common/c_chart"
-	"common/c_enum"
 	"common/c_log"
 	"context"
 	"fmt"
@@ -76,7 +75,7 @@ func NewPromTSDB(ctx context.Context, storageConfig *c_base.SStorageConfig) c_ba
 	return instance
 }
 
-func (p *promDB) SaveDevices(deviceId string, deviceType c_enum.EDeviceType, fields map[string]any) error {
+func (p *promDB) SaveDevices(deviceId string, fields map[string]any) error {
 	if len(fields) == 0 {
 		return nil
 	}
