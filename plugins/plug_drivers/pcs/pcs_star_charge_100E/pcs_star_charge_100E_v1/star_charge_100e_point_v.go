@@ -415,6 +415,10 @@ var (
 			SPoint:     &c_base.SPoint{Key: "AuxiliaryPowerOnStatus", Name: "辅助电源开启状态", ValueType: c_enum.EBool, Desc: "Auxiliary power on status：1-yes， 0-no"},
 			DataAccess: c_default.VDataAccessUInt16ToBool,
 		},
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "关闭", Color: "#d9d9d9"},
+			{Key: "true", Value: "开启", Color: "#52c41a"},
+		},
 	}
 
 	BatteryChargeStatus = &c_proto.SModbusPoint{
@@ -423,12 +427,20 @@ var (
 			SPoint:     &c_base.SPoint{Key: "BatteryChargeStatus", Name: "电池充电状态", ValueType: c_enum.EBool, Desc: "Battery charge status： 1-yes， 0-no"},
 			DataAccess: c_default.VDataAccessUInt16ToBool,
 		},
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "未充电", Color: "#d9d9d9"},
+			{Key: "true", Value: "充电中", Color: "#52c41a"},
+		},
 	}
 	BatteryDischargeStatus = &c_proto.SModbusPoint{
 		Addr: 32007,
 		SProtocolPoint: &c_base.SProtocolPoint{
 			SPoint:     &c_base.SPoint{Key: "BatteryDischargeStatus", Name: "电池放电状态", ValueType: c_enum.EBool, Desc: "Battery discharge status：1-yes， 0-no"},
 			DataAccess: c_default.VDataAccessUInt16ToBool,
+		},
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "未放电", Color: "#d9d9d9"},
+			{Key: "true", Value: "放电中", Color: "#faad14"},
 		},
 	}
 
@@ -438,12 +450,20 @@ var (
 			SPoint:     &c_base.SPoint{Key: "DCPositiveRelayStatus", Name: "直流正继电器状态", ValueType: c_enum.EBool, Desc: "DC positive relay status： 1-On, 0-Off"},
 			DataAccess: c_default.VDataAccessUInt16ToBool,
 		},
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "关闭", Color: "#d9d9d9"},
+			{Key: "true", Value: "开启", Color: "#52c41a"},
+		},
 	}
 	DCNegativeRelayStatus = &c_proto.SModbusPoint{
 		Addr: 32034,
 		SProtocolPoint: &c_base.SProtocolPoint{
 			SPoint:     &c_base.SPoint{Key: "DCNegativeRelayStatus", Name: "直流负继电器状态", ValueType: c_enum.EBool, Desc: "DC negative relay status： 1-On, 0-Off"},
 			DataAccess: c_default.VDataAccessUInt16ToBool,
+		},
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "关闭", Color: "#d9d9d9"},
+			{Key: "true", Value: "开启", Color: "#52c41a"},
 		},
 	}
 	ACRelayStatus = &c_proto.SModbusPoint{
@@ -452,12 +472,20 @@ var (
 			SPoint:     &c_base.SPoint{Key: "ACRelayStatus", Name: "交流继电器状态", ValueType: c_enum.EBool, Desc: "AC relay status： 1-On, 0-Off"},
 			DataAccess: c_default.VDataAccessUInt16ToBool,
 		},
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "关闭", Color: "#d9d9d9"},
+			{Key: "true", Value: "开启", Color: "#52c41a"},
+		},
 	}
 	GridOutageStatus = &c_proto.SModbusPoint{
 		Addr: 32036,
 		SProtocolPoint: &c_base.SProtocolPoint{
 			SPoint:     &c_base.SPoint{Key: "GridOutageStatus", Name: "电网断电状态", ValueType: c_enum.EBool, Desc: "Grid Outage Status：1-yes, 0-no"},
 			DataAccess: c_default.VDataAccessUInt16ToBool,
+		},
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "正常", Color: "#52c41a"},
+			{Key: "true", Value: "断电", Color: "#f5222d"},
 		},
 	}
 

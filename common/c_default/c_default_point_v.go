@@ -236,6 +236,9 @@ var (
 
 // Modbus系统固定点位
 var (
-	VPointSystemOnlineStatus = &c_base.SPoint{Key: "ModbusOnlineStatus", Name: "设备在线状态", Unit: "", Desc: "设备在线状态：0=离线，1=在线", Sort: 1000, Min: 0, Max: 1, Precise: 0, Group: VPointGroupSystemBasic, ValueType: c_enum.EBool}         // 设备在线状态
-	VPointSystemTimestamp    = &c_base.SPoint{Key: "ModbusTimestamp", Name: "通讯时间戳", Unit: "s", Desc: "通讯时间戳：Unix时间戳（秒）", Sort: 1001, Min: 0, Max: 4294967295, Precise: 0, Group: VPointGroupSystemBasic, ValueType: c_enum.EUint32} // 通讯时间戳
+	VPointSystemOnlineStatus = &c_base.SPoint{Key: "ModbusOnlineStatus", Name: "设备在线状态", Unit: "", Desc: "设备在线状态：0=离线，1=在线", Sort: 1000, Min: 0, Max: 1, Precise: 0, Group: VPointGroupSystemBasic, ValueType: c_enum.EBool, ValueExplain: []*c_base.SFieldExplain{
+		{Key: "false", Value: "离线", Color: "#f5222d"},
+		{Key: "true", Value: "在线", Color: "#52c41a"},
+	}} // 设备在线状态
+	VPointSystemTimestamp = &c_base.SPoint{Key: "ModbusTimestamp", Name: "通讯时间戳", Unit: "s", Desc: "通讯时间戳：Unix时间戳（秒）", Sort: 1001, Min: 0, Max: 4294967295, Precise: 0, Group: VPointGroupSystemBasic, ValueType: c_enum.EUint32} // 通讯时间戳
 )

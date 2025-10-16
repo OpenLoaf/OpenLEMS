@@ -1,11 +1,7 @@
 package c_base
 
 import (
-	"strconv"
-
 	"common/c_enum"
-
-	"github.com/shockerli/cvt"
 )
 
 // SConfigPoint 配置点位，用于配置结构体字段描述
@@ -56,54 +52,8 @@ func (s *SConfigPoint) GetValueExplainWithParams(value any, params map[string]an
 		return "", "", nil
 	}
 
-	// 1. 将value转换为字符串
-	var valueStr string
-	var err error
-
-	// 检查值是否为数值类型（整数或浮点数）
-	switch value.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, bool, *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64, *bool:
-		// 数值类型直接转换为字符串
-		valueStr, err = cvt.StringE(value)
-		if err != nil {
-			return "", "", err
-		}
-	default:
-		// 非数值类型（如枚举）先转为int再转为字符串
-		intVal, err := cvt.IntE(value)
-		if err != nil {
-			return "", "", err
-		}
-		valueStr, err = cvt.StringE(intVal)
-		if err != nil {
-			return "", "", err
-		}
-	}
-
-	// 2. 从ValueExplain中查找匹配的解释
-	if len(s.SPoint.ValueExplain) > 0 {
-		for _, explain := range s.SPoint.ValueExplain {
-			if explain.Key == valueStr {
-				// 如果FromParam为true，从参数中获取值
-				if explain.FromParam && params != nil {
-					if paramValue, ok := params[explain.Value]; ok && paramValue != nil {
-						return cvt.String(paramValue), explain.Color, nil
-					}
-				}
-				// 否则直接返回Value
-				return explain.Value, explain.Color, nil
-			}
-		}
-	}
-
-	// 3. 浮点数据进行格式化输出
-	if floatVal, err := cvt.Float64E(value); err == nil {
-		formatted := strconv.FormatFloat(floatVal, 'f', int(s.SPoint.Precise), 64)
-		return formatted, "", nil
-	}
-
-	// 如果无法转换为浮点数，返回转换后的字符串
-	return valueStr, "", nil
+	// 使用统一的公共函数进行值解释
+	return ExplainValueWithColor(value, s.SPoint.ValueExplain, s.SPoint.Precise)
 }
 
 // ToFieldDefinition 将SConfigPoint转换为SFieldDefinition对象

@@ -4,11 +4,9 @@ import (
 	"common/c_enum"
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/shockerli/cvt"
 )
 
 // SFieldDefinition 可以是配置的定义，也可以是点位telemetry的定义
@@ -225,59 +223,9 @@ func (s *SFieldDefinition) GetValueExplainByValue(value any) (string, error) {
 
 // GetValueExplainWithParams 获取Value解释，支持动态参数
 func (s *SFieldDefinition) GetValueExplainWithParams(value any, params map[string]any) (string, error) {
-	// 1. 将value转换为字符串
-	var valueStr string
-	var err error
-
-	// 检查值是否为数值类型（整数或浮点数）
-	switch value.(type) {
-	case int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, bool, *int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64, *bool:
-		// 数值类型直接转换为字符串
-		valueStr, err = cvt.StringE(value)
-		if err != nil {
-			return "", err
-		}
-	default:
-		// 非数值类型（如枚举）先转为int再转为字符串
-		intVal, err := cvt.IntE(value)
-		if err != nil {
-			return "", err
-		}
-		valueStr, err = cvt.StringE(intVal)
-		if err != nil {
-			return "", err
-		}
-	}
-
-	// 2. 从ValueExplain中查找匹配的解释
-	if len(s.ValueExplain) > 0 {
-		for _, explain := range s.ValueExplain {
-			if explain.Key == valueStr {
-				return explain.Value, nil
-			}
-		}
-	}
-
-	// 3. 从ParamExplain中查找匹配的解释（支持动态参数）
-	if len(s.ParamExplain) > 0 && params != nil {
-		for _, explain := range s.ParamExplain {
-			if explain.Key == valueStr {
-				if pv, ok := params[explain.Value]; ok && pv != nil {
-					return cvt.String(pv), nil
-				}
-			}
-		}
-	}
-
-	// 4. 浮点数据进行格式化输出
-	if floatVal, err := cvt.Float64E(value); err == nil {
-		// 使用 strconv.FormatFloat 进行精确格式化
-		formatted := strconv.FormatFloat(floatVal, 'f', int(s.GetPrecise()), 64)
-		return formatted, nil
-	}
-
-	// 如果无法转换为浮点数，返回转换后的字符串
-	return valueStr, nil
+	// 使用统一的公共函数进行值解释
+	valueStr, _, err := ExplainValueWithColor(value, s.ValueExplain, s.GetPrecise())
+	return valueStr, err
 }
 
 // IsHidden 是否隐藏不显示

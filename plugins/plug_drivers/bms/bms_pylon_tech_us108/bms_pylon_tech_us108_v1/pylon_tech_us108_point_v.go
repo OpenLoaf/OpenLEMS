@@ -530,6 +530,10 @@ var (
 			DataAccess: c_default.VDataAccessUInt16ToBool,
 		},
 		Addr: 0x1138,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "允许充电", Color: "#52c41a"},
+			{Key: "true", Value: "禁止充电", Color: "#f5222d"},
+		},
 	}
 
 	DischargeForbiddenMark = &c_proto.SModbusPoint{
@@ -542,6 +546,10 @@ var (
 			DataAccess: c_default.VDataAccessUInt16ToBool,
 		},
 		Addr: 0x1139,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "允许放电", Color: "#52c41a"},
+			{Key: "true", Value: "禁止放电", Color: "#f5222d"},
+		},
 	}
 
 	SOC30Flag = &c_proto.SModbusPoint{
@@ -554,6 +562,10 @@ var (
 			DataAccess: c_default.VDataAccessUInt16ToBool,
 		},
 		Addr: 0x113A,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "否", Color: "#52c41a"},
+			{Key: "true", Value: "是", Color: "#faad14"},
+		},
 	}
 
 	SOE = &c_proto.SModbusPoint{
