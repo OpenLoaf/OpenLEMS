@@ -57,7 +57,7 @@ func startWebWithBinding(ctx context.Context, localOnly bool) *ghttp.Server {
 
 	// 配置 Session（默认2小时，登录后会按角色覆盖）
 	s.SetSessionMaxAge(2 * time.Hour)
-	s.SetSessionIdName("session_id")
+	s.SetSessionIdName("ems_session_id")
 
 	// 设置API路由
 	setupAPIRoutes(s)
