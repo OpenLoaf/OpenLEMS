@@ -43,7 +43,7 @@ type SAutomationTimeCondition struct {
 type SAutomationTriggerConfig struct {
 	AnyMatch          []*SAutomationTriggerCondition `json:"anyMatch"`          // 任意匹配条件（OR 逻辑）
 	SubMatch          []*SAutomationTriggerCondition `json:"subMatch"`          // 子匹配条件
-	SubMatchAll       bool                           `json:"subMatchAll"`       // 子匹配是否全部满足
+	SubMatchAll       *bool                          `json:"subMatchAll"`       // 子匹配是否全部满足
 	ExecutionInterval int                            `json:"executionInterval"` // 执行间隔（秒），0表示实时执行
 }
 

@@ -43,7 +43,7 @@ type AutomationTriggerCondition struct {
 type AutomationTriggerConfig struct {
 	AnyMatch          []*AutomationTriggerCondition `json:"anyMatch" dc:"任意匹配条件（OR 逻辑）"`
 	SubMatch          []*AutomationTriggerCondition `json:"subMatch" dc:"子匹配条件"`
-	SubMatchAll       bool                          `json:"subMatchAll" dc:"子匹配是否全部满足"`
+	SubMatchAll       *bool                         `json:"subMatchAll" dc:"子匹配是否全部满足"`
 	ExecutionInterval int                           `json:"executionInterval" default:"0" dc:"执行间隔（秒），0表示实时执行"`
 }
 
