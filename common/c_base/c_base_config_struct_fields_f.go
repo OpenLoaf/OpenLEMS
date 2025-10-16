@@ -246,7 +246,7 @@ func parseGoFrameValidationTag(vTag, fieldName string) string {
 // parseTagValue 解析标签值，对于某些字段类型不进行逗号分割
 func parseTagValue(value, fieldName string) string {
 	// 对于正则表达式和正则表达式失败消息字段，不进行逗号分割
-	if fieldName == "Regex" || fieldName == "RegexFailedMessage" {
+	if fieldName == "Regex" || fieldName == "RegexFailedMessage" || fieldName == "ValueExplain" {
 		return value
 	}
 	// 对于其他字段，按逗号分割并取第一部分（移除omitempty等选项）

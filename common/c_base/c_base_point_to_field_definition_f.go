@@ -53,7 +53,6 @@ func ConvertIPointToFieldDefinition(point IPoint) *SFieldDefinition {
 		Max:           max,
 		Description:   point.GetDesc(),
 		Required:      false, // 遥测/点位定义通常不是必填
-		ValueExplain:  point.GetValueExplain(),
 	}
 
 	return fieldDef

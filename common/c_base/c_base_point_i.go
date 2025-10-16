@@ -6,11 +6,10 @@ import (
 
 // IPoint 简化的点位接口，只包含核心方法
 type IPoint interface {
-	GetKey() string                                   // 点位Key
-	GetName() string                                  // 名称
-	GetValueType() c_enum.EValueType                  // 值类型
-	GetValueExplainByValue(value any) (string, error) // 获取Value解释
-	GetValueExplain() []*SFieldExplain
+	GetKey() string                                                             // 点位Key
+	GetName() string                                                            // 名称
+	GetValueType() c_enum.EValueType                                            // 值类型
+	GetValueExplainByValue(value any) (string, error)                           // 获取Value解释
 	IsAlarmPoint() bool                                                         // 是否是告警点位
 	TriggerAlarm(value any) (trigger bool, level c_enum.EAlarmLevel, err error) // 告警触发
 	GetGroup() *SPointGroup                                                     // 获取分组信息

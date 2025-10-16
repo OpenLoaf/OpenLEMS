@@ -90,6 +90,7 @@ func GetAllTelemetry(instance IDevice) map[string]any {
 	allPoints := instance.GetDevicePoints()
 
 	for _, point := range allPoints {
+		//if point.GetValueExplain()
 		pointValue := GetPointValue(instance, point)
 		if pointValue != nil {
 			result[point.GetKey()] = pointValue.GetValue()
