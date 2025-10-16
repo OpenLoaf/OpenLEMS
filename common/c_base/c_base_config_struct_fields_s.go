@@ -15,19 +15,19 @@ import (
 type SFieldDefinition struct {
 	Key                string                            `json:"key" yaml:"key" short:"code"`
 	Name               string                            `json:"name,omitempty" yaml:"name" short:"name" required:"true"`
-	Group              *SPointGroup                      `json:"group,omitempty" yaml:"group" short:"group"`
+	Group              *SPointGroup                      `json:"group" yaml:"group" short:"group"`
 	ValueType          c_enum.EConfigFieldsValueType     `json:"valueType" yaml:"value_type" short:"vt" dc:"string字符串、int整数、float浮点数、bool布尔值" required:"true"`
 	ComponentType      c_enum.EConfigFieldsComponentType `json:"componentType" yaml:"component_type" short:"ct" dc:"组件类型" required:"true"`
-	Step               *float32                          `json:"step,omitempty" yaml:"step" short:"step" default:"1" dc:"步长（小步长）"`
+	Step               *float32                          `json:"step" yaml:"step" short:"step" default:"1" dc:"步长（小步长）"`
 	Required           bool                              `json:"required" yaml:"required" short:"req" required:"true" dc:"是否必填"`
 	Unit               *string                           `json:"unit,omitempty" yaml:"unit" short:"unit" dc:"单位"`
-	Min                *int64                            `json:"min,omitempty" yaml:"min" short:"min"`
-	Max                *int64                            `json:"max,omitempty" yaml:"max" short:"max"`
-	Default            *string                           `json:"default,omitempty" yaml:"default" short:"def"`
-	ValueExplain       []*SFieldExplain                  `json:"valueExplain,omitempty" yaml:"valueExplain" short:"ve"` // 值解释
-	ParamExplain       []*SFieldExplain                  `json:"paramExplain,omitempty" yaml:"paramExplain" short:"pe"` // 从参数值中读取解释
-	Regex              *string                           `json:"regex,omitempty" yaml:"regex" short:"regex" dc:"正则表达式"`
-	RegexFailedMessage *string                           `json:"regexFailedMessage,omitempty" yaml:"regex_failed_message" short:"rfm" dc:"正则表达式失败提醒"`
+	Min                *int64                            `json:"min" yaml:"min" short:"min"`
+	Max                *int64                            `json:"max" yaml:"max" short:"max"`
+	Default            *string                           `json:"default" yaml:"default" short:"def"`
+	ValueExplain       []*SFieldExplain                  `json:"valueExplain" yaml:"valueExplain" short:"ve"` // 值解释
+	ParamExplain       []*SFieldExplain                  `json:"paramExplain" yaml:"paramExplain" short:"pe"` // 从参数值中读取解释
+	Regex              *string                           `json:"regex" yaml:"regex" short:"regex" dc:"正则表达式"`
+	RegexFailedMessage *string                           `json:"regexFailedMessage" yaml:"regex_failed_message" short:"rfm" dc:"正则表达式失败提醒"`
 	Description        string                            `json:"description,omitempty" yaml:"description" short:"desc" required:"true"`
 }
 
