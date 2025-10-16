@@ -113,6 +113,30 @@ func (s *sAlarmImpl) IgnoreClearAlarm(deviceId string, point string) {
 	}
 }
 
+// ClearAlarm 仅清除某个告警（不屏蔽）
+func (s *sAlarmImpl) ClearAlarm(deviceId string, point string) {
+	key := s.GetAlarmKey(deviceId, point)
+	s.rwMutex.Lock()
+	defer s.rwMutex.Unlock()
+
+	if alarm, ok := s.cache[key]; ok {
+		// 从缓存中删除该告警
+		delete(s.cache, key)
+		// 更新最高级别
+		s.updateMaxLevel()
+
+		// 执行清除动作（非屏蔽）
+		s.callHandlers(alarm, s.maxLevel, c_enum.EAlarmActionFirstClear)
+
+		// 保存到告警历史中（记录为手动清除）
+		historyMessage := fmt.Sprintf("手动清除告警，触发值为:%v", alarm.GetValue())
+		err := c_alarm.GetAlarmManager().CreateAlarmHistory(s.ctx, s.deviceId, deviceId, alarm.IPoint, alarm.GetLevel(), historyMessage, alarm.GetHappenTime())
+		if err != nil {
+			c_log.Errorf(s.ctx, "保存告警记录失败！%+v", err)
+		}
+	}
+}
+
 func (s *sAlarmImpl) UpdateAlarm(deviceId string, point c_base.IPoint, value any) {
 	if point == nil {
 		c_log.Errorf(s.ctx, "告警元数据不能为空")
@@ -141,7 +165,7 @@ func (s *sAlarmImpl) UpdateAlarm(deviceId string, point c_base.IPoint, value any
 	defer s.rwMutex.Unlock()
 
 	// 生成告警key
-	alarmKey := s.GetAlarmKey(deviceId, point.GetName())
+	alarmKey := s.GetAlarmKey(deviceId, point.GetKey())
 
 	// 获取缓存中的旧告警，判断之前是否已经触发过
 	oldAlarm, wasPreviouslyTriggered := s.cache[alarmKey]

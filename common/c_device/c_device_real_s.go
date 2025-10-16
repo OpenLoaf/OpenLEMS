@@ -72,6 +72,14 @@ func (s *SRealDeviceImpl[P]) IgnoreClearAlarm(deviceId string, point string) {
 	s.protocol.IgnoreClearAlarm(deviceId, point)
 }
 
+func (s *SRealDeviceImpl[P]) ClearAlarm(deviceId string, point string) {
+	if s.isProtocolNil() {
+		return
+	}
+	// IProtocol 继承 IAlarm，具体协议应实现 ClearAlarm；若未实现，将通过接口方法分发到协议实现
+	s.protocol.ClearAlarm(deviceId, point)
+}
+
 func (s *SRealDeviceImpl[P]) RegisterAlarmHandlerFunc(alarmAction c_enum.EAlarmAction, handler func(alarm *c_base.SPointValue, currentMaxAlarmLevel c_enum.EAlarmLevel, isFirstHandler bool), sortValue ...int) {
 	if s.isProtocolNil() {
 		return

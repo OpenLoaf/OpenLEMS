@@ -51,8 +51,8 @@ func (c *ControllerV1) ClearAlarm(ctx context.Context, req *v1.ClearAlarmReq) (r
 		// 遍历告警列表，清除指定类型或全部的告警
 		for _, alarm := range alarmList {
 			if clearAll || alarm.GetLevel() == alarmLevel {
-				// 调用设备的忽略清除告警方法
-				device.IgnoreClearAlarm(alarm.GetDeviceId(), alarm.IPoint.GetKey())
+				// 仅清除，不屏蔽
+				device.ClearAlarm(alarm.GetDeviceId(), alarm.IPoint.GetKey())
 				clearedCount++
 
 				c_log.BizInfof(ctx, "清除告警 - 设备: %s, 点位: %s, 类型: %s",

@@ -100,14 +100,16 @@ func (a *SAlarmHistoryModel) DeleteByDeviceIdAndLevel(ctx context.Context, devic
 // DeleteByFilters 根据过滤条件删除告警历史记录
 // deviceId 为空表示所有设备，level 为空表示所有级别
 func (a *SAlarmHistoryModel) DeleteByFilters(ctx context.Context, deviceId, level string) error {
+	// 当两个过滤条件都为空时，明确执行全表清空（遵循 ClearAll 的逻辑）
+	if deviceId == "" && level == "" {
+		return a.ClearAll(ctx)
+	}
+
 	model := g.Model(TableAlarmHistory).Ctx(ctx)
 
-	// 如果设备ID不为空，添加设备过滤条件
 	if deviceId != "" {
 		model = model.Where(FieldAlarmHistoryDeviceId, deviceId)
 	}
-
-	// 如果级别不为空，添加级别过滤条件
 	if level != "" {
 		model = model.Where(FieldAlarmHistoryLevel, level)
 	}
@@ -176,8 +178,8 @@ func (a *SAlarmHistoryModel) GetPage(ctx context.Context, page, pageSize int, fi
 
 // ClearAll 清除所有告警历史记录并执行VACUUM
 func (a *SAlarmHistoryModel) ClearAll(ctx context.Context) error {
-	// 删除所有记录
-	_, err := g.Model(TableAlarmHistory).Ctx(ctx).Delete()
+	// 删除所有记录 - 使用 WHERE 1=1 来满足安全要求
+	_, err := g.Model(TableAlarmHistory).Ctx(ctx).Where("1=1").Delete()
 	if err != nil {
 		return err
 	}
