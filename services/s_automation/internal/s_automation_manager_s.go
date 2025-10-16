@@ -371,7 +371,7 @@ func (m *SAutomationManager) checkTriggerConfig(task *SAutomationTask) bool {
 
 	// 检查 subMatch 条件
 	if len(config.SubMatch) > 0 {
-		if config.SubMatchAll {
+		if config.SubMatchAll != nil && *config.SubMatchAll {
 			// 全部满足
 			for _, condition := range config.SubMatch {
 				if !m.checkTriggerCondition(condition) {
