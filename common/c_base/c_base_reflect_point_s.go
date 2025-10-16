@@ -11,9 +11,9 @@ func (s *SReflectPoint) GetMethodName() string {
 	return s.MethodName
 }
 
-// AsProtocolPoint 转换为协议点位，SReflectPoint 不是协议点位，返回 nil
-func (s *SReflectPoint) AsProtocolPoint() *SProtocolPoint {
-	return nil
+// IsProtocolPoint 判断是否为协议点位，SReflectPoint 不是协议点位，返回 false
+func (s *SReflectPoint) IsProtocolPoint() bool {
+	return false
 }
 
 // 注意：不需要重复实现IPoint接口方法

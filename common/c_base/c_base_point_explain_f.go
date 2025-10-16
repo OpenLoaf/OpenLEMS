@@ -1,6 +1,7 @@
 package c_base
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/shockerli/cvt"
@@ -10,6 +11,10 @@ import (
 func ExplainPointValue(point IPoint, value any) (string, error) {
 	if point == nil {
 		return "", nil
+	}
+
+	if point.GetKey() == "ChargeForbiddenMark" {
+		fmt.Printf("")
 	}
 
 	// 获取点位的解释配置和精度

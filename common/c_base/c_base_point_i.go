@@ -20,7 +20,7 @@ type IPoint interface {
 	GetUnit() string                                                            // 获取单位
 	GetDesc() string                                                            // 获取描述
 	IsHidden() bool                                                             // 是否隐藏
-	AsProtocolPoint() *SProtocolPoint                                           // 转换为协议点位（如果是协议点位则返回，否则返回nil）
+	IsProtocolPoint() bool                                                      // 判断是否为协议点位
 }
 
 // 注意：子结构体不需要重复实现IPoint接口方法

@@ -5,8 +5,6 @@ import (
 	"common/c_default"
 	"common/c_enum"
 	"common/c_proto"
-
-	"github.com/shockerli/cvt"
 )
 
 // 年月日，可写
@@ -62,16 +60,10 @@ var (
 			SPoint:     &c_base.SPoint{Key: "OnOffCommand", Name: "开关机指令", ValueType: c_enum.EUint16, Desc: "On/off command: 0- Shutdown, 1- Startup, 2- Standby"},
 			DataAccess: c_default.VDataAccessUInt16,
 		},
-		StatusExplain: func(value any) (string, error) {
-			switch cvt.Int8(value) {
-			case 0:
-				return "关机", nil
-			case 1:
-				return "已启动", nil
-			case 2:
-				return "待机", nil
-			}
-			return "未知值:" + cvt.String(value), nil
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "0", Value: "关机", Color: "#d9d9d9"},
+			{Key: "1", Value: "已启动", Color: "#52c41a"},
+			{Key: "2", Value: "待机", Color: "#faad14"},
 		},
 	}
 	ActivePowerSetting = &c_proto.SModbusPoint{
@@ -290,22 +282,13 @@ var (
 			SPoint:     &c_base.SPoint{Key: "InverterOperationStatus", Name: "逆变器运行状态", ValueType: c_enum.EUint16, Desc: "Inverter operation status: 0 - Waiting for the machine to start, 1 - Power on self check, 2 - Grid connected operation, 3 - Off grid operation, 4 - Reserved, 5 - General error"},
 			DataAccess: c_default.VDataAccessUInt16,
 		},
-		StatusExplain: func(value any) (string, error) {
-			switch cvt.Int8(value) {
-			case 0:
-				return "等待设备启动", nil
-			case 1:
-				return "上电自检", nil
-			case 2:
-				return "并网运行", nil
-			case 3:
-				return "离网运行", nil
-			case 4:
-				return "保留", nil
-			case 5:
-				return "异常", nil
-			}
-			return "未知值:" + cvt.String(value), nil
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "0", Value: "等待设备启动", Color: "#d9d9d9"},
+			{Key: "1", Value: "上电自检", Color: "#faad14"},
+			{Key: "2", Value: "并网运行", Color: "#52c41a"},
+			{Key: "3", Value: "离网运行", Color: "#1890ff"},
+			{Key: "4", Value: "保留", Color: "#d9d9d9"},
+			{Key: "5", Value: "异常", Color: "#f5222d"},
 		},
 	}
 

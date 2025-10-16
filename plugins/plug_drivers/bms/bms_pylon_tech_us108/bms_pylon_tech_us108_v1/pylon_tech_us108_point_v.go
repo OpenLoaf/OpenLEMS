@@ -5,9 +5,6 @@ import (
 	"common/c_default"
 	"common/c_enum"
 	"common/c_proto"
-	"fmt"
-
-	"github.com/shockerli/cvt"
 )
 
 var (
@@ -280,20 +277,11 @@ var (
 			},
 		},
 		Addr: 0x1100,
-		StatusExplain: func(value any) (string, error) {
-			if v, err := cvt.Int8E(value); err == nil {
-				switch v {
-				case 0:
-					return "休眠", nil
-				case 1:
-					return "充电", nil
-				case 2:
-					return "放电", nil
-				case 3:
-					return "搁置", nil
-				}
-			}
-			return fmt.Sprintf("未知值: %v", value), nil
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "0", Value: "休眠", Color: "#1890ff"},
+			{Key: "1", Value: "充电", Color: "#52c41a"},
+			{Key: "2", Value: "放电", Color: "#faad14"},
+			{Key: "3", Value: "搁置", Color: "#d9d9d9"},
 		},
 	}
 
@@ -624,8 +612,11 @@ var (
 				WordOrder:  c_enum.WordOrderHighLow,
 			},
 		},
-		Addr:          0x1100,
-		StatusExplain: c_default.StatusExplainProtectFunc,
+		Addr: 0x1100,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "正常", Color: "#52c41a"},
+			{Key: "true", Value: "保护", Color: "#f5222d"},
+		},
 	}
 
 	CurrentProtection = &c_proto.SModbusPoint{
@@ -646,8 +637,11 @@ var (
 				WordOrder:  c_enum.WordOrderHighLow,
 			},
 		},
-		Addr:          0x1100,
-		StatusExplain: c_default.StatusExplainProtectFunc,
+		Addr: 0x1100,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "正常", Color: "#52c41a"},
+			{Key: "true", Value: "保护", Color: "#f5222d"},
+		},
 	}
 
 	VoltageProtection = &c_proto.SModbusPoint{
@@ -668,8 +662,11 @@ var (
 				WordOrder:  c_enum.WordOrderHighLow,
 			},
 		},
-		Addr:          0x1100,
-		StatusExplain: c_default.StatusExplainProtectFunc,
+		Addr: 0x1100,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "正常", Color: "#52c41a"},
+			{Key: "true", Value: "保护", Color: "#f5222d"},
+		},
 	}
 
 	TemperatureProtection = &c_proto.SModbusPoint{
@@ -690,8 +687,11 @@ var (
 				WordOrder:  c_enum.WordOrderHighLow,
 			},
 		},
-		Addr:          0x1100,
-		StatusExplain: c_default.StatusExplainProtectFunc,
+		Addr: 0x1100,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "正常", Color: "#52c41a"},
+			{Key: "true", Value: "保护", Color: "#f5222d"},
+		},
 	}
 
 	VoltageAlarm = &c_proto.SModbusPoint{
@@ -712,8 +712,11 @@ var (
 				WordOrder:  c_enum.WordOrderHighLow,
 			},
 		},
-		Addr:          0x1100,
-		StatusExplain: c_default.StatusExplainProtectFunc,
+		Addr: 0x1100,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "正常", Color: "#52c41a"},
+			{Key: "true", Value: "保护", Color: "#f5222d"},
+		},
 	}
 
 	CurrentAlarm = &c_proto.SModbusPoint{
@@ -734,8 +737,11 @@ var (
 				WordOrder:  c_enum.WordOrderHighLow,
 			},
 		},
-		Addr:          0x1100,
-		StatusExplain: c_default.StatusExplainProtectFunc,
+		Addr: 0x1100,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "正常", Color: "#52c41a"},
+			{Key: "true", Value: "保护", Color: "#f5222d"},
+		},
 	}
 
 	TemperatureAlarm = &c_proto.SModbusPoint{
@@ -756,8 +762,11 @@ var (
 				WordOrder:  c_enum.WordOrderHighLow,
 			},
 		},
-		Addr:          0x1100,
-		StatusExplain: c_default.StatusExplainProtectFunc,
+		Addr: 0x1100,
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "正常", Color: "#52c41a"},
+			{Key: "true", Value: "保护", Color: "#f5222d"},
+		},
 	}
 
 	PileSystemIdleStatus = &c_proto.SModbusPoint{
@@ -778,8 +787,9 @@ var (
 			},
 		},
 		Addr: 0x1100,
-		StatusExplain: func(value any) (string, error) {
-			return c_default.StatusExplainBool(value, "搁置", "否")
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "否", Color: "#52c41a"},
+			{Key: "true", Value: "搁置", Color: "#d9d9d9"},
 		},
 	}
 
@@ -801,8 +811,9 @@ var (
 			},
 		},
 		Addr: 0x1100,
-		StatusExplain: func(value any) (string, error) {
-			return c_default.StatusExplainBool(value, "充电", "否")
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "否", Color: "#52c41a"},
+			{Key: "true", Value: "充电", Color: "#52c41a"},
 		},
 	}
 
@@ -824,8 +835,9 @@ var (
 			},
 		},
 		Addr: 0x1100,
-		StatusExplain: func(value any) (string, error) {
-			return c_default.StatusExplainBool(value, "放电", "否")
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "否", Color: "#52c41a"},
+			{Key: "true", Value: "放电", Color: "#faad14"},
 		},
 	}
 
@@ -847,8 +859,9 @@ var (
 			},
 		},
 		Addr: 0x1100,
-		StatusExplain: func(value any) (string, error) {
-			return c_default.StatusExplainBool(value, "休眠", "否")
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "否", Color: "#52c41a"},
+			{Key: "true", Value: "休眠", Color: "#d9d9d9"},
 		},
 	}
 
@@ -871,8 +884,9 @@ var (
 			},
 		},
 		Addr: 0x1100,
-		StatusExplain: func(value any) (string, error) {
-			return c_default.StatusExplainBool(value, "有异常", "无异常")
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "false", Value: "无异常", Color: "#52c41a"},
+			{Key: "true", Value: "有异常", Color: "#f5222d"},
 		},
 	}
 

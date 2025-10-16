@@ -17,9 +17,11 @@ type SModbusPoint struct {
 	Sort  int                 `json:"sort"`          // 覆盖SPoint的Sort
 	Group *c_base.SPointGroup `json:"group" dc:"分组"` // 覆盖SPoint的Group
 
+	// 覆盖字段（如果需要与基础结构不同的行为）
+	ValueExplain []*c_base.SFieldExplain `json:"valueExplain,omitempty" yaml:"valueExplain"` // 值解释
+
 	// 功能函数
-	StatusExplain func(value any) (text string, err error)                                    `json:"-" dc:"状态解释函数"`
-	Trigger       func(value interface{}) (trigger bool, level c_enum.EAlarmLevel, err error) `json:"-" dc:"告警触发函数"` // 可覆盖SPoint的触发函数
+	Trigger func(value interface{}) (trigger bool, level c_enum.EAlarmLevel, err error) `json:"-" dc:"告警触发函数"` // 可覆盖SPoint的触发函数
 }
 
 func (s *SModbusPoint) GetDataAccess() *c_base.SDataAccess {
@@ -71,7 +73,21 @@ func (s *SModbusPoint) GetSort() int {
 	return 0
 }
 
-// AsProtocolPoint 转换为协议点位，返回嵌入的 SProtocolPoint
-func (s *SModbusPoint) AsProtocolPoint() *c_base.SProtocolPoint {
-	return s.SProtocolPoint
+// GetValueExplain 获取值解释，实现层层查找逻辑
+func (s *SModbusPoint) GetValueExplain() []*c_base.SFieldExplain {
+	// 1. 优先使用自己的 ValueExplain
+	if len(s.ValueExplain) > 0 {
+		return s.ValueExplain
+	}
+	// 2. 然后使用 SProtocolPoint 的 ValueExplain
+	if s.SProtocolPoint != nil {
+		return s.SProtocolPoint.GetValueExplain()
+	}
+	// 3. 最后返回空切片
+	return []*c_base.SFieldExplain{}
+}
+
+// IsProtocolPoint 判断是否为协议点位，SModbusPoint 是协议点位，返回 true
+func (s *SModbusPoint) IsProtocolPoint() bool {
+	return true
 }

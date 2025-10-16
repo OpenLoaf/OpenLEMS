@@ -345,7 +345,7 @@ func (s *SFieldDefinition) convertValueTypeFromEValueType(valueType c_enum.EValu
 	}
 }
 
-// AsProtocolPoint 转换为协议点位，SFieldDefinition 不是协议点位，返回 nil
-func (s *SFieldDefinition) AsProtocolPoint() *SProtocolPoint {
-	return nil
+// IsProtocolPoint 判断是否为协议点位，SFieldDefinition 不是协议点位，返回 false
+func (s *SFieldDefinition) IsProtocolPoint() bool {
+	return false
 }

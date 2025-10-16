@@ -5,10 +5,7 @@ import (
 	"common/c_default"
 	"common/c_enum"
 	"common/c_proto"
-	"fmt"
 	"time"
-
-	"github.com/shockerli/cvt"
 )
 
 var (
@@ -132,16 +129,9 @@ var (
 			DataAccess: c_default.VDataAccessInt16Scale01,
 		},
 		Addr: 0x0067,
-		StatusExplain: func(value any) (string, error) {
-			if v, err := cvt.Uint8E(value); err == nil {
-				switch v {
-				case 0:
-					return "关机", nil
-				case 1:
-					return "开机", nil
-				}
-			}
-			return fmt.Sprintf("未知值: %v", value), nil
+		ValueExplain: []*c_base.SFieldExplain{
+			{Key: "0", Value: "关机", Color: "#d9d9d9"},
+			{Key: "1", Value: "开机", Color: "#52c41a"},
 		},
 	}
 

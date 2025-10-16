@@ -131,7 +131,7 @@ func (s *SPoint) GetPrecise() uint8 {
 	return s.Precise
 }
 
-// AsProtocolPoint 转换为协议点位，SPoint 不是协议点位，返回 nil
-func (s *SPoint) AsProtocolPoint() *SProtocolPoint {
-	return nil
+// IsProtocolPoint 判断是否为协议点位，SPoint 不是协议点位，返回 false
+func (s *SPoint) IsProtocolPoint() bool {
+	return false
 }

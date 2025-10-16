@@ -210,15 +210,9 @@ func TriggerOfflineAlarm(protocolId string, trigger bool) {
 				level = c_enum.EAlarmLevelWarn
 				return
 			},
-			StatusExplain: func(value any) (string, error) {
-				v, err := cvt.BoolE(value)
-				if err != nil {
-					return "", errors.Wrap(err, "状态转换失败")
-				}
-				if v {
-					return "离线", nil
-				}
-				return "上线", nil
+			ValueExplain: []*c_base.SFieldExplain{
+				{Key: "false", Value: "上线", Color: "#52c41a"},
+				{Key: "true", Value: "离线", Color: "#f5222d"},
 			},
 		}, trigger)
 

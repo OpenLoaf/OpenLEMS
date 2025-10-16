@@ -21,7 +21,7 @@ func (s *SProtocolPoint) GetValueExplain() []*SFieldExplain {
 	return s.ValueExplain
 }
 
-// AsProtocolPoint 转换为协议点位，SProtocolPoint 本身就是协议点位，返回自身
-func (s *SProtocolPoint) AsProtocolPoint() *SProtocolPoint {
-	return s
+// IsProtocolPoint 判断是否为协议点位，SProtocolPoint 本身就是协议点位，返回 true
+func (s *SProtocolPoint) IsProtocolPoint() bool {
+	return true
 }
