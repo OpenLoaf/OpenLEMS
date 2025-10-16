@@ -41,16 +41,21 @@ func (c *Controller) UpdateAutomation(ctx context.Context, req *v1.UpdateAutomat
 	if req.TimeRangeValue != nil {
 		updateData[s_db_model.FieldAutomationTimeRangeValue] = req.TimeRangeValue
 	}
-	if req.TriggerConfig != nil {
+	if req.TriggerRule != nil {
+		// 验证触发规则中的设备条件规则语法
+		if err := validateTriggerRule(req.TriggerRule); err != nil {
+			return nil, err
+		}
+
 		// 将触发配置序列化为 JSON 字符串
-		triggerRuleJson, err := json.Marshal(req.TriggerConfig)
+		triggerRuleJson, err := json.Marshal(req.TriggerRule)
 		if err != nil {
 			g.Log().Errorf(ctx, "序列化触发配置失败: %+v", err)
 			return nil, gerror.WrapCode(gcode.CodeInternalError, err, "序列化触发配置失败")
 		}
 		updateData[s_db_model.FieldAutomationTriggerRule] = string(triggerRuleJson)
 		// 同时更新执行间隔字段
-		updateData[s_db_model.FieldAutomationExecutionInterval] = req.TriggerConfig.ExecutionInterval
+		updateData[s_db_model.FieldAutomationExecutionInterval] = req.TriggerRule.ExecutionInterval
 	}
 	if req.ExecuteRule != "" {
 		updateData[s_db_model.FieldAutomationExecuteRule] = req.ExecuteRule

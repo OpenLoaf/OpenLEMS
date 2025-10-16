@@ -18,11 +18,16 @@ func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomat
 	g.Log().Infof(ctx, "创建自动化任务 - 时间范围类型: %s, 启用状态: %t", req.TimeRangeType, req.Enabled)
 
 	// 参数验证
-	if req.TriggerConfig == nil {
+	if req.TriggerRule == nil {
 		return nil, errors.New("触发配置不能为空")
 	}
 	if req.ExecuteRule == "" {
 		return nil, errors.New("执行规则不能为空")
+	}
+
+	// 验证触发规则中的设备条件规则语法
+	if err := validateTriggerRule(req.TriggerRule); err != nil {
+		return nil, err
 	}
 
 	// 转换时间字段为 *time.Time 类型
@@ -35,7 +40,7 @@ func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomat
 	}
 
 	// 将触发配置序列化为 JSON 字符串
-	triggerRuleJson, err := json.Marshal(req.TriggerConfig)
+	triggerRuleJson, err := json.Marshal(req.TriggerRule)
 	if err != nil {
 		g.Log().Errorf(ctx, "序列化触发配置失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "序列化触发配置失败")
@@ -50,7 +55,7 @@ func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomat
 		req.TimeRangeValue,
 		string(triggerRuleJson),
 		req.ExecuteRule,
-		req.TriggerConfig.ExecutionInterval)
+		req.TriggerRule.ExecutionInterval)
 	if err != nil {
 		g.Log().Errorf(ctx, "创建自动化任务失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "创建自动化任务失败")

@@ -39,8 +39,8 @@ type AutomationTriggerCondition struct {
 	TimeCondition *AutomationTimeCondition `json:"timeCondition,omitempty" dc:"时间触发条件"`
 }
 
-// AutomationTriggerConfig 自动化触发配置结构体
-type AutomationTriggerConfig struct {
+// AutomationTriggerRule 自动化触发配置结构体
+type AutomationTriggerRule struct {
 	AnyMatch          []*AutomationTriggerCondition `json:"anyMatch" dc:"任意匹配条件（OR 逻辑）"`
 	SubMatch          []*AutomationTriggerCondition `json:"subMatch" dc:"子匹配条件"`
 	SubMatchAll       *bool                         `json:"subMatchAll" dc:"子匹配是否全部满足"`
@@ -50,14 +50,14 @@ type AutomationTriggerConfig struct {
 // CreateAutomationReq 创建自动化任务请求
 type CreateAutomationReq struct {
 	g.Meta         `path:"/automation" method:"post" tags:"自动化相关" summary:"创建自动化任务" role:"admin"`
-	Name           string                   `json:"name" v:"required" dc:"自动化任务名称"`
-	StartTime      *gtime.Time              `json:"startTime,omitempty" dc:"开始时间"`
-	EndTime        *gtime.Time              `json:"endTime,omitempty" dc:"结束时间"`
-	TimeRangeType  *string                  `json:"timeRangeType,omitempty" dc:"时间范围类型"`
-	TimeRangeValue *string                  `json:"timeRangeValue,omitempty" dc:"时间范围值"`
-	TriggerConfig  *AutomationTriggerConfig `json:"triggerConfig" v:"required" dc:"触发配置"`
-	ExecuteRule    string                   `json:"executeRule" v:"required" dc:"执行规则（JSON格式）"`
-	Enabled        bool                     `json:"enabled" default:"true" dc:"是否启用"`
+	Name           string                 `json:"name" v:"required" dc:"自动化任务名称"`
+	StartTime      *gtime.Time            `json:"startTime,omitempty" dc:"开始时间"`
+	EndTime        *gtime.Time            `json:"endTime,omitempty" dc:"结束时间"`
+	TimeRangeType  *string                `json:"timeRangeType,omitempty" dc:"时间范围类型"`
+	TimeRangeValue *string                `json:"timeRangeValue,omitempty" dc:"时间范围值"`
+	TriggerRule    *AutomationTriggerRule `json:"triggerRule" v:"required" dc:"触发配置"`
+	ExecuteRule    string                 `json:"executeRule" v:"required" dc:"执行规则（JSON格式）"`
+	Enabled        bool                   `json:"enabled" default:"true" dc:"是否启用"`
 }
 
 // CreateAutomationRes 创建自动化任务响应
