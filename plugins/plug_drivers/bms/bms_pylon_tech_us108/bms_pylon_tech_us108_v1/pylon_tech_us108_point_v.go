@@ -111,819 +111,378 @@ var (
 
 // 控制信息
 var (
-	SleepControl = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "SleepControl",
-				Name:      "SleepControl",
-				ValueType: c_enum.EInt16,
-				Desc:      "休眠控制, 写入0xAA进入休眠状态，写入0x55唤醒",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x1090,
-	}
+	SleepControl = c_proto.NewModbusPointWithDesc(0x1090, "SleepControl", "SleepControl", c_enum.EInt16, "", "休眠控制, 写入0xAA进入休眠状态，写入0x55唤醒", c_default.VDataAccessInt16)
 
-	AllowCharge = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "AllowCharge",
-				Name:      "AllowCharge",
-				ValueType: c_enum.EInt16,
-				Desc:      "允许充电控制, 写入0xAA允许充电，其他无效",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x1091,
-	}
+	AllowCharge = c_proto.NewModbusPointWithDesc(0x1091, "AllowCharge", "AllowCharge", c_enum.EInt16, "", "允许充电控制, 写入0xAA允许充电，其他无效", c_default.VDataAccessInt16)
 
-	AllowDischarge = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "AllowDischarge",
-				Name:      "AllowDischarge",
-				ValueType: c_enum.EInt16,
-				Desc:      "允许放电控制, 写入0xAA允许放电，其他无效",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x1092,
-	}
+	AllowDischarge = c_proto.NewModbusPointWithDesc(0x1092, "AllowDischarge", "AllowDischarge", c_enum.EInt16, "", "允许放电控制, 写入0xAA允许放电，其他无效", c_default.VDataAccessInt16)
 
-	TempShield = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "TempShield",
-				Name:      "TempShield",
-				ValueType: c_enum.EInt16,
-				Desc:      "临时屏蔽\"无通信时切离继电器功能\"的请求",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x1093,
-	}
+	TempShield = c_proto.NewModbusPointWithDesc(0x1093, "TempShield", "TempShield", c_enum.EInt16, "", "临时屏蔽\"无通信时切离继电器功能\"的请求", c_default.VDataAccessInt16)
 
-	AllowRun = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "AllowRun",
-				Name:      "AllowRun",
-				ValueType: c_enum.EInt16,
-				Desc:      "运行指令，通知系统开始并柜, 写入0xAA允许运行，其他无效",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x1094,
-	}
+	AllowRun = c_proto.NewModbusPointWithDesc(0x1094, "AllowRun", "AllowRun", c_enum.EInt16, "", "运行指令，通知系统开始并柜, 写入0xAA允许运行，其他无效", c_default.VDataAccessInt16)
 )
 
 // 时间
 var (
-	Year = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Year",
-				Name:      "Year",
-				ValueType: c_enum.EUint16,
-				Desc:      "年 00~99（表示 2000~2099）",
-			},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x10E0,
-	}
+	Year = c_proto.NewModbusPointWithDesc(0x10E0, "Year", "Year", c_enum.EUint16, "", "年 00~99（表示 2000~2099）", c_default.VDataAccessUInt16)
 
-	Month = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Month",
-				Name:      "Month",
-				ValueType: c_enum.EUint16,
-				Desc:      "月 1~12",
-			},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x10E1,
-	}
+	Month = c_proto.NewModbusPointWithDesc(0x10E1, "Month", "Month", c_enum.EUint16, "", "月 1~12", c_default.VDataAccessUInt16)
 
-	Day = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Day",
-				Name:      "Day",
-				ValueType: c_enum.EUint16,
-				Desc:      "日 1~31",
-			},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x10E2,
-	}
+	Day = c_proto.NewModbusPointWithDesc(0x10E2, "Day", "Day", c_enum.EUint16, "", "日 1~31", c_default.VDataAccessUInt16)
 
-	Hour = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Hour",
-				Name:      "Hour",
-				ValueType: c_enum.EUint16,
-				Desc:      "时 0~23",
-			},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x10E3,
-	}
+	Hour = c_proto.NewModbusPointWithDesc(0x10E3, "Hour", "Hour", c_enum.EUint16, "", "时 0~23", c_default.VDataAccessUInt16)
 
-	Minute = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Minute",
-				Name:      "Minute",
-				ValueType: c_enum.EUint16,
-				Desc:      "分 0~59",
-			},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x10E4,
-	}
+	Minute = c_proto.NewModbusPointWithDesc(0x10E4, "Minute", "Minute", c_enum.EUint16, "", "分 0~59", c_default.VDataAccessUInt16)
 
-	Second = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Second",
-				Name:      "Second",
-				ValueType: c_enum.EUint16,
-				Desc:      "秒 0~59",
-			},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x10E5,
-	}
+	Second = c_proto.NewModbusPointWithDesc(0x10E5, "Second", "Second", c_enum.EUint16, "", "秒 0~59", c_default.VDataAccessUInt16)
 )
 
 // 主要状态和参数点位
 var (
-	BasicStatus = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "BasicStatus",
-				Name:      "基本状态",
-				ValueType: c_enum.EUint16,
-				Desc:      "基本状态:00：休眠 01：充电 02：放电 03：搁置",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   0,
-				BitLength:  2,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	BasicStatus = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("BasicStatus"),
+		c_proto.WithName("基本状态"),
+		c_proto.WithValueType(c_enum.EUint16),
+		c_proto.WithDesc("基本状态:00：休眠 01：充电 02：放电 03：搁置"),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   0,
+			BitLength:  2,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "0", Value: "休眠", Color: "#1890ff"},
 			{Key: "1", Value: "充电", Color: "#52c41a"},
 			{Key: "2", Value: "放电", Color: "#faad14"},
 			{Key: "3", Value: "搁置", Color: "#d9d9d9"},
-		},
-	}
+		}),
+	)
 
-	DCVoltage = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     c_default.VPointDcVoltage,
-			DataAccess: c_default.VDataAccessUInt16Scale01,
-		},
-		Addr: 0x1103,
-	}
+	DCVoltage = c_proto.NewModbusPointFromPreset(0x1103, c_default.VPointDcVoltage, c_default.VDataAccessUInt16Scale01)
 
-	DCCurrent = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     c_default.VPointDcCurrent,
-			DataAccess: c_default.VDataAccessInt32Scale001,
-		},
-		Addr: 0x1104,
-	}
+	DCCurrent = c_proto.NewModbusPointFromPreset(0x1104, c_default.VPointDcCurrent, c_default.VDataAccessInt32Scale001)
 
-	Temperature = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     c_default.VPointTemp,
-			DataAccess: c_default.VDataAccessUInt16Scale01,
-		},
-		Addr: 0x1106,
-	}
+	Temperature = c_proto.NewModbusPointFromPreset(0x1106, c_default.VPointTemp, c_default.VDataAccessUInt16Scale01)
 
-	SOC = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     c_default.VPointSOC,
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x1107,
-	}
+	SOC = c_proto.NewModbusPointFromPreset(0x1107, c_default.VPointSOC, c_default.VDataAccessUInt16)
 
-	CycleCount = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "CycleCount",
-				Name:      "循环次数",
-				ValueType: c_enum.EUint16,
-			},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x1108,
-	}
+	CycleCount = c_proto.NewModbusPointWithDesc(0x1108, "CycleCount", "循环次数", c_enum.EUint16, "", "循环次数", c_default.VDataAccessUInt16)
 
-	PileMaxV = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PileMaxV",
-				Name:      "电池组最大充电电压值",
-				ValueType: c_enum.EFloat32,
-				Unit:      "V",
-			},
-			DataAccess: c_default.VDataAccessUInt16Scale01,
-		},
-		Addr: 0x1109,
-	}
+	PileMaxV = c_proto.NewModbusPointWithDesc(0x1109, "PileMaxV", "电池组最大充电电压值", c_enum.EFloat32, "V", "电池组最大充电电压值", c_default.VDataAccessUInt16Scale01)
 
-	PileMaxI = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PileMaxI",
-				Name:      "电池组最大充电电流值",
-				ValueType: c_enum.EFloat64,
-			},
-			DataAccess: c_default.VDataAccessUInt32Scale001,
-		},
-		Addr: 0x110A,
-	}
+	PileMaxI = c_proto.NewModbusPointWithDesc(0x110A, "PileMaxI", "电池组最大充电电流值", c_enum.EFloat64, "", "电池组最大充电电流值", c_default.VDataAccessUInt32Scale001)
 
-	PileMinV = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PileMinV",
-				Name:      "电池组最小放电电压值",
-				ValueType: c_enum.EFloat32,
-				Unit:      "V",
-			},
-			DataAccess: c_default.VDataAccessUInt16Scale01,
-		},
-		Addr: 0x110C,
-	}
+	PileMinV = c_proto.NewModbusPointWithDesc(0x110C, "PileMinV", "电池组最小放电电压值", c_enum.EFloat32, "V", "电池组最小放电电压值", c_default.VDataAccessUInt16Scale01)
 
-	PileMaxDI = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PileMaxDI",
-				Name:      "电池组最大放电电流值",
-				ValueType: c_enum.EFloat64,
-			},
-			DataAccess: c_default.VDataAccessUInt32Scale001,
-		},
-		Addr: 0x110D,
-	}
+	PileMaxDI = c_proto.NewModbusPointWithDesc(0x110D, "PileMaxDI", "电池组最大放电电流值", c_enum.EFloat64, "", "电池组最大放电电流值", c_default.VDataAccessUInt32Scale001)
 
-	BatteryCellMaxVoltage = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "BatteryCellMaxVoltage",
-				Name:      "电池最高电压",
-				ValueType: c_enum.EFloat32,
-				Unit:      "V",
-			},
-			DataAccess: c_default.VDataAccessUInt16Scale0001,
-		},
-		Addr: 0x1110,
-	}
+	BatteryCellMaxVoltage = c_proto.NewModbusPointWithDesc(0x1110, "BatteryCellMaxVoltage", "电池最高电压", c_enum.EFloat32, "V", "电池最高电压", c_default.VDataAccessUInt16Scale0001)
 
-	BatteryCellMinVoltage = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "BatteryCellMinVoltage",
-				Name:      "电池最低电压",
-				ValueType: c_enum.EFloat32,
-				Unit:      "V",
-			},
-			DataAccess: c_default.VDataAccessUInt16Scale0001,
-		},
-		Addr: 0x1111,
-	}
+	BatteryCellMinVoltage = c_proto.NewModbusPointWithDesc(0x1111, "BatteryCellMinVoltage", "电池最低电压", c_enum.EFloat32, "V", "电池最低电压", c_default.VDataAccessUInt16Scale0001)
 
-	BatteryCellMaxTemp = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     c_default.VPointTempMax,
-			DataAccess: c_default.VDataAccessUInt16Scale01,
-		},
-		Addr: 0x1114,
-	}
+	BatteryCellMaxTemp = c_proto.NewModbusPointFromPreset(0x1114, c_default.VPointTempMax, c_default.VDataAccessUInt16Scale01)
 
-	BatteryCellMinTemp = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     c_default.VPointTempMin,
-			DataAccess: c_default.VDataAccessUInt16Scale01,
-		},
-		Addr: 0x1115,
-	}
+	BatteryCellMinTemp = c_proto.NewModbusPointFromPreset(0x1115, c_default.VPointTempMin, c_default.VDataAccessUInt16Scale01)
 
-	SOH = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     c_default.VPointSOH,
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x1120,
-	}
+	SOH = c_proto.NewModbusPointFromPreset(0x1120, c_default.VPointSOH, c_default.VDataAccessUInt16)
 
-	RemainCapacity = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "RemainCapacity",
-				Name:      "电池可放电能量",
-				ValueType: c_enum.EFloat64,
-				Unit:      "kWh",
-			},
-			DataAccess: c_default.VDataAccessUInt32Scale001,
-		},
-		Addr: 0x1121,
-	}
+	RemainCapacity = c_proto.NewModbusPointWithDesc(0x1121, "RemainCapacity", "电池可放电能量", c_enum.EFloat64, "kWh", "电池可放电能量", c_default.VDataAccessUInt32Scale001)
 
-	ChargeCapacity = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "ChargeCapacity",
-				Name:      "蓄电池充电量",
-				ValueType: c_enum.EFloat64,
-				Unit:      "kWh",
-			},
-			DataAccess: c_default.VDataAccessUInt32Scale001,
-		},
-		Addr: 0x1123,
-	}
+	ChargeCapacity = c_proto.NewModbusPointWithDesc(0x1123, "ChargeCapacity", "蓄电池充电量", c_enum.EFloat64, "kWh", "蓄电池充电量", c_default.VDataAccessUInt32Scale001)
 
-	DischargeCapacity = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "DischargeCapacity",
-				Name:      "蓄电池放电量",
-				ValueType: c_enum.EFloat64,
-				Unit:      "kWh",
-			},
-			DataAccess: c_default.VDataAccessUInt32Scale001,
-		},
-		Addr: 0x1125,
-	}
+	DischargeCapacity = c_proto.NewModbusPointWithDesc(0x1125, "DischargeCapacity", "蓄电池放电量", c_enum.EFloat64, "kWh", "蓄电池放电量", c_default.VDataAccessUInt32Scale001)
 
-	TodayCharge = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "TodayCharge",
-				Name:      "当日累积充电量",
-				ValueType: c_enum.EFloat64,
-				Unit:      "kWh",
-			},
-			DataAccess: c_default.VDataAccessUInt32Scale001,
-		},
-		Addr: 0x1127,
-	}
+	TodayCharge = c_proto.NewModbusPointWithDesc(0x1127, "TodayCharge", "当日累积充电量", c_enum.EFloat64, "kWh", "当日累积充电量", c_default.VDataAccessUInt32Scale001)
 
-	TodayDischarge = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "TodayDischarge",
-				Name:      "当日累积放电量",
-				ValueType: c_enum.EFloat64,
-				Unit:      "kWh",
-			},
-			DataAccess: c_default.VDataAccessUInt32Scale001,
-		},
-		Addr: 0x1129,
-	}
+	TodayDischarge = c_proto.NewModbusPointWithDesc(0x1129, "TodayDischarge", "当日累积放电量", c_enum.EFloat64, "kWh", "当日累积放电量", c_default.VDataAccessUInt32Scale001)
 
-	HistoryCharge = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "HistoryCharge",
-				Name:      "历史累积充电量",
-				ValueType: c_enum.EUint32,
-				Unit:      "kWh",
-			},
-			DataAccess: c_default.VDataAccessUInt32,
-		},
-		Addr: 0x112B,
-	}
+	HistoryCharge = c_proto.NewModbusPointWithDesc(0x112B, "HistoryCharge", "历史累积充电量", c_enum.EUint32, "kWh", "历史累积充电量", c_default.VDataAccessUInt32)
 
-	HistoryDischarge = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "HistoryDischarge",
-				Name:      "历史累积放电量",
-				ValueType: c_enum.EUint32,
-				Unit:      "kWh",
-			},
-			DataAccess: c_default.VDataAccessUInt32,
-		},
-		Addr: 0x112D,
-	}
+	HistoryDischarge = c_proto.NewModbusPointWithDesc(0x112D, "HistoryDischarge", "历史累积放电量", c_enum.EUint32, "kWh", "历史累积放电量", c_default.VDataAccessUInt32)
 
-	ChargeForbiddenMark = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "ChargeForbiddenMark",
-				Name:      "禁止充电标志",
-				ValueType: c_enum.EBool,
-			},
-			DataAccess: c_default.VDataAccessUInt16ToBool,
-		},
-		Addr: 0x1138,
-		ValueExplain: []*c_base.SFieldExplain{
+	ChargeForbiddenMark = c_proto.NewModbusPointExt(0x1138,
+		c_proto.WithKey("ChargeForbiddenMark"),
+		c_proto.WithName("禁止充电标志"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDataAccess(c_default.VDataAccessUInt16ToBool),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "允许充电", Color: "#52c41a"},
 			{Key: "true", Value: "禁止充电", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	DischargeForbiddenMark = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "DischargeForbiddenMark",
-				Name:      "禁止放电标志",
-				ValueType: c_enum.EBool,
-			},
-			DataAccess: c_default.VDataAccessUInt16ToBool,
-		},
-		Addr: 0x1139,
-		ValueExplain: []*c_base.SFieldExplain{
+	DischargeForbiddenMark = c_proto.NewModbusPointExt(0x1139,
+		c_proto.WithKey("DischargeForbiddenMark"),
+		c_proto.WithName("禁止放电标志"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDataAccess(c_default.VDataAccessUInt16ToBool),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "允许放电", Color: "#52c41a"},
 			{Key: "true", Value: "禁止放电", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	SOC30Flag = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "SOC30Flag",
-				Name:      "SOC<=30%标志",
-				ValueType: c_enum.EBool,
-			},
-			DataAccess: c_default.VDataAccessUInt16ToBool,
-		},
-		Addr: 0x113A,
-		ValueExplain: []*c_base.SFieldExplain{
+	SOC30Flag = c_proto.NewModbusPointExt(0x113A,
+		c_proto.WithKey("SOC30Flag"),
+		c_proto.WithName("SOC<=30%标志"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDataAccess(c_default.VDataAccessUInt16ToBool),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "否", Color: "#52c41a"},
 			{Key: "true", Value: "是", Color: "#faad14"},
-		},
-	}
+		}),
+	)
 
-	SOE = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "SOE",
-				Name:      "SOE",
-				ValueType: c_enum.EUint16,
-				Unit:      "%",
-			},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		Addr: 0x113B,
-	}
+	SOE = c_proto.NewModbusPointWithDesc(0x113B, "SOE", "SOE", c_enum.EUint16, "%", "SOE", c_default.VDataAccessUInt16)
 
-	HeartbeatSignal = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "HeartbeatSignal",
-				Name:      "心跳信号值",
-				ValueType: c_enum.EInt16,
-				Desc:      ",范围为 0x0000~0x00FF，每次读取该值都会增加 1",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x113C,
-	}
+	HeartbeatSignal = c_proto.NewModbusPointWithDesc(0x113C, "HeartbeatSignal", "心跳信号值", c_enum.EInt16, "", ",范围为 0x0000~0x00FF，每次读取该值都会增加 1", c_default.VDataAccessInt16)
 
-	Switching = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Switching",
-				Name:      "开关量指示",
-				ValueType: c_enum.EInt16,
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x110F,
-	}
+	Switching = c_proto.NewModbusPointWithDesc(0x110F, "Switching", "开关量指示", c_enum.EInt16, "", "开关量指示", c_default.VDataAccessInt16)
 
-	SystemErrorProtection = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "SystemErrorProtection",
-				Name:      "系统故障保护",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Trigger:   c_default.FAlarmTriggerErrorBool,
-				Desc:      "0-正常；1-保护",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   3,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	SystemErrorProtection = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("SystemErrorProtection"),
+		c_proto.WithName("系统故障保护"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-正常；1-保护"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithTrigger(c_default.FAlarmTriggerErrorBool),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   3,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "正常", Color: "#52c41a"},
 			{Key: "true", Value: "保护", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	CurrentProtection = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "CurrentProtection",
-				Name:      "电流保护",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Trigger:   c_default.FAlarmTriggerErrorBool,
-				Desc:      "0-正常；1-保护",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   4,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	CurrentProtection = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("CurrentProtection"),
+		c_proto.WithName("电流保护"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-正常；1-保护"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithTrigger(c_default.FAlarmTriggerErrorBool),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   4,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "正常", Color: "#52c41a"},
 			{Key: "true", Value: "保护", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	VoltageProtection = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "VoltageProtection",
-				Name:      "电压保护",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Trigger:   c_default.FAlarmTriggerErrorBool,
-				Desc:      "0-正常；1-保护",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   5,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	VoltageProtection = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("VoltageProtection"),
+		c_proto.WithName("电压保护"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-正常；1-保护"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithTrigger(c_default.FAlarmTriggerErrorBool),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   5,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "正常", Color: "#52c41a"},
 			{Key: "true", Value: "保护", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	TemperatureProtection = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "TemperatureProtection",
-				Name:      "温度保护",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Trigger:   c_default.FAlarmTriggerErrorBool,
-				Desc:      "0-正常；1-保护",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   6,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	TemperatureProtection = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("TemperatureProtection"),
+		c_proto.WithName("温度保护"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-正常；1-保护"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithTrigger(c_default.FAlarmTriggerErrorBool),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   6,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "正常", Color: "#52c41a"},
 			{Key: "true", Value: "保护", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	VoltageAlarm = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "VoltageAlarm",
-				Name:      "电压警告",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Trigger:   c_default.FAlarmTriggerAlertBool,
-				Desc:      "0-正常；1-保护",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   7,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	VoltageAlarm = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("VoltageAlarm"),
+		c_proto.WithName("电压警告"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-正常；1-保护"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithTrigger(c_default.FAlarmTriggerAlertBool),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   7,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "正常", Color: "#52c41a"},
 			{Key: "true", Value: "保护", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	CurrentAlarm = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "CurrentAlarm",
-				Name:      "电流警告",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Trigger:   c_default.FAlarmTriggerAlertBool,
-				Desc:      "0-正常；1-保护",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   8,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	CurrentAlarm = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("CurrentAlarm"),
+		c_proto.WithName("电流警告"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-正常；1-保护"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithTrigger(c_default.FAlarmTriggerAlertBool),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   8,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "正常", Color: "#52c41a"},
 			{Key: "true", Value: "保护", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	TemperatureAlarm = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "TemperatureAlarm",
-				Name:      "温度警告",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Trigger:   c_default.FAlarmTriggerAlertBool,
-				Desc:      "0-正常；1-保护",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   9,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	TemperatureAlarm = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("TemperatureAlarm"),
+		c_proto.WithName("温度警告"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-正常；1-保护"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithTrigger(c_default.FAlarmTriggerAlertBool),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   9,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "正常", Color: "#52c41a"},
 			{Key: "true", Value: "保护", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	PileSystemIdleStatus = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PileSystemIdleStatus",
-				Name:      "电池组搁置状态",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Desc:      "0-否，1-搁置",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   10,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	PileSystemIdleStatus = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("PileSystemIdleStatus"),
+		c_proto.WithName("电池组搁置状态"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-否，1-搁置"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   10,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "否", Color: "#52c41a"},
 			{Key: "true", Value: "搁置", Color: "#d9d9d9"},
-		},
-	}
+		}),
+	)
 
-	PileSystemChargeStatus = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PileSystemChargeStatus",
-				Name:      "电池组充电状态",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Desc:      "0-否，1-充电",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   11,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	PileSystemChargeStatus = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("PileSystemChargeStatus"),
+		c_proto.WithName("电池组充电状态"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-否，1-充电"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   11,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "否", Color: "#52c41a"},
 			{Key: "true", Value: "充电", Color: "#52c41a"},
-		},
-	}
+		}),
+	)
 
-	PileSystemDischargeStatus = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PileSystemDischargeStatus",
-				Name:      "电池组放电状态",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Desc:      "0-否，1-放电",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   12,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	PileSystemDischargeStatus = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("PileSystemDischargeStatus"),
+		c_proto.WithName("电池组放电状态"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-否，1-放电"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   12,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "否", Color: "#52c41a"},
 			{Key: "true", Value: "放电", Color: "#faad14"},
-		},
-	}
+		}),
+	)
 
-	PileSystemSleepStatus = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PileSystemSleepStatus",
-				Name:      "电池组休眠状态",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Desc:      "0-否，1-休眠",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   13,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	PileSystemSleepStatus = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("PileSystemSleepStatus"),
+		c_proto.WithName("电池组休眠状态"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-否，1-休眠"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   13,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "否", Color: "#52c41a"},
 			{Key: "true", Value: "休眠", Color: "#d9d9d9"},
-		},
-	}
+		}),
+	)
 
-	FanWarn = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "FanWarn",
-				Name:      "风扇告警",
-				ValueType: c_enum.EBool,
-				Group:     StatusGroup,
-				Trigger:   c_default.FAlarmTriggerAlertBool,
-				Desc:      "0-无异常，1-有异常",
-			},
-			DataAccess: &c_base.SDataAccess{
-				BitIndex:   14,
-				BitLength:  1,
-				DataFormat: c_enum.DataFormatBitRange,
-				ByteEndian: c_enum.ByteEndianBig,
-				WordOrder:  c_enum.WordOrderHighLow,
-			},
-		},
-		Addr: 0x1100,
-		ValueExplain: []*c_base.SFieldExplain{
+	FanWarn = c_proto.NewModbusPointExt(0x1100,
+		c_proto.WithKey("FanWarn"),
+		c_proto.WithName("风扇告警"),
+		c_proto.WithValueType(c_enum.EBool),
+		c_proto.WithDesc("0-无异常，1-有异常"),
+		c_proto.WithGroup(StatusGroup),
+		c_proto.WithTrigger(c_default.FAlarmTriggerAlertBool),
+		c_proto.WithDataAccess(&c_base.SDataAccess{
+			BitIndex:   14,
+			BitLength:  1,
+			DataFormat: c_enum.DataFormatBitRange,
+			ByteEndian: c_enum.ByteEndianBig,
+			WordOrder:  c_enum.WordOrderHighLow,
+		}),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "false", Value: "无异常", Color: "#52c41a"},
 			{Key: "true", Value: "有异常", Color: "#f5222d"},
-		},
-	}
+		}),
+	)
 
-	Protection = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Protection",
-				Name:      "保护状态",
-				ValueType: c_enum.EInt16,
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x1101,
-	}
+	Protection = c_proto.NewModbusPointWithDesc(0x1101, "Protection", "保护状态", c_enum.EInt16, "", "保护状态", c_default.VDataAccessInt16)
 
-	AlarmStatus1 = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "AlarmStatus1",
-				Name:      "告警状态1",
-				ValueType: c_enum.EInt16,
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr:    0x1102,
-		Trigger: c_default.FAlarmTriggerAlertNotZero,
-	}
+	AlarmStatus1 = c_proto.NewModbusPointExt(0x1102,
+		c_proto.WithKey("AlarmStatus1"),
+		c_proto.WithName("告警状态1"),
+		c_proto.WithValueType(c_enum.EInt16),
+		c_proto.WithDataAccess(c_default.VDataAccessInt16),
+		c_proto.WithTrigger(c_default.FAlarmTriggerAlertNotZero),
+	)
 )

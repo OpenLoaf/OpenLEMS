@@ -64,354 +64,56 @@ var (
 		MethodName: "GetHistoryOutgoingQuantity",
 	}
 
-	// 协议点位定义 - 直接创建，启动时验证SPoint字段
-	Status = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Status",
-				Name:      "设备状态字",
-				ValueType: c_enum.EInt16,
-				Desc:      "设备状态字",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x0190,
-	}
+	// 协议点位定义 - 使用构造函数创建
+	Status = c_proto.NewModbusPointWithDesc(0x0190, "Status", "设备状态字", c_enum.EInt16, "", "设备状态字", c_default.VDataAccessInt16)
 
-	PhaseAVoltage = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseAVoltage",
-				Name:      "A相电压",
-				Unit:      "V",
-				ValueType: c_enum.EInt16,
-				Desc:      "A相电压",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x0191,
-	}
+	PhaseAVoltage = c_proto.NewModbusPointWithDesc(0x0191, "PhaseAVoltage", "A相电压", c_enum.EInt16, "V", "A相电压", c_default.VDataAccessInt16)
 
-	PhaseBVoltage = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseBVoltage",
-				Name:      "B相电压",
-				Unit:      "V",
-				ValueType: c_enum.EInt16,
-				Desc:      "B相电压",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x0192,
-	}
+	PhaseBVoltage = c_proto.NewModbusPointWithDesc(0x0192, "PhaseBVoltage", "B相电压", c_enum.EInt16, "V", "B相电压", c_default.VDataAccessInt16)
 
-	PhaseCVoltage = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseCVoltage",
-				Name:      "C相电压",
-				Unit:      "V",
-				ValueType: c_enum.EInt16,
-				Desc:      "C相电压",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x0193,
-	}
+	PhaseCVoltage = c_proto.NewModbusPointWithDesc(0x0193, "PhaseCVoltage", "C相电压", c_enum.EInt16, "V", "C相电压", c_default.VDataAccessInt16)
 
-	PhaseACurrent = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseACurrent",
-				Name:      "A相电流",
-				Unit:      "A",
-				ValueType: c_enum.EInt16,
-				Desc:      "A相电流",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x0194,
-	}
+	PhaseACurrent = c_proto.NewModbusPointWithDesc(0x0194, "PhaseACurrent", "A相电流", c_enum.EInt16, "A", "A相电流", c_default.VDataAccessInt16)
 
-	PhaseBCurrent = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseBCurrent",
-				Name:      "B相电流",
-				Unit:      "A",
-				ValueType: c_enum.EInt16,
-				Desc:      "B相电流",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x0195,
-	}
+	PhaseBCurrent = c_proto.NewModbusPointWithDesc(0x0195, "PhaseBCurrent", "B相电流", c_enum.EInt16, "A", "B相电流", c_default.VDataAccessInt16)
 
-	PhaseCCurrent = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseCCurrent",
-				Name:      "C相电流",
-				Unit:      "A",
-				ValueType: c_enum.EInt16,
-				Desc:      "C相电流",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x0196,
-	}
+	PhaseCCurrent = c_proto.NewModbusPointWithDesc(0x0196, "PhaseCCurrent", "C相电流", c_enum.EInt16, "A", "C相电流", c_default.VDataAccessInt16)
 
-	PhaseAActivePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseAActivePower",
-				Name:      "A相有功功率",
-				Unit:      "kW",
-				ValueType: c_enum.EInt16,
-				Desc:      "A相有功功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x0197,
-	}
+	PhaseAActivePower = c_proto.NewModbusPointWithDesc(0x0197, "PhaseAActivePower", "A相有功功率", c_enum.EInt16, "kW", "A相有功功率", c_default.VDataAccessInt16Scale01)
 
-	PhaseBActivePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseBActivePower",
-				Name:      "B相有功功率",
-				Unit:      "kW",
-				ValueType: c_enum.EInt16,
-				Desc:      "B相有功功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x0198,
-	}
+	PhaseBActivePower = c_proto.NewModbusPointWithDesc(0x0198, "PhaseBActivePower", "B相有功功率", c_enum.EInt16, "kW", "B相有功功率", c_default.VDataAccessInt16Scale01)
 
-	PhaseCActivePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseCActivePower",
-				Name:      "C相有功功率",
-				Unit:      "kW",
-				ValueType: c_enum.EInt16,
-				Desc:      "C相有功功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x0199,
-	}
+	PhaseCActivePower = c_proto.NewModbusPointWithDesc(0x0199, "PhaseCActivePower", "C相有功功率", c_enum.EInt16, "kW", "C相有功功率", c_default.VDataAccessInt16Scale01)
 
-	PhaseAReactivePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseAReactivePower",
-				Name:      "A相无功功率",
-				Unit:      "kVar",
-				ValueType: c_enum.EInt16,
-				Desc:      "A相无功功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x019A,
-	}
+	PhaseAReactivePower = c_proto.NewModbusPointWithDesc(0x019A, "PhaseAReactivePower", "A相无功功率", c_enum.EInt16, "kVar", "A相无功功率", c_default.VDataAccessInt16Scale01)
 
-	PhaseBReactivePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseBReactivePower",
-				Name:      "B相无功功率",
-				Unit:      "kVar",
-				ValueType: c_enum.EInt16,
-				Desc:      "B相无功功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x019B,
-	}
+	PhaseBReactivePower = c_proto.NewModbusPointWithDesc(0x019B, "PhaseBReactivePower", "B相无功功率", c_enum.EInt16, "kVar", "B相无功功率", c_default.VDataAccessInt16Scale01)
 
-	PhaseCReactivePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseCReactivePower",
-				Name:      "C相无功功率",
-				Unit:      "kVar",
-				ValueType: c_enum.EInt16,
-				Desc:      "C相无功功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x019C,
-	}
+	PhaseCReactivePower = c_proto.NewModbusPointWithDesc(0x019C, "PhaseCReactivePower", "C相无功功率", c_enum.EInt16, "kVar", "C相无功功率", c_default.VDataAccessInt16Scale01)
 
-	PhaseAApparentPower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseAApparentPower",
-				Name:      "A相视在功率",
-				Unit:      "kVA",
-				ValueType: c_enum.EInt16,
-				Desc:      "A相视在功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x019D,
-	}
+	PhaseAApparentPower = c_proto.NewModbusPointWithDesc(0x019D, "PhaseAApparentPower", "A相视在功率", c_enum.EInt16, "kVA", "A相视在功率", c_default.VDataAccessInt16Scale01)
 
-	PhaseBApparentPower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseBApparentPower",
-				Name:      "B相视在功率",
-				Unit:      "kVA",
-				ValueType: c_enum.EInt16,
-				Desc:      "B相视在功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x019E,
-	}
+	PhaseBApparentPower = c_proto.NewModbusPointWithDesc(0x019E, "PhaseBApparentPower", "B相视在功率", c_enum.EInt16, "kVA", "B相视在功率", c_default.VDataAccessInt16Scale01)
 
-	PhaseCApparentPower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PhaseCApparentPower",
-				Name:      "C相视在功率",
-				Unit:      "kVA",
-				ValueType: c_enum.EInt16,
-				Desc:      "C相视在功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x019F,
-	}
+	PhaseCApparentPower = c_proto.NewModbusPointWithDesc(0x019F, "PhaseCApparentPower", "C相视在功率", c_enum.EInt16, "kVA", "C相视在功率", c_default.VDataAccessInt16Scale01)
 
-	TotalActivePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "TotalActivePower",
-				Name:      "总有功功率",
-				Unit:      "kW",
-				ValueType: c_enum.EInt16,
-				Desc:      "总有功功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x01A0,
-	}
+	TotalActivePower = c_proto.NewModbusPointWithDesc(0x01A0, "TotalActivePower", "总有功功率", c_enum.EInt16, "kW", "总有功功率", c_default.VDataAccessInt16Scale01)
 
-	TotalReactivePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "TotalReactivePower",
-				Name:      "总无功功率",
-				Unit:      "kVar",
-				ValueType: c_enum.EInt16,
-				Desc:      "总无功功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x01A1,
-	}
+	TotalReactivePower = c_proto.NewModbusPointWithDesc(0x01A1, "TotalReactivePower", "总无功功率", c_enum.EInt16, "kVar", "总无功功率", c_default.VDataAccessInt16Scale01)
 
-	TotalApparentPower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "TotalApparentPower",
-				Name:      "总视在功率",
-				Unit:      "kVA",
-				ValueType: c_enum.EInt16,
-				Desc:      "总视在功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x01A2,
-	}
+	TotalApparentPower = c_proto.NewModbusPointWithDesc(0x01A2, "TotalApparentPower", "总视在功率", c_enum.EInt16, "kVA", "总视在功率", c_default.VDataAccessInt16Scale01)
 
-	ForwardActiveEnergy = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "ForwardActiveEnergy",
-				Name:      "正向有功电量",
-				Unit:      "kWh",
-				ValueType: c_enum.EUint16,
-				Desc:      "正向有功电量",
-			},
-			DataAccess: c_default.VDataAccessUInt16Scale001,
-		},
-		Addr: 0x01A3,
-	}
+	ForwardActiveEnergy = c_proto.NewModbusPointWithDesc(0x01A3, "ForwardActiveEnergy", "正向有功电量", c_enum.EUint16, "kWh", "正向有功电量", c_default.VDataAccessUInt16Scale001)
 
-	ReverseActiveEnergy = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "ReverseActiveEnergy",
-				Name:      "反向有功电量",
-				Unit:      "kWh",
-				ValueType: c_enum.EUint16,
-				Desc:      "反向有功电量",
-			},
-			DataAccess: c_default.VDataAccessUInt16Scale001,
-		},
-		Addr: 0x01A4,
-	}
+	ReverseActiveEnergy = c_proto.NewModbusPointWithDesc(0x01A4, "ReverseActiveEnergy", "反向有功电量", c_enum.EUint16, "kWh", "反向有功电量", c_default.VDataAccessUInt16Scale001)
 
-	Frequency = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Frequency",
-				Name:      "频率",
-				Unit:      "Hz",
-				ValueType: c_enum.EInt16,
-				Desc:      "频率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale001,
-		},
-		Addr: 0x01A5,
-	}
+	Frequency = c_proto.NewModbusPointWithDesc(0x01A5, "Frequency", "频率", c_enum.EInt16, "Hz", "频率", c_default.VDataAccessInt16Scale001)
 
-	PowerFactor = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PowerFactor",
-				Name:      "功率因数",
-				ValueType: c_enum.EInt16,
-				Desc:      "功率因数",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale001,
-		},
-		Addr: 0x01A6,
-	}
+	PowerFactor = c_proto.NewModbusPointWithDesc(0x01A6, "PowerFactor", "功率因数", c_enum.EInt16, "", "功率因数", c_default.VDataAccessInt16Scale001)
 
-	RatedLineVoltage = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "RatedLineVoltage",
-				Name:      "额定线电压",
-				Unit:      "V",
-				ValueType: c_enum.EInt16,
-				Desc:      "额定线电压",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x01A7,
-	}
+	RatedLineVoltage = c_proto.NewModbusPointWithDesc(0x01A7, "RatedLineVoltage", "额定线电压", c_enum.EInt16, "V", "额定线电压", c_default.VDataAccessInt16)
 
-	RatedFrequency = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "RatedFrequency",
-				Name:      "额定频率",
-				Unit:      "Hz",
-				ValueType: c_enum.EInt16,
-				Desc:      "额定频率",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x01A8,
-	}
+	RatedFrequency = c_proto.NewModbusPointWithDesc(0x01A8, "RatedFrequency", "额定频率", c_enum.EInt16, "Hz", "额定频率", c_default.VDataAccessInt16)
 )
 
 var ReadTask = &c_proto.SModbusPointTask{

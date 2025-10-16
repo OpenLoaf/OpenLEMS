@@ -66,203 +66,52 @@ var (
 		MethodName: "GetHistoryIncomingQuantity",
 	}
 
-	// 协议点位定义 - 直接创建，启动时验证SPoint字段
-	Status = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     c_default.VPointStatus, // 使用预定义状态点位
-			DataAccess: c_default.VDataAccessInt16,
-			ValueExplain: []*c_base.SFieldExplain{
-				{Key: "0", Value: "关机", FromParam: false, Color: "#9CBF30"},
-				{Key: "1", Value: "待机", FromParam: false, Color: "#6967EE"},
-				{Key: "2", Value: "充电中", FromParam: false, Color: "#29A634"},
-				{Key: "3", Value: "放电中", FromParam: false, Color: "#0098FA"},
-				{Key: "4", Value: "故障", FromParam: false, Color: "#FF5D5D"},
-			},
-		},
-		Addr: 0xC8,
-	}
+	// 协议点位定义 - 使用选项模式创建（带 ValueExplain）
+	Status = c_proto.NewModbusPointExt(0xC8,
+		c_proto.WithPresetPoint(c_default.VPointStatus),
+		c_proto.WithDataAccess(c_default.VDataAccessInt16),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
+			{Key: "0", Value: "关机", FromParam: false, Color: "#9CBF30"},
+			{Key: "1", Value: "待机", FromParam: false, Color: "#6967EE"},
+			{Key: "2", Value: "充电中", FromParam: false, Color: "#29A634"},
+			{Key: "3", Value: "放电中", FromParam: false, Color: "#0098FA"},
+			{Key: "4", Value: "故障", FromParam: false, Color: "#FF5D5D"},
+		}),
+	)
 
-	Power = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Power",
-				Name:      "功率",
-				Unit:      "kW",
-				ValueType: c_enum.EFloat32,
-				Desc:      "当前功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0xC9,
-	}
+	Power = c_proto.NewModbusPointWithDesc(0xC9, "Power", "功率", c_enum.EFloat32, "kW", "当前功率", c_default.VDataAccessInt16Scale01)
 
-	SOC = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "SOC",
-				Name:      "当前SOC",
-				Unit:      "%",
-				ValueType: c_enum.EFloat32,
-				Desc:      "当前SOC",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0xCA,
-	}
+	SOC = c_proto.NewModbusPointWithDesc(0xCA, "SOC", "当前SOC", c_enum.EFloat32, "%", "当前SOC", c_default.VDataAccessInt16Scale01)
 
-	GeneratedEnergy = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "GeneratedEnergy",
-				Name:      "累计放电量",
-				Unit:      "kWh",
-				ValueType: c_enum.EFloat32,
-				Desc:      "累计放电量",
-			},
-			DataAccess: c_default.VDataAccessUInt16Scale01,
-		},
-		Addr: 0xCB,
-	}
+	GeneratedEnergy = c_proto.NewModbusPointWithDesc(0xCB, "GeneratedEnergy", "累计放电量", c_enum.EFloat32, "kWh", "累计放电量", c_default.VDataAccessUInt16Scale01)
 
-	ConsumedEnergy = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "ConsumedEnergy",
-				Name:      "累计用电量",
-				Unit:      "kWh",
-				ValueType: c_enum.EFloat32,
-				Desc:      "累计用电量",
-			},
-			DataAccess: c_default.VDataAccessUInt16Scale01,
-		},
-		Addr: 0xCC,
-	}
+	ConsumedEnergy = c_proto.NewModbusPointWithDesc(0xCC, "ConsumedEnergy", "累计用电量", c_enum.EFloat32, "kWh", "累计用电量", c_default.VDataAccessUInt16Scale01)
 
-	MaxChargePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "MaxChargePower",
-				Name:      "最大允许充电功率",
-				Unit:      "kW",
-				ValueType: c_enum.EFloat32,
-				Desc:      "最大允许充电功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0xCD,
-	}
+	MaxChargePower = c_proto.NewModbusPointWithDesc(0xCD, "MaxChargePower", "最大允许充电功率", c_enum.EFloat32, "kW", "最大允许充电功率", c_default.VDataAccessInt16Scale01)
 
-	MaxDischargePower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "MaxDischargePower",
-				Name:      "最大允许放电功率",
-				Unit:      "kW",
-				ValueType: c_enum.EFloat32,
-				Desc:      "最大允许放电功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0xCE,
-	}
+	MaxDischargePower = c_proto.NewModbusPointWithDesc(0xCE, "MaxDischargePower", "最大允许放电功率", c_enum.EFloat32, "kW", "最大允许放电功率", c_default.VDataAccessInt16Scale01)
 
-	DeviceControl = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "DeviceControl",
-				Name:      "设备状态控制",
-				ValueType: c_enum.EInt16,
-				Desc:      "设备状态控制",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-			ValueExplain: []*c_base.SFieldExplain{
-				{Key: "0", Value: "关机", FromParam: false, Color: "#9CBF30"},
-				{Key: "1", Value: "开机", FromParam: false, Color: "#29A634"},
-			},
-		},
-		Addr: 0xCF,
-	}
+	DeviceControl = c_proto.NewModbusPointExt(0xCF,
+		c_proto.WithKey("DeviceControl"),
+		c_proto.WithName("设备状态控制"),
+		c_proto.WithValueType(c_enum.EInt16),
+		c_proto.WithDesc("设备状态控制"),
+		c_proto.WithDataAccess(c_default.VDataAccessInt16),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
+			{Key: "0", Value: "关机", FromParam: false, Color: "#9CBF30"},
+			{Key: "1", Value: "开机", FromParam: false, Color: "#29A634"},
+		}),
+	)
 
-	TargetPower = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "TargetPower",
-				Name:      "目标功率设置",
-				Unit:      "kW",
-				ValueType: c_enum.EFloat32,
-				Desc:      "目标功率设置",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0xD0,
-	}
+	TargetPower = c_proto.NewModbusPointWithDesc(0xD0, "TargetPower", "目标功率设置", c_enum.EFloat32, "kW", "目标功率设置", c_default.VDataAccessInt16Scale01)
 
-	PowerCapacity = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PowerCapacity",
-				Name:      "功率容量",
-				Unit:      "kW",
-				ValueType: c_enum.EFloat32,
-				Desc:      "功率容量",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0xD1,
-	}
+	PowerCapacity = c_proto.NewModbusPointWithDesc(0xD1, "PowerCapacity", "功率容量", c_enum.EFloat32, "kW", "功率容量", c_default.VDataAccessInt16Scale01)
 
-	EnergyCapacity = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "EnergyCapacity",
-				Name:      "能量容量",
-				Unit:      "kWh",
-				ValueType: c_enum.EFloat32,
-				Desc:      "能量容量",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0xD2,
-	}
+	EnergyCapacity = c_proto.NewModbusPointWithDesc(0xD2, "EnergyCapacity", "能量容量", c_enum.EFloat32, "kWh", "能量容量", c_default.VDataAccessInt16Scale01)
 
-	MinSOC = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "MinSOC",
-				Name:      "最小SOC",
-				Unit:      "%",
-				ValueType: c_enum.EFloat32,
-				Desc:      "最小SOC",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0xD3,
-	}
+	MinSOC = c_proto.NewModbusPointWithDesc(0xD3, "MinSOC", "最小SOC", c_enum.EFloat32, "%", "最小SOC", c_default.VDataAccessInt16Scale01)
 
-	MaxSOC = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "MaxSOC",
-				Name:      "最大SOC",
-				Unit:      "%",
-				ValueType: c_enum.EFloat32,
-				Desc:      "最大SOC",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0xD4,
-	}
+	MaxSOC = c_proto.NewModbusPointWithDesc(0xD4, "MaxSOC", "最大SOC", c_enum.EFloat32, "%", "最大SOC", c_default.VDataAccessInt16Scale01)
 
-	ChargeEfficiency = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "ChargeEfficiency",
-				Name:      "充放电效率",
-				ValueType: c_enum.EFloat32,
-				Desc:      "充放电效率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale001,
-		},
-		Addr: 0xD5,
-	}
+	ChargeEfficiency = c_proto.NewModbusPointWithDesc(0xD5, "ChargeEfficiency", "充放电效率", c_enum.EFloat32, "", "充放电效率", c_default.VDataAccessInt16Scale001)
 )

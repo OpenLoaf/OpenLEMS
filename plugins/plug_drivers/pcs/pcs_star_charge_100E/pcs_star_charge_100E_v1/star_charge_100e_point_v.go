@@ -9,77 +9,41 @@ import (
 
 // 年月日，可写
 var (
-	Year = &c_proto.SModbusPoint{
-		Addr: 30297,
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     &c_base.SPoint{Key: "Year", Name: "年", ValueType: c_enum.EUint16, Desc: "年"},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-	}
-	Month = &c_proto.SModbusPoint{
-		Addr: 30298,
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     &c_base.SPoint{Key: "Month", Name: "月", ValueType: c_enum.EUint16, Desc: "月 1~12"},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-	}
-	Day = &c_proto.SModbusPoint{
-		Addr: 30299,
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     &c_base.SPoint{Key: "Day", Name: "日", ValueType: c_enum.EUint16, Desc: "日 1~31"},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-	}
-	Hour = &c_proto.SModbusPoint{
-		Addr: 30300,
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     &c_base.SPoint{Key: "Hour", Name: "时", ValueType: c_enum.EUint16, Desc: "时 0~23"},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-	}
-	Minute = &c_proto.SModbusPoint{
-		Addr: 30301,
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     &c_base.SPoint{Key: "Minute", Name: "分", ValueType: c_enum.EUint16, Desc: "分 0~59"},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-	}
-	Second = &c_proto.SModbusPoint{
-		Addr: 30302,
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     &c_base.SPoint{Key: "Second", Name: "秒", ValueType: c_enum.EUint16, Desc: "秒 0~59"},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-	}
+	Year   = c_proto.NewModbusPointWithDesc(30297, "Year", "年", c_enum.EUint16, "", "年", c_default.VDataAccessUInt16)
+	Month  = c_proto.NewModbusPointWithDesc(30298, "Month", "月", c_enum.EUint16, "", "月 1~12", c_default.VDataAccessUInt16)
+	Day    = c_proto.NewModbusPointWithDesc(30299, "Day", "日", c_enum.EUint16, "", "日 1~31", c_default.VDataAccessUInt16)
+	Hour   = c_proto.NewModbusPointWithDesc(30300, "Hour", "时", c_enum.EUint16, "", "时 0~23", c_default.VDataAccessUInt16)
+	Minute = c_proto.NewModbusPointWithDesc(30301, "Minute", "分", c_enum.EUint16, "", "分 0~59", c_default.VDataAccessUInt16)
+	Second = c_proto.NewModbusPointWithDesc(30302, "Second", "秒", c_enum.EUint16, "", "秒 0~59", c_default.VDataAccessUInt16)
 )
 
 var (
-	OnOffCommand = &c_proto.SModbusPoint{
-		Addr: 30314,
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     &c_base.SPoint{Key: "OnOffCommand", Name: "开关机指令", ValueType: c_enum.EUint16, Desc: "On/off command: 0- Shutdown, 1- Startup, 2- Standby"},
-			DataAccess: c_default.VDataAccessUInt16,
-		},
-		ValueExplain: []*c_base.SFieldExplain{
+	OnOffCommand = c_proto.NewModbusPointExt(30314,
+		c_proto.WithKey("OnOffCommand"),
+		c_proto.WithName("开关机指令"),
+		c_proto.WithValueType(c_enum.EUint16),
+		c_proto.WithDesc("On/off command: 0- Shutdown, 1- Startup, 2- Standby"),
+		c_proto.WithDataAccess(c_default.VDataAccessUInt16),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
 			{Key: "0", Value: "关机", Color: "#d9d9d9"},
 			{Key: "1", Value: "已启动", Color: "#52c41a"},
 			{Key: "2", Value: "待机", Color: "#faad14"},
-		},
-	}
-	ActivePowerSetting = &c_proto.SModbusPoint{
-		Addr: 30315,
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     &c_base.SPoint{Key: "ActivePowerSetting", Name: "有功功率设置", ValueType: c_enum.EFloat64, Desc: "Inverter active power setting, Positive power represents battery discharge, with power from the DC side to the AC side, Negative power represents battery charging, with power from the AC side to the DC side"},
-			DataAccess: &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001},
-		},
-	}
-	ReactivePowerSetting = &c_proto.SModbusPoint{
-		Addr: 30317,
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint:     &c_base.SPoint{Key: "ReactivePowerSetting", Name: "无功功率设置", ValueType: c_enum.EFloat64, Desc: "Inverter reactive power setting"},
-			DataAccess: &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001},
-		},
-	}
+		}),
+	)
+	ActivePowerSetting = c_proto.NewModbusPointExt(30315,
+		c_proto.WithKey("ActivePowerSetting"),
+		c_proto.WithName("有功功率设置"),
+		c_proto.WithValueType(c_enum.EFloat64),
+		c_proto.WithDesc("Inverter active power setting, Positive power represents battery discharge, with power from the DC side to the AC side, Negative power represents battery charging, with power from the AC side to the DC side"),
+		c_proto.WithDataAccess(&c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001}),
+	)
+	ReactivePowerSetting = c_proto.NewModbusPointExt(30317,
+		c_proto.WithKey("ReactivePowerSetting"),
+		c_proto.WithName("无功功率设置"),
+		c_proto.WithValueType(c_enum.EFloat64),
+		c_proto.WithDesc("Inverter reactive power setting"),
+		c_proto.WithDataAccess(&c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001}),
+	)
 )
 
 var (

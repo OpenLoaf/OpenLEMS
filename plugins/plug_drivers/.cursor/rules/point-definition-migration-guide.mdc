@@ -1,0 +1,316 @@
+---
+alwaysApply: false
+description: 点位定义迁移指南 - 从三层嵌套到构造函数模式
+globs: **/*point*.go,**/*modbus*.go
+---
+
+# 点位定义迁移指南
+
+## 概述
+
+本指南帮助开发者将点位定义从三层嵌套结构迁移到简洁的构造函数模式，提升开发体验和代码可读性。
+
+## 迁移前后对比
+
+### 旧方式（三层嵌套）
+
+```go
+var Year = &c_proto.SModbusPoint{
+    Addr: 30297,
+    SProtocolPoint: &c_base.SProtocolPoint{
+        SPoint: &c_base.SPoint{
+            Key: "Year", 
+            Name: "年", 
+            ValueType: c_enum.EUint16, 
+            Desc: "年"
+        },
+        DataAccess: c_default.VDataAccessUInt16,
+    },
+}
+```
+
+### 新方式（构造函数）
+
+```go
+// 简单场景 - 基础构造函数
+var Year = c_proto.NewModbusPointWithDesc(30297, "Year", "年", c_enum.EUint16, "", "年", c_default.VDataAccessUInt16)
+
+// 复杂场景 - 选项模式
+var OnOffCommand = c_proto.NewModbusPointExt(30314,
+    c_proto.WithKey("OnOffCommand"),
+    c_proto.WithName("开关机指令"),
+    c_proto.WithValueType(c_enum.EUint16),
+    c_proto.WithDesc("On/off command: 0- Shutdown, 1- Startup, 2- Standby"),
+    c_proto.WithDataAccess(c_default.VDataAccessUInt16),
+    c_proto.WithValueExplain([]*c_base.SFieldExplain{
+        {Key: "0", Value: "关机", Color: "#d9d9d9"},
+        {Key: "1", Value: "已启动", Color: "#52c41a"},
+        {Key: "2", Value: "待机", Color: "#faad14"},
+    }),
+)
+```
+
+## 迁移模式识别
+
+### 模式1：简单点位（使用基础构造函数）
+
+**适用场景：** 只有基本字段的点位
+
+**旧代码：**
+```go
+var Status = &c_proto.SModbusPoint{
+    SProtocolPoint: &c_base.SProtocolPoint{
+        SPoint: &c_base.SPoint{
+            Key: "Status", 
+            Name: "设备状态字", 
+            ValueType: c_enum.EInt16, 
+            Desc: "设备状态字"
+        },
+        DataAccess: c_default.VDataAccessInt16,
+    },
+    Addr: 0x0190,
+}
+```
+
+**新代码：**
+```go
+var Status = c_proto.NewModbusPointWithDesc(0x0190, "Status", "设备状态字", c_enum.EInt16, "", "设备状态字", c_default.VDataAccessInt16)
+```
+
+### 模式2：带单位的点位
+
+**旧代码：**
+```go
+var PhaseAVoltage = &c_proto.SModbusPoint{
+    SProtocolPoint: &c_base.SProtocolPoint{
+        SPoint: &c_base.SPoint{
+            Key: "PhaseAVoltage", 
+            Name: "A相电压", 
+            Unit: "V", 
+            ValueType: c_enum.EFloat32, 
+            Desc: "A相电压"
+        },
+        DataAccess: c_default.VDataAccessInt16,
+    },
+    Addr: 0x0191,
+}
+```
+
+**新代码：**
+```go
+var PhaseAVoltage = c_proto.NewModbusPointWithDesc(0x0191, "PhaseAVoltage", "A相电压", c_enum.EFloat32, "V", "A相电压", c_default.VDataAccessInt16)
+```
+
+### 模式3：使用预定义点位
+
+**旧代码：**
+```go
+var DCVoltage = &c_proto.SModbusPoint{
+    SProtocolPoint: &c_base.SProtocolPoint{
+        SPoint: c_default.VPointDcVoltage,
+        DataAccess: c_default.VDataAccessUInt16Scale01,
+    },
+    Addr: 0x1103,
+}
+```
+
+**新代码：**
+```go
+var DCVoltage = c_proto.NewModbusPointFromPreset(0x1103, c_default.VPointDcVoltage, c_default.VDataAccessUInt16Scale01)
+```
+
+### 模式4：带 ValueExplain 的点位（使用选项模式）
+
+**旧代码：**
+```go
+var OnOffCommand = &c_proto.SModbusPoint{
+    SProtocolPoint: &c_base.SProtocolPoint{
+        SPoint: &c_base.SPoint{
+            Key: "OnOffCommand", 
+            Name: "开关机指令", 
+            ValueType: c_enum.EUint16, 
+            Desc: "On/off command: 0- Shutdown, 1- Startup, 2- Standby"
+        },
+        DataAccess: c_default.VDataAccessUInt16,
+    },
+    Addr: 30314,
+    ValueExplain: []*c_base.SFieldExplain{
+        {Key: "0", Value: "关机", Color: "#d9d9d9"},
+        {Key: "1", Value: "已启动", Color: "#52c41a"},
+        {Key: "2", Value: "待机", Color: "#faad14"},
+    },
+}
+```
+
+**新代码：**
+```go
+var OnOffCommand = c_proto.NewModbusPointExt(30314,
+    c_proto.WithKey("OnOffCommand"),
+    c_proto.WithName("开关机指令"),
+    c_proto.WithValueType(c_enum.EUint16),
+    c_proto.WithDesc("On/off command: 0- Shutdown, 1- Startup, 2- Standby"),
+    c_proto.WithDataAccess(c_default.VDataAccessUInt16),
+    c_proto.WithValueExplain([]*c_base.SFieldExplain{
+        {Key: "0", Value: "关机", Color: "#d9d9d9"},
+        {Key: "1", Value: "已启动", Color: "#52c41a"},
+        {Key: "2", Value: "待机", Color: "#faad14"},
+    }),
+)
+```
+
+### 模式5：复杂数据访问配置
+
+**旧代码：**
+```go
+var ActivePowerSetting = &c_proto.SModbusPoint{
+    SProtocolPoint: &c_base.SProtocolPoint{
+        SPoint: &c_base.SPoint{
+            Key: "ActivePowerSetting", 
+            Name: "有功功率设置", 
+            ValueType: c_enum.EFloat64, 
+            Desc: "Inverter active power setting..."
+        },
+        DataAccess: &c_base.SDataAccess{
+            DataFormat: c_enum.DataFormatInt32, 
+            ByteEndian: c_enum.ByteEndianBig, 
+            WordOrder: c_enum.WordOrderHighLow, 
+            Factor: 0.001
+        },
+    },
+    Addr: 30315,
+}
+```
+
+**新代码：**
+```go
+var ActivePowerSetting = c_proto.NewModbusPointExt(30315,
+    c_proto.WithKey("ActivePowerSetting"),
+    c_proto.WithName("有功功率设置"),
+    c_proto.WithValueType(c_enum.EFloat64),
+    c_proto.WithDesc("Inverter active power setting..."),
+    c_proto.WithDataAccess(&c_base.SDataAccess{
+        DataFormat: c_enum.DataFormatInt32, 
+        ByteEndian: c_enum.ByteEndianBig, 
+        WordOrder: c_enum.WordOrderHighLow, 
+        Factor: 0.001
+    }),
+)
+```
+
+## 构造函数选择指南
+
+### 基础构造函数
+
+- **`NewModbusPoint`**: 最基础的构造函数，只有必要参数
+- **`NewModbusPointWithUnit`**: 带单位的点位
+- **`NewModbusPointWithDesc`**: 带描述的点位（最常用）
+- **`NewModbusPointFromPreset`**: 使用预定义 SPoint 的点位
+
+### 选项模式
+
+当点位包含以下复杂配置时，使用 `NewModbusPointExt` + 选项函数：
+
+- **ValueExplain**: 值解释配置
+- **Trigger**: 告警触发函数
+- **Group**: 点位分组
+- **自定义 DataAccess**: 非标准数据访问配置
+- **Min/Max**: 范围限制
+- **Precise**: 精度设置
+- **Hidden**: 隐藏设置
+
+## 最佳实践
+
+### 1. 优先使用预定义配置
+
+```go
+// ✅ 推荐 - 使用预定义配置
+var SOC = c_proto.NewModbusPointFromPreset(0x1107, c_default.VPointSOC, c_default.VDataAccessUInt16)
+
+// ❌ 不推荐 - 手动创建配置
+var SOC = c_proto.NewModbusPointExt(0x1107,
+    c_proto.WithKey("SOC"),
+    c_proto.WithName("电池电量"),
+    c_proto.WithValueType(c_enum.EFloat32),
+    c_proto.WithUnit("%"),
+    c_proto.WithDataAccess(c_default.VDataAccessUInt16),
+)
+```
+
+### 2. 合理选择构造函数
+
+```go
+// ✅ 简单点位 - 使用基础构造函数
+var Status = c_proto.NewModbusPointWithDesc(0x0190, "Status", "设备状态字", c_enum.EInt16, "", "设备状态字", c_default.VDataAccessInt16)
+
+// ✅ 复杂点位 - 使用选项模式
+var OnOffCommand = c_proto.NewModbusPointExt(30314,
+    c_proto.WithKey("OnOffCommand"),
+    c_proto.WithName("开关机指令"),
+    c_proto.WithValueType(c_enum.EUint16),
+    c_proto.WithDesc("On/off command: 0- Shutdown, 1- Startup, 2- Standby"),
+    c_proto.WithDataAccess(c_default.VDataAccessUInt16),
+    c_proto.WithValueExplain([]*c_base.SFieldExplain{...}),
+)
+```
+
+### 3. 保持代码一致性
+
+- 同一驱动中的点位定义风格保持一致
+- 优先使用预定义配置，减少重复代码
+- 复杂配置使用选项模式，简单配置使用基础构造函数
+
+## 迁移验证
+
+### 编译验证
+
+```bash
+cd application && go build -tags=dev -o ems main.go
+```
+
+### 功能验证
+
+```bash
+cd application && ./ems --test=true
+```
+
+### 检查清单
+
+- [ ] 所有点位定义已迁移到新格式
+- [ ] 代码编译通过
+- [ ] 测试模式运行成功
+- [ ] 点位数据结构完整性验证
+- [ ] 预定义配置使用正确
+- [ ] 复杂配置使用选项模式
+
+## 常见问题
+
+### Q: 如何选择使用哪个构造函数？
+
+A: 根据点位复杂度选择：
+- 简单点位：`NewModbusPointWithDesc`
+- 预定义点位：`NewModbusPointFromPreset`
+- 复杂点位：`NewModbusPointExt` + 选项函数
+
+### Q: 什么时候使用选项模式？
+
+A: 当点位包含以下配置时：
+- ValueExplain（值解释）
+- Trigger（告警触发）
+- 自定义 DataAccess 配置
+- 其他复杂配置
+
+### Q: 预定义配置的优势是什么？
+
+A: 
+- 标准化：使用经过验证的配置
+- 一致性：相同类型点位使用相同配置
+- 维护性：集中管理，便于更新
+- 告警功能：预定义点位已包含告警触发逻辑
+
+## 相关文件
+
+- [c_modbus_point_new_f.go](mdc:common/c_proto/c_modbus_point_new_f.go) - Modbus 点位构造函数
+- [c_canbus_point_new_f.go](mdc:common/c_proto/c_canbus_point_new_f.go) - CANbus 点位构造函数
+- [c_didio_point_new_f.go](mdc:common/c_proto/c_didio_point_new_f.go) - DIDO 点位构造函数
+- [c_default_data_access_v.go](mdc:common/c_default/c_default_data_access_v.go) - 预定义数据访问配置
+- [c_default_point_v.go](mdc:common/c_default/c_default_point_v.go) - 预定义点位配置

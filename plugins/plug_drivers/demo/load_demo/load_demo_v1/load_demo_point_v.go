@@ -43,88 +43,18 @@ var (
 		MethodName: "GetMaxInputPower",
 	}
 
-	// 协议点位定义 - 直接创建，启动时验证SPoint字段
-	Status = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Status",
-				Name:      "设备状态字",
-				ValueType: c_enum.EInt16,
-				Desc:      "设备状态字",
-			},
-			DataAccess: c_default.VDataAccessInt16,
-		},
-		Addr: 0x012C,
-	}
+	// 协议点位定义 - 使用构造函数创建
+	Status = c_proto.NewModbusPointWithDesc(0x012C, "Status", "设备状态字", c_enum.EInt16, "", "设备状态字", c_default.VDataAccessInt16)
 
-	Power = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Power",
-				Name:      "当前功率",
-				Unit:      "kW",
-				ValueType: c_enum.EFloat32,
-				Desc:      "当前功率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x012D,
-	}
+	Power = c_proto.NewModbusPointWithDesc(0x012D, "Power", "当前功率", c_enum.EFloat32, "kW", "当前功率", c_default.VDataAccessInt16Scale01)
 
-	Energy = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "Energy",
-				Name:      "累计用电量",
-				Unit:      "kWh",
-				ValueType: c_enum.EFloat32,
-				Desc:      "累计用电量",
-			},
-			DataAccess: c_default.VDataAccessUInt16Scale01,
-		},
-		Addr: 0x012E,
-	}
+	Energy = c_proto.NewModbusPointWithDesc(0x012E, "Energy", "累计用电量", c_enum.EFloat32, "kWh", "累计用电量", c_default.VDataAccessUInt16Scale01)
 
-	MaxLoad = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "MaxLoad",
-				Name:      "最大负荷",
-				Unit:      "kW",
-				ValueType: c_enum.EFloat32,
-				Desc:      "最大负荷",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x012F,
-	}
+	MaxLoad = c_proto.NewModbusPointWithDesc(0x012F, "MaxLoad", "最大负荷", c_enum.EFloat32, "kW", "最大负荷", c_default.VDataAccessInt16Scale01)
 
-	PowerFactor = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "PowerFactor",
-				Name:      "功率因数",
-				ValueType: c_enum.EFloat32,
-				Desc:      "功率因数",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale001,
-		},
-		Addr: 0x0130,
-	}
+	PowerFactor = c_proto.NewModbusPointWithDesc(0x0130, "PowerFactor", "功率因数", c_enum.EFloat32, "", "功率因数", c_default.VDataAccessInt16Scale001)
 
-	LoadRate = &c_proto.SModbusPoint{
-		SProtocolPoint: &c_base.SProtocolPoint{
-			SPoint: &c_base.SPoint{
-				Key:       "LoadRate",
-				Name:      "当前负荷率",
-				Unit:      "%",
-				ValueType: c_enum.EFloat32,
-				Desc:      "当前负荷率",
-			},
-			DataAccess: c_default.VDataAccessInt16Scale01,
-		},
-		Addr: 0x0131,
-	}
+	LoadRate = c_proto.NewModbusPointWithDesc(0x0131, "LoadRate", "当前负荷率", c_enum.EFloat32, "%", "当前负荷率", c_default.VDataAccessInt16Scale01)
 )
 
 var ReadTask = &c_proto.SModbusPointTask{
