@@ -19,7 +19,7 @@ type GetSummaryRes struct {
 }
 
 type GetNetworkTrafficReq struct {
-	g.Meta `path:"/system/net/traffic" method:"get" tags:"系统相关" summary:"网络流量信息" noAuth:"true"`
+	g.Meta `path:"/system/net/traffic" method:"get" tags:"系统相关" summary:"网络流量信息" role:"user"`
 }
 type GetNetworkTrafficRes struct {
 	Net NetBrief `json:"net" dc:"网络流量信息(累计字节与瞬时速率)"`
@@ -47,7 +47,7 @@ type GetSystemInfoRes struct {
 }
 
 type GetNowReq struct {
-	g.Meta `path:"/system/now" method:"get" tags:"系统相关" summary:"获取系统当前时间" noAuth:"true"`
+	g.Meta `path:"/system/now" method:"get" tags:"系统相关" summary:"获取系统当前时间" role:"user"`
 }
 type GetNowRes struct {
 	Now string `json:"now" dc:"当前时间(YYYY-MM-DD HH:mm:ss)"`
