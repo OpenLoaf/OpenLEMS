@@ -11,7 +11,7 @@ type GetEnergyStorageStrategyListReq struct {
 	Page     int             `json:"page" dc:"页码" v:"required|min:1"`
 	PageSize int             `json:"pageSize" dc:"每页数量" v:"required|min:1|max:100"`
 	Status   *c_enum.EStatus `json:"status" dc:"状态筛选"`
-	Priority *string         `json:"priority" dc:"1|2|3|4|5|all" v:"in:1,2,3,4,5,all"`
+	Priority *int            `json:"priority" dc:"优先级" v:"between:1,5"`
 	Keyword  *string         `json:"keyword" dc:"关键词" v:"length:0,50"`
 }
 

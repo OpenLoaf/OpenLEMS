@@ -5,7 +5,6 @@ import (
 	"context"
 	"s_db"
 
-	"common/c_enum"
 	"p_energy_manage"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
@@ -21,8 +20,6 @@ func (c *ControllerV1) CreateEnergyStorageStrategy(ctx context.Context, req *v1.
 
 	// 使用 gconv.Map 自动转换结构体为 map
 	data := gconv.Map(req)
-	// 特殊处理：将枚举转为字符串
-	data["status"] = req.Status.String()
 
 	_, e := s_db.GetEnergyStorageStrategyService().CreateEnergyStorageStrategy(ctx, data)
 	if e != nil {
@@ -40,8 +37,6 @@ func (c *ControllerV1) UpdateEnergyStorageStrategy(ctx context.Context, req *v1.
 
 	// 使用 gconv.Map 自动转换结构体为 map
 	data := gconv.Map(req)
-	// 特殊处理：将枚举转为字符串
-	data["status"] = req.Status.String()
 	// 移除 id 字段（id 通过单独参数传递）
 	delete(data, "id")
 
@@ -61,44 +56,28 @@ func (c *ControllerV1) DeleteEnergyStorageStrategy(ctx context.Context, req *v1.
 
 // GetEnergyStorageStrategyList 查询列表
 func (c *ControllerV1) GetEnergyStorageStrategyList(ctx context.Context, req *v1.GetEnergyStorageStrategyListReq) (res *v1.GetEnergyStorageStrategyListRes, err error) {
-	filters := map[string]interface{}{"status": req.Status}
-	if req.Priority != "" && req.Priority != "all" {
-		filters["priority"] = gconv.Int(req.Priority)
+	// 使用 gconv.Map 自动转换结构体为 map，然后移除分页参数
+	filters := gconv.Map(req)
+	delete(filters, "page")
+	delete(filters, "pageSize")
+
+	// 移除 nil 值
+	for key, value := range filters {
+		if value == nil {
+			delete(filters, key)
+		}
 	}
-	if req.Keyword != "" {
-		filters["keyword"] = req.Keyword
-	}
+
 	list, total, e := s_db.GetEnergyStorageStrategyService().GetEnergyStorageStrategyPage(ctx, req.Page, req.PageSize, filters)
 	if e != nil {
 		return nil, e
 	}
 	dtoList := make([]*v1.EnergyStorageStrategy, 0, len(list))
 	for _, m := range list {
-		dto := &v1.EnergyStorageStrategy{
-			Id:          m.Id,
-			Name:        m.Name,
-			Description: m.Description,
-			Priority:    m.Priority,
-			Status:      c_enum.ParseStatus(m.Status),
-			CreatedAt:   &m.CreatedAt.Time,
-			UpdatedAt:   &m.UpdatedAt.Time,
-			IsDefault:   m.IsDefault,
+		dto := &v1.EnergyStorageStrategy{}
+		if err := dto.UnmarshalValue(m); err != nil {
+			return nil, err
 		}
-		// 反序列化配置结构体
-		var dateRange p_energy_manage.SDateRange
-		_ = gjson.DecodeTo(m.DateRange, &dateRange)
-		dto.DateRange = &dateRange
-
-		var timeRange p_energy_manage.STimeRange
-		_ = gjson.DecodeTo(m.TimeRange, &timeRange)
-		dto.TimeRange = &timeRange
-
-		var config p_energy_manage.SStrategyConfig
-		_ = gjson.DecodeTo(m.Config, &config)
-		dto.Config = &config
-		var ids []string
-		_ = gjson.DecodeTo(m.EssDeviceIds, &ids)
-		dto.EssDeviceIds = ids
 		dtoList = append(dtoList, dto)
 	}
 	return &v1.GetEnergyStorageStrategyListRes{List: dtoList, Total: total}, nil
@@ -110,31 +89,10 @@ func (c *ControllerV1) GetEnergyStorageStrategyDetail(ctx context.Context, req *
 	if e != nil {
 		return nil, e
 	}
-	dto := &v1.EnergyStorageStrategy{
-		Id:          m.Id,
-		Name:        m.Name,
-		Description: m.Description,
-		Priority:    m.Priority,
-		Status:      c_enum.ParseStatus(m.Status),
-		CreatedAt:   &m.CreatedAt.Time,
-		UpdatedAt:   &m.UpdatedAt.Time,
-		IsDefault:   m.IsDefault,
+	dto := &v1.EnergyStorageStrategy{}
+	if err := dto.UnmarshalValue(m); err != nil {
+		return nil, err
 	}
-	// 反序列化配置结构体
-	var dateRange p_energy_manage.SDateRange
-	_ = gjson.DecodeTo(m.DateRange, &dateRange)
-	dto.DateRange = &dateRange
-
-	var timeRange p_energy_manage.STimeRange
-	_ = gjson.DecodeTo(m.TimeRange, &timeRange)
-	dto.TimeRange = &timeRange
-
-	var config p_energy_manage.SStrategyConfig
-	_ = gjson.DecodeTo(m.Config, &config)
-	dto.Config = &config
-	var ids []string
-	_ = gjson.DecodeTo(m.EssDeviceIds, &ids)
-	dto.EssDeviceIds = ids
 	return (*v1.GetEnergyStorageStrategyDetailRes)(dto), nil
 }
 
