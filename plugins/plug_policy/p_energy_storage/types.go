@@ -1,7 +1,7 @@
-package p_energy_manage
+package p_energy_storage
 
 import (
-	"p_energy_manage/internal"
+	"p_energy_storage/internal"
 	"time"
 )
 

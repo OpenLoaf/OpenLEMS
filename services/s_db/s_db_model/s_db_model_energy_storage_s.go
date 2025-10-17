@@ -10,7 +10,7 @@ import (
 // 数据库相关常量
 const (
 	// 表名
-	TableEnergyStorageStrategy = "energy_storage_strategy"
+	TableEnergyStorage = "energy_storage"
 
 	// 储能策略表特有字段
 	FieldEssDescription = "description"
@@ -23,9 +23,9 @@ const (
 	FieldEssCreatedBy   = "created_by"
 )
 
-// SEnergyStorageStrategyModel 储能策略表结构
-type SEnergyStorageStrategyModel struct {
-	g.Meta      `orm:"table:energy_storage_strategy"`
+// SEnergyStorageModel 储能策略表结构
+type SEnergyStorageModel struct {
+	g.Meta      `orm:"table:energy_storage"`
 	Id          int         `json:"id" orm:"id,primary,auto_increment"`                  // 主键ID
 	Name        string      `json:"name" orm:"name" v:"required|length:2,50"`            // 策略名称
 	Description string      `json:"description" orm:"description"`                       // 策略描述
@@ -41,20 +41,20 @@ type SEnergyStorageStrategyModel struct {
 }
 
 // Create 创建记录
-func (m *SEnergyStorageStrategyModel) Create(ctx context.Context) error {
+func (m *SEnergyStorageModel) Create(ctx context.Context) error {
 	// 排除ID字段，让数据库自动生成
-	_, err := g.Model(TableEnergyStorageStrategy).Ctx(ctx).FieldsEx(FieldId).Insert(m)
+	_, err := g.Model(TableEnergyStorage).Ctx(ctx).FieldsEx(FieldId).Insert(m)
 	return err
 }
 
 // GetById 根据ID获取记录
-func (m *SEnergyStorageStrategyModel) GetById(ctx context.Context, id int) error {
-	return g.Model(TableEnergyStorageStrategy).Ctx(ctx).Where(FieldId, id).Scan(m)
+func (m *SEnergyStorageModel) GetById(ctx context.Context, id int) error {
+	return g.Model(TableEnergyStorage).Ctx(ctx).Where(FieldId, id).Scan(m)
 }
 
 // Update 更新记录
-func (m *SEnergyStorageStrategyModel) Update(ctx context.Context) error {
-	_, err := g.Model(TableEnergyStorageStrategy).Ctx(ctx).
+func (m *SEnergyStorageModel) Update(ctx context.Context) error {
+	_, err := g.Model(TableEnergyStorage).Ctx(ctx).
 		Where(FieldId, m.Id).
 		FieldsEx(FieldId, FieldCreatedAt).
 		Update(m)
@@ -62,13 +62,13 @@ func (m *SEnergyStorageStrategyModel) Update(ctx context.Context) error {
 }
 
 // UpdateFields 更新指定字段
-func (m *SEnergyStorageStrategyModel) UpdateFields(ctx context.Context, data g.Map) error {
-	_, err := g.Model(TableEnergyStorageStrategy).Ctx(ctx).Where(FieldId, m.Id).Update(data)
+func (m *SEnergyStorageModel) UpdateFields(ctx context.Context, data g.Map) error {
+	_, err := g.Model(TableEnergyStorage).Ctx(ctx).Where(FieldId, m.Id).Update(data)
 	return err
 }
 
 // Delete 删除记录
-func (m *SEnergyStorageStrategyModel) Delete(ctx context.Context) error {
-	_, err := g.Model(TableEnergyStorageStrategy).Ctx(ctx).Where(FieldId, m.Id).Delete()
+func (m *SEnergyStorageModel) Delete(ctx context.Context) error {
+	_, err := g.Model(TableEnergyStorage).Ctx(ctx).Where(FieldId, m.Id).Delete()
 	return err
 }

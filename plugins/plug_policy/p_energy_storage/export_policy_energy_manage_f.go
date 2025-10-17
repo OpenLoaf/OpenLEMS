@@ -1,8 +1,8 @@
-package p_energy_manage
+package p_energy_storage
 
 import (
 	"context"
-	"p_energy_manage/internal"
+	"p_energy_storage/internal"
 )
 
 // ExecuteStrategy 执行储能策略

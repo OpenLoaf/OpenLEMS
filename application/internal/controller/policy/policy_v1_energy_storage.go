@@ -6,7 +6,7 @@ import (
 	"s_db"
 	"s_db/s_db_model"
 
-	"p_energy_manage"
+	"p_energy_storage"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
 )
@@ -23,12 +23,12 @@ func marshalJSON(v interface{}) string {
 // CreateEnergyStorageStrategy 创建储能策略
 func (c *ControllerV1) CreateEnergyStorageStrategy(ctx context.Context, req *v1.CreateEnergyStorageStrategyReq) (res *v1.CreateEnergyStorageStrategyRes, err error) {
 	// 使用插件层验证
-	if err := p_energy_manage.ValidateStrategy(req.DateRange, req.TimeRange, req.Config); err != nil {
+	if err := p_energy_storage.ValidateStrategy(req.DateRange, req.TimeRange, req.Config); err != nil {
 		return nil, err
 	}
 
 	// 构造 Model
-	model := &s_db_model.SEnergyStorageStrategyModel{
+	model := &s_db_model.SEnergyStorageModel{
 		Name:        req.Name,
 		Description: req.Description,
 		Priority:    req.Priority,
@@ -51,12 +51,12 @@ func (c *ControllerV1) CreateEnergyStorageStrategy(ctx context.Context, req *v1.
 // UpdateEnergyStorageStrategy 更新储能策略
 func (c *ControllerV1) UpdateEnergyStorageStrategy(ctx context.Context, req *v1.UpdateEnergyStorageStrategyReq) (res *v1.UpdateEnergyStorageStrategyRes, err error) {
 	// 使用插件层验证
-	if err := p_energy_manage.ValidateStrategy(req.DateRange, req.TimeRange, req.Config); err != nil {
+	if err := p_energy_storage.ValidateStrategy(req.DateRange, req.TimeRange, req.Config); err != nil {
 		return nil, err
 	}
 
 	// 构造 Model
-	model := &s_db_model.SEnergyStorageStrategyModel{
+	model := &s_db_model.SEnergyStorageModel{
 		Id:          req.Id,
 		Name:        req.Name,
 		Description: req.Description,
@@ -108,9 +108,9 @@ func (c *ControllerV1) GetEnergyStorageStrategyList(ctx context.Context, req *v1
 	}
 
 	// 转换为 DTO
-	dtoList := make([]*v1.EnergyStorageStrategy, 0, len(list))
+	dtoList := make([]*v1.EnergyStorage, 0, len(list))
 	for _, m := range list {
-		dto := &v1.EnergyStorageStrategy{}
+		dto := &v1.EnergyStorage{}
 		if err := dto.UnmarshalValue(m); err != nil {
 			return nil, err
 		}
@@ -127,7 +127,7 @@ func (c *ControllerV1) GetEnergyStorageStrategyDetail(ctx context.Context, req *
 		return nil, err
 	}
 
-	dto := &v1.EnergyStorageStrategy{}
+	dto := &v1.EnergyStorage{}
 	if err := dto.UnmarshalValue(m); err != nil {
 		return nil, err
 	}

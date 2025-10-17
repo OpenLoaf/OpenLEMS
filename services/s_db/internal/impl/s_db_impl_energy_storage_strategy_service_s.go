@@ -29,7 +29,7 @@ func GetEnergyStorageStrategyService() s_db_basic.IEnergyStorageStrategyService 
 }
 
 // 验证模型
-func (s *sEnergyStorageStrategyServiceImpl) validateModel(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) error {
+func (s *sEnergyStorageStrategyServiceImpl) validateModel(ctx context.Context, model *s_db_model.SEnergyStorageModel) error {
 	// 基础字段验证（通过标签自动验证）
 	if err := g.Validator().Data(model).Run(ctx); err != nil {
 		return errors.Wrap(err.FirstError(), "字段验证失败")
@@ -58,7 +58,7 @@ func (s *sEnergyStorageStrategyServiceImpl) validateModel(ctx context.Context, m
 }
 
 // CreateEnergyStorageStrategy 创建储能策略
-func (s *sEnergyStorageStrategyServiceImpl) CreateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) (int, error) {
+func (s *sEnergyStorageStrategyServiceImpl) CreateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageModel) (int, error) {
 	// 验证模型
 	if err := s.validateModel(ctx, model); err != nil {
 		return 0, err
@@ -73,7 +73,7 @@ func (s *sEnergyStorageStrategyServiceImpl) CreateEnergyStorageStrategy(ctx cont
 	}
 
 	// 获取刚插入的记录ID
-	lastIdValue, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+	lastIdValue, err := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx).
 		Fields(s_db_model.FieldId).
 		Order("id DESC").
 		Limit(1).
@@ -86,8 +86,8 @@ func (s *sEnergyStorageStrategyServiceImpl) CreateEnergyStorageStrategy(ctx cont
 }
 
 // GetEnergyStorageStrategyById 根据ID获取储能策略
-func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyById(ctx context.Context, id int) (*s_db_model.SEnergyStorageStrategyModel, error) {
-	model := &s_db_model.SEnergyStorageStrategyModel{}
+func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyById(ctx context.Context, id int) (*s_db_model.SEnergyStorageModel, error) {
+	model := &s_db_model.SEnergyStorageModel{}
 	if err := model.GetById(ctx, id); err != nil {
 		return nil, errors.Wrap(err, "获取储能策略失败")
 	}
@@ -98,7 +98,7 @@ func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyById(ctx con
 }
 
 // UpdateEnergyStorageStrategy 更新储能策略
-func (s *sEnergyStorageStrategyServiceImpl) UpdateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) error {
+func (s *sEnergyStorageStrategyServiceImpl) UpdateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageModel) error {
 	// 验证模型
 	if err := s.validateModel(ctx, model); err != nil {
 		return err
@@ -115,13 +115,13 @@ func (s *sEnergyStorageStrategyServiceImpl) UpdateEnergyStorageStrategy(ctx cont
 
 // DeleteEnergyStorageStrategy 删除储能策略
 func (s *sEnergyStorageStrategyServiceImpl) DeleteEnergyStorageStrategy(ctx context.Context, id int) error {
-	model := &s_db_model.SEnergyStorageStrategyModel{Id: id}
+	model := &s_db_model.SEnergyStorageModel{Id: id}
 	return model.Delete(ctx)
 }
 
 // GetEnergyStorageStrategyPage 分页查询储能策略
-func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SEnergyStorageStrategyModel, int, error) {
-	model := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx)
+func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SEnergyStorageModel, int, error) {
+	model := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx)
 
 	// 处理过滤条件
 	if status, ok := filters[s_db_model.FieldEssStatus].(string); ok && status != "" && status != "all" {
@@ -159,7 +159,7 @@ func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyPage(ctx con
 	}
 
 	// 查询列表
-	var list []*s_db_model.SEnergyStorageStrategyModel
+	var list []*s_db_model.SEnergyStorageModel
 	err = model.Page(page, pageSize).OrderDesc(s_db_model.FieldCreatedAt).Scan(&list)
 	if err != nil {
 		return nil, 0, errors.Wrap(err, "查询列表失败")
@@ -169,13 +169,13 @@ func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyPage(ctx con
 }
 
 // GetEnergyStorageStrategiesByIds 根据ID列表获取储能策略
-func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategiesByIds(ctx context.Context, ids []int) ([]*s_db_model.SEnergyStorageStrategyModel, error) {
+func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategiesByIds(ctx context.Context, ids []int) ([]*s_db_model.SEnergyStorageModel, error) {
 	if len(ids) == 0 {
-		return []*s_db_model.SEnergyStorageStrategyModel{}, nil
+		return []*s_db_model.SEnergyStorageModel{}, nil
 	}
 
-	var list []*s_db_model.SEnergyStorageStrategyModel
-	err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+	var list []*s_db_model.SEnergyStorageModel
+	err := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx).
 		WhereIn(s_db_model.FieldId, ids).
 		Scan(&list)
 	if err != nil {
@@ -192,7 +192,7 @@ func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageStrategyActive(ctx c
 		status = "active"
 	}
 
-	_, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+	_, err := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx).
 		Where(s_db_model.FieldId, id).
 		Update(g.Map{s_db_model.FieldEssStatus: status})
 
@@ -203,14 +203,14 @@ func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageStrategyActive(ctx c
 func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageStrategyDefault(ctx context.Context, id int, isDefault bool) error {
 	if isDefault {
 		// 先清除其他默认策略
-		if _, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+		if _, err := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx).
 			Where(s_db_model.FieldEssIsDefault, true).
 			Update(g.Map{s_db_model.FieldEssIsDefault: false}); err != nil {
 			return errors.Wrap(err, "清除其他默认策略失败")
 		}
 	}
 
-	_, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+	_, err := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx).
 		Where(s_db_model.FieldId, id).
 		Update(g.Map{s_db_model.FieldEssIsDefault: isDefault})
 
@@ -229,7 +229,7 @@ func (s *sEnergyStorageStrategyServiceImpl) DetectConflictsByIds(ctx context.Con
 // DetectConflictsForCandidates 候选策略冲突检测
 func (s *sEnergyStorageStrategyServiceImpl) DetectConflictsForCandidates(ctx context.Context, candidates []map[string]interface{}) ([]map[string]interface{}, error) {
 	// 将候选转为模型列表（仅用于检测，不入库）
-	var list []*s_db_model.SEnergyStorageStrategyModel
+	var list []*s_db_model.SEnergyStorageModel
 	for _, c := range candidates {
 		id := cvt.Int(c["id"])
 		dateRange := cvt.String(c["dateRange"])
@@ -247,7 +247,7 @@ func (s *sEnergyStorageStrategyServiceImpl) DetectConflictsForCandidates(ctx con
 			}
 		}
 
-		list = append(list, &s_db_model.SEnergyStorageStrategyModel{
+		list = append(list, &s_db_model.SEnergyStorageModel{
 			Id:        id,
 			DateRange: dateRange,
 			TimeRange: timeRange,
@@ -257,7 +257,7 @@ func (s *sEnergyStorageStrategyServiceImpl) DetectConflictsForCandidates(ctx con
 }
 
 // 冲突检测实现：日期交集 + 时间交集
-func detectConflicts(list []*s_db_model.SEnergyStorageStrategyModel) ([]map[string]interface{}, error) {
+func detectConflicts(list []*s_db_model.SEnergyStorageModel) ([]map[string]interface{}, error) {
 	var result []map[string]interface{}
 
 	// 逐对比较
@@ -277,7 +277,7 @@ func detectConflicts(list []*s_db_model.SEnergyStorageStrategyModel) ([]map[stri
 }
 
 // 判断两个策略是否重叠
-func overlapStrategy(a, b *s_db_model.SEnergyStorageStrategyModel) bool {
+func overlapStrategy(a, b *s_db_model.SEnergyStorageModel) bool {
 	// 时间范围与日期范围简单占位判断：字符串非空即认为可能重叠
 	if strings.TrimSpace(a.DateRange) == "" || strings.TrimSpace(b.DateRange) == "" {
 		return false

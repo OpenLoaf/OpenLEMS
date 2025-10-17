@@ -172,7 +172,7 @@ func initConfigDatabase() {
 
 	// 创建储能策略表
 	_, err = g.DB().Exec(ctx, `
-		CREATE TABLE IF NOT EXISTS energy_storage_strategy (
+		CREATE TABLE IF NOT EXISTS energy_storage (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name VARCHAR(255) NOT NULL,
 			description TEXT,

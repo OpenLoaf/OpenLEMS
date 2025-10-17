@@ -9,4 +9,4 @@ type GetEnergyStorageStrategyDetailReq struct {
 	Id     int `json:"id" in:"path"`
 }
 
-type GetEnergyStorageStrategyDetailRes = EnergyStorageStrategy
+type GetEnergyStorageStrategyDetailRes = EnergyStorage

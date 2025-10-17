@@ -16,6 +16,6 @@ type GetEnergyStorageStrategyListReq struct {
 }
 
 type GetEnergyStorageStrategyListRes struct {
-	List  []*EnergyStorageStrategy `json:"list"`
-	Total int                      `json:"total"`
+	List  []*EnergyStorage `json:"list"`
+	Total int              `json:"total"`
 }
