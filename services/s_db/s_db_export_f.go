@@ -38,7 +38,12 @@ func GetAutomationService() s_db_basic.IAutomationService {
 	return impl.GetAutomationService()
 }
 
-// GetEnergyStorageStrategyService 获取储能策略service对象
+// GetEnergyStorageService 获取储能策略service对象
+func GetEnergyStorageService() s_db_basic.IEnergyStorageStrategyService {
+	return impl.GetEnergyStorageStrategyService()
+}
+
+// GetEnergyStorageStrategyService 获取储能策略service对象（已废弃，使用GetEnergyStorageService）
 func GetEnergyStorageStrategyService() s_db_basic.IEnergyStorageStrategyService {
 	return impl.GetEnergyStorageStrategyService()
 }

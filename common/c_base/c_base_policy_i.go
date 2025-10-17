@@ -1,22 +1,27 @@
 package c_base
 
-import (
-	"common/c_enum"
-	"time"
-)
+import "context"
 
-type IPolicy[T IDriver] interface {
-	SetPolicyMode(c_enum.EPolicyMode)  // 设置策略模式
-	GetPolicyMode() c_enum.EPolicyMode // 获取策略模式
-	RegisterMonitor(*SPolicyMonitor)   // 注册监听器，定时触发策略
-	RegisterActiveManualAction(func())
-	ExecuteDriverFunc(func(driver T)) // 注册重置指令，当切换到手动模式时，会先触发重置
-}
+// IPolicy 策略接口，所有策略插件必须实现此接口
+type IPolicy interface {
+	// Init 初始化策略
+	Init(ctx context.Context) error
 
-type SPolicyMonitor struct {
-	Name        string
-	Duration    *time.Duration       // 时间周期
-	Modes       []c_enum.EPolicyMode // 哪些模式下触发
-	TriggerFunc func() bool          // 触发条件
-	HandleFunc  func()               // 执行方法
+	// Shutdown 关闭策略，释放资源
+	Shutdown()
+
+	// Run 执行策略（每分钟调用一次）
+	Run(ctx context.Context) error
+
+	// GetPolicyId 获取策略ID
+	GetPolicyId() string
+
+	// GetPolicyName 获取策略名称
+	GetPolicyName() string
+
+	// GetConfig 获取策略配置
+	GetConfig() interface{}
+
+	// GetPolicyInfo 获取策略详细信息
+	GetPolicyInfo() *SPolicyInfo
 }

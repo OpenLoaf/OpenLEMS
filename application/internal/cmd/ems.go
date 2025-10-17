@@ -12,6 +12,8 @@ import (
 	"common/c_log"
 	"context"
 	"os"
+	"p_policy_energy_storage"
+	"p_policy_mircogrid"
 	"p_tsdb"
 	"runtime"
 	"s_automation"
@@ -20,6 +22,7 @@ import (
 	"s_driver"
 	s_export_modbus "s_export_modbus"
 	s_export_mqtt "s_mqtt"
+	"s_policy"
 	"s_storage"
 	"time"
 
@@ -62,6 +65,20 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 
 	// 注册自动化服务
 	service.RegisterAutomation(logic.NewAutomation())
+
+	// 创建并注册策略管理器
+	policyManager := s_policy.NewPolicyManager(ctx)
+	common.RegisterPolicyManager(policyManager)
+
+	// 注册策略插件（开发环境直接注册，生产环境通过插件加载）
+	err := policyManager.RegisterPolicy("policy_microgrid", p_policy_mircogrid.NewPolicyMircogrid())
+	if err != nil {
+		g.Log().Errorf(ctx, "注册微电网策略失败: %+v", err)
+	}
+	err = policyManager.RegisterPolicy("policy_ess", p_policy_energy_storage.NewPolicyEnergyStorage())
+	if err != nil {
+		g.Log().Errorf(ctx, "注册储能站策略失败: %+v", err)
+	}
 
 	// 初始化MQTT服务（在其他服务初始化之后）
 	s_export_mqtt.Init()
@@ -133,6 +150,24 @@ func StartServices(ctx context.Context) {
 		}
 	}()
 
+	// 启动策略管理器
+	go func() {
+		// 等待设备管理器启动完成
+		time.Sleep(5 * time.Second)
+
+		err := common.GetPolicyManager().Start(ctx)
+		if err != nil {
+			g.Log().Errorf(ctx, "启动策略管理器失败: %+v", err)
+		} else {
+			activePolicyId := common.GetPolicyManager().GetActivePolicyId()
+			if activePolicyId != "" {
+				c_log.BizInfof(ctx, "策略管理器启动成功！当前激活策略: %s", activePolicyId)
+			} else {
+				c_log.BizInfof(ctx, "策略管理器启动成功！未配置激活策略")
+			}
+		}
+	}()
+
 }
 
 // SetupShutdownHandler 设置关闭信号处理
@@ -166,6 +201,11 @@ func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 			g.Log().Infof(ctx, "Modbus服务已停止")
 			c_log.BizInfof(ctx, "Modbus服务已停止")
 		}
+
+		// 停止策略管理器
+		common.GetPolicyManager().Shutdown()
+		g.Log().Infof(ctx, "策略管理器已停止")
+		c_log.BizInfof(ctx, "策略管理器已停止")
 
 		common.GetDeviceManager().Shutdown()
 

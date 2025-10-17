@@ -2,9 +2,9 @@ package internal
 
 type SPolicyMircogridConfig struct {
 	// 储能参数
-	SocMaxRatio         float64 `json:"socMaxRatio" name:"最大SOC比例" desc:"最大SOC比例" ct:"number" vt:"float" min:"0" max:"1" default:"0.95"`
-	SocMinRatio         float64 `json:"socMinRatio" name:"最小SOC比例" desc:"最小SOC比例" ct:"number" vt:"float" min:"0" max:"1" default:"0.1"`
-	BatteryPowerRated   float64 `json:"batteryPowerRated" name:"储能额定功率" desc:"储能额定功率" ct:"number" vt:"float" min:"0" default:"100.0" unit:"kW"`
+	SocMaxRatio float64 `json:"socMaxRatio" name:"最大SOC比例" desc:"最大SOC比例" ct:"number" vt:"float" min:"0" max:"1" default:"0.95"`
+	SocMinRatio float64 `json:"socMinRatio" name:"最小SOC比例" desc:"最小SOC比例" ct:"number" vt:"float" min:"0" max:"1" default:"0.1"`
+	//BatteryPowerRated   float64 `json:"batteryPowerRated" name:"储能额定功率" desc:"储能额定功率" ct:"number" vt:"float" min:"0" default:"100.0" unit:"kW"`
 	ChargeEfficiency    float64 `json:"chargeEfficiency" name:"充电效率" desc:"充电效率" ct:"number" vt:"float" min:"0" max:"1" default:"0.95"`
 	DischargeEfficiency float64 `json:"dischargeEfficiency" name:"放电效率" desc:"放电效率" ct:"number" vt:"float" min:"0" max:"1" default:"0.95"`
 

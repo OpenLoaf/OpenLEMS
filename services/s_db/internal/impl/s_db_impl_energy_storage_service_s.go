@@ -164,4 +164,19 @@ func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageByIds(ctx context.Co
 	return list, nil
 }
 
+// GetEnabledEnergyStorages 获取所有启用的储能定时任务
+func (s *sEnergyStorageStrategyServiceImpl) GetEnabledEnergyStorages(ctx context.Context) ([]*s_db_model.SEnergyStorageModel, error) {
+	var list []*s_db_model.SEnergyStorageModel
+	err := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx).
+		WhereIn(s_db_model.FieldEssStatus, []string{"Enable", "Enabled"}).
+		OrderDesc(s_db_model.FieldEssPriority).
+		OrderDesc(s_db_model.FieldCreatedAt).
+		Scan(&list)
+	if err != nil {
+		return nil, errors.Wrap(err, "查询启用的储能定时任务失败")
+	}
+
+	return list, nil
+}
+
 // SetEnergyStorageStrategyDefault 设置默认策略
