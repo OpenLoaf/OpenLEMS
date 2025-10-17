@@ -164,18 +164,4 @@ func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageByIds(ctx context.Co
 	return list, nil
 }
 
-// SetEnergyStorageStrategyActive 设置策略激活状态
-func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageActive(ctx context.Context, id int, active bool) error {
-	status := "inactive"
-	if active {
-		status = "active"
-	}
-
-	_, err := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx).
-		Where(s_db_model.FieldId, id).
-		Update(g.Map{s_db_model.FieldEssStatus: status})
-
-	return errors.Wrap(err, "设置策略状态失败")
-}
-
 // SetEnergyStorageStrategyDefault 设置默认策略

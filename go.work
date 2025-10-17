@@ -17,7 +17,6 @@ use (
 	./plugins/plug_drivers/pcs/pcs_star_charge_100E
 
 	./plugins/plug_policy/p_policy_mircogrid
-	./plugins/plug_policy/p_energy_storage
 
 	./plugins/plug_protocols/p_base
 	./plugins/plug_protocols/p_canbus
@@ -34,6 +33,7 @@ use (
 	./services/s_export_modbus
 	./services/s_export_mqtt
 	./services/s_storage
+	./services/s_policy
 
 	./tools/t_network_manager
 	./tools/t_time_task

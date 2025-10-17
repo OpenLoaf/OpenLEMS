@@ -107,7 +107,4 @@ type IEnergyStorageStrategyService interface {
 	// 查询与分页
 	GetEnergyStoragePage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SEnergyStorageModel, int, error)
 	GetEnergyStorageByIds(ctx context.Context, ids []int) ([]*s_db_model.SEnergyStorageModel, error)
-
-	// 状态设置
-	SetEnergyStorageActive(ctx context.Context, id int, active bool) error
 }

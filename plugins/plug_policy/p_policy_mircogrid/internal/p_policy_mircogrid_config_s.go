@@ -16,7 +16,7 @@ type SPolicyMircogridConfig struct {
 	// 充电桩参数
 	AllowPileReduce bool `json:"allowPileReduce" name:"允许充电桩降功率" desc:"不允许充电桩降功率（无充电桩）" ct:"switch" vt:"bool" default:"false"`
 
-	// 负荷参数http://localhost:3002/
+	// 负荷参数
 	AllowLoadReduce    bool    `json:"allowLoadReduce" name:"允许负荷降功率" desc:"允许负荷降功率" ct:"switch" vt:"bool" default:"false"`
 	LoadReduceMaxPower float64 `json:"loadReduceMaxPower" name:"负荷允许降低的最大功率" desc:"负荷允许降低的最大功率" ct:"number" vt:"float" min:"0" default:"60.0" unit:"kW"`
 	LoadReducePenalty  float64 `json:"loadReducePenalty" name:"负荷降功率惩罚系数" desc:"负荷降功率惩罚系数" ct:"number" vt:"float" min:"0" default:"800.0" unit:"元/kWh"`

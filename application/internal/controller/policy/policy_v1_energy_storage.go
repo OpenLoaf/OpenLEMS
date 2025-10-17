@@ -6,7 +6,7 @@ import (
 	"s_db"
 	"s_db/s_db_model"
 
-	"p_energy_storage"
+	"s_policy"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
 )
@@ -23,7 +23,7 @@ func marshalJSON(v interface{}) string {
 // CreateEnergyStorageStrategy 创建储能策略
 func (c *ControllerV1) CreateEnergyStorageStrategy(ctx context.Context, req *v1.CreateEnergyStorageStrategyReq) (res *v1.CreateEnergyStorageStrategyRes, err error) {
 	// 使用插件层验证
-	if err := p_energy_storage.ValidateStrategy(req.DateRange, req.TimeRange, req.Config); err != nil {
+	if err := s_policy.ValidateStrategy(req.DateRange, req.TimeRange, req.Config); err != nil {
 		return nil, err
 	}
 
@@ -50,7 +50,7 @@ func (c *ControllerV1) CreateEnergyStorageStrategy(ctx context.Context, req *v1.
 // UpdateEnergyStorageStrategy 更新储能策略
 func (c *ControllerV1) UpdateEnergyStorageStrategy(ctx context.Context, req *v1.UpdateEnergyStorageStrategyReq) (res *v1.UpdateEnergyStorageStrategyRes, err error) {
 	// 使用插件层验证
-	if err := p_energy_storage.ValidateStrategy(req.DateRange, req.TimeRange, req.Config); err != nil {
+	if err := s_policy.ValidateStrategy(req.DateRange, req.TimeRange, req.Config); err != nil {
 		return nil, err
 	}
 
@@ -135,9 +135,16 @@ func (c *ControllerV1) GetEnergyStorageStrategyDetail(ctx context.Context, req *
 
 // ActivateEnergyStorageStrategy 激活/停用储能策略
 func (c *ControllerV1) ActivateEnergyStorageStrategy(ctx context.Context, req *v1.ActivateEnergyStorageStrategyReq) (res *v1.ActivateEnergyStorageStrategyRes, err error) {
-	err = s_db.GetEnergyStorageStrategyService().SetEnergyStorageActive(ctx, req.Id, req.Active)
+	// 直接更新 status 字段
+	updateData := map[string]interface{}{
+		s_db_model.FieldEssStatus: req.Status.String(),
+	}
+
+	model := &s_db_model.SEnergyStorageModel{Id: req.Id}
+	err = model.UpdateFields(ctx, updateData)
 	if err != nil {
 		return nil, err
 	}
+
 	return &v1.ActivateEnergyStorageStrategyRes{}, nil
 }
