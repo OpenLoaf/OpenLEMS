@@ -18,6 +18,5 @@ type IPolicyV1 interface {
 	DeleteEnergyStorageStrategy(ctx context.Context, req *v1.DeleteEnergyStorageStrategyReq) (res *v1.DeleteEnergyStorageStrategyRes, err error)
 	GetEnergyStorageStrategyList(ctx context.Context, req *v1.GetEnergyStorageStrategyListReq) (res *v1.GetEnergyStorageStrategyListRes, err error)
 	GetEnergyStorageStrategyDetail(ctx context.Context, req *v1.GetEnergyStorageStrategyDetailReq) (res *v1.GetEnergyStorageStrategyDetailRes, err error)
-	DetectEnergyStorageStrategyConflicts(ctx context.Context, req *v1.DetectEnergyStorageStrategyConflictsReq) (res *v1.DetectEnergyStorageStrategyConflictsRes, err error)
 	ActivateEnergyStorageStrategy(ctx context.Context, req *v1.ActivateEnergyStorageStrategyReq) (res *v1.ActivateEnergyStorageStrategyRes, err error)
 }

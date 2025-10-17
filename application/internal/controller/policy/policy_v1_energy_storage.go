@@ -40,7 +40,7 @@ func (c *ControllerV1) CreateEnergyStorageStrategy(ctx context.Context, req *v1.
 	}
 
 	// 调用服务层
-	_, err = s_db.GetEnergyStorageStrategyService().CreateEnergyStorageStrategy(ctx, model)
+	_, err = s_db.GetEnergyStorageStrategyService().CreateEnergyStorage(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +69,7 @@ func (c *ControllerV1) UpdateEnergyStorageStrategy(ctx context.Context, req *v1.
 	}
 
 	// 调用服务层
-	err = s_db.GetEnergyStorageStrategyService().UpdateEnergyStorageStrategy(ctx, model)
+	err = s_db.GetEnergyStorageStrategyService().UpdateEnergyStorage(ctx, model)
 	if err != nil {
 		return nil, err
 	}
@@ -79,7 +79,7 @@ func (c *ControllerV1) UpdateEnergyStorageStrategy(ctx context.Context, req *v1.
 
 // DeleteEnergyStorageStrategy 删除储能策略
 func (c *ControllerV1) DeleteEnergyStorageStrategy(ctx context.Context, req *v1.DeleteEnergyStorageStrategyReq) (res *v1.DeleteEnergyStorageStrategyRes, err error) {
-	err = s_db.GetEnergyStorageStrategyService().DeleteEnergyStorageStrategy(ctx, req.Id)
+	err = s_db.GetEnergyStorageStrategyService().DeleteEnergyStorage(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (c *ControllerV1) GetEnergyStorageStrategyList(ctx context.Context, req *v1
 	}
 
 	// 调用服务层
-	list, total, err := s_db.GetEnergyStorageStrategyService().GetEnergyStorageStrategyPage(ctx, req.Page, req.PageSize, filters)
+	list, total, err := s_db.GetEnergyStorageStrategyService().GetEnergyStoragePage(ctx, req.Page, req.PageSize, filters)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func (c *ControllerV1) GetEnergyStorageStrategyList(ctx context.Context, req *v1
 
 // GetEnergyStorageStrategyDetail 获取储能策略详情
 func (c *ControllerV1) GetEnergyStorageStrategyDetail(ctx context.Context, req *v1.GetEnergyStorageStrategyDetailReq) (res *v1.GetEnergyStorageStrategyDetailRes, err error) {
-	m, err := s_db.GetEnergyStorageStrategyService().GetEnergyStorageStrategyById(ctx, req.Id)
+	m, err := s_db.GetEnergyStorageStrategyService().GetEnergyStorageById(ctx, req.Id)
 	if err != nil {
 		return nil, err
 	}
@@ -135,73 +135,9 @@ func (c *ControllerV1) GetEnergyStorageStrategyDetail(ctx context.Context, req *
 	return (*v1.GetEnergyStorageStrategyDetailRes)(dto), nil
 }
 
-// DetectEnergyStorageStrategyConflicts 储能策略冲突检测
-func (c *ControllerV1) DetectEnergyStorageStrategyConflicts(ctx context.Context, req *v1.DetectEnergyStorageStrategyConflictsReq) (res *v1.DetectEnergyStorageStrategyConflictsRes, err error) {
-	var out []map[string]interface{}
-
-	if len(req.StrategyIds) > 0 {
-		// 根据ID列表检测冲突
-		out, err = s_db.GetEnergyStorageStrategyService().DetectConflictsByIds(ctx, req.StrategyIds)
-	} else {
-		// 根据候选策略检测冲突
-		var candidates []map[string]interface{}
-		for _, c := range req.Candidates {
-			b, _ := gjson.Encode(c)
-			var m map[string]interface{}
-			_ = gjson.DecodeTo(b, &m)
-			candidates = append(candidates, m)
-		}
-		out, err = s_db.GetEnergyStorageStrategyService().DetectConflictsForCandidates(ctx, candidates)
-	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	// 转换响应格式
-	res = &v1.DetectEnergyStorageStrategyConflictsRes{}
-	for _, item := range out {
-		sId, ok1 := item["strategyId"].(int)
-		if !ok1 {
-			// 尝试转换其他类型
-			sId = int(item["strategyId"].(float64))
-		}
-
-		var cw []int
-		if cwRaw, ok := item["conflictWith"]; ok {
-			if cwSlice, ok2 := cwRaw.([]int); ok2 {
-				cw = cwSlice
-			} else if cwSlice2, ok3 := cwRaw.([]interface{}); ok3 {
-				for _, v := range cwSlice2 {
-					cw = append(cw, int(v.(float64)))
-				}
-			}
-		}
-
-		var cd []string
-		if cdRaw, ok := item["conflictDates"]; ok {
-			if cdSlice, ok2 := cdRaw.([]string); ok2 {
-				cd = cdSlice
-			}
-		}
-
-		res.Conflicts = append(res.Conflicts, struct {
-			StrategyId    int      `json:"strategyId"`
-			ConflictWith  []int    `json:"conflictWith"`
-			ConflictDates []string `json:"conflictDates"`
-		}{
-			StrategyId:    sId,
-			ConflictWith:  cw,
-			ConflictDates: cd,
-		})
-	}
-
-	return res, nil
-}
-
 // ActivateEnergyStorageStrategy 激活/停用储能策略
 func (c *ControllerV1) ActivateEnergyStorageStrategy(ctx context.Context, req *v1.ActivateEnergyStorageStrategyReq) (res *v1.ActivateEnergyStorageStrategyRes, err error) {
-	err = s_db.GetEnergyStorageStrategyService().SetEnergyStorageStrategyActive(ctx, req.Id, req.Active)
+	err = s_db.GetEnergyStorageStrategyService().SetEnergyStorageActive(ctx, req.Id, req.Active)
 	if err != nil {
 		return nil, err
 	}

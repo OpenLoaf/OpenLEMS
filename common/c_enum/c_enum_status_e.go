@@ -7,8 +7,8 @@ import "strings"
 type EStatus int
 
 const (
-	EStatusEnable  EStatus = iota // 启用
-	EStatusDisable                // 禁用
+	EStatusDisable EStatus = iota // 禁用
+	EStatusEnable                 // 启用
 	EStatusDeleted                // 已删除
 )
 
@@ -16,11 +16,11 @@ const (
 func ParseStatus(status string) EStatus {
 	status = strings.ToLower(strings.TrimSpace(status))
 	switch status {
-	case "enable", "enabled":
+	case "enable", "enabled", "1":
 		return EStatusEnable
-	case "disable", "disabled":
+	case "disable", "disabled", "2":
 		return EStatusDisable
-	case "deleted", "delete":
+	case "deleted", "delete", "3":
 		return EStatusDeleted
 	default:
 		return EStatusDisable // 默认禁用
