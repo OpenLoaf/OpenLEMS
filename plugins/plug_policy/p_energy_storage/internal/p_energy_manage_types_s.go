@@ -35,5 +35,5 @@ type STimeRange struct {
 
 // SStrategyConfig 策略配置
 type SStrategyConfig struct {
-	Points [][2]int `json:"points"`
+	Points [][]int `json:"points"` // 改为切片类型，每个点位包含[小时, 百分比]
 }

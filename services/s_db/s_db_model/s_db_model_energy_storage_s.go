@@ -26,18 +26,18 @@ const (
 // SEnergyStorageModel 储能策略表结构
 type SEnergyStorageModel struct {
 	g.Meta      `orm:"table:energy_storage"`
-	Id          int         `json:"id" orm:"id,primary,auto_increment"`                  // 主键ID
-	Name        string      `json:"name" orm:"name" v:"required|length:2,50"`            // 策略名称
-	Description string      `json:"description" orm:"description"`                       // 策略描述
-	Priority    int         `json:"priority" orm:"priority" v:"required|between:1,5"`    // 优先级 (1-5)
-	Status      string      `json:"status" orm:"status" v:"required|in:active,inactive"` // 状态
-	IsDefault   bool        `json:"isDefault" orm:"is_default"`                          // 是否默认策略
-	DateRange   string      `json:"dateRange" orm:"date_range" v:"required"`             // 日期范围 (JSON)
-	TimeRange   string      `json:"timeRange" orm:"time_range" v:"required"`             // 时间范围 (JSON)
-	Config      string      `json:"config" orm:"config" v:"required"`                    // 策略配置 (JSON)
-	CreatedBy   string      `json:"createdBy" orm:"created_by"`                          // 创建人
-	CreatedAt   *gtime.Time `json:"createdAt" orm:"created_at,created_at"`               // 创建时间
-	UpdatedAt   *gtime.Time `json:"updatedAt" orm:"updated_at,updated_at"`               // 更新时间
+	Id          int         `json:"id" orm:"id,primary,auto_increment"`                                                 // 主键ID
+	Name        string      `json:"name" orm:"name" v:"required|length:2,50"`                                           // 策略名称
+	Description string      `json:"description" orm:"description"`                                                      // 策略描述
+	Priority    int         `json:"priority" orm:"priority" v:"required|between:1,5"`                                   // 优先级 (1-5)
+	Status      string      `json:"status" orm:"status" v:"required|in:Enable,Enabled,Disable,Disabled,Deleted,Delete"` // 状态
+	IsDefault   bool        `json:"isDefault" orm:"is_default"`                                                         // 是否默认策略
+	DateRange   string      `json:"dateRange" orm:"date_range" v:"required"`                                            // 日期范围 (JSON)
+	TimeRange   string      `json:"timeRange" orm:"time_range" v:"required"`                                            // 时间范围 (JSON)
+	Config      string      `json:"config" orm:"config" v:"required"`                                                   // 策略配置 (JSON)
+	CreatedBy   string      `json:"createdBy" orm:"created_by"`                                                         // 创建人
+	CreatedAt   *gtime.Time `json:"createdAt" orm:"created_at,created_at"`                                              // 创建时间
+	UpdatedAt   *gtime.Time `json:"updatedAt" orm:"updated_at,updated_at"`                                              // 更新时间
 }
 
 // Create 创建记录

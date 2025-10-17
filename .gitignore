@@ -25,6 +25,7 @@ bin
 
 *.tar
 ems
+application/application
 application/manifest/web/*
 tmp
 *.sum
@@ -42,5 +43,7 @@ build/
 *.so
 *.dylib
 *.dll
+
+
 
 

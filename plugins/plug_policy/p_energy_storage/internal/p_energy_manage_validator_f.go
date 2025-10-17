@@ -77,7 +77,12 @@ func ValidateStrategyConfig(cfg *SStrategyConfig) error {
 
 	if len(cfg.Points) > 0 {
 		seen := make(map[int]bool)
-		for _, point := range cfg.Points {
+		for i, point := range cfg.Points {
+			// 验证每个点位必须包含 2 个元素：[小时, 百分比]
+			if len(point) != 2 {
+				return errors.Errorf("点位 %d 必须包含 2 个元素 [小时, 百分比]", i)
+			}
+
 			if point[0] < 0 || point[0] > 24 {
 				return errors.New("小时必须在 0-24 之间")
 			}

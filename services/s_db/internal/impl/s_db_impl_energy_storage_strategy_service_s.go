@@ -34,26 +34,6 @@ func (s *sEnergyStorageStrategyServiceImpl) validateModel(ctx context.Context, m
 	if err := g.Validator().Data(model).Run(ctx); err != nil {
 		return errors.Wrap(err.FirstError(), "字段验证失败")
 	}
-
-	// 复杂验证逻辑（手动验证）
-	if model.Config != "" {
-		var cfg struct {
-			SocMinRatio      float64 `json:"socMinRatio"`
-			SocMaxRatio      float64 `json:"socMaxRatio"`
-			MonthlyChargeDay int     `json:"monthlyChargeDay"`
-		}
-		if err := gjson.DecodeTo(model.Config, &cfg); err == nil {
-			// 验证 SOC 范围
-			if cfg.SocMaxRatio < cfg.SocMinRatio {
-				return errors.New("config.socMinRatio 不能大于 socMaxRatio")
-			}
-			// 验证月度充电日
-			if cfg.MonthlyChargeDay < 1 || cfg.MonthlyChargeDay > 28 {
-				return errors.New("config.monthlyChargeDay 必须在1-28之间")
-			}
-		}
-	}
-
 	return nil
 }
 
@@ -61,7 +41,7 @@ func (s *sEnergyStorageStrategyServiceImpl) validateModel(ctx context.Context, m
 func (s *sEnergyStorageStrategyServiceImpl) CreateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageModel) (int, error) {
 	// 验证模型
 	if err := s.validateModel(ctx, model); err != nil {
-		return 0, err
+		return 0, errors.Wrap(err, "验证失败")
 	}
 
 	// 自动设置 createdBy 为 admin
@@ -82,7 +62,7 @@ func (s *sEnergyStorageStrategyServiceImpl) CreateEnergyStorageStrategy(ctx cont
 		return 0, errors.Wrap(err, "获取新创建的策略ID失败")
 	}
 
-	return cvt.IntE(lastIdValue)
+	return lastIdValue.Int(), nil
 }
 
 // GetEnergyStorageStrategyById 根据ID获取储能策略
