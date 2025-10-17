@@ -35,9 +35,5 @@ type STimeRange struct {
 
 // SStrategyConfig 策略配置
 type SStrategyConfig struct {
-	SocMinRatio              float64  `json:"socMinRatio" v:"required|between:0,100"`
-	SocMaxRatio              float64  `json:"socMaxRatio" v:"required|between:0,100"`
-	EnableHealthOptimization bool     `json:"enableHealthOptimization" v:"required"`
-	MonthlyChargeDay         int      `json:"monthlyChargeDay" v:"between:1,28"`
-	Points                   [][2]int `json:"points"`
+	Points [][2]int `json:"points"`
 }

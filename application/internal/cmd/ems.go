@@ -12,7 +12,6 @@ import (
 	"common/c_log"
 	"context"
 	"os"
-	"p_energy_manage"
 	"p_tsdb"
 	"runtime"
 	"s_automation"
@@ -134,21 +133,6 @@ func StartServices(ctx context.Context) {
 		}
 	}()
 
-	// 启动储能策略服务
-	go func() {
-		// 等待设备管理器启动完成
-		time.Sleep(5 * time.Second)
-
-		// 从系统设置获取执行间隔（默认60秒）
-		interval := 60 * time.Second
-
-		err := p_energy_manage.Start(ctx, interval)
-		if err != nil {
-			g.Log().Errorf(ctx, "启动储能策略服务失败: %+v", err)
-		} else {
-			c_log.BizInfof(ctx, "储能策略服务启动成功！")
-		}
-	}()
 }
 
 // SetupShutdownHandler 设置关闭信号处理
@@ -181,15 +165,6 @@ func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 		} else {
 			g.Log().Infof(ctx, "Modbus服务已停止")
 			c_log.BizInfof(ctx, "Modbus服务已停止")
-		}
-
-		// 停止储能策略服务
-		err = p_energy_manage.Stop(ctx)
-		if err != nil {
-			g.Log().Errorf(ctx, "停止储能策略服务失败: %+v", err)
-		} else {
-			g.Log().Infof(ctx, "储能策略服务已停止")
-			c_log.BizInfof(ctx, "储能策略服务已停止")
 		}
 
 		common.GetDeviceManager().Shutdown()

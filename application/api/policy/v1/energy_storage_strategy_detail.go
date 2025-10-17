@@ -6,7 +6,7 @@ import (
 
 type GetEnergyStorageStrategyDetailReq struct {
 	g.Meta `path:"/strategy/energy-storage/{id}" method:"get" tags:"策略相关" summary:"获取储能策略详情"`
-	Id     string `json:"id" in:"path"`
+	Id     int `json:"id" in:"path"`
 }
 
 type GetEnergyStorageStrategyDetailRes = EnergyStorageStrategy

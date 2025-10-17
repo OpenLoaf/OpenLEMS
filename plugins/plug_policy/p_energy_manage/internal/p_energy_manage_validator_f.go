@@ -75,22 +75,6 @@ func ValidateStrategyConfig(cfg *SStrategyConfig) error {
 		return errors.New("策略配置不能为空")
 	}
 
-	if cfg.SocMinRatio < 0 || cfg.SocMinRatio > 100 {
-		return errors.New("最小SOC比例必须在 0-100 之间")
-	}
-
-	if cfg.SocMaxRatio < 0 || cfg.SocMaxRatio > 100 {
-		return errors.New("最大SOC比例必须在 0-100 之间")
-	}
-
-	if cfg.SocMinRatio >= cfg.SocMaxRatio {
-		return errors.New("最小SOC比例必须小于最大SOC比例")
-	}
-
-	if cfg.EnableHealthOptimization && (cfg.MonthlyChargeDay < 1 || cfg.MonthlyChargeDay > 28) {
-		return errors.New("月度充电日必须在 1-28 之间")
-	}
-
 	if len(cfg.Points) > 0 {
 		seen := make(map[int]bool)
 		for _, point := range cfg.Points {
@@ -111,7 +95,7 @@ func ValidateStrategyConfig(cfg *SStrategyConfig) error {
 }
 
 // ValidateStrategy 验证完整策略（供外部调用）
-func ValidateStrategy(dateRange *SDateRange, timeRange *STimeRange, config *SStrategyConfig, essDeviceIds []string) error {
+func ValidateStrategy(dateRange *SDateRange, timeRange *STimeRange, config *SStrategyConfig) error {
 	if err := ValidateDateRange(dateRange); err != nil {
 		return errors.Wrap(err, "日期范围验证失败")
 	}
@@ -122,10 +106,6 @@ func ValidateStrategy(dateRange *SDateRange, timeRange *STimeRange, config *SStr
 
 	if err := ValidateStrategyConfig(config); err != nil {
 		return errors.Wrap(err, "策略配置验证失败")
-	}
-
-	if len(essDeviceIds) == 0 {
-		return errors.New("储能设备ID列表不能为空")
 	}
 
 	return nil

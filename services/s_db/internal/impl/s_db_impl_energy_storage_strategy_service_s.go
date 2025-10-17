@@ -5,12 +5,10 @@ import (
 	"strings"
 	"sync"
 
-	"common/c_enum"
-
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
-	"github.com/google/uuid"
 	"github.com/pkg/errors"
+	"github.com/shockerli/cvt"
 
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
@@ -30,202 +28,197 @@ func GetEnergyStorageStrategyService() s_db_basic.IEnergyStorageStrategyService 
 	return energyStorageStrategyServiceInstance
 }
 
-// 校验输入
-func (s *sEnergyStorageStrategyServiceImpl) validateAndNormalizeInput(data map[string]interface{}) error {
-	name, _ := data["name"].(string)
-	if l := len(strings.TrimSpace(name)); l < 2 || l > 50 {
-		return errors.Errorf("name 长度需在2-50之间")
-	}
-	// priority 1..5
-	if v, ok := data["priority"].(int); !ok || v < 1 || v > 5 {
-		return errors.Errorf("priority 必须在1-5之间")
-	}
-	// essDeviceIds 至少一个
-	var ids []string
-	switch raw := data["essDeviceIds"].(type) {
-	case []string:
-		ids = raw
-	case []interface{}:
-		for _, it := range raw {
-			if s, ok := it.(string); ok && s != "" {
-				ids = append(ids, s)
-			}
-		}
-	}
-	if len(ids) == 0 {
-		return errors.Errorf("essDeviceIds 至少包含1个设备ID")
+// 验证模型
+func (s *sEnergyStorageStrategyServiceImpl) validateModel(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) error {
+	// 基础字段验证（通过标签自动验证）
+	if err := g.Validator().Data(model).Run(ctx); err != nil {
+		return errors.Wrap(err.FirstError(), "字段验证失败")
 	}
 
-	// config 校验（socMinRatio<=socMaxRatio, monthlyChargeDay 1..28）
-	cfgStr, _ := data["config"].(string)
-	if cfgStr == "" {
-		// 也支持 map -> string
-		if m, ok := data["config"].(map[string]interface{}); ok {
-			b, _ := gjson.Encode(m)
-			cfgStr = string(b)
-			data["config"] = cfgStr
+	// 复杂验证逻辑（手动验证）
+	if model.Config != "" {
+		var cfg struct {
+			SocMinRatio      float64 `json:"socMinRatio"`
+			SocMaxRatio      float64 `json:"socMaxRatio"`
+			MonthlyChargeDay int     `json:"monthlyChargeDay"`
 		}
-	}
-	if cfgStr != "" {
-		var cfg map[string]interface{}
-		if err := gjson.DecodeTo(cfgStr, &cfg); err == nil {
-			minv, _ := cfg["socMinRatio"].(float64)
-			maxv, _ := cfg["socMaxRatio"].(float64)
-			if maxv < minv {
-				return errors.Errorf("config.socMinRatio 不能大于 socMaxRatio")
+		if err := gjson.DecodeTo(model.Config, &cfg); err == nil {
+			// 验证 SOC 范围
+			if cfg.SocMaxRatio < cfg.SocMinRatio {
+				return errors.New("config.socMinRatio 不能大于 socMaxRatio")
 			}
-			if mv, ok := cfg["monthlyChargeDay"].(float64); ok {
-				if mv < 1 || mv > 28 {
-					return errors.Errorf("config.monthlyChargeDay 必须在1-28之间")
-				}
+			// 验证月度充电日
+			if cfg.MonthlyChargeDay < 1 || cfg.MonthlyChargeDay > 28 {
+				return errors.New("config.monthlyChargeDay 必须在1-28之间")
 			}
 		}
-	}
-
-	// dateRange/timeRange 必须存在（字符串或对象）
-	for _, k := range []string{"dateRange", "timeRange"} {
-		if _, ok := data[k]; !ok {
-			return errors.Errorf("%s 不能为空", k)
-		}
-		if _, ok := data[k].(string); !ok {
-			if m, ok2 := data[k].(map[string]interface{}); ok2 {
-				b, _ := gjson.Encode(m)
-				data[k] = string(b)
-			}
-		}
-	}
-
-	// 统一 essDeviceIds 为 JSON 字符串
-	if _, ok := data["essDeviceIds"].(string); !ok {
-		b, _ := gjson.Encode(ids)
-		data["essDeviceIds"] = string(b)
 	}
 
 	return nil
 }
 
-func (s *sEnergyStorageStrategyServiceImpl) CreateEnergyStorageStrategy(ctx context.Context, data map[string]interface{}) (string, error) {
-	if err := s.validateAndNormalizeInput(data); err != nil {
-		return "", err
+// CreateEnergyStorageStrategy 创建储能策略
+func (s *sEnergyStorageStrategyServiceImpl) CreateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) (int, error) {
+	// 验证模型
+	if err := s.validateModel(ctx, model); err != nil {
+		return 0, err
 	}
-	id := uuid.NewString()
-	m := &s_db_model.SEnergyStorageStrategyModel{
-		Id:           id,
-		Name:         strings.TrimSpace(data["name"].(string)),
-		Description:  strings.TrimSpace(gconvString(data["description"])),
-		Priority:     data["priority"].(int),
-		Status:       c_enum.ParseStatus(gconvString(data["status"])).String(),
-		IsDefault:    gconvBool(data["isDefault"]),
-		DateRange:    gconvString(data["dateRange"]),
-		TimeRange:    gconvString(data["timeRange"]),
-		Config:       gconvString(data["config"]),
-		EssDeviceIds: gconvString(data["essDeviceIds"]),
-		CreatedBy:    gconvString(data["createdBy"]),
+
+	// 自动设置 createdBy 为 admin
+	model.CreatedBy = "admin"
+
+	// 创建记录（时间戳和ID由数据库自动处理）
+	if err := model.Create(ctx); err != nil {
+		return 0, errors.Wrap(err, "创建储能策略失败")
 	}
-	if err := m.Create(ctx); err != nil {
-		return "", errors.Wrap(err, "创建储能策略失败")
+
+	// 获取刚插入的记录ID
+	lastIdValue, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+		Fields(s_db_model.FieldId).
+		Order("id DESC").
+		Limit(1).
+		Value()
+	if err != nil {
+		return 0, errors.Wrap(err, "获取新创建的策略ID失败")
 	}
-	return id, nil
+
+	return cvt.IntE(lastIdValue)
 }
 
-func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyById(ctx context.Context, id string) (*s_db_model.SEnergyStorageStrategyModel, error) {
-	m := &s_db_model.SEnergyStorageStrategyModel{}
-	if err := m.GetById(ctx, id); err != nil {
-		return nil, err
+// GetEnergyStorageStrategyById 根据ID获取储能策略
+func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyById(ctx context.Context, id int) (*s_db_model.SEnergyStorageStrategyModel, error) {
+	model := &s_db_model.SEnergyStorageStrategyModel{}
+	if err := model.GetById(ctx, id); err != nil {
+		return nil, errors.Wrap(err, "获取储能策略失败")
 	}
-	if m.Id == "" {
-		return nil, errors.Errorf("记录不存在: %s", id)
+	if model.Id == 0 {
+		return nil, errors.Errorf("记录不存在: %d", id)
 	}
-	return m, nil
+	return model, nil
 }
 
-func (s *sEnergyStorageStrategyServiceImpl) UpdateEnergyStorageStrategy(ctx context.Context, id string, data map[string]interface{}) error {
-	if err := s.validateAndNormalizeInput(data); err != nil {
+// UpdateEnergyStorageStrategy 更新储能策略
+func (s *sEnergyStorageStrategyServiceImpl) UpdateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) error {
+	// 验证模型
+	if err := s.validateModel(ctx, model); err != nil {
 		return err
 	}
-	m := &s_db_model.SEnergyStorageStrategyModel{Id: id}
-	return m.UpdateFields(ctx, g.Map{
-		s_db_model.FieldEssName:        strings.TrimSpace(gconvString(data["name"])),
-		s_db_model.FieldEssDescription: strings.TrimSpace(gconvString(data["description"])),
-		s_db_model.FieldEssPriority:    gconvInt(data["priority"]),
-		s_db_model.FieldEssStatus:      c_enum.ParseStatus(gconvString(data["status"])).String(),
-		s_db_model.FieldEssIsDefault:   gconvBool(data["isDefault"]),
-		s_db_model.FieldEssDateRange:   gconvString(data["dateRange"]),
-		s_db_model.FieldEssTimeRange:   gconvString(data["timeRange"]),
-		s_db_model.FieldEssConfig:      gconvString(data["config"]),
-		s_db_model.FieldEssDeviceIds:   gconvString(data["essDeviceIds"]),
-		s_db_model.FieldEssCreatedBy:   gconvString(data["createdBy"]),
-	})
+
+	// 确保 createdBy 不为空
+	if model.CreatedBy == "" {
+		model.CreatedBy = "admin"
+	}
+
+	// 更新记录
+	return model.Update(ctx)
 }
 
-func (s *sEnergyStorageStrategyServiceImpl) DeleteEnergyStorageStrategy(ctx context.Context, id string) error {
-	m := &s_db_model.SEnergyStorageStrategyModel{Id: id}
-	return m.Delete(ctx)
+// DeleteEnergyStorageStrategy 删除储能策略
+func (s *sEnergyStorageStrategyServiceImpl) DeleteEnergyStorageStrategy(ctx context.Context, id int) error {
+	model := &s_db_model.SEnergyStorageStrategyModel{Id: id}
+	return model.Delete(ctx)
 }
 
+// GetEnergyStorageStrategyPage 分页查询储能策略
 func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategyPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SEnergyStorageStrategyModel, int, error) {
 	model := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx)
-	if v, ok := filters["status"].(string); ok && v != "" && v != "all" {
-		model = model.Where(s_db_model.FieldEssStatus, v)
+
+	// 处理过滤条件
+	if status, ok := filters[s_db_model.FieldEssStatus].(string); ok && status != "" && status != "all" {
+		model = model.Where(s_db_model.FieldEssStatus, status)
 	}
-	if v, ok := filters["priority"].(int); ok && v >= 1 && v <= 5 {
-		model = model.Where(s_db_model.FieldEssPriority, v)
+
+	if priority, ok := filters[s_db_model.FieldEssPriority]; ok {
+		p := cvt.Int(priority)
+		if p >= 1 && p <= 5 {
+			model = model.Where(s_db_model.FieldEssPriority, p)
+		}
 	}
-	if v, ok := filters["keyword"].(string); ok && strings.TrimSpace(v) != "" {
-		like := "%" + strings.TrimSpace(v) + "%"
-		model = model.WhereOr(model.Builder().WhereLike(s_db_model.FieldEssName, like).WhereLike(s_db_model.FieldEssDescription, like))
+
+	if keyword, ok := filters["keyword"].(string); ok && strings.TrimSpace(keyword) != "" {
+		like := "%" + strings.TrimSpace(keyword) + "%"
+		model = model.WhereOr(
+			model.Builder().
+				WhereLike(s_db_model.FieldName, like).
+				WhereOrLike(s_db_model.FieldEssDescription, like),
+		)
 	}
+
+	// 获取总数
 	total, err := model.Clone().Count()
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "统计总数失败")
 	}
+
+	// 分页参数校验
 	if page <= 0 {
 		page = 1
 	}
 	if pageSize <= 0 {
 		pageSize = 10
 	}
+
+	// 查询列表
 	var list []*s_db_model.SEnergyStorageStrategyModel
 	err = model.Page(page, pageSize).OrderDesc(s_db_model.FieldCreatedAt).Scan(&list)
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, errors.Wrap(err, "查询列表失败")
 	}
+
 	return list, total, nil
 }
 
-func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategiesByIds(ctx context.Context, ids []string) ([]*s_db_model.SEnergyStorageStrategyModel, error) {
+// GetEnergyStorageStrategiesByIds 根据ID列表获取储能策略
+func (s *sEnergyStorageStrategyServiceImpl) GetEnergyStorageStrategiesByIds(ctx context.Context, ids []int) ([]*s_db_model.SEnergyStorageStrategyModel, error) {
 	if len(ids) == 0 {
 		return []*s_db_model.SEnergyStorageStrategyModel{}, nil
 	}
+
 	var list []*s_db_model.SEnergyStorageStrategyModel
-	if err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).WhereIn(s_db_model.FieldId, ids).Scan(&list); err != nil {
-		return nil, err
+	err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+		WhereIn(s_db_model.FieldId, ids).
+		Scan(&list)
+	if err != nil {
+		return nil, errors.Wrap(err, "批量查询策略失败")
 	}
+
 	return list, nil
 }
 
-func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageStrategyActive(ctx context.Context, id string, active bool) error {
+// SetEnergyStorageStrategyActive 设置策略激活状态
+func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageStrategyActive(ctx context.Context, id int, active bool) error {
 	status := "inactive"
 	if active {
 		status = "active"
 	}
-	_, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).Where(s_db_model.FieldId, id).Update(g.Map{s_db_model.FieldEssStatus: status})
-	return err
+
+	_, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+		Where(s_db_model.FieldId, id).
+		Update(g.Map{s_db_model.FieldEssStatus: status})
+
+	return errors.Wrap(err, "设置策略状态失败")
 }
 
-func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageStrategyDefault(ctx context.Context, id string, isDefault bool) error {
+// SetEnergyStorageStrategyDefault 设置默认策略
+func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageStrategyDefault(ctx context.Context, id int, isDefault bool) error {
 	if isDefault {
-		// 先清除其他默认
-		if _, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).Where(s_db_model.FieldEssIsDefault, true).Update(g.Map{s_db_model.FieldEssIsDefault: false}); err != nil {
-			return err
+		// 先清除其他默认策略
+		if _, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+			Where(s_db_model.FieldEssIsDefault, true).
+			Update(g.Map{s_db_model.FieldEssIsDefault: false}); err != nil {
+			return errors.Wrap(err, "清除其他默认策略失败")
 		}
 	}
-	_, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).Where(s_db_model.FieldId, id).Update(g.Map{s_db_model.FieldEssIsDefault: isDefault})
-	return err
+
+	_, err := g.Model(s_db_model.TableEnergyStorageStrategy).Ctx(ctx).
+		Where(s_db_model.FieldId, id).
+		Update(g.Map{s_db_model.FieldEssIsDefault: isDefault})
+
+	return errors.Wrap(err, "设置默认策略失败")
 }
 
 // DetectConflictsByIds 按ID列表检测冲突
-func (s *sEnergyStorageStrategyServiceImpl) DetectConflictsByIds(ctx context.Context, ids []string) ([]map[string]interface{}, error) {
+func (s *sEnergyStorageStrategyServiceImpl) DetectConflictsByIds(ctx context.Context, ids []int) ([]map[string]interface{}, error) {
 	list, err := s.GetEnergyStorageStrategiesByIds(ctx, ids)
 	if err != nil {
 		return nil, err
@@ -238,46 +231,53 @@ func (s *sEnergyStorageStrategyServiceImpl) DetectConflictsForCandidates(ctx con
 	// 将候选转为模型列表（仅用于检测，不入库）
 	var list []*s_db_model.SEnergyStorageStrategyModel
 	for _, c := range candidates {
-		// 简化：只转换与时间/设备相关字段
-		dr, _ := toJSONString(c["dateRange"])
-		tr, _ := toJSONString(c["timeRange"])
-		idsJSON, _ := toJSONString(c["essDeviceIds"])
+		id := cvt.Int(c["id"])
+		dateRange := cvt.String(c["dateRange"])
+		timeRange := cvt.String(c["timeRange"])
+
+		// 如果是对象，需要序列化为JSON字符串
+		if dr, ok := c["dateRange"].(map[string]interface{}); ok {
+			if b, err := gjson.Encode(dr); err == nil {
+				dateRange = string(b)
+			}
+		}
+		if tr, ok := c["timeRange"].(map[string]interface{}); ok {
+			if b, err := gjson.Encode(tr); err == nil {
+				timeRange = string(b)
+			}
+		}
+
 		list = append(list, &s_db_model.SEnergyStorageStrategyModel{
-			Id:           gconvString(c["id"]),
-			DateRange:    dr,
-			TimeRange:    tr,
-			EssDeviceIds: idsJSON,
+			Id:        id,
+			DateRange: dateRange,
+			TimeRange: timeRange,
 		})
 	}
 	return detectConflicts(list)
 }
 
-// 冲突检测实现：日期交集 + 时间交集 + 设备交集
+// 冲突检测实现：日期交集 + 时间交集
 func detectConflicts(list []*s_db_model.SEnergyStorageStrategyModel) ([]map[string]interface{}, error) {
-	// 解析并逐对比较（此处提供占位实现，后续可细化到具体日期列表）
 	var result []map[string]interface{}
+
+	// 逐对比较
 	for i := 0; i < len(list); i++ {
 		for j := i + 1; j < len(list); j++ {
 			if overlapStrategy(list[i], list[j]) {
 				result = append(result, map[string]interface{}{
 					"strategyId":    list[i].Id,
-					"conflictWith":  []string{list[j].Id},
+					"conflictWith":  []int{list[j].Id},
 					"conflictDates": []string{},
 				})
 			}
 		}
 	}
+
 	return result, nil
 }
 
+// 判断两个策略是否重叠
 func overlapStrategy(a, b *s_db_model.SEnergyStorageStrategyModel) bool {
-	// 设备交集
-	var aIds, bIds []string
-	_ = gjson.DecodeTo(a.EssDeviceIds, &aIds)
-	_ = gjson.DecodeTo(b.EssDeviceIds, &bIds)
-	if !hasIntersection(aIds, bIds) {
-		return false
-	}
 	// 时间范围与日期范围简单占位判断：字符串非空即认为可能重叠
 	if strings.TrimSpace(a.DateRange) == "" || strings.TrimSpace(b.DateRange) == "" {
 		return false
@@ -286,56 +286,4 @@ func overlapStrategy(a, b *s_db_model.SEnergyStorageStrategyModel) bool {
 		return false
 	}
 	return true
-}
-
-func hasIntersection(a, b []string) bool {
-	m := map[string]struct{}{}
-	for _, x := range a {
-		m[x] = struct{}{}
-	}
-	for _, y := range b {
-		if _, ok := m[y]; ok {
-			return true
-		}
-	}
-	return false
-}
-
-// 工具转换
-func gconvString(v interface{}) string {
-	s, _ := gjson.EncodeString(v)
-	if s == "" {
-		if vv, ok := v.(string); ok {
-			return vv
-		}
-	}
-	if vv, ok := v.(string); ok {
-		return vv
-	}
-	return s
-}
-func gconvInt(v interface{}) int {
-	if i, ok := v.(int); ok {
-		return i
-	}
-	if f, ok := v.(float64); ok {
-		return int(f)
-	}
-	return 0
-}
-func gconvBool(v interface{}) bool {
-	if b, ok := v.(bool); ok {
-		return b
-	}
-	return false
-}
-func toJSONString(v interface{}) (string, error) {
-	if s, ok := v.(string); ok {
-		return s, nil
-	}
-	b, err := gjson.Encode(v)
-	if err != nil {
-		return "", err
-	}
-	return string(b), nil
 }

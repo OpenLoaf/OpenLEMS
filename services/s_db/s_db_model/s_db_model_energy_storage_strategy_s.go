@@ -12,8 +12,7 @@ const (
 	// 表名
 	TableEnergyStorageStrategy = "energy_storage_strategy"
 
-	// 表特有字段
-	FieldEssName        = "name"
+	// 储能策略表特有字段
 	FieldEssDescription = "description"
 	FieldEssPriority    = "priority"
 	FieldEssStatus      = "status"
@@ -21,42 +20,44 @@ const (
 	FieldEssDateRange   = "date_range"
 	FieldEssTimeRange   = "time_range"
 	FieldEssConfig      = "config"
-	FieldEssDeviceIds   = "ess_device_ids"
 	FieldEssCreatedBy   = "created_by"
 )
 
 // SEnergyStorageStrategyModel 储能策略表结构
 type SEnergyStorageStrategyModel struct {
-	g.Meta       `orm:"table:energy_storage_strategy"`
-	Id           string      `json:"id" orm:"id"`
-	Name         string      `json:"name" orm:"name"`
-	Description  string      `json:"description" orm:"description"`
-	Priority     int         `json:"priority" orm:"priority"`
-	Status       string      `json:"status" orm:"status"`
-	IsDefault    bool        `json:"isDefault" orm:"is_default"`
-	DateRange    string      `json:"dateRange" orm:"date_range"`        // JSON
-	TimeRange    string      `json:"timeRange" orm:"time_range"`        // JSON
-	Config       string      `json:"config" orm:"config"`               // JSON
-	EssDeviceIds string      `json:"essDeviceIds" orm:"ess_device_ids"` // JSON array
-	CreatedBy    string      `json:"createdBy" orm:"created_by"`
-	CreatedAt    *gtime.Time `json:"createdAt" orm:"created_at"`
-	UpdatedAt    *gtime.Time `json:"updatedAt" orm:"updated_at"`
+	g.Meta      `orm:"table:energy_storage_strategy"`
+	Id          int         `json:"id" orm:"id,primary,auto_increment"`                  // 主键ID
+	Name        string      `json:"name" orm:"name" v:"required|length:2,50"`            // 策略名称
+	Description string      `json:"description" orm:"description"`                       // 策略描述
+	Priority    int         `json:"priority" orm:"priority" v:"required|between:1,5"`    // 优先级 (1-5)
+	Status      string      `json:"status" orm:"status" v:"required|in:active,inactive"` // 状态
+	IsDefault   bool        `json:"isDefault" orm:"is_default"`                          // 是否默认策略
+	DateRange   string      `json:"dateRange" orm:"date_range" v:"required"`             // 日期范围 (JSON)
+	TimeRange   string      `json:"timeRange" orm:"time_range" v:"required"`             // 时间范围 (JSON)
+	Config      string      `json:"config" orm:"config" v:"required"`                    // 策略配置 (JSON)
+	CreatedBy   string      `json:"createdBy" orm:"created_by"`                          // 创建人
+	CreatedAt   *gtime.Time `json:"createdAt" orm:"created_at,created_at"`               // 创建时间
+	UpdatedAt   *gtime.Time `json:"updatedAt" orm:"updated_at,updated_at"`               // 更新时间
 }
 
 // Create 创建记录
 func (m *SEnergyStorageStrategyModel) Create(ctx context.Context) error {
-	_, err := g.Model(TableEnergyStorageStrategy).Ctx(ctx).Insert(m)
+	// 排除ID字段，让数据库自动生成
+	_, err := g.Model(TableEnergyStorageStrategy).Ctx(ctx).FieldsEx(FieldId).Insert(m)
 	return err
 }
 
 // GetById 根据ID获取记录
-func (m *SEnergyStorageStrategyModel) GetById(ctx context.Context, id string) error {
+func (m *SEnergyStorageStrategyModel) GetById(ctx context.Context, id int) error {
 	return g.Model(TableEnergyStorageStrategy).Ctx(ctx).Where(FieldId, id).Scan(m)
 }
 
-// Update 更新整行
+// Update 更新记录
 func (m *SEnergyStorageStrategyModel) Update(ctx context.Context) error {
-	_, err := g.Model(TableEnergyStorageStrategy).Ctx(ctx).Where(FieldId, m.Id).Update(m)
+	_, err := g.Model(TableEnergyStorageStrategy).Ctx(ctx).
+		Where(FieldId, m.Id).
+		FieldsEx(FieldId, FieldCreatedAt).
+		Update(m)
 	return err
 }
 

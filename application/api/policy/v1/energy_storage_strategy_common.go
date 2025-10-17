@@ -14,20 +14,19 @@ import (
 
 // EnergyStorageStrategy DTO
 type EnergyStorageStrategy struct {
-	Id           string                           `json:"id" dc:"策略ID"`
-	Name         string                           `json:"name" dc:"策略名称"`
-	Description  string                           `json:"description,omitempty" dc:"策略描述"`
-	Priority     int                              `json:"priority" dc:"优先级，数值越小优先级越高"`
-	Status       c_enum.EStatus                   `json:"status" dc:"启用状态"`
-	DateRange    *p_energy_manage.SDateRange      `json:"dateRange" dc:"日期范围配置"`
-	TimeRange    *p_energy_manage.STimeRange      `json:"timeRange" dc:"时间范围配置（weekday/custom/monthly）"`
-	Config       *p_energy_manage.SStrategyConfig `json:"config" dc:"策略执行配置"`
-	EssDeviceIds []string                         `json:"essDeviceIds" dc:"关联的储能设备ID列表"`
-	IsActive     bool                             `json:"isActive" dc:"当前是否在时间/日期范围内生效（不含启用状态）"`
-	CreatedAt    *time.Time                       `json:"createdAt" dc:"创建时间"`
-	UpdatedAt    *time.Time                       `json:"updatedAt" dc:"更新时间"`
-	CreatedBy    string                           `json:"createdBy,omitempty" dc:"创建人"`
-	IsDefault    bool                             `json:"isDefault,omitempty" dc:"是否为默认策略"`
+	Id          int                              `json:"id" dc:"策略ID"`
+	Name        string                           `json:"name" dc:"策略名称"`
+	Description string                           `json:"description,omitempty" dc:"策略描述"`
+	Priority    int                              `json:"priority" dc:"优先级，数值越小优先级越高"`
+	Status      c_enum.EStatus                   `json:"status" dc:"启用状态"`
+	DateRange   *p_energy_manage.SDateRange      `json:"dateRange" dc:"日期范围配置"`
+	TimeRange   *p_energy_manage.STimeRange      `json:"timeRange" dc:"时间范围配置（weekday/custom/monthly）"`
+	Config      *p_energy_manage.SStrategyConfig `json:"config" dc:"策略执行配置"`
+	IsActive    bool                             `json:"isActive" dc:"当前是否在时间/日期范围内生效（不含启用状态）"`
+	CreatedAt   *time.Time                       `json:"createdAt" dc:"创建时间"`
+	UpdatedAt   *time.Time                       `json:"updatedAt" dc:"更新时间"`
+	CreatedBy   string                           `json:"createdBy,omitempty" dc:"创建人"`
+	IsDefault   bool                             `json:"isDefault,omitempty" dc:"是否为默认策略"`
 }
 
 // UnmarshalValue 将数据库Model转换为DTO
@@ -69,13 +68,6 @@ func (s *EnergyStorageStrategy) UnmarshalValue(value interface{}) error {
 			var config p_energy_manage.SStrategyConfig
 			if err := gjson.DecodeTo(model.Config, &config); err == nil {
 				s.Config = &config
-			}
-		}
-
-		if model.EssDeviceIds != "" {
-			var ids []string
-			if err := gjson.DecodeTo(model.EssDeviceIds, &ids); err == nil {
-				s.EssDeviceIds = ids
 			}
 		}
 

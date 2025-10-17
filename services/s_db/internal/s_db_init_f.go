@@ -173,17 +173,16 @@ func initConfigDatabase() {
 	// 创建储能策略表
 	_, err = g.DB().Exec(ctx, `
 		CREATE TABLE IF NOT EXISTS energy_storage_strategy (
-			id VARCHAR(255) PRIMARY KEY,
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			name VARCHAR(255) NOT NULL,
 			description TEXT,
 			priority INTEGER NOT NULL CHECK (priority BETWEEN 1 AND 5),
-			status VARCHAR(32) NOT NULL,
+			status VARCHAR(32) NOT NULL DEFAULT 'inactive',
 			is_default BOOLEAN DEFAULT 0,
 			date_range TEXT NOT NULL,
 			time_range TEXT NOT NULL,
 			config TEXT NOT NULL,
-			ess_device_ids TEXT NOT NULL,
-			created_by VARCHAR(255),
+			created_by VARCHAR(255) NOT NULL DEFAULT 'admin',
 			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
 			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 		)

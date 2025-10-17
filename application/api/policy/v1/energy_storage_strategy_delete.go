@@ -6,7 +6,7 @@ import (
 
 type DeleteEnergyStorageStrategyReq struct {
 	g.Meta `path:"/strategy/energy-storage/{id}" method:"delete" tags:"策略相关" summary:"删除储能策略" role:"admin"`
-	Id     string `json:"id" in:"path"`
+	Id     int `json:"id" in:"path"`
 }
 
 type DeleteEnergyStorageStrategyRes struct{}

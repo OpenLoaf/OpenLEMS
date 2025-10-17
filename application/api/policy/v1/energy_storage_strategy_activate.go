@@ -6,8 +6,8 @@ import (
 
 type ActivateEnergyStorageStrategyReq struct {
 	g.Meta `path:"/strategy/energy-storage/activate" method:"post" tags:"策略相关" summary:"激活或停用储能策略" role:"admin"`
-	Id     string `json:"id"`
-	Active bool   `json:"active"`
+	Id     int  `json:"id"`
+	Active bool `json:"active"`
 }
 
 type ActivateEnergyStorageStrategyRes struct{}

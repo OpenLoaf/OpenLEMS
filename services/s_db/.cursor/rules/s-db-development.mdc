@@ -335,10 +335,248 @@ func Get[TableName]Service() s_db_basic.I[TableName]Service {
 - [ ] 确保所有方法都有适当的日志记录
 - [ ] 测试 CRUD 操作的正确性
 
+## GoFrame 验证规范
+
+### 1. Model 层验证标签
+
+在 Model 结构体中使用 GoFrame 验证标签（`v:` 标签）：
+
+```go
+type SEnergyStorageStrategyModel struct {
+    g.Meta      `orm:"table:energy_storage_strategy"`
+    Id          int         `json:"id" orm:"id,primary,auto_increment"`
+    Name        string      `json:"name" orm:"name" v:"required|length:2,50"`           // 必填，长度2-50
+    Description string      `json:"description" orm:"description"`                      // 可选
+    Priority    int         `json:"priority" orm:"priority" v:"required|between:1,5"`   // 必填，范围1-5
+    Status      string      `json:"status" orm:"status" v:"required|in:active,inactive"` // 必填，枚举值
+    CreatedAt   *gtime.Time `json:"createdAt" orm:"created_at,created_at"`
+    UpdatedAt   *gtime.Time `json:"updatedAt" orm:"updated_at,updated_at"`
+}
+```
+
+### 2. Service 层验证
+
+在 Service 实现中使用 GoFrame 验证器：
+
+```go
+func (s *sServiceImpl) validateModel(ctx context.Context, model *s_db_model.SModel) error {
+    // 基础字段验证（通过标签自动验证）
+    if err := g.Validator().Data(model).Run(ctx); err != nil {
+        return errors.Wrap(err.FirstError(), "字段验证失败")
+    }
+    
+    // 复杂验证逻辑（手动验证）
+    if model.Config != "" {
+        var cfg struct {
+            MinValue float64 `json:"minValue"`
+            MaxValue float64 `json:"maxValue"`
+        }
+        if err := gjson.DecodeTo(model.Config, &cfg); err == nil {
+            if cfg.MaxValue < cfg.MinValue {
+                return errors.New("config.minValue 不能大于 maxValue")
+            }
+        }
+    }
+    
+    return nil
+}
+```
+
+### 3. 验证规则
+
+常用验证规则：
+
+- `required` - 必填字段
+- `length:min,max` - 字符串长度范围
+- `between:min,max` - 数值范围
+- `in:value1,value2` - 枚举值
+- `email` - 邮箱格式
+- `url` - URL 格式
+- `date` - 日期格式
+
+## 类型转换规范
+
+### 1. 使用 cvt 库进行类型转换
+
+**依赖**：`github.com/shockerli/cvt`
+
+**常用转换方法**：
+
+```go
+import "github.com/shockerli/cvt"
+
+// 安全转换（带错误返回）
+id, err := cvt.IntE(value)
+name, err := cvt.StringE(value)
+enabled, err := cvt.BoolE(value)
+price, err := cvt.Float64E(value)
+
+// 简单转换（不返回错误，失败返回零值）
+id := cvt.Int(value)
+name := cvt.String(value)
+enabled := cvt.Bool(value)
+price := cvt.Float64(value)
+```
+
+### 2. Service 层类型转换示例
+
+```go
+func (s *sServiceImpl) GetPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SModel, int, error) {
+    model := g.Model(s_db_model.TableName).Ctx(ctx)
+    
+    // 使用 cvt 进行类型转换
+    if priority, ok := filters[s_db_model.FieldPriority]; ok {
+        p := cvt.Int(priority)
+        if p >= 1 && p <= 5 {
+            model = model.Where(s_db_model.FieldPriority, p)
+        }
+    }
+    
+    if keyword, ok := filters["keyword"]; ok {
+        kw := cvt.String(keyword)
+        if strings.TrimSpace(kw) != "" {
+            like := "%" + strings.TrimSpace(kw) + "%"
+            model = model.WhereLike(s_db_model.FieldName, like)
+        }
+    }
+    
+    // ... 其他逻辑
+}
+```
+
+## ORM 标签完整规范
+
+### 1. 主键标签
+
+```go
+Id int `json:"id" orm:"id,primary,auto_increment"` // 自增主键
+```
+
+### 2. 时间戳标签
+
+```go
+CreatedAt *gtime.Time `json:"createdAt" orm:"created_at,created_at"` // 创建时自动填充
+UpdatedAt *gtime.Time `json:"updatedAt" orm:"updated_at,updated_at"` // 更新时自动填充
+```
+
+### 3. 普通字段标签
+
+```go
+Name string `json:"name" orm:"name"` // 基本字段
+```
+
+### 4. CRUD 操作中排除字段
+
+```go
+// Create 时排除 ID（让数据库自动生成）
+_, err := g.Model(TableName).Ctx(ctx).FieldsEx(FieldId).Insert(m)
+
+// Update 时排除 ID 和 CreatedAt
+_, err := g.Model(TableName).Ctx(ctx).Where(FieldId, m.Id).FieldsEx(FieldId, FieldCreatedAt).Update(m)
+```
+
+## 自动字段设置规范
+
+### 1. createdBy 字段自动设置
+
+在 Service 的 Create 方法中自动设置 `createdBy` 字段：
+
+```go
+func (s *sServiceImpl) CreateModel(ctx context.Context, model *s_db_model.SModel) (int, error) {
+    // 验证模型
+    if err := s.validateModel(ctx, model); err != nil {
+        return 0, err
+    }
+    
+    // 自动设置 createdBy 为 admin
+    model.CreatedBy = "admin"
+    
+    // 创建记录（时间戳和ID由数据库自动处理）
+    if err := model.Create(ctx); err != nil {
+        return 0, errors.Wrap(err, "创建记录失败")
+    }
+    
+    // 获取刚插入的记录ID
+    lastIdValue, err := g.Model(s_db_model.TableName).Ctx(ctx).
+        Fields(s_db_model.FieldId).
+        Order("id DESC").
+        Limit(1).
+        Value()
+    if err != nil {
+        return 0, errors.Wrap(err, "获取新创建的记录ID失败")
+    }
+    
+    return cvt.IntE(lastIdValue)
+}
+```
+
+### 2. SQL 表中设置默认值
+
+在数据库表创建时设置默认值：
+
+```sql
+CREATE TABLE IF NOT EXISTS table_name (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name VARCHAR(255) NOT NULL,
+    created_by VARCHAR(255) NOT NULL DEFAULT 'admin',  -- 设置默认值
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+)
+```
+
+## Service 接口设计规范
+
+### 1. 使用 Model 结构体而非 map
+
+**推荐**：
+
+```go
+type IEnergyStorageStrategyService interface {
+    CreateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) (int, error)
+    UpdateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) error
+    DeleteEnergyStorageStrategy(ctx context.Context, id int) error
+}
+```
+
+**不推荐**：
+
+```go
+type IEnergyStorageStrategyService interface {
+    CreateEnergyStorageStrategy(ctx context.Context, data map[string]interface{}) (int, error)
+    UpdateEnergyStorageStrategy(ctx context.Context, id int, data map[string]interface{}) error
+}
+```
+
+### 2. Controller 层构造 Model
+
+在 Controller 层直接构造 Model 结构体：
+
+```go
+func (c *Controller) CreateResource(ctx context.Context, req *v1.CreateResourceReq) (*v1.CreateResourceRes, error) {
+    // 构造 Model
+    model := &s_db_model.SResourceModel{
+        Name:        req.Name,
+        Description: req.Description,
+        Priority:    req.Priority,
+        Status:      req.Status.String(),
+        Config:      marshalJSON(req.Config),
+    }
+    
+    // 调用服务层
+    id, err := s_db.GetResourceService().CreateResource(ctx, model)
+    if err != nil {
+        return nil, err
+    }
+    
+    return &v1.CreateResourceRes{}, nil
+}
+```
+
 ## 示例参考
 
 参考现有实现：
 
-- [s_db_model_policy_config_s.go](mdc:services/s_db/s_db_model/s_db_model_policy_config_s.go) - 模型实现
-- [s_db_impl_policy_config_service_s.go](mdc:services/s_db/internal/impl/s_db_impl_policy_config_service_s.go) - 服务实现
-- [s_db_basic_interface.go](mdc:services/s_db/s_db_basic/s_db_basic_interface.go) - 接口定义
+- [s_db_model_energy_storage_strategy_s.go](mdc:services/s_db/s_db_model/s_db_model_energy_storage_strategy_s.go) - 完整的 Model 实现（含 ORM 标签和验证标签）
+- [s_db_impl_energy_storage_strategy_service_s.go](mdc:services/s_db/internal/impl/s_db_impl_energy_storage_strategy_service_s.go) - 完整的 Service 实现（含验证和类型转换）
+- [energy_storage_strategy_v1_controller.go](mdc:application/internal/controller/policy/energy_storage_strategy_v1_controller.go) - 完整的 Controller 实现（使用 Model 传递）
+- [s_db_basic_interface.go](mdc:services/s_db/s_db_basic/s_db_basic_interface.go) - 接口定义示例

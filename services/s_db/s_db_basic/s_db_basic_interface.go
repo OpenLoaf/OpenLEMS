@@ -99,20 +99,20 @@ type IAutomationService interface {
 // IEnergyStorageStrategyService 储能策略服务接口
 type IEnergyStorageStrategyService interface {
 	// 基础 CRUD 方法
-	CreateEnergyStorageStrategy(ctx context.Context, data map[string]interface{}) (string, error)
-	GetEnergyStorageStrategyById(ctx context.Context, id string) (*s_db_model.SEnergyStorageStrategyModel, error)
-	UpdateEnergyStorageStrategy(ctx context.Context, id string, data map[string]interface{}) error
-	DeleteEnergyStorageStrategy(ctx context.Context, id string) error
+	CreateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) (int, error)
+	GetEnergyStorageStrategyById(ctx context.Context, id int) (*s_db_model.SEnergyStorageStrategyModel, error)
+	UpdateEnergyStorageStrategy(ctx context.Context, model *s_db_model.SEnergyStorageStrategyModel) error
+	DeleteEnergyStorageStrategy(ctx context.Context, id int) error
 
 	// 查询与分页
 	GetEnergyStorageStrategyPage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SEnergyStorageStrategyModel, int, error)
-	GetEnergyStorageStrategiesByIds(ctx context.Context, ids []string) ([]*s_db_model.SEnergyStorageStrategyModel, error)
+	GetEnergyStorageStrategiesByIds(ctx context.Context, ids []int) ([]*s_db_model.SEnergyStorageStrategyModel, error)
 
 	// 状态设置
-	SetEnergyStorageStrategyActive(ctx context.Context, id string, active bool) error
-	SetEnergyStorageStrategyDefault(ctx context.Context, id string, isDefault bool) error
+	SetEnergyStorageStrategyActive(ctx context.Context, id int, active bool) error
+	SetEnergyStorageStrategyDefault(ctx context.Context, id int, isDefault bool) error
 
 	// 冲突检测
-	DetectConflictsByIds(ctx context.Context, ids []string) ([]map[string]interface{}, error)
+	DetectConflictsByIds(ctx context.Context, ids []int) ([]map[string]interface{}, error)
 	DetectConflictsForCandidates(ctx context.Context, candidates []map[string]interface{}) ([]map[string]interface{}, error)
 }
