@@ -60,10 +60,10 @@ go run main.go --gui-full=true --force=true
 
 ```bash
 # 开发环境启动（强制启动）
-go run main.go --web=true --profile=dev --driver-path=resources/drivers --force=true
+go run main.go --web=true --profile=dev  --force=true
 
 # 生产环境启动（强制启动）
-go run main.go --web=true --profile=prod --force=true
+go run main.go --web=true --profile=prod --force=true --driver-path=resources/drivers
 
 # 测试模式启动（强制启动）
 go run main.go --test=true --web=true --force=true

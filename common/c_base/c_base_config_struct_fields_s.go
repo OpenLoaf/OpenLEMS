@@ -258,7 +258,7 @@ func (s *SFieldDefinition) convertValueType(valueType c_enum.EConfigFieldsValueT
 	case c_enum.EConfigFieldsValueTypeBoolean:
 		return c_enum.EBool
 	default:
-		return c_enum.EAuto
+		return c_enum.EInt16
 	}
 }
 

@@ -17,6 +17,7 @@ use (
 	./plugins/plug_drivers/pcs/pcs_star_charge_100E
 
 	./plugins/plug_policy/p_policy_mircogrid
+	./plugins/plug_policy/p_energy_manage
 
 	./plugins/plug_protocols/p_base
 	./plugins/plug_protocols/p_canbus
@@ -29,7 +30,6 @@ use (
 	./services/s_automation
 	./services/s_db
 	./services/s_driver
-	./services/s_energy_manage
 
 	./services/s_export_modbus
 	./services/s_export_mqtt

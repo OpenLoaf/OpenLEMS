@@ -70,14 +70,6 @@ func (s *SPointValue) GetActualValueExplain() (string, error) {
 	return cvt.StringE(s.value)
 }
 
-// GetActualValueType 获取实际的值类型, 如果是auto的将会转换为value的实际类型
-func (s *SPointValue) GetActualValueType() c_enum.EValueType {
-	if s.GetValueType() != c_enum.EAuto {
-		return s.GetValueType()
-	}
-	return ResolvingValueType(s.value)
-}
-
 func (s *SPointValue) GetHappenTime() time.Time {
 	return s.happenTime
 }

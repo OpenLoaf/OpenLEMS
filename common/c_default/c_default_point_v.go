@@ -209,19 +209,19 @@ var (
 
 // 电池相关点位 (BMS)
 var (
-	VPointSOC = &c_base.SPoint{Key: "SOC", Name: "电池电量", Unit: "%", Desc: "电池剩余电量百分比", Sort: 90, Min: 0, Max: 100, Precise: 1, Group: VPointGroupSystemBasic, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+	VPointSOC = &c_base.SPoint{Key: "SOC", Name: "电池电量", ValueType: c_enum.EFloat32, Unit: "%", Desc: "电池剩余电量百分比", Sort: 90, Min: 0, Max: 100, Precise: 1, Group: VPointGroupSystemBasic, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
 		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
 			Error: &c_base.SAlarmOvertop{Before: 0, After: 100}, // 错误：> 100%
 		})
 	}} // 电池电量
-	VPointSOH = &c_base.SPoint{Key: "SOH", Name: "电池健康度", Unit: "%", Desc: "电池健康度百分比", Sort: 91, Min: 0, Max: 100, Precise: 1, Group: VPointGroupSystemBasic, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
+	VPointSOH = &c_base.SPoint{Key: "SOH", Name: "电池健康度", ValueType: c_enum.EFloat32, Unit: "%", Desc: "电池健康度百分比", Sort: 91, Min: 0, Max: 100, Precise: 1, Group: VPointGroupSystemBasic, Trigger: func(value interface{}) (bool, c_enum.EAlarmLevel, error) {
 		return FAlarmTriggerRangeThan(value, &c_base.SAlarmRangeTrigger{
 			Error: &c_base.SAlarmOvertop{Before: 0, After: 100}, // 错误：> 100%
 		})
 	}} // 电池健康度
-	VPointDcVoltage = &c_base.SPoint{Key: "Voltage", Name: "电池电压", Unit: "V", Desc: "电池总电压", Sort: 92, Min: 0, Max: 1000, Precise: 2, Group: VPointGroupSystemBasic}       // 电池电压
-	VPointDcCurrent = &c_base.SPoint{Key: "Current", Name: "电池电流", Unit: "A", Desc: "电池充放电电流", Sort: 93, Min: -1000, Max: 1000, Precise: 2, Group: VPointGroupSystemBasic} // 电池电流
-	VPointDcPower   = &c_base.SPoint{Key: "Power", Name: "电池直流功率", Unit: "kW", Desc: "电池直流功率", Sort: 94, Min: -1000, Max: 1000, Precise: 2, Group: VPointGroupSystemBasic} // 电池直流功率
+	VPointDcVoltage = &c_base.SPoint{Key: "Voltage", Name: "电池电压", ValueType: c_enum.EFloat32, Unit: "V", Desc: "电池总电压", Sort: 92, Min: 0, Max: 1000, Precise: 2, Group: VPointGroupSystemBasic}       // 电池电压
+	VPointDcCurrent = &c_base.SPoint{Key: "Current", Name: "电池电流", ValueType: c_enum.EFloat32, Unit: "A", Desc: "电池充放电电流", Sort: 93, Min: -1000, Max: 1000, Precise: 2, Group: VPointGroupSystemBasic} // 电池电流
+	VPointDcPower   = &c_base.SPoint{Key: "Power", Name: "电池直流功率", ValueType: c_enum.EFloat32, Unit: "kW", Desc: "电池直流功率", Sort: 94, Min: -1000, Max: 1000, Precise: 2, Group: VPointGroupSystemBasic} // 电池直流功率
 )
 
 // 最大功率和电流相关点位

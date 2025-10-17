@@ -111,9 +111,9 @@ func BuildDeviceRegisterMap(deviceId string, device c_base.IDevice, externalPara
 			continue // 跳过不支持的类型
 		}
 
-		// 检查是否超过100个寄存器的限制
-		if currentOffset+registerCount > 100 {
-			return nil, fmt.Errorf("设备 %s 的寄存器数量超过100个限制", deviceId)
+		// 检查是否超过1000个寄存器的限制
+		if currentOffset+registerCount > 1000 {
+			return nil, fmt.Errorf("设备 %s 的寄存器数量超过1000个限制", deviceId)
 		}
 
 		mapping := &SRegisterMapping{
@@ -126,8 +126,8 @@ func BuildDeviceRegisterMap(deviceId string, device c_base.IDevice, externalPara
 	}
 
 	// 检查总寄存器数量
-	if currentOffset > 100 {
-		return nil, fmt.Errorf("设备 %s 的总寄存器数量 %d 超过100个限制", deviceId, currentOffset)
+	if currentOffset > 1000 {
+		return nil, fmt.Errorf("设备 %s 的总寄存器数量 %d 超过1000个限制", deviceId, currentOffset)
 	}
 
 	return &SDeviceRegisterMap{

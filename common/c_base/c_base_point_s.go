@@ -6,9 +6,9 @@ import (
 
 // SPoint 点位元数据
 type SPoint struct {
-	Key          string                                                                      `json:"key" v:"required" ` // 名称
-	Name         string                                                                      `json:"name" v:"required"` // 名称
-	ValueType    c_enum.EValueType                                                           `json:"value_type,omitempty" v:"required"`
+	Key          string                                                                      `json:"key" v:"required" `                 // 名称
+	Name         string                                                                      `json:"name" v:"required"`                 // 名称
+	ValueType    c_enum.EValueType                                                           `json:"value_type,omitempty" v:"required"` // 数据在系统中的格式
 	Group        *SPointGroup                                                                `json:"group" dc:"分组"`
 	Unit         string                                                                      `json:"unit,omitempty"`             // 单位
 	Desc         string                                                                      `json:"desc,omitempty"`             // 备注
