@@ -419,6 +419,7 @@ type [Action][Resource]Res struct {
 - [ ] **错误处理**：统一使用 `gerror` 进行错误处理
 - [ ] **字段常量使用**：使用 `s_db_model` 中的字段常量
 - [ ] **时间字段处理**：使用 `*time.Time` 类型
+- [ ] **数据转换优化**：使用 `gconv.Map()` 和 `UnmarshalValue` 方法
 - [ ] **测试功能正确性**：确保接口功能正常
 
 ### 文件拆分时
@@ -429,6 +430,16 @@ type [Action][Resource]Res struct {
 - [ ] **保持原有功能**：确保所有路由配置、验证规则保持不变
 - [ ] **检查语法错误**：确保所有文件没有语法错误
 - [ ] **删除原始文件**：拆分完成后删除原始文件
+
+### 数据转换优化时
+
+- [ ] **实现 UnmarshalValue 方法**：在 DTO 结构体中实现统一的数据转换方法
+- [ ] **使用 gconv.Map() 转换请求**：避免手动处理每个字段
+- [ ] **查询参数自动处理**：使用 gconv.Map() 处理查询参数，自动移除 nil 值
+- [ ] **移除重复转换代码**：Controller 中只调用 UnmarshalValue 方法
+- [ ] **统一错误处理**：转换失败时返回具体错误信息
+- [ ] **性能优化**：避免不必要的类型断言和字符串拼接
+- [ ] **类型安全**：确保所有转换都有适当的类型检查
 
 ## 最佳实践示例
 
@@ -446,11 +457,55 @@ type [Action][Resource]Res struct {
 7. `energy_storage_strategy_conflicts.go` - 冲突检测接口
 8. `energy_storage_strategy_activate.go` - 激活接口
 
+### 数据转换优化示例
+
+**优化前的问题**：
+```go
+// Controller 中重复的转换逻辑
+dto := &v1.EnergyStorageStrategy{
+    Id:          m.Id,
+    Name:        m.Name,
+    Description: m.Description,
+    Priority:    m.Priority,
+    Status:      c_enum.ParseStatus(m.Status),
+    CreatedAt:   &m.CreatedAt.Time,
+    UpdatedAt:   &m.UpdatedAt.Time,
+    IsDefault:   m.IsDefault,
+}
+// 反序列化配置结构体
+var dateRange p_energy_manage.SDateRange
+_ = gjson.DecodeTo(m.DateRange, &dateRange)
+dto.DateRange = &dateRange
+// ... 更多重复代码
+```
+
+**优化后的解决方案**：
+```go
+// 1. 在 DTO 中实现 UnmarshalValue 方法
+func (s *EnergyStorageStrategy) UnmarshalValue(value interface{}) error {
+    if model, ok := value.(*s_db_model.SEnergyStorageStrategyModel); ok {
+        // 统一处理所有转换逻辑
+        s.Id = model.Id
+        s.Name = model.Name
+        // ... 其他字段转换
+        return nil
+    }
+    return errors.Errorf(`unsupported value type: %v`, reflect.TypeOf(value))
+}
+
+// 2. Controller 中简化调用
+dto := &v1.EnergyStorageStrategy{}
+if err := dto.UnmarshalValue(model); err != nil {
+    return nil, err
+}
+```
+
 ### 参考文件
 
 - [application/api/automation/v1/](mdc:application/api/automation/v1/) - 自动化模块 API 示例
 - [application/api/setting/v1/](mdc:application/api/setting/v1/) - 设置模块 API 示例
 - [application/api/policy/v1/](mdc:application/api/policy/v1/) - 策略模块 API 示例
+- [application/internal/model/entity/device.go](mdc:application/internal/model/entity/device.go) - 实体模型 UnmarshalValue 方法示例
 
 ## Controller 实现规范
 
@@ -487,7 +542,128 @@ func (c *ControllerV1) CreateResource(ctx context.Context, req *v1.CreateResourc
 }
 ```
 
-### 3. 日志记录规范
+### 3. 数据转换规范
+
+**核心原则**：
+- 使用 `gconv.Map(req)` 自动转换结构体为 Map
+- 实现 `UnmarshalValue` 方法统一处理数据转换
+- 避免在Controller中重复编写转换逻辑
+
+#### 3.1 请求数据转换
+
+**使用 `gconv.Map()` 自动转换**：
+```go
+// ✅ 正确 - 使用 gconv.Map 自动转换
+data := gconv.Map(req)
+delete(data, "id") // 移除不需要的字段
+
+// ❌ 错误 - 手动处理每个字段
+data := map[string]interface{}{
+    "name": req.Name,
+    "type": req.Type,
+    // ... 大量重复代码
+}
+```
+
+**查询参数处理**：
+```go
+// ✅ 正确 - 使用 gconv.Map 处理查询参数
+filters := gconv.Map(req)
+delete(filters, "page")
+delete(filters, "pageSize")
+
+// 移除 nil 值
+for key, value := range filters {
+    if value == nil {
+        delete(filters, key)
+    }
+}
+
+// ❌ 错误 - 手动处理每个查询参数
+filters := map[string]interface{}{}
+if req.Status != nil {
+    filters["status"] = req.Status.String()
+}
+if req.Priority != nil {
+    filters["priority"] = *req.Priority
+}
+```
+
+#### 3.2 响应数据转换
+
+**实现 `UnmarshalValue` 方法**：
+```go
+// 在 DTO 结构体中实现 UnmarshalValue 方法
+func (s *EnergyStorageStrategy) UnmarshalValue(value interface{}) error {
+    if model, ok := value.(*s_db_model.SEnergyStorageStrategyModel); ok {
+        // 基础字段映射
+        s.Id = model.Id
+        s.Name = model.Name
+        s.Description = model.Description
+        s.Priority = model.Priority
+        s.Status = c_enum.ParseStatus(model.Status)
+        
+        // 时间字段转换
+        if model.CreatedAt != nil {
+            s.CreatedAt = &model.CreatedAt.Time
+        }
+        if model.UpdatedAt != nil {
+            s.UpdatedAt = &model.UpdatedAt.Time
+        }
+        
+        // JSON字段反序列化
+        if model.DateRange != "" {
+            var dateRange p_energy_manage.SDateRange
+            if err := gjson.DecodeTo(model.DateRange, &dateRange); err == nil {
+                s.DateRange = &dateRange
+            }
+        }
+        
+        return nil
+    }
+    return errors.Errorf(`unsupported value type for UnmarshalValue: %v`, reflect.TypeOf(value))
+}
+```
+
+**Controller中使用 `UnmarshalValue`**：
+```go
+// ✅ 正确 - 使用 UnmarshalValue 方法
+dto := &v1.EnergyStorageStrategy{}
+if err := dto.UnmarshalValue(model); err != nil {
+    return nil, err
+}
+
+// ❌ 错误 - 手动转换每个字段
+dto := &v1.EnergyStorageStrategy{
+    Id:          model.Id,
+    Name:        model.Name,
+    Description: model.Description,
+    // ... 大量重复代码
+}
+// 反序列化配置结构体
+var dateRange p_energy_manage.SDateRange
+_ = gjson.DecodeTo(model.DateRange, &dateRange)
+dto.DateRange = &dateRange
+```
+
+#### 3.3 数据转换最佳实践
+
+**转换逻辑统一管理**：
+- 所有数据转换逻辑集中在 `UnmarshalValue` 方法中
+- Controller只负责调用转换方法
+- 避免在Controller中重复编写转换代码
+
+**错误处理**：
+- 转换失败时返回具体错误信息
+- 使用 `errors.Errorf` 提供详细的错误上下文
+- 支持类型检查，确保转换的类型正确
+
+**性能优化**：
+- 使用 `gconv.Map()` 自动处理类型转换
+- 避免不必要的字符串拼接和类型断言
+- 统一处理 JSON 反序列化
+
+### 4. 日志记录规范
 
 **日志级别使用**：
 - `g.Log().Info()` - 正常操作日志
