@@ -10,7 +10,6 @@ const (
 	EStatusEnable  EStatus = iota // 启用
 	EStatusDisable                // 禁用
 	EStatusDeleted                // 已删除
-	EStatusActive                 // 激活
 )
 
 // ParseStatus 解析状态字符串
@@ -23,8 +22,6 @@ func ParseStatus(status string) EStatus {
 		return EStatusDisable
 	case "deleted", "delete":
 		return EStatusDeleted
-	case "active":
-		return EStatusActive
 	default:
 		return EStatusDisable // 默认禁用
 	}

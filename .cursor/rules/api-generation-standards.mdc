@@ -159,7 +159,100 @@ type GetResourceListRes struct {
 
 ## 参数验证规范
 
-### 1. 基于 Model 定义的参数验证
+### 1. 非必填参数使用指针类型
+
+**设计原则**：
+
+- 非必填参数必须使用指针类型（`*Type`）
+- 指针类型支持 `nil` 值，明确表示参数未传递
+- 避免使用零值判断参数是否传递的问题
+
+**示例**：
+```go
+type GetResourceListReq struct {
+    g.Meta   `path:"/resource" method:"get" tags:"模块相关" summary:"获取资源列表"`
+    Page     int      `json:"page" dc:"页码"`           // 必填参数
+    PageSize int      `json:"pageSize" dc:"每页数量"`   // 必填参数
+    Status   *string  `json:"status" dc:"状态筛选"`     // 非必填参数，使用指针
+    Keyword  *string  `json:"keyword" dc:"关键词"`     // 非必填参数，使用指针
+    Priority *int     `json:"priority" dc:"优先级"`     // 非必填参数，使用指针
+}
+```
+
+**使用示例**：
+```go
+func (c *Controller) GetResourceList(ctx context.Context, req *v1.GetResourceListReq) (*v1.GetResourceListRes, error) {
+    filters := map[string]interface{}{}
+    
+    // 检查非必填参数是否传递
+    if req.Status != nil {
+        filters["status"] = *req.Status
+    }
+    
+    if req.Keyword != nil {
+        filters["keyword"] = *req.Keyword
+    }
+    
+    if req.Priority != nil {
+        filters["priority"] = *req.Priority
+    }
+    
+    // 调用服务层
+    resources, total, err := s_db.GetResourceService().GetResourcePage(ctx, req.Page, req.PageSize, filters)
+    if err != nil {
+        return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取资源列表失败")
+    }
+    
+    return &v1.GetResourceListRes{
+        List:  resources,
+        Total: total,
+    }, nil
+}
+```
+
+### 2. GoFrame 验证标签规范
+
+**验证标签格式**：`v:"rule1|rule2|rule3"`
+
+**常用验证规则**：
+
+- `required` - 必填字段
+- `min:value` - 最小值
+- `max:value` - 最大值
+- `between:min,max` - 范围值
+- `length:min,max` - 字符串长度范围
+- `integer` - 整数类型
+- `string` - 字符串类型
+- `email` - 邮箱格式
+- `phone` - 手机号格式
+- `url` - URL格式
+- `date` - 日期格式
+- `in:value1,value2` - 枚举值验证
+
+**验证标签示例**：
+```go
+type GetResourceListReq struct {
+    g.Meta   `path:"/resource" method:"get" tags:"模块相关" summary:"获取资源列表"`
+    Page     int      `json:"page" dc:"页码" v:"required|min:1"`
+    PageSize int      `json:"pageSize" dc:"每页数量" v:"required|min:1|max:100"`
+    Status   *string  `json:"status" dc:"状态筛选" v:"in:active,inactive,all"`
+    Keyword  *string  `json:"keyword" dc:"关键词" v:"length:0,50"`
+    Email    *string  `json:"email" dc:"邮箱" v:"email"`
+    Phone    *string  `json:"phone" dc:"手机号" v:"phone"`
+    Priority *int     `json:"priority" dc:"优先级" v:"between:1,5"`
+}
+```
+
+**验证标签最佳实践**：
+
+1. **必填参数**：使用 `required` 标签
+2. **数值范围**：使用 `min`、`max`、`between` 标签
+3. **字符串长度**：使用 `length` 标签
+4. **枚举值**：使用 `in` 标签
+5. **格式验证**：使用 `email`、`phone`、`url`、`date` 标签
+6. **类型验证**：使用 `integer`、`string` 标签
+
+### 3. 基于 Model 定义的参数验证
 
 **验证原则**：
 
@@ -320,6 +413,8 @@ type [Action][Resource]Res struct {
 - [ ] **命名规范**：文件命名、结构体命名符合规范
 - [ ] **路由配置**：正确配置路由、方法、标签、权限
 - [ ] **响应结构体设计**：操作类接口使用空响应，查询类接口返回具体数据
+- [ ] **非必填参数设计**：非必填参数使用指针类型（`*Type`）
+- [ ] **验证标签设计**：为所有参数添加适当的 GoFrame 验证标签
 - [ ] **参数验证**：基于 Model 定义进行参数验证
 - [ ] **错误处理**：统一使用 `gerror` 进行错误处理
 - [ ] **字段常量使用**：使用 `s_db_model` 中的字段常量

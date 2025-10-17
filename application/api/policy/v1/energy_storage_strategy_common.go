@@ -18,6 +18,7 @@ type EnergyStorageStrategy struct {
 	TimeRange    *p_energy_manage.STimeRange      `json:"timeRange"`
 	Config       *p_energy_manage.SStrategyConfig `json:"config"`
 	EssDeviceIds []string                         `json:"essDeviceIds"`
+	IsActive     bool                             `json:"isActive"`
 	CreatedAt    *time.Time                       `json:"createdAt"`
 	UpdatedAt    *time.Time                       `json:"updatedAt"`
 	CreatedBy    string                           `json:"createdBy,omitempty"`
