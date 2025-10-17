@@ -20,10 +20,13 @@ func (c *ControllerV1) MqttSwitch(ctx context.Context, req *v1.MqttSwitchReq) (r
 	c_log.Infof(ctx, "开始设置MQTT服务开关 - 启用状态: %v", req.Enabled)
 
 	// 获取MQTT配置列表设置
-	configJson := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingMqttConfigList)
-	if configJson == "" {
+	configJsonPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingMqttConfigList)
+	var configJson string
+	if configJsonPtr == nil {
 		c_log.Warning(ctx, "MQTT配置列表为空，使用默认配置")
 		configJson = "[]"
+	} else {
+		configJson = *configJsonPtr
 	}
 
 	// 解析JSON配置

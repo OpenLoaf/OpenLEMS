@@ -20,12 +20,12 @@ type ISettingService interface {
 	GetAllSettings(ctx context.Context) ([]*s_db_model.SSettingModel, error)
 	GetAllSettingsByGroup(ctx context.Context, group string) ([]*s_db_model.SSettingModel, error) // 根据分组获取所有设置
 	GetSettingById(ctx context.Context, id string) (*s_db_model.SSettingModel, error)             // 根据ID获取设置详情
-	GetSettingValueById(ctx context.Context, id string) string                                    // 获取设置，如果获取不到，返回空字符串
+	GetSettingValueById(ctx context.Context, id string) *string                                   // 获取设置，如果获取不到，返回nil
 	SetSettingValueById(ctx context.Context, id string, value string) error
-	GetSettingValueBySystemSettingDefine(ctx context.Context, settingDefine *SSystemSettingDefine) string // 通过系统设置定义获取设置值
-	GetRootDeviceId(ctx context.Context) string                                                           // 获取根设备ID
-	GetRootPolicyId(ctx context.Context) string                                                           // 获取激活的策略ID
-	GetPublicEnabledSettings(ctx context.Context) ([]*s_db_model.SSettingModel, error)                    // 获取公开且启用的设置
+	GetSettingValueBySystemSettingDefine(ctx context.Context, settingDefine *SSystemSettingDefine) *string // 通过系统设置定义获取设置值
+	GetRootDeviceId(ctx context.Context) *string                                                           // 获取根设备ID
+	GetRootPolicyId(ctx context.Context) *string                                                           // 获取激活的策略ID
+	GetPublicEnabledSettings(ctx context.Context) ([]*s_db_model.SSettingModel, error)                     // 获取公开且启用的设置
 }
 
 type IProtocolService interface {

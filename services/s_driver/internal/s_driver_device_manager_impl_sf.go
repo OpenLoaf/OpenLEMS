@@ -199,7 +199,11 @@ func (m *SDeviceManager) Start() {
 	m.deviceInstanceMap.Clear()
 	m.deviceConfigTree.Clear()
 
-	rootDeviceID := s_db.GetSettingService().GetRootDeviceId(m.ctx)
+	rootDeviceIDPtr := s_db.GetSettingService().GetRootDeviceId(m.ctx)
+	var rootDeviceID string
+	if rootDeviceIDPtr != nil {
+		rootDeviceID = *rootDeviceIDPtr
+	}
 	deviceConfigs, err := s_db.GetDeviceService().GetDeviceConfigsWithRecursion(m.ctx, rootDeviceID)
 	if err != nil {
 		m.state = c_enum.EStateError

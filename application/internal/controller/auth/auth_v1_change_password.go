@@ -37,8 +37,8 @@ func (c *Controller) ChangePassword(ctx context.Context, req *v1.ChangePasswordR
 	}
 
 	// 校验旧密码
-	old := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, def)
-	if old != req.OldPassword {
+	oldPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, def)
+	if oldPtr == nil || *oldPtr != req.OldPassword {
 		return nil, gerror.NewCode(gcode.CodeNotAuthorized, "旧密码错误")
 	}
 

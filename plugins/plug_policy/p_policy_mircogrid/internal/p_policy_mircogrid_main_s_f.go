@@ -33,15 +33,15 @@ func (s *sPolicyMircogrid) Init(ctx context.Context) error {
 	c_log.Infof(ctx, "正在初始化微电网策略...")
 
 	// 从setting表加载配置
-	configStr := s_db.GetSettingService().GetSettingValueById(ctx, "policy_microgrid")
-	if configStr == "" {
+	configStrPtr := s_db.GetSettingService().GetSettingValueById(ctx, "policy_microgrid")
+	if configStrPtr == nil {
 		c_log.Warning(ctx, "微电网策略配置为空，策略将不执行")
 		s.config = nil
 		return nil
 	}
 
 	// 解析JSON配置到 s.config
-	err := json.Unmarshal([]byte(configStr), s.config)
+	err := json.Unmarshal([]byte(*configStrPtr), s.config)
 	if err != nil {
 		return errors.Wrap(err, "解析微电网策略配置失败")
 	}

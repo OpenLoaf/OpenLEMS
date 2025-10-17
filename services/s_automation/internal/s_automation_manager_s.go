@@ -60,8 +60,12 @@ func (m *SAutomationManager) Start(ctx context.Context, interval time.Duration) 
 	m.ctx, m.cancel = context.WithCancel(ctx)
 
 	// 获取系统默认执行间隔
-	internalMillisecondsStr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx,
+	internalMillisecondsStrPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx,
 		s_db_basic.SystemSettingAutomationInternalMilliseconds)
+	var internalMillisecondsStr string
+	if internalMillisecondsStrPtr != nil {
+		internalMillisecondsStr = *internalMillisecondsStrPtr
+	}
 
 	m.defaultExecutionInterval = cvt.Int64(internalMillisecondsStr)
 	if m.defaultExecutionInterval <= 0 {

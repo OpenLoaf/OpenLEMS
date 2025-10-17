@@ -49,7 +49,11 @@ func (pm *sPolicyManagerImpl) Start(ctx context.Context) error {
 	c_log.Info(ctx, "正在启动策略管理器...")
 
 	// 从setting表获取激活的策略ID
-	activePolicyId := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingActivePolicyId)
+	activePolicyIdPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingActivePolicyId)
+	var activePolicyId string
+	if activePolicyIdPtr != nil {
+		activePolicyId = *activePolicyIdPtr
+	}
 	c_log.Infof(ctx, "从配置中读取到激活的策略ID: %s", activePolicyId)
 
 	// 如果策略ID不为空，加载并初始化对应策略

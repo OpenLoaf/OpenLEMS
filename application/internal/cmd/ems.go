@@ -110,7 +110,10 @@ func StartServices(ctx context.Context) {
 		internalMillisecondsStr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx,
 			s_db_basic.SystemSettingAutomationInternalMilliseconds)
 
-		internalMilliseconds := cvt.Int64(internalMillisecondsStr)
+		var internalMilliseconds int64
+		if internalMillisecondsStr != nil {
+			internalMilliseconds = cvt.Int64(*internalMillisecondsStr)
+		}
 		if internalMilliseconds < 0 {
 			internalMilliseconds = cvt.Int64(s_db_basic.SystemSettingAutomationInternalMilliseconds.DefaultValue)
 		}

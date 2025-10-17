@@ -148,15 +148,15 @@ func (m *SModbusManager) Reload(ctx context.Context) error {
 // loadConfigs 从数据库加载配置
 func (m *SModbusManager) loadConfigs(ctx context.Context) error {
 	// 获取Modbus配置
-	configJson := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingModbusConfig)
-	if configJson == "" {
+	configJsonPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingModbusConfig)
+	if configJsonPtr == nil {
 		c_log.Warning(ctx, "Modbus配置为空")
 		return nil
 	}
 
 	// 解析JSON配置
 	var config SModbusConfig
-	err := json.Unmarshal([]byte(configJson), &config)
+	err := json.Unmarshal([]byte(*configJsonPtr), &config)
 	if err != nil {
 		return fmt.Errorf("解析Modbus配置失败: %v", err)
 	}
@@ -263,8 +263,8 @@ func (m *SModbusManager) buildDeviceMaps(ctx context.Context, config *SModbusCon
 // getConfig 获取配置
 func (m *SModbusManager) getConfig() *SModbusConfig {
 	// 从数据库获取配置
-	configJson := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(m.ctx, s_db_basic.SystemSettingModbusConfig)
-	if configJson == "" {
+	configJsonPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(m.ctx, s_db_basic.SystemSettingModbusConfig)
+	if configJsonPtr == nil {
 		return &SModbusConfig{
 			ListenPort: 502,
 			DeviceIds:  []string{},
@@ -272,7 +272,7 @@ func (m *SModbusManager) getConfig() *SModbusConfig {
 	}
 
 	var config SModbusConfig
-	json.Unmarshal([]byte(configJson), &config)
+	json.Unmarshal([]byte(*configJsonPtr), &config)
 	return &config
 }
 

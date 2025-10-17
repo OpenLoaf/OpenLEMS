@@ -20,10 +20,13 @@ func (c *ControllerV1) ModbusSwitch(ctx context.Context, req *v1.ModbusSwitchReq
 	c_log.Infof(ctx, "开始设置Modbus服务开关 - 启用状态: %v", req.Enabled)
 
 	// 获取Modbus配置设置
-	configJson := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingModbusConfig)
-	if configJson == "" {
+	configJsonPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingModbusConfig)
+	var configJson string
+	if configJsonPtr == nil {
 		c_log.Warning(ctx, "Modbus配置为空，使用默认配置")
 		configJson = "{}"
+	} else {
+		configJson = *configJsonPtr
 	}
 
 	// 解析JSON配置

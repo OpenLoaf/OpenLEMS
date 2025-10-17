@@ -34,15 +34,15 @@ func (s *sPolicyEnergyStorage) Init(ctx context.Context) error {
 	c_log.Infof(ctx, "正在初始化储能站策略...")
 
 	// 从setting表加载配置
-	configStr := s_db.GetSettingService().GetSettingValueById(ctx, "policy_ess")
-	if configStr == "" {
+	configStrPtr := s_db.GetSettingService().GetSettingValueById(ctx, "policy_ess")
+	if configStrPtr == nil {
 		c_log.Warning(ctx, "储能站策略配置为空，策略将不执行")
 		s.config = nil
 		return nil
 	}
 
 	// 解析JSON配置到 s.config
-	err := json.Unmarshal([]byte(configStr), s.config)
+	err := json.Unmarshal([]byte(*configStrPtr), s.config)
 	if err != nil {
 		return errors.Wrap(err, "解析储能站策略配置失败")
 	}

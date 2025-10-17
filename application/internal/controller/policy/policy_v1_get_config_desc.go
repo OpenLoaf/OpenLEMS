@@ -17,7 +17,10 @@ func (c *ControllerV1) GetPolicyConfig(ctx context.Context, req *v1.GetPolicyCon
 
 	// 确定要查询的策略ID
 	if req.PolicyId == "" {
-		policyId = s_db.GetSettingService().GetRootPolicyId(ctx)
+		rootPolicyId := s_db.GetSettingService().GetRootPolicyId(ctx)
+		if rootPolicyId != nil {
+			policyId = *rootPolicyId
+		}
 		if policyId == "" {
 			// 如果rootPolicyId也为空，查询setting表中group为c_enum.ESettingGroupPolicy的所有配置的第一条
 			settings, err := s_db.GetSettingService().GetAllSettingsByGroup(ctx, c_enum.ESettingGroupPolicy)
@@ -64,14 +67,15 @@ func (c *ControllerV1) GetPolicyConfig(ctx context.Context, req *v1.GetPolicyCon
 	}
 
 	// 获取策略配置字符串
-	policyConfigStr := s_db.GetSettingService().GetSettingValueById(ctx, policyId)
-	if policyConfigStr == "" {
+	policyConfigStrPtr := s_db.GetSettingService().GetSettingValueById(ctx, policyId)
+	if policyConfigStrPtr == nil {
 		return &v1.GetPolicyConfigRes{
 			SettingId: settingId,
 			Config:    nil,
 		}, nil
 	}
 
+	policyConfigStr := *policyConfigStrPtr
 	// 将策略配置字符串解析为JSON对象
 	var policyConfig any
 	if err := json.Unmarshal([]byte(policyConfigStr), &policyConfig); err != nil {

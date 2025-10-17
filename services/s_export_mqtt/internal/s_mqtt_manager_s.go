@@ -127,15 +127,15 @@ func (m *SMqttManager) Reload(ctx context.Context) error {
 // loadConfigs 从数据库加载配置
 func (m *SMqttManager) loadConfigs(ctx context.Context) error {
 	// 获取MQTT配置列表
-	configJson := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingMqttConfigList)
-	if configJson == "" {
+	configJsonPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingMqttConfigList)
+	if configJsonPtr == nil {
 		c_log.Warning(ctx, "MQTT配置为空")
 		return nil
 	}
 
 	// 解析JSON配置
 	var configs []SMqttConfig
-	err := json.Unmarshal([]byte(configJson), &configs)
+	err := json.Unmarshal([]byte(*configJsonPtr), &configs)
 	if err != nil {
 		return err
 	}

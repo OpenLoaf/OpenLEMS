@@ -141,8 +141,12 @@ func (c *ControllerV1) triggerReloadIfNeeded(ctx context.Context, settingId stri
 		c_log.Info(ctx, "检测到自动化任务轮询周期配置更新，开始重启自动化服务")
 
 		// 获取更新后的轮询周期
-		internalMillisecondsStr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx,
+		internalMillisecondsStrPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx,
 			s_db_basic.SystemSettingAutomationInternalMilliseconds)
+		var internalMillisecondsStr string
+		if internalMillisecondsStrPtr != nil {
+			internalMillisecondsStr = *internalMillisecondsStrPtr
+		}
 
 		internalMilliseconds := cvt.Int64(internalMillisecondsStr)
 		if internalMilliseconds <= 0 {

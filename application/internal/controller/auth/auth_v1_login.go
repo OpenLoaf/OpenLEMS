@@ -28,8 +28,8 @@ func (c *Controller) Login(ctx context.Context, req *v1.LoginReq) (res *v1.Login
 	}
 
 	// 获取密码并比对
-	pwd := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, settingDef)
-	if pwd == "" || pwd != req.Password {
+	pwdPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, settingDef)
+	if pwdPtr == nil || *pwdPtr != req.Password {
 		c_log.BizWarningf(ctx, "用户登录失败 - 角色:%s", role)
 		return nil, gerror.NewCode(gcode.CodeNotAuthorized, "用户名或密码错误")
 	}
@@ -37,14 +37,14 @@ func (c *Controller) Login(ctx context.Context, req *v1.LoginReq) (res *v1.Login
 	// 读取会话过期时间（小时）
 	timeoutHours := 2
 	if role == string(c_enum.EUserRoleAdmin) {
-		if v := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingSessionAdminTimeout); v != "" {
-			if n := g.Cfg().MustGet(ctx, "int:"+v).Int(); n > 0 {
+		if v := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingSessionAdminTimeout); v != nil {
+			if n := g.Cfg().MustGet(ctx, "int:"+*v).Int(); n > 0 {
 				timeoutHours = n
 			}
 		}
 	} else {
-		if v := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingSessionUserTimeout); v != "" {
-			if n := g.Cfg().MustGet(ctx, "int:"+v).Int(); n > 0 {
+		if v := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingSessionUserTimeout); v != nil {
+			if n := g.Cfg().MustGet(ctx, "int:"+*v).Int(); n > 0 {
 				timeoutHours = n
 			}
 		}

@@ -126,15 +126,16 @@ func (s *sSettingServiceImpl) GetSettingById(ctx context.Context, id string) (*s
 }
 
 // 获取设置配置通过名称
-func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string) string {
+func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string) *string {
 	// 先尝试从缓存获取
 	if setting, found := s.getFromCache(ctx, id); found {
 		// 检查设置是否启用
 		if !setting.Enabled {
 			g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", id)
-			return ""
+			return nil
 		}
-		return setting.GetValue()
+		value := setting.GetValue()
+		return &value
 	}
 
 	// 缓存未命中，从数据库获取
@@ -142,7 +143,7 @@ func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string
 	err := setting.GetById(ctx, id)
 	if err != nil {
 		g.Log().Warningf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", id, err)
-		return ""
+		return nil
 	}
 
 	// 将结果存入缓存
@@ -151,10 +152,11 @@ func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string
 	// 检查设置是否启用
 	if !setting.Enabled {
 		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", id)
-		return ""
+		return nil
 	}
 
-	return setting.GetValue()
+	value := setting.GetValue()
+	return &value
 }
 
 // 设置设置值通过名称
@@ -179,12 +181,12 @@ func (s *sSettingServiceImpl) SetSettingValueById(ctx context.Context, id string
 }
 
 // GetRootDeviceId 获取根设备ID
-func (s *sSettingServiceImpl) GetRootDeviceId(ctx context.Context) string {
+func (s *sSettingServiceImpl) GetRootDeviceId(ctx context.Context) *string {
 	return s.GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingActiveDeviceRootId)
 }
 
 // GetRootPolicyId 获取激活的策略ID
-func (s *sSettingServiceImpl) GetRootPolicyId(ctx context.Context) string {
+func (s *sSettingServiceImpl) GetRootPolicyId(ctx context.Context) *string {
 	return s.GetSettingValueBySystemSettingDefine(ctx, s_db_basic.SystemSettingActivePolicyId)
 }
 
@@ -202,10 +204,10 @@ func (s *sSettingServiceImpl) GetPublicEnabledSettings(ctx context.Context) ([]*
 }
 
 // GetSettingValueBySystemSettingDefine 通过系统设置定义获取设置值
-func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.Context, settingDefine *s_db_basic.SSystemSettingDefine) string {
+func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.Context, settingDefine *s_db_basic.SSystemSettingDefine) *string {
 	if settingDefine == nil {
 		c_log.Warning(ctx, "系统设置定义为空")
-		return ""
+		return nil
 	}
 
 	// 先尝试从缓存获取
@@ -213,10 +215,11 @@ func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.C
 		// 检查设置是否启用
 		if !setting.Enabled {
 			g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", settingDefine.Id)
-			return settingDefine.DefaultValue
+			return &settingDefine.DefaultValue
 		}
 		c_log.Debugf(ctx, "通过系统设置定义获取设置值成功 - 设置ID: %s, 值: %s", settingDefine.Id, setting.GetValue())
-		return setting.GetValue()
+		value := setting.GetValue()
+		return &value
 	}
 
 	// 缓存未命中，从数据库获取
@@ -225,7 +228,7 @@ func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.C
 	if err != nil {
 		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", settingDefine.Id, err)
 		// 系统启动时已初始化所有设置，如果获取失败说明数据库有问题
-		return settingDefine.DefaultValue
+		return &settingDefine.DefaultValue
 	}
 
 	// 将结果存入缓存
@@ -234,9 +237,10 @@ func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.C
 	// 检查设置是否启用
 	if !setting.Enabled {
 		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", settingDefine.Id)
-		return settingDefine.DefaultValue
+		return &settingDefine.DefaultValue
 	}
 
 	c_log.Debugf(ctx, "通过系统设置定义获取设置值成功 - 设置ID: %s, 值: %s", settingDefine.Id, setting.GetValue())
-	return setting.GetValue()
+	value := setting.GetValue()
+	return &value
 }
