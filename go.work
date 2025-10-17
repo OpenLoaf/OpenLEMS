@@ -17,6 +17,7 @@ use (
 	./plugins/plug_drivers/pcs/pcs_star_charge_100E
 
 	./plugins/plug_policy/p_policy_mircogrid
+	./plugins/plug_policy/p_policy_energy_storage
 
 	./plugins/plug_protocols/p_base
 	./plugins/plug_protocols/p_canbus
