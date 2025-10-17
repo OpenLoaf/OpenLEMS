@@ -5,6 +5,7 @@ import (
 	"common/c_device"
 	"common/c_enum"
 	"common/c_proto"
+	"common/c_type"
 
 	"github.com/shockerli/cvt"
 )
@@ -12,6 +13,8 @@ import (
 type sEssDemo struct {
 	*c_device.SRealDeviceImpl[c_proto.IModbusProtocol]
 }
+
+var _ c_type.IEnergyStore = (*sEssDemo)(nil)
 
 func (s *sEssDemo) Init() error {
 	_ = s.ExecuteProtocolMethod(func(protocol c_proto.IModbusProtocol) error {
@@ -84,6 +87,15 @@ func (s *sEssDemo) SetStatus(status c_enum.EEnergyStoreStatus) error {
 		})
 	}
 	return nil
+}
+
+func (s *sEssDemo) GetFrequency() (*float64, error) {
+
+	return nil, nil
+}
+
+func (s *sEssDemo) GetIGBTTemperature() (*float32, error) {
+	return nil, nil
 }
 
 func (s *sEssDemo) SetGridMode(mode c_enum.EGridMode) error {

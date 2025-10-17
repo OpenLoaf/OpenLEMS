@@ -15,7 +15,7 @@ func VirtualGetDataWithChildDeviceType[T c_base.IDriver, V any](s *SVirtualDevic
 	var results = make([]any, 0)
 	var zero V
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
-		if childDevice.DriverInfo != nil {
+		if childDevice.DriverInfo != nil && childDevice.Enabled == true {
 			child := s.GetChildById(childDevice.Id)
 			if child == nil {
 				// 如果出现有配置，但是无实例。就认为是异常，说明父设备是没有初始化成的
@@ -68,7 +68,7 @@ func VirtualExecuteAndRollbackWithChildDeviceType[T c_base.IDriver](s *SVirtualD
 	}
 	var childList = make([]T, 0)
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
-		if childDevice.DriverInfo != nil {
+		if childDevice.DriverInfo != nil && childDevice.Enabled == true {
 			child := s.GetChildById(childDevice.Id)
 			if child == nil {
 				// 如果出现有配置，但是无实例。就认为是异常

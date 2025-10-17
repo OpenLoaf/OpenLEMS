@@ -5,23 +5,25 @@ import (
 	"context"
 	"s_db"
 
+	"common/c_enum"
+	"p_energy_manage"
+
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/util/gconv"
 )
 
 // CreateEnergyStorageStrategy 创建策略
 func (c *ControllerV1) CreateEnergyStorageStrategy(ctx context.Context, req *v1.CreateEnergyStorageStrategyReq) (res *v1.CreateEnergyStorageStrategyRes, err error) {
-	data := map[string]interface{}{
-		"name":         req.Name,
-		"description":  req.Description,
-		"priority":     req.Priority,
-		"status":       req.Status,
-		"dateRange":    req.DateRange,
-		"timeRange":    req.TimeRange,
-		"config":       req.Config,
-		"essDeviceIds": req.EssDeviceIds,
-		"isDefault":    req.IsDefault,
+	// 使用插件层验证
+	if err := p_energy_manage.ValidateStrategy(req.DateRange, req.TimeRange, req.Config, req.EssDeviceIds); err != nil {
+		return nil, err
 	}
+
+	// 使用 gconv.Map 自动转换结构体为 map
+	data := gconv.Map(req)
+	// 特殊处理：将枚举转为字符串
+	data["status"] = req.Status.String()
+
 	_, e := s_db.GetEnergyStorageStrategyService().CreateEnergyStorageStrategy(ctx, data)
 	if e != nil {
 		return nil, e
@@ -31,17 +33,18 @@ func (c *ControllerV1) CreateEnergyStorageStrategy(ctx context.Context, req *v1.
 
 // UpdateEnergyStorageStrategy 更新策略
 func (c *ControllerV1) UpdateEnergyStorageStrategy(ctx context.Context, req *v1.UpdateEnergyStorageStrategyReq) (res *v1.UpdateEnergyStorageStrategyRes, err error) {
-	data := map[string]interface{}{
-		"name":         req.Name,
-		"description":  req.Description,
-		"priority":     req.Priority,
-		"status":       req.Status,
-		"dateRange":    req.DateRange,
-		"timeRange":    req.TimeRange,
-		"config":       req.Config,
-		"essDeviceIds": req.EssDeviceIds,
-		"isDefault":    req.IsDefault,
+	// 使用插件层验证
+	if err := p_energy_manage.ValidateStrategy(req.DateRange, req.TimeRange, req.Config, req.EssDeviceIds); err != nil {
+		return nil, err
 	}
+
+	// 使用 gconv.Map 自动转换结构体为 map
+	data := gconv.Map(req)
+	// 特殊处理：将枚举转为字符串
+	data["status"] = req.Status.String()
+	// 移除 id 字段（id 通过单独参数传递）
+	delete(data, "id")
+
 	if e := s_db.GetEnergyStorageStrategyService().UpdateEnergyStorageStrategy(ctx, req.Id, data); e != nil {
 		return nil, e
 	}
@@ -76,18 +79,23 @@ func (c *ControllerV1) GetEnergyStorageStrategyList(ctx context.Context, req *v1
 			Name:        m.Name,
 			Description: m.Description,
 			Priority:    m.Priority,
-			Status:      m.Status,
+			Status:      c_enum.ParseEnergyStorageStrategyStatus(m.Status),
 			CreatedAt:   &m.CreatedAt.Time,
 			UpdatedAt:   &m.UpdatedAt.Time,
 			IsDefault:   m.IsDefault,
 		}
-		var tmp interface{}
-		_ = gjson.DecodeTo(m.DateRange, &tmp)
-		dto.DateRange = tmp
-		_ = gjson.DecodeTo(m.TimeRange, &tmp)
-		dto.TimeRange = tmp
-		_ = gjson.DecodeTo(m.Config, &tmp)
-		dto.Config = tmp
+		// 反序列化配置结构体
+		var dateRange p_energy_manage.SDateRange
+		_ = gjson.DecodeTo(m.DateRange, &dateRange)
+		dto.DateRange = &dateRange
+
+		var timeRange p_energy_manage.STimeRange
+		_ = gjson.DecodeTo(m.TimeRange, &timeRange)
+		dto.TimeRange = &timeRange
+
+		var config p_energy_manage.SStrategyConfig
+		_ = gjson.DecodeTo(m.Config, &config)
+		dto.Config = &config
 		var ids []string
 		_ = gjson.DecodeTo(m.EssDeviceIds, &ids)
 		dto.EssDeviceIds = ids
@@ -107,18 +115,23 @@ func (c *ControllerV1) GetEnergyStorageStrategyDetail(ctx context.Context, req *
 		Name:        m.Name,
 		Description: m.Description,
 		Priority:    m.Priority,
-		Status:      m.Status,
+		Status:      c_enum.ParseEnergyStorageStrategyStatus(m.Status),
 		CreatedAt:   &m.CreatedAt.Time,
 		UpdatedAt:   &m.UpdatedAt.Time,
 		IsDefault:   m.IsDefault,
 	}
-	var tmp interface{}
-	_ = gjson.DecodeTo(m.DateRange, &tmp)
-	dto.DateRange = tmp
-	_ = gjson.DecodeTo(m.TimeRange, &tmp)
-	dto.TimeRange = tmp
-	_ = gjson.DecodeTo(m.Config, &tmp)
-	dto.Config = tmp
+	// 反序列化配置结构体
+	var dateRange p_energy_manage.SDateRange
+	_ = gjson.DecodeTo(m.DateRange, &dateRange)
+	dto.DateRange = &dateRange
+
+	var timeRange p_energy_manage.STimeRange
+	_ = gjson.DecodeTo(m.TimeRange, &timeRange)
+	dto.TimeRange = &timeRange
+
+	var config p_energy_manage.SStrategyConfig
+	_ = gjson.DecodeTo(m.Config, &config)
+	dto.Config = &config
 	var ids []string
 	_ = gjson.DecodeTo(m.EssDeviceIds, &ids)
 	dto.EssDeviceIds = ids

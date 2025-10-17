@@ -153,7 +153,7 @@ func (s *SVirtualDeviceImpl) GetFromChildDeviceType(childDeviceType c_enum.EDevi
 	aggregateFunction func(values []any) (any, error)) (any, error) { // 聚合函数
 	var results = make([]any, 0)
 	for _, childDevice := range s.deviceConfig.ChildDeviceConfig {
-		if childDevice.DriverInfo != nil && childDevice.GetType() == childDeviceType {
+		if childDevice.DriverInfo != nil && childDevice.GetType() == childDeviceType && childDevice.Enabled == true {
 			child := s.GetChildById(childDevice.Id)
 			if child == nil {
 				// 如果出现有配置，但是无实例。就认为是异常

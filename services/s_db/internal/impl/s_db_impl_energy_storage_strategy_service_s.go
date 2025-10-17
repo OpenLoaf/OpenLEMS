@@ -5,6 +5,8 @@ import (
 	"strings"
 	"sync"
 
+	"common/c_enum"
+
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/google/uuid"
@@ -112,7 +114,7 @@ func (s *sEnergyStorageStrategyServiceImpl) CreateEnergyStorageStrategy(ctx cont
 		Name:         strings.TrimSpace(data["name"].(string)),
 		Description:  strings.TrimSpace(gconvString(data["description"])),
 		Priority:     data["priority"].(int),
-		Status:       gconvString(data["status"]),
+		Status:       c_enum.ParseEnergyStorageStrategyStatus(gconvString(data["status"])).String(),
 		IsDefault:    gconvBool(data["isDefault"]),
 		DateRange:    gconvString(data["dateRange"]),
 		TimeRange:    gconvString(data["timeRange"]),
@@ -146,7 +148,7 @@ func (s *sEnergyStorageStrategyServiceImpl) UpdateEnergyStorageStrategy(ctx cont
 		s_db_model.FieldEssName:        strings.TrimSpace(gconvString(data["name"])),
 		s_db_model.FieldEssDescription: strings.TrimSpace(gconvString(data["description"])),
 		s_db_model.FieldEssPriority:    gconvInt(data["priority"]),
-		s_db_model.FieldEssStatus:      gconvString(data["status"]),
+		s_db_model.FieldEssStatus:      c_enum.ParseEnergyStorageStrategyStatus(gconvString(data["status"])).String(),
 		s_db_model.FieldEssIsDefault:   gconvBool(data["isDefault"]),
 		s_db_model.FieldEssDateRange:   gconvString(data["dateRange"]),
 		s_db_model.FieldEssTimeRange:   gconvString(data["timeRange"]),
