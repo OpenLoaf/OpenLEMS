@@ -13,7 +13,7 @@ type UpdateEnergyStorageStrategyReq struct {
 	Name         string                           `json:"name"`
 	Description  string                           `json:"description"`
 	Priority     int                              `json:"priority"`
-	Status       c_enum.EStrategyStatus           `json:"status"`
+	Status       c_enum.EStatus                   `json:"status"`
 	DateRange    *p_energy_manage.SDateRange      `json:"dateRange"`
 	TimeRange    *p_energy_manage.STimeRange      `json:"timeRange"`
 	Config       *p_energy_manage.SStrategyConfig `json:"config"`

@@ -167,7 +167,7 @@ func (m *SEnergyManageManager) executeStrategies() {
 	activeStrategies := make([]*SEnergyManageStrategy, 0)
 	for _, strategy := range strategies {
 		// 只处理启用状态的策略
-		if c_enum.ParseEnergyStorageStrategyStatus(strategy.Status) == c_enum.EStatusEnable && strategy.IsActive(now) {
+		if c_enum.ParseStatus(strategy.Status) == c_enum.EStatusEnable && strategy.IsActive(now) {
 			activeStrategies = append(activeStrategies, strategy)
 		}
 	}

@@ -26,11 +26,7 @@ globs: common/c_enum/*.go
 //go:generate stringer -type=E[EnumName] -trimprefix=E[EnumName] -output=c_enum_[name]_e_string.go
 package c_enum
 
-import (
-    "encoding/json"
-    "fmt"
-    "strings"
-)
+import "strings"
 
 // E[EnumName] [枚举描述]
 type E[EnumName] int
@@ -41,7 +37,7 @@ const (
     E[EnumName][Value3]                    // [值3描述]
 )
 
-// Parse[EnumName] 解析枚举字符串
+// Parse[EnumName] 解析[枚举描述]字符串
 func Parse[EnumName](value string) E[EnumName] {
     value = strings.ToLower(strings.TrimSpace(value))
     switch value {
@@ -58,33 +54,24 @@ func Parse[EnumName](value string) E[EnumName] {
 
 // MarshalJSON 自定义JSON序列化
 func (e E[EnumName]) MarshalJSON() ([]byte, error) {
-    return json.Marshal(e.String())
+    return []byte(`"` + e.String() + `"`), nil
 }
 
 // UnmarshalJSON 自定义JSON反序列化
 func (e *E[EnumName]) UnmarshalJSON(data []byte) error {
-    var value interface{}
-    if err := json.Unmarshal(data, &value); err != nil {
-        return err
+    value := string(data)
+    // 去除引号
+    if len(value) > 2 && value[0] == '"' && value[len(value)-1] == '"' {
+        value = value[1 : len(value)-1]
     }
-
-    switch v := value.(type) {
-    case float64:
-        *e = E[EnumName](int(v))
-    case int:
-        *e = E[EnumName](v)
-    case string:
-        *e = Parse[EnumName](v)
-    default:
-        return fmt.Errorf("invalid type for E[EnumName]: %T", v)
-    }
+    *e = Parse[EnumName](value)
     return nil
 }
 ```
 
 **示例参考**：
-- [c_enum_status_e.go](mdc:common/c_enum/c_enum_status_e.go) - 状态枚举
-- [c_enum_alarm_level_e.go](mdc:common/c_enum/c_enum_alarm_level_e.go) - 告警级别枚举
+- [c_enum_status_e.go](mdc:common/c_enum/c_enum_status_e.go) - 状态枚举（标准模板）
+- [c_enum_alarm_level_e.go](mdc:common/c_enum/c_enum_alarm_level_e.go) - 告警级别枚举（复杂JSON处理）
 
 ### 2. 字符串类型枚举（不需要 stringer）
 
@@ -272,8 +259,8 @@ func (e *EAlarmLevel) UnmarshalJSON(data []byte) error {
 
 ## 相关文件
 
-- [c_enum_status_e.go](mdc:common/c_enum/c_enum_status_e.go) - 状态枚举示例
-- [c_enum_alarm_level_e.go](mdc:common/c_enum/c_enum_alarm_level_e.go) - 告警级别枚举示例
+- [c_enum_status_e.go](mdc:common/c_enum/c_enum_status_e.go) - 状态枚举示例（标准模板）
+- [c_enum_alarm_level_e.go](mdc:common/c_enum/c_enum_alarm_level_e.go) - 告警级别枚举示例（复杂JSON处理）
 - [c_enum_config_fields_value_type_e.go](mdc:common/c_enum/c_enum_config_fields_value_type_e.go) - 配置字段值类型示例
 - [c_enum_protocol_type_e.go](mdc:common/c_enum/c_enum_protocol_type_e.go) - 协议类型示例
 - [c_enum_setting_group_e.go](mdc:common/c_enum/c_enum_setting_group_e.go) - 设置分组示例

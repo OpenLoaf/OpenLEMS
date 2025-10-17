@@ -1,44 +1,47 @@
-//go:generate stringer -type=EStrategyStatus -trimprefix=EStrategyStatus -output=c_enum_status_e_string.go
+//go:generate stringer -type=EStatus -trimprefix=EStatus -output=c_enum_status_e_string.go
 package c_enum
 
 import "strings"
 
-// EStrategyStatus 状态枚举
-type EStrategyStatus int
+// EStatus 状态枚举
+type EStatus int
 
 const (
-	EStatusEnable  EStrategyStatus = iota // 启用
-	EStatusDisable                        // 禁用
-	EStatusDeleted                        // 已删除
+	EStatusEnable  EStatus = iota // 启用
+	EStatusDisable                // 禁用
+	EStatusDeleted                // 已删除
+	EStatusActive                 // 激活
 )
 
-// ParseEnergyStorageStrategyStatus 解析状态字符串
-func ParseEnergyStorageStrategyStatus(status string) EStrategyStatus {
+// ParseStatus 解析状态字符串
+func ParseStatus(status string) EStatus {
 	status = strings.ToLower(strings.TrimSpace(status))
 	switch status {
-	case "enable", "active", "enabled":
+	case "enable", "enabled":
 		return EStatusEnable
-	case "disable", "inactive", "disabled":
+	case "disable", "disabled":
 		return EStatusDisable
 	case "deleted", "delete":
 		return EStatusDeleted
+	case "active":
+		return EStatusActive
 	default:
 		return EStatusDisable // 默认禁用
 	}
 }
 
 // MarshalJSON 自定义JSON序列化
-func (s EStrategyStatus) MarshalJSON() ([]byte, error) {
+func (s EStatus) MarshalJSON() ([]byte, error) {
 	return []byte(`"` + s.String() + `"`), nil
 }
 
 // UnmarshalJSON 自定义JSON反序列化
-func (s *EStrategyStatus) UnmarshalJSON(data []byte) error {
+func (s *EStatus) UnmarshalJSON(data []byte) error {
 	status := string(data)
 	// 去除引号
 	if len(status) > 2 && status[0] == '"' && status[len(status)-1] == '"' {
 		status = status[1 : len(status)-1]
 	}
-	*s = ParseEnergyStorageStrategyStatus(status)
+	*s = ParseStatus(status)
 	return nil
 }
