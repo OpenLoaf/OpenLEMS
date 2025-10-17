@@ -179,19 +179,3 @@ func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageActive(ctx context.C
 }
 
 // SetEnergyStorageStrategyDefault 设置默认策略
-func (s *sEnergyStorageStrategyServiceImpl) SetEnergyStorageDefault(ctx context.Context, id int, isDefault bool) error {
-	if isDefault {
-		// 先清除其他默认策略
-		if _, err := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx).
-			Where(s_db_model.FieldEssIsDefault, true).
-			Update(g.Map{s_db_model.FieldEssIsDefault: false}); err != nil {
-			return errors.Wrap(err, "清除其他默认策略失败")
-		}
-	}
-
-	_, err := g.Model(s_db_model.TableEnergyStorage).Ctx(ctx).
-		Where(s_db_model.FieldId, id).
-		Update(g.Map{s_db_model.FieldEssIsDefault: isDefault})
-
-	return errors.Wrap(err, "设置默认策略失败")
-}

@@ -110,5 +110,4 @@ type IEnergyStorageStrategyService interface {
 
 	// 状态设置
 	SetEnergyStorageActive(ctx context.Context, id int, active bool) error
-	SetEnergyStorageDefault(ctx context.Context, id int, isDefault bool) error
 }

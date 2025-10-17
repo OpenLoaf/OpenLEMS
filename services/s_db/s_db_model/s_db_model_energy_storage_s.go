@@ -31,7 +31,6 @@ type SEnergyStorageModel struct {
 	Description string      `json:"description" orm:"description"`                                                      // 策略描述
 	Priority    int         `json:"priority" orm:"priority" v:"required|between:1,5"`                                   // 优先级 (1-5)
 	Status      string      `json:"status" orm:"status" v:"required|in:Enable,Enabled,Disable,Disabled,Deleted,Delete"` // 状态
-	IsDefault   bool        `json:"isDefault" orm:"is_default"`                                                         // 是否默认策略
 	DateRange   string      `json:"dateRange" orm:"date_range" v:"required"`                                            // 日期范围 (JSON)
 	TimeRange   string      `json:"timeRange" orm:"time_range" v:"required"`                                            // 时间范围 (JSON)
 	Config      string      `json:"config" orm:"config" v:"required"`                                                   // 策略配置 (JSON)

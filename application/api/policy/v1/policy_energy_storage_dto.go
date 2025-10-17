@@ -26,7 +26,6 @@ type EnergyStorageStrategy struct {
 	CreatedAt   *time.Time                        `json:"createdAt" dc:"创建时间"`
 	UpdatedAt   *time.Time                        `json:"updatedAt" dc:"更新时间"`
 	CreatedBy   string                            `json:"createdBy,omitempty" dc:"创建人"`
-	IsDefault   bool                              `json:"isDefault,omitempty" dc:"是否为默认策略"`
 }
 
 // UnmarshalValue 将数据库Model转换为DTO
@@ -38,7 +37,6 @@ func (s *EnergyStorageStrategy) UnmarshalValue(value interface{}) error {
 		s.Description = model.Description
 		s.Priority = model.Priority
 		s.Status = c_enum.ParseStatus(model.Status)
-		s.IsDefault = model.IsDefault
 		s.CreatedBy = model.CreatedBy
 
 		// 时间字段转换

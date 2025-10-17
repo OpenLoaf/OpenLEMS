@@ -17,7 +17,6 @@ type UpdateEnergyStorageStrategyReq struct {
 	DateRange   *p_energy_storage.SDateRange      `json:"dateRange"`
 	TimeRange   *p_energy_storage.STimeRange      `json:"timeRange"`
 	Config      *p_energy_storage.SStrategyConfig `json:"config"`
-	IsDefault   bool                              `json:"isDefault"`
 }
 
 type UpdateEnergyStorageStrategyRes struct {
