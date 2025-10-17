@@ -77,11 +77,11 @@ func (s *SEnergyManageStrategy) isInTimeRange(now time.Time) bool {
 	}
 
 	switch s.TimeRangeParsed.Type {
-	case "weekday":
+	case ETimeRangeTypeWeekday:
 		return s.isWeekdayMatch(now)
-	case "custom":
+	case ETimeRangeTypeCustom:
 		return s.isCustomDayMatch(now)
-	case "monthly":
+	case ETimeRangeTypeMonthly:
 		return s.isMonthlyMatch(now)
 	default:
 		return true // 未知类型，默认生效
@@ -94,11 +94,11 @@ func (s *SEnergyManageStrategy) isWeekdayMatch(now time.Time) bool {
 	isWeekend := weekday == time.Saturday || weekday == time.Sunday
 
 	switch s.TimeRangeParsed.WeekdayType {
-	case "workday":
+	case EWeekdayTypeWorkday:
 		return !isWeekend
-	case "weekend":
+	case EWeekdayTypeWeekend:
 		return isWeekend
-	case "all":
+	case EWeekdayTypeAll:
 		return true
 	default:
 		return true

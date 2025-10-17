@@ -40,11 +40,11 @@ func ValidateTimeRange(tr *STimeRange) error {
 	}
 
 	switch tr.Type {
-	case "weekday":
-		if tr.WeekdayType != "workday" && tr.WeekdayType != "weekend" && tr.WeekdayType != "all" {
+	case ETimeRangeTypeWeekday:
+		if tr.WeekdayType != EWeekdayTypeWorkday && tr.WeekdayType != EWeekdayTypeWeekend && tr.WeekdayType != EWeekdayTypeAll {
 			return errors.New("工作日类型必须是 workday、weekend 或 all")
 		}
-	case "custom":
+	case ETimeRangeTypeCustom:
 		if len(tr.CustomDays) == 0 {
 			return errors.New("自定义周内日不能为空")
 		}
@@ -53,7 +53,7 @@ func ValidateTimeRange(tr *STimeRange) error {
 				return errors.New("自定义周内日必须在 0-6 之间")
 			}
 		}
-	case "monthly":
+	case ETimeRangeTypeMonthly:
 		if len(tr.CustomMonths) == 0 {
 			return errors.New("指定月份不能为空")
 		}
