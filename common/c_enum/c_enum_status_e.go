@@ -10,6 +10,7 @@ const (
 	EStatusDisable EStatus = iota // 禁用
 	EStatusEnable                 // 启用
 	EStatusDeleted                // 已删除
+	EStatusExpire                 // 已过期
 )
 
 // ParseStatus 解析状态字符串
