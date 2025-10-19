@@ -1,9 +1,0 @@
-build/
-*.o
-*.a
-*.so
-*.dylib
-*.dll
-hexlib/
-
-
