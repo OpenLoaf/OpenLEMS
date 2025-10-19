@@ -12,12 +12,12 @@ This module contains a C++ implementation of MPC Kalman Filter for microgrid pre
 
 ## Structure
 
-- `include/hexlib/hexlib.h`: C API header with MPC functions
-- `src/mpc_kalman.cpp`: MPC Kalman Filter implementation
-- `src/hexlib.cpp`: Basic utility functions
+- `hexlib/src/include/hexlib.h`: C API header with MPC functions
+- `hexlib/src/mpc_kalman.cpp`: MPC Kalman Filter implementation
+- `hexlib/src/hexlib.cpp`: Basic utility functions
+- `hexlib/hexlib.go`: Go bindings for C++ library
+- `hexlib/hexlib_test.go`: Go test file with comprehensive tests
 - `CMakeLists.txt` and `Makefile`: Build scripts
-- `bindings/`: c-for-go configuration
-- `hexlib/`: Generated Go bindings
 
 ## API Functions
 
@@ -49,10 +49,10 @@ cd @cpp
 make build
 ```
 
-### Generate Go bindings:
+### Run tests:
 ```bash
 cd @cpp
-make generate
+./run_example.sh
 ```
 
 ### Go Integration Example:

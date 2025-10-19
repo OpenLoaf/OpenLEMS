@@ -47,3 +47,4 @@ func GetPolicyManager() IPolicyManager {
 	}
 	return policyManager
 }
+

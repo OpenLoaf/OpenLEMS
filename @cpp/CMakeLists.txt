@@ -5,13 +5,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(hexlib SHARED
-    src/hexlib.cpp
-    src/mpc_kalman.cpp
+    hexlib/src/hexlib.cpp
+    hexlib/src/mpc_kalman.cpp
 )
 
 target_include_directories(hexlib
     PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/hexlib/src
+        ${CMAKE_CURRENT_SOURCE_DIR}/hexlib/src/include
 )
 
 if(WIN32)
@@ -20,7 +21,7 @@ endif()
 
 set_target_properties(hexlib PROPERTIES
     OUTPUT_NAME "hexlib"
-    PUBLIC_HEADER "include/hexlib/hexlib.h"
+    PUBLIC_HEADER "hexlib/src/include/hexlib.h"
 )
 
 install(TARGETS hexlib

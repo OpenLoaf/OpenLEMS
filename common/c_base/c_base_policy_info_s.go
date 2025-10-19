@@ -7,3 +7,4 @@ type SPolicyInfo struct {
 	Description            string              `json:"description"`            // 策略描述
 	ConfigFieldDefinitions []*SFieldDefinition `json:"configFieldDefinitions"` // 配置字段定义
 }
+

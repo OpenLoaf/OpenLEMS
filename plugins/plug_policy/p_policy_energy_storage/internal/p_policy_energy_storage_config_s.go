@@ -11,3 +11,4 @@ type SPolicyEnergyStorageConfig struct {
 	// 策略类型
 	StrategyType string `json:"strategyType" name:"策略类型" desc:"策略类型标识" ct:"text" default:"policy_ess"`
 }
+

@@ -76,3 +76,4 @@ func ExecuteStrategy(ctx context.Context, targetPower int32, essDeviceIds []stri
 func ValidateStrategy(dateRange *SDateRange, timeRange *STimeRange, config *SStrategyConfig) error {
 	return internal.ValidateStrategy(dateRange, timeRange, config)
 }
+

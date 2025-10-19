@@ -1,0 +1,36 @@
+services:
+  ems-dev:
+    build:
+      context: ../
+      dockerfile: ./script/Dockerfile.dev
+    container_name: ems-plan-dev
+    ports:
+      - "80:80"
+    volumes:
+      # 开发环境代码热重载
+      - ../application:/app/application
+      - ../common:/app/common
+      - ../services:/app/services
+      - ../plugins:/app/plugins
+      - ../tools:/app/tools
+      - ../@cpp:/app/@cpp
+      # 数据持久化
+      - ../out:/app/out
+      # Go 模块缓存
+      - go-mod-cache:/go/pkg/mod
+    environment:
+      - GO111MODULE=on
+      - GOPROXY=https://goproxy.cn,direct
+      - GOSUMDB=sum.golang.google.cn
+      - CGO_ENABLED=1
+      - LD_LIBRARY_PATH=/app/lib
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/health", "||", "exit", "1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  go-mod-cache:

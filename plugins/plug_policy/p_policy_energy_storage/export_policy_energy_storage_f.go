@@ -9,3 +9,4 @@ import (
 func NewPolicyEnergyStorage() c_base.IPolicy {
 	return internal.NewPolicyEnergyStorage()
 }
+
