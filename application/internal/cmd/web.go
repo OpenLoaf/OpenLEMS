@@ -58,7 +58,7 @@ func startWebWithBinding(ctx context.Context, localOnly bool) *ghttp.Server {
 	// 配置 Session（默认2小时），禁用将SessionId回写到Cookie，仅从Header注入
 	s.SetSessionMaxAge(2 * time.Hour)
 	s.SetSessionIdName("ems_session_id")
-	s.SetSessionCookieOutput(false)
+	s.SetSessionCookieOutput(true)
 
 	// 设置API路由
 	setupAPIRoutes(s)

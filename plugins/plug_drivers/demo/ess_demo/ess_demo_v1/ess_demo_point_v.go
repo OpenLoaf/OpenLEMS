@@ -33,7 +33,7 @@ var (
 
 	telemetrySocPoint = &c_base.SReflectPoint{
 		SPoint: &c_base.SPoint{
-			Key:       "SOC",
+			Key:       "soc",
 			Name:      "当前SOC",
 			Unit:      "%",
 			ValueType: c_enum.EFloat32,
