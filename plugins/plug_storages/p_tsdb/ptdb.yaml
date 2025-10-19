@@ -1,3 +1,0 @@
-global:
-  scrape_interval: 15s # Set the scrape interval to a low value for demonstration purposes.
-

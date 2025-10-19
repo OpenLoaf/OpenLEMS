@@ -1,0 +1,447 @@
+---
+alwaysApply: false
+description: TSDB 存储插件开发规范 - 基于 Prometheus TSDB 的时间序列存储插件开发指南
+globs: plugins/plug_storages/p_tsdb/**/*.go
+---
+
+# TSDB 存储插件开发规范
+
+## 概述
+
+本规范定义了基于 Prometheus TSDB 的时间序列存储插件开发标准，包括目录结构、接口实现、数据模型、配置管理和最佳实践。
+
+## 目录结构
+
+```text
+plugins/plug_storages/p_tsdb/
+├── export_plug_storages_tsdb.go    # 导出工厂函数
+├── internal/
+│   └── tsdb_impl.go                # IStorage 接口实现
+├── go.mod                          # 模块依赖
+├── go.sum                          # 依赖锁定
+├── ptdb.yaml                       # Prometheus 配置文件
+├── README.md                       # 插件说明文档
+└── STATS_README.md                # 统计功能说明
+```
+
+## 核心接口实现
+
+### IStorage 接口实现
+
+TSDB 插件必须实现 `common/c_base.IStorage` 接口的所有方法：
+
+```go
+type IStorage interface {
+    // 数据写入方法
+    SaveDevices(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error
+    SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, metrics map[string]any) error
+    SaveSystemMetrics(measurement string, tags map[string]string, metrics map[string]any) error
+    
+    // 数据查询方法
+    GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error)
+    
+    // 统计信息方法
+    GetStorageStats() (*c_base.StorageStats, error)
+}
+```
+
+### 导出工厂函数
+
+```go
+// export_plug_storages_tsdb.go
+func NewStorageInstance(ctx context.Context, storageConfig *c_base.SStorageConfig) c_base.IStorage {
+    return internal.NewPromTSDB(ctx, storageConfig)
+}
+```
+
+## 数据模型规范
+
+### 时间序列标签规范
+
+TSDB 使用以下标签体系组织数据：
+
+```go
+const (
+    LabelNameMetric   = "__name__"  // 指标名称
+    LabelNameType     = "type"      // 数据类型：device/protocol/system
+    LabelNameID       = "id"        // 实体ID：deviceId/protocolId/measurement
+    LabelNameField    = "field"     // 点位名称
+    LabelNameDeviceID = "device_id" // 设备ID（用于协议数据）
+)
+```
+
+### 指标名称规范
+
+- **数值指标**：`ems_metric` - 存储数值类型数据
+- **文本指标**：`ems_metric_text` - 存储文本类型数据
+- **文本长度**：`ems_metric_text_len` - 记录文本长度
+
+### 标签组合示例
+
+```go
+// 设备数据
+labels := map[string]string{
+    "__name__": "ems_metric",
+    "type":     "device",
+    "id":       "device-001",
+    "field":    "soc",
+}
+
+// 协议数据
+labels := map[string]string{
+    "__name__": "ems_metric",
+    "type":     "protocol",
+    "id":       "protocol-001",
+    "field":    "voltage",
+    "device_id": "device-001",
+}
+
+// 系统数据
+labels := map[string]string{
+    "__name__": "ems_metric",
+    "type":     "system",
+    "id":       "cpu_usage",
+    "field":    "value",
+}
+```
+
+## 配置管理规范
+
+### 存储配置
+
+```go
+type SStorageConfig struct {
+    Params map[string]string `json:"params"` // 配置参数
+}
+
+// 默认配置
+const DefaultDBPath = "./out/ptdb"
+```
+
+### 配置参数
+
+- **path**：TSDB 数据目录路径（默认：`./out/ptdb`）
+- **retention**：数据保留时间（可选）
+- **compression**：压缩设置（可选）
+
+### 配置示例
+
+```go
+storageConfig := &c_base.SStorageConfig{
+    Params: map[string]string{
+        "path": "./out/ptdb",
+        "retention": "30d",
+    },
+}
+```
+
+## 数据写入规范
+
+### 写入流程
+
+1. **获取 Appender**：`db.Appender(ctx)`
+2. **添加样本**：`appender.Add(labels, timestamp, value)`
+3. **提交事务**：`appender.Commit()`
+
+### 写入示例
+
+```go
+func (p *promDB) SaveDevices(deviceId string, deviceType c_base.EDeviceType, fields map[string]any) error {
+    appender := p.db.Appender(p.ctx)
+    defer appender.Commit()
+    
+    timestamp := time.Now().UnixMilli()
+    
+    for field, value := range fields {
+        labels := map[string]string{
+            "__name__": "ems_metric",
+            "type":     "device",
+            "id":       deviceId,
+            "field":    field,
+        }
+        
+        if err := appender.Add(labels, timestamp, value); err != nil {
+            return errors.Wrap(err, "添加设备数据失败")
+        }
+    }
+    
+    return nil
+}
+```
+
+### 数据类型处理
+
+- **数值类型**：直接存储为 `ems_metric`
+- **文本类型**：存储为 `ems_metric_text` + `ems_metric_text_len`
+- **布尔类型**：转换为数值存储
+
+## 数据查询规范
+
+### 查询流程
+
+1. **构造选择器**：基于查询条件构建标签选择器
+2. **创建 Querier**：`db.Querier(mint, maxt)`
+3. **执行查询**：`querier.Select(selectors)`
+4. **数据转换**：转换为 `c_chart.ChartData` 格式
+
+### 查询示例
+
+```go
+func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int, step int) (*c_chart.ChartData, error) {
+    // 构造选择器
+    selectors := make([]*labels.Matcher, 0, len(pointKey)+2)
+    selectors = append(selectors, labels.MustNewMatcher(labels.MatchEqual, "__name__", "ems_metric"))
+    selectors = append(selectors, labels.MustNewMatcher(labels.MatchEqual, "type", string(storageType)))
+    selectors = append(selectors, labels.MustNewMatcher(labels.MatchEqual, "id", id))
+    
+    // 创建查询器
+    querier, err := p.db.Querier(int64(*startTime), int64(*endTime))
+    if err != nil {
+        return nil, errors.Wrap(err, "创建查询器失败")
+    }
+    defer querier.Close()
+    
+    // 执行查询
+    seriesSet := querier.Select(selectors...)
+    
+    // 转换数据格式
+    return p.convertToChartData(seriesSet, pointKey, step)
+}
+```
+
+### 数据对齐和步长处理
+
+```go
+func (p *promDB) applyStepFilter(data []*c_chart.SeriesData, step int) []*c_chart.SeriesData {
+    if step <= 0 {
+        return data
+    }
+    
+    var filtered []*c_chart.SeriesData
+    nextAllowed := int64(0)
+    
+    for _, point := range data {
+        if point.Timestamp >= nextAllowed {
+            filtered = append(filtered, point)
+            nextAllowed = point.Timestamp + int64(step)
+        }
+    }
+    
+    return filtered
+}
+```
+
+## 统计功能规范
+
+### 统计信息结构
+
+```go
+type StorageStats struct {
+    TotalSeries     int64 `json:"total_series"`     // 总时间序列数量
+    TotalSamples    int64 `json:"total_samples"`    // 总样本数量
+    StorageSize     int64 `json:"storage_size"`     // 存储大小（字节）
+    OldestTimestamp int64 `json:"oldest_timestamp"` // 最老数据时间戳
+    NewestTimestamp int64 `json:"newest_timestamp"` // 最新数据时间戳
+    RetentionTime   int64 `json:"retention_time"`   // 数据保留时间（秒）
+}
+```
+
+### 统计实现示例
+
+```go
+func (p *promDB) GetStorageStats() (*c_base.StorageStats, error) {
+    stats := &c_base.StorageStats{}
+    
+    // 获取 Head 统计信息
+    headStats := p.db.Head().Stats()
+    stats.TotalSeries = int64(headStats.NumSeries)
+    stats.OldestTimestamp = headStats.MinTime
+    stats.NewestTimestamp = headStats.MaxTime
+    stats.RetentionTime = (stats.NewestTimestamp - stats.OldestTimestamp) / 1000
+    
+    // 计算存储大小
+    if size, err := p.calculateStorageSize(); err == nil {
+        stats.StorageSize = size
+    } else {
+        stats.StorageSize = -1
+    }
+    
+    // 估算样本数量
+    stats.TotalSamples = p.estimateTotalSamples()
+    
+    return stats, nil
+}
+```
+
+## 性能优化规范
+
+### 写入优化
+
+1. **批量写入**：使用事务批量提交数据
+2. **异步写入**：避免阻塞主线程
+3. **压缩设置**：合理配置压缩参数
+
+### 查询优化
+
+1. **时间范围限制**：避免查询过大的时间范围
+2. **标签过滤**：使用精确的标签选择器
+3. **步长过滤**：合理设置查询步长
+
+### 内存管理
+
+1. **及时关闭**：使用 `defer querier.Close()`
+2. **资源清理**：定期清理过期数据
+3. **监控内存**：监控 TSDB 内存使用情况
+
+## 错误处理规范
+
+### 错误包装
+
+```go
+import "github.com/pkg/errors"
+
+// 包装错误信息
+if err != nil {
+    return errors.Wrap(err, "TSDB 操作失败")
+}
+```
+
+### 常见错误处理
+
+```go
+func (p *promDB) handleTSDBError(err error, operation string) error {
+    if err == nil {
+        return nil
+    }
+    
+    switch {
+    case strings.Contains(err.Error(), "out of order"):
+        return errors.Wrap(err, "时间戳乱序，请检查数据时间")
+    case strings.Contains(err.Error(), "too old"):
+        return errors.Wrap(err, "数据时间过旧，可能被 TSDB 拒绝")
+    default:
+        return errors.Wrapf(err, "TSDB %s 操作失败", operation)
+    }
+}
+```
+
+## 测试规范
+
+### 单元测试
+
+```go
+func TestTSDBStorage(t *testing.T) {
+    // 创建测试配置
+    config := &c_base.SStorageConfig{
+        Params: map[string]string{"path": "./test_ptdb"},
+    }
+    
+    // 创建存储实例
+    storage := NewStorageInstance(context.Background(), config)
+    defer os.RemoveAll("./test_ptdb")
+    
+    // 测试写入
+    err := storage.SaveDevices("test-device", c_base.EDeviceAmmeter, map[string]any{
+        "voltage": 220.5,
+        "current": 10.2,
+    })
+    assert.NoError(t, err)
+    
+    // 测试查询
+    start := int(time.Now().Add(-time.Hour).UnixMilli())
+    end := int(time.Now().UnixMilli())
+    chart, err := storage.GetStorageData(c_base.StorageTypeDevice, "test-device", []string{"voltage"}, &start, &end, 60000)
+    assert.NoError(t, err)
+    assert.NotNil(t, chart)
+}
+```
+
+### 集成测试
+
+```go
+func TestTSDBIntegration(t *testing.T) {
+    // 测试完整的数据流程
+    // 1. 写入设备数据
+    // 2. 写入协议数据
+    // 3. 写入系统数据
+    // 4. 查询各种数据类型
+    // 5. 验证统计信息
+}
+```
+
+## 部署和运维规范
+
+### Prometheus 配置
+
+```yaml
+# ptdb.yaml
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+# 用于查看 TSDB 数据
+scrape_configs:
+  - job_name: 'tsdb'
+    static_configs:
+      - targets: ['localhost:9090']
+```
+
+### 数据目录管理
+
+```bash
+# 查看数据库状态
+prometheus --config.file=ptdb.yaml --storage.tsdb.path=/path/to/ptdb/
+
+# 数据清理
+rm -rf /path/to/ptdb/01*
+```
+
+### 监控指标
+
+- **写入速率**：每秒写入样本数
+- **查询延迟**：查询响应时间
+- **存储大小**：数据库文件大小
+- **内存使用**：TSDB 内存占用
+
+## 最佳实践
+
+### 开发实践
+
+1. **单例模式**：使用单例模式管理 TSDB 实例
+2. **上下文传递**：正确传递和使用 context
+3. **资源管理**：及时关闭查询器和释放资源
+4. **错误处理**：统一使用 `github.com/pkg/errors`
+
+### 性能实践
+
+1. **批量操作**：尽量批量写入数据
+2. **合理步长**：根据数据特性设置合适的查询步长
+3. **标签优化**：使用高效的标签组合
+4. **时间范围**：避免查询过大的时间范围
+
+### 维护实践
+
+1. **定期清理**：定期清理过期数据
+2. **监控告警**：设置存储空间和性能监控
+3. **备份策略**：制定数据备份和恢复策略
+4. **版本管理**：注意 Prometheus 版本兼容性
+
+## 相关文件
+
+- [plugins/plug_storages/p_tsdb/](mdc:plugins/plug_storages/p_tsdb/) - TSDB 插件目录
+- [plugins/plug_storages/p_tsdb/README.md](mdc:plugins/plug_storages/p_tsdb/README.md) - 插件说明文档
+- [plugins/plug_storages/p_tsdb/STATS_README.md](mdc:plugins/plug_storages/p_tsdb/STATS_README.md) - 统计功能说明
+- [common/c_base/](mdc:common/c_base/) - 基础接口定义
+- [common/c_chart/](mdc:common/c_chart/) - 图表数据结构
+
+## 注意事项
+
+1. **时间戳格式**：所有时间戳使用毫秒级 Unix 时间戳
+2. **数据一致性**：确保写入和查询的数据格式一致
+3. **资源清理**：及时关闭查询器和释放资源
+4. **错误处理**：统一使用错误包装和上下文信息
+5. **性能监控**：定期监控存储性能和资源使用情况
+
+---
+
+**注意**: 本规范基于 Prometheus TSDB 实现，遵循 Prometheus 的最佳实践和性能优化建议。开发时请参考 Prometheus 官方文档和社区最佳实践。

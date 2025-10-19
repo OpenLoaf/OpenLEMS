@@ -108,63 +108,6 @@ func GetAllTelemetryPoint(instance IDevice) []*SPointValue {
 	return GetPointValueList(instance)
 }
 
-// ResolvingValueType TODO 提出来
-func ResolvingValueType(value any) c_enum.EValueType {
-	if value == nil {
-		return c_enum.EString
-	}
-
-	// 使用反射获取值的实际类型
-	valueType := reflect.TypeOf(value)
-
-	// 处理指针类型
-	if valueType.Kind() == reflect.Ptr {
-		if reflect.ValueOf(value).IsNil() {
-			return c_enum.EString
-		}
-		valueType = valueType.Elem()
-	}
-
-	// 根据类型返回对应的枚举值
-	switch valueType.Kind() {
-	case reflect.Bool:
-		return c_enum.EBool
-	case reflect.Int8:
-		return c_enum.EInt8
-	case reflect.Uint8:
-		return c_enum.EUint8
-	case reflect.Int16:
-		return c_enum.EInt16
-	case reflect.Uint16:
-		return c_enum.EUint16
-	case reflect.Int32:
-		return c_enum.EInt32
-	case reflect.Uint32:
-		return c_enum.EUint32
-	case reflect.Int64:
-		return c_enum.EInt64
-	case reflect.Uint64:
-		return c_enum.EUint64
-	case reflect.Float32:
-		return c_enum.EFloat32
-	case reflect.Float64:
-		return c_enum.EFloat64
-	case reflect.String:
-		return c_enum.EString
-	case reflect.Int:
-		// int 类型根据系统架构可能是 32 位或 64 位
-		// 这里统一返回 Int64，如果需要更精确的类型判断，可以根据实际值范围判断
-		return c_enum.EInt64
-	case reflect.Uint:
-		// uint 类型根据系统架构可能是 32 位或 64 位
-		// 这里统一返回 Uint64
-		return c_enum.EUint64
-	default:
-		// 对于其他类型（如结构体、切片、映射等），默认返回字符串类型
-		return c_enum.EString
-	}
-}
-
 func ExecuteCustomService(functionName string, instance IDevice, params []any) error {
 
 	// 执行自定义方法

@@ -31,7 +31,7 @@ const (
 type IStorage interface {
 
 	// SaveDevices 保存设备数据
-	SaveDevices(deviceId string, fields map[string]any) error
+	SaveDevices(deviceId string, pointValues []*SPointValue) error
 
 	// SaveProtocolMetrics 保存协议指标数据
 	SaveProtocolMetrics(protocolConfig *SProtocolConfig, deviceConfig *SDeviceConfig, metrics map[string]any) error

@@ -20,18 +20,15 @@ import (
 )
 
 const (
-	DefaultDBPath     = "./out/ptdb"
-	LabelNameMetric   = "__name__"
-	LabelNameType     = "type" // device/protocol/system
-	LabelNameID       = "id"   // deviceId/protocolId/measurement
-	LabelNameField    = "field"
-	LabelNameDeviceID = "device_id" // 设备ID
+	DefaultDBPath = "./out/ptdb"
 )
 
 type promDB struct {
 	ctx           context.Context
 	db            *promtsdb.DB
 	sampleCounter public.IWindowCounter // 滑动窗口计数器，用于统计每秒存储样本数
+	statusCache   map[string]any        // 状态类型缓存，key: deviceId+pointKey
+	statusMutex   sync.RWMutex          // 保护状态缓存的读写锁
 }
 
 var (
@@ -69,43 +66,58 @@ func NewPromTSDB(ctx context.Context, storageConfig *c_base.SStorageConfig) c_ba
 			ctx:           ctx,
 			db:            db,
 			sampleCounter: sampleCounter,
+			statusCache:   make(map[string]any),
 		}
 		c_log.BizInfof(ctx, "启动时序数据库！")
 	})
 	return instance
 }
 
-func (p *promDB) SaveDevices(deviceId string, fields map[string]any) error {
-	if len(fields) == 0 {
+func (p *promDB) SaveDevices(deviceId string, pointValues []*c_base.SPointValue) error {
+	if len(pointValues) == 0 {
 		return nil
 	}
+
 	ts := time.Now().UnixMilli()
 	app := p.db.Appender()
+	var sampleCount int64 = 0
 
-	var sampleCount int64 = 0 // 统计本次存储的样本数量
-	for field, value := range fields {
-		// 尝试转换为数值类型
-		if numericValue, ok := convertToFloat64(value); ok {
-			// 数值类型统一处理
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric",
-				LabelNameType:   string(c_base.StorageTypeDevice),
-				LabelNameID:     deviceId,
-				LabelNameField:  field,
-			}), ts, numericValue)
-			if err != nil {
-				_ = app.Rollback()
-				return err
+	for _, pv := range pointValues {
+		if pv == nil || pv.IPoint == nil {
+			continue
+		}
+
+		pointKey := pv.GetKey()
+		value := pv.GetValue()
+
+		// 检查是否是状态类型（有 ValueExplain）
+		if len(pv.GetValueExplain()) > 0 {
+			// 状态类型：检查缓存
+			cacheKey := deviceId + ":" + pointKey
+
+			p.statusMutex.RLock()
+			cachedValue, exists := p.statusCache[cacheKey]
+			p.statusMutex.RUnlock()
+
+			// 状态未变化，跳过保存
+			if exists && cachedValue == value {
+				continue
 			}
-			sampleCount++
-		} else {
-			// 对非数值类型，将值 JSON 序列化后，附加一个 *_text 序列保存为 0/1
+
+			// 状态变化，更新缓存
+			p.statusMutex.Lock()
+			p.statusCache[cacheKey] = value
+			p.statusMutex.Unlock()
+		}
+
+		// 保存数值类型数据
+		if numericValue, ok := convertToFloat64(value); ok {
 			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric_text",
+				LabelNameMetric: MetricNameEmsMetric,
 				LabelNameType:   string(c_base.StorageTypeDevice),
 				LabelNameID:     deviceId,
-				LabelNameField:  field,
-			}), ts, 1)
+				LabelNameField:  pointKey,
+			}), ts, numericValue)
 			if err != nil {
 				_ = app.Rollback()
 				return err
@@ -114,7 +126,6 @@ func (p *promDB) SaveDevices(deviceId string, fields map[string]any) error {
 		}
 	}
 
-	// 更新滑动窗口计数器
 	if sampleCount > 0 {
 		p.sampleCounter.IncrementBy(sampleCount)
 	}
@@ -131,11 +142,10 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 
 	var sampleCount int64 = 0 // 统计本次存储的样本数量
 	for field, value := range metrics {
-		// 尝试转换为数值类型
+		// 只保存数值类型数据
 		if numericValue, ok := convertToFloat64(value); ok {
-			// 数值类型统一处理
 			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric:   "ems_metric",
+				LabelNameMetric:   MetricNameEmsMetric,
 				LabelNameType:     string(c_base.StorageTypeProtocol),
 				LabelNameID:       protocolConfig.Id,
 				LabelNameField:    field,
@@ -146,21 +156,8 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 				return err
 			}
 			sampleCount++
-		} else {
-			// 对非数值类型，将值 JSON 序列化后，附加一个 *_text 序列保存为 0/1
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric:   "ems_metric_text",
-				LabelNameType:     string(c_base.StorageTypeProtocol),
-				LabelNameID:       protocolConfig.Id,
-				LabelNameField:    field,
-				LabelNameDeviceID: deviceConfig.Id,
-			}), ts, 1)
-			if err != nil {
-				_ = app.Rollback()
-				return err
-			}
-			sampleCount++
 		}
+		// 非数值类型数据将被忽略
 	}
 
 	// 更新滑动窗口计数器
@@ -180,11 +177,10 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 
 	var sampleCount int64 = 0 // 统计本次存储的样本数量
 	for field, value := range metrics {
-		// 尝试转换为数值类型
+		// 只保存数值类型数据
 		if numericValue, ok := convertToFloat64(value); ok {
-			// 数值类型统一处理
 			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric",
+				LabelNameMetric: MetricNameEmsMetric,
 				LabelNameType:   string(c_base.StorageTypeSystem),
 				LabelNameID:     measurement,
 				LabelNameField:  field,
@@ -194,20 +190,8 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 				return err
 			}
 			sampleCount++
-		} else {
-			// 对非数值类型，将值 JSON 序列化后，附加一个 *_text 序列保存为 0/1
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: "ems_metric_text",
-				LabelNameType:   string(c_base.StorageTypeSystem),
-				LabelNameID:     measurement,
-				LabelNameField:  field,
-			}), ts, 1)
-			if err != nil {
-				_ = app.Rollback()
-				return err
-			}
-			sampleCount++
 		}
+		// 非数值类型数据将被忽略
 	}
 
 	// 更新滑动窗口计数器
@@ -219,7 +203,7 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 }
 
 func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int64, step int) (*c_chart.ChartData, error) {
-	// 查询 ems_metric 和 ems_metric_text 系列
+	// 查询 ems_metric 系列（仅数值类型数据）
 	mint := int64(0)
 	maxt := int64(1<<63 - 1)
 	if startTime != nil && *startTime > 0 {
@@ -249,7 +233,7 @@ func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, point
 	for _, k := range pointKey {
 		// 选择器: __name__="ems_metric", type=storageType, id=id, field=k
 		matchers := []*labels.Matcher{
-			labels.MustNewMatcher(labels.MatchEqual, LabelNameMetric, "ems_metric"),
+			labels.MustNewMatcher(labels.MatchEqual, LabelNameMetric, MetricNameEmsMetric),
 			labels.MustNewMatcher(labels.MatchEqual, LabelNameType, string(storageType)),
 			labels.MustNewMatcher(labels.MatchEqual, LabelNameID, id),
 			labels.MustNewMatcher(labels.MatchEqual, LabelNameField, k),
@@ -395,7 +379,7 @@ func (p *promDB) estimateTotalSamples() int64 {
 
 	// 查询所有ems_metric系列
 	matchers := []*labels.Matcher{
-		labels.MustNewMatcher(labels.MatchEqual, LabelNameMetric, "ems_metric"),
+		labels.MustNewMatcher(labels.MatchEqual, LabelNameMetric, MetricNameEmsMetric),
 	}
 
 	ss, _, err := q.Select(false, nil, matchers...)
@@ -426,7 +410,7 @@ func (p *promDB) getOldestTimestamp() (time.Time, error) {
 
 	// 查询所有ems_metric系列来找到最早的时间戳
 	matchers := []*labels.Matcher{
-		labels.MustNewMatcher(labels.MatchEqual, LabelNameMetric, "ems_metric"),
+		labels.MustNewMatcher(labels.MatchEqual, LabelNameMetric, MetricNameEmsMetric),
 	}
 
 	ss, _, err := q.Select(false, nil, matchers...)
