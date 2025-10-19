@@ -25,4 +25,5 @@ type IDeviceV1 interface {
 	GetDeviceTelemetryService(ctx context.Context, req *v1.GetDeviceTelemetryServiceReq) (res *v1.GetDeviceTelemetryServiceRes, err error)
 	UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq) (res *v1.UpdateDeviceRes, err error)
 	GetDevicePointsDefinition(ctx context.Context, req *v1.GetDevicePointsDefinitionReq) (res *v1.GetDevicePointsDefinitionRes, err error)
+	PostDeviceCompare(ctx context.Context, req *v1.PostDeviceCompareReq) (res *v1.PostDeviceCompareRes, err error)
 }
