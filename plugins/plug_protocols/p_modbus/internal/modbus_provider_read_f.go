@@ -5,8 +5,10 @@ import (
 	"common/c_enum"
 	"common/c_log"
 	"common/c_proto"
+	"context"
 	"fmt"
 	"p_base"
+	"strings"
 	"time"
 
 	"github.com/gogf/gf/v2/frame/g"
@@ -135,6 +137,14 @@ func (p *ModbusProtocolProvider) read(name string, addr uint16, quantity uint16,
 	// 累计失败次数
 	if err != nil {
 		p.metricProtocol.AddMinuteFailedCount()
+
+		// 检测是否超时
+		if errors.Is(err, context.DeadlineExceeded) || strings.Contains(err.Error(), "timeout") {
+			p.metricProtocol.AddTimeoutCount()
+		}
+	} else {
+		// 成功时重置连续失败计数
+		p.metricProtocol.ResetConsecutiveFailures()
 	}
 
 	return result, err
