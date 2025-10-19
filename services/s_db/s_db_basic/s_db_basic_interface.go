@@ -13,6 +13,7 @@ type IDeviceService interface {
 	GetDeviceConfigsWithRecursion(ctx context.Context, parentId string) ([]*c_base.SDeviceConfig, error) // 获取所有设备列表（包括enabled=false）
 	GetAllDevices(ctx context.Context) ([]*s_db_model.SDeviceModel, error)                               // 获取所有设备
 	GetDeviceById(ctx context.Context, id string) (*s_db_model.SDeviceModel, error)                      // 根据ID获取设备
+	GetDevicesByProtocolId(ctx context.Context, protocolId string) ([]*s_db_model.SDeviceModel, error)   // 根据协议ID获取设备列表
 	UpdateDevice(ctx context.Context, deviceId string, data map[string]interface{}) error
 }
 

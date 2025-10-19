@@ -7,7 +7,7 @@ package protocol
 import (
 	"context"
 
-	"application/api/protocol/v1"
+	v1 "application/api/protocol/v1"
 )
 
 type IProtocolV1 interface {
@@ -15,4 +15,8 @@ type IProtocolV1 interface {
 	DeleteProtocol(ctx context.Context, req *v1.DeleteProtocolReq) (res *v1.DeleteProtocolRes, err error)
 	GetProtocolList(ctx context.Context, req *v1.GetProtocolListReq) (res *v1.GetProtocolListRes, err error)
 	UpdateProtocol(ctx context.Context, req *v1.UpdateProtocolReq) (res *v1.UpdateProtocolRes, err error)
+	PostProtocolMonitorOverview(ctx context.Context, req *v1.PostProtocolMonitorOverviewReq) (res *v1.PostProtocolMonitorOverviewRes, err error)
+	PostProtocolMonitorTrend(ctx context.Context, req *v1.PostProtocolMonitorTrendReq) (res *v1.PostProtocolMonitorTrendRes, err error)
+	PostProtocolMonitorDistribution(ctx context.Context, req *v1.PostProtocolMonitorDistributionReq) (res *v1.PostProtocolMonitorDistributionRes, err error)
+	PostProtocolMonitorMetrics(ctx context.Context, req *v1.PostProtocolMonitorMetricsReq) (res *v1.PostProtocolMonitorMetricsRes, err error)
 }

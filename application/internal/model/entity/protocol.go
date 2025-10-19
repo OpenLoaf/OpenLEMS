@@ -10,4 +10,8 @@ type SProtocol struct {
 	ProtocolLogLevel string `json:"protocolLogLevel" dc:"协议日志级别"`
 	ProtocolParams   string `json:"protocolParams" dc:"协议参数"`
 	ProtocolActive   bool   `json:"protocolActive" dc:"协议是否激活"`
+
+	// GPIO协议绑定的设备信息（仅GPIO协议有值）
+	BoundDeviceId   string `json:"boundDeviceId,omitempty" dc:"绑定的设备ID"`
+	BoundDeviceName string `json:"boundDeviceName,omitempty" dc:"绑定的设备名称"`
 }

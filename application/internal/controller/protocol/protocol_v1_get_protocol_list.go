@@ -3,6 +3,7 @@ package protocol
 import (
 	"application/internal/model/entity"
 	"common"
+	"common/c_enum"
 	"context"
 	"net"
 	"s_db"
@@ -26,7 +27,8 @@ func (c *ControllerV1) GetProtocolList(ctx context.Context, req *v1.GetProtocolL
 
 		protocolActive := common.GetDeviceManager().IsProtocolActive(protocol.Id)
 
-		entityProtocols = append(entityProtocols, &entity.SProtocol{
+		// 创建基础协议实体
+		entityProtocol := &entity.SProtocol{
 			ProtocolId:       protocol.Id,
 			ProtocolName:     protocol.Name,
 			ProtocolType:     protocol.Type,
@@ -36,7 +38,16 @@ func (c *ControllerV1) GetProtocolList(ctx context.Context, req *v1.GetProtocolL
 			ProtocolLogLevel: protocol.LogLevel,
 			ProtocolParams:   protocol.Params,
 			ProtocolActive:   protocolActive,
-		})
+		}
+
+		// 如果是GPIO协议，查询绑定的设备信息
+		if isGpioProtocol(protocol.Type) {
+			boundDeviceId, boundDeviceName := getGpioBoundDevice(ctx, protocol.Id)
+			entityProtocol.BoundDeviceId = boundDeviceId
+			entityProtocol.BoundDeviceName = boundDeviceName
+		}
+
+		entityProtocols = append(entityProtocols, entityProtocol)
 	}
 
 	res = &v1.GetProtocolListRes{
@@ -84,4 +95,22 @@ func parseAddressAndPort(addressStr string) (string, int) {
 	}
 
 	return host, port
+}
+
+// isGpioProtocol 判断是否为GPIO协议
+func isGpioProtocol(protocolType string) bool {
+	return protocolType == string(c_enum.EGpioIn) || protocolType == string(c_enum.EGpioOut)
+}
+
+// getGpioBoundDevice 获取GPIO协议绑定的设备信息
+func getGpioBoundDevice(ctx context.Context, protocolId string) (deviceId, deviceName string) {
+	// 根据协议ID查询绑定的设备
+	devices, err := s_db.GetDeviceService().GetDevicesByProtocolId(ctx, protocolId)
+	if err != nil || len(devices) == 0 {
+		return "", ""
+	}
+
+	// GPIO协议只会绑定一个设备，取第一个
+	device := devices[0]
+	return device.Id, device.Name
 }

@@ -6,6 +6,7 @@ import (
 	"common/c_log"
 	"context"
 	"reflect"
+	"s_storage"
 	"sync"
 	"time"
 
@@ -67,25 +68,25 @@ func newMetricProtocol(ctx context.Context, protocolConfig *c_base.SProtocolConf
 		// 保存数据到数据库
 		result := map[string]any{
 			// 现有指标
-			"total":         s.metricMinuteReadCount,
-			"success":       s.metricMinuteReadCount - s.metricMinuteFailedCount,
-			"failed":        s.metricMinuteFailedCount,
-			"result_size":   s.metricMinuteResultSize,
-			"max_wait_ms":   s.maxWaitTime.Milliseconds(),
-			"max_task_name": s.maxWaitTaskName,
+			s_storage.ProtocolMetricTotal:       s.metricMinuteReadCount,
+			s_storage.ProtocolMetricSuccess:     s.metricMinuteReadCount - s.metricMinuteFailedCount,
+			s_storage.ProtocolMetricFailed:      s.metricMinuteFailedCount,
+			s_storage.ProtocolMetricResultSize:  s.metricMinuteResultSize,
+			s_storage.ProtocolMetricMaxWaitMs:   s.maxWaitTime.Milliseconds(),
+			s_storage.ProtocolMetricMaxTaskName: s.maxWaitTaskName,
 
 			// 新增性能指标
-			"avg_response_ms": avgResponseMs,
-			"min_wait_ms":     s.minWaitTime.Milliseconds(),
+			s_storage.ProtocolMetricAvgResponseMs: avgResponseMs,
+			s_storage.ProtocolMetricMinWaitMs:     s.minWaitTime.Milliseconds(),
 
 			// 新增可靠性指标
-			"success_rate":         successRate,
-			"consecutive_failures": s.consecutiveFailures,
-			"timeout_count":        s.timeoutCount,
-			"reconnect_count":      s.reconnectCount,
+			s_storage.ProtocolMetricSuccessRate:         successRate,
+			s_storage.ProtocolMetricConsecutiveFailures: s.consecutiveFailures,
+			s_storage.ProtocolMetricTimeoutCount:        s.timeoutCount,
+			s_storage.ProtocolMetricReconnectCount:      s.reconnectCount,
 
 			// 新增吞吐量指标
-			"avg_bytes_per_request": avgBytesPerRequest,
+			s_storage.ProtocolMetricAvgBytesPerRequest: avgBytesPerRequest,
 		}
 		g.Log().Debugf(ctx, "保存协议[%s]的统计数据，统计结果为：%+v", protocolConfig.Id, result)
 		storage := common.GetStorageInstance()
