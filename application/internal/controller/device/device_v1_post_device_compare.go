@@ -21,6 +21,17 @@ func (c *ControllerV1) PostDeviceCompare(ctx context.Context, req *v1.PostDevice
 		return nil, errors.New("线图点位和柱状图点位不能同时为空")
 	}
 
+	// 检查并调整时间范围
+	startTime := req.StartTime
+	endTime := req.EndTime
+
+	// 如果结束时间是未来时间，设置为当前时间的整分钟
+	if endTime != nil && *endTime > time.Now().UnixMilli() {
+		now := time.Now().Truncate(time.Minute)
+		adjustedEndTime := now.UnixMilli()
+		endTime = &adjustedEndTime
+	}
+
 	// 创建图表数据
 	chartData := c_chart.NewChartData(len(req.DeviceIds) * (len(req.LineKeys) + len(req.BarKeys)))
 
@@ -32,8 +43,8 @@ func (c *ControllerV1) PostDeviceCompare(ctx context.Context, req *v1.PostDevice
 				c_base.StorageTypeDevice,
 				deviceId,
 				[]string{lineKey},
-				req.StartTime,
-				req.EndTime,
+				startTime,
+				endTime,
 				req.Step,
 			)
 			if err != nil {
@@ -61,8 +72,8 @@ func (c *ControllerV1) PostDeviceCompare(ctx context.Context, req *v1.PostDevice
 				c_base.StorageTypeDevice,
 				deviceId,
 				[]string{barKey},
-				req.StartTime,
-				req.EndTime,
+				startTime,
+				endTime,
 				req.Step,
 			)
 			if err != nil {
@@ -90,10 +101,10 @@ func (c *ControllerV1) PostDeviceCompare(ctx context.Context, req *v1.PostDevice
 		now := time.Now().UnixMilli()
 		inTimeRange := true
 
-		if req.StartTime != nil && now < *req.StartTime+int64(60*60*1000) {
+		if startTime != nil && now < *startTime+int64(60*60*1000) {
 			inTimeRange = false
 		}
-		if req.EndTime != nil && now > *req.EndTime {
+		if endTime != nil && now > *endTime {
 			inTimeRange = false
 		}
 

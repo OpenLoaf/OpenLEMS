@@ -137,7 +137,7 @@ func (s *sGpiodOutLinuxProvider) GetLastUpdateTime() *time.Time {
 	return s.lastUpdateTime
 }
 
-func (s *sGpiodOutLinuxProvider) GetProtocolPointValue(protocolPoint *c_base.SProtocolPoint) *c_base.SPointValue {
+func (s *sGpiodOutLinuxProvider) GetProtocolPointValue(protocolPoint c_base.IPoint) *c_base.SPointValue {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 

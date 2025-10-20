@@ -1,93 +1,118 @@
 # EMS Plan 开发环境 Docker 镜像
 # 基于最佳实践的多阶段构建
 
-# 第一阶段：C++ 编译阶段
-FROM gcc:latest AS cpp-builder
+# 第一阶段：合并的 C++ 和 Go 构建阶段
+FROM --platform=linux/amd64 gcc:latest AS builder
 
-# 安装构建工具
+# 安装 C++ 和 Go 的所有构建依赖
 RUN apt-get update && apt-get install -y \
-    make \
-    cmake \
-    git \
-    && rm -rf /var/lib/apt/lists/*
-
-# 设置工作目录
-WORKDIR /app
-
-# 复制 C++ 源代码
-COPY @cpp/ ./@cpp/
-
-# 编译 C++ 库
-WORKDIR /app/@cpp
-RUN make clean && make
-
-# 第二阶段：Go 构建阶段
-FROM golang:1.25-alpine AS go-builder
-
-# 安装构建依赖
-RUN apk add --no-cache \
-    musl-dev \
+    curl \
     git \
     bash \
     ca-certificates \
-    libc6-compat
+    wget \
+    make \
+    cmake \
+    clang \
+    && rm -rf /var/lib/apt/lists/*
+
+# 下载并安装 Go 1.25
+RUN curl -L https://golang.org/dl/go1.25.3.linux-amd64.tar.gz -o go1.25.3.linux-amd64.tar.gz && \
+    tar -C /usr/local -xzf go1.25.3.linux-amd64.tar.gz && \
+    rm go1.25.3.linux-amd64.tar.gz
+
+# 添加 Go 到 PATH
+ENV PATH="/usr/local/go/bin:${PATH}"
 
 # 设置 Go 环境变量
 ENV GO111MODULE=on \
     GOPROXY=https://goproxy.cn,direct \
-    GOSUMDB=sum.golang.google.cn \
+    GOSUMDB=off \
     CGO_ENABLED=1 \
     GOOS=linux \
-    GOARCH=amd64
+    GOARCH=amd64 \
+    CC=gcc \
+    CXX=g++ \
+    PKG_CONFIG_PATH=""
 
 # 设置工作目录
 WORKDIR /app
 
-# 复制 go.work 文件
+# 第一步：复制 go.work 和所有模块的 go.mod/go.sum（用于缓存）
+# 这样源代码修改不会影响依赖缓存
 COPY go.work go.work.sum ./
 
-# 复制完整的源代码
+# 第二步：复制源代码
 COPY application/ ./application/
 COPY common/ ./common/
 COPY services/ ./services/
 COPY plugins/ ./plugins/
 COPY tools/ ./tools/
-COPY @cpp/ ./@cpp/
+COPY @cpp/hexlib/ ./@cpp/hexlib/
 
-# 从 C++ 构建阶段复制编译好的库文件
-COPY --from=cpp-builder /app/@cpp/build/libhexlib.so ./application/lib/
-
-# 修复依赖并编译 EMS 程序
+# 第三步：预先下载所有 Go 依赖（使用 BuildKit 缓存）
+# 这样可以与 C++ 编译并行执行，加快总构建时间
 WORKDIR /app/application
-RUN go mod tidy && \
-    CGO_ENABLED=1 go build \
-    -tags=dev \
-    -ldflags="-w -s" \
-    -o ems main.go
+RUN --mount=type=cache,target=/go/pkg/mod \
+    echo "Downloading Go dependencies..." && \
+    go mod download && \
+    echo "✓ Go dependencies downloaded"
 
-# 第三阶段：运行时镜像
-FROM alpine:latest AS runtime
+# 第四步：编译 C++ 库（使用改进的 Makefile）
+WORKDIR /app/@cpp/hexlib
+RUN make clean && make build && \
+    echo "C++ library build complete" && \
+    ls -lh build/libhexlib.a
+
+# 第五步：准备 C++ 库文件
+RUN mkdir -p /app/application/lib
+RUN cp /app/@cpp/hexlib/build/libhexlib.a /app/application/lib/
+
+# 第六步：编译 EMS 程序（此时依赖已下载，不用再下载）
+WORKDIR /app/application
+RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
+    echo "Starting Go build..." && \
+    CGO_ENABLED=1 \
+    CFLAGS="-I/app/@cpp/hexlib/src/include" \
+    LDFLAGS="-L/app/@cpp/hexlib/build -lstdc++ -lm -lgcc" \
+    go build \
+    -tags=dev \
+    -ldflags="-w -s -extldflags '-lstdc++ -lm -lgcc'" \
+    -o ems . && \
+    echo "Go build complete" && \
+    file ./ems
+
+# 第二阶段：运行时镜像
+FROM --platform=linux/amd64 alpine:latest AS runtime
 
 # 安装运行时依赖
 RUN apk add --no-cache \
     ca-certificates \
     bash \
     libgcc \
-    libstdc++
+    libstdc++ \
+    libc6-compat \
+    wget
 
 # 设置工作目录
 WORKDIR /app
 
-# 从 Go 构建阶段复制编译好的程序
-COPY --from=go-builder /app/application/ems ./ems
-COPY --from=go-builder /app/application/manifest ./manifest
-COPY --from=go-builder /app/application/lib ./lib
+# 从构建阶段复制编译好的程序
+COPY --from=builder /app/application/ems ./ems
+COPY --from=builder /app/application/manifest ./manifest
+COPY --from=builder /app/application/lib ./lib
 
 # 创建必要的目录
-RUN mkdir -p ./out/logs ./out/data ./out/static ./out/ptdb
+RUN mkdir -p ./out/logs ./out/data ./out/static ./out/ptdb && \
+    chmod +x ./ems
 
 # 设置环境变量
 ENV LD_LIBRARY_PATH=/app/lib
+
+# 健康检查
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
+    CMD wget --quiet --tries=1 --spider http://localhost:80/health || exit 1
 
 # 暴露端口
 EXPOSE 80
