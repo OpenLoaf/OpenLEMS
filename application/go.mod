@@ -11,11 +11,14 @@ require (
 	github.com/shockerli/cvt v0.2.8
 	github.com/webview/webview_go v0.0.0-20240831120633-6173450d4dd6
 	gopkg.in/yaml.v3 v3.0.1
+	hexlib v0.0.0-00010101000000-000000000000
 	t_machine_id v0.0.0-00010101000000-000000000000
 	t_network_manager v0.0.0-00010101000000-000000000000
 )
 
 replace common => ../common
+
+replace hexlib => ../@cpp/hexlib
 
 replace t_machine_id => ../tools/t_machine_id
 
