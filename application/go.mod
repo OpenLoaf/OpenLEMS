@@ -4,6 +4,7 @@ go 1.25
 
 require (
 	common v0.0.0-00010101000000-000000000000
+	github.com/expr-lang/expr v1.17.6
 	github.com/gogf/gf/v2 v2.9.3
 	github.com/pkg/errors v0.9.1
 	github.com/shirou/gopsutil/v4 v4.25.8

@@ -39,6 +39,9 @@ type IStorage interface {
 	// SaveSystemMetrics 保存系统指标数据
 	SaveSystemMetrics(measurement string, tags map[string]string, metrics map[string]any) error
 
+	// SavePriceData 保存电价数据
+	SavePriceData(priceId int, price float64, priceType string, timestamp int64) error
+
 	// GetStorageData 获取存储数据
 	GetStorageData(storageType StorageType, id string, pointKey []string, startTime, endTime *int64, step int) (*c_chart.ChartData, error)
 

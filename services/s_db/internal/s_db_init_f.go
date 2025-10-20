@@ -191,6 +191,26 @@ func initConfigDatabase() {
 		g.Log().Fatal(ctx, err)
 	}
 
+	// 创建电价表
+	_, err = g.DB().Exec(ctx, `
+		CREATE TABLE IF NOT EXISTS price (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			description VARCHAR(255),
+			priority INTEGER NOT NULL,
+			status VARCHAR(50) NOT NULL,
+			date_range TEXT NOT NULL,
+			time_range TEXT NOT NULL,
+			price_segments TEXT NOT NULL,
+			remote_id VARCHAR(255),
+			created_by VARCHAR(255) NOT NULL DEFAULT 'admin',
+			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+		)
+	`)
+	if err != nil {
+		g.Log().Fatal(ctx, err)
+	}
+
 	g.Log().Info(ctx, "Database tables created successfully")
 
 	// 初始化系统设置数据

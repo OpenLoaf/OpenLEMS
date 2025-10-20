@@ -47,3 +47,8 @@ func GetEnergyStorageService() s_db_basic.IEnergyStorageStrategyService {
 func GetEnergyStorageStrategyService() s_db_basic.IEnergyStorageStrategyService {
 	return impl.GetEnergyStorageStrategyService()
 }
+
+// GetPriceService 获取电价service对象
+func GetPriceService() s_db_basic.IPriceService {
+	return impl.GetPriceService()
+}

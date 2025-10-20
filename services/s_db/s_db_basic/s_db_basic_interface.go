@@ -110,3 +110,21 @@ type IEnergyStorageStrategyService interface {
 	GetEnergyStorageByIds(ctx context.Context, ids []int) ([]*s_db_model.SEnergyStorageModel, error)
 	GetEnabledEnergyStorages(ctx context.Context) ([]*s_db_model.SEnergyStorageModel, error) // 获取所有启用的储能定时任务
 }
+
+// IPriceService 电价服务接口
+type IPriceService interface {
+	// 基础 CRUD 方法
+	CreatePrice(ctx context.Context, model *s_db_model.SPriceModel) (int, error)
+	GetPriceById(ctx context.Context, id int) (*s_db_model.SPriceModel, error)
+	UpdatePrice(ctx context.Context, model *s_db_model.SPriceModel) error
+	DeletePrice(ctx context.Context, id int) error
+
+	// 查询与分页
+	GetPricePage(ctx context.Context, page, pageSize int, filters map[string]interface{}) ([]*s_db_model.SPriceModel, int, error)
+	GetAllPrices(ctx context.Context) ([]*s_db_model.SPriceModel, error)
+	GetEnabledPrices(ctx context.Context) ([]*s_db_model.SPriceModel, error)                     // 获取所有启用的电价
+	GetPricesByRemoteId(ctx context.Context, remoteId string) ([]*s_db_model.SPriceModel, error) // 根据远程ID获取电价
+
+	// 统计方法
+	GetPriceCount(ctx context.Context) (int, error)
+}

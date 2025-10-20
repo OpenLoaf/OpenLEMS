@@ -202,6 +202,80 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 	return app.Commit()
 }
 
+func (p *promDB) SavePriceData(priceId int, price float64, priceType string, timestamp int64) error {
+	ts := timestamp * 1000 // 转换为毫秒时间戳
+	app := p.db.Appender()
+
+	// 保存电价ID
+	_, err := app.Add(labels.FromMap(map[string]string{
+		LabelNameMetric: MetricNameEmsMetric,
+		LabelNameType:   string(c_base.StorageTypeSystem),
+		LabelNameID:     "price",
+		LabelNameField:  "priceId",
+	}), ts, float64(priceId))
+	if err != nil {
+		_ = app.Rollback()
+		return err
+	}
+
+	// 保存电价值
+	_, err = app.Add(labels.FromMap(map[string]string{
+		LabelNameMetric: MetricNameEmsMetric,
+		LabelNameType:   string(c_base.StorageTypeSystem),
+		LabelNameID:     "price",
+		LabelNameField:  "price",
+	}), ts, price)
+	if err != nil {
+		_ = app.Rollback()
+		return err
+	}
+
+	// 保存电价类型（转换为数值）
+	var priceTypeValue float64
+	switch priceType {
+	case "valley":
+		priceTypeValue = 1
+	case "peak":
+		priceTypeValue = 2
+	case "flat":
+		priceTypeValue = 3
+	case "sharp":
+		priceTypeValue = 4
+	case "deep_valley":
+		priceTypeValue = 5
+	default:
+		priceTypeValue = 0
+	}
+
+	_, err = app.Add(labels.FromMap(map[string]string{
+		LabelNameMetric: MetricNameEmsMetric,
+		LabelNameType:   string(c_base.StorageTypeSystem),
+		LabelNameID:     "price",
+		LabelNameField:  "priceType",
+	}), ts, priceTypeValue)
+	if err != nil {
+		_ = app.Rollback()
+		return err
+	}
+
+	// 保存时间戳
+	_, err = app.Add(labels.FromMap(map[string]string{
+		LabelNameMetric: MetricNameEmsMetric,
+		LabelNameType:   string(c_base.StorageTypeSystem),
+		LabelNameID:     "price",
+		LabelNameField:  "timestamp",
+	}), ts, float64(timestamp))
+	if err != nil {
+		_ = app.Rollback()
+		return err
+	}
+
+	// 更新滑动窗口计数器
+	p.sampleCounter.IncrementBy(4) // 保存了4个字段
+
+	return app.Commit()
+}
+
 func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int64, step int) (*c_chart.ChartData, error) {
 	// 查询 ems_metric 系列（仅数值类型数据）
 	mint := int64(0)

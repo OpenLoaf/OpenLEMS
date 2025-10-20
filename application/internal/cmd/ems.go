@@ -23,6 +23,7 @@ import (
 	s_export_modbus "s_export_modbus"
 	s_export_mqtt "s_mqtt"
 	"s_policy"
+	"s_price"
 	"s_storage"
 	"time"
 
@@ -69,6 +70,10 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 	// 创建并注册策略管理器
 	policyManager := s_policy.NewPolicyManager(ctx)
 	common.RegisterPolicyManager(policyManager)
+
+	// 创建并注册电价管理器
+	priceManager := s_price.NewPriceManager(ctx)
+	common.RegisterPriceManager(priceManager)
 
 	// 注册策略插件（开发环境直接注册，生产环境通过插件加载）
 	err := policyManager.RegisterPolicy("policy_microgrid", p_policy_mircogrid.NewPolicyMircogrid())
@@ -171,6 +176,19 @@ func StartServices(ctx context.Context) {
 		}
 	}()
 
+	// 启动电价管理器
+	go func() {
+		// 等待设备管理器启动完成
+		time.Sleep(6 * time.Second)
+
+		err := common.GetPriceManager().Start(ctx)
+		if err != nil {
+			g.Log().Errorf(ctx, "启动电价管理器失败: %+v", err)
+		} else {
+			c_log.BizInfof(ctx, "电价管理器启动成功！")
+		}
+	}()
+
 }
 
 // SetupShutdownHandler 设置关闭信号处理
@@ -209,6 +227,11 @@ func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 		common.GetPolicyManager().Shutdown()
 		g.Log().Infof(ctx, "策略管理器已停止")
 		c_log.BizInfof(ctx, "策略管理器已停止")
+
+		// 停止电价管理器
+		common.GetPriceManager().Shutdown()
+		g.Log().Infof(ctx, "电价管理器已停止")
+		c_log.BizInfof(ctx, "电价管理器已停止")
 
 		common.GetDeviceManager().Shutdown()
 
