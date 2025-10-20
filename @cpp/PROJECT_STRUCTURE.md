@@ -25,56 +25,21 @@
 ## 模块说明
 
 ### 1. C++ 库模块
+
 - **目的**: 高性能的 MPC 卡尔曼滤波器实现
 - **功能**: 微电网负载/PV 预测、不确定性量化、在线学习
 - **输出**: `libhexlib.dylib` 动态库
 
 ### 2. Go 绑定模块 (`hexlib/`)
+
 - **目的**: 将 C++ 库暴露给 Go 代码使用
 - **功能**: 类型转换、内存管理、错误处理
 - **依赖**: 需要链接到编译好的 C++ 动态库
 
 ### 3. 示例模块 (`@cpp/`)
+
 - **目的**: 演示如何使用 Go 绑定
 - **功能**: 完整的使用示例和测试
-
-## 为什么需要两个 go.mod？
-
-1. **`hexlib/go.mod`**: Go 绑定模块
-   - 提供 C++ 库的 Go 接口
-   - 可以被其他模块导入使用
-   - 独立的版本管理
-
-2. **`@cpp/go.mod`**: 示例和测试模块
-   - 演示如何使用 hexlib 模块
-   - 包含完整的集成示例
-   - 便于开发和测试
-
-## 使用方式
-
-### 在其他模块中使用
-
-```go
-import "hexlib"
-
-// 创建预测器
-predictor := hexlib.MpcCreatePredictor(historicalData)
-defer hexlib.MpcFreePredictor(predictor)
-
-// 执行预测
-predictions := hexlib.MpcPredict(predictor, 10)
-```
-
-### 构建和运行
-
-```bash
-# 构建 C++ 库
-cd @cpp
-make build
-
-# 运行示例
-./run_example.sh
-```
 
 ## 集成到 EMS 系统
 
