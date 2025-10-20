@@ -1,37 +1,82 @@
-.PHONY: build clean help info shared prepare
+.PHONY: build clean help info shared prepare verify verify-build full-build
 
 # 目录配置
 SRC_DIR=src
 INCLUDE_DIR=$(SRC_DIR)/include
 BUILD_DIR=build
 CPP_SOURCES=$(SRC_DIR)/hexlib.cpp $(SRC_DIR)/mpc_kalman.cpp
-CPP_OBJECTS=$(BUILD_DIR)/hexlib.o $(BUILD_DIR)/mpc_kalman.o
-CPP_LIB=$(BUILD_DIR)/libhexlib.a
-
-# 编译器选项
-CXX?=clang++
-CXXFLAGS=-std=c++11 -fPIC -Wall -O2
-CFLAGS=-I$(INCLUDE_DIR)
 
 # 检查操作系统
-UNAME_S := $(shell uname -s)
-ifeq ($(UNAME_S),Darwin)
-	# macOS 特定配置
-	LDFLAGS=-dynamiclib
-	SHARED_LIB=$(BUILD_DIR)/libhexlib.dylib
-else ifeq ($(UNAME_S),Linux)
-	# Linux 特定配置
-	LDFLAGS=-shared
-	SHARED_LIB=$(BUILD_DIR)/libhexlib.so
-else
-	# Windows 特定配置（如需要）
+ifeq ($(OS),Windows_NT)
+	# ========== Windows 配置 ==========
+	UNAME_S := Windows
+
+	# Windows 编译器和工具
+	CXX?=clang++
+	CXXFLAGS=-std=c++11 -fPIC -Wall -O2
+	CFLAGS=-I$(INCLUDE_DIR)
+
+	# 库文件配置
+	CPP_OBJECTS=$(BUILD_DIR)/hexlib.o $(BUILD_DIR)/mpc_kalman.o
+	CPP_LIB=$(BUILD_DIR)/hexlib.lib
+
+	# Windows 特定工具
+	MKDIR_CMD=mkdir
+	RM_CMD=rmdir /s /q
+	LS_CMD=dir
+	AR=lib.exe
+	AR_OPTS=/out:
+
+	# 共享库配置
 	LDFLAGS=-shared
 	SHARED_LIB=$(BUILD_DIR)/hexlib.dll
+
+	# 禁用 Unix 特定的目标
+	SKIP_VERIFY=1
+else
+	# ========== Unix/Linux/macOS 配置 ==========
+	UNAME_S := $(shell uname -s)
+
+	# Unix 编译器和工具
+	CXX?=clang++
+	CXXFLAGS=-std=c++11 -fPIC -Wall -O2
+	CFLAGS=-I$(INCLUDE_DIR)
+
+	# 库文件配置
+	CPP_OBJECTS=$(BUILD_DIR)/hexlib.o $(BUILD_DIR)/mpc_kalman.o
+
+	# Unix 特定工具
+	MKDIR_CMD=mkdir -p
+	RM_CMD=rm -rf
+	LS_CMD=ls -lh
+	AR=ar
+	AR_OPTS=rcs
+
+	# 平台特定配置
+	ifeq ($(UNAME_S),Darwin)
+		# macOS 特定配置
+		CPP_LIB=$(BUILD_DIR)/libhexlib.a
+		LDFLAGS=-dynamiclib
+		SHARED_LIB=$(BUILD_DIR)/libhexlib.dylib
+	else ifeq ($(UNAME_S),Linux)
+		# Linux 特定配置
+		CPP_LIB=$(BUILD_DIR)/libhexlib.a
+		LDFLAGS=-shared
+		SHARED_LIB=$(BUILD_DIR)/libhexlib.so
+	else
+		# 其他 Unix 系统（默认配置）
+		CPP_LIB=$(BUILD_DIR)/libhexlib.a
+		LDFLAGS=-shared
+		SHARED_LIB=$(BUILD_DIR)/libhexlib.so
+	endif
+
+	# 启用 verify 目标
+	SKIP_VERIFY=0
 endif
 
 # 创建build目录（作为依赖，只做一次）
 $(BUILD_DIR):
-	@mkdir -p $@
+	@$(MKDIR_CMD) $@
 
 # 准备构建环境 - 自动创建必要的目录
 prepare: | $(BUILD_DIR)
@@ -40,7 +85,7 @@ prepare: | $(BUILD_DIR)
 # 编译C++对象文件
 # 必须先创建 build 目录
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(INCLUDE_DIR)/hexlib.h
-	@mkdir -p $(BUILD_DIR)
+	@$(MKDIR_CMD) $(BUILD_DIR)
 	@echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $(CFLAGS) -c $< -o $@
 	@echo "✓ Compiled: $@"
@@ -49,7 +94,11 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(INCLUDE_DIR)/hexlib.h
 # 不需要显式依赖 $(BUILD_DIR)，因为 $(CPP_OBJECTS) 已经隐含了
 $(CPP_LIB): $(CPP_OBJECTS)
 	@echo "Creating static library..."
-	ar rcs $@ $^
+ifeq ($(OS),Windows_NT)
+	@$(AR) $(AR_OPTS)$@ $(CPP_OBJECTS)
+else
+	@$(AR) $(AR_OPTS) $@ $^
+endif
 	@echo "✓ Static library built: $(CPP_LIB)"
 	@echo ""
 	@echo "=========================================="
@@ -58,7 +107,11 @@ $(CPP_LIB): $(CPP_OBJECTS)
 	@echo "Location: $(CPP_LIB)"
 	@echo "Ready to use with CGO"
 	@echo ""
-	@ls -lh $(CPP_LIB)
+ifeq ($(OS),Windows_NT)
+	@echo Build artifacts: $(CPP_LIB)
+else
+	@$(LS_CMD) $(CPP_LIB)
+endif
 
 # 生成动态库（可选）
 $(SHARED_LIB): $(CPP_OBJECTS)
@@ -70,7 +123,11 @@ $(SHARED_LIB): $(CPP_OBJECTS)
 	@echo "hexlib C++ shared library build complete"
 	@echo "=========================================="
 	@echo "Location: $(SHARED_LIB)"
-	@ls -lh $(SHARED_LIB)
+ifeq ($(OS),Windows_NT)
+	@echo Build artifacts: $(SHARED_LIB)
+else
+	@$(LS_CMD) $(SHARED_LIB)
+endif
 
 # 默认目标（静态库）
 all: $(CPP_LIB)
@@ -84,7 +141,11 @@ shared: $(SHARED_LIB)
 # 清理目标
 clean:
 	@echo "Cleaning hexlib C++ artifacts..."
-	@rm -rf $(BUILD_DIR)
+ifeq ($(OS),Windows_NT)
+	@if exist $(BUILD_DIR) $(RM_CMD) $(BUILD_DIR)
+else
+	@$(RM_CMD) $(BUILD_DIR)
+endif
 	@echo "✓ Clean complete"
 
 # 帮助信息
@@ -149,8 +210,12 @@ info:
 	@echo "🖥️  Platform: $(UNAME_S)"
 	@echo ""
 
-# 验证构建环境
+# 验证构建环境（仅在 Unix/Linux/macOS 上可用）
 verify:
+ifeq ($(OS),Windows_NT)
+	@echo "Note: Verification targets are not available on Windows."
+	@echo "Please ensure compiler and source files are present manually."
+else
 	@echo "Verifying hexlib build environment..."
 	@echo ""
 	@echo "Checking compiler..."
@@ -176,9 +241,14 @@ verify:
 	fi
 	@echo ""
 	@echo "✓ Build environment verification complete!"
+endif
 
-# 验证编译结果
+# 验证编译结果（仅在 Unix/Linux/macOS 上可用）
 verify-build:
+ifeq ($(OS),Windows_NT)
+	@echo "Note: Verification targets are not available on Windows."
+	@echo "Check $(CPP_LIB) manually to verify build succeeded."
+else
 	@echo "Verifying build artifacts..."
 	@echo ""
 	@if [ -f "$(CPP_LIB)" ]; then \
@@ -192,8 +262,15 @@ verify-build:
 	fi
 	@echo ""
 	@echo "✓ Build artifacts verification complete!"
+endif
 
 # 完整构建流程（从验证到编译）
+ifeq ($(OS),Windows_NT)
+full-build: prepare build
+	@echo ""
+	@echo "✅ Full build process completed successfully!"
+else
 full-build: verify prepare build verify-build
 	@echo ""
 	@echo "✅ Full build process completed successfully!"
+endif
