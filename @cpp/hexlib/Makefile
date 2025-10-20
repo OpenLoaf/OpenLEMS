@@ -16,16 +16,19 @@ ifeq ($(OS),Windows_NT)
 	CXXFLAGS=-std=c++11 -fPIC -Wall -O2
 	CFLAGS=-I$(INCLUDE_DIR)
 
-	# 库文件配置
-	CPP_OBJECTS=$(BUILD_DIR)/hexlib.o $(BUILD_DIR)/mpc_kalman.o
-	CPP_LIB=$(BUILD_DIR)/hexlib.lib
+    # 库文件配置（使用 GNU ar 生成 libhexlib.a，便于与 CGO -lhexlib 匹配）
+    CPP_OBJECTS=$(BUILD_DIR)/hexlib.o $(BUILD_DIR)/mpc_kalman.o
+    CPP_LIB=$(BUILD_DIR)/libhexlib.a
 
-	# Windows 特定工具
-	MKDIR_CMD=mkdir
-	RM_CMD=rmdir /s /q
-	LS_CMD=dir
-	AR=lib.exe
-	AR_OPTS=/out:
+    # Windows 特定工具
+    MKDIR_CMD=mkdir
+    RM_CMD=rmdir /s /q
+    LS_CMD=dir
+    AR=ar
+    AR_OPTS=rcs
+
+	# 目录就绪哨兵，避免与同名 phony 目标冲突
+	BUILD_SENTINEL=$(BUILD_DIR)/.dir_ready
 
 	# 共享库配置
 	LDFLAGS=-shared
@@ -75,27 +78,47 @@ else
 endif
 
 # 创建build目录（作为依赖，只做一次）
+ifeq ($(OS),Windows_NT)
+$(BUILD_DIR):
+	@if not exist $(BUILD_DIR) $(MKDIR_CMD) $(BUILD_DIR)
+else
 $(BUILD_DIR):
 	@$(MKDIR_CMD) $@
+endif
+
+# Windows：通过哨兵文件确保目录存在（防止与同名目标冲突）
+ifeq ($(OS),Windows_NT)
+$(BUILD_SENTINEL):
+	@if not exist $(BUILD_DIR) $(MKDIR_CMD) $(BUILD_DIR)
+	@echo. > $(BUILD_SENTINEL)
+endif
 
 # 准备构建环境 - 自动创建必要的目录
 prepare: | $(BUILD_DIR)
 	@echo "✓ Build directory prepared: $(BUILD_DIR)/"
 
-# 编译C++对象文件
-# 必须先创建 build 目录
+# 编译C++对象文件（按平台区分，避免 Windows 上重复创建目录导致错误）
+ifeq ($(OS),Windows_NT)
+# Windows: 通过哨兵文件确保 build 目录存在
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(INCLUDE_DIR)/hexlib.h | $(BUILD_SENTINEL)
+	@echo "Compiling $<..."
+	$(CXX) $(CXXFLAGS) $(CFLAGS) -c $< -o $@
+	@echo "✓ Compiled: $@"
+else
+# Unix/macOS: 保持原有行为
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp $(INCLUDE_DIR)/hexlib.h
 	@$(MKDIR_CMD) $(BUILD_DIR)
 	@echo "Compiling $<..."
 	$(CXX) $(CXXFLAGS) $(CFLAGS) -c $< -o $@
 	@echo "✓ Compiled: $@"
+endif
 
 # 生成静态库
 # 不需要显式依赖 $(BUILD_DIR)，因为 $(CPP_OBJECTS) 已经隐含了
 $(CPP_LIB): $(CPP_OBJECTS)
 	@echo "Creating static library..."
 ifeq ($(OS),Windows_NT)
-	@$(AR) $(AR_OPTS)$@ $(CPP_OBJECTS)
+	@$(AR) $(AR_OPTS) $@ $(CPP_OBJECTS)
 else
 	@$(AR) $(AR_OPTS) $@ $^
 endif

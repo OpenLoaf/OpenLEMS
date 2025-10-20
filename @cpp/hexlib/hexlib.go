@@ -3,6 +3,8 @@ package hexlib
 /*
 #cgo CXXFLAGS: -std=c++11
 #cgo CFLAGS: -I./src/include
+#cgo windows CFLAGS: -DHEXLIB_EXPORTS
+#cgo windows CXXFLAGS: -DHEXLIB_EXPORTS
 #cgo LDFLAGS: -L./build -lhexlib
 #include "hexlib.h"
 */
