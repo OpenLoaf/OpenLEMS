@@ -85,7 +85,7 @@ private:
     double time_step;
     
 public:
-    MPCKalmanFilter() : time_step(1.0), measurement_noise_var(1.0) {
+    MPCKalmanFilter() : measurement_noise_var(1.0), time_step(1.0) {
         configureMicrogridModel();
     }
     
