@@ -34,6 +34,7 @@ use (
 	./services/s_export_mqtt
 	./services/s_storage
 	./services/s_policy
+	./services/s_price
 
 	./tools/t_network_manager
 	./tools/t_time_task
