@@ -1,6 +1,7 @@
 ---
 alwaysApply: true
-description: 统一点位管理系统设计规范 - 核心架构、构造函数模式、预定义配置使用
+description: 统一点位管理系统设计规范 - 核心架构、构造函数模式、预定义配置使用。定义SPoint核心结构、协议点位定义、构造函数模式、预定义配置复用、启动验证等完整规范。适用于所有点位定义、协议开发、数据访问配置等场景。
+globs: common/c_base/*point*.go,common/c_proto/**/*.go,common/c_default/**/*.go,plugins/plug_drivers/**/*.go
 ---
 
 # 统一点位管理系统设计规范

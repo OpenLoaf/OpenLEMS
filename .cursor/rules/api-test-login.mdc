@@ -1,7 +1,7 @@
 ---
 alwaysApply: false
-description: API接口测试登录规则 - 用于测试带权限的接口时获取认证信息
-globs: *.go,*.md,*.yaml,*.json
+description: API接口测试登录规则 - 用于测试带权限的接口时获取认证信息。包含登录请求格式、认证头设置、测试流程、环境配置等完整测试指南。适用于API接口测试、认证流程验证、权限测试等场景。
+globs: application/api/**/*.go,application/internal/controller/**/*.go,*.md,*.yaml,*.json,*.sh
 ---
 
 # API 接口测试登录规则

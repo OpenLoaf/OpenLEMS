@@ -1,6 +1,7 @@
 ---
-description: 配置结构体标签规范和最佳实践 - 基于动态标签解析
-globs: *config*.go,*Config*.go
+alwaysApply: false
+description: 配置结构体标签规范和最佳实践 - 基于动态标签解析。定义配置结构体字段标签使用规范，包括SHORT标签、JSON标签、YAML标签支持，组件类型定义，验证规则映射，ValueExplain配置等。适用于所有配置结构体开发、字段标签设计、前端组件配置等场景。
+globs: *config*.go,*Config*.go,common/c_base/**/*.go,plugins/**/*config*.go,plugins/**/*Config*.go
 ---
 
 # 配置结构体标签规范
@@ -15,6 +16,8 @@ globs: *config*.go,*Config*.go
 2. **ValueExplain 和 ParamExplain 字段已升级为数组格式**：从 `map[string]string` 改为 `[]*SFieldExplain`，支持更丰富的数据结构
 
 ## 动态标签解析系统
+
+**适用场景**：配置结构体字段标签，使用自定义标签系统
 
 ### 标签映射表
 

@@ -1,6 +1,7 @@
 ---
 alwaysApply: false
-description: 项目整体结构和开发规范
+description: 项目整体结构和开发规范 - 定义EMS项目的整体架构、目录结构、开发规范、命名约定、技术栈等。适用于项目结构理解、新模块开发、代码组织等场景。
+globs: **/*.go,**/*.md,**/*.yaml,**/*.sh
 ---
 
 # EMS-Plan 项目结构指南
@@ -42,12 +43,13 @@ ems-plan/
 
 #### 文件命名规范
 
-- `*_i.go`: 接口定义 (Interface)
-- `*_s.go`: 结构体定义 (Struct)
-- `*_e.go`: 枚举定义 (Enum)
-- `*_f.go`: 函数定义 (Function)
-- `*_c.go`: 常量定义 (Constant)
+- `c_*_i.go`: 接口定义 (Interface) - common库使用
+- `c_*_s.go`: 结构体定义 (Struct) - common库使用
+- `c_*_e.go`: 枚举定义 (Enum) - common库使用
+- `c_*_f.go`: 函数定义 (Function) - common库使用
+- `c_*_c.go`: 常量定义 (Constant) - common库使用
 - `*_test.go`: 测试文件
+- `模块名_*_e.go`: 模块内枚举定义 - 非common库使用
 
 ### 2. 服务开发流程
 

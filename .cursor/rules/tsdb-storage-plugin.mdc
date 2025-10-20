@@ -1,7 +1,7 @@
 ---
 alwaysApply: false
-description: TSDB 存储插件开发规范 - 基于 Prometheus TSDB 的时间序列存储插件开发指南
-globs: plugins/plug_storages/p_tsdb/**/*.go
+description: TSDB 存储插件开发规范 - 基于 Prometheus TSDB 的时间序列存储插件开发指南。定义TSDB插件架构、接口实现、数据模型、配置管理、性能优化、测试规范等。适用于所有TSDB存储插件开发、时间序列数据处理、存储优化等场景。
+globs: plugins/plug_storages/p_tsdb/**/*.go,plugins/plug_storages/**/*.go,common/c_base/*storage*.go,common/c_chart/**/*.go
 ---
 
 # TSDB 存储插件开发规范

@@ -1,7 +1,7 @@
 ---
 alwaysApply: false
-description: 枚举创建规范和最佳实践
-globs: common/c_enum/*.go
+description: 枚举创建规范和最佳实践 - 定义整数类型枚举、字符串类型枚举、类型别名枚举的创建规范，包括命名规范、创建流程、最佳实践、常见错误等。适用于所有枚举类型创建、stringer工具使用、JSON序列化等场景。
+globs: common/c_enum/*.go,common/c_enums/*.go
 ---
 
 # 枚举创建规范
@@ -17,8 +17,9 @@ globs: common/c_enum/*.go
 **适用场景**：状态枚举、级别枚举、类型枚举等需要数值比较的场景
 
 **文件命名规范**：
-- 主文件：`c_enum_[name]_e.go`
+- 主文件：`c_enum_[name]_e.go` - 仅适用于 common/c_enum/ 目录
 - 字符串文件：`c_enum_[name]_e_string.go`（由 stringer 自动生成）
+- 模块内枚举：`模块名_[name]_e.go` - 适用于非common库的模块
 
 **创建模板**：
 
@@ -78,7 +79,8 @@ func (e *E[EnumName]) UnmarshalJSON(data []byte) error {
 **适用场景**：配置值类型、协议类型、设置分组等字符串常量场景
 
 **文件命名规范**：
-- 主文件：`c_enum_[name]_e.go`
+- 主文件：`c_enum_[name]_e.go` - 仅适用于 common/c_enum/ 目录
+- 模块内枚举：`模块名_[name]_e.go` - 适用于非common库的模块
 - 不需要字符串文件
 
 **创建模板**：

@@ -1,6 +1,7 @@
 ---
 alwaysApply: false
-description: EMS 启动命令、测试方法和调试指南
+description: EMS 启动命令、测试方法和调试指南 - 定义EMS系统启动命令、参数配置、测试方法、调试技巧、故障排查等完整指南。适用于系统启动、开发调试、测试验证等场景。
+globs: application/**/*.go,application/**/*.sh,application/**/*.json,application/**/*.yaml
 ---
 
 # EMS 启动命令和调试指南

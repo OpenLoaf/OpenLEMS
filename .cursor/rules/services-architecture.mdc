@@ -1,6 +1,7 @@
 ---
 alwaysApply: false
-description: Services architecture and patterns for the EMS plan project
+description: Services architecture and patterns for the EMS plan project - 定义服务层架构、模块结构、设计模式、技术栈、开发规范等。适用于所有服务层开发、模块设计、架构理解等场景。
+globs: services/**/*.go
 ---
 
 # Services 架构指南

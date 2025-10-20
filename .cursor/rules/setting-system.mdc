@@ -1,5 +1,7 @@
 ---
-description: 系统设置管理规范和最佳实践
+alwaysApply: false
+description: 系统设置管理规范和最佳实践 - 定义系统设置管理架构、SSystemSettingDefine结构体使用、设置定义规范、服务接口、使用方式等。适用于所有系统设置开发、设置管理、配置管理等场景。
+globs: services/s_db/**/*setting*.go,services/s_db/**/*Setting*.go
 ---
 
 # 系统设置管理规范

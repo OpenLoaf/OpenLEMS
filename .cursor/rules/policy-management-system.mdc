@@ -1,6 +1,7 @@
 ---
 alwaysApply: false
-description: 策略统一管理系统规范 - 策略插件开发、管理和使用指南
+description: 策略统一管理系统规范 - 策略插件开发、管理和使用指南。定义策略接口、策略管理器、策略插件开发流程、配置管理、定时执行等完整规范。适用于所有策略插件开发、策略管理器使用、策略配置管理等场景。
+globs: plugins/plug_policy/**/*.go,services/s_policy/**/*.go,common/c_base/*policy*.go
 ---
 
 # 策略统一管理系统规范

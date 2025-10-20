@@ -1,6 +1,7 @@
 ---
 alwaysApply: true
-description: Cursor规则文件创建、管理和使用规范
+description: Cursor规则文件创建、管理和使用规范 - 定义规则文件结构、命名规范、内容规范、创建流程、维护流程等。适用于所有规则文件的创建、更新、维护等场景。
+globs: .cursor/rules/**/*.mdc
 ---
 
 # Cursor 规则管理规范

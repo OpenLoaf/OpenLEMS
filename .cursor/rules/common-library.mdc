@@ -1,6 +1,7 @@
 ---
 alwaysApply: true
-description: Common library structure and conventions for the EMS plan project
+description: Common library structure and conventions for the EMS plan project - 定义通用库结构、命名规范、代码注解规范、枚举使用规范、错误处理规范等。适用于所有 common/ 目录下的代码开发、接口定义、结构体设计、枚举创建等场景。
+globs: common/**/*.go
 ---
 
 # Common Library 结构指南
