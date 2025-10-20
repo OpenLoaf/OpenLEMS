@@ -48,3 +48,4 @@ var ProtocolTrendMetricsFields = []string{
 	ProtocolMetricTotal,
 	ProtocolMetricFailed,
 }
+
