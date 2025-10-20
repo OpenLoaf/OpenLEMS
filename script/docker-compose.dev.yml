@@ -11,13 +11,6 @@ services:
     ports:
       - "80:80"
     volumes:
-      # 开发环境代码热重载
-      - ../application:/app/application
-      - ../common:/app/common
-      - ../services:/app/services
-      - ../plugins:/app/plugins
-      - ../tools:/app/tools
-      - ../@cpp:/app/@cpp
       # 数据持久化
       - ../out:/app/out
       # Go 模块缓存

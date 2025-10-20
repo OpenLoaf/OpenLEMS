@@ -137,7 +137,7 @@ func (s *sGpiodOutLinuxProvider) GetLastUpdateTime() *time.Time {
 	return s.lastUpdateTime
 }
 
-func (s *sGpiodOutLinuxProvider) GetProtocolPointValue(protocolPoint c_base.IPoint) *c_base.SPointValue {
+func (s *sGpiodOutLinuxProvider) GetProtocolPointValue(point c_base.IPoint) *c_base.SPointValue {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -146,8 +146,8 @@ func (s *sGpiodOutLinuxProvider) GetProtocolPointValue(protocolPoint c_base.IPoi
 		return nil
 	}
 
-	// GPIO是单点位设备，检查protocolPoint是否匹配当前点位
-	if protocolPoint == nil || protocolPoint.GetKey() != s.point.GetKey() {
+	// GPIO是单点位设备，检查point是否匹配当前点位
+	if point == nil || point.GetKey() != s.point.GetKey() {
 		return nil
 	}
 
