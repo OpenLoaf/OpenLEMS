@@ -39,6 +39,7 @@ func PrintWebServerInfo(ctx context.Context, serverAddress string) {
 	}
 
 	// 获取当前配置的 profile，如果不是 prod 模式则显示 API 文档和调试工具地址
+	// 支持从环境变量 APP_PROFILE 或命令行参数 --profile 读取
 	profile, _ := g.Cfg().GetWithCmd(context.Background(), "profile", "prod")
 	if profile.String() != "prod" {
 		// 打印API文档和调试工具地址（使用第一个IPv4地址或localhost）

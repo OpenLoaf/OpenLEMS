@@ -33,7 +33,7 @@ gfcli:
 
 database:
   default:
-    link: "sqlite::@file(out/data)"
+    link: "sqlite::@file(out/db.sqlite3)"
     timezone: "Local"
 
 # PID文件配置

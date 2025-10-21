@@ -48,7 +48,10 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 	gi18n.SetLanguage("zh-CN")
 
 	// 初始化数据库
-	s_db.Init()
+	if err := s_db.Init(); err != nil {
+		c_log.Errorf(ctx, "数据库初始化失败: %+v", err)
+		return err
+	}
 
 	// 初始化存储（切换为 TSDB，无外部配置时采用默认路径与策略）
 	storageInst := p_tsdb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_enum.EStorageTypeTsdb, Url: "", Params: map[string]string{}})

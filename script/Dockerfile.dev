@@ -143,4 +143,4 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
 EXPOSE 80
 
 # 启动脚本
-CMD ["sh", "-c", "./ems --web=true --profile=dev"]
+CMD ["sh", "-c", "./ems --web=true"]

@@ -6,8 +6,8 @@ import (
 	"s_db/s_db_basic"
 )
 
-func Init() {
-	internal.Init()
+func Init() error {
+	return internal.Init()
 }
 
 // GetDeviceService 获取设备service对象

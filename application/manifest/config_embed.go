@@ -5,6 +5,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"os"
 
 	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcfg"
@@ -57,11 +58,30 @@ func LoadEmbeddedConfig(profile string) {
 // 提前注入一个默认的内置配置，保证最早期（例如 g.Log() 初始化）也不依赖磁盘文件。
 // 默认使用 APP_PROFILE，未设置时使用 prod。
 func init() {
+	// 延迟配置读取，确保 GoFrame 配置系统完全初始化后再读取
+	// 使用 GoFrame 的标准配置读取方式，支持环境变量和命令行参数
+	profile := getProfileFromConfig()
 
-	profile, _ := g.Cfg().GetWithCmd(context.Background(), "profile", "prod")
+	fmt.Printf("===>  load config file: %s\n", profile)
+	LoadEmbeddedConfig(profile)
+}
 
-	fmt.Printf("===>  load config file: %s\n", profile.String())
-	LoadEmbeddedConfig(profile.String())
+// getProfileFromConfig 从配置中获取 profile，支持环境变量和命令行参数
+// 优先级：命令行参数 > 环境变量 > 配置文件
+func getProfileFromConfig() string {
+	// 优先从 GoFrame 配置系统读取（支持命令行参数和环境变量）
+	// 注意：这里使用 context.Background() 确保配置读取的通用性
+	if profile, err := g.Cfg().GetWithCmd(context.Background(), "profile", ""); err == nil && profile.String() != "" {
+		return profile.String()
+	}
+
+	// 如果 GoFrame 配置系统未读取到，尝试从环境变量读取
+	if profile := os.Getenv("APP_PROFILE"); profile != "" {
+		return profile
+	}
+
+	// 默认值
+	return "prod"
 }
 
 // deepMerge 递归将 b 合并到 a，b 的值优先生效
