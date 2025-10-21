@@ -8,7 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 )
 
@@ -82,7 +81,7 @@ func (s *sSettingServiceImpl) GetAllSettings(ctx context.Context) ([]*s_db_model
 	// 调用模型层的 GetAllSettings 方法获取所有设置
 	settings, err := s_db_model.GetAllSettings(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取所有设置失败 - 错误: %+v", err)
+		c_log.Errorf(ctx, "获取所有设置失败 - 错误: %+v", err)
 		return nil, err
 	}
 
@@ -95,7 +94,7 @@ func (s *sSettingServiceImpl) GetAllSettingsByGroup(ctx context.Context, group s
 	// 调用模型层的 GetSettingsByGroup 方法获取指定分组的设置
 	settings, err := s_db_model.GetSettingsByGroup(ctx, group)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取分组设置失败 - 分组: %s, 错误: %+v", group, err)
+		c_log.Errorf(ctx, "获取分组设置失败 - 分组: %s, 错误: %+v", group, err)
 		return nil, err
 	}
 
@@ -131,7 +130,7 @@ func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string
 	if setting, found := s.getFromCache(ctx, id); found {
 		// 检查设置是否启用
 		if !setting.Enabled {
-			g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", id)
+			c_log.Warningf(ctx, "设置已禁用 - 设置名称: %s", id)
 			return nil
 		}
 		value := setting.GetValue()
@@ -142,7 +141,7 @@ func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string
 	setting := &s_db_model.SSettingModel{}
 	err := setting.GetById(ctx, id)
 	if err != nil {
-		g.Log().Warningf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", id, err)
+		c_log.Warningf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", id, err)
 		return nil
 	}
 
@@ -151,7 +150,7 @@ func (s *sSettingServiceImpl) GetSettingValueById(ctx context.Context, id string
 
 	// 检查设置是否启用
 	if !setting.Enabled {
-		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", id)
+		c_log.Warningf(ctx, "设置已禁用 - 设置名称: %s", id)
 		return nil
 	}
 
@@ -164,13 +163,13 @@ func (s *sSettingServiceImpl) SetSettingValueById(ctx context.Context, id string
 	setting := &s_db_model.SSettingModel{}
 	err := setting.GetById(ctx, id)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", id, err)
+		c_log.Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", id, err)
 		return err
 	}
 	setting.SetValue(value)
 	err = setting.Update(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "更新设置失败 - 设置名称: %s, 错误: %v", id, err)
+		c_log.Errorf(ctx, "更新设置失败 - 设置名称: %s, 错误: %v", id, err)
 		return err
 	}
 
@@ -195,7 +194,7 @@ func (s *sSettingServiceImpl) GetPublicEnabledSettings(ctx context.Context) ([]*
 	// 调用模型层的 GetPublicEnabledSettings 方法
 	settings, err := s_db_model.GetPublicEnabledSettings(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取公开且启用的设置失败 - 错误: %+v", err)
+		c_log.Errorf(ctx, "获取公开且启用的设置失败 - 错误: %+v", err)
 		return nil, err
 	}
 
@@ -214,7 +213,7 @@ func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.C
 	if setting, found := s.getFromCache(ctx, settingDefine.Id); found {
 		// 检查设置是否启用
 		if !setting.Enabled {
-			g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", settingDefine.Id)
+			c_log.Warningf(ctx, "设置已禁用 - 设置名称: %s", settingDefine.Id)
 			return &settingDefine.DefaultValue
 		}
 		c_log.Debugf(ctx, "通过系统设置定义获取设置值成功 - 设置ID: %s, 值: %s", settingDefine.Id, setting.GetValue())
@@ -226,7 +225,7 @@ func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.C
 	setting := &s_db_model.SSettingModel{}
 	err := setting.GetById(ctx, settingDefine.Id)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", settingDefine.Id, err)
+		c_log.Errorf(ctx, "获取设置失败 - 设置名称: %s, 错误: %v", settingDefine.Id, err)
 		// 系统启动时已初始化所有设置，如果获取失败说明数据库有问题
 		return &settingDefine.DefaultValue
 	}
@@ -236,7 +235,7 @@ func (s *sSettingServiceImpl) GetSettingValueBySystemSettingDefine(ctx context.C
 
 	// 检查设置是否启用
 	if !setting.Enabled {
-		g.Log().Warningf(ctx, "设置已禁用 - 设置名称: %s", settingDefine.Id)
+		c_log.Warningf(ctx, "设置已禁用 - 设置名称: %s", settingDefine.Id)
 		return &settingDefine.DefaultValue
 	}
 

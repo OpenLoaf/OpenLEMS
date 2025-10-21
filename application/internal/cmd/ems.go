@@ -78,11 +78,11 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 	// 注册策略插件（开发环境直接注册，生产环境通过插件加载）
 	err := policyManager.RegisterPolicy("policy_microgrid", p_policy_mircogrid.NewPolicyMircogrid())
 	if err != nil {
-		g.Log().Errorf(ctx, "注册微电网策略失败: %+v", err)
+		c_log.Errorf(ctx, "注册微电网策略失败: %+v", err)
 	}
 	err = policyManager.RegisterPolicy("policy_ess", p_policy_energy_storage.NewPolicyEnergyStorage())
 	if err != nil {
-		g.Log().Errorf(ctx, "注册储能站策略失败: %+v", err)
+		c_log.Errorf(ctx, "注册储能站策略失败: %+v", err)
 	}
 
 	// 初始化MQTT服务（在其他服务初始化之后）
@@ -97,14 +97,14 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 // StartServices 启动所有服务
 func StartServices(ctx context.Context) {
 	pid := os.Getpid()
-	g.Log().Infof(ctx, "EMS After！PID：%d", pid)
+	c_log.Infof(ctx, "EMS After！PID：%d", pid)
 
 	// 启动设备
 	go func() {
 		common.GetDeviceManager().Start()
 
 		c_log.BizInfof(ctx, "EMS系统启动成功！")
-		g.Log().Infof(ctx, "DeviceManger State : %s", common.GetDeviceManager().Status())
+		c_log.Infof(ctx, "DeviceManger State : %s", common.GetDeviceManager().Status())
 	}()
 
 	// 启动自动化管理器
@@ -126,7 +126,7 @@ func StartServices(ctx context.Context) {
 		// 启动自动化管理器，按配置间隔执行
 		err := s_automation.StartAutomationManager(ctx, time.Duration(internalMilliseconds)*time.Millisecond)
 		if err != nil {
-			g.Log().Errorf(ctx, "启动自动化管理器失败: %+v", err)
+			c_log.Errorf(ctx, "启动自动化管理器失败: %+v", err)
 		} else {
 			c_log.BizInfof(ctx, "自动化服务启动成功！")
 		}
@@ -139,7 +139,7 @@ func StartServices(ctx context.Context) {
 
 		err := s_export_mqtt.StartMqtt(ctx)
 		if err != nil {
-			g.Log().Errorf(ctx, "启动MQTT服务失败: %+v", err)
+			c_log.Errorf(ctx, "启动MQTT服务失败: %+v", err)
 		} else {
 			c_log.BizInfof(ctx, "MQTT服务启动成功！")
 		}
@@ -152,7 +152,7 @@ func StartServices(ctx context.Context) {
 
 		err := s_export_modbus.StartModbus(ctx)
 		if err != nil {
-			g.Log().Errorf(ctx, "启动Modbus服务失败: %+v", err)
+			c_log.Errorf(ctx, "启动Modbus服务失败: %+v", err)
 		} else {
 			c_log.BizInfof(ctx, "Modbus服务启动成功！")
 		}
@@ -165,7 +165,7 @@ func StartServices(ctx context.Context) {
 
 		err := common.GetPolicyManager().Start(ctx)
 		if err != nil {
-			g.Log().Errorf(ctx, "启动策略管理器失败: %+v", err)
+			c_log.Errorf(ctx, "启动策略管理器失败: %+v", err)
 		} else {
 			activePolicyId := common.GetPolicyManager().GetActivePolicyId()
 			if activePolicyId != "" {
@@ -183,7 +183,7 @@ func StartServices(ctx context.Context) {
 
 		err := common.GetPriceManager().Start(ctx)
 		if err != nil {
-			g.Log().Errorf(ctx, "启动电价管理器失败: %+v", err)
+			c_log.Errorf(ctx, "启动电价管理器失败: %+v", err)
 		} else {
 			c_log.BizInfof(ctx, "电价管理器启动成功！")
 		}
@@ -194,43 +194,43 @@ func StartServices(ctx context.Context) {
 // SetupShutdownHandler 设置关闭信号处理
 func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 	gproc.AddSigHandlerShutdown(func(sig os.Signal) {
-		g.Log().Infof(ctx, "接收到关闭服务信号：%s", sig.String())
+		c_log.Infof(ctx, "接收到关闭服务信号：%s", sig.String())
 
 		// 停止自动化管理器
 		err := s_automation.StopAutomationManager(ctx)
 		if err != nil {
-			g.Log().Errorf(ctx, "停止自动化管理器失败: %+v", err)
+			c_log.Errorf(ctx, "停止自动化管理器失败: %+v", err)
 		} else {
-			g.Log().Infof(ctx, "自动化管理器已停止")
+			c_log.Infof(ctx, "自动化管理器已停止")
 			c_log.BizInfof(ctx, "自动化服务已停止")
 		}
 
 		// 停止MQTT服务
 		err = s_export_mqtt.StopMqtt(ctx)
 		if err != nil {
-			g.Log().Errorf(ctx, "停止MQTT服务失败: %+v", err)
+			c_log.Errorf(ctx, "停止MQTT服务失败: %+v", err)
 		} else {
-			g.Log().Infof(ctx, "MQTT服务已停止")
+			c_log.Infof(ctx, "MQTT服务已停止")
 			c_log.BizInfof(ctx, "MQTT服务已停止")
 		}
 
 		// 停止Modbus服务
 		err = s_export_modbus.StopModbus(ctx)
 		if err != nil {
-			g.Log().Errorf(ctx, "停止Modbus服务失败: %+v", err)
+			c_log.Errorf(ctx, "停止Modbus服务失败: %+v", err)
 		} else {
-			g.Log().Infof(ctx, "Modbus服务已停止")
+			c_log.Infof(ctx, "Modbus服务已停止")
 			c_log.BizInfof(ctx, "Modbus服务已停止")
 		}
 
 		// 停止策略管理器
 		common.GetPolicyManager().Shutdown()
-		g.Log().Infof(ctx, "策略管理器已停止")
+		c_log.Infof(ctx, "策略管理器已停止")
 		c_log.BizInfof(ctx, "策略管理器已停止")
 
 		// 停止电价管理器
 		common.GetPriceManager().Shutdown()
-		g.Log().Infof(ctx, "电价管理器已停止")
+		c_log.Infof(ctx, "电价管理器已停止")
 		c_log.BizInfof(ctx, "电价管理器已停止")
 
 		common.GetDeviceManager().Shutdown()
@@ -238,14 +238,14 @@ func SetupShutdownHandler(ctx context.Context, cancelFunc context.CancelFunc) {
 		// 清理PID文件
 		pidFile := utils.GetPidFilePath(ctx)
 		if err := utils.RemovePidFile(pidFile); err != nil {
-			g.Log().Warningf(ctx, "清理PID文件失败: %v", err)
+			c_log.Warningf(ctx, "清理PID文件失败: %v", err)
 		} else {
-			g.Log().Infof(ctx, "PID文件已清理: %s", pidFile)
+			c_log.Infof(ctx, "PID文件已清理: %s", pidFile)
 		}
 
 		cancelFunc()
 		time.Sleep(1 * time.Second)
-		g.Log().Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())
+		c_log.Infof(ctx, "程序退出！剩余Goroutine数量：%d", runtime.NumGoroutine())
 		c_log.BizWarningf(ctx, "EMS系统关闭！")
 	})
 }

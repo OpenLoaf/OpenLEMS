@@ -3,13 +3,13 @@ package impl
 import (
 	"common/c_base"
 	"common/c_enum"
+	"common/c_log"
 	"context"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"sync"
 	"time"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 )
 
@@ -47,7 +47,7 @@ func (s *sAlarmServiceImpl) clearDeviceCache(ctx context.Context, deviceId strin
 	// 使用gcache的Keys方法找到所有匹配的键并删除
 	keys, err := s.ignoreCache.Keys(ctx)
 	if err != nil {
-		g.Log().Warningf(ctx, "获取缓存键失败 - 错误: %+v", err)
+		c_log.Warningf(ctx, "获取缓存键失败 - 错误: %+v", err)
 		return
 	}
 	for _, key := range keys {
@@ -57,13 +57,13 @@ func (s *sAlarmServiceImpl) clearDeviceCache(ctx context.Context, deviceId strin
 			}
 		}
 	}
-	g.Log().Debugf(ctx, "已清除设备[%s]的告警忽略缓存", deviceId)
+	c_log.Debugf(ctx, "已清除设备[%s]的告警忽略缓存", deviceId)
 }
 
 // 清除计数缓存
 func (s *sAlarmServiceImpl) clearCountCache(ctx context.Context) {
 	s.countCache.Clear(ctx)
-	g.Log().Debugf(ctx, "已清除告警计数缓存")
+	c_log.Debugf(ctx, "已清除告警计数缓存")
 }
 
 // ==================== 告警历史相关方法 ====================
@@ -84,7 +84,7 @@ func (s *sAlarmServiceImpl) CreateAlarmHistory(ctx context.Context, deviceId, so
 
 	err := alarmHistory.Create(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "创建告警历史记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point.GetKey(), err)
+		c_log.Errorf(ctx, "创建告警历史记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point.GetKey(), err)
 		return err
 	}
 
@@ -99,7 +99,7 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryByDeviceId(ctx context.Context, devic
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	records, err := alarmHistory.GetByDeviceId(ctx, deviceId)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取告警历史记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
+		c_log.Errorf(ctx, "获取告警历史记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
 		return nil, err
 	}
 
@@ -111,7 +111,7 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryByDeviceIdAndPoint(ctx context.Contex
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	records, err := alarmHistory.GetByDeviceIdAndPoint(ctx, deviceId, point)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取告警历史记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point, err)
+		c_log.Errorf(ctx, "获取告警历史记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point, err)
 		return nil, err
 	}
 
@@ -123,14 +123,14 @@ func (s *sAlarmServiceImpl) DeleteAlarmHistoryByDeviceId(ctx context.Context, de
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	err := alarmHistory.DeleteByDeviceId(ctx, deviceId)
 	if err != nil {
-		g.Log().Errorf(ctx, "删除告警历史记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
+		c_log.Errorf(ctx, "删除告警历史记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
 		return err
 	}
 
 	// 清除计数缓存，确保下次查询能获取到最新状态
 	s.clearCountCache(ctx)
 
-	g.Log().Infof(ctx, "成功删除告警历史记录 - 设备ID: %s", deviceId)
+	c_log.Infof(ctx, "成功删除告警历史记录 - 设备ID: %s", deviceId)
 	return nil
 }
 
@@ -138,11 +138,11 @@ func (s *sAlarmServiceImpl) DeleteAlarmHistoryByDeviceId(ctx context.Context, de
 func (s *sAlarmServiceImpl) DeleteAlarmHistoryByLevel(ctx context.Context, level string) error {
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	if err := alarmHistory.DeleteByLevel(ctx, level); err != nil {
-		g.Log().Errorf(ctx, "按级别删除告警历史记录失败 - 级别: %s, 错误: %+v", level, err)
+		c_log.Errorf(ctx, "按级别删除告警历史记录失败 - 级别: %s, 错误: %+v", level, err)
 		return err
 	}
 	s.clearCountCache(ctx)
-	g.Log().Infof(ctx, "成功按级别删除告警历史记录 - 级别: %s", level)
+	c_log.Infof(ctx, "成功按级别删除告警历史记录 - 级别: %s", level)
 	return nil
 }
 
@@ -150,11 +150,11 @@ func (s *sAlarmServiceImpl) DeleteAlarmHistoryByLevel(ctx context.Context, level
 func (s *sAlarmServiceImpl) DeleteAlarmHistoryByDeviceIdAndLevel(ctx context.Context, deviceId, level string) error {
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	if err := alarmHistory.DeleteByDeviceIdAndLevel(ctx, deviceId, level); err != nil {
-		g.Log().Errorf(ctx, "按设备与级别删除告警历史记录失败 - 设备ID: %s, 级别: %s, 错误: %+v", deviceId, level, err)
+		c_log.Errorf(ctx, "按设备与级别删除告警历史记录失败 - 设备ID: %s, 级别: %s, 错误: %+v", deviceId, level, err)
 		return err
 	}
 	s.clearCountCache(ctx)
-	g.Log().Infof(ctx, "成功按设备与级别删除告警历史记录 - 设备ID: %s, 级别: %s", deviceId, level)
+	c_log.Infof(ctx, "成功按设备与级别删除告警历史记录 - 设备ID: %s, 级别: %s", deviceId, level)
 	return nil
 }
 
@@ -162,11 +162,11 @@ func (s *sAlarmServiceImpl) DeleteAlarmHistoryByDeviceIdAndLevel(ctx context.Con
 func (s *sAlarmServiceImpl) DeleteAlarmHistoryByFilters(ctx context.Context, deviceId, level string) error {
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	if err := alarmHistory.DeleteByFilters(ctx, deviceId, level); err != nil {
-		g.Log().Errorf(ctx, "按过滤条件删除告警历史记录失败 - 设备ID: %s, 级别: %s, 错误: %+v", deviceId, level, err)
+		c_log.Errorf(ctx, "按过滤条件删除告警历史记录失败 - 设备ID: %s, 级别: %s, 错误: %+v", deviceId, level, err)
 		return err
 	}
 	s.clearCountCache(ctx)
-	g.Log().Infof(ctx, "成功按过滤条件删除告警历史记录 - 设备ID: %s, 级别: %s", deviceId, level)
+	c_log.Infof(ctx, "成功按过滤条件删除告警历史记录 - 设备ID: %s, 级别: %s", deviceId, level)
 	return nil
 }
 
@@ -175,7 +175,7 @@ func (s *sAlarmServiceImpl) GetAllAlarmHistory(ctx context.Context) ([]*s_db_mod
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	records, err := alarmHistory.GetAll(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取所有告警历史记录失败 - 错误: %+v", err)
+		c_log.Errorf(ctx, "获取所有告警历史记录失败 - 错误: %+v", err)
 		return nil, err
 	}
 
@@ -187,7 +187,7 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryPage(ctx context.Context, page, pageS
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	records, total, err := alarmHistory.GetPage(ctx, page, pageSize, filters)
 	if err != nil {
-		g.Log().Errorf(ctx, "分页获取告警历史记录失败 - 页码: %d, 页大小: %d, 过滤条件: %+v, 错误: %+v", page, pageSize, filters, err)
+		c_log.Errorf(ctx, "分页获取告警历史记录失败 - 页码: %d, 页大小: %d, 过滤条件: %+v, 错误: %+v", page, pageSize, filters, err)
 		return nil, 0, err
 	}
 
@@ -199,14 +199,14 @@ func (s *sAlarmServiceImpl) ClearAllAlarmHistory(ctx context.Context) error {
 	alarmHistory := &s_db_model.SAlarmHistoryModel{}
 	err := alarmHistory.ClearAll(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "清除所有告警历史记录失败 - 错误: %+v", err)
+		c_log.Errorf(ctx, "清除所有告警历史记录失败 - 错误: %+v", err)
 		return err
 	}
 
 	// 清除计数缓存，确保下次查询能获取到最新状态
 	s.clearCountCache(ctx)
 
-	g.Log().Infof(ctx, "成功清除所有告警历史记录并执行VACUUM")
+	c_log.Infof(ctx, "成功清除所有告警历史记录并执行VACUUM")
 	return nil
 }
 
@@ -224,9 +224,9 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryCount(ctx context.Context, deviceId s
 	if err == nil && cachedCount != nil {
 		if count := cachedCount.Int(); count != 0 || cachedCount.String() != "" {
 			if deviceId == "" {
-				g.Log().Debugf(ctx, "从缓存获取所有告警历史总数 - 总数: %d", count)
+				c_log.Debugf(ctx, "从缓存获取所有告警历史总数 - 总数: %d", count)
 			} else {
-				g.Log().Debugf(ctx, "从缓存获取设备[%s]告警历史总数 - 总数: %d", deviceId, count)
+				c_log.Debugf(ctx, "从缓存获取设备[%s]告警历史总数 - 总数: %d", deviceId, count)
 			}
 			return count
 		}
@@ -246,9 +246,9 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryCount(ctx context.Context, deviceId s
 
 	if err != nil {
 		if deviceId == "" {
-			g.Log().Errorf(ctx, "获取告警历史表记录总数失败 - 错误: %+v", err)
+			c_log.Errorf(ctx, "获取告警历史表记录总数失败 - 错误: %+v", err)
 		} else {
-			g.Log().Errorf(ctx, "获取设备[%s]告警历史表记录总数失败 - 错误: %+v", deviceId, err)
+			c_log.Errorf(ctx, "获取设备[%s]告警历史表记录总数失败 - 错误: %+v", deviceId, err)
 		}
 		return 0
 	}
@@ -256,13 +256,13 @@ func (s *sAlarmServiceImpl) GetAlarmHistoryCount(ctx context.Context, deviceId s
 	// 将结果设置到缓存
 	err = s.countCache.Set(ctx, cacheKey, count, s.cacheDuration)
 	if err != nil {
-		g.Log().Warningf(ctx, "设置告警历史总数缓存失败 - 错误: %+v", err)
+		c_log.Warningf(ctx, "设置告警历史总数缓存失败 - 错误: %+v", err)
 	}
 
 	if deviceId == "" {
-		g.Log().Debugf(ctx, "从数据库获取所有告警历史总数并缓存 - 总数: %d", count)
+		c_log.Debugf(ctx, "从数据库获取所有告警历史总数并缓存 - 总数: %d", count)
 	} else {
-		g.Log().Debugf(ctx, "从数据库获取设备[%s]告警历史总数并缓存 - 总数: %d", deviceId, count)
+		c_log.Debugf(ctx, "从数据库获取设备[%s]告警历史总数并缓存 - 总数: %d", deviceId, count)
 	}
 	return count
 }
@@ -282,7 +282,7 @@ func (s *sAlarmServiceImpl) CreateAlarmIgnore(ctx context.Context, deviceId, sou
 
 	err := alarmIgnore.Create(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "创建告警忽略记录失败 - 设备ID: %s, 源设备ID: %s, 点位: %s, 错误: %+v", deviceId, sourceDeviceId, point, err)
+		c_log.Errorf(ctx, "创建告警忽略记录失败 - 设备ID: %s, 源设备ID: %s, 点位: %s, 错误: %+v", deviceId, sourceDeviceId, point, err)
 		return err
 	}
 
@@ -298,7 +298,7 @@ func (s *sAlarmServiceImpl) GetAlarmIgnoreByDeviceId(ctx context.Context, device
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
 	records, err := alarmIgnore.GetByDeviceId(ctx, deviceId)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取告警忽略记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
+		c_log.Errorf(ctx, "获取告警忽略记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
 		return nil, err
 	}
 
@@ -313,7 +313,7 @@ func (s *sAlarmServiceImpl) IsAlarmIgnored(ctx context.Context, deviceId, source
 	cachedResult, err := s.ignoreCache.Get(ctx, cacheKey)
 	if err == nil && cachedResult != nil {
 		isIgnored := cachedResult.Bool()
-		g.Log().Debugf(ctx, "从缓存获取告警忽略状态 - 设备ID: %s, 源设备ID: %s, 点位: %s, 状态: %t", deviceId, sourceDeviceId, point, isIgnored)
+		c_log.Debugf(ctx, "从缓存获取告警忽略状态 - 设备ID: %s, 源设备ID: %s, 点位: %s, 状态: %t", deviceId, sourceDeviceId, point, isIgnored)
 		return isIgnored, nil
 	}
 
@@ -321,20 +321,20 @@ func (s *sAlarmServiceImpl) IsAlarmIgnored(ctx context.Context, deviceId, source
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
 	isIgnored, err := alarmIgnore.IsIgnored(ctx, deviceId, sourceDeviceId, point)
 	if err != nil {
-		g.Log().Errorf(ctx, "检查告警忽略状态失败 - 设备ID: %s, 源设备ID: %s, 点位: %s, 错误: %+v", deviceId, sourceDeviceId, point, err)
+		c_log.Errorf(ctx, "检查告警忽略状态失败 - 设备ID: %s, 源设备ID: %s, 点位: %s, 错误: %+v", deviceId, sourceDeviceId, point, err)
 		return false, err
 	}
 
 	// 将结果设置到缓存
 	err = s.ignoreCache.Set(ctx, cacheKey, isIgnored, s.cacheDuration)
 	if err != nil {
-		g.Log().Warningf(ctx, "设置告警忽略缓存失败 - 设备ID: %s, 源设备ID: %s, 点位: %s, 错误: %+v", deviceId, sourceDeviceId, point, err)
+		c_log.Warningf(ctx, "设置告警忽略缓存失败 - 设备ID: %s, 源设备ID: %s, 点位: %s, 错误: %+v", deviceId, sourceDeviceId, point, err)
 	}
 
 	if isIgnored {
-		g.Log().Infof(ctx, "告警已被忽略 - 设备ID: %s, 源设备ID: %s, 点位: %s", deviceId, sourceDeviceId, point)
+		c_log.Infof(ctx, "告警已被忽略 - 设备ID: %s, 源设备ID: %s, 点位: %s", deviceId, sourceDeviceId, point)
 	} else {
-		g.Log().Debugf(ctx, "告警未被忽略 - 设备ID: %s, 源设备ID: %s, 点位: %s", deviceId, sourceDeviceId, point)
+		c_log.Debugf(ctx, "告警未被忽略 - 设备ID: %s, 源设备ID: %s, 点位: %s", deviceId, sourceDeviceId, point)
 	}
 
 	return isIgnored, nil
@@ -345,11 +345,11 @@ func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByDeviceId(ctx context.Context, dev
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
 	err := alarmIgnore.DeleteByDeviceId(ctx, deviceId)
 	if err != nil {
-		g.Log().Errorf(ctx, "删除告警忽略记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
+		c_log.Errorf(ctx, "删除告警忽略记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
 		return err
 	}
 
-	g.Log().Infof(ctx, "成功删除告警忽略记录 - 设备ID: %s", deviceId)
+	c_log.Infof(ctx, "成功删除告警忽略记录 - 设备ID: %s", deviceId)
 	s.clearDeviceCache(ctx, deviceId) // 清除指定设备的缓存
 	s.clearCountCache(ctx)            // 清除计数缓存
 	return nil
@@ -360,11 +360,11 @@ func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByDeviceIdAndPoint(ctx context.Cont
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
 	err := alarmIgnore.DeleteByDeviceIdAndPoint(ctx, deviceId, point)
 	if err != nil {
-		g.Log().Errorf(ctx, "删除告警忽略记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point, err)
+		c_log.Errorf(ctx, "删除告警忽略记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point, err)
 		return err
 	}
 
-	g.Log().Infof(ctx, "成功删除告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
+	c_log.Infof(ctx, "成功删除告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
 	s.clearDeviceCache(ctx, deviceId) // 清除指定设备的缓存
 	s.clearCountCache(ctx)            // 清除计数缓存
 	return nil
@@ -374,12 +374,12 @@ func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByDeviceIdAndPoint(ctx context.Cont
 func (s *sAlarmServiceImpl) DeleteAlarmIgnoreByFilters(ctx context.Context, deviceId, point string) error {
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
 	if err := alarmIgnore.DeleteByFilters(ctx, deviceId, point); err != nil {
-		g.Log().Errorf(ctx, "按过滤条件删除告警忽略记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point, err)
+		c_log.Errorf(ctx, "按过滤条件删除告警忽略记录失败 - 设备ID: %s, 点位: %s, 错误: %+v", deviceId, point, err)
 		return err
 	}
 	s.clearDeviceCache(ctx, deviceId)
 	s.clearCountCache(ctx)
-	g.Log().Infof(ctx, "成功按过滤条件删除告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
+	c_log.Infof(ctx, "成功按过滤条件删除告警忽略记录 - 设备ID: %s, 点位: %s", deviceId, point)
 	return nil
 }
 
@@ -388,11 +388,11 @@ func (s *sAlarmServiceImpl) GetAllAlarmIgnore(ctx context.Context) ([]*s_db_mode
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
 	records, err := alarmIgnore.GetAll(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取所有告警忽略记录失败 - 错误: %+v", err)
+		c_log.Errorf(ctx, "获取所有告警忽略记录失败 - 错误: %+v", err)
 		return nil, err
 	}
 
-	g.Log().Infof(ctx, "成功获取所有告警忽略记录，共 %d 条记录", len(records))
+	c_log.Infof(ctx, "成功获取所有告警忽略记录，共 %d 条记录", len(records))
 	return records, nil
 }
 
@@ -401,7 +401,7 @@ func (s *sAlarmServiceImpl) GetAlarmIgnorePage(ctx context.Context, page, pageSi
 	alarmIgnore := &s_db_model.SAlarmIgnoreModel{}
 	records, total, err := alarmIgnore.GetPage(ctx, page, pageSize, filters)
 	if err != nil {
-		g.Log().Errorf(ctx, "分页获取告警忽略记录失败 - 页码: %d, 页大小: %d, 过滤条件: %+v, 错误: %+v", page, pageSize, filters, err)
+		c_log.Errorf(ctx, "分页获取告警忽略记录失败 - 页码: %d, 页大小: %d, 过滤条件: %+v, 错误: %+v", page, pageSize, filters, err)
 		return nil, 0, err
 	}
 
@@ -422,9 +422,9 @@ func (s *sAlarmServiceImpl) GetAlarmIgnoreCount(ctx context.Context, deviceId st
 	if err == nil && cachedCount != nil {
 		if count := cachedCount.Int(); count != 0 || cachedCount.String() != "" {
 			if deviceId == "" {
-				g.Log().Debugf(ctx, "从缓存获取所有告警忽略总数 - 总数: %d", count)
+				c_log.Debugf(ctx, "从缓存获取所有告警忽略总数 - 总数: %d", count)
 			} else {
-				g.Log().Debugf(ctx, "从缓存获取设备[%s]告警忽略总数 - 总数: %d", deviceId, count)
+				c_log.Debugf(ctx, "从缓存获取设备[%s]告警忽略总数 - 总数: %d", deviceId, count)
 			}
 			return count
 		}
@@ -444,9 +444,9 @@ func (s *sAlarmServiceImpl) GetAlarmIgnoreCount(ctx context.Context, deviceId st
 
 	if err != nil {
 		if deviceId == "" {
-			g.Log().Errorf(ctx, "获取告警忽略表记录总数失败 - 错误: %+v", err)
+			c_log.Errorf(ctx, "获取告警忽略表记录总数失败 - 错误: %+v", err)
 		} else {
-			g.Log().Errorf(ctx, "获取设备[%s]告警忽略表记录总数失败 - 错误: %+v", deviceId, err)
+			c_log.Errorf(ctx, "获取设备[%s]告警忽略表记录总数失败 - 错误: %+v", deviceId, err)
 		}
 		return 0
 	}
@@ -454,13 +454,13 @@ func (s *sAlarmServiceImpl) GetAlarmIgnoreCount(ctx context.Context, deviceId st
 	// 将结果设置到缓存
 	err = s.countCache.Set(ctx, cacheKey, count, s.cacheDuration)
 	if err != nil {
-		g.Log().Warningf(ctx, "设置告警忽略总数缓存失败 - 错误: %+v", err)
+		c_log.Warningf(ctx, "设置告警忽略总数缓存失败 - 错误: %+v", err)
 	}
 
 	if deviceId == "" {
-		g.Log().Debugf(ctx, "从数据库获取所有告警忽略总数并缓存 - 总数: %d", count)
+		c_log.Debugf(ctx, "从数据库获取所有告警忽略总数并缓存 - 总数: %d", count)
 	} else {
-		g.Log().Debugf(ctx, "从数据库获取设备[%s]告警忽略总数并缓存 - 总数: %d", deviceId, count)
+		c_log.Debugf(ctx, "从数据库获取设备[%s]告警忽略总数并缓存 - 总数: %d", deviceId, count)
 	}
 	return count
 }

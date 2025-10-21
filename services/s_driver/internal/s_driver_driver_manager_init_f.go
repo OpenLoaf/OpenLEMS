@@ -3,13 +3,13 @@ package internal
 import (
 	"common/c_base"
 	"common/c_enum"
+	"common/c_log"
 	"context"
 	"p_canbus"
 	"p_gpiod"
 	"p_modbus"
 	"runtime"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/pkg/errors"
 	"github.com/torykit/go-modbus"
 	"go.einride.tech/can"
@@ -129,7 +129,7 @@ func (m *SDeviceManager) getProtocolProvider(deviceCtx context.Context, deviceCo
 		if err != nil {
 			return nil, err
 		}
-		g.Log().Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
+		c_log.Infof(deviceCtx, "canbusProvider: %s 创建成功! Params: %v", protocolConfig.GetAddress(), protocolConfig.Params)
 		return canbusProvider, nil
 	case c_enum.EGpioIn, c_enum.EGpioOut:
 		// 验证系统支持：只有Linux系统才支持gpiod

@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/pkg/errors"
 )
 
@@ -193,14 +192,14 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr, quantity
 
 		value, err := decoder(p.deviceId, result, addr, quantity, point)
 		if err != nil {
-			g.Log().Errorf(p.ctx, "解析点位：[%s:%s] bytes失败! %+v", groupName, point, err)
+			c_log.Errorf(p.ctx, "解析点位：[%s:%s] bytes失败! %+v", groupName, point, err)
 		}
 
 		err = p.IProtocolCacheValue.CacheValue(value, lifetime)
 
 		if err != nil {
 			message := fmt.Sprintf("[%s-%s] %v;", groupName, point.Name, err)
-			g.Log().Errorf(p.ctx, message)
+			c_log.Errorf(p.ctx, message)
 			errMessage += message
 			continue
 		}

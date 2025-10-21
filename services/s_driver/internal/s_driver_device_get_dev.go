@@ -19,12 +19,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 func init() {
-	g.Log().Warningf(context.Background(), "直接加载驱动插件！而非从driver文件中获取！")
+	c_log.Warningf(context.Background(), "直接加载驱动插件！而非从driver文件中获取！")
 }
 
 var pluginNewMethodCache = map[string]any{

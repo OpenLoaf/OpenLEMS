@@ -8,8 +8,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gogf/gf/v2/frame/g"
-
 	"github.com/gogf/gf/v2/os/gtimer"
 )
 
@@ -106,8 +104,8 @@ func (s *SStorageManager) RegisterDriver(deviceConfig *c_base.SDeviceConfig) {
 			}
 			_ = s.IStorage.SaveDevices(dc.Id, c_base.GetAllTelemetryPoint(instance))
 		})
-		g.Log().Infof(s.ctx, "设备[%s]存储间隔：%v", deviceConfig.Name, dur)
+		c_log.Infof(s.ctx, "设备[%s]存储间隔：%v", deviceConfig.Name, dur)
 	} else {
-		g.Log().Infof(s.ctx, "设备[%s] 数据不存储！", deviceConfig.Name)
+		c_log.Infof(s.ctx, "设备[%s] 数据不存储！", deviceConfig.Name)
 	}
 }

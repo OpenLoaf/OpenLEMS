@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"common/c_log"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
 
@@ -29,14 +30,14 @@ func initConfigDatabase() {
 	dbDir := filepath.Dir(dbPath)
 	if _, err := os.Stat(dbDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(dbDir, 0755); err != nil {
-			g.Log().Fatalf(ctx, "创建数据库目录失败: %+v", err)
+			c_log.Errorf(ctx, "创建数据库目录失败: %+v", err)
 		}
-		g.Log().Infof(ctx, "创建数据库目录: %s", dbDir)
+		c_log.Infof(ctx, "创建数据库目录: %s", dbDir)
 	}
 
 	// 测试数据库连接（如果文件不存在，SQLite会自动创建）
 	if _, err := g.DB().Exec(ctx, "SELECT 1"); err != nil {
-		g.Log().Fatalf(ctx, "数据库连接失败: %+v", err)
+		c_log.Errorf(ctx, "数据库连接失败: %+v", err)
 	}
 
 	// 创建协议表
@@ -56,7 +57,7 @@ func initConfigDatabase() {
 		)
 	`)
 	if err != nil {
-		g.Log().Fatal(ctx, err)
+		c_log.Error(ctx, err)
 	}
 
 	// 创建设备表
@@ -80,7 +81,7 @@ func initConfigDatabase() {
 		)
 	`)
 	if err != nil {
-		g.Log().Fatal(ctx, err)
+		c_log.Error(ctx, err)
 	}
 
 	// 创建设置表
@@ -98,7 +99,7 @@ func initConfigDatabase() {
 		)
 	`)
 	if err != nil {
-		g.Log().Fatal(ctx, err)
+		c_log.Error(ctx, err)
 	}
 
 	// 创建告警历史表
@@ -116,7 +117,7 @@ func initConfigDatabase() {
 		)
 	`)
 	if err != nil {
-		g.Log().Fatal(ctx, err)
+		c_log.Error(ctx, err)
 	}
 
 	// 创建告警忽略表
@@ -131,7 +132,7 @@ func initConfigDatabase() {
 		)
 	`)
 	if err != nil {
-		g.Log().Fatal(ctx, err)
+		c_log.Error(ctx, err)
 	}
 
 	// 创建日志表
@@ -146,7 +147,7 @@ func initConfigDatabase() {
 		)
 	`)
 	if err != nil {
-		g.Log().Fatal(ctx, err)
+		c_log.Error(ctx, err)
 	}
 
 	// 创建自动化表
@@ -167,7 +168,7 @@ func initConfigDatabase() {
 		)
 	`)
 	if err != nil {
-		g.Log().Fatal(ctx, err)
+		c_log.Error(ctx, err)
 	}
 
 	// 创建储能策略表
@@ -188,7 +189,7 @@ func initConfigDatabase() {
 		)
 	`)
 	if err != nil {
-		g.Log().Fatal(ctx, err)
+		c_log.Error(ctx, err)
 	}
 
 	// 创建电价表
@@ -208,10 +209,10 @@ func initConfigDatabase() {
 		)
 	`)
 	if err != nil {
-		g.Log().Fatal(ctx, err)
+		c_log.Error(ctx, err)
 	}
 
-	g.Log().Info(ctx, "Database tables created successfully")
+	c_log.Info(ctx, "Database tables created successfully")
 
 	// 初始化系统设置数据
 	initSystemSettings(context.Background())
@@ -259,9 +260,9 @@ func initSystemSettings(ctx context.Context) {
 
 			err = newSetting.Create(ctx)
 			if err != nil {
-				g.Log().Errorf(ctx, "创建系统设置失败 - 设置ID: %s, 错误: %+v", settingDefine.Id, err)
+				c_log.Errorf(ctx, "创建系统设置失败 - 设置ID: %s, 错误: %+v", settingDefine.Id, err)
 			} else {
-				g.Log().Infof(ctx, "创建系统设置成功 - 设置ID: %s, 默认值: %s", settingDefine.Id, settingDefine.DefaultValue)
+				c_log.Infof(ctx, "创建系统设置成功 - 设置ID: %s, 默认值: %s", settingDefine.Id, settingDefine.DefaultValue)
 			}
 		} else {
 			// 设置已存在，检查是否需要更新分组、备注、排序和公开状态信息
@@ -286,13 +287,13 @@ func initSystemSettings(ctx context.Context) {
 			if needUpdate {
 				err = existingSetting.Update(ctx)
 				if err != nil {
-					g.Log().Errorf(ctx, "更新系统设置失败 - 设置ID: %s, 错误: %+v", settingDefine.Id, err)
+					c_log.Errorf(ctx, "更新系统设置失败 - 设置ID: %s, 错误: %+v", settingDefine.Id, err)
 				} else {
-					g.Log().Infof(ctx, "更新系统设置成功 - 设置ID: %s", settingDefine.Id)
+					c_log.Infof(ctx, "更新系统设置成功 - 设置ID: %s", settingDefine.Id)
 				}
 			}
 		}
 	}
 
-	g.Log().Info(ctx, "System settings initialized successfully")
+	c_log.Info(ctx, "System settings initialized successfully")
 }

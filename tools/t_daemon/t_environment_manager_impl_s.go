@@ -42,7 +42,7 @@ func (e *SEnvironmentManagerImpl) SetupEnvironment(ctx context.Context, variable
 		if err := os.Setenv(key, value); err != nil {
 			return errors.Wrapf(err, "设置环境变量失败: %s=%s", key, value)
 		}
-		g.Log().Infof(ctx, "设置环境变量: %s=%s", key, value)
+		c_log.Infof(ctx, "设置环境变量: %s=%s", key, value)
 	}
 
 	return nil
@@ -55,7 +55,7 @@ func (e *SEnvironmentManagerImpl) CleanupEnvironment(ctx context.Context) error 
 		if err := os.Setenv(key, originalValue); err != nil {
 			return errors.Wrapf(err, "恢复环境变量失败: %s", key)
 		}
-		g.Log().Infof(ctx, "恢复环境变量: %s=%s", key, originalValue)
+		c_log.Infof(ctx, "恢复环境变量: %s=%s", key, originalValue)
 	}
 
 	return nil
@@ -118,7 +118,7 @@ func (e *SEnvironmentManagerImpl) validatePathVariable(ctx context.Context, key 
 		// 检查路径是否存在（仅对绝对路径进行检查）
 		if filepath.IsAbs(path) {
 			if _, err := os.Stat(path); err != nil {
-				g.Log().Warningf(ctx, "路径不存在或无法访问: %s=%s, 错误: %v", key, path, err)
+				c_log.Warningf(ctx, "路径不存在或无法访问: %s=%s, 错误: %v", key, path, err)
 				// 不返回错误，仅记录警告
 			}
 		}

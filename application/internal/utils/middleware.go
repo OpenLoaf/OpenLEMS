@@ -1,12 +1,12 @@
 package utils
 
 import (
+	"common/c_log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/util/guid"
 )
@@ -28,16 +28,14 @@ func MiddlewareErrorHandler(r *ghttp.Request) {
 	if err := r.GetError(); err != nil {
 		// 更详细的错误日志：包含请求方法/路径、请求体、堆栈
 		ctx := r.Context()
-		logx := g.Log().Clone()
-		logx.SetStack(false)
 		if stack := gerror.Stack(err); stack != "" {
-			logx.Errorf(ctx, "HTTP %s %s - Error: %v\nStack:\n%s", r.Method, r.URL.Path, err, stack)
+			c_log.Errorf(ctx, "HTTP %s %s - Error: %v\nStack:\n%s", r.Method, r.URL.Path, err, stack)
 		} else {
-			logx.Errorf(ctx, "HTTP %s %s - Error: %v", r.Method, r.URL.Path, err)
+			c_log.Errorf(ctx, "HTTP %s %s - Error: %v", r.Method, r.URL.Path, err)
 		}
 		if body := r.GetBodyString(); body != "" {
 			// 仅在调试或出现错误时打印请求体（注意敏感字段）
-			logx.Debugf(ctx, "Request Body: %s", body)
+			c_log.Debugf(ctx, "Request Body: %s", body)
 		}
 
 		// 返回统一JSON，尽量带上Code与详细Message
@@ -90,11 +88,9 @@ func MiddlewareAccessLog(r *ghttp.Request) {
 
 	ctx := r.Context()
 	msg := "%s %s -> %d | %dms | ip=%s | rid=%s"
-	logx := g.Log().Clone()
-	logx.SetStack(false)
 	if status >= 400 {
-		logx.Warningf(ctx, msg, method, path, status, used.Milliseconds(), clientIP, requestID)
+		c_log.Warningf(ctx, msg, method, path, status, used.Milliseconds(), clientIP, requestID)
 		return
 	}
-	logx.Infof(ctx, msg, method, path, status, used.Milliseconds(), clientIP, requestID)
+	c_log.Infof(ctx, msg, method, path, status, used.Milliseconds(), clientIP, requestID)
 }

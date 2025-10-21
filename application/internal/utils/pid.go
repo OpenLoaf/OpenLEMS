@@ -13,6 +13,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/pkg/errors"
 )
 

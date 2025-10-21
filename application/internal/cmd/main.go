@@ -3,6 +3,7 @@ package cmd
 import (
 	"application/internal/utils"
 	"common/c_enum"
+	"common/c_log"
 	"context"
 	"os"
 	"runtime"
@@ -87,22 +88,22 @@ var (
 			// 检查是否为测试模式
 			enableTest := parser.GetOpt(ArgTest).Bool()
 			if enableTest {
-				g.Log().Infof(ctx, "===> 测试模式已启用，程序将在5秒后自动关闭")
+				c_log.Infof(ctx, "===> 测试模式已启用，程序将在5秒后自动关闭")
 				go func() {
 					time.Sleep(3 * time.Second)
 					// 倒计时5秒，每秒显示剩余时间
 					for i := 5; i > 0; i-- {
 						time.Sleep(1 * time.Second)
 						if i > 1 {
-							g.Log().Infof(ctx, "===> 测试模式倒计时：%d秒后自动关闭", i-1)
+							c_log.Infof(ctx, "===> 测试模式倒计时：%d秒后自动关闭", i-1)
 						} else {
-							g.Log().Infof(ctx, "===> 测试模式：即将结束进程")
+							c_log.Infof(ctx, "===> 测试模式：即将结束进程")
 						}
 					}
-					g.Log().Infof(ctx, "===> 测试模式：发送shutdown信号")
+					c_log.Infof(ctx, "===> 测试模式：发送shutdown信号")
 					// 使用跨平台的进程终止函数
 					if err := utils.KillProcess(); err != nil {
-						g.Log().Errorf(ctx, "发送终止信号失败: %v", err)
+						c_log.Errorf(ctx, "发送终止信号失败: %v", err)
 					}
 				}()
 			}
@@ -114,7 +115,7 @@ var (
 
 			// Windows 环境下默认启动 GUI
 			if runtime.GOOS == "windows" && !enableWeb && !enableGui && !enableGuiFull {
-				g.Log().Infof(ctx, "Windows 环境：默认启动 GUI 界面")
+				c_log.Infof(ctx, "Windows 环境：默认启动 GUI 界面")
 				enableGui = true
 			}
 
@@ -122,36 +123,36 @@ var (
 				// 如果启用了Web或GUI，都需要启动Web服务
 				if (enableGui || enableGuiFull) && !enableWeb {
 					// 如果只启用GUI，启动本地绑定的Web服务
-					g.Log().Infof(ctx, "启动web服务（GUI模式，仅本地访问）！")
+					c_log.Infof(ctx, "启动web服务（GUI模式，仅本地访问）！")
 					web := startWebWithBinding(ctx, true)
 					go web.Run()
 
 					// 启动GUI界面
 					if enableGuiFull {
-						g.Log().Infof(ctx, "启动GUI界面（全屏模式）！")
+						c_log.Infof(ctx, "启动GUI界面（全屏模式）！")
 						startGuiFullscreen(ctx)
 					} else {
-						g.Log().Infof(ctx, "启动GUI界面！")
+						c_log.Infof(ctx, "启动GUI界面！")
 						startGui(ctx)
 					}
 				} else {
 					// 如果启用了Web（无论是否启用GUI），启动正常的Web服务
-					g.Log().Infof(ctx, "启动web服务！")
+					c_log.Infof(ctx, "启动web服务！")
 					web := startWeb(ctx)
 
 					// 如果同时启用了GUI，则启动GUI界面
 					if enableGui {
-						g.Log().Infof(ctx, "启动GUI界面！")
+						c_log.Infof(ctx, "启动GUI界面！")
 						go startGui(ctx)
 					} else if enableGuiFull {
-						g.Log().Infof(ctx, "启动GUI界面（全屏模式）！")
+						c_log.Infof(ctx, "启动GUI界面（全屏模式）！")
 						go startGuiFullscreen(ctx)
 					}
 
 					web.Run()
 				}
 			} else {
-				g.Log().Infof(ctx, "未启动web服务和GUI界面！")
+				c_log.Infof(ctx, "未启动web服务和GUI界面！")
 				gproc.Listen()
 			}
 

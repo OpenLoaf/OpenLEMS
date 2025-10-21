@@ -1,6 +1,7 @@
 package network
 
 import (
+	"common/c_log"
 	"context"
 	"strings"
 	"sync"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gcache"
 )
 
@@ -44,7 +44,7 @@ func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetN
 	if !req.ForceRefresh {
 		// 尝试从缓存获取数据
 		if cachedData, err := c.getCachedInterfaces(ctx); err == nil && cachedData != nil {
-			g.Log().Debugf(ctx, "从缓存获取网络接口列表，共 %d 个接口", len(cachedData))
+			c_log.Debugf(ctx, "从缓存获取网络接口列表，共 %d 个接口", len(cachedData))
 			return &v1.GetNetworkInterfaceListRes{
 				Interfaces: c.filterInterfaces(cachedData, req.IncludeLoopback),
 			}, nil
@@ -54,25 +54,25 @@ func (c *ControllerV1) GetNetworkInterfaceList(ctx context.Context, req *v1.GetN
 	// 3. 缓存未命中或强制刷新，从网络管理器获取数据
 	networkManager := t_network_manager.GetInstance()
 	if networkManager == nil {
-		g.Log().Errorf(ctx, "获取网络管理器实例失败")
+		c_log.Errorf(ctx, "获取网络管理器实例失败")
 		return nil, gerror.NewCode(gcode.CodeInternalError, "网络管理器初始化失败")
 	}
 
 	// 4. 获取所有网络接口
 	interfaces, err := networkManager.GetAllInterfaces(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取网络接口列表失败: %+v", err)
+		c_log.Errorf(ctx, "获取网络接口列表失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取网络接口列表失败")
 	}
 
 	// 5. 缓存数据
 	if err := c.setCachedInterfaces(ctx, interfaces); err != nil {
-		g.Log().Warningf(ctx, "缓存网络接口数据失败: %+v", err)
+		c_log.Warningf(ctx, "缓存网络接口数据失败: %+v", err)
 	}
 
 	// 6. 数据过滤和构建响应
 	result := c.filterInterfaces(interfaces, req.IncludeLoopback)
-	g.Log().Infof(ctx, "成功获取 %d 个网络接口（强制刷新: %v）", len(result), req.ForceRefresh)
+	c_log.Infof(ctx, "成功获取 %d 个网络接口（强制刷新: %v）", len(result), req.ForceRefresh)
 
 	return &v1.GetNetworkInterfaceListRes{
 		Interfaces: result,
@@ -143,5 +143,5 @@ func (c *ControllerV1) filterInterfaces(interfaces []*public.InterfaceSummary, i
 func (c *ControllerV1) clearNetworkInterfaceCache(ctx context.Context) {
 	initNetworkCache()
 	networkInterfaceCache.Remove(ctx, NetworkInterfaceCacheKey)
-	g.Log().Debugf(ctx, "已清除网络接口缓存")
+	c_log.Debugf(ctx, "已清除网络接口缓存")
 }

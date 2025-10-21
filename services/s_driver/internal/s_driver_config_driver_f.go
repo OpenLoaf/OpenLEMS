@@ -1,12 +1,12 @@
 package internal
 
 import (
+	"common/c_log"
 	"context"
 	"regexp"
 	"sort"
 	"strconv"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/pkg/errors"
 )
 
@@ -48,6 +48,6 @@ func getLatestVersionFile(ctx context.Context, driverName string, files []string
 	// 获取最新版本号对应的文件
 	latestVersion := versions[len(versions)-1]
 
-	g.Log().Infof(ctx, "设备加载驱动：%v 共%d个驱动 最新版本为v%v", driverName, len(versionMap), latestVersion)
+	c_log.Infof(ctx, "设备加载驱动：%v 共%d个驱动 最新版本为v%v", driverName, len(versionMap), latestVersion)
 	return versionMap[latestVersion]
 }

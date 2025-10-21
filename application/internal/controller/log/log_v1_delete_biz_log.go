@@ -1,6 +1,7 @@
 package log
 
 import (
+	"common/c_log"
 	"context"
 	"errors"
 	"strings"
@@ -12,21 +13,20 @@ import (
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 // DeleteBizLog 删除业务日志
 func (c *ControllerV1) DeleteBizLog(ctx context.Context, req *apiv1.DeleteBizLogReq) (res *apiv1.DeleteBizLogRes, err error) {
 	// 1. 参数验证
 	if err := c.validateDeleteRequest(req); err != nil {
-		g.Log().Errorf(ctx, "删除日志参数验证失败: %+v", err)
+		c_log.Errorf(ctx, "删除日志参数验证失败: %+v", err)
 		return nil, err
 	}
 
 	// 2. 获取日志服务
 	logService := s_db.GetLogService()
 	if logService == nil {
-		g.Log().Errorf(ctx, "日志服务未初始化")
+		c_log.Errorf(ctx, "日志服务未初始化")
 		return nil, gerror.NewCode(gcode.CodeInternalError, "日志服务未初始化")
 	}
 
@@ -36,12 +36,12 @@ func (c *ControllerV1) DeleteBizLog(ctx context.Context, req *apiv1.DeleteBizLog
 	// 4. 执行删除操作
 	deleteCount, deleteErr := c.executeDeleteOperation(ctx, logService, deleteParams)
 	if deleteErr != nil {
-		g.Log().Errorf(ctx, "删除业务日志失败: %+v", deleteErr)
+		c_log.Errorf(ctx, "删除业务日志失败: %+v", deleteErr)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, deleteErr, "删除业务日志失败")
 	}
 
 	// 5. 记录操作日志
-	g.Log().Infof(ctx, "删除业务日志成功，删除了 %d 条记录，条件: type=%s, level=%s",
+	c_log.Infof(ctx, "删除业务日志成功，删除了 %d 条记录，条件: type=%s, level=%s",
 		deleteCount, req.Type, req.Level)
 
 	// 6. 返回成功响应
@@ -139,7 +139,7 @@ func (c *ControllerV1) executeDeleteOperation(ctx context.Context, logService s_
 
 // deleteLogsByFilters 根据过滤条件删除日志（通用方法）
 func (c *ControllerV1) deleteLogsByFilters(ctx context.Context, logService s_db_basic.ILogService, filters map[string]interface{}) (int, error) {
-	g.Log().Infof(ctx, "开始删除日志，过滤条件: %+v", filters)
+	c_log.Infof(ctx, "开始删除日志，过滤条件: %+v", filters)
 
 	// 直接根据过滤条件删除日志记录
 	deletedCount, err := logService.DeleteLogByFilters(ctx, filters)
@@ -148,9 +148,9 @@ func (c *ControllerV1) deleteLogsByFilters(ctx context.Context, logService s_db_
 	}
 
 	if deletedCount == 0 {
-		g.Log().Infof(ctx, "没有找到符合条件的日志记录，过滤条件: %+v", filters)
+		c_log.Infof(ctx, "没有找到符合条件的日志记录，过滤条件: %+v", filters)
 	} else {
-		g.Log().Infof(ctx, "删除完成，共删除了 %d 条日志记录", deletedCount)
+		c_log.Infof(ctx, "删除完成，共删除了 %d 条日志记录", deletedCount)
 	}
 
 	return deletedCount, nil
@@ -158,7 +158,7 @@ func (c *ControllerV1) deleteLogsByFilters(ctx context.Context, logService s_db_
 
 // deleteAllBizLogs 删除所有业务日志
 func (c *ControllerV1) deleteAllBizLogs(ctx context.Context, logService s_db_basic.ILogService) (int, error) {
-	g.Log().Infof(ctx, "开始删除所有业务日志")
+	c_log.Infof(ctx, "开始删除所有业务日志")
 
 	// 执行删除所有日志
 	err := logService.ClearAllLog(ctx)
@@ -167,6 +167,6 @@ func (c *ControllerV1) deleteAllBizLogs(ctx context.Context, logService s_db_bas
 	}
 
 	// 由于ClearAllLog不返回删除数量，我们返回-1表示成功但数量未知
-	g.Log().Infof(ctx, "成功删除所有业务日志")
+	c_log.Infof(ctx, "成功删除所有业务日志")
 	return -1, nil
 }

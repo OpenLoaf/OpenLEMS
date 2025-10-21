@@ -15,7 +15,6 @@ import (
 
 	"github.com/gogf/gf/v2/container/glist"
 	"github.com/gogf/gf/v2/container/gmap"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 // SDeviceManager 通用驱动管理器实现
@@ -207,13 +206,13 @@ func (m *SDeviceManager) Start() {
 	deviceConfigs, err := s_db.GetDeviceService().GetDeviceConfigsWithRecursion(m.ctx, rootDeviceID)
 	if err != nil {
 		m.state = c_enum.EStateError
-		g.Log().Errorf(m.ctx, "初始化失败！获取设备配置失败！%+v", err)
+		c_log.Errorf(m.ctx, "初始化失败！获取设备配置失败！%+v", err)
 		return
 	}
 	protocolConfigs, err := s_db.GetProtocolService().GetAllProtocolConfigs(m.ctx)
 	if err != nil {
 		m.state = c_enum.EStateError
-		g.Log().Errorf(m.ctx, "初始化失败！获取协议配置失败！%+v", err)
+		c_log.Errorf(m.ctx, "初始化失败！获取协议配置失败！%+v", err)
 		return
 	}
 
@@ -224,7 +223,7 @@ func (m *SDeviceManager) Start() {
 
 	for _, deviceConfig := range deviceConfigs {
 		if deviceConfig.Id == deviceConfig.Pid {
-			g.Log().Errorf(m.ctx, "错误的设备[%s]配置，id和pid一致！", deviceConfig.Name)
+			c_log.Errorf(m.ctx, "错误的设备[%s]配置，id和pid一致！", deviceConfig.Name)
 			continue
 		}
 		// 设置协议配置

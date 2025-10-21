@@ -2,6 +2,7 @@ package automation
 
 import (
 	v1 "application/api/automation/v1"
+	"common/c_log"
 	"context"
 	"encoding/json"
 	"errors"
@@ -10,12 +11,11 @@ import (
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 // CreateAutomation 创建自动化任务
 func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomationReq) (res *v1.CreateAutomationRes, err error) {
-	g.Log().Infof(ctx, "创建自动化任务 - 时间范围类型: %s, 启用状态: %t", req.TimeRangeType, req.Enabled)
+	c_log.Infof(ctx, "创建自动化任务 - 时间范围类型: %s, 启用状态: %t", req.TimeRangeType, req.Enabled)
 
 	// 参数验证
 	if req.TriggerRule == nil {
@@ -42,7 +42,7 @@ func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomat
 	// 将触发配置序列化为 JSON 字符串
 	triggerRuleJson, err := json.Marshal(req.TriggerRule)
 	if err != nil {
-		g.Log().Errorf(ctx, "序列化触发配置失败: %+v", err)
+		c_log.Errorf(ctx, "序列化触发配置失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "序列化触发配置失败")
 	}
 
@@ -57,7 +57,7 @@ func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomat
 		req.ExecuteRule,
 		req.TriggerRule.ExecutionInterval)
 	if err != nil {
-		g.Log().Errorf(ctx, "创建自动化任务失败: %+v", err)
+		c_log.Errorf(ctx, "创建自动化任务失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "创建自动化任务失败")
 	}
 
@@ -65,6 +65,6 @@ func (c *Controller) CreateAutomation(ctx context.Context, req *v1.CreateAutomat
 		Id: id,
 	}
 
-	g.Log().Infof(ctx, "成功创建自动化任务 - ID: %d", id)
+	c_log.Infof(ctx, "成功创建自动化任务 - ID: %d", id)
 	return res, nil
 }

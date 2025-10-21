@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/goburrow/serial"
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/util/gconv"
 	"github.com/pkg/errors"
 	"github.com/shockerli/cvt"
@@ -86,7 +85,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 				select {
 				case <-ctx.Done():
 					_ = client.Close()
-					g.Log().Noticef(ctx, "上下文取消！连接:[%s] 取消连接重连!", protocolConfig.GetAddress())
+					c_log.Debugf(ctx, "上下文取消！连接:[%s] 取消连接重连!", protocolConfig.GetAddress())
 					c_log.BizInfof(ctx, "设备关闭！")
 					return
 				default:
@@ -148,7 +147,7 @@ func NewModbusClient(ctx context.Context, protocolConfig *c_base.SProtocolConfig
 					select {
 					case <-ctx.Done():
 						_ = client.Close()
-						g.Log().Noticef(ctx, "上下文取消！连接:[%s] 取消连接重连!", protocolConfig.GetAddress())
+						c_log.Debugf(ctx, "上下文取消！连接:[%s] 取消连接重连!", protocolConfig.GetAddress())
 						c_log.BizInfof(ctx, "设备关闭！")
 						return
 					case <-time.After(currentInterval):

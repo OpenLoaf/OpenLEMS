@@ -117,12 +117,6 @@ func (l *defaultLogger) Panicf(ctx context.Context, format string, v ...interfac
 	log.Printf("[PANIC] %s", msg)
 	panic(msg)
 }
-func (l *defaultLogger) Fatal(ctx context.Context, v ...interface{}) {
-	log.Fatalf("[FATAL] %s", fmt.Sprint(v...))
-}
-func (l *defaultLogger) Fatalf(ctx context.Context, format string, v ...interface{}) {
-	log.Fatalf("[FATAL] "+format, v...)
-}
 
 func (l *defaultLogger) QueryLogs(ctx context.Context, params LogQueryParams) (*LogQueryResult, error) {
 	log.Printf("[WARNING] 默认日志实现不支持查询功能")

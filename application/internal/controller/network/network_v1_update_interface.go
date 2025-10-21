@@ -1,6 +1,7 @@
 package network
 
 import (
+	"common/c_log"
 	"context"
 	"fmt"
 	"net"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 // UpdateNetworkInterface 更新网络接口配置
@@ -24,18 +24,18 @@ func (c *ControllerV1) UpdateNetworkInterface(ctx context.Context, req *v1.Updat
 	// 2. 获取网络管理器实例
 	networkManager := t_network_manager.GetInstance()
 	if networkManager == nil {
-		g.Log().Errorf(ctx, "获取网络管理器实例失败")
+		c_log.Errorf(ctx, "获取网络管理器实例失败")
 		return nil, gerror.NewCode(gcode.CodeInternalError, "网络管理器初始化失败")
 	}
 
 	// 3. 更新接口配置
 	interfaceID := public.InterfaceID(req.Name)
 	if err := networkManager.UpdateInterfaceConfig(ctx, interfaceID, *req.Config); err != nil {
-		g.Log().Errorf(ctx, "更新网络接口 %s 配置失败: %+v", req.Name, err)
+		c_log.Errorf(ctx, "更新网络接口 %s 配置失败: %+v", req.Name, err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新网络接口配置失败")
 	}
 
-	g.Log().Infof(ctx, "网络接口 %s 配置更新成功", req.Name)
+	c_log.Infof(ctx, "网络接口 %s 配置更新成功", req.Name)
 
 	// 4. 清除网络接口缓存，确保下次获取最新数据
 	c.clearNetworkInterfaceCache(ctx)

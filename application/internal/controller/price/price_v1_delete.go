@@ -2,6 +2,7 @@ package price
 
 import (
 	v1 "application/api/price/v1"
+	"common/c_log"
 	"context"
 	"s_db"
 	"s_price"
@@ -26,9 +27,9 @@ func (c *Controller) DeletePrice(ctx context.Context, req *v1.DeletePriceReq) (r
 
 	// 刷新缓存
 	if err := s_price.RefreshPriceCache(ctx); err != nil {
-		g.Log().Errorf(ctx, "刷新电价缓存失败: %+v", err)
+		c_log.Errorf(ctx, "刷新电价缓存失败: %+v", err)
 	}
 
-	g.Log().Infof(ctx, "成功删除电价 - ID: %d", req.Id)
+	c_log.Infof(ctx, "成功删除电价 - ID: %d", req.Id)
 	return &v1.DeletePriceRes{}, nil
 }

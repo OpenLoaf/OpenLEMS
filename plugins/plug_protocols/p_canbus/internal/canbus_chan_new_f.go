@@ -3,11 +3,11 @@ package internal
 import (
 	"common/c_base"
 	"common/c_enum"
+	"common/c_log"
 	"context"
 	"net"
 
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 	"go.einride.tech/can"
 	"go.einride.tech/can/pkg/candevice"
 	"go.einride.tech/can/pkg/socketcan"
@@ -39,7 +39,7 @@ func NewCanbusConnect(ctx context.Context, protocolConfig *c_base.SProtocolConfi
 	go func() {
 		<-ctx.Done()
 		_ = canInterface.SetDown()
-		g.Log().Noticef(ctx, "Canbus上下文取消! canbus协议[%s]已关闭！", protocolConfig.GetAddress())
+		c_log.Debugf(ctx, "Canbus上下文取消! canbus协议[%s]已关闭！", protocolConfig.GetAddress())
 	}()
 
 	// 创建接收器
@@ -47,10 +47,10 @@ func NewCanbusConnect(ctx context.Context, protocolConfig *c_base.SProtocolConfi
 	switch protocolConfig.GetProtocol() {
 	case c_enum.ECanbus:
 		conn, err = socketcan.DialContext(context.Background(), "can", protocolConfig.GetAddress())
-		g.Log().Infof(ctx, "canbus协议连接[%s]初始化成功！", protocolConfig.GetAddress())
+		c_log.Infof(ctx, "canbus协议连接[%s]初始化成功！", protocolConfig.GetAddress())
 	case c_enum.ECanbusUdp:
 		conn, err = socketcan.DialContext(context.Background(), "udp", protocolConfig.GetAddress())
-		g.Log().Infof(ctx, "canbus udp协议连接[%s]初始化成功！", protocolConfig.GetAddress())
+		c_log.Infof(ctx, "canbus udp协议连接[%s]初始化成功！", protocolConfig.GetAddress())
 	default:
 		return nil, nil, gerror.Newf("错误的参数传递！%s 进入了canbus协议连接初始化！", protocolConfig.GetProtocol())
 	}
@@ -72,12 +72,12 @@ func NewCanbusConnect(ctx context.Context, protocolConfig *c_base.SProtocolConfi
 		for receiver.Receive() {
 			select {
 			case <-ctx.Done(): // 监听上下文取消信号
-				g.Log().Noticef(ctx, "接收goroutine: 上下文取消，停止接收CAN帧。")
+				c_log.Debugf(ctx, "接收goroutine: 上下文取消，停止接收CAN帧。")
 				return
 			default:
 				// 读取 CAN 帧
 				frame := receiver.Frame()
-				//g.Log().Debugf(ctx, "接口 %s 接收到 CAN 帧: %s", protocolConfig.GetAddress(), frame.String()) // 可以打印调试信息
+				//c_log.Debugf(ctx, "接口 %s 接收到 CAN 帧: %s", protocolConfig.GetAddress(), frame.String()) // 可以打印调试信息
 				// 成功接收到帧，发送到通道
 				receiverChan <- frame
 			}
@@ -89,15 +89,15 @@ func NewCanbusConnect(ctx context.Context, protocolConfig *c_base.SProtocolConfi
 		for {
 			select {
 			case <-ctx.Done(): // 监听上下文取消信号
-				g.Log().Noticef(ctx, "发送goroutine: 上下文取消，停止发送CAN帧。")
+				c_log.Debugf(ctx, "发送goroutine: 上下文取消，停止发送CAN帧。")
 				return
 			case frame := <-transmitterChan: // 从发送通道接收要发送的帧
 				err := transmitter.TransmitFrame(ctx, frame)
 				if err != nil {
-					g.Log().Errorf(ctx, "发送CAN帧失败: %s", err.Error())
+					c_log.Errorf(ctx, "发送CAN帧失败: %s", err.Error())
 					// 这里可以根据错误类型选择是否继续发送
 				} else {
-					g.Log().Debugf(ctx, "成功发送 CAN 帧: %s", frame.String()) // 可以打印调试信息
+					c_log.Debugf(ctx, "成功发送 CAN 帧: %s", frame.String()) // 可以打印调试信息
 				}
 				// 可以添加一个小的延迟以避免CPU过度占用，如果发送频率很高的话
 				// time.Sleep(1 * time.Millisecond)

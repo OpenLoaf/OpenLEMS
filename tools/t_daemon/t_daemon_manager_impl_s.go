@@ -16,16 +16,16 @@ import (
 
 // SDaemonManagerImpl 守护进程管理器实现结构体
 type SDaemonManagerImpl struct {
-	config              IDaemonConfig
-	mainProgramPid      int
-	running             bool
-	restartTimes        []int64 // 记录重启时间戳（毫秒）
-	lastRestartTime     int64
-	mutex               sync.RWMutex
-	stopChan            chan struct{}
-	processMonitor      IProcessMonitor
-	environmentManager  IEnvironmentManager
-	versionManager      IVersionManager
+	config             IDaemonConfig
+	mainProgramPid     int
+	running            bool
+	restartTimes       []int64 // 记录重启时间戳（毫秒）
+	lastRestartTime    int64
+	mutex              sync.RWMutex
+	stopChan           chan struct{}
+	processMonitor     IProcessMonitor
+	environmentManager IEnvironmentManager
+	versionManager     IVersionManager
 }
 
 // NewDaemonManager 创建一个新的守护进程管理器实例
@@ -52,7 +52,7 @@ func (d *SDaemonManagerImpl) Start(ctx context.Context, config IDaemonConfig) er
 		return errors.Wrap(err, "配置验证失败")
 	}
 
-	g.Log().Infof(ctx, "启动守护进程，主程序: %s", config.GetMainBinaryPath())
+	c_log.Infof(ctx, "启动守护进程，主程序: %s", config.GetMainBinaryPath())
 
 	// 初始化环境管理器
 	d.environmentManager = NewEnvironmentManager()
@@ -84,7 +84,7 @@ func (d *SDaemonManagerImpl) Start(ctx context.Context, config IDaemonConfig) er
 	// 设置信号处理
 	d.setupSignalHandlers(ctx)
 
-	g.Log().Infof(ctx, "守护进程启动成功，主程序PID: %d", d.mainProgramPid)
+	c_log.Infof(ctx, "守护进程启动成功，主程序PID: %d", d.mainProgramPid)
 
 	return nil
 }
@@ -98,24 +98,24 @@ func (d *SDaemonManagerImpl) Stop(ctx context.Context) error {
 		return errors.New("守护进程未运行")
 	}
 
-	g.Log().Infof(ctx, "停止守护进程")
+	c_log.Infof(ctx, "停止守护进程")
 
 	// 停止进程监控
 	if d.processMonitor != nil {
 		if err := d.processMonitor.Stop(ctx); err != nil {
-			g.Log().Warningf(ctx, "停止进程监控失败: %v", err)
+			c_log.Warningf(ctx, "停止进程监控失败: %v", err)
 		}
 	}
 
 	// 停止主程序
 	if err := d.processMonitor.KillProcess(ctx, d.mainProgramPid, false); err != nil {
-		g.Log().Warningf(ctx, "停止主程序失败: %v", err)
+		c_log.Warningf(ctx, "停止主程序失败: %v", err)
 	}
 
 	// 清理环境变量
 	if d.environmentManager != nil {
 		if err := d.environmentManager.CleanupEnvironment(ctx); err != nil {
-			g.Log().Warningf(ctx, "清理环境变量失败: %v", err)
+			c_log.Warningf(ctx, "清理环境变量失败: %v", err)
 		}
 	}
 
@@ -152,11 +152,11 @@ func (d *SDaemonManagerImpl) Restart(ctx context.Context) error {
 		return errors.New("重启次数过于频繁，请稍后再试")
 	}
 
-	g.Log().Infof(ctx, "准备重启主程序，当前PID: %d", d.mainProgramPid)
+	c_log.Infof(ctx, "准备重启主程序，当前PID: %d", d.mainProgramPid)
 
 	// 停止当前的主程序
 	if err := d.processMonitor.KillProcess(ctx, d.mainProgramPid, false); err != nil {
-		g.Log().Warningf(ctx, "停止旧程序失败: %v", err)
+		c_log.Warningf(ctx, "停止旧程序失败: %v", err)
 	}
 
 	// 等待一段时间后重启
@@ -168,7 +168,7 @@ func (d *SDaemonManagerImpl) Restart(ctx context.Context) error {
 		return errors.Wrap(err, "重启主程序失败")
 	}
 
-	g.Log().Infof(ctx, "主程序重启成功，新PID: %d", d.mainProgramPid)
+	c_log.Infof(ctx, "主程序重启成功，新PID: %d", d.mainProgramPid)
 
 	return nil
 }
@@ -229,7 +229,7 @@ func (d *SDaemonManagerImpl) UpdateMainBinary(ctx context.Context, newBinaryPath
 		return errors.New("守护进程未运行")
 	}
 
-	g.Log().Infof(ctx, "准备更新主程序二进制文件: %s", newBinaryPath)
+	c_log.Infof(ctx, "准备更新主程序二进制文件: %s", newBinaryPath)
 
 	// 备份当前的二进制文件
 	if err := d.backupCurrentBinary(ctx); err != nil {
@@ -246,12 +246,12 @@ func (d *SDaemonManagerImpl) UpdateMainBinary(ctx context.Context, newBinaryPath
 	if err := d.startMainProgram(ctx); err != nil {
 		// 如果启动失败，回滚更新
 		if rollbackErr := d.versionManager.ApplyUpdate(ctx, d.config.GetBackupBinaryPath(), d.config.GetMainBinaryPath()); rollbackErr != nil {
-			g.Log().Errorf(ctx, "回滚二进制文件失败: %v", rollbackErr)
+			c_log.Errorf(ctx, "回滚二进制文件失败: %v", rollbackErr)
 		}
 		return errors.Wrap(err, "启动新程序失败")
 	}
 
-	g.Log().Infof(ctx, "主程序更新成功，新PID: %d", d.mainProgramPid)
+	c_log.Infof(ctx, "主程序更新成功，新PID: %d", d.mainProgramPid)
 
 	return nil
 }
@@ -265,11 +265,11 @@ func (d *SDaemonManagerImpl) RollbackMainBinary(ctx context.Context) error {
 		return errors.New("守护进程未运行")
 	}
 
-	g.Log().Infof(ctx, "准备回滚主程序二进制文件")
+	c_log.Infof(ctx, "准备回滚主程序二进制文件")
 
 	// 停止当前程序
 	if err := d.processMonitor.KillProcess(ctx, d.mainProgramPid, false); err != nil {
-		g.Log().Warningf(ctx, "停止旧程序失败: %v", err)
+		c_log.Warningf(ctx, "停止旧程序失败: %v", err)
 	}
 
 	// 应用备份版本
@@ -282,7 +282,7 @@ func (d *SDaemonManagerImpl) RollbackMainBinary(ctx context.Context) error {
 		return errors.Wrap(err, "启动程序失败")
 	}
 
-	g.Log().Infof(ctx, "主程序回滚成功，新PID: %d", d.mainProgramPid)
+	c_log.Infof(ctx, "主程序回滚成功，新PID: %d", d.mainProgramPid)
 
 	return nil
 }
@@ -388,7 +388,7 @@ func (d *SDaemonManagerImpl) onMainProgramExit(ctx context.Context, exitCode int
 	d.mutex.Lock()
 	defer d.mutex.Unlock()
 
-	g.Log().Warningf(ctx, "主程序已退出，退出码: %d", exitCode)
+	c_log.Warningf(ctx, "主程序已退出，退出码: %d", exitCode)
 
 	if !d.running {
 		return
@@ -396,14 +396,14 @@ func (d *SDaemonManagerImpl) onMainProgramExit(ctx context.Context, exitCode int
 
 	// 检查是否可以重启
 	if !d.canRestart() {
-		g.Log().Errorf(ctx, "重启次数过于频繁，停止守护进程")
+		c_log.Errorf(ctx, "重启次数过于频繁，停止守护进程")
 		d.running = false
 		return
 	}
 
 	// 延迟后自动重启
 	delay := time.Duration(d.config.GetRestartDelay()) * time.Second
-	g.Log().Infof(ctx, "将在 %d 秒后自动重启主程序", d.config.GetRestartDelay())
+	c_log.Infof(ctx, "将在 %d 秒后自动重启主程序", d.config.GetRestartDelay())
 
 	go func() {
 		time.Sleep(delay)
@@ -412,7 +412,7 @@ func (d *SDaemonManagerImpl) onMainProgramExit(ctx context.Context, exitCode int
 
 		if d.running && d.canRestart() {
 			if err := d.startMainProgram(ctx); err != nil {
-				g.Log().Errorf(ctx, "自动重启失败: %v", err)
+				c_log.Errorf(ctx, "自动重启失败: %v", err)
 			}
 		}
 	}()
@@ -453,9 +453,9 @@ func (d *SDaemonManagerImpl) checkForUpdates(ctx context.Context) {
 			return
 		case <-ticker.C:
 			if hasUpdate, _, err := d.versionManager.CheckForUpdates(ctx); err != nil {
-				g.Log().Warningf(ctx, "检查版本更新失败: %v", err)
+				c_log.Warningf(ctx, "检查版本更新失败: %v", err)
 			} else if hasUpdate {
-				g.Log().Infof(ctx, "检测到新版本可用")
+				c_log.Infof(ctx, "检测到新版本可用")
 				// 这里可以选择自动更新或通知管理员
 			}
 		}
@@ -469,7 +469,7 @@ func (d *SDaemonManagerImpl) setupSignalHandlers(ctx context.Context) {
 
 	go func() {
 		sig := <-sigChan
-		g.Log().Infof(ctx, "接收到信号: %v", sig)
+		c_log.Infof(ctx, "接收到信号: %v", sig)
 		d.Stop(ctx)
 	}()
 }

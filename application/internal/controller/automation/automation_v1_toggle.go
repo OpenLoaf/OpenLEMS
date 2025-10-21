@@ -2,6 +2,7 @@ package automation
 
 import (
 	v1 "application/api/automation/v1"
+	"common/c_log"
 	"context"
 	"errors"
 	"s_db"
@@ -9,12 +10,11 @@ import (
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 // ToggleAutomation 开启/停用自动化任务
 func (c *Controller) ToggleAutomation(ctx context.Context, req *v1.ToggleAutomationReq) (res *v1.ToggleAutomationRes, err error) {
-	g.Log().Infof(ctx, "切换自动化任务状态 - ID: %d, 启用: %t", req.Id, req.Enable)
+	c_log.Infof(ctx, "切换自动化任务状态 - ID: %d, 启用: %t", req.Id, req.Enable)
 
 	// 参数验证
 	if req.Id <= 0 {
@@ -29,7 +29,7 @@ func (c *Controller) ToggleAutomation(ctx context.Context, req *v1.ToggleAutomat
 	// 调用服务层更新自动化任务状态
 	err = s_db.GetAutomationService().UpdateAutomation(ctx, req.Id, updateData)
 	if err != nil {
-		g.Log().Errorf(ctx, "切换自动化任务状态失败: %+v", err)
+		c_log.Errorf(ctx, "切换自动化任务状态失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "切换自动化任务状态失败")
 	}
 
@@ -37,6 +37,6 @@ func (c *Controller) ToggleAutomation(ctx context.Context, req *v1.ToggleAutomat
 		Enabled: req.Enable,
 	}
 
-	g.Log().Infof(ctx, "成功切换自动化任务状态 - ID: %d, 启用: %t", req.Id, req.Enable)
+	c_log.Infof(ctx, "成功切换自动化任务状态 - ID: %d, 启用: %t", req.Id, req.Enable)
 	return res, nil
 }

@@ -2,6 +2,7 @@ package price
 
 import (
 	v1 "application/api/price/v1"
+	"common/c_log"
 	"context"
 	"s_db"
 	"s_price"
@@ -35,9 +36,9 @@ func (c *Controller) TogglePrice(ctx context.Context, req *v1.TogglePriceReq) (r
 
 	// 刷新缓存
 	if err := s_price.RefreshPriceCache(ctx); err != nil {
-		g.Log().Errorf(ctx, "刷新电价缓存失败: %+v", err)
+		c_log.Errorf(ctx, "刷新电价缓存失败: %+v", err)
 	}
 
-	g.Log().Infof(ctx, "成功更新电价状态 - ID: %d, 状态: %s", req.Id, req.Status)
+	c_log.Infof(ctx, "成功更新电价状态 - ID: %d, 状态: %s", req.Id, req.Status)
 	return &v1.TogglePriceRes{}, nil
 }

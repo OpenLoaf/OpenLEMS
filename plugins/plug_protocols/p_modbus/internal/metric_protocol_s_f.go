@@ -10,7 +10,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtimer"
 )
 
@@ -88,10 +87,10 @@ func newMetricProtocol(ctx context.Context, protocolConfig *c_base.SProtocolConf
 			// 新增吞吐量指标
 			s_storage.ProtocolMetricAvgBytesPerRequest: avgBytesPerRequest,
 		}
-		g.Log().Debugf(ctx, "保存协议[%s]的统计数据，统计结果为：%+v", protocolConfig.Id, result)
+		c_log.Debugf(ctx, "保存协议[%s]的统计数据，统计结果为：%+v", protocolConfig.Id, result)
 		storage := common.GetStorageInstance()
 		if storage == nil || reflect.ValueOf(storage).IsNil() {
-			g.Log().Debugf(ctx, "没有找到存储实例，无法保存协议[%s]的统计数据，跳过本次存储！", protocolConfig.Id)
+			c_log.Debugf(ctx, "没有找到存储实例，无法保存协议[%s]的统计数据，跳过本次存储！", protocolConfig.Id)
 			return
 		}
 
@@ -99,7 +98,7 @@ func newMetricProtocol(ctx context.Context, protocolConfig *c_base.SProtocolConf
 		if err != nil {
 			c_log.BizErrorf(ctx, "保存协议[%s]的统计数据失败！统计结果为：%+v 异常原因：%v", protocolConfig.Id, result, err)
 		} else {
-			g.Log().Debugf(ctx, "保存协议[%s]的统计数据成功！统计结果为：%+v", protocolConfig.Id, result)
+			c_log.Debugf(ctx, "保存协议[%s]的统计数据成功！统计结果为：%+v", protocolConfig.Id, result)
 		}
 
 		s.metricMinuteReadCount = 0

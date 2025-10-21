@@ -28,7 +28,7 @@ func (v *SVersionManagerImpl) CheckForUpdates(ctx context.Context) (bool, string
 	// 这是一个示例实现，实际应用中应该通过HTTP请求从服务器检查版本
 	// 返回 (是否有更新, 新版本信息, 错误)
 
-	g.Log().Infof(ctx, "检查版本更新")
+	c_log.Infof(ctx, "检查版本更新")
 
 	// 示例：从本地配置或环境变量获取版本检查URL
 	// 实际应用中应该实现从远程服务器检查版本的逻辑
@@ -46,7 +46,7 @@ func (v *SVersionManagerImpl) DownloadUpdate(ctx context.Context, downloadUrl st
 		return errors.New("目标路径不能为空")
 	}
 
-	g.Log().Infof(ctx, "从 %s 下载更新到 %s", downloadUrl, targetPath)
+	c_log.Infof(ctx, "从 %s 下载更新到 %s", downloadUrl, targetPath)
 
 	// 这是一个示例实现，实际应用中应该实现从远程URL下载文件的逻辑
 	// 例如使用 net/http 或 github.com/go-resty/resty
@@ -69,7 +69,7 @@ func (v *SVersionManagerImpl) VerifyBinary(ctx context.Context, binaryPath strin
 		return false, errors.New("二进制文件路径不能为空")
 	}
 
-	g.Log().Infof(ctx, "验证二进制文件: %s", binaryPath)
+	c_log.Infof(ctx, "验证二进制文件: %s", binaryPath)
 
 	if _, err := os.Stat(binaryPath); err != nil {
 		return false, errors.Wrapf(err, "二进制文件不存在: %s", binaryPath)
@@ -86,7 +86,7 @@ func (v *SVersionManagerImpl) VerifyBinary(ctx context.Context, binaryPath strin
 		return false, errors.Wrap(err, "计算文件哈希值失败")
 	}
 
-	g.Log().Infof(ctx, "文件哈希值: %s, 预期哈希值: %s", actualHash, expectedHash)
+	c_log.Infof(ctx, "文件哈希值: %s, 预期哈希值: %s", actualHash, expectedHash)
 
 	if actualHash != expectedHash {
 		return false, nil
@@ -108,7 +108,7 @@ func (v *SVersionManagerImpl) BackupCurrentBinary(ctx context.Context, binaryPat
 	// 创建备份文件路径
 	backupPath := binaryPath + ".backup." + time.Now().Format("20060102150405")
 
-	g.Log().Infof(ctx, "备份二进制文件: %s -> %s", binaryPath, backupPath)
+	c_log.Infof(ctx, "备份二进制文件: %s -> %s", binaryPath, backupPath)
 
 	// 复制文件
 	if err := v.copyFile(binaryPath, backupPath); err != nil {
@@ -132,7 +132,7 @@ func (v *SVersionManagerImpl) ApplyUpdate(ctx context.Context, newBinaryPath str
 		return errors.Wrapf(err, "新二进制文件不存在: %s", newBinaryPath)
 	}
 
-	g.Log().Infof(ctx, "应用更新: %s -> %s", newBinaryPath, currentBinaryPath)
+	c_log.Infof(ctx, "应用更新: %s -> %s", newBinaryPath, currentBinaryPath)
 
 	// 在Windows上，需要特殊处理（不能直接替换正在使用的文件）
 	// 在Unix上，可以直接替换
@@ -152,7 +152,7 @@ func (v *SVersionManagerImpl) ApplyUpdate(ctx context.Context, newBinaryPath str
 		return errors.Wrapf(err, "设置文件权限失败: %s", currentBinaryPath)
 	}
 
-	g.Log().Infof(ctx, "更新完成")
+	c_log.Infof(ctx, "更新完成")
 
 	return nil
 }
@@ -162,7 +162,7 @@ func (v *SVersionManagerImpl) GetCurrentVersion(ctx context.Context) (string, er
 	// 这是一个示例实现，实际应用中应该通过执行二进制文件获取版本信息
 	// 例如运行 ./ems --version
 
-	g.Log().Infof(ctx, "获取当前版本信息")
+	c_log.Infof(ctx, "获取当前版本信息")
 
 	// 示例实现：这里应该实现获取版本信息的逻辑
 	return "unknown", nil

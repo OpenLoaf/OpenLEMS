@@ -1,6 +1,7 @@
 package log
 
 import (
+	"common/c_log"
 	"context"
 
 	apiv1 "application/api/log/v1"
@@ -23,7 +24,7 @@ func (c *ControllerV1) QueryBizLogStatistics(ctx context.Context, req *apiv1.Que
 	// 统计 EMS 类型日志数量
 	emsCount, err := g.Model("log").Ctx(ctx).Where("type", "ems").Count()
 	if err != nil {
-		g.Log().Errorf(ctx, "统计EMS类型日志失败: %+v", err)
+		c_log.Errorf(ctx, "统计EMS类型日志失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "统计EMS类型日志失败")
 	}
 	typeStats.Ems = emsCount
@@ -31,7 +32,7 @@ func (c *ControllerV1) QueryBizLogStatistics(ctx context.Context, req *apiv1.Que
 	// 统计 Device 类型日志数量
 	deviceCount, err := g.Model("log").Ctx(ctx).Where("type", "device").Count()
 	if err != nil {
-		g.Log().Errorf(ctx, "统计Device类型日志失败: %+v", err)
+		c_log.Errorf(ctx, "统计Device类型日志失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "统计Device类型日志失败")
 	}
 	typeStats.Device = deviceCount
@@ -39,7 +40,7 @@ func (c *ControllerV1) QueryBizLogStatistics(ctx context.Context, req *apiv1.Que
 	// 统计 Protocol 类型日志数量
 	protocolCount, err := g.Model("log").Ctx(ctx).Where("type", "protocol").Count()
 	if err != nil {
-		g.Log().Errorf(ctx, "统计Protocol类型日志失败: %+v", err)
+		c_log.Errorf(ctx, "统计Protocol类型日志失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "统计Protocol类型日志失败")
 	}
 	typeStats.Protocol = protocolCount
@@ -47,7 +48,7 @@ func (c *ControllerV1) QueryBizLogStatistics(ctx context.Context, req *apiv1.Que
 	// 统计 Policy 类型日志数量
 	policyCount, err := g.Model("log").Ctx(ctx).Where("type", "policy").Count()
 	if err != nil {
-		g.Log().Errorf(ctx, "统计Policy类型日志失败: %+v", err)
+		c_log.Errorf(ctx, "统计Policy类型日志失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "统计Policy类型日志失败")
 	}
 	typeStats.Policy = policyCount
@@ -63,7 +64,7 @@ func (c *ControllerV1) QueryBizLogStatistics(ctx context.Context, req *apiv1.Que
 	// 统计 DEBUG 等级日志数量
 	debugCount, err := g.Model("log").Ctx(ctx).Where("level", "DEBUG").Count()
 	if err != nil {
-		g.Log().Errorf(ctx, "统计DEBUG等级日志失败: %+v", err)
+		c_log.Errorf(ctx, "统计DEBUG等级日志失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "统计DEBUG等级日志失败")
 	}
 	levelStats.DEBUG = debugCount
@@ -71,7 +72,7 @@ func (c *ControllerV1) QueryBizLogStatistics(ctx context.Context, req *apiv1.Que
 	// 统计 INFO 等级日志数量
 	infoCount, err := g.Model("log").Ctx(ctx).Where("level", "INFO").Count()
 	if err != nil {
-		g.Log().Errorf(ctx, "统计INFO等级日志失败: %+v", err)
+		c_log.Errorf(ctx, "统计INFO等级日志失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "统计INFO等级日志失败")
 	}
 	levelStats.INFO = infoCount
@@ -79,7 +80,7 @@ func (c *ControllerV1) QueryBizLogStatistics(ctx context.Context, req *apiv1.Que
 	// 统计 WARN 等级日志数量
 	warnCount, err := g.Model("log").Ctx(ctx).Where("level", "WARN").Count()
 	if err != nil {
-		g.Log().Errorf(ctx, "统计WARN等级日志失败: %+v", err)
+		c_log.Errorf(ctx, "统计WARN等级日志失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "统计WARN等级日志失败")
 	}
 	levelStats.WARN = warnCount
@@ -87,7 +88,7 @@ func (c *ControllerV1) QueryBizLogStatistics(ctx context.Context, req *apiv1.Que
 	// 统计 ERROR 等级日志数量
 	errorCount, err := g.Model("log").Ctx(ctx).Where("level", "ERROR").Count()
 	if err != nil {
-		g.Log().Errorf(ctx, "统计ERROR等级日志失败: %+v", err)
+		c_log.Errorf(ctx, "统计ERROR等级日志失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "统计ERROR等级日志失败")
 	}
 	levelStats.ERROR = errorCount

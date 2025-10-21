@@ -1,6 +1,7 @@
 package network
 
 import (
+	"common/c_log"
 	"context"
 
 	v1 "application/api/network/v1"
@@ -9,7 +10,6 @@ import (
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 // SetInterfaceState 设置网络接口状态（启用/禁用）
@@ -22,14 +22,14 @@ func (c *ControllerV1) SetInterfaceState(ctx context.Context, req *v1.SetInterfa
 	// 2. 获取网络管理器实例
 	networkManager := t_network_manager.GetInstance()
 	if networkManager == nil {
-		g.Log().Errorf(ctx, "获取网络管理器实例失败")
+		c_log.Errorf(ctx, "获取网络管理器实例失败")
 		return nil, gerror.NewCode(gcode.CodeInternalError, "网络管理器初始化失败")
 	}
 
 	// 3. 设置接口状态
 	interfaceID := public.InterfaceID(req.Name)
 	if err := networkManager.SetInterfaceState(ctx, interfaceID, req.Up); err != nil {
-		g.Log().Errorf(ctx, "设置网络接口 %s 状态失败: %+v", req.Name, err)
+		c_log.Errorf(ctx, "设置网络接口 %s 状态失败: %+v", req.Name, err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "设置网络接口状态失败")
 	}
 
@@ -38,7 +38,7 @@ func (c *ControllerV1) SetInterfaceState(ctx context.Context, req *v1.SetInterfa
 	if req.Up {
 		action = "启用"
 	}
-	g.Log().Infof(ctx, "网络接口 %s %s成功", req.Name, action)
+	c_log.Infof(ctx, "网络接口 %s %s成功", req.Name, action)
 
 	// 5. 清除网络接口缓存，确保下次获取最新数据
 	c.clearNetworkInterfaceCache(ctx)

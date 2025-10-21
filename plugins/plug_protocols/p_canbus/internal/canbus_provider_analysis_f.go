@@ -2,12 +2,12 @@ package internal
 
 import (
 	"common/c_base"
+	"common/c_log"
 	"common/c_proto"
 	"p_base"
 	"time"
 
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 	"go.einride.tech/can"
 )
 
@@ -26,7 +26,7 @@ func (c *CanbusProtocolProvider) analysisCanbus(task *c_proto.SCanbusTask, frame
 			value, err := task.CustomDecoder(task, frame.Data[:], point)
 			if err != nil {
 				lastErr = gerror.Wrapf(err, "自定义解码器解析失败 task:%s point:%s", task.Name, point.GetName())
-				g.Log().Errorf(c.ctx, "自定义解码器解析失败 task:%s point:%s error:%v",
+				c_log.Errorf(c.ctx, "自定义解码器解析失败 task:%s point:%s error:%v",
 					task.Name, point.GetName(), err)
 				continue
 			}
@@ -48,14 +48,14 @@ func (c *CanbusProtocolProvider) analysisCanbus(task *c_proto.SCanbusTask, frame
 
 		// 如果有部分成功，记录警告但不返回错误
 		if successCount > 0 && lastErr != nil {
-			g.Log().Warningf(c.ctx, "自定义解码器部分解析失败 task:%s 成功:%d 失败:%d",
+			c_log.Warningf(c.ctx, "自定义解码器部分解析失败 task:%s 成功:%d 失败:%d",
 				task.Name, successCount, len(task.Points)-successCount)
 		}
 
 		return nil
 	}
 
-	g.Log().Debugf(c.ctx, "===> 收到匹配的task数据：taskName: %s  数据：%v", task.Name, frame)
+	c_log.Debugf(c.ctx, "===> 收到匹配的task数据：taskName: %s  数据：%v", task.Name, frame)
 
 	// 使用默认解码器：根据每个点位的 ByteIndex 解析
 	frameData := frame.Data[:]
@@ -65,7 +65,7 @@ func (c *CanbusProtocolProvider) analysisCanbus(task *c_proto.SCanbusTask, frame
 	for i, point := range task.Points {
 		if point == nil || point.DataAccess == nil {
 			lastErr = gerror.Newf("点位配置为空 task:%s pointIndex:%d", task.Name, i)
-			g.Log().Errorf(c.ctx, "点位配置为空 task:%s pointIndex:%d", task.Name, i)
+			c_log.Errorf(c.ctx, "点位配置为空 task:%s pointIndex:%d", task.Name, i)
 			continue
 		}
 
@@ -73,7 +73,7 @@ func (c *CanbusProtocolProvider) analysisCanbus(task *c_proto.SCanbusTask, frame
 		value, err := c.analysisSingleCanbusMeta(point, frameData, int(point.DataAccess.ByteIndex), task.Lifetime)
 		if err != nil {
 			lastErr = gerror.Wrapf(err, "解析点位失败 task:%s point:%s", task.Name, point.GetName())
-			g.Log().Errorf(c.ctx, "解析点位失败 task:%s point:%s error:%v",
+			c_log.Errorf(c.ctx, "解析点位失败 task:%s point:%s error:%v",
 				task.Name, point.GetName(), err)
 			continue
 		}
@@ -94,7 +94,7 @@ func (c *CanbusProtocolProvider) analysisCanbus(task *c_proto.SCanbusTask, frame
 
 	// 如果有部分成功，记录警告但不返回错误
 	if successCount > 0 && lastErr != nil {
-		g.Log().Warningf(c.ctx, "默认解码器部分解析失败 task:%s 成功:%d 失败:%d",
+		c_log.Warningf(c.ctx, "默认解码器部分解析失败 task:%s 成功:%d 失败:%d",
 			task.Name, successCount, len(task.Points)-successCount)
 	}
 
@@ -108,7 +108,7 @@ func (c *CanbusProtocolProvider) handleDecodedValue(task *c_proto.SCanbusTask, p
 	pointValue := c_base.NewPointValue(c.deviceId, point, value)
 	if cacheErr := c.IProtocolCacheValue.CacheValue(pointValue, task.Lifetime); cacheErr != nil {
 		err := gerror.Wrapf(cacheErr, "缓存解析结果失败 task:%s point:%s", task.Name, point.GetName())
-		g.Log().Errorf(c.ctx, "缓存解析结果失败 task:%s point:%s error:%v",
+		c_log.Errorf(c.ctx, "缓存解析结果失败 task:%s point:%s error:%v",
 			task.Name, point.GetName(), cacheErr)
 		return err
 	}
@@ -117,7 +117,7 @@ func (c *CanbusProtocolProvider) handleDecodedValue(task *c_proto.SCanbusTask, p
 	c.UpdateAlarm(c.deviceId, point, value)
 
 	// 记录成功日志
-	g.Log().Debugf(c.ctx, "%s解析成功 task:%s point:%s value:%v",
+	c_log.Debugf(c.ctx, "%s解析成功 task:%s point:%s value:%v",
 		decoderType, task.Name, point.GetName(), value)
 
 	return nil
@@ -127,7 +127,7 @@ func (c *CanbusProtocolProvider) handleDecodedValue(task *c_proto.SCanbusTask, p
 // 使用 DecoderBytes 函数根据点位配置解析数据
 func (c *CanbusProtocolProvider) analysisSingleCanbusMeta(point *c_proto.SCanbusPoint, frameData []byte, currentByteIndex int, lifeTime time.Duration) (any, error) {
 	if point.DataAccess == nil {
-		g.Log().Errorf(c.ctx, "点位 %s 没有数据访问配置", point.GetName())
+		c_log.Errorf(c.ctx, "点位 %s 没有数据访问配置", point.GetName())
 		return nil, nil
 	}
 
@@ -147,7 +147,7 @@ func (c *CanbusProtocolProvider) analysisSingleCanbusMeta(point *c_proto.SCanbus
 	)
 
 	if err != nil {
-		g.Log().Errorf(c.ctx, "解析点位 %s 失败: %v", point.GetName(), err)
+		c_log.Errorf(c.ctx, "解析点位 %s 失败: %v", point.GetName(), err)
 		return nil, err
 	}
 

@@ -1,6 +1,7 @@
 package log
 
 import (
+	"common/c_log"
 	"context"
 
 	apiv1 "application/api/log/v1"
@@ -17,7 +18,7 @@ func (c *ControllerV1) QueryBizLogInfo(ctx context.Context, req *apiv1.QueryBizL
 	var logModel s_db_model.SLogModel
 	total, err := logModel.GetCount(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取日志总数失败: %+v", err)
+		c_log.Errorf(ctx, "获取日志总数失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取日志总数失败")
 	}
 
@@ -27,7 +28,7 @@ func (c *ControllerV1) QueryBizLogInfo(ctx context.Context, req *apiv1.QueryBizL
 		var firstLog s_db_model.SLogModel
 		err = g.Model("log").Ctx(ctx).Order("created_at ASC").Limit(1).Scan(&firstLog)
 		if err != nil {
-			g.Log().Errorf(ctx, "获取第一条日志时间失败: %+v", err)
+			c_log.Errorf(ctx, "获取第一条日志时间失败: %+v", err)
 			return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取第一条日志时间失败")
 		}
 		if firstLog.CreatedAt != nil {
@@ -41,7 +42,7 @@ func (c *ControllerV1) QueryBizLogInfo(ctx context.Context, req *apiv1.QueryBizL
 		var latestLog s_db_model.SLogModel
 		err = g.Model("log").Ctx(ctx).Order("created_at DESC").Limit(1).Scan(&latestLog)
 		if err != nil {
-			g.Log().Errorf(ctx, "获取最新日志时间失败: %+v", err)
+			c_log.Errorf(ctx, "获取最新日志时间失败: %+v", err)
 			return nil, gerror.WrapCode(gcode.CodeInternalError, err, "获取最新日志时间失败")
 		}
 		if latestLog.CreatedAt != nil {

@@ -51,7 +51,7 @@ func (p *SProcessMonitorImpl) Start(ctx context.Context, mainPid int, onExit fun
 	p.wg.Add(1)
 	go p.monitorProcess(ctx)
 
-	g.Log().Infof(ctx, "启动进程监控，监控PID: %d", mainPid)
+	c_log.Infof(ctx, "启动进程监控，监控PID: %d", mainPid)
 
 	return nil
 }
@@ -65,7 +65,7 @@ func (p *SProcessMonitorImpl) Stop(ctx context.Context) error {
 		return nil
 	}
 
-	g.Log().Infof(ctx, "停止进程监控")
+	c_log.Infof(ctx, "停止进程监控")
 
 	p.monitoring = false
 	close(p.stopChan)
@@ -115,7 +115,7 @@ func (p *SProcessMonitorImpl) KillProcess(ctx context.Context, pid int, force bo
 		return errors.Wrapf(err, "找不到进程: %d", pid)
 	}
 
-	g.Log().Infof(ctx, "准备杀死进程 %d (强制: %v)", pid, force)
+	c_log.Infof(ctx, "准备杀死进程 %d (强制: %v)", pid, force)
 
 	if force {
 		// 强制杀死进程
@@ -158,7 +158,7 @@ func (p *SProcessMonitorImpl) KillProcess(ctx context.Context, pid int, force bo
 				select {
 				case <-timeout.C:
 					// 超时后强制杀死
-					g.Log().Warningf(ctx, "进程优雅关闭超时，准备强制杀死")
+					c_log.Warningf(ctx, "进程优雅关闭超时，准备强制杀死")
 					return p.KillProcess(ctx, pid, true)
 				case <-ticker.C:
 					if !p.IsProcessRunning(pid) {
@@ -207,14 +207,14 @@ func (p *SProcessMonitorImpl) monitorProcess(ctx context.Context) {
 	// 使用 Wait() 方法等待进程退出
 	exitCode, err := p.WaitForProcessExit(ctx, monitoredPid)
 	if err != nil {
-		g.Log().Errorf(ctx, "监控进程失败: %v", err)
+		c_log.Errorf(ctx, "监控进程失败: %v", err)
 		if onExit != nil {
 			onExit(ctx, -1)
 		}
 		return
 	}
 
-	g.Log().Infof(ctx, "监控进程已退出，PID: %d, 退出码: %d", monitoredPid, exitCode)
+	c_log.Infof(ctx, "监控进程已退出，PID: %d, 退出码: %d", monitoredPid, exitCode)
 
 	if onExit != nil {
 		onExit(ctx, exitCode)

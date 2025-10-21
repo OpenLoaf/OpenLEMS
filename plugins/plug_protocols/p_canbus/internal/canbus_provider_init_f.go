@@ -4,8 +4,6 @@ import (
 	"common/c_enum"
 	"common/c_log"
 	"time"
-
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 func (c *CanbusProtocolProvider) ProtocolListen() {
@@ -18,15 +16,15 @@ func (c *CanbusProtocolProvider) ProtocolListen() {
 					return
 
 				case frame := <-c.receiverChan: // 接收canbus数据
-					g.Log().Debugf(c.ctx, "收到canbus 数据: %v task长度:%v", frame, len(c.canTaskList))
+					c_log.Debugf(c.ctx, "收到canbus 数据: %v task长度:%v", frame, len(c.canTaskList))
 
 					for _, task := range c.canTaskList {
 						canId := task.GetCanbusID(c.deviceConfig.Params)
-						//g.Log().Debugf(c.ctx, "当前的task ID: 0x%X 比对的ID:0x%X", canId, frame.ID)
+						//c_log.Debugf(c.ctx, "当前的task ID: 0x%X 比对的ID:0x%X", canId, frame.ID)
 						if canId == frame.ID {
 							// 同一个帧ID，在一个设备下，只会响应一个Task
 							if err := c.analysisCanbus(task, frame); err != nil {
-								g.Log().Errorf(c.ctx, "解析 CANbus 数据失败 task:%s error:%v", task.Name, err)
+								c_log.Errorf(c.ctx, "解析 CANbus 数据失败 task:%s error:%v", task.Name, err)
 							}
 
 							now := time.Now()

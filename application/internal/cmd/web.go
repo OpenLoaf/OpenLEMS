@@ -19,6 +19,7 @@ import (
 	"application/internal/utils"
 	"application/manifest"
 	"common/c_enum"
+	"common/c_log"
 	"context"
 	"io"
 	"net/http"
@@ -41,7 +42,7 @@ func startWeb(ctx context.Context) *ghttp.Server {
 // startWebWithBinding 启动Web服务，可选择是否只绑定到本地地址
 func startWebWithBinding(ctx context.Context, localOnly bool) *ghttp.Server {
 	ctx = context.WithValue(ctx, c_enum.ELogTypeEms, "Web")
-	g.Log().Infof(ctx, "准备启动web程序！")
+	c_log.Infof(ctx, "准备启动web程序！")
 
 	s := g.Server()
 	// 中间件顺序：响应封装 -> 永不超时上下文 -> 请求ID -> 错误处理 -> 访问日志
@@ -95,7 +96,7 @@ func startWebWithBinding(ctx context.Context, localOnly bool) *ghttp.Server {
 					}
 				}
 			}
-			g.Log().Infof(ctx, "GUI模式：Web服务仅绑定到本地地址 %s", serverAddress)
+			c_log.Infof(ctx, "GUI模式：Web服务仅绑定到本地地址 %s", serverAddress)
 		}
 
 		utils.PrintWebServerInfo(ctx, serverAddress)
@@ -143,7 +144,7 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 	// 静态站点：将 `application/manifest/web` 打包进可执行文件并作为根路径提供
 	webfs, err := manifest.WebFS()
 	if err != nil {
-		g.Log().Warningf(ctx, "Web 静态资源初始化失败: %+v", err)
+		c_log.Warningf(ctx, "Web 静态资源初始化失败: %+v", err)
 		return
 	}
 
@@ -177,7 +178,7 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 		// 明确 Content-Type
 		r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 		if _, err := io.Copy(r.Response.Writer, f); err != nil {
-			g.Log().Warningf(ctx, "写入 index.html 失败: %+v", err)
+			c_log.Warningf(ctx, "写入 index.html 失败: %+v", err)
 		}
 	})
 
@@ -212,7 +213,7 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 		// 明确 Content-Type
 		r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
 		if _, err := io.Copy(r.Response.Writer, f); err != nil {
-			g.Log().Warningf(ctx, "写入 index.html 失败: %+v", err)
+			c_log.Warningf(ctx, "写入 index.html 失败: %+v", err)
 		}
 	})
 }
@@ -227,22 +228,22 @@ func setupLocalStaticFiles(s *ghttp.Server, ctx context.Context) {
 
 	// 检查静态文件目录是否存在，如果不存在则创建
 	if _, err := os.Stat(staticPath); os.IsNotExist(err) {
-		g.Log().Infof(ctx, "静态文件目录不存在，正在创建: %s", staticPath)
+		c_log.Infof(ctx, "静态文件目录不存在，正在创建: %s", staticPath)
 		if err := os.MkdirAll(staticPath, 0755); err != nil {
-			g.Log().Errorf(ctx, "创建静态文件目录失败: %s, 错误: %+v", staticPath, err)
+			c_log.Errorf(ctx, "创建静态文件目录失败: %s, 错误: %+v", staticPath, err)
 			return
 		} else {
-			g.Log().Infof(ctx, "静态文件目录创建成功: %s", staticPath)
+			c_log.Infof(ctx, "静态文件目录创建成功: %s", staticPath)
 		}
 	}
 
 	// 再次检查目录是否存在（创建后或原本就存在）
 	if _, err := os.Stat(staticPath); err != nil {
-		g.Log().Errorf(ctx, "静态文件目录创建失败或无法访问: %s", staticPath)
+		c_log.Errorf(ctx, "静态文件目录创建失败或无法访问: %s", staticPath)
 		return
 	}
 
-	g.Log().Infof(ctx, "启用本地静态文件服务，路径: %s", staticPath)
+	c_log.Infof(ctx, "启用本地静态文件服务，路径: %s", staticPath)
 
 	// 静态文件路由处理
 	s.BindHandler("GET:/static/*", func(r *ghttp.Request) {

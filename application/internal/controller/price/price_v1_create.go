@@ -2,6 +2,7 @@ package price
 
 import (
 	v1 "application/api/price/v1"
+	"common/c_log"
 	"context"
 	"s_db"
 	"s_db/s_db_model"
@@ -39,9 +40,9 @@ func (c *Controller) CreatePrice(ctx context.Context, req *v1.CreatePriceReq) (r
 
 	// 刷新缓存
 	if err := s_price.RefreshPriceCache(ctx); err != nil {
-		g.Log().Errorf(ctx, "刷新电价缓存失败: %+v", err)
+		c_log.Errorf(ctx, "刷新电价缓存失败: %+v", err)
 	}
 
-	g.Log().Infof(ctx, "成功创建电价 - ID: %d", id)
+	c_log.Infof(ctx, "成功创建电价 - ID: %d", id)
 	return &v1.CreatePriceRes{}, nil
 }

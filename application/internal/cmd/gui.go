@@ -3,6 +3,7 @@
 package cmd
 
 import (
+	"common/c_log"
 	"context"
 	"runtime"
 	"sync"
@@ -58,9 +59,9 @@ func startGuiFullscreen(ctx context.Context) {
 func startGuiWithOptions(ctx context.Context, fullscreen bool) {
 	guiOnce.Do(func() {
 		if fullscreen {
-			g.Log().Infof(ctx, "启动GUI界面（全屏模式）...")
+			c_log.Infof(ctx, "启动GUI界面（全屏模式）...")
 		} else {
-			g.Log().Infof(ctx, "启动GUI界面...")
+			c_log.Infof(ctx, "启动GUI界面...")
 		}
 
 		// 获取服务器地址配置
@@ -71,7 +72,7 @@ func startGuiWithOptions(ctx context.Context, fullscreen bool) {
 
 		// 构建完整的服务器URL
 		serverURL := "http://localhost" + serverAddress
-		g.Log().Infof(ctx, "GUI将连接到服务器: %s", serverURL)
+		c_log.Infof(ctx, "GUI将连接到服务器: %s", serverURL)
 
 		// 创建webview实例
 		w := webview.New(false)
@@ -163,9 +164,9 @@ func startGuiWithOptions(ctx context.Context, fullscreen bool) {
 		// 如果启用全屏模式，设置全屏
 		if fullscreen {
 			setFullscreen(w)
-			g.Log().Infof(ctx, "GUI界面已启动（全屏模式）")
+			c_log.Infof(ctx, "GUI界面已启动（全屏模式）")
 		} else {
-			g.Log().Infof(ctx, "GUI界面已启动，窗口大小: 1440x900")
+			c_log.Infof(ctx, "GUI界面已启动，窗口大小: 1440x900")
 		}
 
 		// 保存实例引用
@@ -185,25 +186,25 @@ func GetGuiInstance() webview.WebView {
 func setFullscreen(w webview.WebView) {
 	window := w.Window()
 	if window == nil {
-		g.Log().Warningf(context.Background(), "无法获取窗口句柄")
+		c_log.Warningf(context.Background(), "无法获取窗口句柄")
 		return
 	}
 
 	switch runtime.GOOS {
 	case "darwin":
 		// macOS 平台：使用 Cocoa API 实现原生全屏
-		g.Log().Infof(context.Background(), "使用 Cocoa API 设置全屏")
+		c_log.Infof(context.Background(), "使用 Cocoa API 设置全屏")
 		C.setFullscreen(unsafe.Pointer(window))
 	case "windows":
 		// Windows 平台：使用 Win32 API
-		g.Log().Infof(context.Background(), "使用 Win32 API 设置全屏")
+		c_log.Infof(context.Background(), "使用 Win32 API 设置全屏")
 		C.setFullscreen(unsafe.Pointer(window))
 	case "linux":
 		// Linux 平台：使用 GTK API
-		g.Log().Infof(context.Background(), "使用 GTK API 设置全屏")
+		c_log.Infof(context.Background(), "使用 GTK API 设置全屏")
 		C.setFullscreen(unsafe.Pointer(window))
 	default:
-		g.Log().Warningf(context.Background(), "不支持的操作系统: %s", runtime.GOOS)
+		c_log.Warningf(context.Background(), "不支持的操作系统: %s", runtime.GOOS)
 		return
 	}
 

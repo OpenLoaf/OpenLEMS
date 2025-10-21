@@ -1,12 +1,11 @@
 package remote
 
 import (
+	"common/c_log"
 	"context"
 	s_export_mqtt "s_mqtt"
 
 	v1 "application/api/remote/v1"
-
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 // GetMqttStatus 获取MQTT服务状态列表
@@ -66,7 +65,7 @@ func (c *ControllerV1) GetMqttStatus(ctx context.Context, req *v1.GetMqttStatusR
 		apiClientStatusList = append(apiClientStatusList, apiClientStatus)
 	}
 
-	g.Log().Infof(ctx, "成功获取MQTT服务状态: 运行状态=%t, 客户端数量=%d", isRunning, clientCount)
+	c_log.Infof(ctx, "成功获取MQTT服务状态: 运行状态=%t, 客户端数量=%d", isRunning, clientCount)
 
 	return &v1.GetMqttStatusRes{
 		IsRunning:    isRunning,

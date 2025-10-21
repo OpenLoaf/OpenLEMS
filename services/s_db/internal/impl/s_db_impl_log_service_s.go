@@ -1,13 +1,12 @@
 package impl
 
 import (
+	"common/c_log"
 	"context"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
 	"sync"
 	"time"
-
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 type sLogServiceImpl struct {
@@ -38,11 +37,11 @@ func (s *sLogServiceImpl) CreateLog(ctx context.Context, logType, deviceId, leve
 
 	err := log.Create(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "创建日志记录失败 - 类型: %s, 设备ID: %s, 等级: %s, 错误: %+v", logType, deviceId, level, err)
+		c_log.Errorf(ctx, "创建日志记录失败 - 类型: %s, 设备ID: %s, 等级: %s, 错误: %+v", logType, deviceId, level, err)
 		return err
 	}
 
-	g.Log().Debugf(ctx, "成功创建日志记录 - 类型: %s, 设备ID: %s, 等级: %s", logType, deviceId, level)
+	c_log.Debugf(ctx, "成功创建日志记录 - 类型: %s, 设备ID: %s, 等级: %s", logType, deviceId, level)
 	return nil
 }
 
@@ -51,7 +50,7 @@ func (s *sLogServiceImpl) GetLogByDeviceId(ctx context.Context, deviceId string)
 	log := &s_db_model.SLogModel{}
 	records, err := log.GetByDeviceId(ctx, deviceId)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取日志记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
+		c_log.Errorf(ctx, "获取日志记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
 		return nil, err
 	}
 
@@ -63,7 +62,7 @@ func (s *sLogServiceImpl) GetLogByType(ctx context.Context, logType string) ([]*
 	log := &s_db_model.SLogModel{}
 	records, err := log.GetByType(ctx, logType)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取日志记录失败 - 类型: %s, 错误: %+v", logType, err)
+		c_log.Errorf(ctx, "获取日志记录失败 - 类型: %s, 错误: %+v", logType, err)
 		return nil, err
 	}
 
@@ -75,7 +74,7 @@ func (s *sLogServiceImpl) GetLogByLevel(ctx context.Context, level string) ([]*s
 	log := &s_db_model.SLogModel{}
 	records, err := log.GetByLevel(ctx, level)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取日志记录失败 - 等级: %s, 错误: %+v", level, err)
+		c_log.Errorf(ctx, "获取日志记录失败 - 等级: %s, 错误: %+v", level, err)
 		return nil, err
 	}
 
@@ -87,7 +86,7 @@ func (s *sLogServiceImpl) GetLogByDeviceIdAndType(ctx context.Context, deviceId,
 	log := &s_db_model.SLogModel{}
 	records, err := log.GetByDeviceIdAndType(ctx, deviceId, logType)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取日志记录失败 - 设备ID: %s, 类型: %s, 错误: %+v", deviceId, logType, err)
+		c_log.Errorf(ctx, "获取日志记录失败 - 设备ID: %s, 类型: %s, 错误: %+v", deviceId, logType, err)
 		return nil, err
 	}
 
@@ -99,11 +98,11 @@ func (s *sLogServiceImpl) DeleteLogByDeviceId(ctx context.Context, deviceId stri
 	log := &s_db_model.SLogModel{}
 	err := log.DeleteByDeviceId(ctx, deviceId)
 	if err != nil {
-		g.Log().Errorf(ctx, "删除日志记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
+		c_log.Errorf(ctx, "删除日志记录失败 - 设备ID: %s, 错误: %+v", deviceId, err)
 		return err
 	}
 
-	g.Log().Infof(ctx, "成功删除日志记录 - 设备ID: %s", deviceId)
+	c_log.Infof(ctx, "成功删除日志记录 - 设备ID: %s", deviceId)
 	return nil
 }
 
@@ -112,7 +111,7 @@ func (s *sLogServiceImpl) DeleteLogByType(ctx context.Context, logType string) e
 	log := &s_db_model.SLogModel{}
 	err := log.DeleteByType(ctx, logType)
 	if err != nil {
-		g.Log().Errorf(ctx, "删除日志记录失败 - 类型: %s, 错误: %+v", logType, err)
+		c_log.Errorf(ctx, "删除日志记录失败 - 类型: %s, 错误: %+v", logType, err)
 		return err
 	}
 
@@ -124,7 +123,7 @@ func (s *sLogServiceImpl) DeleteLogByFilters(ctx context.Context, filters map[st
 	log := &s_db_model.SLogModel{}
 	deletedCount, err := log.DeleteByFilters(ctx, filters)
 	if err != nil {
-		g.Log().Errorf(ctx, "根据条件删除日志记录失败 - 过滤条件: %+v, 错误: %+v", filters, err)
+		c_log.Errorf(ctx, "根据条件删除日志记录失败 - 过滤条件: %+v, 错误: %+v", filters, err)
 		return 0, err
 	}
 
@@ -136,7 +135,7 @@ func (s *sLogServiceImpl) GetAllLog(ctx context.Context) ([]*s_db_model.SLogMode
 	log := &s_db_model.SLogModel{}
 	records, err := log.GetAll(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取所有日志记录失败 - 错误: %+v", err)
+		c_log.Errorf(ctx, "获取所有日志记录失败 - 错误: %+v", err)
 		return nil, err
 	}
 
@@ -148,7 +147,7 @@ func (s *sLogServiceImpl) GetLogPage(ctx context.Context, page, pageSize int, fi
 	log := &s_db_model.SLogModel{}
 	records, total, err := log.GetPage(ctx, page, pageSize, filters)
 	if err != nil {
-		g.Log().Errorf(ctx, "分页获取日志记录失败 - 页码: %d, 页大小: %d, 过滤条件: %+v, 错误: %+v", page, pageSize, filters, err)
+		c_log.Errorf(ctx, "分页获取日志记录失败 - 页码: %d, 页大小: %d, 过滤条件: %+v, 错误: %+v", page, pageSize, filters, err)
 		return nil, 0, err
 	}
 
@@ -160,11 +159,11 @@ func (s *sLogServiceImpl) ClearAllLog(ctx context.Context) error {
 	log := &s_db_model.SLogModel{}
 	err := log.ClearAll(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "清除所有日志记录失败 - 错误: %+v", err)
+		c_log.Errorf(ctx, "清除所有日志记录失败 - 错误: %+v", err)
 		return err
 	}
 
-	g.Log().Infof(ctx, "成功清除所有日志记录并执行VACUUM")
+	c_log.Infof(ctx, "成功清除所有日志记录并执行VACUUM")
 	return nil
 }
 
@@ -173,7 +172,7 @@ func (s *sLogServiceImpl) GetLogCount(ctx context.Context) (int, error) {
 	log := &s_db_model.SLogModel{}
 	count, err := log.GetCount(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "获取日志表记录总数失败 - 错误: %+v", err)
+		c_log.Errorf(ctx, "获取日志表记录总数失败 - 错误: %+v", err)
 		return 0, err
 	}
 

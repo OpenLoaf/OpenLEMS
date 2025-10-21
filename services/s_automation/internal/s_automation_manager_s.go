@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/expr-lang/expr"
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/gogf/gf/v2/os/gtime"
 	"github.com/pkg/errors"
 	"github.com/shockerli/cvt"
@@ -52,7 +51,7 @@ func (m *SAutomationManager) Start(ctx context.Context, interval time.Duration) 
 	defer m.mu.Unlock()
 
 	if m.isRunning {
-		g.Log().Warning(ctx, "自动化管理器已经在运行中")
+		c_log.Warning(ctx, "自动化管理器已经在运行中")
 		return nil
 	}
 
@@ -72,12 +71,12 @@ func (m *SAutomationManager) Start(ctx context.Context, interval time.Duration) 
 		m.defaultExecutionInterval = cvt.Int64(s_db_basic.SystemSettingAutomationInternalMilliseconds.DefaultValue)
 	}
 
-	g.Log().Infof(m.ctx, "自动化管理器系统默认执行间隔: %d 毫秒", m.defaultExecutionInterval)
+	c_log.Infof(m.ctx, "自动化管理器系统默认执行间隔: %d 毫秒", m.defaultExecutionInterval)
 
 	// 加载所有自动化任务
 	err := m.loadAllAutomations(m.ctx)
 	if err != nil {
-		g.Log().Errorf(m.ctx, "加载自动化任务失败: %+v", err)
+		c_log.Errorf(m.ctx, "加载自动化任务失败: %+v", err)
 		return err
 	}
 
@@ -88,7 +87,7 @@ func (m *SAutomationManager) Start(ctx context.Context, interval time.Duration) 
 	// 启动执行协程
 	go m.executionLoop()
 
-	g.Log().Infof(m.ctx, "自动化管理器启动成功，检查间隔: %v", interval)
+	c_log.Infof(m.ctx, "自动化管理器启动成功，检查间隔: %v", interval)
 	return nil
 }
 
@@ -98,7 +97,7 @@ func (m *SAutomationManager) Stop(ctx context.Context) error {
 	defer m.mu.Unlock()
 
 	if !m.isRunning {
-		g.Log().Warning(ctx, "自动化管理器未在运行")
+		c_log.Warning(ctx, "自动化管理器未在运行")
 		return nil
 	}
 
@@ -113,18 +112,18 @@ func (m *SAutomationManager) Stop(ctx context.Context) error {
 	}
 
 	m.isRunning = false
-	g.Log().Info(ctx, "自动化管理器已停止")
+	c_log.Info(ctx, "自动化管理器已停止")
 	return nil
 }
 
 // Restart 重启自动化管理器
 func (m *SAutomationManager) Restart(ctx context.Context, interval time.Duration) error {
-	g.Log().Info(ctx, "开始重启自动化管理器")
+	c_log.Info(ctx, "开始重启自动化管理器")
 
 	// 先停止服务
 	err := m.Stop(ctx)
 	if err != nil {
-		g.Log().Errorf(ctx, "停止自动化管理器失败: %+v", err)
+		c_log.Errorf(ctx, "停止自动化管理器失败: %+v", err)
 		return err
 	}
 
@@ -134,11 +133,11 @@ func (m *SAutomationManager) Restart(ctx context.Context, interval time.Duration
 	// 重新启动服务
 	err = m.Start(ctx, interval)
 	if err != nil {
-		g.Log().Errorf(ctx, "启动自动化管理器失败: %+v", err)
+		c_log.Errorf(ctx, "启动自动化管理器失败: %+v", err)
 		return err
 	}
 
-	g.Log().Info(ctx, "自动化管理器重启成功")
+	c_log.Info(ctx, "自动化管理器重启成功")
 	return nil
 }
 
@@ -175,7 +174,7 @@ func (m *SAutomationManager) AddAutomation(ctx context.Context, automation *s_db
 		automation.GetExecutionInterval(),
 	)
 	if err != nil {
-		g.Log().Errorf(ctx, "创建自动化任务失败: %+v", err)
+		c_log.Errorf(ctx, "创建自动化任务失败: %+v", err)
 		return err
 	}
 
@@ -185,13 +184,13 @@ func (m *SAutomationManager) AddAutomation(ctx context.Context, automation *s_db
 	// 创建预解析的任务
 	task, err := m.createAutomationTask(automation)
 	if err != nil {
-		g.Log().Errorf(ctx, "创建自动化任务失败，ID: %d, 错误: %+v", id, err)
+		c_log.Errorf(ctx, "创建自动化任务失败，ID: %d, 错误: %+v", id, err)
 		return err
 	}
 
 	m.automations[id] = task
 
-	g.Log().Infof(ctx, "成功添加自动化任务，ID: %d", id)
+	c_log.Infof(ctx, "成功添加自动化任务，ID: %d", id)
 	return nil
 }
 
@@ -203,14 +202,14 @@ func (m *SAutomationManager) RemoveAutomation(ctx context.Context, id int) error
 	// 从数据库删除
 	err := s_db.GetAutomationService().DeleteAutomation(ctx, id)
 	if err != nil {
-		g.Log().Errorf(ctx, "删除自动化任务失败，ID: %d, 错误: %+v", id, err)
+		c_log.Errorf(ctx, "删除自动化任务失败，ID: %d, 错误: %+v", id, err)
 		return err
 	}
 
 	// 从内存缓存删除
 	delete(m.automations, id)
 
-	g.Log().Infof(ctx, "成功删除自动化任务，ID: %d", id)
+	c_log.Infof(ctx, "成功删除自动化任务，ID: %d", id)
 	return nil
 }
 
@@ -222,27 +221,27 @@ func (m *SAutomationManager) UpdateAutomation(ctx context.Context, id int, data 
 	// 更新数据库
 	err := s_db.GetAutomationService().UpdateAutomation(ctx, id, data)
 	if err != nil {
-		g.Log().Errorf(ctx, "更新自动化任务失败，ID: %d, 错误: %+v", id, err)
+		c_log.Errorf(ctx, "更新自动化任务失败，ID: %d, 错误: %+v", id, err)
 		return err
 	}
 
 	// 重新加载该任务到内存缓存
 	automation, err := s_db.GetAutomationService().GetAutomationById(ctx, id)
 	if err != nil {
-		g.Log().Errorf(ctx, "重新加载自动化任务失败，ID: %d, 错误: %+v", id, err)
+		c_log.Errorf(ctx, "重新加载自动化任务失败，ID: %d, 错误: %+v", id, err)
 		return err
 	}
 
 	// 创建预解析的任务
 	task, err := m.createAutomationTask(automation)
 	if err != nil {
-		g.Log().Errorf(ctx, "重新创建自动化任务失败，ID: %d, 错误: %+v", id, err)
+		c_log.Errorf(ctx, "重新创建自动化任务失败，ID: %d, 错误: %+v", id, err)
 		return err
 	}
 
 	m.automations[id] = task
 
-	g.Log().Infof(ctx, "成功更新自动化任务，ID: %d", id)
+	c_log.Infof(ctx, "成功更新自动化任务，ID: %d", id)
 	return nil
 }
 
@@ -284,13 +283,13 @@ func (m *SAutomationManager) loadAllAutomations(ctx context.Context) error {
 	for _, automation := range automations {
 		task, err := m.createAutomationTask(automation)
 		if err != nil {
-			g.Log().Errorf(ctx, "创建自动化任务失败，ID: %d, 错误: %+v", automation.GetId(), err)
+			c_log.Errorf(ctx, "创建自动化任务失败，ID: %d, 错误: %+v", automation.GetId(), err)
 			continue
 		}
 		m.automations[automation.GetId()] = task
 	}
 
-	g.Log().Infof(ctx, "成功加载 %d 个自动化任务", len(automations))
+	c_log.Infof(ctx, "成功加载 %d 个自动化任务", len(automations))
 	return nil
 }
 
@@ -330,7 +329,7 @@ func (m *SAutomationManager) executionLoop() {
 	for {
 		select {
 		case <-m.ctx.Done():
-			g.Log().Info(m.ctx, "自动化执行循环已停止")
+			c_log.Info(m.ctx, "自动化执行循环已停止")
 			return
 		case <-m.ticker.C:
 			m.executeAutomations()
@@ -452,7 +451,7 @@ func (m *SAutomationManager) checkTriggerConfig(task *SAutomationTask) bool {
 func (m *SAutomationManager) checkTriggerCondition(condition *stypes.SAutomationTriggerCondition) bool {
 	// 验证触发条件
 	if err := condition.Validate(); err != nil {
-		g.Log().Errorf(m.ctx, "触发条件验证失败: %+v", err)
+		c_log.Errorf(m.ctx, "触发条件验证失败: %+v", err)
 		return false
 	}
 
@@ -472,7 +471,7 @@ func (m *SAutomationManager) checkTriggerCondition(condition *stypes.SAutomation
 	// 如果只设置了一种条件，只需要该条件满足
 	finalResult := deviceResult && timeResult
 
-	g.Log().Debugf(m.ctx, "触发条件检查结果 - 设备条件: %v, 时间条件: %v, 最终结果: %v",
+	c_log.Debugf(m.ctx, "触发条件检查结果 - 设备条件: %v, 时间条件: %v, 最终结果: %v",
 		deviceResult, timeResult, finalResult)
 
 	return finalResult
@@ -483,29 +482,29 @@ func (m *SAutomationManager) checkDeviceCondition(deviceCondition *stypes.SAutom
 	// 获取设备实例
 	deviceInstance := common.GetDeviceManager().GetDeviceById(deviceCondition.DeviceId)
 	if deviceInstance == nil {
-		g.Log().Warningf(m.ctx, "设备不存在: %s", deviceCondition.DeviceId)
+		c_log.Warningf(m.ctx, "设备不存在: %s", deviceCondition.DeviceId)
 		return false
 	}
 
 	// 获取设备的遥测数据
 	telemetryMap := c_base.GetAllTelemetry(deviceInstance)
 	if len(telemetryMap) == 0 {
-		g.Log().Debugf(m.ctx, "设备遥测数据为空: %s", deviceCondition.DeviceId)
+		c_log.Debugf(m.ctx, "设备遥测数据为空: %s", deviceCondition.DeviceId)
 		return false
 	}
 
-	g.Log().Debugf(m.ctx, "检查设备条件 - 设备: %s, 规则: %s, 遥测数据: %+v",
+	c_log.Debugf(m.ctx, "检查设备条件 - 设备: %s, 规则: %s, 遥测数据: %+v",
 		deviceCondition.DeviceId, deviceCondition.Rule, telemetryMap)
 
 	// 使用 expr 包解析和验证规则表达式
 	result, err := m.evaluateRuleExpression(deviceCondition.Rule, telemetryMap)
 	if err != nil {
-		g.Log().Errorf(m.ctx, "规则表达式解析失败 - 设备: %s, 规则: %s, 错误: %+v",
+		c_log.Errorf(m.ctx, "规则表达式解析失败 - 设备: %s, 规则: %s, 错误: %+v",
 			deviceCondition.DeviceId, deviceCondition.Rule, err)
 		return false
 	}
 
-	g.Log().Debugf(m.ctx, "设备条件检查结果 - 设备: %s, 规则: %s, 结果: %v",
+	c_log.Debugf(m.ctx, "设备条件检查结果 - 设备: %s, 规则: %s, 结果: %v",
 		deviceCondition.DeviceId, deviceCondition.Rule, result)
 
 	return result
@@ -515,12 +514,12 @@ func (m *SAutomationManager) checkDeviceCondition(deviceCondition *stypes.SAutom
 func (m *SAutomationManager) checkTimeCondition(timeCondition *stypes.SAutomationTimeCondition) bool {
 	now := time.Now()
 
-	g.Log().Infof(m.ctx, "检查时间条件 - 当前时间: %s, 条件: %+v",
+	c_log.Infof(m.ctx, "检查时间条件 - 当前时间: %s, 条件: %+v",
 		now.Format("2006-01-02 15:04:05"), timeCondition)
 
 	result := timeCondition.IsTimeMatch(now)
 
-	g.Log().Infof(m.ctx, "时间条件检查结果 - 当前时间: %s, 结果: %v",
+	c_log.Infof(m.ctx, "时间条件检查结果 - 当前时间: %s, 结果: %v",
 		now.Format("2006-01-02 15:04:05"), result)
 
 	return result

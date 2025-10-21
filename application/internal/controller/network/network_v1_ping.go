@@ -1,6 +1,7 @@
 package network
 
 import (
+	"common/c_log"
 	"context"
 	"net"
 
@@ -9,7 +10,6 @@ import (
 
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"github.com/gogf/gf/v2/frame/g"
 )
 
 // Ping 执行ping测试
@@ -22,22 +22,22 @@ func (c *ControllerV1) Ping(ctx context.Context, req *v1.PingReq) (res *v1.PingR
 	// 2. 获取网络管理器实例
 	networkManager := t_network_manager.GetInstance()
 	if networkManager == nil {
-		g.Log().Errorf(ctx, "获取网络管理器实例失败")
+		c_log.Errorf(ctx, "获取网络管理器实例失败")
 		return nil, gerror.NewCode(gcode.CodeInternalError, "网络管理器初始化失败")
 	}
 
 	// 3. 执行ping测试
 	result, err := networkManager.Ping(ctx, req.Target)
 	if err != nil {
-		g.Log().Errorf(ctx, "执行ping测试失败: %+v", err)
+		c_log.Errorf(ctx, "执行ping测试失败: %+v", err)
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "ping测试失败")
 	}
 
 	// 4. 记录测试结果
 	if result.Success {
-		g.Log().Infof(ctx, "ping %s 成功，延迟: %.2fms", req.Target, result.Latency)
+		c_log.Infof(ctx, "ping %s 成功，延迟: %.2fms", req.Target, result.Latency)
 	} else {
-		g.Log().Warningf(ctx, "ping %s 失败: %s", req.Target, result.Error)
+		c_log.Warningf(ctx, "ping %s 失败: %s", req.Target, result.Error)
 	}
 
 	return &v1.PingRes{
