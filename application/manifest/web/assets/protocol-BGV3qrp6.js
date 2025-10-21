@@ -1,0 +1,1 @@
+import{j as r,p as t,k as e,l as c}from"./index-ZQFWfO0x.js";const n=o=>r("/protocol/list",{type:o}),l=o=>t("/protocol/create",o),a=o=>c("/protocol/update",o),p=o=>e("/protocol/delete",{ProtocolId:o}),i=o=>t("/protocol/monitor/overview",o),u=o=>t("/protocol/monitor/trend",o),d=o=>t("/protocol/monitor/metrics",o);export{d as a,u as b,i as c,p as d,l as e,n as g,a as u};
