@@ -1,0 +1,263 @@
+---
+alwaysApply: true
+description: Cursor规则文件命名规范 - 定义.cursor/rules目录中规则文件的命名标准、分类体系、文件组织方式等。适用于所有规则文件的创建、重命名、分类管理等场景。
+globs: .cursor/rules/**/*.mdc
+---
+
+# Cursor 规则文件命名规范
+
+## 概述
+
+本规范定义了 `.cursor/rules` 目录中规则文件的命名标准、分类体系和文件组织方式，确保规则系统的清晰性和可维护性。
+
+## 分类前缀系统
+
+### 1. 分类定义
+
+| 前缀 | 分类 | 说明 | 示例 |
+|------|------|------|------|
+| `arch-` | 架构设计 | 系统架构、模块设计、整体结构规范 | `arch-project-structure.mdc` |
+| `api-` | API开发 | API接口设计、开发规范、测试规范 | `api-generation-standards.mdc` |
+| `code-` | 代码规范 | 代码风格、命名规范、结构规范 | `code-common-library.mdc` |
+| `biz-` | 业务逻辑 | 业务规则、领域模型、业务流程 | `biz-price-management.mdc` |
+| `tech-` | 技术集成 | 技术栈集成、工具配置、部署规范 | `tech-hexlib-cgo.mdc` |
+| `style-` | 样式格式 | UI样式、文档格式、展示规范 | `style-ui-components.mdc` |
+| `test-` | 测试相关 | 测试规范、测试策略、测试工具 | `test-unit-testing.mdc` |
+| `deploy-` | 部署运维 | 部署流程、运维规范、监控配置 | `deploy-docker-config.mdc` |
+| `mgt-` | 管理规范 | 规则管理、流程管理、团队协作 | `mgt-cursor-rules.mdc` |
+
+### 2. 分类选择原则
+
+- **架构设计 (arch-)**：涉及系统整体结构、模块关系、设计模式
+- **API开发 (api-)**：RESTful API、接口设计、API测试
+- **代码规范 (code-)**：编程规范、命名约定、代码结构
+- **业务逻辑 (biz-)**：业务规则、领域知识、业务流程
+- **技术集成 (tech-)**：第三方库集成、工具链配置、技术栈
+- **样式格式 (style-)**：UI设计、文档格式、展示规范
+- **测试相关 (test-)**：单元测试、集成测试、测试策略
+- **部署运维 (deploy-)**：部署流程、运维规范、监控配置
+- **管理规范 (mgt-)**：规则管理、流程管理、团队协作
+
+## 命名格式规范
+
+### 1. 基本格式
+
+```text
+<分类前缀>-<功能描述>.mdc
+```
+
+### 2. 命名规则
+
+- **分类前缀**：必须使用上述定义的分类前缀
+- **功能描述**：使用小写字母和连字符，简洁明了
+- **文件扩展名**：统一使用 `.mdc`
+- **长度限制**：文件名总长度不超过40个字符
+
+### 3. 命名示例
+
+```markdown
+# 架构设计规则
+arch-project-structure.mdc          # 项目结构规范
+arch-services-architecture.mdc      # 服务架构规范
+arch-unified-point-system.mdc       # 统一点位系统设计
+
+# API开发规则
+api-generation-standards.mdc        # API生成规范
+api-test-login.mdc                 # API测试登录规范
+
+# 代码规范规则
+code-common-library.mdc             # 通用库规范
+code-config-struct-tags.mdc        # 配置结构体标签规范
+code-enum-creation-standards.mdc   # 枚举创建规范
+
+# 业务逻辑规则
+biz-price-management.mdc           # 电价管理规范
+biz-policy-management.mdc           # 策略管理规范
+biz-setting-system.mdc             # 系统设置规范
+
+# 技术集成规则
+tech-hexlib-cgo.mdc                # hexlib CGO集成规范
+tech-tsdb-storage.mdc             # TSDB存储插件规范
+tech-startup-commands.mdc         # 启动命令规范
+
+# 管理规范规则
+mgt-cursor-rules.mdc               # Cursor规则管理规范
+mgt-cursor-rules-naming.mdc        # 规则文件命名规范
+```
+
+## 文件组织规范
+
+### 1. 目录结构
+
+```text
+.cursor/rules/
+├── arch-*.mdc          # 架构设计规则
+├── api-*.mdc           # API开发规则
+├── code-*.mdc         # 代码规范规则
+├── biz-*.mdc          # 业务逻辑规则
+├── tech-*.mdc         # 技术集成规则
+├── style-*.mdc        # 样式格式规则
+├── test-*.mdc         # 测试相关规则
+├── deploy-*.mdc       # 部署运维规则
+└── mgt-*.mdc          # 管理规范规则
+```
+
+### 2. 文件排序
+
+在目录列表中，文件按以下顺序排列：
+
+1. `mgt-` - 管理规范（最重要，包含规则管理本身）
+2. `arch-` - 架构设计
+3. `code-` - 代码规范
+4. `api-` - API开发
+5. `biz-` - 业务逻辑
+6. `tech-` - 技术集成
+7. `style-` - 样式格式
+8. `test-` - 测试相关
+9. `deploy-` - 部署运维
+
+## 规则文件元数据规范
+
+### 1. 标准元数据格式
+
+```markdown
+---
+alwaysApply: true/false
+description: 规则描述 - 简洁说明规则用途和适用范围
+globs: 文件匹配模式（可选）
+---
+```
+
+### 2. 元数据字段说明
+
+- **alwaysApply**:
+  - `true` - 规则始终应用，适用于全局规范
+  - `false` - 规则需要手动应用，适用于特定场景
+- **description**: 规则的简要描述，用于规则检索和分类
+- **globs**: 文件匹配模式，使用 gitignore 风格的模式
+
+### 3. 分类对应的 alwaysApply 建议
+
+- **mgt-**: 通常为 `alwaysApply: true`（管理规范需要始终应用）
+- **arch-**: 通常为 `alwaysApply: true`（架构规范需要始终应用）
+- **code-**: 通常为 `alwaysApply: true`（代码规范需要始终应用）
+- **api-**: 通常为 `alwaysApply: false` 或使用 `globs` 匹配
+- **biz-**: 通常为 `alwaysApply: false`（业务规则按需应用）
+- **tech-**: 通常为 `alwaysApply: false` 或使用 `globs` 匹配
+- **style-**: 通常为 `alwaysApply: false` 或使用 `globs` 匹配
+- **test-**: 通常为 `alwaysApply: false` 或使用 `globs` 匹配
+- **deploy-**: 通常为 `alwaysApply: false`
+
+## 规则创建流程
+
+### 1. 确定分类
+
+根据规则内容确定分类前缀：
+
+- 涉及系统整体设计 → `arch-`
+- 涉及API开发 → `api-`
+- 涉及代码规范 → `code-`
+- 涉及业务逻辑 → `biz-`
+- 涉及技术集成 → `tech-`
+- 涉及样式格式 → `style-`
+- 涉及测试 → `test-`
+- 涉及部署运维 → `deploy-`
+- 涉及规则管理 → `mgt-`
+
+### 2. 确定文件名
+
+- 使用分类前缀
+- 功能描述使用小写字母和连字符
+- 保持简洁明了
+- 避免与现有文件重名
+
+### 3. 设置元数据
+
+- 根据分类设置 `alwaysApply`
+- 编写清晰的 `description`
+- 如需要，设置 `globs` 匹配模式
+
+## 最佳实践
+
+### 1. 命名最佳实践
+
+- **简洁明了**：文件名应清楚表达规则的功能
+- **避免冗余**：不要重复分类前缀中的信息
+- **保持一致性**：同类规则使用相似的命名模式
+- **便于搜索**：使用有意义的词汇组合
+
+### 2. 分类最佳实践
+
+- **单一职责**：每个规则文件专注于一个特定主题
+- **适度粒度**：规则不应过于细碎或过于宽泛
+- **逻辑清晰**：分类应该符合直觉和项目结构
+- **易于维护**：分类应该便于后续的维护和扩展
+
+### 3. 组织最佳实践
+
+- **按分类排序**：在目录中按分类前缀排序
+- **及时重命名**：创建新规则时立即使用正确的命名
+- **定期整理**：定期检查规则文件的分类和命名
+- **文档同步**：规则变更时同步更新相关文档
+
+## 迁移指南
+
+### 1. 重命名现有文件
+
+使用以下命令重命名现有文件：
+
+```bash
+# 管理规范
+mv cursor-rules-management.mdc mgt-cursor-rules.mdc
+
+# 架构设计
+mv project-structure.mdc arch-project-structure.mdc
+mv services-architecture.mdc arch-services-architecture.mdc
+mv unified-point-system.mdc arch-unified-point-system.mdc
+
+# 代码规范
+mv common-library.mdc code-common-library.mdc
+mv config-struct-tags.mdc code-config-struct-tags.mdc
+mv enum-creation-standards.mdc code-enum-creation-standards.mdc
+
+# 业务逻辑
+mv price-management-system.mdc biz-price-management.mdc
+mv policy-management-system.mdc biz-policy-management.mdc
+mv setting-system.mdc biz-setting-system.mdc
+
+# 技术集成
+mv hexlib-cgo.mdc tech-hexlib-cgo.mdc
+mv tsdb-storage-plugin.mdc tech-tsdb-storage.mdc
+mv startup-commands.mdc tech-startup-commands.mdc
+```
+
+### 2. 更新引用
+
+重命名后需要更新以下引用：
+
+- 规则文件之间的相互引用
+- 文档中的规则文件链接
+- 代码中的规则文件路径引用
+
+### 3. 验证迁移
+
+迁移完成后验证：
+
+- 所有文件都使用了正确的分类前缀
+- 文件名符合命名规范
+- 元数据设置正确
+- 引用关系完整
+
+## 相关文件
+
+- [mgt-cursor-rules.mdc](mdc:.cursor/rules/mgt-cursor-rules.mdc) - Cursor规则管理规范
+- [.cursor/rules/](mdc:.cursor/rules/) - 规则文件目录
+
+## 更新日志
+
+- **2024-01-XX** - 初始版本，定义规则文件命名规范
+- **未来更新** - 根据项目需要和团队反馈持续改进
+
+---
+
+**注意**: 本规范是动态文档，会根据项目发展和团队反馈持续更新。所有规则文件的创建、重命名和分类都应遵循本规范的要求。

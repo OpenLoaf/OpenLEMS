@@ -53,23 +53,23 @@ globs: 文件匹配模式（可选）
 
 适用于整个项目的规则，自动应用到所有请求：
 
-- **common-library.mdc** - 通用库结构和命名规范
-- **cursor-rules-management.mdc** - 规则管理规范（本文件）
+- **code-common-library.mdc** - 通用库结构和命名规范
+- **mgt-cursor-rules.mdc** - 规则管理规范（本文件）
 
 ### 2. 特定文件规则 (globs 模式)
 
 适用于特定文件类型的规则：
 
-- **config-struct-tags.mdc** - 配置结构体标签规范
+- **code-config-struct-tags.mdc** - 配置结构体标签规范
   - 适用文件：`*config*.go`, `*Config*.go`
 
 ### 3. 手动应用规则 (alwaysApply: false)
 
 需要手动应用的规则，适用于特定开发场景：
 
-- **project-structure.mdc** - 项目整体结构指南
-- **services-architecture.mdc** - 服务架构指南
-- **setting-system.mdc** - 系统设置管理规范
+- **arch-project-structure.mdc** - 项目整体结构指南
+- **arch-services-architecture.mdc** - 服务架构指南
+- **biz-setting-system.mdc** - 系统设置管理规范
 
 ## 规则文件命名规范
 
@@ -83,12 +83,12 @@ globs: 文件匹配模式（可选）
 
 ### 命名示例
 
-- `common-library.mdc` - 通用库规范
-- `project-structure.mdc` - 项目结构指南
-- `services-architecture.mdc` - 服务架构规范
-- `config-struct-tags.mdc` - 配置标签规范
-- `setting-system.mdc` - 系统设置规范
-- `cursor-rules-management.mdc` - 规则管理规范
+- `code-common-library.mdc` - 通用库规范
+- `arch-project-structure.mdc` - 项目结构指南
+- `arch-services-architecture.mdc` - 服务架构规范
+- `code-config-struct-tags.mdc` - 配置标签规范
+- `biz-setting-system.mdc` - 系统设置规范
+- `mgt-cursor-rules.mdc` - 规则管理规范
 
 ### 命名原则
 
@@ -307,11 +307,12 @@ fetch_rules(["*"])
 ## 相关文件
 
 - [.cursor/rules/](mdc:.cursor/rules/) - 规则文件目录
-- [common-library.mdc](mdc:.cursor/rules/common-library.mdc) - 通用库规范
-- [project-structure.mdc](mdc:.cursor/rules/project-structure.mdc) - 项目结构指南
-- [services-architecture.mdc](mdc:.cursor/rules/services-architecture.mdc) - 服务架构规范
-- [config-struct-tags.mdc](mdc:.cursor/rules/config-struct-tags.mdc) - 配置标签规范
-- [setting-system.mdc](mdc:.cursor/rules/setting-system.mdc) - 系统设置规范
+- [mgt-cursor-rules-naming.mdc](mdc:.cursor/rules/mgt-cursor-rules-naming.mdc) - 规则文件命名规范
+- [code-common-library.mdc](mdc:.cursor/rules/code-common-library.mdc) - 通用库规范
+- [arch-project-structure.mdc](mdc:.cursor/rules/arch-project-structure.mdc) - 项目结构指南
+- [arch-services-architecture.mdc](mdc:.cursor/rules/arch-services-architecture.mdc) - 服务架构规范
+- [code-config-struct-tags.mdc](mdc:.cursor/rules/code-config-struct-tags.mdc) - 配置标签规范
+- [biz-setting-system.mdc](mdc:.cursor/rules/biz-setting-system.mdc) - 系统设置规范
 
 ## 更新日志
 

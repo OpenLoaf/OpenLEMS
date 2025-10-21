@@ -23,7 +23,7 @@ type GetDeviceTelemetryRes struct {
 }
 
 type GetDeviceStatusReq struct {
-	g.Meta   `path:"/device/status" method:"get" tags:"设备相关" summary:"获取设备状态信息" role:"admin"`
+	g.Meta   `path:"/device/status" method:"get" tags:"设备相关" summary:"获取设备状态信息" role:"user"`
 	DeviceId string `json:"deviceId" dc:"设备ID，为空时返回所有设备状态"`
 }
 
