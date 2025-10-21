@@ -143,6 +143,7 @@ common (共享库)
 | **tech-startup-commands.mdc** | ❌ | 启动命令、参数配置、测试方法、调试指南、PID管理 | `application/**/*.go,application/**/*.sh,application/**/*.json,application/**/*.yaml` | `.cursor/rules/tech-startup-commands.mdc` |
 | **arch-services-architecture.mdc** | ❌ | 服务层架构、模块设计、技术栈、设计模式 | `services/**/*.go` | `.cursor/rules/arch-services-architecture.mdc` |
 | **tech-hexlib-cgo.mdc** | ✅ | CGO 集成、C++ 库开发、构建流程、接口设计 | `@cpp/hexlib/**/*.{go,cpp,h,make}` | `.cursor/rules/tech-hexlib-cgo.mdc` |
+| **tech-cgo-integration.mdc** | ❌ | CGO 集成开发、C++ 库开发、跨平台构建、Docker 集成 | `@cpp/**/*.{go,cpp,h,make},application/**/*.go,script/**/*.{dockerfile,yml,yaml}` | `.cursor/rules/tech-cgo-integration.mdc` |
 | **api-generation-standards.mdc** | ❌ | API 开发、代码生成、控制器设计、接口拆分 | `application/api/**/*.go,application/internal/controller/**/*.go` | `.cursor/rules/api-generation-standards.mdc` |
 | **code-enum-creation-standards.mdc** | ❌ | 枚举定义、String 方法生成、JSON序列化 | `common/c_enum/*.go,common/c_enums/*.go` | `.cursor/rules/code-enum-creation-standards.mdc` |
 | **code-config-struct-tags.mdc** | ❌ | 配置结构体、标签规范、动态标签解析 | `*config*.go,*Config*.go,common/c_base/**/*.go,plugins/**/*config*.go` | `.cursor/rules/code-config-struct-tags.mdc` |
