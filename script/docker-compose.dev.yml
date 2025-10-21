@@ -1,33 +1,88 @@
+# 公共配置锚点
+x-common-build: &common-build
+  context: ../
+  dockerfile: ./script/Dockerfile.dev
+  args:
+    BUILDKIT_INLINE_CACHE: "1"
+
+x-common-config: &common-config
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/health"]
+    interval: 30s
+    timeout: 10s
+    retries: 3
+    start_period: 40s
+
 services:
-  ems-dev:
+  # AMD64 (x86_64) 版本 - 用于主流服务器和 PC
+  lems-amd64:
+    <<: *common-config
     build:
-      context: ../
-      dockerfile: ./script/Dockerfile.dev
-      args:
-        BUILDKIT_INLINE_CACHE: "1"
+      <<: *common-build
       platforms:
         - linux/amd64
-    container_name: ems-plan-dev
+    image: lems:amd64
+    container_name: lems-amd64
     ports:
-      - "80:80"
+      - "8080:80"
     volumes:
-      # 数据持久化
-      - ../out:/app/out
-      # Go 模块缓存
-      - go-mod-cache:/go/pkg/mod
-    environment:
-      - GO111MODULE=on
-      - GOPROXY=https://goproxy.cn,direct
-      - GOSUMDB=sum.golang.google.cn
-      - CGO_ENABLED=1
-      - LD_LIBRARY_PATH=/app/lib
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+      - vol-amd64:/app/out
+    profiles:
+      - amd64
+      - all
 
+  # ARM64 (aarch64) 版本 - 用于树莓派 4/5、Apple Silicon 等
+  lems-arm64:
+    <<: *common-config
+    build:
+      <<: *common-build
+      platforms:
+        - linux/arm64
+    image: lems:arm64
+    container_name: lems-arm64
+    ports:
+      - "8081:80"
+    volumes:
+      - vol-arm64:/app/out
+    profiles:
+      - arm64
+      - all
+
+  # ARM32 (armv7) 版本 - 用于树莓派 3、部分嵌入式设备
+  lems-arm32:
+    <<: *common-config
+    build:
+      <<: *common-build
+      platforms:
+        - linux/arm/v7
+    image: lems:arm32
+    container_name: lems-arm32
+    ports:
+      - "8082:80"
+    volumes:
+      - vol-arm32:/app/out
+    profiles:
+      - arm32
+      - all
+
+# 卷定义 - 数据持久化
 volumes:
-  go-mod-cache:
+  vol-amd64:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../out/amd64
+  vol-arm64:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../out/arm64
+  vol-arm32:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../out/arm32

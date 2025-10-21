@@ -1,8 +1,16 @@
 # EMS Plan 开发环境 Docker 镜像
-# 基于最佳实践的多阶段构建
+# 支持多架构构建: linux/amd64, linux/arm64, linux/arm/v7 (arm32)
+
+# 定义构建参数
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
 
 # 第一阶段：合并的 C++ 和 Go 构建阶段
-FROM --platform=linux/amd64 gcc:latest AS builder
+# 注意：必须使用 TARGETPLATFORM 而非 BUILDPLATFORM，确保编译器架构与目标架构一致
+FROM --platform=$TARGETPLATFORM gcc:latest AS builder
 
 # 安装 C++ 和 Go 的所有构建依赖
 RUN apt-get update && apt-get install -y \
@@ -16,21 +24,33 @@ RUN apt-get update && apt-get install -y \
     clang \
     && rm -rf /var/lib/apt/lists/*
 
-# 下载并安装 Go 1.25
-RUN curl -L https://golang.org/dl/go1.25.3.linux-amd64.tar.gz -o go1.25.3.linux-amd64.tar.gz && \
-    tar -C /usr/local -xzf go1.25.3.linux-amd64.tar.gz && \
-    rm go1.25.3.linux-amd64.tar.gz
+# 传递构建参数到 builder 阶段
+ARG TARGETARCH
+ARG TARGETVARIANT
+
+# 根据目标架构下载对应的 Go 二进制
+RUN set -eux; \
+    case "${TARGETARCH}${TARGETVARIANT}" in \
+        amd64) GOARCH_SUFFIX='amd64' ;; \
+        arm64) GOARCH_SUFFIX='arm64' ;; \
+        armv7) GOARCH_SUFFIX='armv6l' ;; \
+        *) echo "Unsupported architecture: ${TARGETARCH}${TARGETVARIANT}"; exit 1 ;; \
+    esac; \
+    curl -L "https://golang.org/dl/go1.25.3.linux-${GOARCH_SUFFIX}.tar.gz" -o go.tar.gz && \
+    tar -C /usr/local -xzf go.tar.gz && \
+    rm go.tar.gz
 
 # 添加 Go 到 PATH
 ENV PATH="/usr/local/go/bin:${PATH}"
 
-# 设置 Go 环境变量
+# 设置 Go 环境变量(架构会动态设置)
+ARG TARGETARCH
 ENV GO111MODULE=on \
     GOPROXY=https://goproxy.cn,direct \
     GOSUMDB=off \
     CGO_ENABLED=1 \
     GOOS=linux \
-    GOARCH=amd64 \
+    GOARCH=${TARGETARCH} \
     CC=gcc \
     CXX=g++ \
     PKG_CONFIG_PATH=""
@@ -82,7 +102,8 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     file ./ems
 
 # 第二阶段：运行时镜像
-FROM --platform=linux/amd64 alpine:latest AS runtime
+ARG TARGETPLATFORM
+FROM --platform=$TARGETPLATFORM alpine:latest AS runtime
 
 # 安装运行时依赖
 RUN apk add --no-cache \
@@ -105,8 +126,9 @@ COPY --from=builder /app/application/lib ./lib
 RUN mkdir -p ./out/logs ./out/data ./out/static ./out/ptdb && \
     chmod +x ./ems
 
-# 设置环境变量
-ENV LD_LIBRARY_PATH=/app/lib
+# 设置环境变量 - 固化库路径
+ENV LD_LIBRARY_PATH=/app/lib \
+    PATH=/app:$PATH
 
 # 健康检查
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
@@ -115,5 +137,6 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
 # 暴露端口
 EXPOSE 80
 
-# 启动命令
-CMD ["./ems", "--web=true", "--profile=prod"]
+# 启动脚本 - 清理 PID 文件后启动
+# 在容器环境中,主进程 PID 总是 1,旧的 PID 文件会导致冲突
+CMD ["sh", "-c", "rm -f ./out/ems.pid && ./ems --web=true --profile=prod"]

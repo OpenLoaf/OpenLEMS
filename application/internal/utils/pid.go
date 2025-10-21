@@ -117,12 +117,17 @@ func WritePidFileWithCheck(pidFile string, pid int, force bool) error {
 			return errors.Errorf("进程已在运行中 (PID: %d)，请先停止现有进程或使用 --force 参数强制启动", existingPid)
 		}
 
-		// 强制启动时，温和地终止之前的进程
-		g.Log().Infof(context.Background(), "检测到已有进程运行 (PID: %d)，开始温和终止...", existingPid)
+		// 检查是否要终止的是当前进程本身（容器环境中常见情况）
+		if existingPid == pid {
+			g.Log().Infof(context.Background(), "检测到PID文件中的进程ID (%d) 与当前进程ID相同，跳过终止操作（容器环境）", existingPid)
+		} else {
+			// 强制启动时，温和地终止之前的进程
+			g.Log().Infof(context.Background(), "检测到已有进程运行 (PID: %d)，开始温和终止...", existingPid)
 
-		// 温和终止进程
-		if err := GracefulKillProcess(existingPid); err != nil {
-			g.Log().Warningf(context.Background(), "温和终止进程失败: %v", err)
+			// 温和终止进程
+			if err := GracefulKillProcess(existingPid); err != nil {
+				g.Log().Warningf(context.Background(), "温和终止进程失败: %v", err)
+			}
 		}
 
 		// 删除旧的PID文件

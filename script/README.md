@@ -1,252 +1,340 @@
-# EMS Plan Docker 开发环境
+# LEMS Docker 多架构构建环境
 
-基于最佳实践的多阶段Docker构建，支持C++编译和Go应用开发。
+支持 **AMD64**、**ARM64**、**ARM32** 三种架构的多阶段 Docker 构建，适用于服务器、树莓派等多种硬件平台。
 
-## 文件说明
+## 📋 文件说明
 
-- `Dockerfile.dev` - 多阶段构建的Docker镜像配置
-- `docker-compose.dev.yml` - 开发环境Docker Compose配置
+- `Dockerfile.dev` - 多架构多阶段构建的 Docker 镜像配置
+- `docker-compose.dev.yml` - 多架构 Docker Compose 配置
 - `README.md` - 使用说明文档
 
-## 架构特点
+## 🏗️ 架构特点
 
-### 多阶段构建
+### 支持的平台
 
-1. **C++ 编译阶段**: 使用 `gcc:latest` 编译 C++ 库
-2. **Go 构建阶段**: 使用 `golang:1.25-alpine` 编译 Go 应用
-3. **运行时阶段**: 使用 `alpine:latest` 轻量级运行时
+| 架构 | 平台标识 | 适用设备 | 镜像名称 | 容器名称 | 端口 |
+|------|---------|---------|---------|----------|------|
+| AMD64 | linux/amd64 | x86 服务器、PC | lems:amd64 | lems-amd64 | 8080 |
+| ARM64 | linux/arm64 | 树莓派 4/5、Apple Silicon | lems:arm64 | lems-arm64 | 8081 |
+| ARM32 | linux/arm/v7 | 树莓派 3、嵌入式设备 | lems:arm32 | lems-arm32 | 8082 |
+
+### 多阶段构建流程
+
+```
+第一阶段 (builder)
+  ├─ 安装 C++ 和 Go 构建依赖
+  ├─ 下载对应架构的 Go 二进制 (1.25.3)
+  ├─ 编译 C++ hexlib 库
+  ├─ 下载 Go 模块依赖
+  └─ 编译 EMS 应用程序
+
+第二阶段 (runtime)
+  ├─ 使用 Alpine Linux 轻量级镜像
+  ├─ 复制编译好的二进制和库文件
+  ├─ 设置环境变量 (LD_LIBRARY_PATH)
+  └─ 配置健康检查
+```
 
 ### 优化特性
 
-- **依赖缓存**: 利用 Docker 层缓存加速构建
-- **模块化复制**: 分别复制 go.mod 文件利用缓存
-- **CGO 支持**: 支持 C++ 库链接
-- **健康检查**: 自动监控服务状态
+- ✅ **BuildKit 缓存**: 使用 `--mount=type=cache` 加速依赖下载
+- ✅ **动态架构适配**: 根据 `TARGETARCH` 自动选择对应的 Go 版本
+- ✅ **YAML 锚点复用**: 避免配置重复,易于维护
+- ✅ **独立数据卷**: 每个架构独立的输出目录
+- ✅ **固化环境变量**: LD_LIBRARY_PATH 在 Dockerfile 中固定
 
-## 快速开始
+## 🚀 快速开始
 
-### 1. 启动开发环境
+### 1. 构建单个架构
 
 ```bash
-# 进入脚本目录
-cd script
+# 构建 AMD64 版本
+docker-compose -f script/docker-compose.dev.yml --profile amd64 build
 
-# 启动开发环境
-docker-compose -f docker-compose.dev.yml up --build
+# 构建 ARM64 版本
+docker-compose -f script/docker-compose.dev.yml --profile arm64 build
 
-# 后台运行
-docker-compose -f docker-compose.dev.yml up -d --build
+# 构建 ARM32 版本
+docker-compose -f script/docker-compose.dev.yml --profile arm32 build
 ```
 
-### 2. 访问应用
-
-- **Web 管理界面**: http://localhost:80
-- **健康检查**: http://localhost:80/health
-- **API 文档**: http://localhost:80/api.json
-
-### 3. 停止服务
+### 2. 构建所有架构
 
 ```bash
-# 停止服务
-docker-compose -f docker-compose.dev.yml down
-
-# 停止并删除数据卷
-docker-compose -f docker-compose.dev.yml down -v
+# 使用 'all' profile 构建全部架构
+docker-compose -f script/docker-compose.dev.yml --profile all build
 ```
 
-## 开发工作流
-
-### 代码热重载
-
-由于挂载了本地代码目录，修改代码后需要重启容器：
+### 3. 启动服务
 
 ```bash
-# 重启服务
-docker-compose -f docker-compose.dev.yml restart
+# 启动 AMD64 版本 (端口 8080)
+docker-compose -f script/docker-compose.dev.yml --profile amd64 up -d
 
-# 或者重新构建并启动
-docker-compose -f docker-compose.dev.yml up --build
+# 启动 ARM64 版本 (端口 8081)
+docker-compose -f script/docker-compose.dev.yml --profile arm64 up -d
+
+# 启动 ARM32 版本 (端口 8082)
+docker-compose -f script/docker-compose.dev.yml --profile arm32 up -d
+
+# 启动所有版本
+docker-compose -f script/docker-compose.dev.yml --profile all up -d
+```
+
+### 4. 访问应用
+
+根据启动的架构,访问对应端口:
+
+- **AMD64**: http://localhost:8080
+- **ARM64**: http://localhost:8081
+- **ARM32**: http://localhost:8082
+
+健康检查: `http://localhost:808x/health`
+
+### 5. 停止服务
+
+```bash
+# 停止特定架构
+docker-compose -f script/docker-compose.dev.yml --profile amd64 down
+
+# 停止所有架构
+docker-compose -f script/docker-compose.dev.yml --profile all down
+```
+
+## 🔧 高级用法
+
+### 使用 Docker Buildx 构建多架构镜像
+
+```bash
+# 一次性构建所有架构 (需要 buildx 支持)
+docker buildx build \
+  --platform linux/amd64,linux/arm64,linux/arm/v7 \
+  -f script/Dockerfile.dev \
+  -t lems:latest \
+  .
+
+# 构建并推送到 Registry
+docker buildx build \
+  --platform linux/amd64,linux/arm64,linux/arm/v7 \
+  -f script/Dockerfile.dev \
+  -t registry.example.com/lems:latest \
+  --push \
+  .
+```
+
+### 清理旧的 PID 文件
+
+如果遇到 PID 冲突问题,清理本地 PID 文件:
+
+```bash
+# 清理所有架构的 PID 文件
+rm -f out/amd64/ems.pid out/arm64/ems.pid out/arm32/ems.pid
 ```
 
 ### 查看日志
 
 ```bash
-# 查看实时日志
-docker-compose -f docker-compose.dev.yml logs -f
+# 查看 AMD64 容器日志
+docker logs lems-amd64 -f
 
-# 查看特定服务日志
-docker-compose -f docker-compose.dev.yml logs -f ems-dev
+# 查看最近 100 行日志
+docker logs lems-amd64 --tail 100
 ```
 
-### 进入容器
+### 进入容器调试
 
 ```bash
-# 进入运行中的容器
-docker-compose -f docker-compose.dev.yml exec ems-dev bash
+# 进入 AMD64 容器
+docker exec -it lems-amd64 sh
 
 # 在容器内运行命令
-docker-compose -f docker-compose.dev.yml exec ems-dev ./ems --help
+docker exec lems-amd64 ./ems --help
 ```
 
-## 性能优化
+## 📦 数据持久化
 
-### 构建优化
+### 卷配置说明
 
-- **分层缓存**: 先复制 go.mod 文件，再复制源代码
-- **并行构建**: 利用多核 CPU 加速编译
-- **精简镜像**: 运行时镜像仅包含必要依赖
+每个架构使用独立的绑定挂载卷:
 
-### 运行时优化
+```yaml
+volumes:
+  vol-amd64:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ../out/amd64  # 挂载到 out/amd64/
+```
 
-- **静态链接**: 减少运行时依赖
-- **Alpine 基础**: 最小化镜像大小
-- **健康检查**: 自动故障恢复
+### 输出目录结构
 
-## 配置说明
+```
+out/
+├── amd64/          # AMD64 架构输出
+│   ├── logs/       # 日志文件
+│   ├── data/       # 数据库文件
+│   ├── static/     # 静态文件
+│   ├── ptdb/       # 时序数据库
+│   └── ems.pid     # 进程 PID 文件
+├── arm64/          # ARM64 架构输出
+└── arm32/          # ARM32 架构输出
+```
 
-### 端口映射
+## ⚙️ 配置说明
 
-- **80:80** - Web 服务端口（符合生产配置）
+### Dockerfile 关键配置
 
-### 数据挂载
+| 配置项 | 说明 | 值 |
+|-------|------|-----|
+| TARGETPLATFORM | 目标平台 | 动态 (linux/amd64, linux/arm64, linux/arm/v7) |
+| TARGETARCH | 目标架构 | 动态 (amd64, arm64, arm) |
+| Go 版本 | Go 语言版本 | 1.25.3 |
+| C++ 编译器 | GCC 版本 | latest (Debian) |
+| 运行时基础镜像 | Alpine 版本 | latest |
+| LD_LIBRARY_PATH | C++ 库路径 | /app/lib (固化) |
 
-- **源代码目录** - 支持代码热重载
-- **C++ 源代码** - `@cpp/` 目录
-- **配置文件** - `manifest/config/` 目录
-- **数据目录** - `out/` 目录（日志、数据库、PID 文件）
-- **Go 模块缓存** - 加速依赖下载
+### 启动命令
 
-### 环境变量
+容器启动时自动执行:
 
-- `GO111MODULE=on` - 启用 Go 模块
-- `GOPROXY=https://goproxy.cn,direct` - 使用国内代理
-- `GOSUMDB=sum.golang.google.cn` - 使用国内校验数据库
-- `CGO_ENABLED=1` - 启用 CGO
-- `LD_LIBRARY_PATH=/app/lib` - C++ 库路径
+```bash
+sh -c 'rm -f ./out/ems.pid && ./ems --web=true --profile=prod'
+```
 
-### 启动参数
-
-- `--web=true` - 启用 Web 服务
-- `--profile=prod` - 使用生产配置
+说明:
+1. `rm -f ./out/ems.pid` - 清理旧的 PID 文件,避免冲突
+2. `--web=true` - 启用 Web 服务
+3. `--profile=prod` - 使用生产环境配置
 
 ### 健康检查
 
-- **检查间隔**: 30秒
-- **超时时间**: 10秒
-- **重试次数**: 3次
-- **启动等待**: 40秒
+- **检查方式**: `wget` 访问 `/health` 接口
+- **检查间隔**: 30 秒
+- **超时时间**: 10 秒
+- **重试次数**: 3 次
+- **启动等待**: 40 秒
 
-## 常见问题
+## 🐛 常见问题
 
-### 1. 构建失败
+### 1. 构建失败: "gcc: error: unrecognized command-line option '-m64'"
 
+**原因**: 使用了错误的构建平台 (BUILDPLATFORM vs TARGETPLATFORM)
+
+**解决**: 已修复,Dockerfile 使用 `--platform=$TARGETPLATFORM` 确保编译器架构正确
+
+### 2. 容器不断重启: PID 文件冲突
+
+**原因**: 旧的 PID 文件导致程序认为已有进程在运行
+
+**解决**:
 ```bash
-# 清理构建缓存
-docker system prune -a
+# 清理 PID 文件
+rm -f out/amd64/ems.pid
 
-# 重新构建
-docker-compose -f docker-compose.dev.yml build --no-cache
+# 重启容器
+docker-compose -f script/docker-compose.dev.yml --profile amd64 restart
 ```
 
-### 2. 端口冲突
+### 3. 端口冲突
 
-修改 `docker-compose.dev.yml` 中的端口映射：
+**原因**: 端口 8080/8081/8082 已被占用
 
+**解决**: 修改 `docker-compose.dev.yml` 中的端口映射
 ```yaml
 ports:
-  - "8080:80"  # 改为 8080:80
+  - "9080:80"  # 修改为其他端口
 ```
 
-### 3. C++ 编译错误
+### 4. Go 模块下载慢
 
-确保 `@cpp` 目录包含完整的 C++ 源代码和 Makefile：
+**原因**: 网络问题或代理配置
+
+**解决**: Dockerfile 已配置国内代理 `GOPROXY=https://goproxy.cn,direct`
+
+### 5. C++ 库编译失败
+
+**检查**:
+```bash
+# 查看 C++ 源代码
+ls -la @cpp/hexlib/
+
+# 检查 Makefile
+cat @cpp/hexlib/Makefile
+```
+
+### 6. 清理构建缓存
 
 ```bash
-# 检查 C++ 代码
-ls -la @cpp/
-cat @cpp/Makefile
+# 清理所有未使用的镜像和容器
+docker system prune -a
+
+# 清理特定镜像
+docker rmi lems:amd64 lems:arm64 lems:arm32
+
+# 清理卷
+docker volume prune
 ```
 
-### 4. Go 模块问题
+## 📊 性能优化
 
-```bash
-# 清理 Go 模块缓存
-docker volume rm script_go-mod-cache
+### 构建优化
 
-# 重新下载依赖
-docker-compose -f docker-compose.dev.yml up --build
-```
+1. **BuildKit 缓存**: 使用 `--mount=type=cache` 缓存 Go 模块和构建缓存
+2. **分层复制**: 先复制依赖文件,再复制源代码,最大化缓存利用
+3. **并行下载**: Go 模块并行下载
 
-### 5. 依赖下载失败
+### 镜像大小优化
 
-如果 Go 模块下载失败，可以尝试：
+| 阶段 | 基础镜像 | 大小 | 说明 |
+|------|---------|------|------|
+| builder | gcc:latest | ~1.5GB | 仅构建阶段使用 |
+| runtime | alpine:latest | ~5MB | 最小化运行时镜像 |
+| 最终镜像 | - | ~50MB | 仅包含二进制和必要库 |
 
-```bash
-# 清理 Go 模块缓存
-docker-compose -f docker-compose.dev.yml exec ems-dev go clean -modcache
+## 🔐 安全建议
 
-# 重新下载依赖
-docker-compose -f docker-compose.dev.yml exec ems-dev go mod download
-```
+1. **不使用 root 用户**: 生产环境建议添加非 root 用户运行
+2. **只读文件系统**: 考虑使用 `--read-only` 挂载
+3. **限制资源**: 使用 Docker 资源限制 (CPU/内存)
+4. **定期更新**: 定期更新基础镜像和依赖
 
-### 6. 数据库文件权限
+## 📚 技术栈
 
-如果 SQLite 数据库文件权限有问题：
+- **Go**: 1.25.3
+- **C++**: GCC (Debian latest)
+- **运行时**: Alpine Linux latest
+- **框架**: GoFrame v2
+- **构建工具**: Docker BuildKit
+- **CGO**: 支持 C++ 库集成
 
-```bash
-# 检查数据库文件权限
-ls -la ../out/data
+## 🆚 版本差异
 
-# 调整权限
-chmod 664 ../out/data
-```
+本配置与之前版本的主要改进:
 
-## 开发建议
+| 改进项 | 之前 | 现在 |
+|--------|------|------|
+| 架构支持 | 仅 AMD64 | AMD64 + ARM64 + ARM32 |
+| 镜像命名 | ems-plan:dev | lems:amd64/arm64/arm32 |
+| Go 模块缓存 | 使用 Docker 卷 | 使用 BuildKit 缓存 |
+| LD_LIBRARY_PATH | docker-compose 配置 | Dockerfile 固化 |
+| PID 文件处理 | 手动清理 | 启动脚本自动清理 |
+| 配置复用 | 重复定义 | YAML 锚点复用 |
 
-### 1. 使用 IDE 开发
+## 📖 相关文档
 
-推荐使用支持 Docker 的 IDE（如 VS Code + Docker 扩展）进行开发，可以：
-- 直接在容器内调试
-- 实时查看日志
-- 快速重启服务
+- [项目主 README](../README.md) - 完整项目说明
+- [CLAUDE.md](../CLAUDE.md) - 开发指南
+- [CGO 集成规范](.cursor/rules/tech-cgo-integration.mdc) - CGO 开发规范
 
-### 2. 代码同步
+## 🤝 技术支持
 
-由于使用了代码挂载，本地修改会立即反映到容器中，但需要重启容器才能生效。
+如果遇到问题,请检查:
 
-### 3. 数据备份
+1. ✅ Docker 版本 >= 20.10 (支持 BuildKit)
+2. ✅ Docker Compose 版本 >= 2.0
+3. ✅ 端口是否被占用 (8080/8081/8082)
+4. ✅ 磁盘空间是否充足 (至少 5GB)
+5. ✅ 网络连接是否正常
 
-定期备份 `out/` 目录中的数据：
-
-```bash
-# 备份数据目录
-tar -czf ems-backup-$(date +%Y%m%d).tar.gz ../out/
-
-# 恢复数据
-tar -xzf ems-backup-20240101.tar.gz
-```
-
-## 技术栈
-
-- **Go**: 1.25 (Alpine)
-- **C++**: GCC (Ubuntu)
-- **GoFrame**: v2
-- **Docker**: 多阶段构建
-- **Alpine Linux**: 轻量级运行时
-- **CGO**: C++ 库集成
-
-## 生产部署
-
-本配置仅适用于开发环境。生产环境部署请参考项目根目录的 `Dockerfile` 和相关的生产部署文档。
-
-## 技术支持
-
-如果遇到问题，请检查：
-
-1. Docker 和 Docker Compose 版本
-2. 端口是否被占用
-3. 文件权限是否正确
-4. 网络连接是否正常
-5. C++ 编译环境是否完整
-
-更多信息请参考项目主 README.md 文件。
+更多问题请在项目 Issues 中反馈。
