@@ -11,6 +11,7 @@ import (
 )
 
 type ISystemV1 interface {
+	GetHealth(ctx context.Context, req *v1.GetHealthReq) (res *v1.GetHealthRes, err error)
 	GetSummary(ctx context.Context, req *v1.GetSummaryReq) (res *v1.GetSummaryRes, err error)
 	GetNetworkTraffic(ctx context.Context, req *v1.GetNetworkTrafficReq) (res *v1.GetNetworkTrafficRes, err error)
 	GetProcessMemory(ctx context.Context, req *v1.GetProcessMemoryReq) (res *v1.GetProcessMemoryRes, err error)

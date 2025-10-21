@@ -15,7 +15,9 @@ import (
 
 	v1 "application/api/system/v1"
 	"common"
+	"common/c_enum"
 
+	"github.com/gogf/gf/v2/frame/g"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -366,5 +368,70 @@ func (c *ControllerV1) GetStorageStats(ctx context.Context, req *v1.GetStorageSt
 
 	return &v1.GetStorageStatsRes{
 		Stats: storageStatsInfo,
+	}, nil
+}
+
+// GetHealth 系统健康检查
+func (c *ControllerV1) GetHealth(ctx context.Context, req *v1.GetHealthReq) (res *v1.GetHealthRes, err error) {
+	services := make(map[string]string)
+	overallStatus := "healthy"
+
+	// 检查设备管理器状态
+	deviceManager := common.GetDeviceManager()
+	if deviceManager != nil {
+		deviceStatus := deviceManager.Status()
+		if deviceStatus == c_enum.EStateRunning {
+			services["device_manager"] = "healthy"
+		} else {
+			services["device_manager"] = "unhealthy"
+			overallStatus = "unhealthy"
+		}
+	} else {
+		services["device_manager"] = "unavailable"
+		overallStatus = "unhealthy"
+	}
+
+	// 检查数据库连接
+	if g.DB() != nil {
+		if _, err := g.DB().GetOne(ctx, "SELECT 1"); err == nil {
+			services["database"] = "healthy"
+		} else {
+			services["database"] = "unhealthy"
+			overallStatus = "unhealthy"
+		}
+	} else {
+		services["database"] = "unavailable"
+		overallStatus = "unhealthy"
+	}
+
+	// 检查存储服务
+	if storageService := common.GetStorageInstance(); storageService != nil {
+		services["storage"] = "healthy"
+	} else {
+		services["storage"] = "unavailable"
+		overallStatus = "unhealthy"
+	}
+
+	// 检查策略管理器
+	if policyManager := common.GetPolicyManager(); policyManager != nil {
+		services["policy_manager"] = "healthy"
+	} else {
+		services["policy_manager"] = "unavailable"
+		overallStatus = "unhealthy"
+	}
+
+	// 检查价格管理器
+	if priceManager := common.GetPriceManager(); priceManager != nil {
+		services["price_manager"] = "healthy"
+	} else {
+		services["price_manager"] = "unavailable"
+		overallStatus = "unhealthy"
+	}
+
+	return &v1.GetHealthRes{
+		Status:    overallStatus,
+		Timestamp: time.Now().Format("2006-01-02 15:04:05"),
+		Services:  services,
+		Version:   "1.0.0", // 可以从配置中获取实际版本
 	}, nil
 }
