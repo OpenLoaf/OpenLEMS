@@ -245,7 +245,7 @@ func (c *SMqttClient) publishDeviceData() error {
 		// 获取设备实例
 		device := common.GetDeviceManager().GetDeviceById(deviceId)
 		if device == nil {
-			c_log.Warningf(c.ctx, "设备不存在: %s", deviceId)
+			c_log.Warningf(c.ctx, "Mqtt设备不存在: %s", deviceId)
 			continue
 		}
 

@@ -482,7 +482,7 @@ func (m *SAutomationManager) checkDeviceCondition(deviceCondition *stypes.SAutom
 	// 获取设备实例
 	deviceInstance := common.GetDeviceManager().GetDeviceById(deviceCondition.DeviceId)
 	if deviceInstance == nil {
-		c_log.Warningf(m.ctx, "设备不存在: %s", deviceCondition.DeviceId)
+		c_log.Warningf(m.ctx, "自动化 设备不存在: %s", deviceCondition.DeviceId)
 		return false
 	}
 
