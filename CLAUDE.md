@@ -138,20 +138,22 @@ common (共享库)
 
 | 规则文件 | 自动应用 | 适用场景 | 文件匹配模式 | 路径 |
 |---------|--------|--------|-----------|------|
-| **common-library.mdc** | ✅ | Common库开发、接口定义、命名规范、错误处理、代码注解 | `common/**/*.go` | `.cursor/rules/common-library.mdc` |
-| **project-structure.mdc** | ❌ | 项目结构、开发规范、技术栈、启动方式 | `**/*.go,**/*.md,**/*.yaml,**/*.sh` | `.cursor/rules/project-structure.mdc` |
-| **startup-commands.mdc** | ❌ | 启动命令、参数配置、测试方法、调试指南、PID管理 | `application/**/*.go,application/**/*.sh,application/**/*.json,application/**/*.yaml` | `.cursor/rules/startup-commands.mdc` |
-| **services-architecture.mdc** | ❌ | 服务层架构、模块设计、技术栈、设计模式 | `services/**/*.go` | `.cursor/rules/services-architecture.mdc` |
-| **hexlib-cgo.mdc** | ✅ | CGO 集成、C++ 库开发、构建流程、接口设计 | `@cpp/hexlib/**/*.{go,cpp,h,make}` | `.cursor/rules/hexlib-cgo.mdc` |
+| **code-common-library.mdc** | ✅ | Common库开发、接口定义、命名规范、错误处理、代码注解 | `common/**/*.go` | `.cursor/rules/code-common-library.mdc` |
+| **arch-project-structure.mdc** | ❌ | 项目结构、开发规范、技术栈、启动方式 | `**/*.go,**/*.md,**/*.yaml,**/*.sh` | `.cursor/rules/arch-project-structure.mdc` |
+| **tech-startup-commands.mdc** | ❌ | 启动命令、参数配置、测试方法、调试指南、PID管理 | `application/**/*.go,application/**/*.sh,application/**/*.json,application/**/*.yaml` | `.cursor/rules/tech-startup-commands.mdc` |
+| **arch-services-architecture.mdc** | ❌ | 服务层架构、模块设计、技术栈、设计模式 | `services/**/*.go` | `.cursor/rules/arch-services-architecture.mdc` |
+| **tech-hexlib-cgo.mdc** | ✅ | CGO 集成、C++ 库开发、构建流程、接口设计 | `@cpp/hexlib/**/*.{go,cpp,h,make}` | `.cursor/rules/tech-hexlib-cgo.mdc` |
 | **api-generation-standards.mdc** | ❌ | API 开发、代码生成、控制器设计、接口拆分 | `application/api/**/*.go,application/internal/controller/**/*.go` | `.cursor/rules/api-generation-standards.mdc` |
-| **enum-creation-standards.mdc** | ❌ | 枚举定义、String 方法生成、JSON序列化 | `common/c_enum/*.go,common/c_enums/*.go` | `.cursor/rules/enum-creation-standards.mdc` |
-| **config-struct-tags.mdc** | ❌ | 配置结构体、标签规范、动态标签解析 | `*config*.go,*Config*.go,common/c_base/**/*.go,plugins/**/*config*.go` | `.cursor/rules/config-struct-tags.mdc` |
-| **unified-point-system.mdc** | ✅ | 点位系统设计、数据映射、构造函数模式 | `common/c_base/*point*.go,common/c_proto/**/*.go,common/c_default/**/*.go,plugins/plug_drivers/**/*.go` | `.cursor/rules/unified-point-system.mdc` |
-| **tsdb-storage-plugin.mdc** | ❌ | 时序数据库存储、TSDB 插件开发 | `plugins/plug_storages/p_tsdb/**/*.go,plugins/plug_storages/**/*.go,common/c_base/*storage*.go` | `.cursor/rules/tsdb-storage-plugin.mdc` |
-| **policy-management-system.mdc** | ❌ | 策略管理、策略引擎设计、策略插件开发 | `plugins/plug_policy/**/*.go,services/s_policy/**/*.go,common/c_base/*policy*.go` | `.cursor/rules/policy-management-system.mdc` |
-| **setting-system.mdc** | ❌ | 系统设置、配置管理、SSystemSettingDefine 使用 | `services/s_db/**/*setting*.go,services/s_db/**/*Setting*.go` | `.cursor/rules/setting-system.mdc` |
+| **code-enum-creation-standards.mdc** | ❌ | 枚举定义、String 方法生成、JSON序列化 | `common/c_enum/*.go,common/c_enums/*.go` | `.cursor/rules/code-enum-creation-standards.mdc` |
+| **code-config-struct-tags.mdc** | ❌ | 配置结构体、标签规范、动态标签解析 | `*config*.go,*Config*.go,common/c_base/**/*.go,plugins/**/*config*.go` | `.cursor/rules/code-config-struct-tags.mdc` |
+| **arch-unified-point-system.mdc** | ✅ | 点位系统设计、数据映射、构造函数模式 | `common/c_base/*point*.go,common/c_proto/**/*.go,common/c_default/**/*.go,plugins/plug_drivers/**/*.go` | `.cursor/rules/arch-unified-point-system.mdc` |
+| **tech-tsdb-storage.mdc** | ❌ | 时序数据库存储、TSDB 插件开发 | `plugins/plug_storages/p_tsdb/**/*.go,plugins/plug_storages/**/*.go,common/c_base/*storage*.go` | `.cursor/rules/tech-tsdb-storage.mdc` |
+| **biz-policy-management.mdc** | ❌ | 策略管理、策略引擎设计、策略插件开发 | `plugins/plug_policy/**/*.go,services/s_policy/**/*.go,common/c_base/*policy*.go` | `.cursor/rules/biz-policy-management.mdc` |
+| **biz-setting-system.mdc** | ❌ | 系统设置、配置管理、SSystemSettingDefine 使用 | `services/s_db/**/*setting*.go,services/s_db/**/*Setting*.go` | `.cursor/rules/biz-setting-system.mdc` |
+| **biz-price-management.mdc** | ❌ | 电价管理、价格策略、电价配置 | `services/s_price/**/*.go,application/api/price/**/*.go` | `.cursor/rules/biz-price-management.mdc` |
 | **api-test-login.mdc** | ❌ | API 测试、登录验证、认证流程 | `application/api/**/*.go,application/internal/controller/**/*.go,*.md,*.yaml,*.json,*.sh` | `.cursor/rules/api-test-login.mdc` |
-| **cursor-rules-management.mdc** | ✅ | Cursor规则文件创建、管理和使用规范 | `.cursor/rules/**/*.mdc` | `.cursor/rules/cursor-rules-management.mdc` |
+| **mgt-cursor-rules.mdc** | ✅ | Cursor规则文件创建、管理和使用规范 | `.cursor/rules/**/*.mdc` | `.cursor/rules/mgt-cursor-rules.mdc` |
+| **mgt-cursor-rules-naming.mdc** | ✅ | Cursor规则文件命名规范、分类体系、文件组织 | `.cursor/rules/**/*.mdc` | `.cursor/rules/mgt-cursor-rules-naming.mdc` |
 
 ## 三阶段工作流 (AGENTS.md)
 

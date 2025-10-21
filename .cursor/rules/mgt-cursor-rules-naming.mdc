@@ -200,63 +200,13 @@ globs: 文件匹配模式（可选）
 - **定期整理**：定期检查规则文件的分类和命名
 - **文档同步**：规则变更时同步更新相关文档
 
-## 迁移指南
+### 4. 文档同步要求
 
-### 1. 重命名现有文件
-
-使用以下命令重命名现有文件：
-
-```bash
-# 管理规范
-mv cursor-rules-management.mdc mgt-cursor-rules.mdc
-
-# 架构设计
-mv project-structure.mdc arch-project-structure.mdc
-mv services-architecture.mdc arch-services-architecture.mdc
-mv unified-point-system.mdc arch-unified-point-system.mdc
-
-# 代码规范
-mv common-library.mdc code-common-library.mdc
-mv config-struct-tags.mdc code-config-struct-tags.mdc
-mv enum-creation-standards.mdc code-enum-creation-standards.mdc
-
-# 业务逻辑
-mv price-management-system.mdc biz-price-management.mdc
-mv policy-management-system.mdc biz-policy-management.mdc
-mv setting-system.mdc biz-setting-system.mdc
-
-# 技术集成
-mv hexlib-cgo.mdc tech-hexlib-cgo.mdc
-mv tsdb-storage-plugin.mdc tech-tsdb-storage.mdc
-mv startup-commands.mdc tech-startup-commands.mdc
-```
-
-### 2. 更新引用
-
-重命名后需要更新以下引用：
-
-- 规则文件之间的相互引用
-- 文档中的规则文件链接
-- 代码中的规则文件路径引用
-
-### 3. 验证迁移
-
-迁移完成后验证：
-
-- 所有文件都使用了正确的分类前缀
-- 文件名符合命名规范
-- 元数据设置正确
-- 引用关系完整
-
-## 相关文件
-
-- [mgt-cursor-rules.mdc](mdc:.cursor/rules/mgt-cursor-rules.mdc) - Cursor规则管理规范
-- [.cursor/rules/](mdc:.cursor/rules/) - 规则文件目录
-
-## 更新日志
-
-- **2024-01-XX** - 初始版本，定义规则文件命名规范
-- **未来更新** - 根据项目需要和团队反馈持续改进
+- **强制同步**：当规则文件名发生变化时，必须立即在 `CLAUDE.md` 中更新对应的文件名引用
+- **新增规则**：创建新的规则文件时，必须同时在 `CLAUDE.md` 的规则文件索引表中添加对应的条目
+- **删除规则**：删除规则文件时，必须从 `CLAUDE.md` 中移除对应的条目
+- **重命名规则**：重命名规则文件时，必须更新 `CLAUDE.md` 中的文件名、路径和描述信息
+- **验证机制**：每次规则文件变更后，必须验证 `CLAUDE.md` 中的索引表与实际文件列表的一致性
 
 ---
 
