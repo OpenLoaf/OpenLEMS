@@ -1,0 +1,331 @@
+---
+alwaysApply: false
+description: CGO 集成开发规范 - 定义 C++ 库开发、CGO 绑定、构建系统、Docker 集成等完整开发流程。适用于 C++ 库开发、Go CGO 集成、跨平台构建、Docker 多阶段构建等场景。
+---
+
+# CGO 集成开发规范
+
+## 概述
+
+本规范定义了 EMS 项目中 CGO（C Go）集成的完整开发流程，包括 C++ 库开发、Go 绑定、构建系统、Docker 集成等。适用于高性能数值计算库（如 MPC 卡尔曼滤波器）与 Go 应用的集成开发。
+
+## 项目结构
+
+### C++ 库模块结构
+
+参考：[@cpp/hexlib/](mdc:@cpp/hexlib/)
+
+- `src/include/hexlib.h` - C API 接口定义
+- `src/hexlib.cpp` - 基础工具函数
+- `src/mpc_kalman.cpp` - 核心算法实现
+- `build/libhexlib.a` - 静态库（主要使用）
+- `hexlib.go` - CGO 绑定代码
+- `hexlib_test.go` - Go 测试文件
+- `Makefile` - 跨平台构建配置
+
+### 应用集成结构
+
+参考：[application/](mdc:application/) 和 [script/](mdc:script/)
+
+- `application/go.mod` - 包含 hexlib 依赖
+- `application/main.go` - 使用 hexlib 的入口
+- `script/Dockerfile.dev` - 多阶段 Docker 构建
+- `script/docker-compose.dev.yml` - 开发环境配置
+
+## C++ 库开发规范
+
+### 1. 头文件设计规范
+
+参考：[@cpp/hexlib/src/include/hexlib.h](mdc:@cpp/hexlib/src/include/hexlib.h)
+
+#### 设计原则
+
+1. **extern "C" 包装**: 所有 C API 必须用 `extern "C"` 包装
+2. **平台兼容性**: 使用 `HEXLIB_API` 宏处理不同平台的导出
+3. **内存管理**: 提供对应的 `free` 函数释放 C 分配的内存
+4. **指针使用**: 复杂对象通过 `void*` 不透明指针传递
+5. **返回值**: 优先返回 struct 或简单类型
+
+### 2. C++ 实现规范
+
+参考：[@cpp/hexlib/src/mpc_kalman.cpp](mdc:@cpp/hexlib/src/mpc_kalman.cpp)
+
+#### 核心要求
+
+- 使用 `extern "C"` 包装所有 C API
+- 提供完整的内存管理函数
+- 实现错误检查和边界验证
+- 支持跨平台编译
+
+### 3. 构建系统规范
+
+参考：[@cpp/hexlib/Makefile](mdc:@cpp/hexlib/Makefile)
+
+#### 构建流程
+
+1. **依赖检查**: 验证编译器和源文件
+2. **对象编译**: 编译 C++ 源文件为目标文件
+3. **静态库**: 使用 `ar` 工具创建静态库
+4. **动态库**: 可选创建动态库
+5. **清理**: 提供清理构建产物的目标
+
+## CGO 集成规范
+
+### 1. Go 绑定代码规范
+
+参考：[@cpp/hexlib/hexlib.go](mdc:@cpp/hexlib/hexlib.go)
+
+#### CGO 指令配置
+
+- 使用 `#cgo` 指令` 设置编译和链接参数
+- 配置正确的包含路径和库路径
+- 处理平台特定的编译标志
+
+#### 类型转换规范
+
+- 基础类型直接转换（int, double, string）
+- 复杂结构体通过 unsafe.Pointer 转换
+- 数组和切片的安全转换
+
+#### 内存管理规范
+
+- 所有 C 分配的内存必须手动释放
+- 使用 `defer` 确保资源清理
+- 检查 nil 指针避免崩溃
+
+### 2. 错误处理规范
+
+#### 安全检查
+
+- 所有 CGO 函数都必须进行安全检查
+- 检查 nil 指针和边界条件
+- 提供合理的默认返回值
+
+#### 资源清理
+
+- 使用 `defer` 确保资源清理
+- 避免重复释放同一资源
+- 在测试中验证资源清理
+
+### 3. 测试规范
+
+参考：[@cpp/hexlib/hexlib_test.go](mdc:@cpp/hexlib/hexlib_test.go)
+
+#### 测试要求
+
+- 编写完整的单元测试
+- 测试所有公共 API
+- 验证内存管理和资源清理
+- 测试边界条件和错误情况
+
+## Docker 集成规范
+
+### 1. 多阶段构建规范
+
+参考：[script/Dockerfile.dev](mdc:script/Dockerfile.dev)
+
+#### 构建阶段
+
+1. **C++ 编译阶段**: 使用 `gcc:latest` 编译 C++ 库
+2. **Go 构建阶段**: 编译 Go 应用并链接 C++ 库
+3. **运行时阶段**: 使用 `alpine:latest` 轻量级运行时
+
+#### 优化策略
+
+- 使用 Docker 层缓存加速构建
+- 利用 BuildKit 缓存 Go 模块
+- 分层复制文件减少构建时间
+
+### 2. Docker Compose 配置
+
+参考：[script/docker-compose.dev.yml](mdc:script/docker-compose.dev.yml)
+
+#### 环境配置
+
+- 设置正确的环境变量
+- 配置数据卷挂载
+- 设置健康检查
+
+## 应用集成规范
+
+### 1. Go 模块配置
+
+参考：[application/go.mod](mdc:application/go.mod)
+
+#### 模块替换规范
+
+1. **本地替换**: 使用 `replace` 指令指向本地 C++ 库
+2. **版本管理**: 使用 `v0.0.0-00010101000000-000000000000` 格式
+3. **依赖顺序**: 先声明依赖，再配置替换
+
+### 2. 应用使用规范
+
+参考：[application/main.go](mdc:application/main.go)
+
+#### 使用模式
+
+- 导入 hexlib 模块
+- 创建预测器实例
+- 执行预测操作
+- 及时释放资源
+
+## 开发工作流规范
+
+### 1. 本地开发流程
+
+#### 构建顺序
+
+```bash
+# 1. 构建 C++ 库
+cd @cpp/hexlib
+make clean && make build
+
+# 2. 运行 Go 测试
+cd ../..
+CGO_ENABLED=1 go test ./@cpp/hexlib -v
+
+# 3. 构建应用
+cd application
+CGO_ENABLED=1 go build -o ems .
+
+# 4. 运行应用
+./ems
+```
+
+#### 开发检查清单
+
+- [ ] C++ 库编译成功
+- [ ] Go 测试通过
+- [ ] 应用构建成功
+- [ ] 内存泄漏检查
+- [ ] 跨平台兼容性测试
+
+### 2. Docker 开发流程
+
+#### 构建和运行
+
+```bash
+# 构建镜像
+docker-compose -f script/docker-compose.dev.yml build
+
+# 运行服务
+docker-compose -f script/docker-compose.dev.yml up -d
+
+# 查看日志
+docker-compose -f script/docker-compose.dev.yml logs -f
+```
+
+## 性能优化规范
+
+### 1. 编译优化
+
+#### C++ 编译优化
+
+- 使用 `-O2` 优化级别
+- 启用 `-march=native` 针对特定 CPU 优化
+- 使用 `-fPIC` 生成位置无关代码
+
+#### Go 构建优化
+
+- 使用 `-ldflags="-w -s"` 减少二进制大小
+- 启用 CGO 优化标志
+- 使用静态链接减少运行时依赖
+
+### 2. 运行时优化
+
+#### 内存管理
+
+1. **及时释放**: 使用 `defer` 确保资源清理
+2. **避免泄漏**: 检查 nil 指针，避免重复释放
+3. **批量操作**: 减少 C/Go 边界调用次数
+
+#### 并发安全
+
+1. **线程安全**: C++ 对象不是线程安全的
+2. **互斥保护**: 在 Go 端使用 mutex 保护共享状态
+3. **避免竞争**: 避免并发访问同一个预测器
+
+## 故障排查规范
+
+### 1. 常见问题
+
+#### 构建失败
+
+```bash
+# 检查 C++ 编译器
+gcc --version
+clang++ --version
+
+# 检查 Go 环境
+go version
+go env CGO_ENABLED
+
+# 检查 C++ 库
+ls -la @cpp/hexlib/build/libhexlib.a
+```
+
+#### 运行时错误
+
+```bash
+# 检查库路径
+echo $LD_LIBRARY_PATH
+
+# 检查库依赖
+ldd ./ems
+```
+
+### 2. 调试工具
+
+#### 内存检查
+
+```bash
+# 使用 valgrind 检查内存泄漏
+valgrind --leak-check=full ./ems
+
+# 使用 AddressSanitizer
+CXXFLAGS="-fsanitize=address" make build
+```
+
+## 最佳实践
+
+### 1. 代码质量
+
+- **类型安全**: 使用 unsafe 指针时要特别谨慎
+- **错误处理**: 所有 CGO 函数都要进行错误检查
+- **资源管理**: 使用 defer 确保资源清理
+- **测试覆盖**: 编写完整的单元测试和集成测试
+
+### 2. 性能优化
+
+- **减少调用**: 尽量减少 C/Go 边界调用
+- **批量操作**: 一次传递多个数据而不是多次调用
+- **内存对齐**: 注意 C 和 Go 结构体的内存对齐
+- **编译优化**: 使用适当的编译优化选项
+
+### 3. 维护性
+
+- **文档完整**: 为所有 C API 和 Go 函数添加文档
+- **版本管理**: 保持 C++ 库和 Go 绑定的版本同步
+- **向后兼容**: 保持 API 的向后兼容性
+- **跨平台**: 确保在不同平台上的兼容性
+
+## 相关文件
+
+- [@cpp/hexlib/](mdc:@cpp/hexlib/) - C++ 库源代码
+- [script/Dockerfile.dev](mdc:script/Dockerfile.dev) - Docker 构建配置
+- [script/docker-compose.dev.yml](mdc:script/docker-compose.dev.yml) - Docker Compose 配置
+- [application/go.mod](mdc:application/go.mod) - Go 模块配置
+- [application/main.go](mdc:application/main.go) - 应用入口
+
+## 注意事项
+
+1. **构建顺序**: 必须先编译 C++ 库，再构建 Go 应用
+2. **环境变量**: 确保 CGO_ENABLED=1 和相关环境变量正确设置
+3. **库路径**: 确保 C++ 库文件在正确的路径下
+4. **内存管理**: 注意 C 和 Go 之间的内存管理差异
+5. **跨平台**: 在不同平台上测试构建和运行
+6. **性能监控**: 定期检查内存使用和性能指标
+
+---
+
+**注意**: 本规范是动态文档，会根据项目发展和团队反馈持续更新。所有 CGO 集成开发都应遵循本规范的要求。
