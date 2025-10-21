@@ -137,6 +137,5 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 --start-period=40s \
 # 暴露端口
 EXPOSE 80
 
-# 启动脚本 - 清理 PID 文件后启动
-# 在容器环境中,主进程 PID 总是 1,旧的 PID 文件会导致冲突
-CMD ["sh", "-c", "rm -f ./out/ems.pid && ./ems --web=true --profile=prod"]
+# 启动脚本
+CMD ["sh", "-c", "./ems --web=true --profile=dev"]
