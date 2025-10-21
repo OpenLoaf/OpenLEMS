@@ -86,7 +86,8 @@ func CheckPidFile(pidFile string) (bool, int, error) {
 	// 读取PID文件内容
 	content, err := os.ReadFile(pidFile)
 	if err != nil {
-		return false, 0, errors.Errorf("读取PID文件失败: %v", err)
+		// 如果读取失败，可能是文件被删除或权限问题，视为文件不存在
+		return false, 0, nil
 	}
 
 	// 解析PID
@@ -120,6 +121,9 @@ func WritePidFileWithCheck(pidFile string, pid int, force bool) error {
 		// 检查是否要终止的是当前进程本身（容器环境中常见情况）
 		if existingPid == pid {
 			g.Log().Infof(context.Background(), "检测到PID文件中的进程ID (%d) 与当前进程ID相同，跳过终止操作（容器环境）", existingPid)
+		} else if existingPid == 1 {
+			// 如果现有进程PID为1，跳过终止操作（容器主进程）
+			g.Log().Infof(context.Background(), "检测到PID为1的进程正在运行，跳过终止操作（容器主进程）")
 		} else {
 			// 强制启动时，温和地终止之前的进程
 			g.Log().Infof(context.Background(), "检测到已有进程运行 (PID: %d)，开始温和终止...", existingPid)

@@ -69,20 +69,5 @@ services:
 # 卷定义 - 数据持久化
 volumes:
   vol-amd64:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../out/amd64
   vol-arm64:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../out/arm64
   vol-arm32:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ../out/arm32
