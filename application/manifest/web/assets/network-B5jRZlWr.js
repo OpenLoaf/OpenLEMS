@@ -1,1 +1,0 @@
-import{p as e,j as r}from"./index-I6bU3Cg0.js";const s=t=>r("/network/interface/list",{includeLoopback:t}),a=t=>e("/network/interface/update",t),o=t=>e("/network/interface/state",t),c=t=>e("/network/ping",t);export{s as g,c as p,o as s,a as u};

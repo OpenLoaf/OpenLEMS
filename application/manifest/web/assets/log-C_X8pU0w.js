@@ -1,1 +1,0 @@
-import{j as o,k as i}from"./index-I6bU3Cg0.js";function e(t){return o("/log/biz",t)}function g(t){return i("/log/biz",t)}function r(){return o("/log/biz/info")}function s(){return o("/log/biz/statistics")}export{r as a,s as b,g as d,e as g};
