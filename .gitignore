@@ -12,7 +12,6 @@ gf
 main
 main.exe
 output/
-manifest/output/
 temp/
 temp.yaml
 bin
@@ -25,13 +24,10 @@ bin
 
 *.tar
 ems
-application/application
+#application/application
 #!application/manifest/web
 tmp
 *.sum
-arm-build/manifest/web/*
-arm-build/*.tar.gz
-
 out/
 go.sum
 

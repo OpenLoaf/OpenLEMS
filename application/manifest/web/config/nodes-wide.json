@@ -1,0 +1,102 @@
+{
+    "busNode": {
+      "id": "bus",
+      "type": "bus",
+      "position": { "x": 0, "y": 250 },
+      "data": { 
+        "label": "总线",
+        "busWidth": 1200
+      }
+    },
+    "sourceNodes": [
+      {
+        "id": "grid",
+        "type": "common",
+        "position": { "x": 60, "y": 0 },
+        "data": { 
+          "label": "电网", 
+          "value": 304.00,
+          "unit": "kW"
+        },
+        "connection": {
+          "targetHandle": "grid-in",
+          "style": { "stroke": "var(--color-border-3)", "strokeWidth": 3 }
+        }
+      },
+      {
+        "id": "solar",
+        "type": "common",
+        "position": { "x": 260, "y": 0 },
+        "data": { 
+          "label": "光伏", 
+          "value": 82.50,
+          "unit": "kW"
+        },
+        "connection": {
+          "targetHandle": "solar-in",
+          "style": { "stroke": "#FFA500", "strokeWidth": 3 }
+        }
+      },
+      {
+        "id": "wind",
+        "type": "common",
+        "position": { "x": 460, "y": 0 },
+        "data": { 
+          "label": "风电", 
+          "value": 82.50,
+          "unit": "kW"
+        },
+        "connection": {
+          "targetHandle": "wind-in",
+          "style": { "stroke": "#FFA500", "strokeWidth": 3 }
+        }
+      }
+    ],
+    "targetNodes": [
+      {
+        "id": "storage1",
+        "type": "storage",
+        "position": { "x": 400, "y": 400 },
+        "data": { 
+          "label": "储能柜1", 
+          "value": 80.23,
+          "unit": "kW",
+          "chargeLevel": 80
+        },
+        "connection": {
+          "sourceHandle": "storage1-out",
+          "style": { "stroke": "#4CAF50", "strokeWidth": 3 }
+        }
+      },
+      {
+        "id": "storage2",
+        "type": "storage",
+        "position": { "x": 600, "y": 400 },
+        "data": { 
+          "label": "储能柜2", 
+          "value": 80.23,
+          "unit": "kW",
+          "chargeLevel": 80
+        },
+        "connection": {
+          "sourceHandle": "storage2-out",
+          "style": { "stroke": "#4CAF50", "strokeWidth": 3 }
+        }
+      },
+      {
+        "id": "storage3",
+        "type": "storage",
+        "position": { "x": 900, "y": 400 },
+        "data": { 
+          "label": "储能柜3", 
+          "value": 120.50,
+          "unit": "kW",
+          "chargeLevel": 65
+        },
+        "connection": {
+          "sourceHandle": "storage3-out",
+          "style": { "stroke": "#4CAF50", "strokeWidth": 3 }
+        }
+      }
+    ]
+  }

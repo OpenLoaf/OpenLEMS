@@ -1,0 +1,117 @@
+{
+  "busNode": {
+    "id": "bus",
+    "type": "bus",
+    "position": { "x": 0, "y": 150 },
+    "data": { 
+      "label": "总线",
+      "busWidth": 800
+    }
+  },
+  "sourceNodes": [
+    {
+      "id": "grid",
+      "type": "common",
+      "position": { "x": 60, "y": 0 },
+      "data": { 
+        "label": "电网", 
+        "value": 304.00,
+        "unit": "kW",
+        "icon": "/images/svg/grid.svg",
+        "direction": "output"
+      },
+      "connection": {
+        "targetHandle": "grid-in",
+        "style": { "stroke": "var(--color-border-3)", "strokeWidth": 3 }
+      }
+    },
+    {
+      "id": "solar",
+      "type": "common",
+      "position": { "x": 260, "y": 0 },
+      "data": { 
+        "label": "光伏", 
+        "value": 82.50,
+        "unit": "kW",
+        "icon": "/images/svg/pv.svg",
+        "direction": "output"
+      },
+      "connection": {
+        "targetHandle": "solar-in",
+        "style": { "stroke": "var(--color-border-3)", "strokeWidth": 3 }
+      }
+    },
+    {
+      "id": "load",
+      "type": "common",
+      "position": { "x": 460, "y": 0 },
+      "data": { 
+        "label": "负载", 
+        "value": 82.50,
+        "unit": "kW",
+        "icon": "/images/svg/load.svg",
+        "direction": "input"
+      },
+      "connection": {
+        "targetHandle": "load-in",
+        "style": { "stroke": "var(--color-border-3)", "strokeWidth": 3 }
+      }
+    }
+  ],
+  "targetNodes": [
+    {
+      "id": "storage1",
+      "type": "common",
+      "position": { "x": 150, "y": 200 },
+      "data": { 
+        "label": "储能柜1", 
+        "value": 80.23,
+        "unit": "kW",
+        "chargeLevel": 80,
+        "icon": "/images/svg/ess_cabinet.svg",
+        "direction": "output",
+        "type":"ess"
+      },
+      "connection": {
+        "sourceHandle": "storage1-out",
+        "style": { "stroke": "var(--color-border-3)", "strokeWidth": 3 }
+      }
+    },
+    {
+      "id": "storage2",
+      "type": "common",
+      "position": { "x": 350, "y": 200 },
+      "data": { 
+        "label": "储能柜2", 
+        "value": 80.23,
+        "unit": "kW",
+        "chargeLevel": 80,
+        "icon": "/images/svg/ess_cabinet.svg",
+        "direction": "output",
+        "type":"ess"
+      },
+      "connection": {
+        "sourceHandle": "storage2-out",
+        "style": { "stroke": "var(--color-border-3)", "strokeWidth": 3 }
+      }
+    },
+    {
+      "id": "storage3",
+      "type": "common",
+      "position": { "x": 550, "y": 200 },
+      "data": { 
+        "label": "储能柜3", 
+        "value": 120.50,
+        "unit": "kW",
+        "chargeLevel": 65,
+        "icon": "/images/svg/ess_cabinet.svg",
+        "direction": "output",
+        "type":"ess"
+      },
+      "connection": {
+        "sourceHandle": "storage3-out",
+        "style": { "stroke": "var(--color-border-3)", "strokeWidth": 3 }
+      }
+    }
+  ]
+}

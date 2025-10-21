@@ -1,0 +1,56 @@
+{
+  "viewReset": "Reset",
+  "common": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "online": "Online",
+    "offline": "Offline",
+    "normal": "Normal",
+    "on": "On",
+    "off": "Off",
+    "empty": "No data",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "status": "Status",
+    "enter": "Enter",
+    "exit": "Exit"
+  },
+  "testMessages": {
+    "greeting": "Hello, {name}!",
+    "welcome": "Welcome to -{appName} app",
+    "userInfo": "{name} is {age} years old from {city}",
+    "items": "You have {count} items"
+  },
+  "dashboardPage": {
+    "energySystem": {
+      "title": "Energy System"
+    },
+    "realtimeStatus": {
+      "title": "Realtime Status-{name}",
+      "labels": {
+        "aVoltage": "Phase A Voltage",
+        "bVoltage": "Phase B Voltage",
+        "cVoltage": "Phase C Voltage",
+        "totalPower": "Total Power Consumption",
+        "powerFactor": "Power Factor",
+        "loadRate": "Load Rate",
+        "runStatus": "Running Status",
+        "protectStatus": "Protection Status",
+        "autoSwitch": "Auto Switching"
+      }
+    },
+    "powerConsumeGenerateTrend": {
+      "title": "Power Consumption/Generation Trend"
+    },
+    "gridPowerTrend": {
+      "title": "Grid Power Trend"
+    },
+    "devices": {
+      "grid": "Grid",
+      "pv": "PV",
+      "load": "Load",
+      "essCabinet1": "ESS Cabinet 1",
+      "essCabinet2": "ESS Cabinet 2"
+    }
+  }
+}
