@@ -113,7 +113,7 @@ var (
 	SystemSettingAdminPassword = &SSystemSettingDefine{
 		Id:           "admin_password",
 		Group:        c_enum.ESettingGroupSystem,
-		DefaultValue: "10086",
+		DefaultValue: "100086",
 		IsPublic:     false,
 		Remark:       "管理员用户密码",
 		FieldType:    c_enum.ESettingFieldTypeText,
