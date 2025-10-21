@@ -68,12 +68,15 @@ COPY plugins/ ./plugins/
 COPY tools/ ./tools/
 COPY @cpp/hexlib/ ./@cpp/hexlib/
 
-# 第二步：预先下载所有 Go 依赖（使用 BuildKit 缓存）
-# BuildKit 会智能缓存下载的模块，重复构建时会复用缓存
+# 第二步：预先下载所有 Go 依赖（使用优化的缓存策略）
+# 使用正确的 Go 模块缓存路径，并设置超时和重试
 WORKDIR /app/application
 RUN --mount=type=cache,target=/go/pkg/mod \
+    --mount=type=cache,target=/root/.cache/go-build \
     echo "Downloading Go dependencies..." && \
-    go mod download && \
+    go env -w GOMODCACHE=/go/pkg/mod && \
+    go env -w GOCACHE=/root/.cache/go-build && \
+    timeout 300 go mod download -x && \
     echo "✓ Go dependencies downloaded"
 
 # 第三步：编译 C++ 库（使用改进的 Makefile）
@@ -91,9 +94,11 @@ WORKDIR /app/application
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     echo "Starting Go build..." && \
-    CGO_ENABLED=1 \
-    CFLAGS="-I/app/@cpp/hexlib/src/include" \
-    LDFLAGS="-L/app/@cpp/hexlib/build -lstdc++ -lm -lgcc" \
+    export CGO_ENABLED=1 && \
+    export CFLAGS="-I/app/@cpp/hexlib/src/include" && \
+    export LDFLAGS="-L/app/@cpp/hexlib/build -lstdc++ -lm -lgcc" && \
+    export GOMODCACHE=/go/pkg/mod && \
+    export GOCACHE=/root/.cache/go-build && \
     go build \
     -tags=dev \
     -ldflags="-w -s -extldflags '-lstdc++ -lm -lgcc'" \

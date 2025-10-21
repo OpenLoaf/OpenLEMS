@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"common/c_log"
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -11,7 +13,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/gogf/gf/v2/frame/g"
 	"github.com/pkg/errors"
 )
 
@@ -44,6 +45,9 @@ func RemovePidFile(pidFile string) error {
 // IsProcessRunning 检查指定PID的进程是否正在运行
 // 改进版本：能够正确识别僵尸进程，支持跨平台
 func IsProcessRunning(pid int) bool {
+	if pid == 1 {
+		return false
+	}
 	// 方法1：使用跨平台的 os.FindProcess + process.Signal 检查进程是否存在
 	process, err := os.FindProcess(pid)
 	if err != nil {
@@ -99,8 +103,11 @@ func CheckPidFile(pidFile string) (bool, int, error) {
 		return false, 0, errors.Errorf("PID文件格式错误: %v", err)
 	}
 
+	fmt.Printf("获取到 pidStr 为%s\n", pidStr)
+
 	// 检查进程是否运行
 	isRunning := IsProcessRunning(pid)
+	fmt.Printf("获取到 isRunning 为%b\n", isRunning)
 	return isRunning, pid, nil
 }
 
@@ -120,17 +127,17 @@ func WritePidFileWithCheck(pidFile string, pid int, force bool) error {
 
 		// 检查是否要终止的是当前进程本身（容器环境中常见情况）
 		if existingPid == pid {
-			g.Log().Infof(context.Background(), "检测到PID文件中的进程ID (%d) 与当前进程ID相同，跳过终止操作（容器环境）", existingPid)
+			c_log.Infof(context.Background(), "检测到PID文件中的进程ID (%d) 与当前进程ID相同，跳过终止操作（容器环境）", existingPid)
 		} else if existingPid == 1 {
 			// 如果现有进程PID为1，跳过终止操作（容器主进程）
-			g.Log().Infof(context.Background(), "检测到PID为1的进程正在运行，跳过终止操作（容器主进程）")
+			c_log.Infof(context.Background(), "检测到PID为1的进程正在运行，跳过终止操作（容器主进程）")
 		} else {
 			// 强制启动时，温和地终止之前的进程
-			g.Log().Infof(context.Background(), "检测到已有进程运行 (PID: %d)，开始温和终止...", existingPid)
+			c_log.Infof(context.Background(), "检测到已有进程运行 (PID: %d)，开始温和终止...", existingPid)
 
 			// 温和终止进程
 			if err := GracefulKillProcess(existingPid); err != nil {
-				g.Log().Warningf(context.Background(), "温和终止进程失败: %v", err)
+				c_log.Warningf(context.Background(), "温和终止进程失败: %v", err)
 			}
 		}
 
@@ -244,7 +251,7 @@ func checkProcessStatusWindows(pid int) bool {
 func GracefulKillProcess(pid int) error {
 	// 检查进程是否存在
 	if !IsProcessRunning(pid) {
-		g.Log().Infof(context.Background(), "进程 %d 已不存在，无需终止", pid)
+		c_log.Infof(context.Background(), "进程 %d 已不存在，无需终止", pid)
 		return nil
 	}
 
@@ -255,10 +262,10 @@ func GracefulKillProcess(pid int) error {
 	}
 
 	// 第一步：发送SIGTERM信号，让进程优雅关闭
-	g.Log().Infof(context.Background(), "发送SIGTERM信号到进程 %d，等待优雅关闭...", pid)
+	c_log.Infof(context.Background(), "发送SIGTERM信号到进程 %d，等待优雅关闭...", pid)
 	err = process.Signal(syscall.SIGTERM)
 	if err != nil {
-		g.Log().Warningf(context.Background(), "发送SIGTERM信号失败: %v", err)
+		c_log.Warningf(context.Background(), "发送SIGTERM信号失败: %v", err)
 	}
 
 	// 等待进程优雅关闭，最多等待10秒
@@ -272,13 +279,13 @@ func GracefulKillProcess(pid int) error {
 
 		// 检查进程是否还在运行
 		if !IsProcessRunning(pid) {
-			g.Log().Infof(context.Background(), "进程 %d 已优雅关闭", pid)
+			c_log.Infof(context.Background(), "进程 %d 已优雅关闭", pid)
 			return nil
 		}
 	}
 
 	// 如果进程仍然存在，发送SIGKILL强制终止
-	g.Log().Warningf(context.Background(), "进程 %d 在 %v 后仍未关闭，发送SIGKILL强制终止", pid, timeout)
+	c_log.Warningf(context.Background(), "进程 %d 在 %v 后仍未关闭，发送SIGKILL强制终止", pid, timeout)
 	err = process.Signal(syscall.SIGKILL)
 	if err != nil {
 		return errors.Errorf("发送SIGKILL信号失败: %v", err)
@@ -290,6 +297,6 @@ func GracefulKillProcess(pid int) error {
 		return errors.Errorf("进程 %d 无法被终止", pid)
 	}
 
-	g.Log().Infof(context.Background(), "进程 %d 已被强制终止", pid)
+	c_log.Infof(context.Background(), "进程 %d 已被强制终止", pid)
 	return nil
 }

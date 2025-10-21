@@ -2,8 +2,6 @@
 x-common-build: &common-build
   context: ../
   dockerfile: ./script/Dockerfile.dev
-  args:
-    BUILDKIT_INLINE_CACHE: "1"
 
 x-common-config: &common-config
   restart: unless-stopped

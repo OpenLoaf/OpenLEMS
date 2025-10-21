@@ -1,0 +1,75 @@
+# Git 相关
+.git
+.gitignore
+.gitattributes
+
+# 构建输出目录
+out/
+application/out/
+**/out/
+
+# 日志文件
+*.log
+logs/
+**/logs/
+
+# 临时文件
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# IDE 和编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 依赖目录（Go modules 会在容器内重新下载）
+**/vendor/
+
+# 测试文件
+*_test.go
+**/*_test.go
+test/
+**/test/
+
+# 文档文件
+*.md
+docs/
+**/docs/
+README.md
+CLAUDE.md
+AGENTS.md
+
+# 配置文件（开发环境）
+.env
+.env.local
+.env.development
+.env.test
+
+# 缓存目录
+.cache/
+**/.cache/
+node_modules/
+**/node_modules/
+
+# 构建产物
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.o
+*.obj
+
+# 开发工具
+script/
+# tools/ 目录需要包含在构建中，因为 Dockerfile 需要它
+
+# 其他不需要的文件
+*.pid
+*.lock
+*.bak
+*.backup
