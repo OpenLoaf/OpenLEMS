@@ -23,7 +23,7 @@ type SettingItem struct {
 
 // GetSettingDetailReq 获取设置详情请求
 type GetSettingDetailReq struct {
-	g.Meta `path:"/setting/detail" method:"post" tags:"设置相关" summary:"获取设置详情"`
+	g.Meta `path:"/setting/detail" method:"post" tags:"设置相关" summary:"获取设置详情" role:"user"`
 	Id     string `json:"id" v:"required" dc:"设置ID"`
 }
 
