@@ -5,9 +5,10 @@ import (
 	"common"
 	"common/c_log"
 	"context"
+	"s_db"
+
 	"github.com/gogf/gf/v2/errors/gcode"
 	"github.com/gogf/gf/v2/errors/gerror"
-	"s_db"
 )
 
 func (c *ControllerV1) DisableDevice(ctx context.Context, req *v1.DisableDeviceReq) (res *v1.DisableDeviceRes, err error) {
@@ -18,8 +19,7 @@ func (c *ControllerV1) DisableDevice(ctx context.Context, req *v1.DisableDeviceR
 		c_log.Error(ctx, "Update Device Error", err)
 		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
-	common.GetDeviceManager().Shutdown()
-	common.GetDeviceManager().Start()
+	common.GetDeviceManager().Restart()
 
 	return &v1.DisableDeviceRes{}, err
 }

@@ -28,8 +28,7 @@ func (c *ControllerV1) DeleteProtocol(ctx context.Context, req *v1.DeleteProtoco
 	c_log.BizInfo(ctx, "协议删除需要重启设备服务", "protocolId", req.ProtocolId)
 
 	// 重启设备管理器以应用协议删除更改
-	common.GetDeviceManager().Shutdown()
-	common.GetDeviceManager().Start()
+	common.GetDeviceManager().Restart()
 
 	c_log.BizInfo(ctx, "设备服务重启完成", "protocolId", req.ProtocolId)
 

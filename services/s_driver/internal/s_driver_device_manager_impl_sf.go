@@ -28,6 +28,8 @@ type SDeviceManager struct {
 
 	deviceConfigTree  *glist.List     // 设备配置树形节点（线程安全）
 	deviceInstanceMap *gmap.StrAnyMap // 设备实例（线程安全）
+
+	restartMutex sync.RWMutex // 重启操作的读写锁，确保线程安全
 }
 
 var (
@@ -246,6 +248,22 @@ func (m *SDeviceManager) Start() {
 	m.RegisterStorageDriversRecursively(treeConfigs)
 
 	m.state = c_enum.EStateRunning
+}
+
+// Restart 重启服务（线程安全）
+func (m *SDeviceManager) Restart() {
+	m.restartMutex.Lock()
+	defer m.restartMutex.Unlock()
+
+	c_log.BizInfo(m.ctx, "设备管理器重启开始")
+
+	// 先关闭服务
+	m.Shutdown()
+
+	// 重新启动服务
+	m.Start()
+
+	c_log.BizInfo(m.ctx, "设备管理器重启完成")
 }
 
 // BuildVirtualDevice 创建虚拟设备

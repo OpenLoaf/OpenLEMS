@@ -20,8 +20,7 @@ func (c *ControllerV1) EnableDevice(ctx context.Context, req *v1.EnableDeviceReq
 		return nil, gerror.NewCode(gcode.CodeBusinessValidationFailed)
 	}
 
-	common.GetDeviceManager().Shutdown()
-	common.GetDeviceManager().Start()
+	common.GetDeviceManager().Restart()
 
 	return &v1.EnableDeviceRes{}, err
 }

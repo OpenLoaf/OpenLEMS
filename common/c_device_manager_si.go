@@ -8,6 +8,7 @@ import (
 type IDeviceManager interface {
 	Start()                      // 启动服务
 	Shutdown()                   // 停止管理器（释放资源、退出 goroutine）
+	Restart()                    // 重启服务（线程安全）
 	Cleanup() error              // 清理过期/无效资源（定时调用）
 	Status() c_enum.EServerState // 运行状态
 

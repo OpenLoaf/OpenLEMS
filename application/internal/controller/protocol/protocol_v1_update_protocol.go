@@ -34,8 +34,7 @@ func (c *ControllerV1) UpdateProtocol(ctx context.Context, req *v1.UpdateProtoco
 	c_log.BizInfo(ctx, "协议配置变更需要重启设备服务", "protocolId", req.ProtocolId)
 
 	// 重启设备管理器以应用协议配置更改
-	common.GetDeviceManager().Shutdown()
-	common.GetDeviceManager().Start()
+	common.GetDeviceManager().Restart()
 
 	c_log.BizInfo(ctx, "设备服务重启完成", "protocolId", req.ProtocolId)
 

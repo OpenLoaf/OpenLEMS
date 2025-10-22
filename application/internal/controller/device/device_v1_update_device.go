@@ -94,8 +94,7 @@ func (c *ControllerV1) UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq
 		c_log.BizInfo(ctx, "设备配置变更需要重启", "deviceId", req.DeviceId)
 
 		// 重启设备管理器以应用更改
-		common.GetDeviceManager().Shutdown()
-		common.GetDeviceManager().Start()
+		common.GetDeviceManager().Restart()
 
 		c_log.BizInfo(ctx, "设备重启完成", "deviceId", req.DeviceId)
 	}
