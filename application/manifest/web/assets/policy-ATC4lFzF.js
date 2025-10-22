@@ -1,1 +1,0 @@
-import{j as e,k as g,p as r,l as s}from"./index-ZQFWfO0x.js";const y=t=>e("/strategy/energy-storage",t),o=t=>e(`/strategy/energy-storage/${t}`),S=t=>r("/strategy/energy-storage",t),c=(t,a)=>s(`/strategy/energy-storage/${t}`,a),u=t=>g(`/strategy/energy-storage/${t}`),p=t=>r("/strategy/energy-storage/activate",t);export{p as a,o as b,S as c,u as d,y as g,c as u};
