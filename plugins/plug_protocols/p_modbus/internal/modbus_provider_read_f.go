@@ -190,15 +190,20 @@ func (p *ModbusProtocolProvider) analysisModbus(groupName string, addr, quantity
 			continue
 		}
 
-		value, err := decoder(p.deviceId, result, addr, quantity, point)
-		if err != nil {
-			c_log.Errorf(p.ctx, "解析点位：[%s:%s] bytes失败! %+v", groupName, point, err)
+		value, er := decoder(p.deviceId, result, addr, quantity, point)
+		if er != nil {
+			c_log.Warningf(p.ctx, "解析点位：[%s:%s] bytes失败! %s", groupName, point, er)
+			continue
+		}
+		if value == nil {
+			c_log.Errorf(p.ctx, "解析点位：[%s:%s] 失败！解析结果为空", groupName, point)
+			continue
 		}
 
-		err = p.IProtocolCacheValue.CacheValue(value, lifetime)
+		er = p.IProtocolCacheValue.CacheValue(value, lifetime)
 
-		if err != nil {
-			message := fmt.Sprintf("[%s-%s] %v;", groupName, point.Name, err)
+		if er != nil {
+			message := fmt.Sprintf("[%s-%s] %v;", groupName, point.Name, er.Error())
 			c_log.Errorf(p.ctx, message)
 			errMessage += message
 			continue

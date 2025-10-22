@@ -140,8 +140,11 @@ func (s *sPvDemo) GetDevicePoints() []c_base.IPoint {
 // GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
 func (s *sPvDemo) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{
+		OnOffState,
 		telemetryPowerPoint,           // 发电功率 - 核心输出
 		telemetryGeneratedEnergyPoint, // 发电量 - 累计统计
+		telemetryTemperaturePoint,     // 温度
+		telemetryIrradiancePoint,      // 当前辐射
 	}
 }
 
