@@ -25,11 +25,14 @@ const (
 )
 
 type promDB struct {
-	ctx           context.Context
-	db            *promtsdb.DB
-	sampleCounter public.IWindowCounter // 滑动窗口计数器，用于统计每秒存储样本数
-	statusCache   map[string]any        // 状态类型缓存，key: deviceId+pointKey
-	statusMutex   sync.RWMutex          // 保护状态缓存的读写锁
+	ctx            context.Context
+	db             *promtsdb.DB
+	sampleCounter  public.IWindowCounter // 滑动窗口计数器，用于统计每秒存储样本数
+	statusCache    map[string]any        // 状态类型缓存，key: deviceId+pointKey
+	statusMutex    sync.RWMutex          // 保护状态缓存的读写锁
+	statsCache     *c_base.StorageStats  // 统计信息缓存
+	statsCacheTime time.Time             // 统计缓存更新时间
+	statsMutex     sync.RWMutex          // 保护统计缓存的读写锁
 }
 
 var (
@@ -94,7 +97,7 @@ func (p *promDB) SaveDevices(deviceId string, pointValues []*c_base.SPointValue)
 		// 检查是否是状态类型（有 ValueExplain）
 		if len(pv.GetValueExplain()) > 0 {
 			// 状态类型：检查缓存
-			cacheKey := deviceId + ":" + pointKey
+			cacheKey := buildStatusCacheKey(deviceId, pointKey)
 
 			p.statusMutex.RLock()
 			cachedValue, exists := p.statusCache[cacheKey]
@@ -113,15 +116,12 @@ func (p *promDB) SaveDevices(deviceId string, pointValues []*c_base.SPointValue)
 
 		// 保存数值类型数据
 		if numericValue, err := cvt.Float64E(value); err == nil {
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: MetricNameEmsMetric,
-				LabelNameType:   string(c_base.StorageTypeDevice),
-				LabelNameID:     deviceId,
-				LabelNameField:  pointKey,
-			}), ts, numericValue)
-			if err != nil {
-				_ = app.Rollback()
-				return err
+			lbls := buildDeviceLabels(deviceId, pointKey)
+			if _, err := appendSampleWithCount(app, lbls, ts, numericValue); err != nil {
+				if rollbackErr := app.Rollback(); rollbackErr != nil {
+					c_log.BizErrorf(p.ctx, "回滚失败: %v (原始错误: %v)", rollbackErr, err)
+				}
+				return errors.Wrapf(err, "添加设备数据失败: deviceId=%s, pointKey=%s", deviceId, pointKey)
 			}
 			sampleCount++
 		}
@@ -131,7 +131,10 @@ func (p *promDB) SaveDevices(deviceId string, pointValues []*c_base.SPointValue)
 		p.sampleCounter.IncrementBy(sampleCount)
 	}
 
-	return app.Commit()
+	if err := app.Commit(); err != nil {
+		return errors.Wrapf(err, "提交设备数据失败: deviceId=%s", deviceId)
+	}
+	return nil
 }
 
 func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, deviceConfig *c_base.SDeviceConfig, metrics map[string]any) error {
@@ -145,16 +148,13 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 	for field, value := range metrics {
 		// 只保存数值类型数据
 		if numericValue, err := cvt.Float64E(value); err == nil {
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric:   MetricNameEmsMetric,
-				LabelNameType:     string(c_base.StorageTypeProtocol),
-				LabelNameID:       protocolConfig.Id,
-				LabelNameField:    field,
-				LabelNameDeviceID: deviceConfig.Id,
-			}), ts, numericValue)
-			if err != nil {
-				_ = app.Rollback()
-				return err
+			lbls := buildProtocolLabels(protocolConfig.Id, deviceConfig.Id, field)
+			if _, err := appendSampleWithCount(app, lbls, ts, numericValue); err != nil {
+				if rollbackErr := app.Rollback(); rollbackErr != nil {
+					c_log.BizErrorf(p.ctx, "回滚失败: %v (原始错误: %v)", rollbackErr, err)
+				}
+				return errors.Wrapf(err, "添加协议数据失败: protocolId=%s, deviceId=%s, field=%s",
+					protocolConfig.Id, deviceConfig.Id, field)
 			}
 			sampleCount++
 		}
@@ -166,7 +166,10 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 		p.sampleCounter.IncrementBy(sampleCount)
 	}
 
-	return app.Commit()
+	if err := app.Commit(); err != nil {
+		return errors.Wrapf(err, "提交协议数据失败: protocolId=%s, deviceId=%s", protocolConfig.Id, deviceConfig.Id)
+	}
+	return nil
 }
 
 func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, metrics map[string]any) error {
@@ -180,15 +183,12 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 	for field, value := range metrics {
 		// 只保存数值类型数据
 		if numericValue, err := cvt.Float64E(value); err == nil {
-			_, err := app.Add(labels.FromMap(map[string]string{
-				LabelNameMetric: MetricNameEmsMetric,
-				LabelNameType:   string(c_base.StorageTypeSystem),
-				LabelNameID:     measurement,
-				LabelNameField:  field,
-			}), ts, numericValue)
-			if err != nil {
-				_ = app.Rollback()
-				return err
+			lbls := buildSystemLabels(measurement, field)
+			if _, err := appendSampleWithCount(app, lbls, ts, numericValue); err != nil {
+				if rollbackErr := app.Rollback(); rollbackErr != nil {
+					c_log.BizErrorf(p.ctx, "回滚失败: %v (原始错误: %v)", rollbackErr, err)
+				}
+				return errors.Wrapf(err, "添加系统数据失败: measurement=%s, field=%s", measurement, field)
 			}
 			sampleCount++
 		}
@@ -200,81 +200,60 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 		p.sampleCounter.IncrementBy(sampleCount)
 	}
 
-	return app.Commit()
+	if err := app.Commit(); err != nil {
+		return errors.Wrapf(err, "提交系统数据失败: measurement=%s", measurement)
+	}
+	return nil
 }
 
 func (p *promDB) SavePriceData(priceId int, price float64, priceType string, timestamp int64) error {
-	ts := timestamp * 1000 // 转换为毫秒时间戳
+	ts := timestamp * MillisecondsPerSecond // 转换为毫秒时间戳
 	app := p.db.Appender()
 
 	// 保存电价ID
-	_, err := app.Add(labels.FromMap(map[string]string{
-		LabelNameMetric: MetricNameEmsMetric,
-		LabelNameType:   string(c_base.StorageTypeSystem),
-		LabelNameID:     "price",
-		LabelNameField:  "priceId",
-	}), ts, float64(priceId))
-	if err != nil {
-		_ = app.Rollback()
-		return err
+	lbls := buildSystemLabels("price", "priceId")
+	if _, err := appendSampleWithCount(app, lbls, ts, float64(priceId)); err != nil {
+		if rollbackErr := app.Rollback(); rollbackErr != nil {
+			c_log.BizErrorf(p.ctx, "回滚失败: %v (原始错误: %v)", rollbackErr, err)
+		}
+		return errors.Wrapf(err, "添加电价ID失败: priceId=%d", priceId)
 	}
 
 	// 保存电价值
-	_, err = app.Add(labels.FromMap(map[string]string{
-		LabelNameMetric: MetricNameEmsMetric,
-		LabelNameType:   string(c_base.StorageTypeSystem),
-		LabelNameID:     "price",
-		LabelNameField:  "price",
-	}), ts, price)
-	if err != nil {
-		_ = app.Rollback()
-		return err
+	lbls = buildSystemLabels("price", "price")
+	if _, err := appendSampleWithCount(app, lbls, ts, price); err != nil {
+		if rollbackErr := app.Rollback(); rollbackErr != nil {
+			c_log.BizErrorf(p.ctx, "回滚失败: %v (原始错误: %v)", rollbackErr, err)
+		}
+		return errors.Wrapf(err, "添加电价值失败: price=%.2f", price)
 	}
 
 	// 保存电价类型（转换为数值）
-	var priceTypeValue float64
-	switch priceType {
-	case "valley":
-		priceTypeValue = 1
-	case "peak":
-		priceTypeValue = 2
-	case "flat":
-		priceTypeValue = 3
-	case "sharp":
-		priceTypeValue = 4
-	case "deep_valley":
-		priceTypeValue = 5
-	default:
-		priceTypeValue = 0
-	}
-
-	_, err = app.Add(labels.FromMap(map[string]string{
-		LabelNameMetric: MetricNameEmsMetric,
-		LabelNameType:   string(c_base.StorageTypeSystem),
-		LabelNameID:     "price",
-		LabelNameField:  "priceType",
-	}), ts, priceTypeValue)
-	if err != nil {
-		_ = app.Rollback()
-		return err
+	priceTypeValue := getPriceTypeValue(priceType)
+	lbls = buildSystemLabels("price", "priceType")
+	if _, err := appendSampleWithCount(app, lbls, ts, priceTypeValue); err != nil {
+		if rollbackErr := app.Rollback(); rollbackErr != nil {
+			c_log.BizErrorf(p.ctx, "回滚失败: %v (原始错误: %v)", rollbackErr, err)
+		}
+		return errors.Wrapf(err, "添加电价类型失败: priceType=%s", priceType)
 	}
 
 	// 保存时间戳
-	_, err = app.Add(labels.FromMap(map[string]string{
-		LabelNameMetric: MetricNameEmsMetric,
-		LabelNameType:   string(c_base.StorageTypeSystem),
-		LabelNameID:     "price",
-		LabelNameField:  "timestamp",
-	}), ts, float64(timestamp))
-	if err != nil {
-		_ = app.Rollback()
-		return err
+	lbls = buildSystemLabels("price", "timestamp")
+	if _, err := appendSampleWithCount(app, lbls, ts, float64(timestamp)); err != nil {
+		if rollbackErr := app.Rollback(); rollbackErr != nil {
+			c_log.BizErrorf(p.ctx, "回滚失败: %v (原始错误: %v)", rollbackErr, err)
+		}
+		return errors.Wrapf(err, "添加时间戳失败: timestamp=%d", timestamp)
 	}
 
 	// 更新滑动窗口计数器
 	p.sampleCounter.IncrementBy(4) // 保存了4个字段
 
-	return app.Commit()
+	if err := app.Commit(); err != nil {
+		return errors.Wrapf(err, "提交电价数据失败: priceId=%d", priceId)
+	}
+	return nil
 }
 
 func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, pointKey []string, startTime, endTime *int64, step int) (*c_chart.ChartData, error) {
@@ -371,6 +350,20 @@ func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, point
 }
 
 func (p *promDB) GetStorageStats() (*c_base.StorageStats, error) {
+	// 尝试从缓存获取
+	p.statsMutex.RLock()
+	if p.statsCache != nil && time.Since(p.statsCacheTime).Seconds() < StatsCacheDuration {
+		// 缓存有效，但需要更新实时数据（每秒样本数）
+		cachedStats := *p.statsCache
+		p.statsMutex.RUnlock()
+
+		// 更新实时数据
+		cachedStats.SamplesPerSecond = p.sampleCounter.GetQPS()
+		return &cachedStats, nil
+	}
+	p.statsMutex.RUnlock()
+
+	// 缓存过期或不存在，重新计算
 	stats := &c_base.StorageStats{}
 
 	// 获取数据库头部信息
@@ -414,7 +407,7 @@ func (p *promDB) GetStorageStats() (*c_base.StorageStats, error) {
 	// 计算数据保留时间（秒）
 	if stats.OldestTimestamp != nil && headStats.MaxTime > 0 {
 		oldestTimeMs := stats.OldestTimestamp.UnixMilli()
-		stats.RetentionTime = (headStats.MaxTime - oldestTimeMs) / 1000 // 转换为秒
+		stats.RetentionTime = (headStats.MaxTime - oldestTimeMs) / MillisecondsPerSecond // 转换为秒
 	}
 
 	// 计算平均每个序列占用数据大小
@@ -430,6 +423,12 @@ func (p *promDB) GetStorageStats() (*c_base.StorageStats, error) {
 
 	// 计算数据保留时间（小时）
 	stats.RetentionHours = float64(stats.RetentionTime) / 3600
+
+	// 更新缓存
+	p.statsMutex.Lock()
+	p.statsCache = stats
+	p.statsCacheTime = time.Now()
+	p.statsMutex.Unlock()
 
 	c_log.Debugf(p.ctx, "获取存储统计信息: 序列数=%d, 样本数=%d, 存储大小=%.2fMB, 保留时间=%.2f小时, 平均序列大小=%.2f字节, 每秒样本数=%.2f",
 		stats.TotalSeries, stats.TotalSamples, stats.StorageSizeMB, stats.RetentionHours, stats.AvgSeriesSize, stats.SamplesPerSecond)
@@ -562,18 +561,26 @@ func (p *promDB) ClearDeviceHistoryAll(deviceId string) error {
 	}
 
 	// 清理状态缓存中该设备的数据
-	p.statusMutex.Lock()
-	deletedCacheCount := 0
+	// 先收集要删除的键，减少锁持有时间
+	var keysToDelete []string
+	p.statusMutex.RLock()
 	for key := range p.statusCache {
-		// 检查 key 是否以 "deviceId:" 开头
-		if len(key) > len(deviceId)+1 && key[:len(deviceId)+1] == deviceId+":" {
-			delete(p.statusCache, key)
-			deletedCacheCount++
+		if matchesDeviceIdPrefix(key, deviceId) {
+			keysToDelete = append(keysToDelete, key)
 		}
 	}
-	p.statusMutex.Unlock()
+	p.statusMutex.RUnlock()
 
-	c_log.BizInfof(p.ctx, "清除设备 %s 的历史数据完成，清理了 %d 条状态缓存", deviceId, deletedCacheCount)
+	// 批量删除
+	if len(keysToDelete) > 0 {
+		p.statusMutex.Lock()
+		for _, key := range keysToDelete {
+			delete(p.statusCache, key)
+		}
+		p.statusMutex.Unlock()
+	}
+
+	c_log.BizInfof(p.ctx, "清除设备 %s 的历史数据完成，清理了 %d 条状态缓存", deviceId, len(keysToDelete))
 
 	return nil
 }

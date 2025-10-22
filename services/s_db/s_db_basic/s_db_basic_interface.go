@@ -15,6 +15,7 @@ type IDeviceService interface {
 	GetDeviceById(ctx context.Context, id string) (*s_db_model.SDeviceModel, error)                      // 根据ID获取设备
 	GetDevicesByProtocolId(ctx context.Context, protocolId string) ([]*s_db_model.SDeviceModel, error)   // 根据协议ID获取设备列表
 	UpdateDevice(ctx context.Context, deviceId string, data map[string]interface{}) error
+	DeleteDeviceById(ctx context.Context, id string) error // 根据ID删除设备
 }
 
 type ISettingService interface {
