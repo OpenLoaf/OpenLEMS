@@ -346,6 +346,201 @@ var (
 - [modbus-point-definition.mdc](mdc:plugins/plug_drivers/.cursor/rules/modbus-point-definition.mdc) - Modbus 点位定义详细规范
 - [point-definition-migration-guide.mdc](mdc:plugins/plug_drivers/.cursor/rules/point-definition-migration-guide.mdc) - 点位定义迁移指南
 
+## 遥测点位与协议点位选择规范
+
+### 点位类型选择原则
+
+#### 1. 协议点位优先原则
+
+**优先使用协议点位（SModbusPoint）**，避免不必要的遥测点位（SReflectPoint）：
+
+```go
+// ✅ 推荐 - 直接使用协议点位
+func (s *sDevice) GetTelemetryPoints() []c_base.IPoint {
+    return []c_base.IPoint{
+        Power,       // 直接使用协议点位
+        SOC,         // 直接使用协议点位
+        Status,      // 直接使用协议点位
+    }
+}
+
+// ❌ 不推荐 - 使用重复的遥测点位
+func (s *sDevice) GetTelemetryPoints() []c_base.IPoint {
+    return []c_base.IPoint{
+        telemetryPowerPoint,  // 反射调用 GetPower() -> GetFromPointFloat64(Power)
+        telemetrySocPoint,    // 反射调用 GetSoc() -> GetFromPointFloat32(SOC)
+        telemetryStatusPoint, // 反射调用 GetStatus() -> GetFromPointInt16(Status)
+    }
+}
+```
+
+#### 2. 遥测点位使用场景
+
+**仅在以下场景使用遥测点位（SReflectPoint）：**
+
+- **聚合计算**：需要从多个子设备聚合数据
+- **数据转换**：需要单位转换、格式转换等业务逻辑
+- **复杂计算**：需要复杂算法处理的数据
+- **告警判断**：需要实时告警逻辑的数据
+
+```go
+// ✅ 正确使用 - 聚合计算场景
+var telemetryTotalPowerPoint = &c_base.SReflectPoint{
+    SPoint: &c_base.SPoint{
+        Key:       "totalPower",
+        Name:      "总功率",
+        Unit:      "kW",
+        ValueType: c_enum.EFloat32,
+        Desc:      "所有设备功率总和",
+    },
+    MethodName: "GetTotalPower", // 聚合多个子设备功率
+}
+
+// ✅ 正确使用 - 数据转换场景
+var telemetryTemperaturePoint = &c_base.SReflectPoint{
+    SPoint: &c_base.SPoint{
+        Key:       "temperature",
+        Name:      "温度",
+        Unit:      "°C",
+        ValueType: c_enum.EFloat32,
+        Desc:      "环境温度",
+    },
+    MethodName: "GetTemperature", // 温度单位转换逻辑
+}
+```
+
+#### 3. 避免重复点位
+
+**禁止创建功能重复的点位：**
+
+```go
+// ❌ 错误 - 功能重复
+var (
+    // 协议点位
+    Power = c_proto.NewModbusPointWithDesc(0x1001, "Power", "功率", c_enum.EFloat32, "kW", "功率", c_default.VDataAccessFloat32)
+    
+    // 遥测点位 - 功能重复
+    telemetryPowerPoint = &c_base.SReflectPoint{
+        SPoint: &c_base.SPoint{
+            Key:       "Power",
+            Name:      "功率",
+            Unit:      "kW",
+            ValueType: c_enum.EFloat32,
+            Desc:      "功率",
+        },
+        MethodName: "GetPower", // 内部只是调用 GetFromPointFloat32(Power)
+    }
+)
+```
+
+### 性能优化规范
+
+#### 1. 数据获取路径优化
+
+**直接访问缓存 vs 反射调用：**
+
+```go
+// ✅ 高效 - 直接访问缓存
+func (s *sDevice) GetTelemetryPoints() []c_base.IPoint {
+    return []c_base.IPoint{
+        Power,  // 直接从 Modbus 缓存获取
+        SOC,    // 直接从 Modbus 缓存获取
+    }
+}
+
+// ❌ 低效 - 反射调用开销
+func (s *sDevice) GetTelemetryPoints() []c_base.IPoint {
+    return []c_base.IPoint{
+        telemetryPowerPoint, // 反射调用 GetPower() -> GetFromPointFloat32(Power)
+        telemetrySocPoint,   // 反射调用 GetSoc() -> GetFromPointFloat32(SOC)
+    }
+}
+```
+
+#### 2. 点位数量优化
+
+**减少不必要的点位暴露：**
+
+```go
+// ✅ 优化后 - 精简点位
+func (s *sDevice) GetTelemetryPoints() []c_base.IPoint {
+    return []c_base.IPoint{
+        Status,      // 设备状态
+        Power,       // 功率
+        SOC,         // 电量
+        MaxPower,    // 最大功率
+        Energy,      // 电量统计
+    }
+}
+
+// ❌ 优化前 - 点位过多
+func (s *sDevice) GetTelemetryPoints() []c_base.IPoint {
+    return []c_base.IPoint{
+        Status, Power, SOC, MaxPower, Energy,
+        telemetryPowerPoint, telemetrySocPoint, telemetryEnergyPoint,
+        // ... 更多重复点位
+    }
+}
+```
+
+### 设计检查清单
+
+开发时检查：
+
+- [ ] **避免重复点位**：同一功能不定义多个点位
+- [ ] **协议点位优先**：优先使用协议点位，避免不必要的遥测点位
+- [ ] **遥测点位合理**：遥测点位仅用于聚合、转换、复杂计算场景
+- [ ] **性能优化**：直接访问缓存，避免反射调用开销
+- [ ] **点位精简**：只暴露必要的关键点位
+- [ ] **数据一致性**：协议点位数据更准确，避免数据不一致
+
+### 迁移指南
+
+#### 从重复点位迁移到优化点位
+
+1. **识别重复点位**：
+   ```bash
+   # 查找可能的重复点位
+   grep -r "telemetry.*Point" plugins/plug_drivers/your_driver/
+   grep -r "func.*Get.*()" plugins/plug_drivers/your_driver/
+   ```
+
+2. **分析点位功能**：
+   - 检查遥测点位方法是否只是简单调用协议点位
+   - 识别真正需要业务逻辑的遥测点位
+
+3. **优化点位选择**：
+   ```go
+   // 移除重复的遥测点位
+   // telemetryPowerPoint -> 直接使用 Power
+   // telemetrySocPoint -> 直接使用 SOC
+   
+   // 保留有业务逻辑的遥测点位
+   // telemetryTotalPowerPoint -> 聚合计算，保留
+   // telemetryTemperaturePoint -> 单位转换，保留
+   ```
+
+4. **更新 GetTelemetryPoints**：
+   ```go
+   // 优化前
+   func (s *sDevice) GetTelemetryPoints() []c_base.IPoint {
+       return []c_base.IPoint{
+           telemetryPowerPoint,  // 移除
+           telemetrySocPoint,    // 移除
+           telemetryTotalPowerPoint, // 保留
+       }
+   }
+   
+   // 优化后
+   func (s *sDevice) GetTelemetryPoints() []c_base.IPoint {
+       return []c_base.IPoint{
+           Power,                // 直接使用协议点位
+           SOC,                  // 直接使用协议点位
+           telemetryTotalPowerPoint, // 保留聚合计算点位
+       }
+   }
+   ```
+
 ## 注意事项
 
 1. **不向前兼容**：完全移除 v1 兼容性，直接使用新结构
@@ -353,3 +548,5 @@ var (
 3. **启动验证**：系统启动时验证所有必填字段
 4. **接口继承**：子结构体不重复实现接口方法
 5. **预定义优先**：优先使用 `c_default` 包配置
+6. **性能优先**：避免不必要的反射调用，直接使用协议点位
+7. **功能唯一**：同一功能不定义多个点位，避免数据不一致

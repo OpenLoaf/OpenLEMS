@@ -174,8 +174,15 @@ func (s *sAmmeterDemo) GetDevicePoints() []c_base.IPoint {
 // GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
 func (s *sAmmeterDemo) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		telemetryPTotalPoint,    // 总功率 - 核心测量值
-		telemetryFrequencyPoint, // 频率 - 电网质量指标
+		TotalActivePower,                      // 总有功功率 - 功率测量
+		TotalReactivePower,                    // 总无功功率 - 功率测量
+		TotalApparentPower,                    // 总视在功率 - 功率测量
+		Frequency,                             // 频率 - 电网参数
+		PowerFactor,                           // 功率因数 - 电能质量
+		ForwardActiveEnergy,                   // 正向有功电量 - 电量统计
+		ReverseActiveEnergy,                   // 反向有功电量 - 电量统计
+		telemetryHistoryIncomingQuantityPoint, // 历史正向电量 - 电量统计
+		telemetryHistoryOutgoingQuantityPoint, // 历史反向电量 - 电量统计
 	}
 }
 

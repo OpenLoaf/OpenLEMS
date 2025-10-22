@@ -105,8 +105,12 @@ func (s *sLoadDemo) GetDevicePoints() []c_base.IPoint {
 // GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
 func (s *sLoadDemo) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		telemetryPowerPoint,  // 功率 - 核心运行参数
-		telemetryEnergyPoint, // 电量 - 累计统计
+		Status,      // 设备状态 - 运行状态
+		Power,       // 功率 - 当前功率
+		Energy,      // 电量 - 累计用电量
+		MaxLoad,     // 最大负荷 - 负荷限制
+		PowerFactor, // 功率因数 - 电能质量
+		LoadRate,    // 负荷率 - 负荷利用率
 	}
 }
 

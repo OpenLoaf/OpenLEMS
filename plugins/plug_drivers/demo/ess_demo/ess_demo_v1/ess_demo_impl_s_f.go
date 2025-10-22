@@ -247,9 +247,15 @@ func (s *sEssDemo) GetDevicePoints() []c_base.IPoint {
 // GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
 func (s *sEssDemo) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		Status,
-		telemetryPowerPoint, // 功率 - 核心运行参数
-		telemetrySocPoint,   // SOC - 电池电量百分比
+		Status,            // 设备状态
+		Power,             // 功率 - 核心运行参数
+		SOC,               // SOC - 电池电量百分比
+		GeneratedEnergy,   // 累计放电量 - 能量统计
+		ConsumedEnergy,    // 累计用电量 - 能量统计
+		MaxChargePower,    // 最大充电功率 - 功率限制
+		MaxDischargePower, // 最大放电功率 - 功率限制
+		PowerCapacity,     // 功率容量 - 设备能力
+		EnergyCapacity,    // 能量容量 - 设备能力
 	}
 }
 

@@ -328,12 +328,29 @@ func (p *sEssPylonCheckwatt) GetDevicePoints() []c_base.IPoint {
 
 // GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
 func (p *sEssPylonCheckwatt) GetTelemetryPoints() []c_base.IPoint {
-	// 虚拟ESS驱动没有点位，返回空列表
-	return []c_base.IPoint{}
+	return []c_base.IPoint{
+		telemetrySocPoint,                     // SOC - 电池电量百分比
+		telemetryPowerPoint,                   // 功率 - 核心运行参数
+		telemetryTargetPowerPoint,             // 目标功率 - 控制参数
+		telemetryTodayIncomingQuantityPoint,   // 当日充电量
+		telemetryTodayOutgoingQuantityPoint,   // 当日放电量
+		telemetryHistoryIncomingQuantityPoint, // 历史充电量
+		telemetryHistoryOutgoingQuantityPoint, // 历史放电量
+	}
 }
 
 // GetExportModbusPoints 获取暴露出去的modbus点位
 func (p *sEssPylonCheckwatt) GetExportModbusPoints() []c_base.IPoint {
-	// 虚拟ESS驱动没有点位，返回空列表
-	return []c_base.IPoint{}
+	// 虚拟ESS驱动没有Modbus协议点位，只返回遥测点位
+	return []c_base.IPoint{
+		telemetrySocPoint,
+		telemetryPowerPoint,
+		telemetryTargetPowerPoint,
+		telemetryApparentPowerPoint,
+		telemetryReactivePowerPoint,
+		telemetryTodayIncomingQuantityPoint,   // 当日充电量
+		telemetryTodayOutgoingQuantityPoint,   // 当日放电量
+		telemetryHistoryIncomingQuantityPoint, // 历史充电量
+		telemetryHistoryOutgoingQuantityPoint, // 历史放电量
+	}
 }

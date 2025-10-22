@@ -87,7 +87,7 @@ func GetAllTelemetry(instance IDevice) map[string]any {
 	result := make(map[string]any)
 
 	// 获取所有点位数据
-	allPoints := instance.GetDevicePoints()
+	allPoints := instance.GetTelemetryPoints()
 
 	for _, point := range allPoints {
 		//if point.GetValueExplain()
