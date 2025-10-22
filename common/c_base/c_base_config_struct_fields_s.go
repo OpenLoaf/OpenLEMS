@@ -21,6 +21,7 @@ type SFieldDefinition struct {
 	Unit               *string                           `json:"unit,omitempty" yaml:"unit" short:"unit" dc:"单位"`
 	Min                *int64                            `json:"min,omitempty" yaml:"min" short:"min"`
 	Max                *int64                            `json:"max,omitempty" yaml:"max" short:"max"`
+	Precise            uint8                             `json:"precise,omitempty" yaml:"precise" short:"precise" dc:"设置浮点数精度（只是显示用）"`
 	Default            *string                           `json:"default,omitempty" yaml:"default" short:"def"`
 	ValueExplain       []*SFieldExplain                  `json:"valueExplain,omitempty" yaml:"valueExplain" short:"ve"` // 值解释
 	ParamExplain       []*SFieldExplain                  `json:"paramExplain,omitempty" yaml:"paramExplain" short:"pe"` // 从参数值中读取解释
@@ -207,8 +208,7 @@ func (s *SFieldDefinition) GetMax() int64 {
 
 // GetPrecise 获取小数点精度
 func (s *SFieldDefinition) GetPrecise() uint8 {
-	// SFieldDefinition 没有精度字段，返回默认值
-	return 0
+	return s.Precise
 }
 
 // GetValueType 获取值类型

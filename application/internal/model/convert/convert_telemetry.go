@@ -33,6 +33,7 @@ func SConfigStructFieldsToI18n(ctx context.Context, s *c_base.SFieldDefinition) 
 		Default:            s.Default,
 		ValueExplain:       s.ValueExplain,
 		ParamExplain:       s.ParamExplain,
+		Precise:            s.Precise,
 		Regex:              s.Regex,
 		RegexFailedMessage: s.RegexFailedMessage,
 		Description:        s.Description,
