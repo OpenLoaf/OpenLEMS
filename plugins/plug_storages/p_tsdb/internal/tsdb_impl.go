@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/shockerli/cvt"
 
 	"github.com/prometheus/prometheus/pkg/labels"
 	promtsdb "github.com/prometheus/prometheus/tsdb"
@@ -111,7 +112,7 @@ func (p *promDB) SaveDevices(deviceId string, pointValues []*c_base.SPointValue)
 		}
 
 		// 保存数值类型数据
-		if numericValue, ok := convertToFloat64(value); ok {
+		if numericValue, err := cvt.Float64E(value); err == nil {
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: MetricNameEmsMetric,
 				LabelNameType:   string(c_base.StorageTypeDevice),
@@ -143,7 +144,7 @@ func (p *promDB) SaveProtocolMetrics(protocolConfig *c_base.SProtocolConfig, dev
 	var sampleCount int64 = 0 // 统计本次存储的样本数量
 	for field, value := range metrics {
 		// 只保存数值类型数据
-		if numericValue, ok := convertToFloat64(value); ok {
+		if numericValue, err := cvt.Float64E(value); err == nil {
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric:   MetricNameEmsMetric,
 				LabelNameType:     string(c_base.StorageTypeProtocol),
@@ -178,7 +179,7 @@ func (p *promDB) SaveSystemMetrics(measurement string, tags map[string]string, m
 	var sampleCount int64 = 0 // 统计本次存储的样本数量
 	for field, value := range metrics {
 		// 只保存数值类型数据
-		if numericValue, ok := convertToFloat64(value); ok {
+		if numericValue, err := cvt.Float64E(value); err == nil {
 			_, err := app.Add(labels.FromMap(map[string]string{
 				LabelNameMetric: MetricNameEmsMetric,
 				LabelNameType:   string(c_base.StorageTypeSystem),
@@ -538,110 +539,48 @@ func (p *promDB) calculateStorageSize() (int64, error) {
 	return totalSize, err
 }
 
+func (p *promDB) ClearDeviceHistoryAll(deviceId string) error {
+	if deviceId == "" {
+		return errors.New("设备ID不能为空")
+	}
+
+	// 构建标签选择器：匹配指定设备的所有数据
+	matchers := []*labels.Matcher{
+		labels.MustNewMatcher(labels.MatchEqual, LabelNameMetric, MetricNameEmsMetric),
+		labels.MustNewMatcher(labels.MatchEqual, LabelNameType, string(c_base.StorageTypeDevice)),
+		labels.MustNewMatcher(labels.MatchEqual, LabelNameID, deviceId),
+	}
+
+	// Prometheus TSDB Delete 方法说明：
+	// - Delete(mint, maxt int64, ms ...*labels.Matcher) 会删除所有匹配的时间序列
+	// - 时间范围 [mint, maxt] 指定要删除的数据时间范围
+	// - 使用 0 到当前时间，表示删除该设备的所有历史数据
+	// - 一次调用即可删除所有匹配的序列，无需遍历
+	err := p.db.Delete(0, time.Now().UnixMilli(), matchers...)
+	if err != nil {
+		return errors.Wrapf(err, "删除设备 %s 的历史数据失败", deviceId)
+	}
+
+	// 清理状态缓存中该设备的数据
+	p.statusMutex.Lock()
+	deletedCacheCount := 0
+	for key := range p.statusCache {
+		// 检查 key 是否以 "deviceId:" 开头
+		if len(key) > len(deviceId)+1 && key[:len(deviceId)+1] == deviceId+":" {
+			delete(p.statusCache, key)
+			deletedCacheCount++
+		}
+	}
+	p.statusMutex.Unlock()
+
+	c_log.BizInfof(p.ctx, "清除设备 %s 的历史数据完成，清理了 %d 条状态缓存", deviceId, deletedCacheCount)
+
+	return nil
+}
+
 func (p *promDB) Close() {
 	if p.db != nil {
 		_ = p.db.Close()
 		c_log.BizInfof(p.ctx, "关闭时序数据库！")
 	}
-}
-
-// convertToFloat64 将各种数值类型（包括指针类型）转换为 float64
-// 支持的类型：int, int8, int16, int32, int64, uint, uint8, uint16, uint32, uint64, float32, float64
-// 以及对应的指针类型：*int, *int8, *int16, *int32, *int64, *uint, *uint8, *uint16, *uint32, *uint64, *float32, *float64
-// 返回值：转换后的 float64 值和是否转换成功
-func convertToFloat64(value any) (float64, bool) {
-	if value == nil {
-		return 0, false
-	}
-
-	switch v := value.(type) {
-	// 基本数值类型
-	case int:
-		return float64(v), true
-	case int8:
-		return float64(v), true
-	case int16:
-		return float64(v), true
-	case int32:
-		return float64(v), true
-	case int64:
-		return float64(v), true
-	case uint:
-		return float64(v), true
-	case uint8:
-		return float64(v), true
-	case uint16:
-		return float64(v), true
-	case uint32:
-		return float64(v), true
-	case uint64:
-		return float64(v), true
-	case float32:
-		return float64(v), true
-	case float64:
-		return v, true
-	case bool:
-		if v {
-			return 1, true
-		} else {
-			return 0, true
-		}
-	// 指针类型
-	case *int:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *int8:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *int16:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *int32:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *int64:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *uint:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *uint8:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *uint16:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *uint32:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *uint64:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *float32:
-		if v != nil {
-			return float64(*v), true
-		}
-	case *float64:
-		if v != nil {
-			return *v, true
-		}
-	case *bool:
-		if *v {
-			return 1, true
-		} else {
-			return 0, true
-		}
-	}
-
-	return 0, false
 }
