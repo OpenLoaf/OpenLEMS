@@ -109,7 +109,7 @@ var (
 
 	Frequency = c_proto.NewModbusPointWithDesc(0x01A5, "Frequency", "频率", c_enum.EInt16, "Hz", "频率", c_default.VDataAccessInt16Scale001)
 
-	PowerFactor = c_proto.NewModbusPointWithDesc(0x01A6, "PowerFactor", "功率因数", c_enum.EInt16, "", "功率因数", c_default.VDataAccessInt16Scale001)
+	PowerFactor = c_proto.NewModbusPointWithDesc(0x01A6, "PowerFactor", "功率因数", c_enum.EInt16, "", "功率因数", c_default.VDataAccessInt16Scale01)
 
 	RatedLineVoltage = c_proto.NewModbusPointWithDesc(0x01A7, "RatedLineVoltage", "额定线电压", c_enum.EInt16, "V", "额定线电压", c_default.VDataAccessInt16)
 

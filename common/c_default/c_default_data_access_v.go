@@ -36,19 +36,26 @@ var (
 
 // 带缩放因子的常用配置
 var (
-	VDataAccessUInt16Scale0001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0} // 16位无符号整数 (缩放因子0.001)
-	VDataAccessUInt16Scale01   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}   // 16位无符号整数 (缩放因子0.1)
-	VDataAccessUInt16Scale001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}  // 16位无符号整数 (缩放因子0.01)
-	VDataAccessUInt16Scale10   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 10.0, Offset: 0}  // 16位无符号整数 (缩放因子10)
-	VDataAccessInt16Scale01    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}    // 16位有符号整数 (缩放因子0.1)
-	VDataAccessInt16Scale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}   // 16位有符号整数 (缩放因子0.01)
-	VDataAccessInt16Scale10    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 10.0, Offset: 0}   // 16位有符号整数 (缩放因子10)
-	VDataAccessUInt32Scale01   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}   // 32位无符号整数 (缩放因子0.1)
-	VDataAccessUInt32Scale001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}  // 32位无符号整数 (缩放因子0.01)
-	VDataAccessUInt32Scale10   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 10.0, Offset: 0}  // 32位无符号整数 (缩放因子10)
-	VDataAccessInt32Scale01    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}    // 32位有符号整数 (缩放因子0.1)
-	VDataAccessInt32Scale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}   // 32位有符号整数 (缩放因子0.01)
-	VDataAccessInt32Scale10    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 10.0, Offset: 0}   // 32位有符号整数 (缩放因子10)
+	VDataAccessUInt16Scale00001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.0001, Offset: 0} // 16位无符号整数
+	VDataAccessUInt16Scale0001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0}  // 16位无符号整数
+	VDataAccessUInt16Scale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}   // 16位无符号整数
+	VDataAccessUInt16Scale01    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}    // 16位无符号整数 (缩放因子0.1)
+	VDataAccessUInt16Scale10    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 10.0, Offset: 0}   // 16位无符号整数 (缩放因子10)
+	VDataAccessInt16Scale00001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.0001, Offset: 0}  // 16位有符号整数
+	VDataAccessInt16Scale0001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0}   // 16位有符号整数
+	VDataAccessInt16Scale001    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}    // 16位有符号整数
+	VDataAccessInt16Scale01     = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}     // 16位有符号整数 (缩放因子0.1)
+	VDataAccessInt16Scale10     = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 10.0, Offset: 0}    // 16位有符号整数 (缩放因子10)
+	VDataAccessUInt32Scale00001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.0001, Offset: 0} // 32位无符号整数
+	VDataAccessUInt32Scale0001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0}  // 32位无符号整数
+	VDataAccessUInt32Scale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}   // 32位无符号整数
+	VDataAccessUInt32Scale01    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}    // 32位无符号整数 (缩放因子0.1)
+	VDataAccessUInt32Scale10    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 10.0, Offset: 0}   // 32位无符号整数 (缩放因子10)
+	VDataAccessInt32Scale00001  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.0001, Offset: 0}  // 32位有符号整数
+	VDataAccessInt32Scale0001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0}   // 32位有符号整数
+	VDataAccessInt32Scale001    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}    // 32位有符号整数
+	VDataAccessInt32Scale01     = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}     // 32位有符号整数 (缩放因子0.1)
+	VDataAccessInt32Scale10     = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 10.0, Offset: 0}    // 32位有符号整数 (缩放因子10)
 )
 
 // 位范围配置 (用于状态位)
@@ -68,19 +75,19 @@ var (
 	VDataAccessFloat32Byte1Scale01  = &c_base.SDataAccess{ByteIndex: 1, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
 	VDataAccessFloat32Byte2Scale01  = &c_base.SDataAccess{ByteIndex: 2, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
 	VDataAccessFloat32Byte3Scale01  = &c_base.SDataAccess{ByteIndex: 3, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
-	VDataAccessFloat32Byte0Scale001 = &c_base.SDataAccess{ByteIndex: 0, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
-	VDataAccessFloat32Byte1Scale001 = &c_base.SDataAccess{ByteIndex: 1, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
-	VDataAccessFloat32Byte2Scale001 = &c_base.SDataAccess{ByteIndex: 2, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
-	VDataAccessFloat32Byte3Scale001 = &c_base.SDataAccess{ByteIndex: 3, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
+	VDataAccessFloat32Byte0Scale001 = &c_base.SDataAccess{ByteIndex: 0, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
+	VDataAccessFloat32Byte1Scale001 = &c_base.SDataAccess{ByteIndex: 1, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
+	VDataAccessFloat32Byte2Scale001 = &c_base.SDataAccess{ByteIndex: 2, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
+	VDataAccessFloat32Byte3Scale001 = &c_base.SDataAccess{ByteIndex: 3, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
 
 	VDataAccessFloat64Byte0Scale01  = &c_base.SDataAccess{ByteIndex: 0, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
 	VDataAccessFloat64Byte1Scale01  = &c_base.SDataAccess{ByteIndex: 1, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
 	VDataAccessFloat64Byte2Scale01  = &c_base.SDataAccess{ByteIndex: 2, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
 	VDataAccessFloat64Byte3Scale01  = &c_base.SDataAccess{ByteIndex: 3, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
-	VDataAccessFloat64Byte0Scale001 = &c_base.SDataAccess{ByteIndex: 0, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
-	VDataAccessFloat64Byte1Scale001 = &c_base.SDataAccess{ByteIndex: 1, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
-	VDataAccessFloat64Byte2Scale001 = &c_base.SDataAccess{ByteIndex: 2, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
-	VDataAccessFloat64Byte3Scale001 = &c_base.SDataAccess{ByteIndex: 3, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
+	VDataAccessFloat64Byte0Scale001 = &c_base.SDataAccess{ByteIndex: 0, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
+	VDataAccessFloat64Byte1Scale001 = &c_base.SDataAccess{ByteIndex: 1, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
+	VDataAccessFloat64Byte2Scale001 = &c_base.SDataAccess{ByteIndex: 2, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
+	VDataAccessFloat64Byte3Scale001 = &c_base.SDataAccess{ByteIndex: 3, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
 
 	// 更多缩放因子变体
 	VDataAccessFloat32Byte0Scale1   = &c_base.SDataAccess{ByteIndex: 0, ByteLength: 2, DataFormat: c_enum.DataFormatInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 1.0}
@@ -101,10 +108,10 @@ var (
 	VDataAccessUInt16Byte1Scale01  = &c_base.SDataAccess{ByteIndex: 1, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
 	VDataAccessUInt16Byte2Scale01  = &c_base.SDataAccess{ByteIndex: 2, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
 	VDataAccessUInt16Byte3Scale01  = &c_base.SDataAccess{ByteIndex: 3, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.1}
-	VDataAccessUInt16Byte0Scale001 = &c_base.SDataAccess{ByteIndex: 0, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
-	VDataAccessUInt16Byte1Scale001 = &c_base.SDataAccess{ByteIndex: 1, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
-	VDataAccessUInt16Byte2Scale001 = &c_base.SDataAccess{ByteIndex: 2, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
-	VDataAccessUInt16Byte3Scale001 = &c_base.SDataAccess{ByteIndex: 3, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.01}
+	VDataAccessUInt16Byte0Scale001 = &c_base.SDataAccess{ByteIndex: 0, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
+	VDataAccessUInt16Byte1Scale001 = &c_base.SDataAccess{ByteIndex: 1, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
+	VDataAccessUInt16Byte2Scale001 = &c_base.SDataAccess{ByteIndex: 2, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
+	VDataAccessUInt16Byte3Scale001 = &c_base.SDataAccess{ByteIndex: 3, ByteLength: 2, DataFormat: c_enum.DataFormatUInt16, WordOrder: c_enum.WordOrderLowHigh, Factor: 0.001}
 
 	// 单字节配置
 	VDataAccessUInt8Byte0 = &c_base.SDataAccess{ByteIndex: 0, ByteLength: 1, DataFormat: c_enum.DataFormatUInt8, Factor: 1.0}
@@ -138,38 +145,38 @@ var (
 
 // 温度相关配置 (常用缩放因子)
 var (
-	VDataAccessTempCelsiusScale01    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}  // 温度 (摄氏度, 缩放0.1)
-	VDataAccessTempCelsiusScale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0} // 温度 (摄氏度, 缩放0.01)
-	VDataAccessTempCelsiusScale1     = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1.0, Offset: 0}  // 温度 (摄氏度, 无缩放)
-	VDataAccessTempFahrenheitScale01 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 32} // 温度 (华氏度, 缩放0.1, 偏移32)
+	VDataAccessTempCelsiusScale01    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}   // 温度 (摄氏度, 缩放0.1)
+	VDataAccessTempCelsiusScale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0} // 温度 (摄氏度, 缩放0.001)
+	VDataAccessTempCelsiusScale1     = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1.0, Offset: 0}   // 温度 (摄氏度, 无缩放)
+	VDataAccessTempFahrenheitScale01 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 32}  // 温度 (华氏度, 缩放0.1, 偏移32)
 )
 
 // 电压电流功率相关配置
 var (
 	VDataAccessVoltageScale01  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}    // 电压 (缩放0.1V)
-	VDataAccessVoltageScale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}   // 电压 (缩放0.01V)
+	VDataAccessVoltageScale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0}  // 电压 (缩放0.001V)
 	VDataAccessVoltageScale1   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1.0, Offset: 0}    // 电压 (无缩放V)
 	VDataAccessCurrentScale01  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}    // 电流 (缩放0.1A)
-	VDataAccessCurrentScale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}   // 电流 (缩放0.01A)
+	VDataAccessCurrentScale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0}  // 电流 (缩放0.001A)
 	VDataAccessCurrentScale1   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1.0, Offset: 0}    // 电流 (无缩放A)
 	VDataAccessPowerScale01    = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}    // 功率 (缩放0.1W)
-	VDataAccessPowerScale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0}   // 功率 (缩放0.01W)
+	VDataAccessPowerScale001   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0}  // 功率 (缩放0.001W)
 	VDataAccessPowerScale1     = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1.0, Offset: 0}    // 功率 (无缩放W)
 	VDataAccessPowerScale1000  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt32, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1000.0, Offset: 0} // 功率 (缩放1000W)
 )
 
 // 频率相关配置
 var (
-	VDataAccessFreqScale01  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}  // 频率 (缩放0.1Hz)
-	VDataAccessFreqScale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0} // 频率 (缩放0.01Hz)
-	VDataAccessFreqScale1   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1.0, Offset: 0}  // 频率 (无缩放Hz)
+	VDataAccessFreqScale01  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}   // 频率 (缩放0.1Hz)
+	VDataAccessFreqScale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0} // 频率 (缩放0.001Hz)
+	VDataAccessFreqScale1   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1.0, Offset: 0}   // 频率 (无缩放Hz)
 )
 
 // 百分比相关配置
 var (
-	VDataAccessPercentScale01  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}  // 百分比 (缩放0.1%)
-	VDataAccessPercentScale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.01, Offset: 0} // 百分比 (缩放0.01%)
-	VDataAccessPercentScale1   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1.0, Offset: 0}  // 百分比 (无缩放%)
+	VDataAccessPercentScale01  = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.1, Offset: 0}   // 百分比 (缩放0.1%)
+	VDataAccessPercentScale001 = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 0.001, Offset: 0} // 百分比 (缩放0.001%)
+	VDataAccessPercentScale1   = &c_base.SDataAccess{DataFormat: c_enum.DataFormatUInt16, ByteEndian: c_enum.ByteEndianBig, WordOrder: c_enum.WordOrderHighLow, Factor: 1.0, Offset: 0}   // 百分比 (无缩放%)
 )
 
 // 时间相关配置
