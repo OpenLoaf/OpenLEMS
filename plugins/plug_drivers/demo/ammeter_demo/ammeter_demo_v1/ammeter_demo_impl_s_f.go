@@ -136,12 +136,6 @@ func (s *sAmmeterDemo) GetHistoryOutgoingQuantity() (*float64, error) {
 // 实现新的IDevice接口方法
 func (s *sAmmeterDemo) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		// 遥测点位
-		telemetryPTotalPoint,
-		telemetryFrequencyPoint,
-		telemetryPfTotalPoint,
-		telemetryHistoryIncomingQuantityPoint,
-		telemetryHistoryOutgoingQuantityPoint,
 		// 协议点位
 		Status,
 		PhaseAVoltage,
@@ -174,27 +168,19 @@ func (s *sAmmeterDemo) GetDevicePoints() []c_base.IPoint {
 // GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
 func (s *sAmmeterDemo) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		TotalActivePower,                      // 总有功功率 - 功率测量
-		TotalReactivePower,                    // 总无功功率 - 功率测量
-		TotalApparentPower,                    // 总视在功率 - 功率测量
-		Frequency,                             // 频率 - 电网参数
-		PowerFactor,                           // 功率因数 - 电能质量
-		ForwardActiveEnergy,                   // 正向有功电量 - 电量统计
-		ReverseActiveEnergy,                   // 反向有功电量 - 电量统计
-		telemetryHistoryIncomingQuantityPoint, // 历史正向电量 - 电量统计
-		telemetryHistoryOutgoingQuantityPoint, // 历史反向电量 - 电量统计
+		TotalActivePower,    // 总有功功率 - 功率测量
+		TotalReactivePower,  // 总无功功率 - 功率测量
+		TotalApparentPower,  // 总视在功率 - 功率测量
+		Frequency,           // 频率 - 电网参数
+		PowerFactor,         // 功率因数 - 电能质量
+		ForwardActiveEnergy, // 正向有功电量 - 电量统计
+		ReverseActiveEnergy, // 反向有功电量 - 电量统计
 	}
 }
 
 // GetExportModbusPoints 获取暴露出去的modbus点位
 func (s *sAmmeterDemo) GetExportModbusPoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		// 遥测点位 - 基本测量参数
-		telemetryPTotalPoint,                  // 总功率
-		telemetryFrequencyPoint,               // 频率
-		telemetryPfTotalPoint,                 // 总功率因数
-		telemetryHistoryIncomingQuantityPoint, // 历史正向电量
-		telemetryHistoryOutgoingQuantityPoint, // 历史反向电量
 		// 协议点位 - 详细测量数据
 		Status,              // 设备状态
 		PhaseAVoltage,       // A相电压
