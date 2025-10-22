@@ -199,7 +199,10 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 	s.BindHandler("GET:/config/*", func(r *ghttp.Request) {
 		fileServer.ServeHTTP(r.Response.Writer, r.Request)
 	})
-	s.BindHandler("GET:/demo/*", func(r *ghttp.Request) {
+	s.BindHandler("GET:/libs/*", func(r *ghttp.Request) {
+		fileServer.ServeHTTP(r.Response.Writer, r.Request)
+	})
+	s.BindHandler("GET:/dashboard/*", func(r *ghttp.Request) {
 		fileServer.ServeHTTP(r.Response.Writer, r.Request)
 	})
 
@@ -235,6 +238,7 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 			strings.HasPrefix(r.URL.Path, "/images/") ||
 			strings.HasPrefix(r.URL.Path, "/config/") ||
 			strings.HasPrefix(r.URL.Path, "/demo/") ||
+			strings.HasPrefix(r.URL.Path, "/libs/") ||
 			r.URL.Path == "/favicon.ico" {
 			r.Response.WriteStatus(http.StatusNotFound)
 			return
