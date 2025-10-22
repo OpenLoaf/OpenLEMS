@@ -24,8 +24,6 @@ bin
 
 *.tar
 ems
-#application/application
-#!application/manifest/web
 tmp
 *.sum
 out/
@@ -45,3 +43,4 @@ build/
 
 
 @cpp/build
+/application/manifest/web/
