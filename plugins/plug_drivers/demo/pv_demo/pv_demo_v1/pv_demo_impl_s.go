@@ -117,13 +117,6 @@ func (s *sPvDemo) GetIrradiance() (*uint32, error) {
 // 实现新的IDevice接口方法
 func (s *sPvDemo) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		// 遥测点位
-		telemetryPowerPoint,
-		telemetryGeneratedEnergyPoint,
-		telemetryPowerLimitPoint,
-		telemetryCapacityPoint,
-		telemetryTemperaturePoint,
-		telemetryIrradiancePoint,
 		// 协议点位
 		Status,
 		Power,
@@ -140,24 +133,17 @@ func (s *sPvDemo) GetDevicePoints() []c_base.IPoint {
 // GetTelemetryPoints 获取主要遥测点位列表（只返回关键点位）
 func (s *sPvDemo) GetTelemetryPoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		OnOffState,
-		telemetryPowerPoint,           // 发电功率 - 核心输出
-		telemetryGeneratedEnergyPoint, // 发电量 - 累计统计
-		telemetryTemperaturePoint,     // 温度
-		telemetryIrradiancePoint,      // 当前辐射
+		OnOffState,      // 开关状态
+		Power,           // 发电功率 - 核心输出
+		GeneratedEnergy, // 发电量 - 累计统计
+		Temperature,     // 温度
+		Irradiance,      // 当前辐射
 	}
 }
 
 // GetExportModbusPoints 获取暴露出去的modbus点位
 func (s *sPvDemo) GetExportModbusPoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		// 遥测点位 - 基本运行参数
-		telemetryPowerPoint,           // 发电功率
-		telemetryGeneratedEnergyPoint, // 累计发电量
-		telemetryPowerLimitPoint,      // 功率限制
-		telemetryCapacityPoint,        // 装机容量
-		telemetryTemperaturePoint,     // 温度
-		telemetryIrradiancePoint,      // 辐照度
 		// 协议点位 - 控制参数
 		Status,            // 设备状态
 		Power,             // 功率

@@ -221,11 +221,6 @@ func (s *sEssDemo) HasSmoke() (*bool, error) {
 // 实现新的IDevice接口方法
 func (s *sEssDemo) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		// 遥测点位
-		telemetryPowerPoint,
-		telemetrySocPoint,
-		telemetryGeneratedEnergyPoint,
-		telemetryConsumedEnergyPoint,
 		// 协议点位
 		Status,
 		Power,
@@ -262,11 +257,6 @@ func (s *sEssDemo) GetTelemetryPoints() []c_base.IPoint {
 // GetExportModbusPoints 获取暴露出去的modbus点位
 func (s *sEssDemo) GetExportModbusPoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		// 遥测点位 - 基本运行参数
-		telemetryPowerPoint,           // 功率
-		telemetrySocPoint,             // SOC - 电池电量百分比
-		telemetryGeneratedEnergyPoint, // 累计放电量
-		telemetryConsumedEnergyPoint,  // 累计用电量
 		// 协议点位 - 控制参数
 		Status,            // 设备状态
 		Power,             // 功率

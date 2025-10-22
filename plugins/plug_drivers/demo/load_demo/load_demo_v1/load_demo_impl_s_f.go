@@ -88,10 +88,6 @@ func (s *sLoadDemo) GetMaxOutputPower() (*float64, error) {
 // 实现新的IDevice接口方法
 func (s *sLoadDemo) GetDevicePoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		// 遥测点位
-		telemetryPowerPoint,
-		telemetryEnergyPoint,
-		telemetryMaxLoadPoint,
 		// 协议点位
 		Status,
 		Power,
@@ -117,10 +113,6 @@ func (s *sLoadDemo) GetTelemetryPoints() []c_base.IPoint {
 // GetExportModbusPoints 获取暴露出去的modbus点位
 func (s *sLoadDemo) GetExportModbusPoints() []c_base.IPoint {
 	return []c_base.IPoint{
-		// 遥测点位 - 基本运行参数
-		telemetryPowerPoint,   // 功率
-		telemetryEnergyPoint,  // 电量
-		telemetryMaxLoadPoint, // 最大负载
 		// 协议点位 - 控制参数
 		Status,      // 设备状态
 		Power,       // 功率

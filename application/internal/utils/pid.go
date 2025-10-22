@@ -3,7 +3,6 @@ package utils
 import (
 	"common/c_log"
 	"context"
-	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -104,11 +103,8 @@ func CheckPidFile(pidFile string) (bool, int, error) {
 		return false, 0, errors.Errorf("PID文件格式错误: %v", err)
 	}
 
-	fmt.Printf("获取到 pidStr 为%s\n", pidStr)
-
 	// 检查进程是否运行
 	isRunning := IsProcessRunning(pid)
-	fmt.Printf("获取到 isRunning 为%b\n", isRunning)
 	return isRunning, pid, nil
 }
 

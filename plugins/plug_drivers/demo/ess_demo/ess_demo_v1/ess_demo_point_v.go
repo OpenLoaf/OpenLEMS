@@ -19,52 +19,6 @@ var ReadTask = &c_proto.SModbusPointTask{
 }
 
 var (
-	// 遥测点位定义 - 直接创建，启动时验证SPoint字段
-	telemetryPowerPoint = &c_base.SReflectPoint{
-		SPoint: &c_base.SPoint{
-			Key:       "Power",
-			Name:      "功率",
-			Unit:      "kW",
-			ValueType: c_enum.EFloat32,
-			Desc:      "当前功率",
-		},
-		MethodName: "GetPower",
-	}
-
-	telemetrySocPoint = &c_base.SReflectPoint{
-		SPoint: &c_base.SPoint{
-			Key:       "soc",
-			Name:      "当前SOC",
-			Unit:      "%",
-			ValueType: c_enum.EFloat32,
-			Desc:      "当前SOC",
-			Min:       0,
-			Max:       100,
-		},
-		MethodName: "GetSoc",
-	}
-
-	telemetryGeneratedEnergyPoint = &c_base.SReflectPoint{
-		SPoint: &c_base.SPoint{
-			Key:       "GeneratedEnergy",
-			Name:      "累计放电量",
-			Unit:      "kWh",
-			ValueType: c_enum.EFloat32,
-			Desc:      "累计放电量",
-		},
-		MethodName: "GetHistoryOutgoingQuantity",
-	}
-
-	telemetryConsumedEnergyPoint = &c_base.SReflectPoint{
-		SPoint: &c_base.SPoint{
-			Key:       "ConsumedEnergy",
-			Name:      "累计用电量",
-			Unit:      "kWh",
-			ValueType: c_enum.EFloat32,
-			Desc:      "累计用电量",
-		},
-		MethodName: "GetHistoryIncomingQuantity",
-	}
 
 	// 协议点位定义 - 使用选项模式创建（带 ValueExplain）
 	Status = c_proto.NewModbusPointExt(0xC8,

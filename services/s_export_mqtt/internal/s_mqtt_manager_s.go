@@ -163,7 +163,7 @@ func (m *SMqttManager) loadConfigs(ctx context.Context) error {
 		// 启动客户端
 		err := client.Start(m.ctx)
 		if err != nil {
-			c_log.Errorf(ctx, "启动MQTT客户端失败: 索引=%d, 服务器=%s:%d, 错误=%v", index, config.ServerAddress, config.ServerPort, err)
+			c_log.BizErrorf(ctx, "启动MQTT客户端失败:  服务器=%s:%d, 错误=%v", config.ServerAddress, config.ServerPort, err)
 			continue
 		}
 
@@ -172,7 +172,7 @@ func (m *SMqttManager) loadConfigs(ctx context.Context) error {
 
 		// 获取topic地址
 		topic := client.buildTopic()
-		c_log.BizInfof(ctx, "MQTT客户端启动成功: 索引=%d, 服务器=%s:%d, 设备数量=%d, Topic=%s", index, config.ServerAddress, config.ServerPort, len(config.DeviceIds), topic)
+		c_log.BizInfof(ctx, "MQTT客户端启动成功:  服务器=%s:%d, 设备数量=%d, Topic=%s", config.ServerAddress, config.ServerPort, len(config.DeviceIds), topic)
 	}
 
 	return nil

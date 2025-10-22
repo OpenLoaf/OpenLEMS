@@ -9,39 +9,6 @@ import (
 )
 
 var (
-	// 遥测点位定义 - 直接创建，启动时验证SPoint字段
-	telemetryPowerPoint = &c_base.SReflectPoint{
-		SPoint: &c_base.SPoint{
-			Key:       "Power",
-			Name:      "当前功率",
-			Unit:      "kW",
-			ValueType: c_enum.EFloat32,
-			Desc:      "当前功率",
-		},
-		MethodName: "GetPower",
-	}
-
-	telemetryEnergyPoint = &c_base.SReflectPoint{
-		SPoint: &c_base.SPoint{
-			Key:       "Energy",
-			Name:      "累计用电量",
-			Unit:      "kWh",
-			ValueType: c_enum.EFloat32,
-			Desc:      "累计用电量",
-		},
-		MethodName: "GetHistoryIncomingQuantity",
-	}
-
-	telemetryMaxLoadPoint = &c_base.SReflectPoint{
-		SPoint: &c_base.SPoint{
-			Key:       "MaxLoad",
-			Name:      "最大负荷",
-			Unit:      "kW",
-			ValueType: c_enum.EFloat32,
-			Desc:      "最大负荷",
-		},
-		MethodName: "GetMaxInputPower",
-	}
 
 	// 协议点位定义 - 使用构造函数创建
 	Status = c_proto.NewModbusPointExt(0x012C,

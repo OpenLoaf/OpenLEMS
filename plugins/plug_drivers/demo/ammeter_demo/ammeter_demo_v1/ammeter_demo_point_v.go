@@ -1,6 +1,7 @@
 package ammeter_demo_v1
 
 import (
+	"common/c_base"
 	"common/c_default"
 	"common/c_enum"
 	"common/c_proto"
@@ -10,7 +11,17 @@ import (
 var (
 
 	// 协议点位定义 - 使用构造函数创建
-	Status = c_proto.NewModbusPointWithDesc(0x0190, "Status", "设备状态字", c_enum.EInt16, "", "设备状态字", c_default.VDataAccessInt16)
+	Status = c_proto.NewModbusPointExt(0x0190,
+		c_proto.WithKey("Status"),
+		c_proto.WithName("设备状态字"),
+		c_proto.WithValueType(c_enum.EInt16),
+		c_proto.WithDesc("设备状态字"),
+		c_proto.WithDataAccess(c_default.VDataAccessInt16),
+		c_proto.WithValueExplain([]*c_base.SFieldExplain{
+			{Key: "0", Value: "离线", Color: "#f5222d"},
+			{Key: "1", Value: "在线", Color: "#52c41a"},
+		}),
+	)
 
 	PhaseAVoltage = c_proto.NewModbusPointWithDesc(0x0191, "PhaseAVoltage", "A相电压", c_enum.EFloat32, "V", "A相电压", c_default.VDataAccessInt16)
 
