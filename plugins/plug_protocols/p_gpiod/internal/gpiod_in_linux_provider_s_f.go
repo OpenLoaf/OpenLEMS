@@ -1,4 +1,4 @@
-//go:build linux
+//go:build linux && gpio_enable
 
 package internal
 
