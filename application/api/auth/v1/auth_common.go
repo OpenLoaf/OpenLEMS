@@ -10,7 +10,6 @@ type LogoutRes struct{}
 type ChangePasswordReq struct {
 	g.Meta      `path:"/auth/change-password" method:"post" tags:"认证" summary:"修改密码" role:"user"`
 	Role        string `json:"role" v:"required|in:user,admin#角色不能为空|角色必须是user或admin"`
-	OldPassword string `json:"oldPassword" v:"required#旧密码不能为空"`
 	NewPassword string `json:"newPassword" v:"required#新密码不能为空"`
 }
 type ChangePasswordRes struct{}

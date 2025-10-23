@@ -36,12 +36,6 @@ func (c *Controller) ChangePassword(ctx context.Context, req *v1.ChangePasswordR
 		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "角色不支持")
 	}
 
-	// 校验旧密码
-	oldPtr := s_db.GetSettingService().GetSettingValueBySystemSettingDefine(ctx, def)
-	if oldPtr == nil || *oldPtr != req.OldPassword {
-		return nil, gerror.NewCode(gcode.CodeNotAuthorized, "旧密码错误")
-	}
-
 	// 更新新密码
 	if err := s_db.GetSettingService().SetSettingValueById(ctx, def.Id, req.NewPassword); err != nil {
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新密码失败")
