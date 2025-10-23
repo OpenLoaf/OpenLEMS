@@ -48,6 +48,9 @@ type IStorage interface {
 	// GetStorageStats 获取存储统计信息
 	GetStorageStats() (*StorageStats, error)
 
+	// ClearDeviceHistoryAll 清除指定设备的所有历史数据
+	ClearDeviceHistoryAll(deviceId string) error
+
 	// Close 关闭数据库
 	Close()
 }

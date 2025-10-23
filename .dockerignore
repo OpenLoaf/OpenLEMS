@@ -73,6 +73,3 @@ script/
 *.lock
 *.bak
 *.backup
-
-application/manifest/web
-!application/manifest/web/.gitkeep

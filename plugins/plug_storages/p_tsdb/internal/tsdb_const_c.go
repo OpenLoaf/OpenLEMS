@@ -23,3 +23,21 @@ const (
 	// MetricNameEmsMetric 数值指标名称
 	MetricNameEmsMetric = "ems_metric"
 )
+
+// 时间转换常量
+const (
+	// MillisecondsPerSecond 毫秒到秒的转换系数
+	MillisecondsPerSecond = 1000
+)
+
+// 状态缓存常量
+const (
+	// StatusCacheKeySeparator 状态缓存键分隔符
+	StatusCacheKeySeparator = ":"
+)
+
+// 统计缓存常量
+const (
+	// StatsCacheDuration 统计缓存有效期（秒）
+	StatsCacheDuration = 30
+)

@@ -22,6 +22,7 @@ import (
 	"common/c_log"
 	"context"
 	"io"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -148,6 +149,41 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 		return
 	}
 
+	// 输出嵌入的静态资源加载情况（统计与示例）
+	{
+		var (
+			totalFiles   int
+			visibleFiles int
+			exampleFiles []string
+		)
+		_ = fs.WalkDir(webfs, ".", func(path string, d fs.DirEntry, err error) error {
+			if err != nil {
+				return nil
+			}
+			if d.IsDir() {
+				return nil
+			}
+			totalFiles++
+			base := filepath.Base(path)
+			lower := strings.ToLower(base)
+			// 过滤隐藏文件与 .gitignore
+			if strings.HasPrefix(base, ".") || lower == ".gitignore" || lower == "gitignore" {
+				return nil
+			}
+			visibleFiles++
+			if len(exampleFiles) < 20 { // 仅示例前20个
+				exampleFiles = append(exampleFiles, path)
+			}
+			return nil
+		})
+		c_log.Infof(ctx, "Web 静态资源统计: 总文件=%d, 可见文件=%d", totalFiles, visibleFiles)
+		if visibleFiles == 0 {
+			c_log.Warningf(ctx, "Web 静态资源为空或仅包含隐藏文件/.gitignore，请检查 application/manifest/web 目录")
+		} else if len(exampleFiles) > 0 {
+			c_log.Infof(ctx, "Web 静态资源示例: %s", strings.Join(exampleFiles, ", "))
+		}
+	}
+
 	fileServer := http.FileServer(http.FS(webfs))
 
 	// 静态资源路径 - 优先处理静态资源
@@ -163,7 +199,10 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 	s.BindHandler("GET:/config/*", func(r *ghttp.Request) {
 		fileServer.ServeHTTP(r.Response.Writer, r.Request)
 	})
-	s.BindHandler("GET:/demo/*", func(r *ghttp.Request) {
+	s.BindHandler("GET:/libs/*", func(r *ghttp.Request) {
+		fileServer.ServeHTTP(r.Response.Writer, r.Request)
+	})
+	s.BindHandler("GET:/dashboard/*", func(r *ghttp.Request) {
 		fileServer.ServeHTTP(r.Response.Writer, r.Request)
 	})
 
@@ -199,6 +238,7 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 			strings.HasPrefix(r.URL.Path, "/images/") ||
 			strings.HasPrefix(r.URL.Path, "/config/") ||
 			strings.HasPrefix(r.URL.Path, "/demo/") ||
+			strings.HasPrefix(r.URL.Path, "/libs/") ||
 			r.URL.Path == "/favicon.ico" {
 			r.Response.WriteStatus(http.StatusNotFound)
 			return

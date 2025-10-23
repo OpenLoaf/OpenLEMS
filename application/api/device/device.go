@@ -26,4 +26,6 @@ type IDeviceV1 interface {
 	UpdateDevice(ctx context.Context, req *v1.UpdateDeviceReq) (res *v1.UpdateDeviceRes, err error)
 	GetDevicePointsDefinition(ctx context.Context, req *v1.GetDevicePointsDefinitionReq) (res *v1.GetDevicePointsDefinitionRes, err error)
 	PostDeviceCompare(ctx context.Context, req *v1.PostDeviceCompareReq) (res *v1.PostDeviceCompareRes, err error)
+	ClearDeviceHistory(ctx context.Context, req *v1.ClearDeviceHistoryReq) (res *v1.ClearDeviceHistoryRes, err error)
+	DeleteDevice(ctx context.Context, req *v1.DeleteDeviceReq) (res *v1.DeleteDeviceRes, err error)
 }
