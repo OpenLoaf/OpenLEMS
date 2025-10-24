@@ -5,6 +5,7 @@ import (
 	"application/internal/model/entity"
 	"common"
 	"common/c_base"
+	"common/c_enum"
 	"context"
 
 	"github.com/gogf/gf/v2/util/gconv"
@@ -40,11 +41,22 @@ func (c *ControllerV1) filterDeviceTree(configTree []*c_base.SDeviceConfig, req 
 
 // filterDeviceRecursive 递归过滤设备
 func (c *ControllerV1) filterDeviceRecursive(device *c_base.SDeviceConfig, req *v2.GetDeviceTreeReq) *c_base.SDeviceConfig {
-	// 检查 RunningOnly 条件：只显示 deviceInstanceMap 中有的设备
-	if req.RunningOnly {
+	// 检查 RunningStatus 条件
+	if req.RunningStatus != nil {
 		deviceInstance := common.GetDeviceManager().GetDeviceById(device.Id)
-		if deviceInstance == nil {
-			// 如果设备不在运行中，检查是否有子设备在运行中
+		isRunning := deviceInstance != nil
+
+		// 根据状态过滤
+		shouldInclude := false
+		switch *req.RunningStatus {
+		case c_enum.EDeviceRunningStatusRunning:
+			shouldInclude = isRunning
+		case c_enum.EDeviceRunningStatusStopped:
+			shouldInclude = !isRunning
+		}
+
+		if !shouldInclude {
+			// 如果设备本身不满足条件，检查是否有子设备满足条件
 			var filteredChildren []*c_base.SDeviceConfig
 			for _, child := range device.ChildDeviceConfig {
 				filteredChild := c.filterDeviceRecursive(child, req)
@@ -53,14 +65,14 @@ func (c *ControllerV1) filterDeviceRecursive(device *c_base.SDeviceConfig, req *
 				}
 			}
 
-			// 如果有子设备在运行中，保留该设备但只显示运行中的子设备
+			// 如果有子设备满足条件，保留该设备但只显示满足条件的子设备
 			if len(filteredChildren) > 0 {
 				deviceCopy := *device
 				deviceCopy.ChildDeviceConfig = filteredChildren
 				return &deviceCopy
 			}
 
-			// 没有运行中的子设备，过滤掉该设备
+			// 没有满足条件的子设备，过滤掉该设备
 			return nil
 		}
 	}
