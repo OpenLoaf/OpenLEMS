@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+alwaysApply: false
 description: CGO C++ 库集成规范 - 定义 hexlib 模块的构建、集成、接口设计和开发流程规范。适用于 @cpp/hexlib 目录下的 C++ 源码开发、Go 包装接口设计、CGO 配置、Makefile 编写等场景。
 globs: @cpp/hexlib/**/*.{go,cpp,h,make}
 ---

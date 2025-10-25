@@ -2,6 +2,10 @@ package internal
 
 import (
 	"fmt"
+	"os"
+	"runtime"
+	"time"
+
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"
 	"github.com/shirou/gopsutil/v4/host"
@@ -9,12 +13,12 @@ import (
 	"github.com/shirou/gopsutil/v4/mem"
 	"github.com/shirou/gopsutil/v4/net"
 	"github.com/shirou/gopsutil/v4/process"
-	"os"
-	"time"
 )
 
+// GetSystemMetrics 获取系统指标
 func GetSystemMetrics() map[string]any {
 	result := map[string]any{}
+
 	// 系统在线时长
 	if uptime, err := host.Uptime(); err == nil {
 		result["uptime_minute"] = float64(uptime)
@@ -60,9 +64,11 @@ func GetSystemMetrics() map[string]any {
 	return result
 }
 
+// GetProcessInfo 获取进程信息
 func GetProcessInfo() map[string]any {
 	result := map[string]any{}
 
+	// 现有进程指标
 	if p, err := process.NewProcess(int32(os.Getpid())); err == nil {
 		if processCpuPercent, err := p.CPUPercent(); err == nil {
 			result["cpu_percent"] = processCpuPercent
@@ -70,56 +76,27 @@ func GetProcessInfo() map[string]any {
 		if processMemoryPercent, err := p.MemoryPercent(); err == nil {
 			result["memory_percent"] = processMemoryPercent
 		}
-		//if processMemoryInfo, err := p.MemoryInfo(); err == nil {
-		//	result["memory_rss_mb"] = processMemoryInfo.RSS / 1024 / 1024 // 物理内存
-		//}
-		//if threads, err := p.NumThreads(); err == nil {
-		//	result["threads"] = threads
-		//}
 	}
-	// 获取pprof是否启动
-	//isPprofEnabled := g.GpioDeviceConfig().MustGet(context.Background(), "server.pprofEnabled").Bool()
-	//
-	//if isPprofEnabled {
-	//	// 获取堆使用情况
-	//	heapStats := pprof.Lookup("heap")
-	//	if heapStats != nil {
-	//		result["heap_alloc"] = heapStats.Count()
-	//	}
-	//
-	//	// 获取goroutine数量
-	//	goroutineStats := pprof.Lookup("goroutine")
-	//	if goroutineStats != nil {
-	//		result["goroutine_count"] = goroutineStats.Count()
-	//	}
-	//
-	//	// 获取线程创建情况
-	//	threadCreateStats := pprof.Lookup("threadcreate")
-	//	if threadCreateStats != nil {
-	//		result["thread_create_count"] = threadCreateStats.Count()
-	//	}
-	//
-	//	// 获取阻塞分析
-	//	blockStats := pprof.Lookup("block")
-	//	if blockStats != nil {
-	//		result["block_count"] = blockStats.Count()
-	//	}
-	//}
+
+	// 新增：Go runtime 指标
+	result["goroutine_count"] = float64(runtime.NumGoroutine())
+
+	var memStats runtime.MemStats
+	runtime.ReadMemStats(&memStats)
+	result["heap_alloc_mb"] = float64(memStats.HeapAlloc / 1024 / 1024)
+	result["heap_sys_mb"] = float64(memStats.HeapSys / 1024 / 1024)
+	result["gc_count"] = float64(memStats.NumGC)
 
 	return result
 }
 
+// GetSystemInfo 获取系统信息
 func GetSystemInfo() map[string]string {
 	result := map[string]string{}
 	if info, err := host.Info(); err == nil {
 		result["hostname"] = info.Hostname
 		result["os"] = info.OS
 		result["platform"] = info.Platform
-		//result["platform_family"] = info.PlatformFamily
-		//result["platform_version"] = info.PlatformVersion
-		//result["kernel_version"] = info.KernelVersion
-		//result["virtualization_system"] = info.VirtualizationSystem
-		//result["virtualization_role"] = info.VirtualizationRole
 	}
 
 	result["pid"] = fmt.Sprintf("%d", os.Getpid())

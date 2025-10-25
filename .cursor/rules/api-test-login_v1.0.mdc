@@ -80,7 +80,8 @@ curl --location --request GET 'http://127.0.0.1:15880/api/[endpoint]' \
 
 - **端口**: `15880`
 - **基础路径**: `/api/`
-- **默认密码**: `888888`
+- **管理员密码**: `888888` 或 `100086`
+- **普通用户密码**: `111111`
 - **默认角色**: `admin`
 
 ### 生产环境
@@ -96,11 +97,19 @@ curl --location --request GET 'http://127.0.0.1:15880/api/[endpoint]' \
 ### 快速登录并获取Session
 
 ```bash
-# 一键登录并保存session_id到环境变量
+# 一键登录并保存session_id到环境变量（支持两种管理员密码）
 export EMS_SESSION_ID=$(curl -s -X POST 'http://127.0.0.1:15880/api/auth/login' \
   -H 'Content-Type: application/json' \
   -d '{"password": "888888", "role": "admin"}' | \
   grep -o 'ems_session_id=[^;]*' | cut -d'=' -f2)
+
+# 如果888888失败，尝试100086
+if [ -z "$EMS_SESSION_ID" ]; then
+    export EMS_SESSION_ID=$(curl -s -X POST 'http://127.0.0.1:15880/api/auth/login' \
+      -H 'Content-Type: application/json' \
+      -d '{"password": "100086", "role": "admin"}' | \
+      grep -o 'ems_session_id=[^;]*' | cut -d'=' -f2)
+fi
 
 echo "Session ID: $EMS_SESSION_ID"
 ```
@@ -124,36 +133,65 @@ curl -X GET 'http://127.0.0.1:15880/api/[endpoint]' \
 # 配置
 BASE_URL="http://127.0.0.1:15880"
 API_BASE="$BASE_URL/api"
-LOGIN_DATA='{"password": "888888", "role": "admin"}'
 
-# 登录获取认证信息
+# 支持两种管理员密码
+ADMIN_PASSWORDS=("888888" "100086")
+USER_PASSWORD="111111"
+
+# 登录获取认证信息（尝试管理员密码）
 echo "正在登录..."
-LOGIN_RESPONSE=$(curl -s -X POST "$API_BASE/auth/login" \
-  -H 'Content-Type: application/json' \
-  -d "$LOGIN_DATA")
+LOGIN_RESPONSE=""
+SESSION_ID=""
 
-# 检查登录是否成功
-if [ $? -eq 0 ]; then
-    echo "登录成功"
+# 尝试管理员密码
+for password in "${ADMIN_PASSWORDS[@]}"; do
+    echo "尝试管理员密码: $password"
+    LOGIN_RESPONSE=$(curl -s -X POST "$API_BASE/auth/login" \
+      -H 'Content-Type: application/json' \
+      -d "{\"password\": \"$password\", \"role\": \"admin\"}")
     
-    # 提取session_id（根据实际响应格式调整）
-    SESSION_ID=$(echo $LOGIN_RESPONSE | jq -r '.session_id' 2>/dev/null || \
-                 echo $LOGIN_RESPONSE | grep -o 'ems_session_id=[^;]*' | cut -d'=' -f2)
-    
-    if [ -n "$SESSION_ID" ]; then
-        echo "Session ID: $SESSION_ID"
-        
-        # 测试带权限的接口
-        echo "测试带权限的接口..."
-        curl -X GET "$API_BASE/[endpoint]" \
-          -H 'Content-Type: application/json' \
-          -H "Cookie: ems_session_id=$SESSION_ID"
-    else
-        echo "无法提取Session ID"
-        exit 1
+    if [ $? -eq 0 ]; then
+        SESSION_ID=$(echo $LOGIN_RESPONSE | jq -r '.session_id' 2>/dev/null || \
+                     echo $LOGIN_RESPONSE | grep -o 'ems_session_id=[^;]*' | cut -d'=' -f2)
+        if [ -n "$SESSION_ID" ] && [ "$SESSION_ID" != "null" ]; then
+            echo "管理员登录成功，密码: $password"
+            break
+        fi
     fi
+done
+
+# 如果管理员登录失败，尝试普通用户
+if [ -z "$SESSION_ID" ] || [ "$SESSION_ID" = "null" ]; then
+    echo "管理员登录失败，尝试普通用户..."
+    LOGIN_RESPONSE=$(curl -s -X POST "$API_BASE/auth/login" \
+      -H 'Content-Type: application/json' \
+      -d "{\"password\": \"$USER_PASSWORD\", \"role\": \"user\"}")
+    
+    if [ $? -eq 0 ]; then
+        SESSION_ID=$(echo $LOGIN_RESPONSE | jq -r '.session_id' 2>/dev/null || \
+                     echo $LOGIN_RESPONSE | grep -o 'ems_session_id=[^;]*' | cut -d'=' -f2)
+        if [ -n "$SESSION_ID" ] && [ "$SESSION_ID" != "null" ]; then
+            echo "普通用户登录成功"
+        fi
+    fi
+fi
+
+# 检查最终登录结果
+if [ -n "$SESSION_ID" ] && [ "$SESSION_ID" != "null" ]; then
+    echo "登录成功"
+    echo "Session ID: $SESSION_ID"
+    
+    # 测试带权限的接口
+    echo "测试带权限的接口..."
+    curl -X GET "$API_BASE/[endpoint]" \
+      -H 'Content-Type: application/json' \
+      -H "Cookie: ems_session_id=$SESSION_ID"
 else
-    echo "登录失败"
+    echo "所有登录尝试都失败了"
+    echo "请检查："
+    echo "1. 服务是否正在运行"
+    echo "2. 端口是否正确 (15880)"
+    echo "3. 密码是否正确 (管理员: 888888/100086, 普通用户: 111111)"
     exit 1
 fi
 ```
@@ -174,20 +212,18 @@ fi
 
 ### 错误处理
 
-1. **登录失败**: 检查用户名密码是否正确
+1. **登录失败**: 检查密码是否正确
+   - 管理员密码: `888888` 或 `100086`
+   - 普通用户密码: `111111`
 2. **Session无效**: 检查session是否过期
 3. **权限不足**: 检查用户角色是否有相应权限
+4. **服务未启动**: 检查服务是否在端口 `15880` 上运行
 
 ## 相关文件
 
 - [application/api/auth/](mdc:application/api/auth/) - 认证相关API
 - [application/manifest/config/](mdc:application/manifest/config/) - 配置文件
 - [application/out/](mdc:application/out/) - 部署输出目录
-
-## 更新日志
-
-- **2024-01-XX** - 初始版本，定义API测试登录规则
-- **未来更新** - 根据API变更和测试需求持续改进
 
 ---
 

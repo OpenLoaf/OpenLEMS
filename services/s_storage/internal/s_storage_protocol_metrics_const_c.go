@@ -1,4 +1,4 @@
-package s_storage
+package internal
 
 // 协议性能指标常量
 const (
@@ -48,6 +48,3 @@ var ProtocolTrendMetricsFields = []string{
 	ProtocolMetricTotal,
 	ProtocolMetricFailed,
 }
-
-
-

@@ -14,7 +14,6 @@ import (
 	"os"
 	"p_policy_energy_storage"
 	"p_policy_mircogrid"
-	"p_tsdb"
 	"runtime"
 	"s_automation"
 	"s_db"
@@ -53,10 +52,14 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 		return err
 	}
 
-	// 初始化存储（切换为 TSDB，无外部配置时采用默认路径与策略）
-	storageInst := p_tsdb.NewStorageInstance(ctx, &c_base.SStorageConfig{Enable: true, Type: c_enum.EStorageTypeTsdb, Url: "", Params: map[string]string{}})
-	s_storage.NewSingleStorageManager(ctx, storageInst)
-	common.RegisterStorageInstance(storageInst)
+	// 初始化存储管理器
+	storageManager := s_storage.NewStorageManagerWithConfig(ctx, &c_base.SStorageConfig{
+		Enable: true,
+		Type:   c_enum.EStorageTypeTsdb,
+		Url:    "",
+		Params: map[string]string{},
+	})
+	common.RegisterStorageInstance(storageManager.GetStorageInstance())
 
 	// 注册设备管理器
 	common.RegisterDeviceManager(s_driver.NewDriverManagerImpl(ctx))
@@ -101,6 +104,15 @@ func InitSystem(ctx context.Context, parser *gcmd.Parser) error {
 func StartServices(ctx context.Context) {
 	pid := os.Getpid()
 	c_log.Infof(ctx, "EMS After！PID：%d", pid)
+
+	// 启动存储服务（系统指标保存）
+	go func() {
+		if err := s_storage.StartStorageManager(ctx); err != nil {
+			c_log.Errorf(ctx, "启动存储服务失败: %+v", err)
+		} else {
+			c_log.BizInfof(ctx, "存储服务启动成功！")
+		}
+	}()
 
 	// 启动设备
 	go func() {

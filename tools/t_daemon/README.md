@@ -303,5 +303,5 @@ if err != nil {
 
 ## 相关文档
 
-- [EMS 项目规范](../../.cursor/rules/common-library.mdc)
+- [EMS 项目规范](../../.cursor/rules/code-common-library_v1.0.mdc)
 - [应用主程序](../../application/README.md)

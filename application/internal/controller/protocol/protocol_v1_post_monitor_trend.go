@@ -5,9 +5,11 @@ import (
 	"common"
 	"common/c_base"
 	"common/c_chart"
+	"common/c_log"
 	"context"
 	"errors"
 	"s_db"
+	"s_storage"
 	"time"
 )
 
@@ -37,8 +39,31 @@ func (c *ControllerV1) PostProtocolMonitorTrend(ctx context.Context, req *v1.Pos
 		return nil, errors.New("没有找到符合条件的协议")
 	}
 
+	// 映射指标key到实际字段名
+	metricKeyMap := map[string]string{
+		"ProtocolMetricTotal":         s_storage.ProtocolMetricTotal,
+		"ProtocolMetricSuccess":       s_storage.ProtocolMetricSuccess,
+		"ProtocolMetricFailed":        s_storage.ProtocolMetricFailed,
+		"ProtocolMetricSuccessRate":   s_storage.ProtocolMetricSuccessRate,
+		"ProtocolMetricAvgResponseMs": s_storage.ProtocolMetricAvgResponseMs,
+	}
+
+	// 转换用户传入的指标key为实际字段名
+	actualMetricKeys := make([]string, 0, len(req.MetricKeys))
+	for _, key := range req.MetricKeys {
+		if actualKey, ok := metricKeyMap[key]; ok {
+			actualMetricKeys = append(actualMetricKeys, actualKey)
+		} else {
+			// 如果没有映射，直接使用原始key（可能已经是正确的字段名）
+			actualMetricKeys = append(actualMetricKeys, key)
+		}
+	}
+
+	c_log.BizInfof(ctx, "协议监控趋势查询: 协议数=%d, 原始指标=%v, 实际指标=%v, 时间范围=%v-%v",
+		len(filteredProtocols), req.MetricKeys, actualMetricKeys, req.StartTime, req.EndTime)
+
 	// 创建图表数据
-	chartData := c_chart.NewChartData(len(filteredProtocols) * len(req.MetricKeys))
+	chartData := c_chart.NewChartData(len(filteredProtocols) * len(actualMetricKeys))
 
 	// 获取所有协议的数据
 	for _, protocol := range filteredProtocols {
@@ -46,12 +71,13 @@ func (c *ControllerV1) PostProtocolMonitorTrend(ctx context.Context, req *v1.Pos
 		protocolChart, err := common.GetStorageInstance().GetStorageData(
 			c_base.StorageTypeProtocol,
 			protocol.Id,
-			req.MetricKeys,
+			actualMetricKeys,
 			req.StartTime,
 			req.EndTime,
 			req.Step,
 		)
 		if err != nil {
+			c_log.BizErrorf(ctx, "获取协议[%s]趋势数据失败: %v", protocol.Id, err)
 			continue // 跳过获取失败的数据
 		}
 

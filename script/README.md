@@ -325,7 +325,7 @@ docker volume prune
 
 - [项目主 README](../README.md) - 完整项目说明
 - [CLAUDE.md](../CLAUDE.md) - 开发指南
-- [CGO 集成规范](.cursor/rules/tech-cgo-integration.mdc) - CGO 开发规范
+- [CGO 集成规范](.cursor/rules/tech-cgo-integration_v1.0.mdc) - CGO 开发规范
 
 ## 🤝 技术支持
 
