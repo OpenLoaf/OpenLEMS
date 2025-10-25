@@ -21,24 +21,19 @@ func GetSystemMetrics() map[string]any {
 
 	// 系统在线时长
 	if uptime, err := host.Uptime(); err == nil {
-		result["uptime_minute"] = float64(uptime)
+		result[MetricUptimeMinute] = float64(uptime)
 	}
 
 	// 获取 CPU 总使用率
 	if percent, err := cpu.Percent(0, false); err == nil {
-		result["cpu"] = percent[0]
-	}
-	if percent, err := cpu.Percent(0, true); err == nil {
-		for i, f := range percent {
-			result[fmt.Sprintf("cpu_%d", i)] = f
-		}
+		result[MetricCpu] = percent[0]
 	}
 
 	if memory, err := mem.VirtualMemory(); err == nil {
-		result["mem_total_mb"] = float64(memory.Total / 1024 / 1024)
-		result["mem_available_mb"] = float64(memory.Available / 1024 / 1024)
-		result["mem_used_mb"] = float64(memory.Used / 1024 / 1024)
-		result["mem_used_percent"] = memory.UsedPercent
+		result[MetricMemTotalMB] = float64(memory.Total / 1024 / 1024)
+		result[MetricMemAvailableMB] = float64(memory.Available / 1024 / 1024)
+		result[MetricMemUsedMB] = float64(memory.Used / 1024 / 1024)
+		result[MetricMemUsedPercent] = memory.UsedPercent
 	}
 
 	if counters, err := net.IOCounters(false); err == nil {
@@ -49,16 +44,16 @@ func GetSystemMetrics() map[string]any {
 	}
 
 	if avg, err := load.Avg(); err == nil {
-		result["load_1min"] = avg.Load1
-		result["load_5min"] = avg.Load5
-		result["load_15min"] = avg.Load15
+		result[MetricLoad1Min] = avg.Load1
+		result[MetricLoad5Min] = avg.Load5
+		result[MetricLoad15Min] = avg.Load15
 	}
 
 	if usageStat, err := disk.Usage("/"); err == nil {
-		result["disk_total_mb"] = float64(usageStat.Total / 1024 / 1024)
-		result["disk_free_mb"] = float64(usageStat.Free / 1024 / 1024)
-		result["disk_used_mb"] = float64(usageStat.Used / 1024 / 1024)
-		result["disk_used_percent"] = float64(usageStat.UsedPercent)
+		result[MetricDiskTotalMB] = float64(usageStat.Total / 1024 / 1024)
+		result[MetricDiskFreeMB] = float64(usageStat.Free / 1024 / 1024)
+		result[MetricDiskUsedMB] = float64(usageStat.Used / 1024 / 1024)
+		result[MetricDiskUsedPercent] = float64(usageStat.UsedPercent)
 	}
 
 	return result
@@ -71,21 +66,21 @@ func GetProcessInfo() map[string]any {
 	// 现有进程指标
 	if p, err := process.NewProcess(int32(os.Getpid())); err == nil {
 		if processCpuPercent, err := p.CPUPercent(); err == nil {
-			result["cpu_percent"] = processCpuPercent
+			result[MetricProcessCpuPercent] = processCpuPercent
 		}
 		if processMemoryPercent, err := p.MemoryPercent(); err == nil {
-			result["memory_percent"] = processMemoryPercent
+			result[MetricProcessMemoryPercent] = processMemoryPercent
 		}
 	}
 
 	// 新增：Go runtime 指标
-	result["goroutine_count"] = float64(runtime.NumGoroutine())
+	result[MetricGoroutineCount] = float64(runtime.NumGoroutine())
 
 	var memStats runtime.MemStats
 	runtime.ReadMemStats(&memStats)
-	result["heap_alloc_mb"] = float64(memStats.HeapAlloc / 1024 / 1024)
-	result["heap_sys_mb"] = float64(memStats.HeapSys / 1024 / 1024)
-	result["gc_count"] = float64(memStats.NumGC)
+	result[MetricHeapAllocMB] = float64(memStats.HeapAlloc / 1024 / 1024)
+	result[MetricHeapSysMB] = float64(memStats.HeapSys / 1024 / 1024)
+	result[MetricGCCount] = float64(memStats.NumGC)
 
 	return result
 }

@@ -126,10 +126,10 @@ func (s *SStorageManager) saveSystemMetrics() {
 	// 保存TSDB统计信息
 	if stats, err := s.storage.GetStorageStats(); err == nil {
 		tsdbMetrics := map[string]any{
-			"samples_per_second": stats.SamplesPerSecond,
-			"total_series":       float64(stats.TotalSeries),
-			"total_samples":      float64(stats.TotalSamples),
-			"storage_size_mb":    stats.StorageSizeMB,
+			MetricSamplesPerSecond: stats.SamplesPerSecond,
+			MetricTotalSeries:      float64(stats.TotalSeries),
+			MetricTotalSamples:     float64(stats.TotalSamples),
+			MetricStorageSizeMB:    stats.StorageSizeMB,
 		}
 		if err := s.storage.SaveSystemMetrics("tsdb_stats", systemInfo, tsdbMetrics); err != nil {
 			c_log.BizError(s.ctx, "保存TSDB统计信息失败", "error", err)

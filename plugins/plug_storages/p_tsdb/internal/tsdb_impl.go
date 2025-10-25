@@ -336,7 +336,7 @@ func (p *promDB) GetStorageData(storageType c_base.StorageType, id string, point
 		chart.AddTimestamp(ts)
 		for _, k := range pointKey {
 			if v, ok := data[ts][k]; ok {
-				seriesMap[k].AppendData(fmt.Sprintf("%v", v))
+				seriesMap[k].AppendData(fmt.Sprintf("%.2f", v))
 			} else {
 				seriesMap[k].AppendData("")
 			}

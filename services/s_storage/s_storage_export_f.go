@@ -6,6 +6,44 @@ import (
 	"s_storage/internal"
 )
 
+// 重新导出系统资源指标常量，供外部包使用
+const (
+	// 系统资源使用指标
+	MetricUptimeMinute    = internal.MetricUptimeMinute
+	MetricCpu             = internal.MetricCpu
+	MetricMemTotalMB      = internal.MetricMemTotalMB
+	MetricMemAvailableMB  = internal.MetricMemAvailableMB
+	MetricMemUsedMB       = internal.MetricMemUsedMB
+	MetricMemUsedPercent  = internal.MetricMemUsedPercent
+	MetricLoad1Min        = internal.MetricLoad1Min
+	MetricLoad5Min        = internal.MetricLoad5Min
+	MetricLoad15Min       = internal.MetricLoad15Min
+	MetricDiskTotalMB     = internal.MetricDiskTotalMB
+	MetricDiskFreeMB      = internal.MetricDiskFreeMB
+	MetricDiskUsedMB      = internal.MetricDiskUsedMB
+	MetricDiskUsedPercent = internal.MetricDiskUsedPercent
+
+	// 网络使用量指标
+	MetricNetAllSentMB = internal.MetricNetAllSentMB
+	MetricNetAllRecvMB = internal.MetricNetAllRecvMB
+
+	// 进程资源使用指标
+	MetricProcessCpuPercent    = internal.MetricProcessCpuPercent
+	MetricProcessMemoryPercent = internal.MetricProcessMemoryPercent
+
+	// 服务情况指标
+	MetricGoroutineCount = internal.MetricGoroutineCount
+	MetricHeapAllocMB    = internal.MetricHeapAllocMB
+	MetricHeapSysMB      = internal.MetricHeapSysMB
+	MetricGCCount        = internal.MetricGCCount
+
+	// 存储统计指标
+	MetricSamplesPerSecond = internal.MetricSamplesPerSecond
+	MetricTotalSeries      = internal.MetricTotalSeries
+	MetricTotalSamples     = internal.MetricTotalSamples
+	MetricStorageSizeMB    = internal.MetricStorageSizeMB
+)
+
 // NewStorageManager 创建存储管理器
 func NewStorageManager(ctx context.Context, storage c_base.IStorage) IStorageManager {
 	return internal.NewStorageManagerImpl(ctx, storage)
@@ -44,5 +82,24 @@ func GetSystemInfo() map[string]string {
 	return internal.GetSystemInfo()
 }
 
-
-
+// ResourceMetricsMap 资源类别对应的指标字段映射
+var ResourceMetricsMap = map[string][]string{
+	"process": {
+		MetricProcessCpuPercent,
+		MetricProcessMemoryPercent,
+	},
+	"network": {
+		MetricNetAllSentMB,
+		MetricNetAllRecvMB,
+	},
+	"service": {
+		MetricGoroutineCount,
+		MetricHeapAllocMB,
+		MetricHeapSysMB,
+		MetricGCCount,
+	},
+	"storage": {
+		MetricSamplesPerSecond,
+		MetricTotalSeries,
+	},
+}
