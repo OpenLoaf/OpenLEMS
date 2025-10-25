@@ -17,9 +17,9 @@ const (
 	MetricDiskUsedMB      = "disk_used_mb"      // 磁盘已用空间（MB）
 	MetricDiskUsedPercent = "disk_used_percent" // 磁盘使用百分比
 
-	// 网络使用量指标
-	MetricNetAllSentMB = "net_all_sent_mb" // 网络总发送量（MB）
-	MetricNetAllRecvMB = "net_all_recv_mb" // 网络总接收量（MB）
+	// 网络使用量指标（增量）
+	MetricNetAllSentMB = "net_all_sent_mb" // 网络发送量增量（MB）
+	MetricNetAllRecvMB = "net_all_recv_mb" // 网络接收量增量（MB）
 
 	// 进程资源使用指标
 	MetricProcessCpuPercent    = "cpu_percent"    // 进程 CPU 使用率
@@ -34,6 +34,6 @@ const (
 	// 存储统计指标
 	MetricSamplesPerSecond = "samples_per_second" // 每秒样本数
 	MetricTotalSeries      = "total_series"       // 总时间序列数
-	MetricTotalSamples     = "total_samples"      // 总样本数
+	MetricTotalSamples     = "total_samples"      // 总样本数增量
 	MetricStorageSizeMB    = "storage_size_mb"    // 存储大小（MB）
 )

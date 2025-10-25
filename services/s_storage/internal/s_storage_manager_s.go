@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/gogf/gf/v2/os/gtimer"
+	"github.com/shirou/gopsutil/v4/net"
 )
 
 // SStorageManager 存储管理器实现
@@ -19,6 +20,11 @@ type SStorageManager struct {
 	storage    c_base.IStorage
 	started    bool
 	mutex      sync.RWMutex
+
+	// 增量计算缓存字段
+	lastNetSentMB    float64 // 上次网络发送量（MB）
+	lastNetRecvMB    float64 // 上次网络接收量（MB）
+	lastTotalSamples float64 // 上次总样本数
 }
 
 // NewStorageManagerImpl 创建存储管理器实例
@@ -113,8 +119,8 @@ func (s *SStorageManager) saveSystemMetrics() {
 
 	systemInfo := GetSystemInfo()
 
-	// 保存系统指标
-	if err := s.storage.SaveSystemMetrics(c_base.ConstSystem, systemInfo, GetSystemMetrics()); err != nil {
+	// 保存系统指标（包含增量网络指标）
+	if err := s.storage.SaveSystemMetrics(c_base.ConstSystem, systemInfo, s.getSystemMetricsWithIncrement()); err != nil {
 		c_log.BizError(s.ctx, "保存系统指标失败", "error", err)
 	}
 
@@ -123,17 +129,70 @@ func (s *SStorageManager) saveSystemMetrics() {
 		c_log.BizError(s.ctx, "保存进程指标失败", "error", err)
 	}
 
-	// 保存TSDB统计信息
+	// 保存TSDB统计信息（包含增量总样本数）
 	if stats, err := s.storage.GetStorageStats(); err == nil {
-		tsdbMetrics := map[string]any{
-			MetricSamplesPerSecond: stats.SamplesPerSecond,
-			MetricTotalSeries:      float64(stats.TotalSeries),
-			MetricTotalSamples:     float64(stats.TotalSamples),
-			MetricStorageSizeMB:    stats.StorageSizeMB,
-		}
+		tsdbMetrics := s.getTSDBMetricsWithIncrement(stats)
 		if err := s.storage.SaveSystemMetrics("tsdb_stats", systemInfo, tsdbMetrics); err != nil {
 			c_log.BizError(s.ctx, "保存TSDB统计信息失败", "error", err)
 		}
+	}
+}
+
+// getSystemMetricsWithIncrement 获取包含增量网络指标的系统指标
+func (s *SStorageManager) getSystemMetricsWithIncrement() map[string]any {
+	result := GetSystemMetrics()
+
+	// 计算网络指标增量
+	if counters, err := net.IOCounters(false); err == nil {
+		var totalSentMB, totalRecvMB float64
+		for _, counter := range counters {
+			totalSentMB += float64(counter.BytesSent / 1024 / 1024)
+			totalRecvMB += float64(counter.BytesRecv / 1024 / 1024)
+		}
+
+		// 计算增量
+		sentIncrement := totalSentMB - s.lastNetSentMB
+		recvIncrement := totalRecvMB - s.lastNetRecvMB
+
+		// 如果为负数，说明重置了，设为0
+		if sentIncrement < 0 {
+			sentIncrement = 0
+		}
+		if recvIncrement < 0 {
+			recvIncrement = 0
+		}
+
+		// 更新缓存值
+		s.lastNetSentMB = totalSentMB
+		s.lastNetRecvMB = totalRecvMB
+
+		// 设置增量指标
+		result[MetricNetAllSentMB] = sentIncrement
+		result[MetricNetAllRecvMB] = recvIncrement
+	}
+
+	return result
+}
+
+// getTSDBMetricsWithIncrement 获取包含增量总样本数的TSDB指标
+func (s *SStorageManager) getTSDBMetricsWithIncrement(stats *c_base.StorageStats) map[string]any {
+	// 计算总样本数增量
+	currentSamples := float64(stats.TotalSamples)
+	samplesIncrement := currentSamples - s.lastTotalSamples
+
+	// 如果为负数，说明重置了，设为0
+	if samplesIncrement < 0 {
+		samplesIncrement = 0
+	}
+
+	// 更新缓存值
+	s.lastTotalSamples = currentSamples
+
+	return map[string]any{
+		MetricSamplesPerSecond: stats.SamplesPerSecond,
+		MetricTotalSeries:      float64(stats.TotalSeries),
+		MetricTotalSamples:     samplesIncrement, // 使用增量
+		MetricStorageSizeMB:    stats.StorageSizeMB,
 	}
 }
 
