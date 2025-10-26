@@ -22,9 +22,11 @@ type SStorageManager struct {
 	mutex      sync.RWMutex
 
 	// 增量计算缓存字段
-	lastNetSentMB    float64 // 上次网络发送量（MB）
-	lastNetRecvMB    float64 // 上次网络接收量（MB）
+	lastNetSentKB    float64 // 上次网络发送量（KB）
+	lastNetRecvKB    float64 // 上次网络接收量（KB）
 	lastTotalSamples float64 // 上次总样本数
+	firstNetCall     bool    // 是否是第一次网络指标调用
+	firstTSDBCall    bool    // 是否是第一次TSDB指标调用
 }
 
 // NewStorageManagerImpl 创建存储管理器实例
@@ -144,31 +146,40 @@ func (s *SStorageManager) getSystemMetricsWithIncrement() map[string]any {
 
 	// 计算网络指标增量
 	if counters, err := net.IOCounters(false); err == nil {
-		var totalSentMB, totalRecvMB float64
+		var totalSentKB, totalRecvKB float64
 		for _, counter := range counters {
-			totalSentMB += float64(counter.BytesSent / 1024 / 1024)
-			totalRecvMB += float64(counter.BytesRecv / 1024 / 1024)
+			totalSentKB += float64(counter.BytesSent / 1024)
+			totalRecvKB += float64(counter.BytesRecv / 1024)
 		}
 
-		// 计算增量
-		sentIncrement := totalSentMB - s.lastNetSentMB
-		recvIncrement := totalRecvMB - s.lastNetRecvMB
+		var sentIncrement, recvIncrement float64
 
-		// 如果为负数，说明重置了，设为0
-		if sentIncrement < 0 {
+		if s.firstNetCall {
+			// 第一次调用，增量设为0，只保存缓存值
 			sentIncrement = 0
-		}
-		if recvIncrement < 0 {
 			recvIncrement = 0
+			s.firstNetCall = false
+		} else {
+			// 计算增量
+			sentIncrement = totalSentKB - s.lastNetSentKB
+			recvIncrement = totalRecvKB - s.lastNetRecvKB
+
+			// 如果为负数，说明重置了，设为0
+			if sentIncrement < 0 {
+				sentIncrement = 0
+			}
+			if recvIncrement < 0 {
+				recvIncrement = 0
+			}
 		}
 
 		// 更新缓存值
-		s.lastNetSentMB = totalSentMB
-		s.lastNetRecvMB = totalRecvMB
+		s.lastNetSentKB = totalSentKB
+		s.lastNetRecvKB = totalRecvKB
 
 		// 设置增量指标
-		result[MetricNetAllSentMB] = sentIncrement
-		result[MetricNetAllRecvMB] = recvIncrement
+		result[MetricNetAllSentKB] = sentIncrement
+		result[MetricNetAllRecvKB] = recvIncrement
 	}
 
 	return result
@@ -178,11 +189,20 @@ func (s *SStorageManager) getSystemMetricsWithIncrement() map[string]any {
 func (s *SStorageManager) getTSDBMetricsWithIncrement(stats *c_base.StorageStats) map[string]any {
 	// 计算总样本数增量
 	currentSamples := float64(stats.TotalSamples)
-	samplesIncrement := currentSamples - s.lastTotalSamples
+	var samplesIncrement float64
 
-	// 如果为负数，说明重置了，设为0
-	if samplesIncrement < 0 {
+	if s.firstTSDBCall {
+		// 第一次调用，增量设为0，只保存缓存值
 		samplesIncrement = 0
+		s.firstTSDBCall = false
+	} else {
+		// 计算增量
+		samplesIncrement = currentSamples - s.lastTotalSamples
+
+		// 如果为负数，说明重置了，设为0
+		if samplesIncrement < 0 {
+			samplesIncrement = 0
+		}
 	}
 
 	// 更新缓存值

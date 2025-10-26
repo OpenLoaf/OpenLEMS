@@ -18,8 +18,8 @@ const (
 	MetricDiskUsedPercent = "disk_used_percent" // 磁盘使用百分比
 
 	// 网络使用量指标（增量）
-	MetricNetAllSentMB = "net_all_sent_mb" // 网络发送量增量（MB）
-	MetricNetAllRecvMB = "net_all_recv_mb" // 网络接收量增量（MB）
+	MetricNetAllSentKB = "net_all_sent_kb" // 网络发送量增量（KB）
+	MetricNetAllRecvKB = "net_all_recv_kb" // 网络接收量增量（KB）
 
 	// 进程资源使用指标
 	MetricProcessCpuPercent    = "cpu_percent"    // 进程 CPU 使用率

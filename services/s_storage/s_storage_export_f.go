@@ -24,8 +24,8 @@ const (
 	MetricDiskUsedPercent = internal.MetricDiskUsedPercent
 
 	// 网络使用量指标
-	MetricNetAllSentMB = internal.MetricNetAllSentMB
-	MetricNetAllRecvMB = internal.MetricNetAllRecvMB
+	MetricNetAllSentKB = internal.MetricNetAllSentKB
+	MetricNetAllRecvKB = internal.MetricNetAllRecvKB
 
 	// 进程资源使用指标
 	MetricProcessCpuPercent    = internal.MetricProcessCpuPercent
@@ -89,8 +89,8 @@ var ResourceMetricsMap = map[string][]string{
 		MetricProcessMemoryPercent,
 	},
 	"network": {
-		MetricNetAllSentMB,
-		MetricNetAllRecvMB,
+		MetricNetAllSentKB,
+		MetricNetAllRecvKB,
 	},
 	"service": {
 		MetricGoroutineCount,
