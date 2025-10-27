@@ -22,11 +22,9 @@ type SStorageManager struct {
 	mutex      sync.RWMutex
 
 	// 增量计算缓存字段
-	lastNetSentKB    float64 // 上次网络发送量（KB）
-	lastNetRecvKB    float64 // 上次网络接收量（KB）
-	lastTotalSamples float64 // 上次总样本数
-	firstNetCall     bool    // 是否是第一次网络指标调用
-	firstTSDBCall    bool    // 是否是第一次TSDB指标调用
+	lastNetSentKB    *float64 // 上次网络发送量（KB）
+	lastNetRecvKB    *float64 // 上次网络接收量（KB）
+	lastTotalSamples *float64 // 上次总样本数
 }
 
 // NewStorageManagerImpl 创建存储管理器实例
@@ -152,17 +150,16 @@ func (s *SStorageManager) getSystemMetricsWithIncrement() map[string]any {
 			totalRecvKB += float64(counter.BytesRecv / 1024)
 		}
 
-		var sentIncrement, recvIncrement float64
-
-		if s.firstNetCall {
-			// 第一次调用，增量设为0，只保存缓存值
-			sentIncrement = 0
-			recvIncrement = 0
-			s.firstNetCall = false
+		// 检查是否为首次运行
+		if s.lastNetSentKB == nil || s.lastNetRecvKB == nil {
+			// 首次运行，不计算增量，直接保存当前值
+			s.lastNetSentKB = &totalSentKB
+			s.lastNetRecvKB = &totalRecvKB
+			// 首次运行不设置增量指标，避免错误的大数值
 		} else {
 			// 计算增量
-			sentIncrement = totalSentKB - s.lastNetSentKB
-			recvIncrement = totalRecvKB - s.lastNetRecvKB
+			sentIncrement := totalSentKB - *s.lastNetSentKB
+			recvIncrement := totalRecvKB - *s.lastNetRecvKB
 
 			// 如果为负数，说明重置了，设为0
 			if sentIncrement < 0 {
@@ -171,15 +168,15 @@ func (s *SStorageManager) getSystemMetricsWithIncrement() map[string]any {
 			if recvIncrement < 0 {
 				recvIncrement = 0
 			}
+
+			// 更新缓存值
+			*s.lastNetSentKB = totalSentKB
+			*s.lastNetRecvKB = totalRecvKB
+
+			// 设置增量指标
+			result[MetricNetAllSentKB] = sentIncrement
+			result[MetricNetAllRecvKB] = recvIncrement
 		}
-
-		// 更新缓存值
-		s.lastNetSentKB = totalSentKB
-		s.lastNetRecvKB = totalRecvKB
-
-		// 设置增量指标
-		result[MetricNetAllSentKB] = sentIncrement
-		result[MetricNetAllRecvKB] = recvIncrement
 	}
 
 	return result
@@ -187,33 +184,36 @@ func (s *SStorageManager) getSystemMetricsWithIncrement() map[string]any {
 
 // getTSDBMetricsWithIncrement 获取包含增量总样本数的TSDB指标
 func (s *SStorageManager) getTSDBMetricsWithIncrement(stats *c_base.StorageStats) map[string]any {
-	// 计算总样本数增量
 	currentSamples := float64(stats.TotalSamples)
-	var samplesIncrement float64
 
-	if s.firstTSDBCall {
-		// 第一次调用，增量设为0，只保存缓存值
-		samplesIncrement = 0
-		s.firstTSDBCall = false
+	result := map[string]any{
+		MetricSamplesPerSecond: stats.SamplesPerSecond,
+		MetricTotalSeries:      float64(stats.TotalSeries),
+		MetricStorageSizeMB:    stats.StorageSizeMB,
+	}
+
+	// 检查是否为首次运行
+	if s.lastTotalSamples == nil {
+		// 首次运行，不计算增量，直接保存当前值
+		s.lastTotalSamples = &currentSamples
+		// 首次运行不设置增量指标，避免错误的大数值
 	} else {
-		// 计算增量
-		samplesIncrement = currentSamples - s.lastTotalSamples
+		// 计算总样本数增量
+		samplesIncrement := currentSamples - *s.lastTotalSamples
 
 		// 如果为负数，说明重置了，设为0
 		if samplesIncrement < 0 {
 			samplesIncrement = 0
 		}
+
+		// 更新缓存值
+		*s.lastTotalSamples = currentSamples
+
+		// 设置增量指标
+		result[MetricTotalSamples] = samplesIncrement
 	}
 
-	// 更新缓存值
-	s.lastTotalSamples = currentSamples
-
-	return map[string]any{
-		MetricSamplesPerSecond: stats.SamplesPerSecond,
-		MetricTotalSeries:      float64(stats.TotalSeries),
-		MetricTotalSamples:     samplesIncrement, // 使用增量
-		MetricStorageSizeMB:    stats.StorageSizeMB,
-	}
+	return result
 }
 
 // saveDeviceData 保存设备数据

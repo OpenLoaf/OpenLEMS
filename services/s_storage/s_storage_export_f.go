@@ -94,8 +94,8 @@ var ResourceMetricsMap = map[string][]string{
 	},
 	"service": {
 		MetricGoroutineCount,
-		MetricHeapAllocMB,
-		MetricHeapSysMB,
+		MetricMemUsedMB,
+
 		MetricGCCount,
 	},
 	"storage": {
