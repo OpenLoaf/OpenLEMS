@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"common/c_log"
+	"common/c_util"
 	"s_db/s_db_basic"
 	"s_db/s_db_model"
 
@@ -259,11 +260,21 @@ func initSystemSettings(ctx context.Context) {
 		err := existingSetting.GetById(ctx, settingDefine.Id)
 		if err != nil {
 			// 设置不存在，创建新的设置记录
+			defaultValue := settingDefine.DefaultValue
+			if s_db_basic.IsPasswordSettingID(settingDefine.Id) && defaultValue != "" {
+				hashedValue, hashErr := c_util.HashPassword(defaultValue)
+				if hashErr != nil {
+					c_log.Errorf(ctx, "初始化密码设置哈希失败 - 设置ID: %s, 错误: %+v", settingDefine.Id, hashErr)
+				} else {
+					defaultValue = hashedValue
+				}
+			}
+
 			newSetting := &s_db_model.SSettingModel{
 				SDatabaseBasic: s_db_model.SDatabaseBasic{
 					Id: settingDefine.Id,
 				},
-				Value:    settingDefine.DefaultValue,
+				Value:    defaultValue,
 				IsPublic: settingDefine.IsPublic,
 				Enabled:  true,
 				Remark:   settingDefine.Remark,
@@ -275,7 +286,7 @@ func initSystemSettings(ctx context.Context) {
 			if err != nil {
 				c_log.Errorf(ctx, "创建系统设置失败 - 设置ID: %s, 错误: %+v", settingDefine.Id, err)
 			} else {
-				c_log.Infof(ctx, "创建系统设置成功 - 设置ID: %s, 默认值: %s", settingDefine.Id, settingDefine.DefaultValue)
+				c_log.Infof(ctx, "创建系统设置成功 - 设置ID: %s", settingDefine.Id)
 			}
 		} else {
 			// 设置已存在，检查是否需要更新分组、备注、排序和公开状态信息

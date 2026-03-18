@@ -7,6 +7,7 @@ require (
 	github.com/gogf/gf/v2 v2.9.3
 	github.com/google/uuid v1.6.0
 	github.com/pkg/errors v0.9.1
+	github.com/shockerli/cvt v0.2.8
 )
 
 require (

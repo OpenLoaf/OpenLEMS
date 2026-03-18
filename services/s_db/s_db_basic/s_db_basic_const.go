@@ -17,6 +17,11 @@ func generateRandomString(length int) string {
 	return string(b)
 }
 
+// IsPasswordSettingID reports whether the setting stores a login password.
+func IsPasswordSettingID(id string) bool {
+	return id == SystemSettingUserPassword.Id || id == SystemSettingAdminPassword.Id
+}
+
 // 系统设置定义变量
 var (
 	// 根设备ID设置定义

@@ -17,6 +17,3 @@ type PostSystemResourceChartReq struct {
 type PostSystemResourceChartRes struct {
 	ChartData *c_chart.ChartData `json:"chartData" dc:"图表数据"`
 }
-
-
-

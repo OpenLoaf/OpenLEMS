@@ -6,6 +6,17 @@
 .idea/
 .settings/
 .vscode/
+.cursor/
+.claude/
+.playwright-cli/
+.bmad/
+.bmad-ephemeral/
+.code_cache/
+.mcp.json
+AGENTS.md
+CLAUDE.md
+openspec/
+script/.claude/
 bin/
 **/.DS_Store
 gf
@@ -25,9 +36,7 @@ bin
 *.tar
 ems
 tmp
-*.sum
 out/
-go.sum
 
 
 

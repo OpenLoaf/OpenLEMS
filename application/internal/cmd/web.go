@@ -21,7 +21,7 @@ import (
 	"common/c_enum"
 	"common/c_log"
 	"context"
-	"io"
+	"encoding/json"
 	"io/fs"
 	"net/http"
 	"os"
@@ -34,6 +34,10 @@ import (
 	"github.com/gogf/gf/v2/net/ghttp"
 	"github.com/gogf/gf/v2/net/goai"
 )
+
+type webRuntimeConfig struct {
+	IsDemo bool `json:"isDemo"`
+}
 
 // startWeb 启动Web服务
 func startWeb(ctx context.Context) *ghttp.Server {
@@ -142,7 +146,7 @@ func setupAPIRoutes(s *ghttp.Server) {
 
 // setupStaticFiles 设置静态文件服务
 func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
-	// 静态站点：将 `application/manifest/web` 打包进可执行文件并作为根路径提供
+	// 静态站点：将 application/manifest/web.zip 打包进可执行文件并作为根路径提供。
 	webfs, err := manifest.WebFS()
 	if err != nil {
 		c_log.Warningf(ctx, "Web 静态资源初始化失败: %+v", err)
@@ -178,10 +182,16 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 		})
 		c_log.Infof(ctx, "Web 静态资源统计: 总文件=%d, 可见文件=%d", totalFiles, visibleFiles)
 		if visibleFiles == 0 {
-			c_log.Warningf(ctx, "Web 静态资源为空或仅包含隐藏文件/.gitignore，请检查 application/manifest/web 目录")
+			c_log.Warningf(ctx, "Web 静态资源为空，请检查 application/manifest/web.zip")
 		} else if len(exampleFiles) > 0 {
 			c_log.Infof(ctx, "Web 静态资源示例: %s", strings.Join(exampleFiles, ", "))
 		}
+	}
+
+	indexHTML, err := buildIndexHTMLWithRuntimeConfig(ctx, webfs)
+	if err != nil {
+		c_log.Warningf(ctx, "构建带运行时配置的 index.html 失败: %+v", err)
+		return
 	}
 
 	fileServer := http.FileServer(http.FS(webfs))
@@ -208,17 +218,7 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 
 	// 根路径：直接输出 index.html
 	s.BindHandler("GET:/", func(r *ghttp.Request) {
-		f, err := webfs.Open("index.html")
-		if err != nil {
-			r.Response.WriteStatus(http.StatusNotFound)
-			return
-		}
-		defer f.Close()
-		// 明确 Content-Type
-		r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if _, err := io.Copy(r.Response.Writer, f); err != nil {
-			c_log.Warningf(ctx, "写入 index.html 失败: %+v", err)
-		}
+		writeIndexHTML(r, indexHTML)
 	})
 
 	// 支持Vue history模式：所有其他GET请求都返回index.html
@@ -244,18 +244,62 @@ func setupStaticFiles(s *ghttp.Server, ctx context.Context) {
 			return
 		}
 
-		f, err := webfs.Open("index.html")
-		if err != nil {
-			r.Response.WriteStatus(http.StatusNotFound)
-			return
-		}
-		defer f.Close()
-		// 明确 Content-Type
-		r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
-		if _, err := io.Copy(r.Response.Writer, f); err != nil {
-			c_log.Warningf(ctx, "写入 index.html 失败: %+v", err)
-		}
+		writeIndexHTML(r, indexHTML)
 	})
+}
+
+func getWebRuntimeConfig(ctx context.Context) webRuntimeConfig {
+	demoVar, err := g.Cfg().GetWithCmd(ctx, ArgDemo, false)
+	if err != nil {
+		c_log.Warningf(ctx, "读取 web 运行时配置失败，demo 默认按 false 处理: %+v", err)
+		return webRuntimeConfig{}
+	}
+
+	return webRuntimeConfig{
+		IsDemo: demoVar.Bool(),
+	}
+}
+
+func buildIndexHTMLWithRuntimeConfig(ctx context.Context, webfs fs.FS) ([]byte, error) {
+	indexHTMLBytes, err := fs.ReadFile(webfs, "index.html")
+	if err != nil {
+		return nil, err
+	}
+
+	runtimeConfig := getWebRuntimeConfig(ctx)
+	c_log.Infof(ctx, "Web 运行时配置: isDemo=%t", runtimeConfig.IsDemo)
+
+	runtimeConfigJSON, err := json.Marshal(runtimeConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	escapedRuntimeConfig := strings.NewReplacer(
+		"<", "\\u003c",
+		">", "\\u003e",
+		"&", "\\u0026",
+	).Replace(string(runtimeConfigJSON))
+
+	runtimeScript := "<script>window.__APP_RUNTIME__=" + escapedRuntimeConfig + ";</script>"
+	indexHTML := string(indexHTMLBytes)
+
+	if strings.Contains(indexHTML, "</head>") {
+		indexHTML = strings.Replace(indexHTML, "</head>", "    "+runtimeScript+"\n  </head>", 1)
+	} else {
+		indexHTML = runtimeScript + indexHTML
+	}
+
+	return []byte(indexHTML), nil
+}
+
+func writeIndexHTML(r *ghttp.Request, indexHTML []byte) {
+	if len(indexHTML) == 0 {
+		r.Response.WriteStatus(http.StatusNotFound)
+		return
+	}
+
+	r.Response.Header().Set("Content-Type", "text/html; charset=utf-8")
+	_, _ = r.Response.Writer.Write(indexHTML)
 }
 
 // setupLocalStaticFiles 设置本地静态文件服务

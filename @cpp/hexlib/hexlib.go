@@ -5,7 +5,9 @@ package hexlib
 #cgo CFLAGS: -I./src/include
 #cgo windows CFLAGS: -DHEXLIB_EXPORTS
 #cgo windows CXXFLAGS: -DHEXLIB_EXPORTS
-#cgo LDFLAGS: -L./build -lhexlib
+#cgo darwin LDFLAGS: -L./build -lhexlib -lc++
+#cgo linux LDFLAGS: -L./build -lhexlib -lstdc++
+#cgo windows LDFLAGS: -L./build -lhexlib
 #include "hexlib.h"
 */
 import "C"

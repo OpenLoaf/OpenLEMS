@@ -5,6 +5,7 @@ go 1.25
 require (
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/prometheus v0.0.0-20200609090129-a6600f564e3c
+	github.com/shockerli/cvt v0.2.8
 )
 
 require (

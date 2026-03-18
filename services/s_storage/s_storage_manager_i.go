@@ -19,6 +19,3 @@ type IStorageManager interface {
 	// GetStorageInstance 获取存储实例
 	GetStorageInstance() c_base.IStorage
 }
-
-
-

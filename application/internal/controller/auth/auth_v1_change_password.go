@@ -4,6 +4,7 @@ import (
 	v1 "application/api/auth/v1"
 	"common/c_enum"
 	"common/c_log"
+	"common/c_util"
 	"context"
 	"s_db"
 	"s_db/s_db_basic"
@@ -36,8 +37,13 @@ func (c *Controller) ChangePassword(ctx context.Context, req *v1.ChangePasswordR
 		return nil, gerror.NewCode(gcode.CodeInvalidParameter, "角色不支持")
 	}
 
+	hashedPassword, err := c_util.HashPassword(req.NewPassword)
+	if err != nil {
+		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "生成密码哈希失败")
+	}
+
 	// 更新新密码
-	if err := s_db.GetSettingService().SetSettingValueById(ctx, def.Id, req.NewPassword); err != nil {
+	if err := s_db.GetSettingService().SetSettingValueById(ctx, def.Id, hashedPassword); err != nil {
 		return nil, gerror.WrapCode(gcode.CodeInternalError, err, "更新密码失败")
 	}
 

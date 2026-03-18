@@ -21,10 +21,10 @@ MQTT配置存储在数据库的`mqtt_config_list`设置中，JSON格式如下：
 ```json
 [
   {
-    "serverAddress": "emqx-test.hexems.com",
+    "serverAddress": "mqtt.example.com",
     "serverPort": 8883,
-    "username": "lems",
-    "password": "12345678q",
+    "username": "demo-user",
+    "password": "demo-password",
     "useSSL": true,
     "insecureSkipVerify": false,
     "connectTimeout": 30,

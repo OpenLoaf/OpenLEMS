@@ -18,6 +18,7 @@ const (
 	ArgDeviceConfigName   = "device-name"           // 驱动配置文件
 	ArgDriverConfigName   = "driver-path"           // 驱动文件的存放路径
 	ArgEnableWeb          = "web"                   // 是否启动web
+	ArgDemo               = "demo"                  // 是否为演示版本
 	ArgEnableGui          = "gui"                   // 是否启动GUI
 	ArgEnableGuiFull      = "gui-full"              // 是否启动GUI并全屏
 	ArgLanguage           = "language"              // 全局语言设置
@@ -37,6 +38,7 @@ var (
 		Usage: "start",
 		Arguments: []gcmd.Argument{
 			{Name: ArgEnableWeb, Short: "w", Brief: "Default: false 启动web端 ", IsArg: false, Orphan: false},
+			{Name: ArgDemo, Brief: "Default: false 标记当前web为演示版本", IsArg: false, Orphan: false},
 			{Name: ArgEnableGui, Short: "g", Brief: "Default: false 启动GUI界面 ", IsArg: false, Orphan: false},
 			{Name: ArgEnableGuiFull, Short: "f", Brief: "Default: false 启动GUI界面并全屏 ", IsArg: false, Orphan: false},
 			{Name: ArgDeviceConfigName, Short: "d", Brief: "Default: device 设备配置文件 ", IsArg: false, Orphan: false},
