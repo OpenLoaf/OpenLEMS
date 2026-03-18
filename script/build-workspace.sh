@@ -1,15 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+source "$(cd "$(dirname "$0")" && pwd)/workspace-common.sh"
+
 cd "$ROOT_DIR"
 
-modules="$(go work edit -json | sed -n 's/.*"DiskPath": "\(.*\)".*/\1/p')"
-
-if [ -z "$modules" ]; then
-  echo "No modules found in go.work"
-  exit 1
-fi
+prepare_hexlib
+modules="$(workspace_modules)"
 
 for mod in $modules; do
   pattern="$mod/..."

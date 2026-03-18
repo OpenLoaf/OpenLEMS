@@ -21,6 +21,8 @@
 <p align="center">
   <a href="https://lems.hexems.com/">在线体验</a>
   ·
+  <a href="docs/README.en.md">English README</a>
+  ·
   <a href="#快速开始">快速开始</a>
   ·
   <a href="#界面预览">界面预览</a>
@@ -52,6 +54,24 @@
 - 向下对接设备：通过驱动和协议插件接入现场设备
 - 向中统一模型：把设备点位、状态、告警、策略放到统一运行时
 - 向上提供能力：通过 Web、MQTT、Modbus TCP、日志和统计接口对外服务
+
+## 典型架构
+
+### 储能模式架构
+
+下图展示了储能场景下的本地 EMS 组网方式，可用于储能柜、多柜联机和边缘采集网关部署。
+
+<p align="center">
+  <img src="docs/images/energy-storage-architecture.png" alt="储能模式架构图" width="88%" />
+</p>
+
+### 微电网模式架构
+
+下图展示了微电网场景下风、光、储、荷与上层触控屏、云平台、APP 的协同接入方式。
+
+<p align="center">
+  <img src="docs/images/microgrid-architecture.png" alt="微电网模式架构图" width="88%" />
+</p>
 
 ## 界面预览
 
@@ -136,24 +156,6 @@
 - 集成网关：将现场异构设备数据整理后上送第三方平台
 - 边缘运维平台：提供告警、日志、自动化任务、电价管理和系统状态查看
 
-## 典型架构
-
-### 储能模式架构
-
-下图展示了储能场景下的本地 EMS 组网方式，可用于储能柜、多柜联机和边缘采集网关部署。
-
-<p align="center">
-  <img src="docs/images/energy-storage-architecture.png" alt="储能模式架构图" width="88%" />
-</p>
-
-### 微电网模式架构
-
-下图展示了微电网场景下风、光、储、荷与上层触控屏、云平台、APP 的协同接入方式。
-
-<p align="center">
-  <img src="docs/images/microgrid-architecture.png" alt="微电网模式架构图" width="88%" />
-</p>
-
 ## 已包含的代表性组件
 
 ### 设备驱动
@@ -208,8 +210,8 @@
 ### 1. 克隆仓库
 
 ```bash
-git clone <repository-url>
-cd ems-plan
+git clone git@github.com:OpenLoaf/OpenLEMS.git
+cd OpenLEMS
 ```
 
 ### 2. 同步工作区依赖
@@ -266,7 +268,7 @@ go run . --web=true --demo=true --driver-path=resources/driver
 ## 仓库结构
 
 ```text
-ems-plan/
+OpenLEMS/
 ├── application/             # 主程序入口、API、控制器、Web 服务
 ├── common/                  # 通用接口、设备/协议基础类型、工具能力
 ├── plugins/
